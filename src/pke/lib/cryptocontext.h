@@ -2203,26 +2203,28 @@ public:
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus
 	* @param securityLevel
+	* @param distribution parameter
 	* @param numAdds
 	* @param numMults
 	* @param numKeyswitches
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const usint plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
 	* @param encodingParams
 	* @param securityLevel
+	* @param distribution parameter
 	* @param numAdds
 	* @param numMults
 	* @param numKeyswitches
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
-		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		shared_ptr<EncodingParams> encodingParams, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**

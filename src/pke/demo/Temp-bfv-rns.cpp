@@ -54,6 +54,7 @@ using namespace lbcrypto;
 void PKE();
 void SHETestCoeff();
 void SHETestPacked();
+void SHETestPackedInnerProduct();
 void SwitchCRT();
 void Multiply();
 void MultiplyTwo();
@@ -61,9 +62,10 @@ void MultiplyThree();
 
 int main() {
 
-	//PKE();
+	PKE();
 	SHETestCoeff();
 	SHETestPacked();
+	SHETestPackedInnerProduct();
 	//SwitchCRT();
 	//Multiply();
 	//MultiplyTwo();
@@ -87,14 +89,13 @@ void PKE() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -185,14 +186,13 @@ void SHETestCoeff() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -300,7 +300,6 @@ void SHETestCoeff() {
 
 	cout << "\n";
 
-
 }
 
 void SHETestPacked() {
@@ -314,14 +313,13 @@ void SHETestPacked() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 536903681;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -459,6 +457,168 @@ void SHETestPacked() {
 
 	cout << "\n";
 
+	start = currentDateTime();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalMult key generation time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto ciphertextRelin = cryptoContext->EvalMult(ciphertext1,ciphertext2);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Homomorphic multiplication time - with relinearization: " << "\t" << diff << " ms" << endl;
+
+	Plaintext plaintextDecRelin;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRelin, &plaintextDecRelin);
+	plaintextDecRelin->SetLength(plaintext1->GetLength());
+
+	cout << "\n Resulting Decryption of the Multiplication with Relinearization: \n";
+	cout << plaintextDecRelin << endl;
+
+	cout << "\n";
+
+	start = currentDateTime();
+
+	auto evalKeys = cryptoContext->EvalAutomorphismKeyGen(keyPair.secretKey,{5,25});
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Automorphism key gen time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto ciphertextRotated = cryptoContext->EvalAutomorphism(ciphertext1, 5, *evalKeys);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Automorphism time: " << "\t" << diff << " ms" << endl;
+
+	Plaintext plaintextDecRotated;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRotated, &plaintextDecRotated);
+	plaintextDecRotated->SetLength(plaintext1->GetLength());
+	cout << plaintextDecRotated << endl;
+
+}
+
+void SHETestPackedInnerProduct() {
+
+	std::cout << "\n===========TESTING SHE - INNER PRODUCT - PACKED ENCODING===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	usint plaintextModulus = 268460033;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+	usint batchSize = 32;
+
+	BigInteger modulusP(plaintextModulus);
+
+	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
+
+	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	std::cout << "starting encryption" << std::endl;
+
+	start = currentDateTime();
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Encryption time: " << "\t" << diff << " ms" << endl;
+
+	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+
+	// Operations
+
+	start = currentDateTime();
+
+	cryptoContext->EvalSumKeyGen(keyPair.secretKey);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalSumKeyGen time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalMulKeyGen time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto result = cryptoContext->EvalInnerProduct(ciphertext1, ciphertext2, batchSize);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Inner product time: " << "\t" << diff << " ms" << endl;
+
+	Plaintext intArrayNew;
+
+	cryptoContext->Decrypt(keyPair.secretKey, result, &intArrayNew);
+
+	intArrayNew->SetLength(plaintext1->GetLength());
+
+	std::cout << "Sum = " << intArrayNew->GetPackedValue()[0] << std::endl;
+
+	std::cout << "All components (other slots randomized) = " << intArrayNew << std::endl;
+
 }
 
 void SwitchCRT() {
@@ -472,14 +632,13 @@ void SwitchCRT() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 7, 0, OPTIMIZED,8);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 7, 0, OPTIMIZED,8);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -536,14 +695,13 @@ void Multiply() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED,6);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 5, 0, OPTIMIZED,6);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -588,6 +746,10 @@ void Multiply() {
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -668,14 +830,13 @@ void MultiplyTwo() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -729,6 +890,10 @@ void MultiplyTwo() {
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -858,14 +1023,13 @@ void MultiplyThree() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	int relWindow = 1;
 	usint plaintextModulus = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED,3);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -919,6 +1083,10 @@ void MultiplyThree() {
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 

@@ -342,6 +342,13 @@ public:
 	 */
 	std::vector<DCRTPolyType> PowersOfBase(usint baseBits) const ;
 
+	/**
+	 * CRT basis decomposition of c as [c qi/q]_qi
+	 *
+	 * @param &qDivqiInverse precomputed table of [qi_q]_qi
+	 * @return is the pointer where the resulting vector is stored
+	 */
+	std::vector<DCRTPolyType> CRTDecompose(const std::vector<NativeInteger> &qDivqiInverse) const;
 
 	//VECTOR OPERATIONS
 
@@ -615,6 +622,15 @@ public:
 	}
 
 	/**
+	* @brief Sets element at index
+	*
+	* @param index where the element should be set
+	*/
+	void SetElementAtIndex(usint index,const PolyType &element){
+		m_vectors[index] = element;
+	}
+
+	/**
 	* @brief Sets all values of element to zero.
 	*/
 	void SetValuesToZero();
@@ -695,7 +711,7 @@ public:
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
-	* uses SwtichCRTBasis as a subroutine
+	* uses SwtichCRTBasis as a subroutine; the result is in evaluation representation
 	*
 	* @param &paramsQS parameters for the expanded CRT basis Q*S
 	* @param &params parameters for the CRT basis S

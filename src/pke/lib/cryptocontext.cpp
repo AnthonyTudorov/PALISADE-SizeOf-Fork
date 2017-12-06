@@ -1091,7 +1091,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const usint plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
@@ -1111,7 +1111,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 			dist,
 			9.0,
 			securityLevel,
-			relinWindow,
+			1,
 			mode,
 			1,
 			maxDepth) );
@@ -1126,7 +1126,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
-	shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+	shared_ptr<EncodingParams> encodingParams, float securityLevel, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
@@ -1147,7 +1147,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 				dist,
 				9.0,
 				securityLevel,
-				relinWindow,
+				1,
 				mode,
 				1,
 				maxDepth) );

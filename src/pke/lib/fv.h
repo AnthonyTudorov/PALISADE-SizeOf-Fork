@@ -328,22 +328,20 @@ namespace lbcrypto {
 		*
 		* @param publicKey public key used for encryption.
 		* @param plaintext the plaintext input.
-		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
 		virtual Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey,
 			Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext using FV.
+		* Method for encrypting plaintext with private key using FV.
 		*
 		* @param privateKey private key used for encryption.
 		* @param plaintext the plaintext input.
-		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 		* @return ciphertext which results from encryption.
 		*/
-		Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
-			Element plaintext) const;
+		virtual Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
+				Element plaintext) const;
 
 		/**
 		* Method for decrypting using FV. See the class description for citations on where the algorithms were
@@ -409,7 +407,7 @@ namespace lbcrypto {
 		* @param pt  input ciphertext.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
+		virtual Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
 			const Plaintext pt) const;
 
 		/**
@@ -429,8 +427,8 @@ namespace lbcrypto {
 		* @param pt input ciphertext.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
-			const Plaintext pt) const;
+		virtual Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
+				const Plaintext pt) const;
 
 		/**
 		* Function for homomorphic evaluation of ciphertexts.
@@ -462,7 +460,7 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext 
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct, const LPEvalKey<Element> ek) const;
@@ -476,7 +474,7 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Plaintext ct, const LPEvalKey<Element> ek) const;
@@ -489,7 +487,7 @@ namespace lbcrypto {
 		* @param cipherTextList  is the ciphertext list.
 		* @param evalKeys is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext list.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext.
 		*/
 		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const;
 
@@ -501,9 +499,9 @@ namespace lbcrypto {
 		* @param ct2 second input ciphertext.
 		* @param ek is the evaluation key to make the newCiphertext
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
+		* @return new ciphertext
 		*/
-		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+		virtual Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
 
 		/**
@@ -521,7 +519,7 @@ namespace lbcrypto {
 		* @param newPrivateKey New private key to generate the keyswitch hint.
 		* @return resulting keySwitchHint.
 		*/
-		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
+		virtual LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
 			const LPPrivateKey<Element> newPrivateKey) const;
 
 		/**
@@ -531,7 +529,7 @@ namespace lbcrypto {
 		* @param &cipherText Original ciphertext to perform switching on.
 		* @return new ciphertext
 		*/
-		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
+		virtual Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
 			const Ciphertext<Element> cipherText) const;
 
 		/**

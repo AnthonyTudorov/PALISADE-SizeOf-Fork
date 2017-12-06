@@ -187,6 +187,13 @@ namespace lbcrypto {
 			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
 			/**
+			* Gets the precomputed table of (Q/qi) mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<NativeInteger>& GetCRTqDivqiTable() const { return m_CRTqDivqiTable; }
+
+			/**
 			* Gets the precomputed table of (Q/qi) mod si
 			*
 			* @return the precomputed table
@@ -272,6 +279,9 @@ namespace lbcrypto {
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<NativeInteger> m_CRTInverseTable;
 
+			// Stores a precomputed table of (Q/qi) mod qi
+			std::vector<NativeInteger> m_CRTqDivqiTable;
+
 			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
 
@@ -355,6 +365,17 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
+		* Method for encrypting plaintext with private key using BFVrns.
+		*
+		* @param privateKey private key used for encryption.
+		* @param plaintext the plaintext input.
+		* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+		* @return ciphertext which results from encryption.
+		*/
+		Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey,
+			Element plaintext) const;
+
+		/**
 		* Method for decrypting using BFVrns. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
@@ -385,6 +406,26 @@ namespace lbcrypto {
 		LPAlgorithmSHEBFVrns() {}
 
 		/**
+		* Function for homomorphic addition of ciphertext and plaintext.
+		*
+		* @param ct1 input ciphertext.
+		* @param pt  input ciphertext.
+		* @return new ciphertext.
+		*/
+		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ct,
+			const Plaintext pt) const;
+
+		/**
+		* Function for homomorphic subtraction of ciphertext ans plaintext.
+		*
+		* @param ct input ciphertext.
+		* @param pt input ciphertext.
+		* @return new ciphertext.
+		*/
+		Ciphertext<Element> EvalSub(const Ciphertext<Element> ct1,
+			const Plaintext pt) const;
+
+		/**
 		* Function for homomorphic evaluation of ciphertexts.
 		* The multiplication is supported for a fixed level without keyswitching requirement (default level=2).
 		* If the total depth of the ciphertexts exceeds the supported level, it throws an error.
@@ -395,6 +436,39 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
 			const Ciphertext<Element> ct2) const;
+
+		/**
+		* Method for generating a KeySwitchHint using RLWE relinearization
+		*
+		* @param originalPrivateKey Original private key used for encryption.
+		* @param newPrivateKey New private key to generate the keyswitch hint.
+		* @return resulting keySwitchHint.
+		*/
+		LPEvalKey<Element> KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
+			const LPPrivateKey<Element> newPrivateKey) const;
+
+		/**
+		* Method for key switching based on a KeySwitchHint using RLWE relinearization
+		*
+		* @param keySwitchHint Hint required to perform the ciphertext switching.
+		* @param &cipherText Original ciphertext to perform switching on.
+		* @return new ciphertext
+		*/
+		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
+			const Ciphertext<Element> cipherText) const;
+
+		/**
+		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
+		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+		*
+		* @param ct1 first input ciphertext.
+		* @param ct2 second input ciphertext.
+		* @param ek is the evaluation key to make the newCiphertext
+		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
+		* @return new ciphertext
+		*/
+		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
 
 
 	};
