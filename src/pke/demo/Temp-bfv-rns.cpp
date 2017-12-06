@@ -753,6 +753,10 @@ void Multiply() {
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
+	a.SwitchFormat();
+
+	b.SwitchFormat();
+
 	std::cout << "Ended CRT Expansion" << std::endl;
 
 	Poly resultExpanded = a.CRTInterpolate();
@@ -893,6 +897,10 @@ void MultiplyTwo() {
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
@@ -1083,6 +1091,10 @@ void MultiplyThree() {
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
 
 	std::cout << "Ended CRT Expansion" << std::endl;
 
