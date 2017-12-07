@@ -87,7 +87,7 @@ public:
 	 */
 	LPCryptoParametersLTV(
 			shared_ptr<typename Element::Params> params,
-			const BigInteger &plaintextModulus,
+			const PlaintextModulus &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -95,7 +95,7 @@ public:
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(
 			params,
-			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+			EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,

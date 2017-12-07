@@ -37,17 +37,17 @@ class LPCryptoParametersNull : public LPCryptoParameters<Element> {
 public:
 	LPCryptoParametersNull() : LPCryptoParameters<Element>() {}
 
-	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const BigInteger &plaintextModulus)
+	LPCryptoParametersNull(const shared_ptr<typename Element::Params> ep, const PlaintextModulus &plaintextModulus)
 		: LPCryptoParameters<Element>(ep, plaintextModulus) {}
 
-	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams)
+	LPCryptoParametersNull(shared_ptr<typename Element::Params> ep, EncodingParams encodingParams)
 		: LPCryptoParameters<Element>(ep, encodingParams) {}
 
 	LPCryptoParametersNull(const LPCryptoParametersNull& rhs) : LPCryptoParameters<Element>(rhs) {}
 
 	virtual ~LPCryptoParametersNull() {}
 
-	void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) {
+	void SetPlaintextModulus(const PlaintextModulus &plaintextModulus) {
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
 	}
 
@@ -69,7 +69,7 @@ public:
 
 		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("EncodingParams", pserEncoding.Move(), serObj->GetAllocator());
-		cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("PlaintextModulus", std::to_string(this->GetPlaintextModulus()), serObj->GetAllocator());
 
 		serObj->AddMember("LPCryptoParametersNull", cryptoParamsMap.Move(), serObj->GetAllocator());
 		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersNull", serObj->GetAllocator());
@@ -113,18 +113,18 @@ public:
 		SerialItem valEncoding(pItEncoding->value.MemberBegin()->value, oneItemEncoding.GetAllocator());
 		oneItemEncoding.AddMember(keyEncoding, valEncoding, oneItem.GetAllocator());
 
-		EncodingParams *json_ilParamsEncoding = new EncodingParams();
+		EncodingParamsImpl *json_ilParamsEncoding = new EncodingParamsImpl();
 
 		if (!json_ilParamsEncoding->Deserialize(oneItemEncoding)) {
 			delete json_ilParamsEncoding;
 			return false;
 		}
 
-		this->SetEncodingParams(shared_ptr<EncodingParams>(json_ilParamsEncoding));
+		this->SetEncodingParams(EncodingParams(json_ilParamsEncoding));
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		typename Element::Integer plaintextModulus(pIt->value.GetString());
+		PlaintextModulus plaintextModulus = atoi(pIt->value.GetString());
 
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
 		return true;

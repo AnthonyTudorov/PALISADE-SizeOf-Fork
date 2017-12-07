@@ -38,31 +38,31 @@ class ScalarEncoding : public PlaintextImpl {
 
 public:
 	// these two constructors are used inside of Decrypt
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, bool isSigned = false) :
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, bool isSigned = false) :
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, bool isSigned = false) :
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int32_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint32_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int32_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint32_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int32_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint32_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	virtual ~ScalarEncoding() {}

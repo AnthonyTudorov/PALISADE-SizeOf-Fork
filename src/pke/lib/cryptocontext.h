@@ -2018,7 +2018,7 @@ public:
 
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return context->GetCryptoParameters(); }
 
-	const shared_ptr<EncodingParams> GetEncodingParameters() const { return context->GetCryptoParameters()->GetEncodingParams(); }
+	const EncodingParams GetEncodingParameters() const { return context->GetCryptoParameters()->GetEncodingParams(); }
 
 	const string GetKeyTag() const { return keyTag; }
 
@@ -2092,7 +2092,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -2118,7 +2118,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(
-		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -2167,7 +2167,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
@@ -2196,7 +2196,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
-		shared_ptr<EncodingParams> encodingParams, float securityLevel, usint relinWindow, float dist,
+		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
@@ -2224,7 +2224,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
-		shared_ptr<EncodingParams> encodingParams, float securityLevel, float dist,
+		EncodingParams encodingParams, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
@@ -2255,7 +2255,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
 
@@ -2286,7 +2286,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -2301,7 +2301,7 @@ public:
 	* @param modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, shared_ptr<EncodingParams> encodingParams);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, EncodingParams encodingParams);
 
 	/**
 	* Create a PALISADE CryptoContextImpl from a serialization

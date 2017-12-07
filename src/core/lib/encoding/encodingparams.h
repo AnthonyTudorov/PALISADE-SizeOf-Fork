@@ -29,12 +29,13 @@
 
 #include "../math/backend.h"
 
+namespace lbcrypto
+{
 class EncodingParamsImpl;
 
 typedef std::shared_ptr<EncodingParamsImpl>	EncodingParams;
+typedef uint64_t							PlaintextModulus;
 
-namespace lbcrypto
-{
 
 /**
  * @class EncodingParamsImpl
@@ -54,7 +55,7 @@ public:
 	 * @param batchSize sets the maximum batch size (as a power of 2) needed for EvalSum
 	 */
 	EncodingParamsImpl(
-		uint32_t plaintextModulus = 0,
+		PlaintextModulus plaintextModulus = 0,
 		uint32_t plaintextGenerator = 0,
 		uint32_t batchSize = 0,
 		const NativeInteger& plaintextRootOfUnity = NativeInteger(0),
@@ -125,14 +126,14 @@ public:
 	* @brief Getter for the plaintext modulus.
 	* @return The plaintext modulus.
 	*/
-	const uint32_t &GetPlaintextModulus() const {
+	const PlaintextModulus &GetPlaintextModulus() const {
 		return m_plaintextModulus; 
 	}
 	
 	/**
 	* @brief Setter for the plaintext modulus.
 	*/
-	void SetPlaintextModulus(uint32_t plaintextModulus) {
+	void SetPlaintextModulus(PlaintextModulus plaintextModulus) {
 		m_plaintextModulus = plaintextModulus;
 	}
 
@@ -253,7 +254,7 @@ private:
 	}
 
 	// plaintext modulus that is used by all schemes
-	uint32_t			m_plaintextModulus;
+	PlaintextModulus	m_plaintextModulus;
 	// root of unity for plaintext modulus
 	NativeInteger		m_plaintextRootOfUnity;
 	// big plaintext modulus that is used for arbitrary cyclotomics

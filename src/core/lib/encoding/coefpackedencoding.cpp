@@ -31,7 +31,7 @@ namespace lbcrypto {
 bool
 CoefPackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
 	if( this->isSigned && mod % 2 != 0 ) {
 		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
@@ -83,7 +83,7 @@ CoefPackedEncoding::Encode() {
 bool
 CoefPackedEncoding::Decode() {
 
-	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 	this->value.clear();
 	this->valueSigned.clear();
 

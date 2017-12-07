@@ -32,7 +32,7 @@ bool
 IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
 
-	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	auto mod = this->encodingParams->GetPlaintextModulus();
 	if( mod < 2 )
 		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
 
@@ -75,7 +75,7 @@ IntegerEncoding::Encode() {
 
 bool
 IntegerEncoding::Decode() {
-	uint64_t modulus = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	auto modulus = this->encodingParams->GetPlaintextModulus();
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
 	uint64_t half(modulus >> 1);

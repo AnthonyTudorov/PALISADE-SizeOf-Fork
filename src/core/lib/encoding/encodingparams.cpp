@@ -76,7 +76,7 @@ bool EncodingParamsImpl::Deserialize(const Serialized& serObj)
 
 	if ((oIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd())
 		return false;
-	uint32_t plaintextModulus = atoi(oIt->value.GetString());
+	PlaintextModulus plaintextModulus = atoi(oIt->value.GetString());
 
 	if ((oIt = mIter->value.FindMember("PlaintextRootOfUnity")) == mIter->value.MemberEnd())
 		return false;

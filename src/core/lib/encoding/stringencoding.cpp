@@ -34,7 +34,7 @@ static const uint32_t	CHARMARKER = (1<<7);
 bool
 StringEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	auto mod = this->encodingParams->GetPlaintextModulus();
 
 	if( mod != 256 ) {
 		throw std::logic_error("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
@@ -71,7 +71,7 @@ StringEncoding::Encode() {
 
 bool
 StringEncoding::Decode() {
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	auto mod = this->encodingParams->GetPlaintextModulus();
 	this->ptx.clear();
 	for( size_t i=0; i<this->encodedNativeVector.GetLength(); i++) {
 		uint32_t ch = (this->encodedNativeVector[i].ConvertToInt() % mod) & 0xff;

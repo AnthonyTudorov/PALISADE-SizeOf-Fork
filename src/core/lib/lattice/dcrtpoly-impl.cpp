@@ -29,7 +29,6 @@
 #include "../math/cpu_int/binvect.cpp"
 #include "elemparams.cpp"
 #include "ildcrtparams.cpp"
-#include "../encoding/encodingparams.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/binaryuniformgenerator.cpp"
@@ -44,7 +43,6 @@ namespace lbcrypto
 
 template class ElemParams<NativeInteger>;
 template class ILDCRTParams<BigInteger>;
-template class EncodingParamsImpl<BigInteger>;
 template class DCRTPolyImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>>;
 
 }

@@ -38,7 +38,7 @@ std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
 bool PackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus();
+	auto mod = this->encodingParams->GetPlaintextModulus();
 
 	if( this->typeFlag == IsNativePoly ) {
 		NativeVector temp(this->GetElementRingDimension(), this->GetElementModulus().ConvertToInt());
@@ -64,7 +64,7 @@ bool PackedEncoding::Encode() {
 		this->Pack(&this->GetElement<NativePoly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 	}
 	else {
-		BigVector temp(this->GetElementRingDimension(), this->GetElementModulus());
+		BigVector temp(this->GetElementRingDimension(), BigInteger(this->GetElementModulus().ConvertToInt()));
 
 		size_t i;
 		for( i=0; i < value.size(); i++ ) {
@@ -119,9 +119,9 @@ void PackedEncoding::Destroy()
 }
 
 // FIXME: can these two SetParams methods be collapsed into one??
-void PackedEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
+void PackedEncoding::SetParams(usint m, EncodingParams params)
 {
-	NativeInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
+	NativeInteger modulusNI(params->GetPlaintextModulus()); //native int modulus
 	std::string exception_message;
 	bool hadEx = false;
 
@@ -139,7 +139,7 @@ void PackedEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
 				params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
 			}
 			else
-				m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
+				m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity();
 
 			// Find a compatible big-modulus and root of unity for CRTArb
 			if (params->GetPlaintextBigModulus() == 0) {
@@ -157,8 +157,8 @@ void PackedEncoding::SetParams(usint m, shared_ptr<EncodingParams> params)
 			}
 			else
 			{
-				m_bigModulus[modulusNI] = params->GetPlaintextBigModulus().ConvertToInt();
-				m_bigRoot[modulusNI] = params->GetPlaintextBigRootOfUnity().ConvertToInt();
+				m_bigModulus[modulusNI] = params->GetPlaintextBigModulus();
+				m_bigRoot[modulusNI] = params->GetPlaintextBigRootOfUnity();
 			}
 
 			// Find a generator for the automorphism group
@@ -270,12 +270,12 @@ void PackedEncoding::SetParams(const BigInteger &modulus, usint m)
 }
 
 template<typename P>
-void PackedEncoding::Pack(P *ring, const uint32_t &modulus) const {
+void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 
 	bool dbg_flag = false;
 
 	usint m = ring->GetCyclotomicOrder();//cyclotomic order
-	NativeInteger modulusNI(modulus.ConvertToInt());//native int modulus
+	NativeInteger modulusNI(modulus);//native int modulus
 
 	//Do the precomputation if not initialized
 	if (this->m_initRoot[modulusNI].GetMSB() == 0) {
@@ -342,12 +342,12 @@ void PackedEncoding::Pack(P *ring, const uint32_t &modulus) const {
 }
 
 template<typename P>
-void PackedEncoding::Unpack(P *ring, const uint32_t &modulus) const {
+void PackedEncoding::Unpack(P *ring, const PlaintextModulus &modulus) const {
 
 	bool dbg_flag = false;
 
 	usint m = ring->GetCyclotomicOrder(); // cyclotomic order
-	NativeInteger modulusNI(modulus.ConvertToInt()); //native int modulus
+	NativeInteger modulusNI(modulus); //native int modulus
 
 	//Do the precomputation if not initialized
 	if (this->m_initRoot[modulusNI].GetMSB() == 0) {

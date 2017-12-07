@@ -144,11 +144,15 @@ public:
 	Element& GetElement();
 
 	const usint GetElementRingDimension() const {
-		return typeFlag == IsPoly ? encodedVector.GetRingDimension() : encodedVectorDCRT.GetRingDimension();
+		return typeFlag == IsPoly ? encodedVector.GetRingDimension() :
+				(typeFlag == IsNativePoly ? encodedNativeVector.GetRingDimension() :
+						encodedVectorDCRT.GetRingDimension());
 	}
 
-	const BigInteger& GetElementModulus() const {
-		return typeFlag == IsPoly ? encodedVector.GetModulus() : encodedVectorDCRT.GetModulus();
+	const NativeInteger GetElementModulus() const {
+		return typeFlag == IsPoly ? encodedVector.GetModulus().ConvertToInt() :
+				(typeFlag == IsNativePoly ? encodedNativeVector.GetModulus().ConvertToInt() :
+						encodedVectorDCRT.GetModulus().ConvertToInt());
 	}
 
 	/**

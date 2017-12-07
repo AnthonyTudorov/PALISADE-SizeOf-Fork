@@ -1789,7 +1789,7 @@ namespace lbcrypto {
 			*
 			* @return the plaintext modulus.
 			*/
-		const typename Element::Integer &GetPlaintextModulus() const { return  m_encodingParams->GetPlaintextModulus(); }
+		const PlaintextModulus &GetPlaintextModulus() const { return  m_encodingParams->GetPlaintextModulus(); }
 
 		/**
 			* Returns the reference to IL params
@@ -1803,12 +1803,12 @@ namespace lbcrypto {
 		*
 		* @return the encoding parameters.
 		*/
-		const shared_ptr<typename Element::EncodingParams> GetEncodingParams() const { return m_encodingParams; }
+		const EncodingParams GetEncodingParams() const { return m_encodingParams; }
 
 		/**
 		* Sets the value of plaintext modulus p
 		*/
-		void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) {
+		void SetPlaintextModulus(const PlaintextModulus &plaintextModulus) {
 			m_encodingParams->SetPlaintextModulus(plaintextModulus);
 		}
 
@@ -1843,26 +1843,22 @@ namespace lbcrypto {
         /**
          * Sets the reference to encoding params
          */
-		void SetEncodingParams(shared_ptr<typename Element::EncodingParams> encodingParams) {
+		void SetEncodingParams(EncodingParams encodingParams) {
 			m_encodingParams = encodingParams;
 		}
 
 
 	protected:
-		LPCryptoParameters() {
-			m_encodingParams = std::make_shared<typename Element::EncodingParams>(2);
+		LPCryptoParameters(const PlaintextModulus &plaintextModulus = 2) {
+			m_encodingParams.reset( new EncodingParamsImpl(plaintextModulus) );
 		}
 
-		LPCryptoParameters(const typename Element::Integer &plaintextModulus) {
-			m_encodingParams = std::make_shared<typename Element::EncodingParams>(plaintextModulus);
-		}
-
-		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigInteger &plaintextModulus) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, const PlaintextModulus &plaintextModulus) {
 			m_params = params;
-			m_encodingParams = std::make_shared<typename Element::EncodingParams>(plaintextModulus);
+			m_encodingParams.reset( new EncodingParamsImpl(plaintextModulus) );
 		}
 
-		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<typename Element::EncodingParams> encodingParams) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, EncodingParams encodingParams) {
 			m_params = params;
 			m_encodingParams = encodingParams;
 		}
@@ -1879,10 +1875,10 @@ namespace lbcrypto {
 
 	private:
 		//element-specific parameters
-		shared_ptr<typename Element::Params>				m_params;
+		shared_ptr<typename Element::Params>		m_params;
 
 		//encoding-specific parameters
-		shared_ptr<typename Element::EncodingParams>		m_encodingParams;
+		EncodingParams								m_encodingParams;
 	};
 
 	

@@ -51,31 +51,31 @@ class PackedEncoding : public PlaintextImpl
 
 public:
 	// these two constructors are used inside of Decrypt
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	/**
@@ -138,10 +138,10 @@ public:
 	 * @param m the encoding cyclotomic order.
 	 * @params params data structure storing encoding parameters
 	 */
-	static void SetParams(usint m, shared_ptr<EncodingParams> params);
+	static void SetParams(usint m, EncodingParams params);
 
 	/**
-	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, shared_ptr<EncodingParams> params);)
+	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, EncodingParams params);)
 	* @params modulus is the plaintext modulus
 	* @param m the encoding cyclotomic order.
 	*/
@@ -192,7 +192,7 @@ private:
 	static std::map<NativeInteger, std::vector<usint>> m_fromCRTPerm;
 
 	static void SetParams_2n(usint m, const NativeInteger &modulus);
-	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
+	static void SetParams_2n(usint m, EncodingParams params);
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.
@@ -201,7 +201,7 @@ private:
 	* @param modulus is the plaintext modulus used for packing.
 	*/
 	template<typename P>
-	void Pack(P *ring, const uint32_t &modulus) const;
+	void Pack(P *ring, const PlaintextModulus &modulus) const;
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.
@@ -210,7 +210,7 @@ private:
 	* @param modulus is the plaintext modulus used in packing operation.
 	*/
 	template<typename P>
-	void Unpack(P *ring, const uint32_t &modulus) const;
+	void Unpack(P *ring, const PlaintextModulus &modulus) const;
 
 };
 

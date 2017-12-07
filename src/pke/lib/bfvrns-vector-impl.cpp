@@ -57,7 +57,7 @@ LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Pol
 
 template <>
 LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,

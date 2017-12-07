@@ -63,7 +63,7 @@ TEST_F(UTEncoding,scalar_encoding) {
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParams> ep( new EncodingParams(128) );
+	EncodingParams ep( new EncodingParamsImpl( PlaintextModulus(128) ) );
 	ScalarEncoding	se(lp, ep, value);
 	se.Encode();
 	EXPECT_EQ( se.GetElement<Poly>().at(0), value );
@@ -90,7 +90,7 @@ TEST_F(UTEncoding,coef_packed_encoding) {
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	EncodingParams ep( new EncodingParamsImpl(256) );
 	CoefPackedEncoding	se(lp, ep, value);
 	se.Encode();
 	se.Decode();
@@ -106,8 +106,7 @@ TEST_F(UTEncoding,coef_packed_encoding) {
 
 TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	usint m = 22;
-	usint p = 89;
-	BigInteger modulusP(p);
+	PlaintextModulus p = 89;
 	BigInteger modulusQ("955263939794561");
 	BigInteger squareRootOfRoot("941018665059848");
 	BigInteger bigmodulus("80899135611688102162227204937217");
@@ -116,10 +115,10 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(p, m);
 
 	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-	shared_ptr<EncodingParams> ep(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8));
+	EncodingParams ep(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),8));
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(lp, ep, vectorOfInts1);
@@ -135,7 +134,7 @@ TEST_F(UTEncoding,string_encoding) {
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParams> ep( new EncodingParams(256) );
+	EncodingParams ep( new EncodingParamsImpl(256) );
 	StringEncoding	se(lp, ep, value);
 	se.Encode();
 	se.Decode();
@@ -144,8 +143,7 @@ TEST_F(UTEncoding,string_encoding) {
 	// truncate!
 	shared_ptr<ILParams> lp2 =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(4);
-	shared_ptr<EncodingParams> ep2( new EncodingParams(256) );
-	StringEncoding	se2(lp2, ep2, value);
+	StringEncoding	se2(lp2, ep, value);
 	se2.Encode();
 	se2.Decode();
 	EXPECT_EQ( se2.GetStringValue(), value.substr(0, lp2->GetRingDimension()) ) << "string truncate encode/decode";
@@ -155,7 +153,7 @@ TEST_F(UTEncoding,integer_encoding){
 	uint64_t	m = 64;
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	shared_ptr<EncodingParams> ep( new EncodingParams(64) );
+	EncodingParams ep( new EncodingParamsImpl(64) );
 
 	uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
 

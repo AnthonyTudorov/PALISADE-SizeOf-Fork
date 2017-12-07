@@ -73,7 +73,7 @@ LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename 
 		int depth,
 		int maxDepth)
 			: LPCryptoParametersRLWE<Element>(params,
-				shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+				EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 				distributionParameter,
 				assuranceMeasure,
 				securityLevel,
@@ -85,7 +85,7 @@ LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename 
 
 template <class Element>
 LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,

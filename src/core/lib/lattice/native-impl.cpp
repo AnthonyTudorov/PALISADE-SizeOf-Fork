@@ -32,7 +32,6 @@
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
 
-#include "../encoding/encodingparams.cpp"
 #include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "poly.cpp"
@@ -60,6 +59,5 @@ template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
 
 template class ElemParams<NativeInteger>;
 template class ILParamsImpl<NativeInteger>;
-template class EncodingParamsImpl<NativeInteger>;
 template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
 }

@@ -121,7 +121,7 @@ void KeyGen()
 			break;
 		}
 
-		usint p = 2 * m + 1;
+		PlaintextModulus p = 2 * m + 1;
 		BigInteger modulusP(p);
 
 		std::cout << "\nKEY GENERATION AND SERIALIZATION FOR p = " << p << "\n" << std::endl;
@@ -161,7 +161,7 @@ void KeyGen()
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP));
+		EncodingParams encodingParams(new EncodingParamsImpl(modulusP));
 
 		PackedEncoding::SetParams(m, encodingParams);
 		encodingParams->SetBatchSize(batchSize);
@@ -347,7 +347,7 @@ void Encrypt() {
 		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();
@@ -486,7 +486,7 @@ void Compute() {
 		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();
@@ -619,7 +619,7 @@ void Decrypt() {
 		cc->DeserializeEvalSumKey(ccEsk);
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-		shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
 		usint m = elementParams->GetCyclotomicOrder();

@@ -85,7 +85,7 @@ public:
 	*/
 	LPCryptoParametersRLWE(
 		shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -283,7 +283,7 @@ protected:
 		cryptoParamsMap.AddMember("RelinWindow", std::to_string(this->GetRelinWindow()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("Depth", std::to_string(this->GetDepth()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("Mode", std::to_string(m_mode), serObj->GetAllocator());
-		cryptoParamsMap.AddMember("PlaintextModulus", this->GetPlaintextModulus().ToString(), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("PlaintextModulus", std::to_string(this->GetPlaintextModulus()), serObj->GetAllocator());
 
 		return true;
 	}
@@ -318,19 +318,19 @@ protected:
 		SerialItem valE(epIt->value.MemberBegin()->value, oneItemE.GetAllocator());
 		oneItemE.AddMember(keyE, valE, oneItemE.GetAllocator());
 
-		EncodingParams *json_encodingParams = new EncodingParams();
+		EncodingParamsImpl *json_encodingParams = new EncodingParamsImpl();
 
 		if (!json_encodingParams->Deserialize(oneItemE)) {
 			delete json_encodingParams;
 			return false;
 		}
 
-		shared_ptr<EncodingParams> encodingParams(json_encodingParams);
+		EncodingParams encodingParams(json_encodingParams);
 		this->SetEncodingParams(encodingParams);
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		typename Element::Integer bbiPlaintextModulus(pIt->value.GetString());
+		PlaintextModulus bbiPlaintextModulus = atoi(pIt->value.GetString());
 
 		if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
 			return false;

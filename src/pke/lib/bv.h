@@ -111,7 +111,7 @@ namespace lbcrypto {
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
-						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+						EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
@@ -134,7 +134,7 @@ namespace lbcrypto {
 			*/
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				shared_ptr<EncodingParams> encodingParams,
+				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,

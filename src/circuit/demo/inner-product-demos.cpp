@@ -248,7 +248,7 @@ main(int argc, char *argv[])
 		usint assurance = 144;
 		usint batchSize = 64;
 		usint m = 1733;
-		usint ptm = 10399;
+		PlaintextModulus ptm = 10399;
 
 		BigInteger modulus("1152921504606909071");
 		BigInteger rootUnity("44343872016735288");
@@ -259,7 +259,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
+		EncodingParams encodingParams(new EncodingParamsImpl(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
