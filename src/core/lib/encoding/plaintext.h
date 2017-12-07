@@ -70,20 +70,22 @@ class PlaintextImpl
 protected:
 	bool								isEncoded;
 	enum { IsPoly, IsDCRTPoly, IsNativePoly }			typeFlag;
-	shared_ptr<EncodingParams>			encodingParams;
+	shared_ptr<Poly::EncodingParams>			PencodingParams;
+	shared_ptr<NativePoly::EncodingParams>			NPencodingParams;
+	shared_ptr<DCRTPoly::EncodingParams>			DCRTencodingParams;
 	Poly								encodedVector;
 	NativePoly							encodedNativeVector;
 	DCRTPoly							encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsPoly), PencodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
 	PlaintextImpl(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsPoly), NPencodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
 
 	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsDCRTPoly), DCRTencodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
 
 	virtual ~PlaintextImpl() {}
 
@@ -194,8 +196,23 @@ public:
 		if( this->typeFlag != other.typeFlag )
 			return false;
 
-		if( this->encodingParams != other.encodingParams )
-			return false;
+		switch( this->typeFlag ) {
+		case IsPoly:
+			if( this->PencodingParams != other.PencodingParams )
+				return false;
+			break;
+
+		case IsDCRTPoly:
+			if( this->DCRTencodingParams != other.DCRTencodingParams )
+				return false;
+			break;
+
+		case IsNativePoly:
+			if( this->NPencodingParams != other.NPencodingParams )
+				return false;
+			break;
+
+		}
 
 		return CompareTo(other);
 	}
