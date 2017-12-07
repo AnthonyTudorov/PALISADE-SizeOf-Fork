@@ -69,3 +69,46 @@ template class LPCryptoParametersNull<Poly>;
 template class LPPublicKeyEncryptionSchemeNull<Poly>;
 template class LPAlgorithmNull<Poly>;
 }
+
+namespace lbcrypto {
+
+template<>
+Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(const Ciphertext<NativePoly> ciphertext1,
+	const Ciphertext<NativePoly> ciphertext2) const {
+
+	Ciphertext<NativePoly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const NativePoly& c1 = ciphertext1->GetElement();
+	const NativePoly& c2 = ciphertext2->GetElement();
+
+	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template<>
+Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(const Ciphertext<NativePoly> ciphertext1,
+	const Plaintext plaintext) const {
+
+	Ciphertext<NativePoly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const NativePoly& c1 = ciphertext1->GetElement();
+	const NativePoly& c2 = plaintext->GetEncodedElement<NativePoly>();
+
+	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template class LPCryptoParametersNull<NativePoly>;
+template class LPPublicKeyEncryptionSchemeNull<NativePoly>;
+template class LPAlgorithmNull<NativePoly>;
+}

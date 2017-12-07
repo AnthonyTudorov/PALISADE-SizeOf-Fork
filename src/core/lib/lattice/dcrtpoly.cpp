@@ -922,7 +922,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
 
-	DEBUG("in InterpolateIlArrayVector2n ring " << ringDimension << " towers " << nTowers);
+	DEBUG("in Interpolate ring " << ringDimension << " towers " << nTowers);
 
 	for( usint vi = 0; vi < nTowers; vi++ )
 		DEBUG("tower " << vi << " is " << m_vectors[vi]);
@@ -994,6 +994,81 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 
 	return std::move( polynomialReconstructed );
 }
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpolate(uint64_t ptm) const {
+	bool dbg_flag = false;
+
+	usint ringDimension = GetRingDimension();
+	usint nTowers = m_vectors.size();
+
+	DEBUG("in DecryptionCRTInterpolate ring " << ringDimension << " towers " << nTowers);
+
+	BigInteger bigModulus(GetModulus()); // qT
+
+	DEBUG("bigModulus " << bigModulus);
+
+	// this is the resulting vector of coefficients
+	// it's a NativeVector; its individual elements will never be > the ptm
+	NativeVector coefficients(ringDimension, ptm);
+
+	// this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
+
+	// first, precompute qt/qj factors
+	vector<NativeInteger> multiplier(nTowers);
+	BigInteger bigptm(ptm);
+	for( usint vi = 0 ; vi < nTowers; vi++ ) {
+		BigInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
+		BigInteger divBy = bigModulus / qj;
+		BigInteger modInv = divBy.ModInverse(qj).Mod(qj);
+		multiplier[vi] = ((divBy * modInv) % bigptm).ConvertToInt();
+
+		DEBUG("multiplier " << vi << " " << qj << " " << multiplier[vi]);
+	}
+
+	// if the vectors are not in COEFFICIENT form, they need to be, so we will need to make a copy
+	// of them and switchformat on them... otherwise we can just use what we have
+	const std::vector<PolyType> *vecs = &m_vectors;
+	std::vector<PolyType> coeffVecs;
+	if( m_format == EVALUATION ) {
+		for( usint i=0; i<m_vectors.size(); i++ ) {
+			PolyType vecCopy(m_vectors[i]);
+			vecCopy.SetFormat(COEFFICIENT);
+			coeffVecs.push_back( std::move(vecCopy) );
+		}
+		vecs = &coeffVecs;
+	}
+
+	for( usint vi = 0; vi < nTowers; vi++ )
+		DEBUG("tower " << vi << " is " << (*vecs)[vi]);
+
+	// now, compute the values for the vector
+#pragma omp parallel for
+	for( usint ri = 0; ri < ringDimension; ri++ ) {
+		coefficients[ri] = 0;
+		for( usint vi = 0; vi < nTowers; vi++ ) {
+			coefficients[ri] += ((((*vecs)[vi].GetValues()[ri]) % ptm) * multiplier[vi]) % ptm;
+		}
+		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
+	}
+
+	DEBUG("passed loops");
+	DEBUG(coefficients);
+
+	// Create an Poly for this BigVector
+
+	DEBUG("elementing after vectoring");
+	DEBUG("m_cyclotomicOrder " << GetCyclotomicOrder());
+	DEBUG("modulus "<< bigModulus);
+
+	// Setting the root of unity to ONE as the calculation is expensive and not required.
+	NativePoly polynomialReconstructed( shared_ptr<ILNativeParams>( new ILNativeParams(GetCyclotomicOrder(), ptm, 1) ) );
+	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
+
+	DEBUG("answer: " << polynomialReconstructed);
+
+	return std::move( polynomialReconstructed );}
+
 
 // Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
 // vectors alpha and beta are precomputed as

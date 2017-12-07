@@ -215,10 +215,10 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		uint64_t p = cryptoParams->GetPlaintextModulus().ConvertToInt();
 		const std::vector<Element> &c = ciphertext->GetElements();
 		const Element &s = privateKey->GetPrivateElement();
 
@@ -226,10 +226,7 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
-		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
-		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.Mod(p);
+		*plaintext = b.DecryptionCRTInterpolate(p);
 
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -752,11 +749,11 @@ Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(cons
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	uint64_t p = cryptoParams->GetPlaintextModulus().ConvertToInt();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];
@@ -769,10 +766,7 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 	b.SwitchFormat();	
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
-	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
-	Poly interpolatedElement = b.CRTInterpolate();
-	*plaintext = interpolatedElement.Mod(p);
+	*plaintext = b.DecryptionCRTInterpolate(p);
 
 	return DecryptResult(plaintext->GetLength());
 

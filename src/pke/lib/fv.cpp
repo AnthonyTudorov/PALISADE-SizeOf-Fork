@@ -468,7 +468,7 @@ Ciphertext<Element> LPAlgorithmFV<Element>::Encrypt(const LPPrivateKey<Element> 
 template <class Element>
 DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
 	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(privateKey->GetCryptoParameters());
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -499,7 +499,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> privat
 	const BigInteger &delta = cryptoParams->GetDelta();
 	Element ans = b.DivideAndRound(delta).Mod(p);
 
-	*plaintext = ans.CRTInterpolate();
+	*plaintext = ans.DecryptionCRTInterpolate(p.ConvertToInt());
 
 	return DecryptResult(plaintext->GetLength());
 }
@@ -1243,7 +1243,7 @@ Ciphertext<Element> LPAlgorithmMultipartyFV<Element>::MultipartyDecryptLead(cons
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
@@ -1261,7 +1261,7 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const ve
 	}
 	
 	Element ans = b.MultiplyAndRound(p, q).Mod(p);
-	*plaintext = ans.CRTInterpolate();
+	*plaintext = ans.DecryptionCRTInterpolate(p.ConvertToInt());
 
 	return DecryptResult(plaintext->GetLength());
 }

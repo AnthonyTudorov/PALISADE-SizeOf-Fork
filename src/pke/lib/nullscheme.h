@@ -47,7 +47,7 @@ public:
 
 	virtual ~LPCryptoParametersNull() {}
 
-	void SetPlaintextModulus(const BigInteger &plaintextModulus) {
+	void SetPlaintextModulus(const typename Element::Integer &plaintextModulus) {
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
 	}
 
@@ -124,7 +124,7 @@ public:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigInteger plaintextModulus(pIt->value.GetString());
+		typename Element::Integer plaintextModulus(pIt->value.GetString());
 
 		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
 		return true;
@@ -206,10 +206,10 @@ public:
 	*/
 	DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
-		Poly *plaintext) const {
-		Element b = ciphertext->GetElement();
-		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.Mod(ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus());
+		NativePoly *plaintext) const {
+		const Element& b = ciphertext->GetElement();
+		uint64_t ptm = ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+		*plaintext = b.DecryptionCRTInterpolate(ptm);
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -412,10 +412,10 @@ public:
 		 * @return the decoding result.
 		 */
 	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-		Poly *plaintext) const {
+		NativePoly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
-		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement;
+		uint64_t ptm = ciphertextVec[0]->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+		*plaintext = b.DecryptionCRTInterpolate(ptm);
 		return DecryptResult(plaintext->GetLength());
 	}
 
@@ -593,6 +593,26 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @return the new resulting ciphertext.
 		*/
 		Ciphertext<Poly> EvalMult(const Ciphertext<Poly> ciphertext1,
+			const Plaintext plaintext) const;
+
+		/**
+		 * Function for evaluating multiplication on ciphertext.
+		 *
+		 * @param ciphertext1 first input ciphertext.
+		 * @param ciphertext2 second input ciphertext.
+		 * @return the new resulting ciphertext.
+		 */
+		Ciphertext<NativePoly> EvalMult(const Ciphertext<NativePoly> ciphertext1,
+			const Ciphertext<NativePoly> ciphertext2) const;
+
+		/**
+		* Function for evaluating multiplication of ciphertext by plaintext
+		*
+		* @param ciphertext input ciphertext.
+		* @param plaintext input plaintext embedded in cryptocontext.
+		* @return the new resulting ciphertext.
+		*/
+		Ciphertext<NativePoly> EvalMult(const Ciphertext<NativePoly> ciphertext1,
 			const Plaintext plaintext) const;
 
 		/**

@@ -76,13 +76,13 @@ protected:
 	DCRTPoly							encodedVectorDCRT;
 
 public:
-	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
-	PlaintextImpl(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
 
-	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
 
 	virtual ~PlaintextImpl() {}

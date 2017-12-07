@@ -1036,7 +1036,7 @@ namespace lbcrypto {
 			 */
 			virtual DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 				const Ciphertext<Element> ciphertext,
-				Poly *plaintext) const = 0;
+				NativePoly *plaintext) const = 0;
 
 			/**
 			 * Function to generate public and private keys
@@ -1223,7 +1223,7 @@ namespace lbcrypto {
 			 * @return the decoding result.
 			 */
 			virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-				Poly *plaintext) const = 0;
+				NativePoly *plaintext) const = 0;
 
 	};
 
@@ -1389,9 +1389,9 @@ namespace lbcrypto {
 		Ciphertext<Element> AddRandomNoise(const Ciphertext<Element> ciphertext) const {
 
 			string kID = ciphertext->GetKeyTag();
-			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
-			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+			const auto cryptoParams = ciphertext->GetCryptoParameters();
+			const auto encodingParams = cryptoParams->GetEncodingParams();
+			const auto elementParams = cryptoParams->GetElementParams();
 
 			usint n = elementParams->GetRingDimension();
 
@@ -1526,9 +1526,9 @@ namespace lbcrypto {
 			const LPPublicKey<Element> publicKey) const
 		{
 
-			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+			const auto cryptoParams = privateKey->GetCryptoParameters();
+			const auto encodingParams = cryptoParams->GetEncodingParams();
+			const auto elementParams = cryptoParams->GetElementParams();
 
 			usint batchSize = encodingParams->GetBatchSize();
 			usint m = elementParams->GetCyclotomicOrder();
@@ -1573,8 +1573,8 @@ namespace lbcrypto {
 			const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertext->GetCryptoParameters();
 			Ciphertext<Element> newCiphertext(new CiphertextImpl<Element>(*ciphertext));
 
-			const shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
-			const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+			const auto encodingParams = cryptoParams->GetEncodingParams();
+			const auto elementParams = cryptoParams->GetElementParams();
 
 			usint m = elementParams->GetCyclotomicOrder();
 
@@ -1803,7 +1803,7 @@ namespace lbcrypto {
 		*
 		* @return the encoding parameters.
 		*/
-		const shared_ptr<EncodingParams> GetEncodingParams() const { return m_encodingParams; }
+		const shared_ptr<typename Element::EncodingParams> GetEncodingParams() const { return m_encodingParams; }
 
 		/**
 		* Sets the value of plaintext modulus p
@@ -1843,26 +1843,26 @@ namespace lbcrypto {
         /**
          * Sets the reference to encoding params
          */
-		void SetEncodingParams(shared_ptr<EncodingParams> encodingParams) {
+		void SetEncodingParams(shared_ptr<typename Element::EncodingParams> encodingParams) {
 			m_encodingParams = encodingParams;
 		}
 
 
 	protected:
 		LPCryptoParameters() {
-			m_encodingParams = std::make_shared<EncodingParams>(2);
+			m_encodingParams = std::make_shared<typename Element::EncodingParams>(2);
 		}
 
 		LPCryptoParameters(const typename Element::Integer &plaintextModulus) {
-			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
+			m_encodingParams = std::make_shared<typename Element::EncodingParams>(plaintextModulus);
 		}
 
 		LPCryptoParameters(shared_ptr<typename Element::Params> params, const BigInteger &plaintextModulus) {
 			m_params = params;
-			m_encodingParams = std::make_shared<EncodingParams>(plaintextModulus);
+			m_encodingParams = std::make_shared<typename Element::EncodingParams>(plaintextModulus);
 		}
 
-		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<EncodingParams> encodingParams) {
+		LPCryptoParameters(shared_ptr<typename Element::Params> params, shared_ptr<typename Element::EncodingParams> encodingParams) {
 			m_params = params;
 			m_encodingParams = encodingParams;
 		}
@@ -1879,10 +1879,10 @@ namespace lbcrypto {
 
 	private:
 		//element-specific parameters
-		shared_ptr<typename Element::Params>	m_params;
+		shared_ptr<typename Element::Params>				m_params;
 
 		//encoding-specific parameters
-		shared_ptr<EncodingParams>		m_encodingParams;
+		shared_ptr<typename Element::EncodingParams>		m_encodingParams;
 	};
 
 	
@@ -2001,7 +2001,7 @@ namespace lbcrypto {
 		}
 
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey, const Ciphertext<Element> ciphertext,
-				Poly *plaintext) const {
+				NativePoly *plaintext) const {
 				if(this->m_algorithmEncryption)
 					return this->m_algorithmEncryption->Decrypt(privateKey,ciphertext,plaintext);
 				else {
@@ -2114,7 +2114,7 @@ namespace lbcrypto {
 		}
 
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-				Poly *plaintext) const {
+				NativePoly *plaintext) const {
 				if(this->m_algorithmMultiparty) {
 					return this->m_algorithmMultiparty->MultipartyDecryptFusion(ciphertextVec,plaintext);
 				} else {

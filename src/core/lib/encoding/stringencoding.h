@@ -39,31 +39,31 @@ class StringEncoding: public PlaintextImpl {
 
 public:
 	// these three constructors are used inside of Decrypt
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
-	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep) :
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep) :
 		PlaintextImpl(vp,ep) {}
 
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, string str) :
 		PlaintextImpl(vp,ep), ptx(str) {}
 
-	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, string str) :
 		PlaintextImpl(vp,ep), ptx(str) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, string str) :
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, string str) :
 		PlaintextImpl(vp,ep), ptx(str) {}
 
-	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+	StringEncoding(shared_ptr<Poly::Params> vp, shared_ptr<Poly::EncodingParams> ep, vector<uint8_t> vec) :
 		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
-	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+	StringEncoding(shared_ptr<NativePoly::Params> vp, shared_ptr<NativePoly::EncodingParams> ep, vector<uint8_t> vec) :
 		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
-	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint8_t> vec) :
+	StringEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<DCRTPoly::EncodingParams> ep, vector<uint8_t> vec) :
 		PlaintextImpl(vp,ep), ptx(vec.begin(),vec.end()) {}
 
 	// TODO provide wide-character version (for unicode); right now this class only

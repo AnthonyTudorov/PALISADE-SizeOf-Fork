@@ -287,7 +287,7 @@ public:
 
 		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc->GetCryptoParameters());
 
-		const BigInteger &p = cryptoParams->GetPlaintextModulus();
+		const auto &p = cryptoParams->GetPlaintextModulus();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 

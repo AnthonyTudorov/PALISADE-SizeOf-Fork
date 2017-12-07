@@ -354,7 +354,7 @@ namespace lbcrypto {
 		*/
 		virtual DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 		/**
 		* Function to generate public and private keys. See the class description for citations on where the algorithms were
@@ -744,7 +744,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 	};
 

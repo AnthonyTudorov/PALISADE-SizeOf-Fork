@@ -894,7 +894,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	usint depth = numAdds + numMults + numKeyswitches + 1;
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
 
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
@@ -1022,7 +1022,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
 
 	shared_ptr<LPCryptoParametersFV<T>> params( new LPCryptoParametersFV<T>(
 			ep,
@@ -1062,7 +1062,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 	if (nonZeroCount > 1)
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in FV context constructor");
 
-	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger(0), BigInteger(0)));
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
 
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(
@@ -1103,7 +1103,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 	if( nonZeroCount > 1 )
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrns context constructor");
 
-	shared_ptr<typename T::Params> ep( new typename T::Params(0, BigInteger(0), BigInteger(0)) );
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
 
 	shared_ptr<LPCryptoParametersBFVrns<T>> params( new LPCryptoParametersBFVrns<T>(
 			ep,
@@ -1138,7 +1138,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 	if (nonZeroCount > 1)
 		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrns context constructor");
 
-	shared_ptr<typename T::Params> ep(new typename T::Params(0, BigInteger(0), BigInteger(0)));
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
 
 	shared_ptr<LPCryptoParametersBFVrns<T>> params(
 			new LPCryptoParametersBFVrns<T>(

@@ -73,22 +73,13 @@ bool
 StringEncoding::Decode() {
 	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
 	this->ptx.clear();
-	if( this->typeFlag == IsNativePoly ) {
-		for( size_t i=0; i<this->encodedNativeVector.GetLength(); i++) {
-			uint32_t ch = (this->encodedNativeVector[i].ConvertToInt() % mod) & 0xff;
-			if( ch == CHARMARKER )
-				break;
-			this->ptx += (char)(ch);
-		}
+	for( size_t i=0; i<this->encodedNativeVector.GetLength(); i++) {
+		uint32_t ch = (this->encodedNativeVector[i].ConvertToInt() % mod) & 0xff;
+		if( ch == CHARMARKER )
+			break;
+		this->ptx += (char)(ch);
 	}
-	else {
-		for( size_t i=0; i<this->encodedVector.GetLength(); i++) {
-			uint32_t ch = (this->encodedVector[i].ConvertToInt() % mod) & 0xff;
-			if( ch == CHARMARKER )
-				break;
-			this->ptx += (char)(ch);
-		}
-	}
+
 	return true;
 }
 

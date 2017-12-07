@@ -40,6 +40,7 @@ using std::shared_ptr;
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
+#include "../encoding/encodingparams.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
@@ -66,6 +67,7 @@ public:
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
 	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyNative;
+	typedef EncodingParamsImpl<IntType> EncodingParams;
 
 	/**
 	 * @brief Return the element name.
@@ -581,13 +583,11 @@ public:
 
 	/**
 	 * @brief Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for PolyImpl. Needed to support the 0linear CRT interpolation in DCRTPoly.
+	 * Does nothing for PolyImpl. Needed to support the linear CRT interpolation in DCRTPoly.
 	 *
 	 * @return the original ring element.
 	 */
-	PolyImpl CRTInterpolate() const {
-		return *this;
-	}
+	NativePoly DecryptionCRTInterpolate(uint64_t ptm) const;
 
 	/**
 	 * @brief Transpose the ring element using the automorphism operation
@@ -828,6 +828,31 @@ private:
 
 	void ArbitrarySwitchFormat();
 };
+
+// biginteger version
+template<>
+inline NativePoly
+PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(uint64_t ptm) const {
+	NativePoly interp(
+			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
+			this->GetFormat() );
+
+	for( size_t i=0; i < this->GetLength(); i++ )
+		interp[i] = (*this)[i].ConvertToInt() % ptm;
+	return std::move( interp );
+}
+
+// native poly version
+template<>
+inline NativePoly
+PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(uint64_t ptm) const {
+	NativePoly interp = this->CloneParametersOnly();
+
+	for( size_t i=0; i < this->GetLength(); i++ )
+		interp[i] = (*this)[i] % ptm;
+	return std::move( interp );
+}
+
 
 } //namespace lbcrypto ends
 

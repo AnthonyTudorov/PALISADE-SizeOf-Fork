@@ -148,11 +148,11 @@ Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const LPPrivateKey<Element>
 template <class Element>
 DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 	const Ciphertext<Element> ciphertext,
-	Poly *plaintext) const
+	NativePoly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const uint64_t p = cryptoParams->GetPlaintextModulus();
 
 	const Element& c = ciphertext->GetElement();
 
@@ -162,10 +162,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> priva
 
 	b.SwitchFormat();
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
-	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
-	Poly interpolatedElement = b.CRTInterpolate();
-	*plaintext = interpolatedElement.Mod(p);
+	*plaintext = b.DecryptionCRTInterpolate(p);
 
 	return DecryptResult(plaintext->GetLength());
 

@@ -276,7 +276,7 @@ public:
 	 */
 	DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
-		Poly *plaintext) const;
+		NativePoly *plaintext) const;
 
 	/**
 	 * Key Generation method for the LTV scheme.
@@ -430,7 +430,7 @@ public:
 	* @return the success/fail result
 	*/
 	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-		Poly *plaintext) const {
+		NativePoly *plaintext) const {
 		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}

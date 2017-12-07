@@ -437,7 +437,7 @@ public:
 	 * Getter for encoding params
 	 * @return
 	 */
-	const shared_ptr<EncodingParams> GetEncodingParams() const { return params->GetEncodingParams(); }
+	const shared_ptr<typename Element::EncodingParams> GetEncodingParams() const { return params->GetEncodingParams(); }
 
 	/**
 	 * Get the cyclotomic order used for this context
@@ -458,14 +458,14 @@ public:
 	 *
 	 * @return
 	 */
-	const BigInteger& GetModulus() const { return params->GetElementParams()->GetModulus(); }
+	const typename Element::Integer& GetModulus() const { return params->GetElementParams()->GetModulus(); }
 
 	/**
 	 * Get the ciphertext modulus used for this context
 	 *
 	 * @return
 	 */
-	const BigInteger& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
+	const typename Element::Integer& GetRootOfUnity() const { return params->GetElementParams()->GetRootOfUnity(); }
 
 	/**
 	* KeyGen generates a key pair using this algorithm's KeyGen method
@@ -615,7 +615,7 @@ public:
 		// determine which type of plaintext that you need to decrypt into
 		Plaintext decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
-		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<Poly>());
+		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<NativePoly>());
 
 		if (result.isValid == false) return result;
 		decrypted->Decode();
@@ -992,7 +992,7 @@ public:
 
 private:
 	static Plaintext
-	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<EncodingParams> ep) {
+	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<typename Element::EncodingParams> ep) {
 		Plaintext pt;
 
 		switch(pte) {
@@ -1048,7 +1048,7 @@ public:
 		// determine which type of plaintext that you need to decrypt into
 		Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
 
-		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<Poly>());
+		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<NativePoly>());
 
 		if (result.isValid == false) return result;
 		decrypted->Decode();
@@ -1104,7 +1104,7 @@ public:
 
 				// determine which type of plaintext that you need to decrypt into
 				Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
+				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<NativePoly>());
 
 				if (resultN.isValid == false) return resultN;
 
@@ -1121,7 +1121,7 @@ public:
 
 					const Ciphertext<Element> ctD = (*ciphertext)(row, col).GetDenominator();
 
-					DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator->GetElement<Poly>());
+					DecryptResult resultD = GetEncryptionAlgorithm()->Decrypt(privateKey, ctD, &decryptedDenominator->GetElement<NativePoly>());
 
 					if (resultD.isValid == false) return resultD;
 
@@ -1174,7 +1174,7 @@ public:
 		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
 		Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
+		DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<NativePoly>());
 
 		if (resultN.isValid == false) return resultN;
 
@@ -1194,7 +1194,7 @@ public:
 					const Ciphertext<Element> ctN = (*ciphertext)(row, col).GetNumerator();
 
 					Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<Poly>());
+					GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<NativePoly>());
 
 					(**numerator)(row, col) = decryptedNumerator;
 					(**numerator)(row, col)->Decode();
@@ -1242,7 +1242,7 @@ public:
 				}
 
 				pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<Poly>());
+				DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<NativePoly>());
 				if( !res.isValid )
 					return tot;
 				tot += res.messageLength;

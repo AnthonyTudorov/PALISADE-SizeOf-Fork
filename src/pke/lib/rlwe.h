@@ -330,7 +330,7 @@ protected:
 
 		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
 			return false;
-		BigInteger bbiPlaintextModulus(pIt->value.GetString());
+		typename Element::Integer bbiPlaintextModulus(pIt->value.GetString());
 
 		if( (pIt = mIter->value.FindMember("DistributionParameter")) == mIter->value.MemberEnd() )
 			return false;

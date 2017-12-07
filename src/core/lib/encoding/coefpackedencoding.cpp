@@ -87,30 +87,17 @@ CoefPackedEncoding::Decode() {
 	this->value.clear();
 	this->valueSigned.clear();
 
-	if( this->typeFlag == IsNativePoly ) {
-		for( size_t i = 0; i < this->encodedNativeVector.GetLength(); i++ ) {
-			uint64_t val = this->encodedNativeVector[i].ConvertToInt();
-			if( isSigned ) {
-				if( val >  mod/2)
-					val -= mod;
-				this->valueSigned.push_back(val);
-			}
-			else
-				this->value.push_back(val);
+	for( size_t i = 0; i < this->encodedNativeVector.GetLength(); i++ ) {
+		uint64_t val = this->encodedNativeVector[i].ConvertToInt();
+		if( isSigned ) {
+			if( val >  mod/2)
+				val -= mod;
+			this->valueSigned.push_back(val);
 		}
+		else
+			this->value.push_back(val);
 	}
-	else {
-		for( size_t i = 0; i < this->encodedVector.GetLength(); i++ ) {
-			uint64_t val = this->encodedVector[i].ConvertToInt();
-			if( isSigned ) {
-				if( val >  mod/2)
-					val -= mod;
-				this->valueSigned.push_back(val);
-			}
-			else
-				this->value.push_back(val);
-		}
-	}
+
 	return true;
 }
 

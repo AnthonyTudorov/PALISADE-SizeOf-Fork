@@ -65,6 +65,7 @@ public:
 	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
 	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
 	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
+	typedef EncodingParamsImpl<IntType> EncodingParams;
 
 	// this class contains an array of these:
 	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyType;
@@ -684,6 +685,8 @@ public:
 	* @return the interpolated ring element as a Poly object.
 	*/
 	Poly CRTInterpolate() const;
+
+	NativePoly DecryptionCRTInterpolate(uint64_t ptm) const;
 
 	/**
 	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS;

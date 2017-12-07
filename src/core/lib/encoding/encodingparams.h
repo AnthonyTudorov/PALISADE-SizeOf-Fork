@@ -36,10 +36,12 @@ namespace lbcrypto
  * @brief defining EncodingParams.
  */
 template<typename IntType> class EncodingParamsImpl;
+
 /**
  * @brief defining typedef  EncodingParamsImpl<BigInteger> as EncodingParams. 
  */
 typedef EncodingParamsImpl<BigInteger> EncodingParams;
+typedef EncodingParamsImpl<NativeInteger> NativeEncodingParams;
 }
 
 namespace lbcrypto

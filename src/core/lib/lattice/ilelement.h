@@ -151,6 +151,8 @@ public:
 		throw std::logic_error("const [] not implemented");
 	}
 
+	virtual NativePoly DecryptionCRTInterpolate(uint64_t ptm) const = 0;
+
 	// OPERATORS
 	/**
 	 * @brief Unary negation on a lattice
