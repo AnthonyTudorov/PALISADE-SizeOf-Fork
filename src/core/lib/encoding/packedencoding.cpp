@@ -38,7 +38,7 @@ std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
 bool PackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	int64_t mod = this->encodingParams->GetPlaintextModulus();
 
 	if( this->typeFlag == IsNativePoly ) {
 		NativeVector temp(this->GetElementRingDimension(), this->GetElementModulus().ConvertToInt());
@@ -270,7 +270,7 @@ void PackedEncoding::SetParams(const BigInteger &modulus, usint m)
 }
 
 template<typename P>
-void PackedEncoding::Pack(P *ring, const BigInteger &modulus) const {
+void PackedEncoding::Pack(P *ring, const uint32_t &modulus) const {
 
 	bool dbg_flag = false;
 
@@ -342,7 +342,7 @@ void PackedEncoding::Pack(P *ring, const BigInteger &modulus) const {
 }
 
 template<typename P>
-void PackedEncoding::Unpack(P *ring, const BigInteger &modulus) const {
+void PackedEncoding::Unpack(P *ring, const uint32_t &modulus) const {
 
 	bool dbg_flag = false;
 

@@ -201,7 +201,7 @@ private:
 	* @param modulus is the plaintext modulus used for packing.
 	*/
 	template<typename P>
-	void Pack(P *ring, const BigInteger &modulus) const;
+	void Pack(P *ring, const uint32_t &modulus) const;
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.
@@ -210,7 +210,7 @@ private:
 	* @param modulus is the plaintext modulus used in packing operation.
 	*/
 	template<typename P>
-	void Unpack(P *ring, const BigInteger &modulus) const;
+	void Unpack(P *ring, const uint32_t &modulus) const;
 
 };
 

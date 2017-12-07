@@ -65,7 +65,6 @@ public:
 	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
 	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
 	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
-	typedef EncodingParamsImpl<IntType> EncodingParams;
 
 	// this class contains an array of these:
 	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyType;
