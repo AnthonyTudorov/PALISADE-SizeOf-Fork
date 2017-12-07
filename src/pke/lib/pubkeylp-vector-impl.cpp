@@ -37,5 +37,15 @@ template class LPEvalKeyRelinImpl<Poly>;
 template class LPEvalKeyNTRUImpl<Poly>;
 template class LPEvalKeyNTRURelinImpl<Poly>;
 template class LPSHEAlgorithm<Poly>;
+
+extern template class CryptoContextImpl<NativePoly>;
+
+template class LPPublicKeyImpl<NativePoly>;
+template class LPPrivateKeyImpl<NativePoly>;
+template class LPEvalKeyRelinImpl<NativePoly>;
+template class LPEvalKeyNTRUImpl<NativePoly>;
+template class LPEvalKeyNTRURelinImpl<NativePoly>;
+template class LPSHEAlgorithm<NativePoly>;
+
 }
 

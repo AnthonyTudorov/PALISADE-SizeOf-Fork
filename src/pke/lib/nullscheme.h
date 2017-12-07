@@ -208,7 +208,7 @@ public:
 		const Ciphertext<Element> ciphertext,
 		NativePoly *plaintext) const {
 		const Element& b = ciphertext->GetElement();
-		uint64_t ptm = ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+		PlaintextModulus ptm = ciphertext->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
 		*plaintext = b.DecryptionCRTInterpolate(ptm);
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -414,7 +414,7 @@ public:
 	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
-		uint64_t ptm = ciphertextVec[0]->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+		PlaintextModulus ptm = ciphertextVec[0]->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();
 		*plaintext = b.DecryptionCRTInterpolate(ptm);
 		return DecryptResult(plaintext->GetLength());
 	}

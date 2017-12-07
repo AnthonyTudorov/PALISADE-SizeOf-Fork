@@ -32,4 +32,9 @@ template class LPCryptoParametersFV<Poly>;
 template class LPPublicKeyEncryptionSchemeFV<Poly>;
 template class LPAlgorithmFV<Poly>;
 template class LPAlgorithmParamsGenFV<Poly>;
+
+template class LPCryptoParametersFV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeFV<NativePoly>;
+template class LPAlgorithmFV<NativePoly>;
+template class LPAlgorithmParamsGenFV<NativePoly>;
 }

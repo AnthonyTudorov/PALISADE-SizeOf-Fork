@@ -43,7 +43,7 @@ LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(const LPCryptoParametersFV 
 
 template <>
 LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
-	const BigInteger &plaintextModulus,
+	const PlaintextModulus &plaintextModulus,
 	float distributionParameter,
 	float assuranceMeasure,
 	float securityLevel,
@@ -62,7 +62,7 @@ LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPol
 
 template <>
 LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
-	shared_ptr<EncodingParams> encodingParams,
+	EncodingParams encodingParams,
 	float distributionParameter,
 	float assuranceMeasure,
 	float securityLevel,

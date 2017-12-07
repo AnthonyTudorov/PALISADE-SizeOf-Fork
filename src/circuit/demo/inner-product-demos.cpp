@@ -255,7 +255,7 @@ main(int argc, char *argv[])
 		BigInteger bigModulus("10889035741470030830827987437816582848513");
 		BigInteger bigRootUnity("5879632101734955395039618227388702592012");
 
-		PackedEncoding::SetParams(ptm, m);
+		PackedEncoding::SetParams(m, ptm);
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 

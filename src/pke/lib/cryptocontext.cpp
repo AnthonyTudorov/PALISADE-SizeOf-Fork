@@ -839,12 +839,12 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
 {
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
-			BigInteger(plaintextmodulus),
+			plaintextmodulus,
 			stDev,
 			assuranceMeasure,
 			securityLevel,
@@ -880,7 +880,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
 {
 	int nonZeroCount = 0;
@@ -952,14 +952,14 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
 		const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
 {
 	shared_ptr<LPCryptoParametersFV<T>> params(
 			new LPCryptoParametersFV<T>(ep,
-					BigInteger(plaintextmodulus),
+					plaintextmodulus,
 					stDev,
 					assuranceMeasure,
 					securityLevel,
@@ -1010,7 +1010,7 @@ CryptoContextFactory<T>::genCryptoContextFV(shared_ptr<typename T::Params> ep,
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextFV(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
@@ -1091,7 +1091,7 @@ CryptoContextFactory<T>::genCryptoContextFV(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
-		const usint plaintextModulus, float securityLevel, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
 	int nonZeroCount = 0;
@@ -1163,20 +1163,19 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode, int depth)
 {
 	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
 		ep,
-		BigInteger(plaintextmodulus),
+		plaintextmodulus,
 		stDev,
 		9, // assuranceMeasure,
 		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
-		depth
-) );
+		depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
 
@@ -1210,12 +1209,12 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
 {
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
-			BigInteger(plaintextmodulus),
+			plaintextmodulus,
 			stDev,
 			assuranceMeasure,
 			securityLevel,
@@ -1252,9 +1251,9 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
-		const usint ptModulus)
+		const PlaintextModulus ptModulus)
 {
-	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, BigInteger(ptModulus)) );
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, ptModulus) );
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);

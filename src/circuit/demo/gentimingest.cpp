@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 	in.close();
 
 	// set up to encrypt some things
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	Plaintext inputs[NumInputs];
 	for( size_t i=0; i<NumInputs; i++ ) {
 		vector<int> vec;

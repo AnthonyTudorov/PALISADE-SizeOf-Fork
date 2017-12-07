@@ -152,7 +152,7 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> priva
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-	const uint64_t p = cryptoParams->GetPlaintextModulus();
+	const PlaintextModulus p = cryptoParams->GetPlaintextModulus();
 
 	const Element& c = ciphertext->GetElement();
 

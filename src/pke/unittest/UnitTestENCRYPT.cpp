@@ -350,7 +350,7 @@ void
 UnitTestNewEncryptionCoefPacked(const CryptoContext<Element> cc) {
 
 	size_t intSize = cc->GetRingDimension();
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
@@ -468,7 +468,7 @@ UnitTestEncryption(const CryptoContext<Element> cc) {
 	std::generate_n(fullStr.begin(), vecSize, randchar);
 	Plaintext plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)

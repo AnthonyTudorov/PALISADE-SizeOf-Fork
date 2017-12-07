@@ -393,7 +393,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	PackedEncoding::Destroy();
 
 	usint m = 22;
-	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusQ("72385066601");
 	BigInteger modulusP(p);
 	BigInteger rootOfUnity("69414828251");
@@ -420,7 +420,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

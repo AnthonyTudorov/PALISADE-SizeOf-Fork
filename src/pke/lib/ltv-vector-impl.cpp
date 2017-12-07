@@ -35,8 +35,22 @@ template class LPAlgorithmPRELTV<Poly>;
 template class LPAlgorithmSHELTV<Poly>;
 template class LPLeveledSHEAlgorithmLTV<Poly>;
 
+template class LPCryptoParametersLTV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeLTV<NativePoly>;
+template class LPAlgorithmLTV<NativePoly>;
+template class LPAlgorithmPRELTV<NativePoly>;
+template class LPAlgorithmSHELTV<NativePoly>;
+template class LPLeveledSHEAlgorithmLTV<NativePoly>;
+
 template <>
 bool LPAlgorithmParamsGenLTV<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	return false;
+}
+
+template <>
+bool LPAlgorithmParamsGenLTV<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams,
 		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
 {
 	return false;

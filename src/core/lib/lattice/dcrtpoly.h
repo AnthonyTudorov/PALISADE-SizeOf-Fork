@@ -685,7 +685,7 @@ public:
 	*/
 	Poly CRTInterpolate() const;
 
-	NativePoly DecryptionCRTInterpolate(uint64_t ptm) const;
+	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
 	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS;

@@ -201,9 +201,9 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 
 }
 
-void PackedEncoding::SetParams(const BigInteger &modulus, usint m)
+void PackedEncoding::SetParams(usint m, const PlaintextModulus &modulus)
 {
-	NativeInteger modulusNI(modulus.ConvertToInt()); //native int modulus
+	NativeInteger modulusNI(modulus); //native int modulus
 
 	std::string exception_message;
 	bool hadEx = false;
@@ -279,7 +279,7 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 
 	//Do the precomputation if not initialized
 	if (this->m_initRoot[modulusNI].GetMSB() == 0) {
-		SetParams(modulus, m);
+		SetParams(m, modulus);
 	}
 
 	usint phim = ring->GetRingDimension();
@@ -351,7 +351,7 @@ void PackedEncoding::Unpack(P *ring, const PlaintextModulus &modulus) const {
 
 	//Do the precomputation if not initialized
 	if (this->m_initRoot[modulusNI].GetMSB() == 0) {
-		SetParams(modulus, m);
+		SetParams(m, modulus);
 	}
 
 	usint phim = ring->GetRingDimension(); //ring dimension

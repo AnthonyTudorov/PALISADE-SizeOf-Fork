@@ -64,7 +64,7 @@ LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(const LPCryptoParame
 
 template <class Element>
 LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
-		const BigInteger &plaintextModulus,
+		const PlaintextModulus &plaintextModulus,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,

@@ -437,7 +437,7 @@ public:
 	 * Getter for encoding params
 	 * @return
 	 */
-	const shared_ptr<typename Element::EncodingParams> GetEncodingParams() const { return params->GetEncodingParams(); }
+	const EncodingParams GetEncodingParams() const { return params->GetEncodingParams(); }
 
 	/**
 	 * Get the cyclotomic order used for this context
@@ -992,7 +992,7 @@ public:
 
 private:
 	static Plaintext
-	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, shared_ptr<typename Element::EncodingParams> ep) {
+	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, EncodingParams ep) {
 		Plaintext pt;
 
 		switch(pte) {
@@ -2077,7 +2077,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -2105,7 +2105,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
@@ -2141,7 +2141,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 		int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
@@ -2183,7 +2183,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextFV(
-		const usint plaintextModulus, float securityLevel, usint relinWindow, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
@@ -2210,7 +2210,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
-		const usint plaintextModulus, float securityLevel, float dist,
+		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
@@ -2239,7 +2239,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
 
@@ -2271,7 +2271,7 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
-		const usint plaintextmodulus,
+		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
 
 	/**
@@ -2294,7 +2294,7 @@ public:
 	* @param modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const usint ptModulus);
+	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const PlaintextModulus ptModulus);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme

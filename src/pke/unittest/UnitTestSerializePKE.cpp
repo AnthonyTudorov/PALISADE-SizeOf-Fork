@@ -189,7 +189,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
     	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-    	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+    	EncodingParams encodingParams(new EncodingParamsImpl(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
 
     	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 

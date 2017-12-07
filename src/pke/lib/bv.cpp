@@ -218,7 +218,7 @@ namespace lbcrypto {
 		NativePoly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-		uint64_t p = cryptoParams->GetPlaintextModulus().ConvertToInt();
+		PlaintextModulus p = cryptoParams->GetPlaintextModulus();
 		const std::vector<Element> &c = ciphertext->GetElements();
 		const Element &s = privateKey->GetPrivateElement();
 
@@ -424,7 +424,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
-		const BigInteger &p = cryptoParams->GetPlaintextModulus();
+		auto p = cryptoParams->GetPlaintextModulus();
 
 		LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
@@ -459,7 +459,7 @@ namespace lbcrypto {
 												   // Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
 
-			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
+			evalKeyElements[i] = (a*sNew + p*e) - evalKeyElements[i];
 
 		}
 
@@ -612,7 +612,7 @@ namespace lbcrypto {
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
-		BigInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+		auto plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
 
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
@@ -753,7 +753,7 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	uint64_t p = cryptoParams->GetPlaintextModulus().ConvertToInt();
+	PlaintextModulus p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];

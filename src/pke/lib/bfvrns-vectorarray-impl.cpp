@@ -254,7 +254,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double sigma = cryptoParamsBFVrns->GetDistributionParameter();
 	double alpha = cryptoParamsBFVrns->GetAssuranceMeasure();
 	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
-	double p = cryptoParamsBFVrns->GetPlaintextModulus().ConvertToDouble();
+	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 
 	//bits per prime modulus
 	size_t dcrtBits = 45;
@@ -484,8 +484,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	// Converts back to coefficient representation
 	b.SwitchFormat();
 
-	// Converts plaintext modulus to a 64-bit number
-	const NativeInteger &p = cryptoParams->GetPlaintextModulus().ConvertToInt();
+	auto &p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();

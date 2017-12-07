@@ -43,7 +43,7 @@ LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(const LPCryptoParameter
 
 template <>
 LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
-		const BigInteger &plaintextModulus,
+		const PlaintextModulus &plaintextModulus,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -162,5 +162,11 @@ template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
 template class LPAlgorithmSHEBFVrns<Poly>;
 template class LPAlgorithmParamsGenBFVrns<Poly>;
+
+template class LPCryptoParametersBFVrns<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBFVrns<NativePoly>;
+template class LPAlgorithmBFVrns<NativePoly>;
+template class LPAlgorithmSHEBFVrns<NativePoly>;
+template class LPAlgorithmParamsGenBFVrns<NativePoly>;
 
 }

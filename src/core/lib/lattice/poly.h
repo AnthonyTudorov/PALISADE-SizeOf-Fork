@@ -586,7 +586,7 @@ public:
 	 *
 	 * @return the original ring element.
 	 */
-	NativePoly DecryptionCRTInterpolate(uint64_t ptm) const;
+	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
 	 * @brief Transpose the ring element using the automorphism operation
@@ -831,7 +831,7 @@ private:
 // biginteger version
 template<>
 inline NativePoly
-PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(uint64_t ptm) const {
+PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	NativePoly interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
 			this->GetFormat() );
@@ -844,7 +844,7 @@ PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(
 // native poly version
 template<>
 inline NativePoly
-PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(uint64_t ptm) const {
+PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	NativePoly interp = this->CloneParametersOnly();
 
 	for( size_t i=0; i < this->GetLength(); i++ )

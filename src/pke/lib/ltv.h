@@ -120,7 +120,7 @@ public:
 	*/
 	LPCryptoParametersLTV(
 		shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,

@@ -102,7 +102,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld(
 			shared_ptr<typename Element::Params> params,
-			const BigInteger &plaintextModulus,
+			const PlaintextModulus &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -110,7 +110,7 @@ public:
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
-			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+			EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -138,7 +138,7 @@ public:
 	*/
 	LPCryptoParametersStehleSteinfeld(
 		shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,

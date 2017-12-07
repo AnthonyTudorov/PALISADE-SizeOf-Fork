@@ -50,7 +50,7 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 
 	double secD = 4 * log2(hermiteFactor);
 
-	double p = cParams->GetPlaintextModulus().ConvertToDouble();
+	double p = cParams->GetPlaintextModulus();
 	uint32_t r = cParams->GetRelinWindow();
 
 	double psquared = p * p;

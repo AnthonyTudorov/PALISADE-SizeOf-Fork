@@ -102,7 +102,7 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				const BigInteger &plaintextModulus,
+				const PlaintextModulus &plaintextModulus,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,

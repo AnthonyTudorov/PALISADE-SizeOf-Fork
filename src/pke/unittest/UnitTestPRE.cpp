@@ -73,7 +73,7 @@ UnitTestReEncrypt(CryptoContext<Element> cc, bool publicVersion) {
 	std::generate_n(fullStr.begin(), vecSize, randchar);
 	Plaintext plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
 
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus().ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
 	vector<uint32_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)

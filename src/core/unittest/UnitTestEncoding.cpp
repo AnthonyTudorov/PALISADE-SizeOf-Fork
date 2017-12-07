@@ -115,7 +115,7 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(p, m);
+	PackedEncoding::SetParams(m, p);
 
 	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 	EncodingParams ep(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),8));

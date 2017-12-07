@@ -142,10 +142,10 @@ public:
 
 	/**
 	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, EncodingParams params);)
-	* @params modulus is the plaintext modulus
 	* @param m the encoding cyclotomic order.
+	* @params modulus is the plaintext modulus
 	*/
-	static void SetParams(const BigInteger &modulus, usint m);
+	static void SetParams(usint m, const PlaintextModulus &modulus);
 
 	/**
 	 * SetLength of the plaintext to the given size

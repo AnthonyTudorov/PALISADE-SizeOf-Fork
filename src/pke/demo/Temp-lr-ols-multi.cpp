@@ -370,7 +370,7 @@ void ParamGen(string &paramDir, const string &contextID) {
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity));
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP));
+		EncodingParams encodingParams(new EncodingParamsImpl(modulusP));
 
 		PackedEncoding::SetParams(m, encodingParams);
 		encodingParams->SetBatchSize(batchSize);

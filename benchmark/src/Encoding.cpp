@@ -159,7 +159,7 @@ void BM_encoding_PackedIntPlaintext_SetParams(benchmark::State& state) {
 	shared_ptr<EncodingParams> ep;
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
@@ -177,12 +177,12 @@ void BM_encoding_PackedIntPlaintext_SetParams(benchmark::State& state) {
 
 
 		lp.reset(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-		ep.reset(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8));
+		ep.reset(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(modulusP),8));
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		PackedEncoding::SetParams(modulusP, m);
+		PackedEncoding::SetParams(m, p);
 
 		state.PauseTiming();
 		PackedEncoding::Destroy();

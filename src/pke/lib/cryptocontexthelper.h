@@ -71,7 +71,7 @@ public:
 	 * @param parmsetname name of parameter set to use
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
-	static CryptoContext<Poly> getNewContext(const string& parmsetname, shared_ptr<EncodingParams> p = 0);
+	static CryptoContext<Poly> getNewContext(const string& parmsetname, EncodingParams p = 0);
 
 	/**
 	 * Generate a DCRT CryptoContext for a given parameter set name

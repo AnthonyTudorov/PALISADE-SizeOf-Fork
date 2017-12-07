@@ -996,7 +996,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpolate(uint64_t ptm) const {
+NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	bool dbg_flag = false;
 
 	usint ringDimension = GetRingDimension();
