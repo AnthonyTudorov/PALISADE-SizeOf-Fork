@@ -368,8 +368,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     this->m_Sl = Sl;
     this->m_Rl = Rl;
 
-    DeserializeMatrix("Sl", Element::GetElementName(), pIt, *this->m_Sl);
-    DeserializeMatrix("Rl", Element::GetElementName(), pIt, *this->m_Rl);
+    DeserializeMatrix("Sl", Element::GetElementName(), pIt, this->m_Sl.get());
+    DeserializeMatrix("Rl", Element::GetElementName(), pIt, this->m_Rl.get());
 #if 0
     DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, &(this->m_pk));
 

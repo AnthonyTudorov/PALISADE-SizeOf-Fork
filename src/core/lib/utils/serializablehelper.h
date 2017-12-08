@@ -616,7 +616,7 @@ namespace lbcrypto {
    */
 
   template<typename T>
-    bool DeserializeMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, Matrix<T>& outMatrix) {
+    bool DeserializeMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, Matrix<T>* outMatrix) {
     bool dbg_flag = false;
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
@@ -645,8 +645,8 @@ namespace lbcrypto {
     
     size_t ncols = std::stoi(mIt->value.GetString());
     
-    outMatrix.SetSize(0,0);
-    outMatrix.SetSize(nrows, ncols);
+    outMatrix->SetSize(0,0);
+    outMatrix->SetSize(nrows, ncols);
     
     mIt = it->value.FindMember("Members");
     if( mIt == it->value.MemberEnd() ){
@@ -687,7 +687,7 @@ namespace lbcrypto {
 	ser.AddMember(k, v, ser.GetAllocator());
 	if( matrixElem.Deserialize(ser) ) {
 	  DEBUG("Deserialized "<< matrixElem);
-	  outMatrix(i,j) = matrixElem;
+	  (*outMatrix)(i,j) = matrixElem;
 	} else {
 	  DEBUG("Deserialization of "<<i<<", "<<j<<" failed ");
 	}	

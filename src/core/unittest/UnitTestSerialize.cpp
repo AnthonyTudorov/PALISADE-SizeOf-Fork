@@ -363,9 +363,11 @@ TEST(UTSer,serialize_matrix_bigint){
   }
   DEBUG("step 5");
 
-  have to make a shared pointer to newmatP
-  shared_ptr<Matrix<BigInteger>> newmatP = shared_ptr<Matrix<BigInteger>(new Matrix<BigInteger>(BigInteger::Allocator, 0, 0)); //empty matrix
-
+  //have to make a shared newmatP
+  ///auto newmatP = std::make_shared<Matrix<BigInteger>> (BigInteger::Allocator, 0, 0); //empty matrix
+  Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
+  auto newmatP = &newmat;
+  
   //top level iterator
   SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMatrix");
   DEBUG("step 6");
