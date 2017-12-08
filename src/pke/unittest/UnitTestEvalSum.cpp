@@ -132,11 +132,17 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p) {
 	usint m = 22;
 	BigInteger modulusP(p);
 
-	BigInteger modulusQ("1152921504606847009");
+	/*BigInteger modulusQ("1152921504606847009");
 	BigInteger squareRootOfRoot("1147559132892757400");
 
 	BigInteger bigmodulus("1361129467683753853853498429727072847489");
-	BigInteger bigroot("574170933302565148884487552139817611806");
+	BigInteger bigroot("574170933302565148884487552139817611806");*/
+
+	BigInteger modulusQ("1267650600228229401496703214121");
+	BigInteger squareRootOfRoot("498618454049802547396506932253");
+
+	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
+	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);

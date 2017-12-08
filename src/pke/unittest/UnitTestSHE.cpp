@@ -206,7 +206,7 @@ void UnitTest_Mult(CryptoContext<Element> cc) {
 
 
 TEST_F(UTSHE, LTV_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 60);
 	UnitTest_Mult<Poly>(cc);
 }
 
