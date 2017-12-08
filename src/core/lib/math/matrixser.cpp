@@ -198,27 +198,23 @@ bool MatrixStrassen<Poly>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<IntPlaintextEncoding>::Serialize(Serialized* serObj) const {
-  std::cout<<"Matrix<IntPlaintextEncoding>::Serialize() not written"<<std::endl;
-  return false;
+bool Matrix<Plaintext>::Serialize(Serialized* serObj) const {
+	return false;
 }
 
 template<>
-bool Matrix<IntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
-  std::cout<<"Matrix<IntPlaintextEncoding>::Deserialize() not written"<<std::endl;
-  return false;
+bool Matrix<Plaintext>::Deserialize(const Serialized& serObj) {
+	return false;
 }
 
 template<>
-bool Matrix<PackedIntPlaintextEncoding>::Serialize(Serialized* serObj) const {
-  std::cout<<"Matrix<PackedIntPlaintextEncoding>::Serialize() not written"<<std::endl;
-  return false;
+bool Matrix<PackedEncoding>::Serialize(Serialized* serObj) const {
+	return false;
 }
 
 template<>
-bool Matrix<PackedIntPlaintextEncoding>::Deserialize(const Serialized& serObj) {
-  std::cout<<"Matrix<PackedIntPlaintextEncoding>::Deserialize() not written"<<std::endl;
-  return false;
+bool Matrix<PackedEncoding>::Deserialize(const Serialized& serObj) {
+	return false;
 }
 
 template<>

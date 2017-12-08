@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef _SRC_LIB_CORE_MATH_MATRIX_IMPL_CPP
+#define _SRC_LIB_CORE_MATH_MATRIX_IMPL_CPP
+
 #include "../utils/serializablehelper.h"
 #include "../lattice/field2n.h"
 #include "matrix.cpp"
@@ -61,10 +64,20 @@ namespace lbcrypto {
   ONES_FOR_TYPE(Poly)
   ONES_FOR_TYPE(BigInteger)
   ONES_FOR_TYPE(BigVector)
-  ONES_FOR_TYPE(IntPlaintextEncoding)
+  
   ONES_FOR_TYPE(Field2n)
 
-  //Matrix<T>& Matrix<T>::Identity() 
+//template<>
+//Matrix<Plaintext>& Matrix<Plaintext>::Ones() {
+//	Plaintext One( { 1 } );
+//    for (size_t row = 0; row < rows; ++row) {
+//        for (size_t col = 0; col < cols; ++col) {
+//            *data[row][col] = One;
+//        }
+//    }
+//    return *this;
+//}
+
 #define IDENTITY_FOR_TYPE(T)			\
   template<>					\
   Matrix<T>& Matrix<T>::Identity() {		\
@@ -85,7 +98,6 @@ namespace lbcrypto {
   IDENTITY_FOR_TYPE(Poly)
   IDENTITY_FOR_TYPE(BigInteger)
   IDENTITY_FOR_TYPE(BigVector)
-  IDENTITY_FOR_TYPE(IntPlaintextEncoding)
   IDENTITY_FOR_TYPE(Field2n)
 
   //Matrix<T> Matrix<T>::GadgetVector(int32_t base)
@@ -205,7 +217,7 @@ namespace lbcrypto {
 	for (size_t rotRow = 0; rotRow < n; ++rotRow) {
 	  for (size_t rotCol = 0; rotCol < n; ++rotCol) {
 	    result(row*n + rotRow, col*n + rotCol) =
-	      mat(row, col).GetValues().GetValAtIndex(
+                        mat(row, col).GetValues().at(
 						      (rotRow - rotCol + n) % n
 						      );
 	    //  negate (mod q) upper-right triangle to account for
@@ -239,10 +251,8 @@ namespace lbcrypto {
 	for (size_t rotRow = 0; rotRow < n; ++rotRow) {
 	  for (size_t rotCol = 0; rotCol < n; ++rotCol) {
 	    BigVector& elem = result(row*n + rotRow, col*n + rotCol);
-	    elem.SetValAtIndex(0,
-			       mat(row, col).GetValues().GetValAtIndex(
-								       (rotRow - rotCol + n) % n
-								       ));
+                    elem.at(0)=
+		      mat(row, col).GetValues().at((rotRow - rotCol + n) % n);
 	    //  negate (mod q) upper-right triangle to account for
 	    //  (mod x^n + 1)
 	    if (rotRow < rotCol) {
@@ -404,7 +414,7 @@ namespace lbcrypto {
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
       for (size_t j = 0; j < cols; ++j) {
-	const BigInteger& elem = input(i,j).GetValAtIndex(0);
+            const BigInteger& elem = input(i,j).at(0);
 	if (elem > negativeThreshold) {
 	  result(i,j) = -1*(modulus - elem).ConvertToInt();
 	} else {
