@@ -838,11 +838,10 @@ inline NativePoly
 PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	NativePoly interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-			this->GetFormat(),
-			true);
-std::cout << "poly " << interp << std::endl;
+															this->GetFormat(), true);
 	for( size_t i=0; i < this->GetLength(); i++ )
-		interp[i] = (*this)[i].ConvertToInt() % ptm;
+		interp[i] = ((*this)[i] % ptm).ConvertToInt();
+
 	return std::move( interp );
 }
 
@@ -850,10 +849,12 @@ std::cout << "poly " << interp << std::endl;
 template<>
 inline NativePoly
 PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	NativePoly interp = this->CloneParametersOnly();
-std::cout << "native: " << interp << std::endl;
-	for( size_t i=0; i < this->GetLength(); i++ )
-		interp[i] = (*this)[i] % ptm;
+	NativePoly interp = this->Clone();
+
+	// FIXME use %=  interp %= ptm;
+	for( size_t i=0; i < interp.GetLength(); i++ )
+		interp[i] = interp[i] % ptm;
+
 	return std::move( interp );
 }
 

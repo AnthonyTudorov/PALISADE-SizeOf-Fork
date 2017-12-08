@@ -176,7 +176,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	const BigInteger modulusS = m_paramsS->GetModulus();
 	const BigInteger modulusQS = m_paramsQS->GetModulus();
 
-	const BigInteger &modulusP = GetPlaintextModulus();
+	const BigInteger modulusP( GetPlaintextModulus() );
 
 	for (size_t i = 0; i < size + sizeS; i++){
 		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());

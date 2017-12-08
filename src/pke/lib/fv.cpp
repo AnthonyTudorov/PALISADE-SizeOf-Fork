@@ -494,7 +494,7 @@ DecryptResult LPAlgorithmFV<Element>::Decrypt(const LPPrivateKey<Element> privat
 
 	b.SwitchFormat();
 	
-	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
+	const auto p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::Integer &delta = cryptoParams->GetDelta();
 	Element ans = b.DivideAndRound(delta).Mod(p);
@@ -706,7 +706,7 @@ Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element
 			throw std::runtime_error(errMsg);
 	}
 
-	const PlaintextModulus &p = cryptoParamsLWE->GetPlaintextModulus();
+	const auto p = cryptoParamsLWE->GetPlaintextModulus();
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
 	const typename Element::Integer &q = elementParams->GetModulus();
@@ -1248,7 +1248,7 @@ DecryptResult LPAlgorithmMultipartyFV<Element>::MultipartyDecryptFusion(const ve
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
+	const auto p = cryptoParams->GetPlaintextModulus();
 	const typename Element::Integer &q = elementParams->GetModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();

@@ -73,7 +73,7 @@ ScalarEncoding::Decode() {
 		this->valueSigned = val;
 
 		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-		if( this->valueSigned >  mod/2)
+		if( this->valueSigned >  int32_t(mod/2) )
 			this->valueSigned -= mod;
 	}
 	else {

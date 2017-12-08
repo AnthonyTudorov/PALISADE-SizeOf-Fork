@@ -41,7 +41,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-static std::vector<uint32_t> makeVector(int siz, int ptmi) {
+static std::vector<uint32_t> makeVector(int siz, const PlaintextModulus& ptmi) {
 	std::vector<uint32_t>			elem;
 
 	for( int i=0; i<siz; i++ )
@@ -52,13 +52,12 @@ static std::vector<uint32_t> makeVector(int siz, int ptmi) {
 
 static bool setup_SHE(CryptoContext<Poly> cc, Ciphertext<Poly>& ct1, Ciphertext<Poly>& ct2) {
 	int nel = cc->GetCyclotomicOrder()/2;
-	const BigInteger& ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
-	uint32_t ptmi = ptm.ConvertToInt();
+	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	Plaintext p1 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
-	Plaintext p2 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptmi) );
+	Plaintext p1 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptm) );
+	Plaintext p2 = cc->MakeCoefPackedPlaintext( makeVector(nel, ptm) );
 
 	ct1 = cc->Encrypt(kp.publicKey, p1);
 	ct2 = cc->Encrypt(kp.publicKey, p2);

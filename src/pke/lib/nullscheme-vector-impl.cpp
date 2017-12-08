@@ -38,7 +38,7 @@ Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(const Ciphertext<Poly> ciphe
 	const Poly& c1 = ciphertext1->GetElement();
 	const Poly& c2 = ciphertext2->GetElement();
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
 	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 
@@ -56,7 +56,7 @@ Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(const Ciphertext<Poly> ciphe
 	const Poly& c1 = ciphertext1->GetElement();
 	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
 	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 
@@ -81,7 +81,7 @@ Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(const Ciphertext
 	const NativePoly& c1 = ciphertext1->GetElement();
 	const NativePoly& c2 = ciphertext2->GetElement();
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
 	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 
@@ -99,7 +99,7 @@ Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(const Ciphertext
 	const NativePoly& c1 = ciphertext1->GetElement();
 	const NativePoly& c2 = plaintext->GetEncodedElement<NativePoly>();
 
-	const BigInteger& ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
 	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
 

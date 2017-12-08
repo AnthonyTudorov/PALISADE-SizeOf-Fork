@@ -38,6 +38,19 @@ using namespace lbcrypto;
 static const usint DefaultPrimeBits = 50;
 static const usint DefaultTowers = 3;
 
+template<typename Element>
+inline CryptoContext<Element>
+GenCryptoContextNull(usint ORDER, usint ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
+
+	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextNull(p, ptm);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
 inline CryptoContext<Poly> GenCryptoContextElementNull(usint ORDER, usint ptm) {
 	shared_ptr<Poly::Params> p( new Poly::Params(ORDER, Poly::Integer(ptm), 1) );
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(p, ptm);

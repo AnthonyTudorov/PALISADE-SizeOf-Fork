@@ -52,49 +52,47 @@ public:
 };
 
 template <typename Element>
-class Encrypt : public ::testing::Test {
+class Encrypt_Decrypt : public ::testing::Test {
 public:
-	virtual ~Encrypt() {}
+	virtual ~Encrypt_Decrypt() {}
 	typedef std::list<Element> List;
 	static Element shared_;
 	Element value_;
 };
 
 typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
-TYPED_TEST_CASE(Encrypt, EncryptElementTypes);
+TYPED_TEST_CASE(Encrypt_Decrypt, EncryptElementTypes);
 
-TYPED_TEST(Encrypt, LTV_Encrypt_Decrypt_Scalar) {
-	//TypeParam t = this->value_;
-	CryptoContext<TypeParam> cc = GenCryptoContextLTV<TypeParam>(8, 64);
-
+template<typename Element>
+static void EncryptionScalar(const CryptoContext<Element> cc, const string& failmsg) {
 	uint32_t		value = 29;
 	Plaintext plaintext = cc->MakeScalarPlaintext(value);
 
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
-	auto kp = cc->KeyGen();
+	LPKeyPair<Element> kp = cc->KeyGen();
 
 	if (!kp.good()) {
 		std::cout << "Key generation failed!" << std::endl;
 		exit(1);
 	}
 
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt
-	////////////////////////////////////////////////////////////
-
-	auto ciphertext = cc->Encrypt(kp.publicKey, plaintext);
+	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	Plaintext plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " unsigned";
 
 	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value, true);
 	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
+	EXPECT_EQ(*plaintext2, *plaintextNew) << failmsg << " signed";
+}
+
+
+TYPED_TEST(Encrypt_Decrypt, Scalar) {
+	CryptoContext<TypeParam> cc = GenCryptoContextLTV<TypeParam>(2048, 64, 52);
+	EncryptionScalar<TypeParam>(cc, "LTV");
+
+	cc = GenCryptoContextNull<TypeParam>(8, 64);
+	EncryptionScalar<TypeParam>(cc, "NULL");
 }
 
 template <typename Element>
@@ -131,7 +129,7 @@ UnitTestNewEncryptionScalar(const CryptoContext<Element> cc) {
 }
 
 TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 
@@ -139,6 +137,7 @@ TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Scalar) {
 	CryptoContext<Poly> cc = GenCryptoContextElementNull(8, 64);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
+
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Scalar) {
 	CryptoContext<Poly> cc = GenCryptoContextElementStSt(8, 64, 60);
 	UnitTestNewEncryptionScalar<Poly>(cc);
@@ -188,6 +187,7 @@ void
 UnitTestNewEncryptionInteger(const CryptoContext<Element> cc) {
 	uint64_t		value = 256*256*256;
 	Plaintext plaintext = cc->MakeIntegerPlaintext(value);
+	cout << *plaintext << endl;
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.

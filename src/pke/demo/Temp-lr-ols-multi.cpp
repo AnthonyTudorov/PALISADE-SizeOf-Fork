@@ -2759,7 +2759,7 @@ LPEvalKey<Element> MultiplyEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Elem
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	auto p = cryptoParams->GetPlaintextModulus();
 
 	LPEvalKey<Element> evalKeyResult(new LPEvalKeyRelinImpl<Element>(evalKey->GetCryptoContext()));
 
@@ -2799,7 +2799,7 @@ LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivate
 
 	const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	auto p = cryptoParams->GetPlaintextModulus();
 
 	LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 

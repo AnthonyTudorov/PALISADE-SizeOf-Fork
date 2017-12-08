@@ -992,8 +992,10 @@ public:
 
 private:
 	static Plaintext
-	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> vp, EncodingParams ep) {
+	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> evp, EncodingParams ep) {
 		Plaintext pt;
+		shared_ptr<typename NativePoly::Params> vp(
+				new typename NativePoly::Params(evp->GetCyclotomicOrder(), ep->GetPlaintextModulus(), 1) );
 
 		switch(pte) {
 		case Unknown:

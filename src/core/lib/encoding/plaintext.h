@@ -65,27 +65,32 @@ typedef shared_ptr<PlaintextImpl> Plaintext;
  * which depend on the application the plaintext is used with.  It provides virtual methods for encoding
  * and decoding of data.
  */
+
+enum PtxtPolyType { IsPoly, IsDCRTPoly, IsNativePoly };
+
 class PlaintextImpl
 {
 protected:
-	bool												isEncoded;
-	enum { IsPoly, IsDCRTPoly, IsNativePoly }		typeFlag;
-	EncodingParams									encodingParams;
-	Poly												encodedVector;
-	NativePoly										encodedNativeVector;
-	DCRTPoly											encodedVectorDCRT;
+	bool						isEncoded;
+	PtxtPolyType				typeFlag;
+	EncodingParams				encodingParams;
+	Poly						encodedVector;
+	NativePoly					encodedNativeVector;
+	DCRTPoly					encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
 	PlaintextImpl(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsNativePoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
 
 	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
 
 	virtual ~PlaintextImpl() {}
+
+	PtxtPolyType GetPtxtPolyType() const { return typeFlag; }
 
 	/**
 	 * GetEncodingType
@@ -192,15 +197,6 @@ public:
 	 * @return whether the two plaintext are the same.
 	 */
 	bool operator==(const PlaintextImpl& other) const {
-		if( typeid(this) != typeid(&other) )
-			return false;
-
-		if( this->typeFlag != other.typeFlag )
-			return false;
-
-		if( this->encodingParams != other.encodingParams )
-			return false;
-
 		return CompareTo(other);
 	}
 

@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -142,7 +142,7 @@ namespace lbcrypto {
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 		typename Element::TugType tug;
@@ -188,7 +188,7 @@ namespace lbcrypto {
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 		typename Element::DugType dug;
@@ -218,7 +218,7 @@ namespace lbcrypto {
 		NativePoly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-		PlaintextModulus p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const std::vector<Element> &c = ciphertext->GetElements();
 		const Element &s = privateKey->GetPrivateElement();
 
@@ -612,7 +612,7 @@ namespace lbcrypto {
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
-		auto plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
+		const auto plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
 
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
@@ -634,7 +634,7 @@ namespace lbcrypto {
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::DugType dug;
 		typename Element::TugType tug;
@@ -677,7 +677,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::DugType dug;
 		typename Element::TugType tug;
@@ -753,7 +753,7 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	PlaintextModulus p = cryptoParams->GetPlaintextModulus();
+	const auto p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];

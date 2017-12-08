@@ -104,9 +104,6 @@ public:
 	 */
 	template<typename P, typename I>
 	static shared_ptr<P> GenElemParams(usint m, usint bits, usint towersize = 0) {
-		//		if( towersize != 0 )
-		//			return GenerateDCRTParams(m, towersize, bits);
-
 		I q = FirstPrime<I>(bits,m);
 		I ru = RootOfUnity<I>(m, q);
 		return shared_ptr<P>( new P(m, q, ru) );
@@ -129,7 +126,6 @@ public:
 template<>
 inline shared_ptr<ILDCRTParams<BigInteger>>
 ElemParamFactory::GenElemParams<ILDCRTParams<BigInteger>,BigInteger>(usint m, usint bits, usint towersize) {
-	std::cerr << "Calling the second one" << std::endl;
 	return GenerateDCRTParams(m, towersize, bits);
 }
 
