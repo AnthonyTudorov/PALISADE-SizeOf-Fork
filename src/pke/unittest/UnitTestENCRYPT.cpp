@@ -92,7 +92,7 @@ TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Scalar) {
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(8, 64);
+	CryptoContext<Poly> cc = GenCryptoContextElementStSt(8, 64, 60);
 	UnitTestNewEncryptionScalar<Poly>(cc);
 }
 

@@ -140,7 +140,7 @@ UnitTestReEncrypt(CryptoContext<Element> cc, bool publicVersion) {
 }
 
 TEST_F(UTPRE, LTV_Poly_ReEncrypt_pub) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(4096, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextElementLTV(4096, PTM, 60);
 	UnitTestReEncrypt<Poly>(cc, true);
 }
 
