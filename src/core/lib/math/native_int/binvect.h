@@ -196,7 +196,6 @@ public:
 	virtual ~BigVectorImpl();
 
 	//ACCESSORS
-
 	/**
 	* ostream operator to output vector values to console
 	*
@@ -205,15 +204,12 @@ public:
 	* @return std ostream object which captures the vector values.
 	*/
 	template<class IntegerType_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj){
-		auto len = ptr_obj.m_length;
-		os<<"[";
-		for(usint i=0;i<len;i++){
-			os<< ptr_obj.m_data[i];
-			os << ((i == (len-1))?"]":" ");
-		}
-		return os;
-	}
+	  friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj);
+	/**
+	 * Sets/gets a value at an index.
+	 *
+	 * @param index is the index to set a value at.
+ */
 
 	IntegerType& at(usint i) {
 	  if(!this->IndexCheck(i)) {
@@ -472,7 +468,7 @@ private:
 	//m_length stores the length of the vector
 	usint m_length;
 	//m_modulus stores the internal modulus of the vector.
-	IntegerType m_modulus;
+	IntegerType m_modulus = 0;
 
 	//function to check if the index is a valid index.
 	bool IndexCheck(usint length) const {

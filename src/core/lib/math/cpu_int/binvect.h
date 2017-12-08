@@ -205,15 +205,7 @@ public:
 	* @return std ostream object which captures the vector values.
 	*/
 	template<class IntegerType_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj){
-	        auto len = ptr_obj.m_length;
-	        os<<"[";
-		for(usint i=0;i<len;i++){
-		  os<< ptr_obj.m_data[i];
-		  os << ((i == (len-1))?"]":" ");
-		}
-		return os;
-	}
+	friend std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj);
 
 	/**
 	 * Sets/gets a value at an index.
