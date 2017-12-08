@@ -161,7 +161,7 @@ void KeyGen()
 
 		shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity, init_moduli_NTT, init_rootsOfUnity_NTT));
 
-		EncodingParams encodingParams(new EncodingParamsImpl(modulusP));
+		EncodingParams encodingParams(new EncodingParamsImpl(p));
 
 		PackedEncoding::SetParams(m, encodingParams);
 		encodingParams->SetBatchSize(batchSize);

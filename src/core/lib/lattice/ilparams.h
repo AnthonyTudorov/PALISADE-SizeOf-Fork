@@ -54,7 +54,7 @@ public:
 
 	/**
 	 * Constructor that initializes nothing.
-	 * All of the private members will be initialised to zero.
+	 * All of the private members will be initialized to zero.
 	 */
 	ILParamsImpl()
 		: ElemParams<IntType>(0, 0, 0, 0, 0) {}

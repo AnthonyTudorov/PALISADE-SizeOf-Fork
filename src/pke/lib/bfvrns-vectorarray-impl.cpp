@@ -456,7 +456,7 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRT
 template <>
 DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> privateKey,
 		const Ciphertext<DCRTPoly> ciphertext,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(privateKey->GetCryptoParameters());
@@ -492,7 +492,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	// this is the resulting vector of coefficients;
 	// currently it is required to be a Poly of BigIntegers to be compatible with other API calls in the ryptocontext framework
 
-	*plaintext = Poly(b.ScaleAndRound(p,invTable,lyamTable),COEFFICIENT);
+	*plaintext = NativePoly(b.ScaleAndRound(p,invTable,lyamTable),COEFFICIENT);
 
 	return DecryptResult(plaintext->GetLength());
 

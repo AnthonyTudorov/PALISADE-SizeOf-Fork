@@ -52,13 +52,13 @@ public:
 };
 
 
-usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
-usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
-usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, usint p);
-usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, usint p);
+usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
+usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
+usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, PlaintextModulus p);
+usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
 
 void
-EvalSumSetup(std::vector<usint>& input, usint& expectedSum, usint plaintextMod) {
+EvalSumSetup(std::vector<usint>& input, usint& expectedSum, PlaintextModulus plaintextMod) {
 
 	usint limit = 15;
 
@@ -155,7 +155,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
@@ -206,7 +206,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus 
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -255,7 +255,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, PlaintextMod
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -304,7 +304,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus 
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

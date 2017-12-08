@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 		float stdDev = 4;
 		usint assurance = 144;
 		usint m = 1811;
-		usint ptm = 10400;
+		PlaintextModulus ptm = 10400;
 
 		BigInteger modulus("147573952589676481307");
 		BigInteger rootUnity("36745553101704677056");
@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigInteger(ptm),
+				ptm,
 				stdDev,
 				assurance,
 				1.006, // securityLevel,
@@ -166,7 +166,7 @@ main(int argc, char *argv[])
 		float stdDev = 4;
 		usint assurance = 144;
 		usint m = 1559;
-		usint ptm = 512;
+		PlaintextModulus ptm = 512;
 
 		BigInteger modulus("144115188075962143");
 		BigInteger rootUnity("62176233231091969");
@@ -177,7 +177,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigInteger(ptm),
+				ptm,
 				stdDev,
 				assurance,
 				1.006, // securityLevel,

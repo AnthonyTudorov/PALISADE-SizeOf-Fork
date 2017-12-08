@@ -157,7 +157,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 	//usint dcrtBitsBig = 57;
 
 	usint m;
-	usint p;
+	PlaintextModulus p;
 
 	switch(k) {
 	case 0:
@@ -199,7 +199,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 	shared_ptr<ILDCRTParams<BigInteger>> paramsDCRT(new ILDCRTParams<BigInteger>(m, init_moduli, init_rootsOfUnity));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP));
+	EncodingParams encodingParams(new EncodingParamsImpl(p));
 
 	PackedEncoding::SetParams(m, encodingParams);
 	encodingParams->SetBatchSize(batchSize);
@@ -371,7 +371,7 @@ void Encrypt(string keyDir,
 	CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+	EncodingParams encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
 	PackedEncoding::SetParams(m, encodingParams);
@@ -523,7 +523,7 @@ void Compute(string keyDir,
 	CryptoContext<DCRTPoly> cc = DeserializeContextWithEvalKeys(ccFileName, emFileName, esFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+	EncodingParams encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
 	PackedEncoding::SetParams(m, encodingParams);
@@ -723,7 +723,7 @@ void Decrypt(string keyDir,
 	CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
-	shared_ptr<EncodingParams> encodingParams = cryptoParams->GetEncodingParams();
+	EncodingParams encodingParams = cryptoParams->GetEncodingParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 	usint m = elementParams->GetCyclotomicOrder();
 	PackedEncoding::SetParams(m, encodingParams);

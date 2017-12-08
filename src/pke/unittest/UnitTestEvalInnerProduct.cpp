@@ -145,7 +145,7 @@ TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 	
 	BigInteger modulusQ("1267650600228229401496703214121");
@@ -157,7 +157,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -165,7 +165,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
@@ -204,7 +204,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 	
 	BigInteger modulusQ("955263939794561");
@@ -216,7 +216,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -224,7 +224,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -263,7 +263,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
 
 	usint m = 22;
-	usint p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusQ("1152921504606847009");
 	BigInteger modulusP(p);
 	BigInteger rootOfUnity("1147559132892757400");
@@ -286,11 +286,11 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

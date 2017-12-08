@@ -107,8 +107,8 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
-		NativeInteger modulusNI(modulus.ConvertToInt());
+	static usint GetAutomorphismGenerator(const PlaintextModulus &modulus) {
+		NativeInteger modulusNI(modulus);
 		return m_automorphismGenerator[modulusNI];
 	}
 

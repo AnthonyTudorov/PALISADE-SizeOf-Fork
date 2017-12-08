@@ -51,7 +51,7 @@ LPKeyPair<Element> LPAlgorithmLTV<Element>::KeyGen(CryptoContext<Element> cc, bo
 	const shared_ptr<LPCryptoParametersLTV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersLTV<Element>>(cc->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -90,7 +90,7 @@ Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const LPPublicKey<Element> 
 	Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
 
 	ptxt.SwitchFormat();
 
@@ -121,7 +121,7 @@ Ciphertext<Element> LPAlgorithmLTV<Element>::Encrypt(const LPPrivateKey<Element>
 	Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
 
 	ptxt.SwitchFormat();
 
@@ -354,7 +354,7 @@ LPEvalKey<Element> LPAlgorithmSHELTV<Element>::KeySwitchGen(
 
 	const Element& f1 = originalPrivateKey->GetPrivateElement();
 	const Element& f2 = newPrivateKey->GetPrivateElement();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const PlaintextModulus &p = cryptoParams->GetPlaintextModulus();
 
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -432,7 +432,7 @@ LPEvalKey<Element> LPAlgorithmSHELTV<Element>::KeySwitchRelinGen(const LPPublicK
 		std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(newPublicKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
-	const BigInteger &p = cryptoParamsLWE->GetPlaintextModulus();
+	const PlaintextModulus &p = cryptoParamsLWE->GetPlaintextModulus();
 	const Element &f = origPrivateKey->GetPrivateElement();
 
 	const Element &hn = newPublicKey->GetPublicElements().at(0);
@@ -562,7 +562,7 @@ Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Elem
 
 	Element cipherTextElement(cipherText->GetElement());
 
-	const BigInteger& plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
+	const PlaintextModulus& plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
 
 	cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
 

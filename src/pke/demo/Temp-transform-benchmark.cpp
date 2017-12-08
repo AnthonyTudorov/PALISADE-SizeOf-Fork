@@ -253,9 +253,9 @@ int main() {
 	//------------------ Setup Parameters ------------------
 	usint m = 2048;
 	usint phim = 1024;
-	usint p = 1964033; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 1964033; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	BigInteger modulusQ("9223372036589678593");
 	BigInteger rootOfUnity("5356268145311420142");

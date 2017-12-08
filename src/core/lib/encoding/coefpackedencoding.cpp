@@ -80,22 +80,33 @@ CoefPackedEncoding::Encode() {
 	return true;
 }
 
+template<typename P>
+static void fillVec(const P& poly, const PlaintextModulus& mod, bool isSigned, vector<uint32_t>& value, vector<int32_t>& valueSigned) {
+	value.clear();
+	valueSigned.clear();
+
+	for( size_t i = 0; i < poly.GetLength(); i++ ) {
+		uint64_t val = poly[i].ConvertToInt();
+		if( isSigned ) {
+			if( val >  mod/2)
+				val -= mod;
+			valueSigned.push_back(val);
+		}
+		else
+			value.push_back(val);
+	}
+}
+
 bool
 CoefPackedEncoding::Decode() {
 
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-	this->value.clear();
-	this->valueSigned.clear();
 
-	for( size_t i = 0; i < this->encodedNativeVector.GetLength(); i++ ) {
-		uint64_t val = this->encodedNativeVector[i].ConvertToInt();
-		if( isSigned ) {
-			if( val >  mod/2)
-				val -= mod;
-			this->valueSigned.push_back(val);
-		}
-		else
-			this->value.push_back(val);
+	if( this->typeFlag == IsNativePoly ) {
+		fillVec(this->encodedNativeVector, mod, isSigned, this->value, this->valueSigned);
+	}
+	else {
+		fillVec(this->encodedVector, mod, isSigned, this->value, this->valueSigned);
 	}
 
 	return true;

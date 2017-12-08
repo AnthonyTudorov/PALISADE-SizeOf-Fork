@@ -82,7 +82,7 @@ int main() {
 void BVCrossCorrelation() {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 
 	BigInteger modulusQ("955263939794561");
@@ -94,7 +94,7 @@ void BVCrossCorrelation() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -102,7 +102,7 @@ void BVCrossCorrelation() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -169,7 +169,7 @@ void BVCrossCorrelation() {
 void FVCrossCorrelation() {
 
 	usint m = 22;
-	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusQ("72385066601");
 	BigInteger modulusP(p);
 	BigInteger rootOfUnity("69414828251");
@@ -193,11 +193,11 @@ void FVCrossCorrelation() {
 
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

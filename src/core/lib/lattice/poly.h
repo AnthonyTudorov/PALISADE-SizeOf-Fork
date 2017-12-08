@@ -586,6 +586,10 @@ public:
 	 *
 	 * @return the original ring element.
 	 */
+	PolyImpl CRTInterpolate() const {
+		return *this;
+	}
+
 	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
@@ -834,8 +838,9 @@ inline NativePoly
 PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	NativePoly interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-			this->GetFormat() );
-
+			this->GetFormat(),
+			true);
+std::cout << "poly " << interp << std::endl;
 	for( size_t i=0; i < this->GetLength(); i++ )
 		interp[i] = (*this)[i].ConvertToInt() % ptm;
 	return std::move( interp );
@@ -846,7 +851,7 @@ template<>
 inline NativePoly
 PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	NativePoly interp = this->CloneParametersOnly();
-
+std::cout << "native: " << interp << std::endl;
 	for( size_t i=0; i < this->GetLength(); i++ )
 		interp[i] = (*this)[i] % ptm;
 	return std::move( interp );

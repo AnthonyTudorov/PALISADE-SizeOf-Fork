@@ -95,13 +95,25 @@ bool PackedEncoding::Encode() {
 	return true;
 }
 
+template<typename T>
+static void fillVec(const T& poly, vector<uint32_t>& vec) {
+	vec.clear();
+	for (size_t i = 0; i<poly.GetLength(); i++) {
+		vec.push_back(poly[i].ConvertToInt());
+	}
+}
+
 bool PackedEncoding::Decode() {
 
-	this->Unpack(&this->GetElement<NativePoly>(), this->encodingParams->GetPlaintextModulus());
+	auto ptm = this->encodingParams->GetPlaintextModulus();
 
-	this->value.clear();
-	for (usint i = 0; i<this->encodedNativeVector.GetLength(); i++) {
-		this->value.push_back(this->encodedNativeVector[i].ConvertToInt());
+	if( this->typeFlag == IsNativePoly ) {
+		this->Unpack(&this->GetElement<NativePoly>(), ptm);
+		fillVec(this->encodedNativeVector, this->value);
+	}
+	else {
+		this->Unpack(&this->GetElement<Poly>(), ptm);
+		fillVec(this->encodedVector, this->value);
 	}
 
 	return true;

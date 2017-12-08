@@ -657,13 +657,13 @@ void SwitchCRT() {
 	typename DCRTPoly::DugType dug;
 
 	//Generate the element "a" of the public key
-	DCRTPoly a(dug, params, Format::COEFFICIENT);
+	const DCRTPoly a(dug, params, Format::COEFFICIENT);
 
 	Poly resultA = a.CRTInterpolate();
 
 	std::cout << "Starting CRT Basis switch" << std::endl;
 
-	DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
 
 	std::cout << "a mod s0 = " << resultA.at(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;

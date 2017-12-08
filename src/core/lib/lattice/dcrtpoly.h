@@ -32,6 +32,7 @@
 
 #include "../math/backend.h"
 #include "../utils/inttypes.h"
+#include "../utils/exception.h"
 #include "../lattice/elemparams.h"
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
@@ -684,6 +685,10 @@ public:
 	* @return the interpolated ring element as a Poly object.
 	*/
 	Poly CRTInterpolate() const;
+
+//	NativePoly CRTInterpolate() {
+//		PALISADE_THROW(config_error, "DCRT interpolate to NativePoly is not supported");
+//	}
 
 	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 

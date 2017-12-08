@@ -69,16 +69,25 @@ StringEncoding::Encode() {
 	return true;
 }
 
+template<typename P>
+static void fillPlaintext(const P& poly, string& str, const PlaintextModulus& mod) {
+	str.clear();
+	for( size_t i=0; i<poly.GetLength(); i++) {
+		uint32_t ch = (poly[i].ConvertToInt() % mod) & 0xff;
+		if( ch == CHARMARKER )
+			break;
+		str += (char)(ch);
+	}
+}
+
 bool
 StringEncoding::Decode() {
 	auto mod = this->encodingParams->GetPlaintextModulus();
-	this->ptx.clear();
-	for( size_t i=0; i<this->encodedNativeVector.GetLength(); i++) {
-		uint32_t ch = (this->encodedNativeVector[i].ConvertToInt() % mod) & 0xff;
-		if( ch == CHARMARKER )
-			break;
-		this->ptx += (char)(ch);
-	}
+
+	if( this->typeFlag == IsNativePoly )
+		fillPlaintext(this->encodedNativeVector, this->ptx, mod);
+	else
+		fillPlaintext(this->encodedVector, this->ptx, mod);
 
 	return true;
 }

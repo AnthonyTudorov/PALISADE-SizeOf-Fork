@@ -386,7 +386,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 
 	};

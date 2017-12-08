@@ -73,30 +73,39 @@ IntegerEncoding::Encode() {
 	return true;
 }
 
-bool
-IntegerEncoding::Decode() {
-	auto modulus = this->encodingParams->GetPlaintextModulus();
+template<typename P>
+static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
-	uint64_t half(modulus >> 1);
+	uint64_t half(ptm >> 1);
 
-	for (size_t i = 0; i < this->encodedNativeVector.GetLength(); i++) {
+	for (size_t i = 0; i < poly.GetLength(); i++) {
 
-		auto val = this->encodedNativeVector[i].ConvertToInt();
+		auto val = poly[i].ConvertToInt();
 
 		if( val != 0 ) {
 			// deal with unsigned representation
 			if (val < half)
 				result += powerFactor * val;
 			else
-				result -= powerFactor * (modulus - val);
+				result -= powerFactor * (ptm - val);
 		}
 
 		// multiply the power factor by 2
 		powerFactor <<= 1;
 	}
 
-	value = result;
+	return result;
+}
+
+bool
+IntegerEncoding::Decode() {
+	auto modulus = this->encodingParams->GetPlaintextModulus();
+	if( this->typeFlag == IsNativePoly )
+		value = decodePoly(this->encodedNativeVector, modulus);
+	else
+		value = decodePoly(this->encodedVector, modulus);
+
 	return true;
 }
 

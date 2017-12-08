@@ -49,6 +49,25 @@ Field2n::Field2n(const Poly & element)
 	}
 }
 
+//Constructor from ring element
+Field2n::Field2n(const NativePoly & element)
+{
+	if (element.GetFormat() != COEFFICIENT) {
+		throw std::logic_error("Poly not in coefficient representation");
+	} else {
+		// the value of element.at(i) is usually small - so a 64-bit integer is more than enough
+		// this approach is much faster than BigInteger::ConvertToDouble
+		NativeInteger negativeThreshold(element.GetModulus()/ 2);
+		for (size_t i = 0; i < element.GetLength(); i++) {
+			if (element.at(i) > negativeThreshold)
+				this->push_back((double)(int64_t)(-1 * (element.GetModulus() - element[i]).ConvertToInt()));
+			else
+				this->push_back((double)(int64_t)(element[i].ConvertToInt()));
+		}
+		this->format = COEFFICIENT;
+	}
+}
+
 //Constructor from DCRTPoly ring element
 Field2n::Field2n(const DCRTPoly & DCRTelement)
 {

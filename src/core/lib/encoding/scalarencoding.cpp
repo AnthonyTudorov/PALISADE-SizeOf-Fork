@@ -31,7 +31,7 @@ namespace lbcrypto {
 bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	uint64_t mod = this->encodingParams->GetPlaintextModulus();
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 	uint32_t entry = value;
 
 	if( this->isSigned ) {
@@ -68,15 +68,16 @@ ScalarEncoding::Encode() {
 
 bool
 ScalarEncoding::Decode() {
+	auto val = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 	if( isSigned ) {
-		this->valueSigned = this->encodedNativeVector[0].ConvertToInt();
+		this->valueSigned = val;
 
-		int64_t mod = this->encodingParams->GetPlaintextModulus();
+		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 		if( this->valueSigned >  mod/2)
 			this->valueSigned -= mod;
 	}
 	else {
-		this->value = this->encodedNativeVector[0].ConvertToInt();
+		this->value = val;
 	}
 	return true;
 }

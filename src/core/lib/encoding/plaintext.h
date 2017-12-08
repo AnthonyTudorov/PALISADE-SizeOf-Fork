@@ -68,12 +68,12 @@ typedef shared_ptr<PlaintextImpl> Plaintext;
 class PlaintextImpl
 {
 protected:
-	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly, IsNativePoly }			typeFlag;
-	EncodingParams						encodingParams;
-	Poly								encodedVector;
-	NativePoly							encodedNativeVector;
-	DCRTPoly							encodedVectorDCRT;
+	bool												isEncoded;
+	enum { IsPoly, IsDCRTPoly, IsNativePoly }		typeFlag;
+	EncodingParams									encodingParams;
+	Poly												encodedVector;
+	NativePoly										encodedNativeVector;
+	DCRTPoly											encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
