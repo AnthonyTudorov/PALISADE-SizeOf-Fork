@@ -47,7 +47,7 @@ else
 $(info Makefile.gmp: installing GMP)
  GMP_CONFIG_NEEDED := gmp_config
  GMP_MAKE_NEEDED := gmp_make
- GMP_CHECK_NEEDED := gmp_check
+ #GMP_CHECK_NEEDED := gmp_check
  GMP_INSTALL_NEEDED := gmp_install
 endif
 
@@ -60,21 +60,21 @@ gmp_unpack:
 	cd $(DISTROS_DIR);\
 	$(TAR) xf ./gmp-$(GMP_VER).tar.lz
 
-gmp_config:
+gmp_config: $(GMP_UNPACK_NEEDED)
 	@echo 'Configuring gmp for Palisade in $(GMP_DISTRO_DIR)'
 	cd $(GMP_DISTRO_DIR); \
 	./configure --prefix=$(THIRD_PARTY_DIR);
 
-gmp_make:
+gmp_make: gmp_config
 	@echo 'making gmp for Palisade in $(GMP_DISTRO_DIR)'
 	cd $(GMP_DISTRO_DIR); \
 	$(MAKE)
 
-gmp_check:
+gmp_check: $(GMP_MAKE_NEEDED)
 	@echo 'checking gmp for Palisade in $(GMP_DISTRO_DIR)'
 	cd $(GMP_DISTRO_DIR); \
 	$(MAKE) check
-gmp_install:
+gmp_install: $(GMP_CHECK_NEEDED) $(GMP_MAKE_NEEDED)
 	@echo 'installing gmp for Palisade in $(THIRD_PARTY_DIR)'
 	cd $(GMP_DISTRO_DIR); \
 	$(MAKE) install
