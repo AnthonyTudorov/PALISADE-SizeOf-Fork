@@ -1532,7 +1532,7 @@ public:
 	}
 
 	/**
-	* Function for evaluating multiplication on ciphertext followed by relinearization operation (after each multiplication).
+	* Function for evaluating multiplication on ciphertext followed by relinearization operation.
 	* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
 	*
 	* @param ct1 first input ciphertext.

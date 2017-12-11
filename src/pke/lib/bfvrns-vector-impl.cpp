@@ -250,13 +250,13 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitch(const LPEvalK
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
-	const Ciphertext<Poly> ct, const shared_ptr<vector<LPEvalKey<Poly>>> ek) const{
+	const Ciphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(const Ciphertext<NativePoly> ct1,
-	const Ciphertext<NativePoly> ct, const shared_ptr<vector<LPEvalKey<NativePoly>>> ek) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
+	const Ciphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
 	NONATIVEPOLY
 }
 

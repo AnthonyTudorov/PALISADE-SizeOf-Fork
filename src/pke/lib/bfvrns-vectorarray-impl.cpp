@@ -773,12 +773,12 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<D
 
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(const Ciphertext<DCRTPoly> ciphertext1,
-	const Ciphertext<DCRTPoly> ciphertext2, const shared_ptr<vector<LPEvalKey<DCRTPoly>>> ek) const{
+	const Ciphertext<DCRTPoly> ciphertext2, const vector<LPEvalKey<DCRTPoly>> &ek) const{
 
 	Ciphertext<DCRTPoly> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
-			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->at(0)->GetCryptoParameters());
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek[0]->GetCryptoParameters());
 
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
@@ -794,7 +794,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(cons
 	//TODO: Maybe we can change the number of keyswitching and terminate early. For instance; perform keyswitching until 4 elements left.
 	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
 		size_t index = cipherText->GetDepth()-2-j;
-		LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek->at(index));
+		LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek[index]);
 
 		const std::vector<DCRTPoly> &b = evalKey->GetAVector();
 		const std::vector<DCRTPoly> &a = evalKey->GetBVector();

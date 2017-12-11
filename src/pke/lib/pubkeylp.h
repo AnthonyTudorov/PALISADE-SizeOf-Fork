@@ -2440,10 +2440,14 @@ namespace lbcrypto {
 		}
 		
 		vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
-				if(this->m_algorithmSHE)
-					return this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+				if(this->m_algorithmSHE){
+					auto ek = this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+					for(size_t i=0; i<ek.size(); i++)
+						ek[i]->SetKeyTag( originalPrivateKey->GetKeyTag() );
+					return ek;
+				}
 				else {
-					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+					throw std::logic_error("EvalMultKeysGen operation has not been enabled");
 				}
 		}
 

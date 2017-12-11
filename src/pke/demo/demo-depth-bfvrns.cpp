@@ -25,7 +25,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
- * Demos for homomorphic multiplications of depth 6
+ * Demos for a homomorphic multiplication of depth 6 and two different approaches for depth 3 multiplications
  *
  */
 
@@ -68,13 +68,13 @@ int main(int argc, char *argv[]) {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,2);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
 	cryptoContext->Enable(SHE);
 
-	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "\np = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 	// Perform Key Generation Operation
 	////////////////////////////////////////////////////////////
 
-	std::cout << "Running key generation (used for source data)..." << std::endl;
+	std::cout << "\nRunning key generation (used for source data)..." << std::endl;
 
 	TIC(t);
 
@@ -107,6 +107,8 @@ int main(int argc, char *argv[]) {
 
 	processingTime = TOC(t);
 	std::cout << "Key generation time for homomorphic multiplication evaluation keys: " << processingTime << "ms" << std::endl;
+
+	//cryptoContext->EvalMultKeyGen(keyPair.secretKey);
 
 	////////////////////////////////////////////////////////////
 	// Encode source data
@@ -154,72 +156,21 @@ int main(int argc, char *argv[]) {
 
 	TIC(t);
 
-	auto ciphertext = cryptoContext->EvalMultMany(ciphertexts);
+	auto ciphertextMult = cryptoContext->EvalMult(ciphertexts[0],ciphertexts[1]);
 
 	processingTime = TOC(t);
-	std::cout << "Total time of multiplying 7 ciphertexts using EvalMultMany: " << processingTime << "ms" << std::endl;
+	std::cout << "Total time of multiplying 2 ciphertexts using EvalMult: " << processingTime << "ms" << std::endl;
 
-/*
-	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+	Plaintext plaintextDecMult;
 
-	// Operations
+	TIC(t);
 
-	auto ciphertextSum = cryptoContext->EvalAdd(ciphertext1,ciphertext2);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMult, &plaintextDecMult);
 
-	auto ciphertextSub = cryptoContext->EvalSub(ciphertext1,ciphertext2);
+	processingTime = TOC(t);
+	std::cout << "Decryption time: " << processingTime << "ms" << std::endl;
 
-	auto ciphertextNeg = cryptoContext->EvalNegate(ciphertext1);
-
-	start = currentDateTime();
-
-	auto ciphertextMul = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Homomorphic multiplication time - #1: " << "\t" << diff << " ms" << endl;
-
-
-	start = currentDateTime();
-
-	auto ciphertextCube = cryptoContext->EvalMultNoRelin(ciphertextMul,ciphertext1);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Homomorphic multiplication time - #2: " << "\t" << diff << " ms" << endl;
-
-	////////////////////////////////////////////////////////////
-	//Decryption of Ciphertext
-	////////////////////////////////////////////////////////////
-
-	Plaintext plaintextDec;
-
-	start = currentDateTime();
-
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSum, &plaintextDec);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
-
-	//std::cin.get();
-
-	plaintextDec->SetLength(plaintext1->GetLength());
-
-	Plaintext plaintextDecSub;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSub, &plaintextDecSub);
-	plaintextDecSub->SetLength(plaintext1->GetLength());
-
-	Plaintext plaintextDecNeg;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextNeg, &plaintextDecNeg);
-	plaintextDecNeg->SetLength(plaintext1->GetLength());
-
-	Plaintext plaintextDecMul;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul, &plaintextDecMul);
-	plaintextDecMul->SetLength(plaintext1->GetLength());
-
-	Plaintext plaintextDecCube;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextCube, &plaintextDecCube);
-	plaintextDecCube->SetLength(plaintext1->GetLength());
+	plaintextDecMult->SetLength(plaintext1->GetLength());
 
 	cout << "\n Original Plaintext #1: \n";
 	cout << plaintext1 << endl;
@@ -227,67 +178,24 @@ int main(int argc, char *argv[]) {
 	cout << "\n Original Plaintext #2: \n";
 	cout << plaintext2 << endl;
 
-	cout << "\n Resulting Decryption of the Sum: \n";
-	cout << plaintextDec << endl;
+	cout << "\n Result of their homomorphic multiplication: \n";
+	cout << plaintextDecMult << endl;
 
-	cout << "\n Resulting Decryption of the Subtraction: \n";
-	cout << plaintextDecSub << endl;
+	TIC(t);
 
-	cout << "\n Resulting Decryption of the Negation: \n";
-	cout << plaintextDecNeg << endl;
+	auto ciphertextMult7 = cryptoContext->EvalMultMany(ciphertexts);
 
-	cout << "\n Resulting Decryption of the Multiplication: \n";
-	cout << plaintextDecMul << endl;
+	processingTime = TOC(t);
+	std::cout << "\n Total time of multiplying 7 ciphertexts using EvalMultMany: " << processingTime << "ms" << std::endl;
 
-	cout << "\n Resulting Decryption of the computing the Cube: \n";
-	cout << plaintextDecCube << endl;
+	Plaintext plaintextDecMult7;
 
-	cout << "\n";
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMult7, &plaintextDecMult7);
 
-	start = currentDateTime();
-	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "EvalMult key generation time: " << "\t" << diff << " ms" << endl;
+	plaintextDecMult7->SetLength(plaintext1->GetLength());
 
-	start = currentDateTime();
-
-	auto ciphertextRelin = cryptoContext->EvalMult(ciphertext1,ciphertext2);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Homomorphic multiplication time - with relinearization: " << "\t" << diff << " ms" << endl;
-
-	Plaintext plaintextDecRelin;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRelin, &plaintextDecRelin);
-	plaintextDecRelin->SetLength(plaintext1->GetLength());
-
-	cout << "\n Resulting Decryption of the Multiplication with Relinearization: \n";
-	cout << plaintextDecRelin << endl;
-
-	cout << "\n";
-
-	start = currentDateTime();
-
-	auto evalKeys = cryptoContext->EvalAutomorphismKeyGen(keyPair.secretKey,{5,25});
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Automorphism key gen time: " << "\t" << diff << " ms" << endl;
-
-	start = currentDateTime();
-
-	auto ciphertextRotated = cryptoContext->EvalAutomorphism(ciphertext1, 5, *evalKeys);
-
-	finish = currentDateTime();
-	diff = finish - start;
-	cout << "Automorphism time: " << "\t" << diff << " ms" << endl;
-
-	Plaintext plaintextDecRotated;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRotated, &plaintextDecRotated);
-	plaintextDecRotated->SetLength(plaintext1->GetLength());
-	cout << plaintextDecRotated << endl;
-*/
+	cout << "\n Result of 6 homomorphic multiplications: \n";
+	cout << plaintextDecMult7 << endl;
 
 	return 0;
 }

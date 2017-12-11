@@ -1015,10 +1015,10 @@ vector<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
 	std::vector<LPEvalKey<Element>> ek(cryptoParamsLWE->GetMaxDepth());
 	//Create powers of original key to be used in keyswitching as evaluation keys after they are encrypted.
 	sPower[0] = originalPrivateKey->GetPrivateElement()*originalPrivateKey->GetPrivateElement();
-	for(size_t i=1; i<cryptoParamsLWE->GetMaxDepth(); i++)
+	for(size_t i=1; i<cryptoParamsLWE->GetMaxDepth()-1; i++)
 		sPower[i] = sPower[i-1] * originalPrivateKey->GetPrivateElement();
 
-	for(size_t i=0; i<cryptoParamsLWE->GetMaxDepth(); i++){
+	for(size_t i=0; i<cryptoParamsLWE->GetMaxDepth()-1; i++){
 		originalPrivateKeyPowered->SetPrivateElement(std::move(sPower[i]));
 		ek[i] = this->KeySwitchGen(originalPrivateKeyPowered, originalPrivateKey);
 		evalMultKeys.push_back(ek[i]);
