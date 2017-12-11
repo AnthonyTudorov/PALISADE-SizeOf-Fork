@@ -152,7 +152,6 @@ TYPED_TEST(SHETests, SHEAddSubtract) {
 
 template<class Element>
 static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg) {
-	cout << failmsg << endl;
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -208,56 +207,6 @@ TYPED_TEST(SHETests, SHEMultiply) {
 		UnitTest_Mult<TypeParam>(cc, AllSchemes[i]);
 	}
 }
-
-//TEST_F(UTSHE, LTV_Poly_Mult) {
-//	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 50);
-//	UnitTest_Mult<Poly>(cc);
-//}
-//
-//TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<DCRTPoly>(cc);
-//}
-//
-////TEST_F(UTSHE, StSt_Poly_Mult) {
-////	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM);
-////	UnitTest_Mult<Poly>(cc);
-////}
-////
-////TEST_F(UTSHE, StSt_DCRTPoly_Mult) {
-////	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
-////	UnitTest_Mult<DCRTPoly>(cc);
-////}
-//
-//TEST_F(UTSHE, Null_Poly_Mult) {
-//	CryptoContext<Poly> cc = GenCryptoContextNull<Poly>(ORDER, PTM);
-//	UnitTest_Mult<Poly>(cc);
-//}
-//
-//TEST_F(UTSHE, Null_DCRTPoly_Mult) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextNull<DCRTPoly>(ORDER, TOWERS, PTM, 30);
-//	UnitTest_Mult<DCRTPoly>(cc);
-//}
-//
-//TEST_F(UTSHE, BV_Poly_Mult) {
-//	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
-//	UnitTest_Mult<Poly>(cc);
-//}
-//
-//TEST_F(UTSHE, BV_DCRTPoly_Mult) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<DCRTPoly>(cc);
-//}
-//
-//TEST_F(UTSHE, FV_Poly_Mult) {
-//	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
-//	UnitTest_Mult<Poly>(cc);
-//}
-//
-////TEST_F(UTSHE, FV_DCRTPoly_Mult) {
-////	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-////	UnitTest_Mult<DCRTPoly>(cc);
-////}
 
 
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {

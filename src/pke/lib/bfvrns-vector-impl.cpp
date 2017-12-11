@@ -178,8 +178,14 @@ template <>
 Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPrivateKey<Poly> privateKey,
 		Poly ptxt) const
 {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmBFVrns<NativePoly>::Encrypt(const LPPrivateKey<NativePoly> privateKey,
+		NativePoly ptxt) const
+{
+	NONATIVEPOLY
 }
 
 template <>
@@ -197,36 +203,61 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMult(const Cipherte
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalAdd(const Ciphertext<NativePoly> ct,
+	const Plaintext pt) const{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalSub(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalSub(const Ciphertext<NativePoly> ct,
+	const Plaintext pt) const{
+	NONATIVEPOLY
 }
 
 template <>
 LPEvalKey<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const LPPrivateKey<Poly> originalPrivateKey,
 	const LPPrivateKey<Poly> newPrivateKey) const {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+LPEvalKey<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitchGen(const LPPrivateKey<NativePoly> originalPrivateKey,
+	const LPPrivateKey<NativePoly> newPrivateKey) const {
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const LPEvalKey<Poly> keySwitchHint,
 	const Ciphertext<Poly> cipherText) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitch(const LPEvalKey<NativePoly> keySwitchHint,
+	const Ciphertext<NativePoly> cipherText) const{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
 	const Ciphertext<Poly> ct, const shared_ptr<vector<LPEvalKey<Poly>>> ek) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(const Ciphertext<NativePoly> ct1,
+	const Ciphertext<NativePoly> ct, const shared_ptr<vector<LPEvalKey<NativePoly>>> ek) const{
+	NONATIVEPOLY
 }
 
 template class LPCryptoParametersBFVrns<Poly>;

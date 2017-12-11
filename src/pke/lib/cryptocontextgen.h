@@ -191,7 +191,7 @@ GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits, usint towers) {
 template<>
 inline CryptoContext<DCRTPoly>
 GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits, usint towers) {
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 1, 4, 0, 2, 0);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 3.2, 1, 4, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
