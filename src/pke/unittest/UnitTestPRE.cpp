@@ -77,7 +77,6 @@ static const usint PTM = 256;
 
 template<typename Element>
 static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg) {
-	cout << failmsg << endl;
 	size_t vecSize = cc->GetRingDimension();
 
 	auto randchar = []() -> char {
