@@ -146,6 +146,7 @@ int main(int argc, char **argv) {
 
 	if (::testing::GTEST_FLAG(filter) == "*") {
 		::testing::GTEST_FLAG(filter) = "-*_VERY_LONG";
+		//::testing::GTEST_FLAG(filter) = "*BFVrns*";
 	}
 
 	::testing::TestEventListeners& listeners =

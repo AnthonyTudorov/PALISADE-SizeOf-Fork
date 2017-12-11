@@ -99,6 +99,15 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 				0, 0, 1);
 
 	}
+	else if( parmtype == "BFVrns" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "securityLevel", secLevel) )
+			return 0;
+
+		return CryptoContextFactory<Element>::genCryptoContextBFVrns(stoul(plaintextModulus), stof(secLevel), 4,
+				0, 0, 1);
+
+	}
 	else if( parmtype == "BV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
@@ -167,6 +176,9 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 	else if (type == "LPCryptoParametersFV") {
 		parmPtr = new LPCryptoParametersFV<Element>();
 	}
+	else if (type == "LPCryptoParametersBFVrns") {
+		parmPtr = new LPCryptoParametersBFVrns<Element>();
+	}
 	else
 		return 0;
 
@@ -228,7 +240,7 @@ CryptoContextHelper::getNewContext(const string& parmset, EncodingParams ep)
 
 	// FV uses parm generation so we skip this code for FV
 	shared_ptr<typename Poly::Params> parms;
-	if( parmtype != "FV" ) {
+	if(( parmtype != "FV" ) && ( parmtype != "BFVrns" )) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "modulus", modulus) ||
 				!getValueForName(it->second, "rootOfUnity", rootOfUnity) ) {
@@ -263,7 +275,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 
 	// FV uses parm generation so we skip this code for FV
 	shared_ptr<DCRTPoly::Params> parms;
-	if( parmtype != "FV" ) {
+	if(( parmtype != "FV" ) && ( parmtype != "BFVrns" )) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "plaintextModulus", plaintextModulus) ) {
 			return 0;

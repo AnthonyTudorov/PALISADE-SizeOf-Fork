@@ -160,10 +160,10 @@ TEST_F(UTPKESer, FV_Poly_Serial) {
 	UnitTestContext<Poly>(cc);
 }
 
-//TEST_F(UTPKESer, FV_DCRTPoly_Serial) {
-//	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("FV2", 3, 20);
-//	UnitTestContext<DCRTPoly>(cc);
-//}
+TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
+}
 
 // REMAINDER OF THE TESTS USE BV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, Keys_and_ciphertext) {
