@@ -72,7 +72,7 @@ ScalarEncoding::Decode() {
 		this->valueSigned = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 
 		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-		if( this->valueSigned > (mod/2) )
+		if( (int64_t)this->valueSigned > (int64_t)(mod/2) )
 			this->valueSigned -= mod;
 	}
 	else {
