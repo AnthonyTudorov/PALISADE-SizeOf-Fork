@@ -33,7 +33,7 @@ namespace lbcrypto {
 
 class ScalarEncoding : public PlaintextImpl {
 	uint32_t		value;
-	int32_t			valueSigned;
+	int32_t		valueSigned;
 	bool			isSigned;
 
 public:
@@ -123,7 +123,8 @@ public:
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
 		const ScalarEncoding& oth = dynamic_cast<const ScalarEncoding&>(other);
-		return oth.value == this->value && oth.isSigned == this->isSigned;
+		if( oth.isSigned != this->isSigned ) return false;
+		return this->isSigned ? oth.valueSigned == this->valueSigned : oth.value == this->value;
 	}
 
 	/**

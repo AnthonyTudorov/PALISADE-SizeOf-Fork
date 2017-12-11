@@ -111,8 +111,6 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
 
-	//std::cout << "deltaBig = " << deltaBig << std::endl;
-
 	std::vector<NativeInteger> CRTDeltaTable(size);
 
 	for (size_t i = 0; i < size; i++){

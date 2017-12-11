@@ -68,16 +68,15 @@ ScalarEncoding::Encode() {
 
 bool
 ScalarEncoding::Decode() {
-	auto val = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 	if( isSigned ) {
-		this->valueSigned = val;
+		this->valueSigned = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 
 		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-		if( this->valueSigned >  int32_t(mod/2) )
+		if( this->valueSigned > (mod/2) )
 			this->valueSigned -= mod;
 	}
 	else {
-		this->value = val;
+		this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 	}
 	return true;
 }

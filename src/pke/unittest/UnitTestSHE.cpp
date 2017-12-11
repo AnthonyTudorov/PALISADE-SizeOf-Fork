@@ -131,12 +131,12 @@ TEST_F(UTSHE, StSt_DCRTPoly_Add) {
 }
 
 TEST_F(UTSHE, Null_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextNull<Poly>(ORDER, PTM);
 	UnitTest_Add<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Add) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextNull<DCRTPoly>(ORDER, TOWERS, PTM, 30);
 	UnitTest_Add<DCRTPoly>(cc);
 }
 
@@ -226,12 +226,12 @@ TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
 //}
 
 TEST_F(UTSHE, Null_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
+	CryptoContext<Poly> cc = GenCryptoContextNull<Poly>(ORDER, PTM);
 	UnitTest_Mult<Poly>(cc);
 }
 
 TEST_F(UTSHE, Null_DCRTPoly_Mult) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextNull<DCRTPoly>(ORDER, TOWERS, PTM, 30);
 	UnitTest_Mult<DCRTPoly>(cc);
 }
 

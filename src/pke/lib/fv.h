@@ -652,7 +652,7 @@ namespace lbcrypto {
 		*/
 		LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the FV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 

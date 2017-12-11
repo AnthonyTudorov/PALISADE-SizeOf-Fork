@@ -90,8 +90,6 @@ public:
 
 	virtual ~PlaintextImpl() {}
 
-	PtxtPolyType GetPtxtPolyType() const { return typeFlag; }
-
 	/**
 	 * GetEncodingType
 	 * @return Encoding type used by this plaintext
@@ -130,6 +128,8 @@ public:
 	void SetFormat(Format fmt) {
 		if( typeFlag == IsPoly )
 			encodedVector.SetFormat(fmt);
+		else if( typeFlag == IsNativePoly )
+			encodedNativeVector.SetFormat(fmt);
 		else
 			encodedVectorDCRT.SetFormat(fmt);
 	}
@@ -148,16 +148,24 @@ public:
 	template <typename Element>
 	Element& GetElement();
 
+	/**
+	 * GetElementRingDimension
+	 * @return ring dimension on the underlying element
+	 */
 	const usint GetElementRingDimension() const {
 		return typeFlag == IsPoly ? encodedVector.GetRingDimension() :
 				(typeFlag == IsNativePoly ? encodedNativeVector.GetRingDimension() :
 						encodedVectorDCRT.GetRingDimension());
 	}
 
-	const NativeInteger GetElementModulus() const {
-		return typeFlag == IsPoly ? encodedVector.GetModulus().ConvertToInt() :
-				(typeFlag == IsNativePoly ? encodedNativeVector.GetModulus().ConvertToInt() :
-						encodedVectorDCRT.GetModulus().ConvertToInt());
+	/**
+	 * GetElementModulus
+	 * @return modulus on the underlying elemenbt
+	 */
+	const BigInteger GetElementModulus() const {
+		return typeFlag == IsPoly ? encodedVector.GetModulus() :
+				(typeFlag == IsNativePoly ? BigInteger(encodedNativeVector.GetModulus().ConvertToInt()) :
+						encodedVectorDCRT.GetModulus());
 	}
 
 	/**
@@ -215,21 +223,6 @@ public:
 	 * @param out
 	 */
 	virtual void PrintValue(std::ostream& out) const = 0;
-
-	/**
-	 * Method to convert plaintext modulus to a native data type.
-	 *
-	 * @param ptm - the plaintext modulus.
-	 * @return the plaintext modulus in native type.
-	 */
-	NativeInteger ConvertToNativeModulus(const BigInteger& ptm) {
-		static BigInteger largestNative( ~((uint64_t)0) );
-
-		if( ptm > largestNative )
-			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
-
-		return NativeInteger( ptm.ConvertToInt() );
-	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PlaintextImpl& item)

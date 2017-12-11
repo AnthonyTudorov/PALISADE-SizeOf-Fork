@@ -30,12 +30,6 @@
 #include "backend.h"
 
 namespace lbcrypto {
-//	template<typename IntType, typename VecType>
-//	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl() : DistributionGenerator<IntType,VecType>() {
-//
-//		SetStd(1);
-//		Initialize();
-//	}
 
 	template<typename IntType, typename VecType>
 	DiscreteGaussianGeneratorImpl<IntType,VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator<IntType,VecType>() {
@@ -90,12 +84,6 @@ namespace lbcrypto {
 		for (usint i = 1; i < m_vals.size(); i++) {
 			m_vals[i] += m_vals[i - 1];
 		}
-
-		//for (usint i = 0; i<m_vals.size(); i++) {
-		//	std::cout << m_vals[i] << std::endl;
-		//}
-
-		//std::cout<<m_a<<std::endl;
 
 	}
 

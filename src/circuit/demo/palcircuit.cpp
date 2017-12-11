@@ -87,10 +87,7 @@ main(int argc, char *argv[])
 	const usint mdim = 3;
 	const usint maxprint = 10;
 
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(m, 5, ptm, 20);
-	//CryptoContext<Poly> cc = GenCryptoContextElementNull(m, ptm);
-	//CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(m, 5, ptm, 20);
-	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, ptm);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextNull<DCRTPoly>(m, 5, ptm, 20);
 
 	bool debug_parse = false;
 	bool print_input_graph = false;

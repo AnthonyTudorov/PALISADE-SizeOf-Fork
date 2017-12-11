@@ -36,20 +36,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-// This file unit tests the ENCRYPTION capabilities for all schemes, using both known elements
-
-class UTENCRYPT : public ::testing::Test {
-protected:
-	void SetUp() {}
-
-	void TearDown() {
-		CryptoContextFactory<NativePoly>::ReleaseAllContexts();
-		CryptoContextFactory<Poly>::ReleaseAllContexts();
-		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
-	}
-
-public:
-};
+// This file unit tests the ENCRYPTION capabilities for all schemes, using all known elements
 
 template <typename Element>
 class Encrypt_Decrypt : public ::testing::Test {
@@ -58,8 +45,18 @@ public:
 	typedef std::list<Element> List;
 	static Element shared_;
 	Element value_;
+
+protected:
+	void SetUp() {}
+
+	void TearDown() {
+		CryptoContextFactory<NativePoly>::ReleaseAllContexts();
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
 };
 
+static vector<string> AllSchemes( {"Null", "LTV", "StSt", "BV", "FV", "BFVrns"} );
 typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
 TYPED_TEST_CASE(Encrypt_Decrypt, EncryptElementTypes);
 
@@ -69,285 +66,95 @@ static void EncryptionScalar(const CryptoContext<Element> cc, const string& fail
 	Plaintext plaintext = cc->MakeScalarPlaintext(value);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for scalar encrypt/decrypt failed";
 
 	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	Plaintext plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " unsigned";
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " unsigned scalar encrypt/decrypt failed";
 
 	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value, true);
 	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext2, *plaintextNew) << failmsg << " signed";
+	EXPECT_EQ(*plaintext2, *plaintextNew) << failmsg << " signed scalar encrypt/decrypt failed";
 }
 
 
 TYPED_TEST(Encrypt_Decrypt, Scalar) {
-	CryptoContext<TypeParam> cc = GenCryptoContextLTV<TypeParam>(2048, 64, 52);
-	EncryptionScalar<TypeParam>(cc, "LTV");
+	CryptoContext<TypeParam> cc;
 
-	cc = GenCryptoContextNull<TypeParam>(8, 64);
-	EncryptionScalar<TypeParam>(cc, "NULL");
-}
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 8, 64);
+		} catch( ... ) {
+			continue;
+		}
 
-template <typename Element>
-void
-UnitTestNewEncryptionScalar(const CryptoContext<Element> cc) {
-	uint32_t		value = 29;
-	Plaintext plaintext = cc->MakeScalarPlaintext(value);
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
-	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt
-	////////////////////////////////////////////////////////////
-
-	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
-	Plaintext plaintextNew;
-	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew) << "unsigned";
-
-	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value, true);
-	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
-	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext2, *plaintextNew) << "signed";
-}
-
-TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 64);
-	UnitTestNewEncryptionScalar<Poly>(cc);
-}
-
-TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(8, 64);
-	UnitTestNewEncryptionScalar<Poly>(cc);
-}
-
-TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(8, 64, 60);
-	UnitTestNewEncryptionScalar<Poly>(cc);
-}
-
-TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(8, 64);
-	UnitTestNewEncryptionScalar<Poly>(cc);
-}
-
-TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Scalar) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(8, 64);
-	UnitTestNewEncryptionScalar<Poly>(cc);
-}
-
-TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Scalar) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(8, 3, 64);
-	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Scalar) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(8, 3, 64);
-	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
-}
-TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Scalar) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(8, 3, 64);
-	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Scalar) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(8, 3, 64);
-	UnitTestNewEncryptionScalar<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Scalar) {
-	cout << "DCRT not supported for FV" << endl;
-	SUCCEED();
-	return;
-	if( 0 ) {
-		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(8, 3, 64);
-		UnitTestNewEncryptionScalar<DCRTPoly>(cc);
+		EncryptionScalar<TypeParam>(cc, AllSchemes[i]);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionInteger(const CryptoContext<Element> cc) {
+EncryptionInteger(const CryptoContext<Element> cc, const string& failmsg) {
 	uint64_t		value = 256*256*256;
 	Plaintext plaintext = cc->MakeIntegerPlaintext(value);
-	cout << *plaintext << endl;
 
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
 	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt
-	////////////////////////////////////////////////////////////
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for integer encrypt/decrypt failed";
 
 	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	Plaintext plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " integer encrypt/decrypt failed";
 }
 
-TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Integer) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 64);
-	UnitTestNewEncryptionInteger<Poly>(cc);
-}
+TYPED_TEST(Encrypt_Decrypt, Integer) {
+	CryptoContext<TypeParam> cc;
 
-TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Integer) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(128, 64);
-	UnitTestNewEncryptionInteger<Poly>(cc);
-}
-TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Integer) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 64);
-	UnitTestNewEncryptionInteger<Poly>(cc);
-}
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 128, 64);
+		} catch( ... ) {
+			continue;
+		}
 
-TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Integer) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(128, 64);
-	UnitTestNewEncryptionInteger<Poly>(cc);
-}
-
-TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Integer) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(128, 64);
-	UnitTestNewEncryptionInteger<Poly>(cc);
-}
-
-TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Integer) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(128, 3, 64);
-	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Integer) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(128, 3, 64);
-	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
-}
-TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Integer) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(128, 3, 64);
-	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Integer) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(128, 3, 64);
-	UnitTestNewEncryptionInteger<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Integer) {
-	cout << "DCRT not supported for FV" << endl;
-	SUCCEED();
-	return;
-	if( 0 ) {
-		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(128, 3, 64);
-		UnitTestNewEncryptionInteger<DCRTPoly>(cc);
+		EncryptionInteger<TypeParam>(cc, AllSchemes[i]);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionString(const CryptoContext<Element> cc) {
+EncryptionString(const CryptoContext<Element> cc, const string& failmsg) {
 	string		value = "You keep using that word. I do not think it means what you think it means";
 	Plaintext plaintext = cc->MakeStringPlaintext(value);
 
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
 	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt
-	////////////////////////////////////////////////////////////
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for string encrypt/decrypt failed";
 
 	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	Plaintext plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " string encrypt/decrypt failed";
 }
 
-TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_String) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
-	UnitTestNewEncryptionString<Poly>(cc);
-}
+TYPED_TEST(Encrypt_Decrypt, String) {
+	CryptoContext<TypeParam> cc;
 
-TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_String) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
-	UnitTestNewEncryptionString<Poly>(cc);
-}
-TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_String) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
-	UnitTestNewEncryptionString<Poly>(cc);
-}
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 512, 256);
+		} catch( ... ) {
+			continue;
+		}
 
-TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_String) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
-	UnitTestNewEncryptionString<Poly>(cc);
-}
-
-TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_String) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
-	UnitTestNewEncryptionString<Poly>(cc);
-}
-
-TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_String) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
-	UnitTestNewEncryptionString<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_String) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(512, 3, 256);
-	UnitTestNewEncryptionString<DCRTPoly>(cc);
-}
-TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_String) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
-	UnitTestNewEncryptionString<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_String) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(512, 3, 256);
-	UnitTestNewEncryptionString<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_String) {
-	cout << "DCRT not supported for FV" << endl;
-	SUCCEED();
-	return;
-	if( 0 ) {
-		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(512, 3, 256);
-		UnitTestNewEncryptionString<DCRTPoly>(cc);
+		EncryptionString<TypeParam>(cc, AllSchemes[i]);
 	}
 }
 
 template <typename Element>
 void
-UnitTestNewEncryptionCoefPacked(const CryptoContext<Element> cc) {
+EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 
 	size_t intSize = cc->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
@@ -365,215 +172,30 @@ UnitTestNewEncryptionCoefPacked(const CryptoContext<Element> cc) {
 	}
 	Plaintext plaintextSInt = cc->MakeCoefPackedPlaintext(sintvec);
 
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
 	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt short, with padding, full, and long
-	////////////////////////////////////////////////////////////
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for coef packed encrypt/decrypt failed";
 
 	Ciphertext<Element> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
 	Plaintext plaintextIntNew;
 	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
-	EXPECT_EQ(*plaintextIntNew, *plaintextInt) << "Encrypt integer plaintext";
+	EXPECT_EQ(*plaintextIntNew, *plaintextInt) << failmsg << "coef packed encrypt/decrypt failed for integer plaintext";
 
 	Ciphertext<Element> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt);
 	Plaintext plaintextSIntNew;
 	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
-	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << "Encrypt signed integer plaintext";
+	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << failmsg << "coef packed encrypt/decrypt failed for signed integer plaintext";
 }
 
-TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
-	UnitTestNewEncryptionCoefPacked<Poly>(cc);
-}
+TYPED_TEST(Encrypt_Decrypt, CoefPacked) {
+	CryptoContext<TypeParam> cc;
 
-TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
-	UnitTestNewEncryptionCoefPacked<Poly>(cc);
-}
-TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
-	UnitTestNewEncryptionCoefPacked<Poly>(cc);
-}
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 2048, 256);
+		} catch( ... ) {
+			continue;
+		}
 
-TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
-	UnitTestNewEncryptionCoefPacked<Poly>(cc);
-}
-
-TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
-	UnitTestNewEncryptionCoefPacked<Poly>(cc);
-}
-
-TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(512, 3, 256);
-	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(512, 3, 256);
-	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
-}
-TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(512, 3, 256);
-	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_CoefPacked) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(512, 3, 256);
-	UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_CoefPacked) {
-	cout << "DCRT not supported for FV" << endl;
-	SUCCEED();
-	return;
-	if( 0 ) {
-		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(512, 3, 256);
-		UnitTestNewEncryptionCoefPacked<DCRTPoly>(cc);
-	}
-}
-
-// FIXME below is probably obsolete
-template <typename Element>
-void
-UnitTestEncryption(const CryptoContext<Element> cc) {
-	size_t vecSize = cc->GetRingDimension();
-
-	auto randchar = []() -> char {
-        const char charset[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-        const size_t max_index = (sizeof(charset) - 1);
-        return charset[ rand() % max_index ];
-	};
-
-	string shortStr(vecSize/2,0);
-	std::generate_n(shortStr.begin(), vecSize/2, randchar);
-	Plaintext plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
-
-	string fullStr(vecSize,0);
-	std::generate_n(fullStr.begin(), vecSize, randchar);
-	Plaintext plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
-
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
-
-	vector<uint32_t> intvec;
-	for( size_t ii=0; ii<vecSize; ii++)
-		intvec.push_back( rand() % ptm );
-	Plaintext plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
-
-	vector<int32_t> sintvec;
-	for( size_t ii=0; ii<vecSize; ii++) {
-		int rnum = rand() % ptm;
-		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
-		sintvec.push_back( rnum );
-	}
-	Plaintext plaintextSInt = cc->MakeCoefPackedPlaintext(sintvec);
-
-	////////////////////////////////////////////////////////////
-	//Perform the key generation operation.
-	////////////////////////////////////////////////////////////
-
-	// Initialize the key containers.
-	LPKeyPair<Element> kp = cc->KeyGen();
-
-	if (!kp.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	////////////////////////////////////////////////////////////
-	//Encrypt and decrypt short, with padding, full, and long
-	////////////////////////////////////////////////////////////
-
-	if( plaintextShort->GetLength() == 0 ) {
-		std::cout << "This set of test parameters generated zero-length test strings, skipping string cases" << std::endl;
-	} else {
-		Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
-		Plaintext plaintextShortNew;
-		cc->Decrypt(kp.secretKey, ciphertext, &plaintextShortNew);
-		EXPECT_EQ(plaintextShortNew->GetStringValue(), plaintextShort->GetStringValue()) << "Encrypt short plaintext with padding";
-
-		Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintextFull);
-		Plaintext plaintextFullNew;
-		cc->Decrypt(kp.secretKey, ciphertext2, &plaintextFullNew);
-		EXPECT_EQ(plaintextFullNew->GetStringValue(), plaintextFull->GetStringValue()) << "Encrypt regular plaintext";
-
-	}
-
-	Ciphertext<Element> ciphertext4 = cc->Encrypt(kp.publicKey, plaintextInt);
-	Plaintext plaintextIntNew;
-	cc->Decrypt(kp.secretKey, ciphertext4, &plaintextIntNew);
-	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << "Encrypt integer plaintext";
-
-	Ciphertext<Element> ciphertext5 = cc->Encrypt(kp.publicKey, plaintextSInt);
-	Plaintext plaintextSIntNew;
-	cc->Decrypt(kp.secretKey, ciphertext5, &plaintextSIntNew);
-	EXPECT_EQ(plaintextSIntNew->GetCoefPackedSignedValue(), plaintextSInt->GetCoefPackedSignedValue()) << "Encrypt signed integer plaintext";
-}
-
-TEST(UTENCRYPT, LTV_Poly_Encrypt_Decrypt_Byte) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(2048, 256);
-	UnitTestEncryption<Poly>(cc);
-}
-
-TEST(UTENCRYPT, Null_Poly_Encrypt_Decrypt_Byte) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(512, 256);
-	UnitTestEncryption<Poly>(cc);
-}
-TEST(UTENCRYPT, StSt_Poly_Encrypt_Decrypt_Byte) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(4096, 256);
-	UnitTestEncryption<Poly>(cc);
-}
-
-TEST(UTENCRYPT, BV_Poly_Encrypt_Decrypt_Byte) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(2048, 256);
-	UnitTestEncryption<Poly>(cc);
-}
-
-TEST(UTENCRYPT, FV_Poly_Encrypt_Decrypt_Byte) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(512, 256);
-	UnitTestEncryption<Poly>(cc);
-}
-
-TEST(UTENCRYPT, LTV_DCRT_Encrypt_Decrypt_Byte) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(128, 3, 256);
-	UnitTestEncryption<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, Null_DCRT_Encrypt_Decrypt_Byte) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(128, 3, 256);
-	UnitTestEncryption<DCRTPoly>(cc);
-}
-TEST(UTENCRYPT, StSt_DCRT_Encrypt_Decrypt_Byte) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(128, 3, 256);
-	UnitTestEncryption<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, BV_DCRT_Encrypt_Decrypt_Byte) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(128, 3, 256);
-	UnitTestEncryption<DCRTPoly>(cc);
-}
-
-TEST(UTENCRYPT, FV_DCRT_Encrypt_Decrypt_Byte) {
-	cout << "DCRT not supported for FV" << endl;
-	SUCCEED();
-	return;
-	if( 0 ) {
-		CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(128, 3, 256);
-		UnitTestEncryption<DCRTPoly>(cc);
+		EncryptionString<TypeParam>(cc, AllSchemes[i]);
 	}
 }

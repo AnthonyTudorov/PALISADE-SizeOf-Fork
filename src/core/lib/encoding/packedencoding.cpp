@@ -64,7 +64,7 @@ bool PackedEncoding::Encode() {
 		this->Pack(&this->GetElement<NativePoly>(), this->encodingParams->GetPlaintextModulus());//ilVector coefficients are packed and resulting ilVector is in COEFFICIENT form.
 	}
 	else {
-		BigVector temp(this->GetElementRingDimension(), BigInteger(this->GetElementModulus().ConvertToInt()));
+		BigVector temp(this->GetElementRingDimension(), BigInteger(this->GetElementModulus()));
 
 		size_t i;
 		for( i=0; i < value.size(); i++ ) {
