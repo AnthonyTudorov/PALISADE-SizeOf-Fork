@@ -489,7 +489,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const;
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const vector<LPEvalKey<Element>> &evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -502,7 +502,7 @@ namespace lbcrypto {
 		* @return new ciphertext
 		*/
 		virtual Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
+			const Ciphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.
@@ -577,7 +577,7 @@ namespace lbcrypto {
 		* @param k1 private key.
 		* @return evaluation key.
 		*/
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
+		vector<LPEvalKey<Element>> EvalMultKeysGen(
 					const LPPrivateKey<Element> k1) const;
 
 		/**

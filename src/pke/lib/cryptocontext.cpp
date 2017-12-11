@@ -55,6 +55,24 @@ void CryptoContextImpl<Element>::EvalMultKeyGen(const LPPrivateKey<Element> key)
 }
 
 template <typename Element>
+void CryptoContextImpl<Element>::EvalMultKeysGen(const LPPrivateKey<Element> key) {
+
+	if( key == NULL || Mismatched(key->GetCryptoContext()) )
+		throw std::logic_error("Key passed to EvalMultsKeyGen were not generated with this crypto context");
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+
+	const vector<LPEvalKey<Element>> &evalKeys = GetEncryptionAlgorithm()->EvalMultKeysGen(key);
+
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalMultKeyGen, currentDateTime() - start) );
+	}
+
+	evalMultKeyMap[ evalKeys[0]->GetKeyTag() ] = evalKeys;
+}
+
+template <typename Element>
 const vector<LPEvalKey<Element>>& CryptoContextImpl<Element>::GetEvalMultKeyVector(const string& keyID) {
 	auto ekv = evalMultKeyMap.find(keyID);
 	if( ekv == evalMultKeyMap.end() )

@@ -808,7 +808,8 @@ Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
+Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
+		const vector<LPEvalKey<Element>> &evalKeys) const {
 
 	vector<Ciphertext<Element>> cipherTextListTemp;
 	cipherTextListTemp.resize(cipherTextList.size()*2-1);
@@ -893,7 +894,7 @@ Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMult(const Ciphertext<Element
 template <class Element>
 Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 	const Ciphertext<Element> ciphertext2,
-	const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+	const vector<LPEvalKey<Element>> &ek) const {
 
 	// FIXME add a plaintext method for this
 //	if(!ciphertext2->GetIsEncrypted()) {
@@ -902,7 +903,7 @@ Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMultAndRelinearize(const Ciph
 	//Perform a multiplication
 	Ciphertext<Element> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek->at(0)->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(ek[0]->GetCryptoParameters());
 	usint relinWindow = cryptoParamsLWE->GetRelinWindow();
 
 	Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
@@ -919,7 +920,7 @@ Ciphertext<Element> LPAlgorithmSHEFV<Element>::EvalMultAndRelinearize(const Ciph
 	//TODO: Maybe we can change the number of keyswitching and terminate early. For instance; perform keyswitching until 4 elements left.
 	for(size_t j = 0; j<=cipherText->GetDepth()-2; j++){
 		size_t index = cipherText->GetDepth()-2-j;
-		LPEvalKeyRelin<Element> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<Element>>(ek->at(index));
+		LPEvalKeyRelin<Element> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<Element>>(ek[index]);
 
 		const std::vector<Element> &b = evalKey->GetAVector();
 		const std::vector<Element> &a = evalKey->GetBVector();
@@ -1000,15 +1001,15 @@ LPEvalKey<Element> LPAlgorithmSHEFV<Element>::EvalMultKeyGen(
 }
 
 template <class Element>
-shared_ptr<vector<LPEvalKey<Element>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
+vector<LPEvalKey<Element>> LPAlgorithmSHEFV<Element>::EvalMultKeysGen(
 			const LPPrivateKey<Element> originalPrivateKey) const
 {
 
-	const shared_ptr<LPCryptoParametersFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersFV<Element>>(originalPrivateKey->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(originalPrivateKey->GetCryptoParameters());
 
 	LPPrivateKey<Element> originalPrivateKeyPowered = LPPrivateKey<Element>(new LPPrivateKeyImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
-	shared_ptr<vector<LPEvalKey<Element>>> evalMultKeys (new vector<LPEvalKey<Element>>);
+	vector<LPEvalKey<Element>> evalMultKeys;
 
 	std::vector<Element> sPower(cryptoParamsLWE->GetMaxDepth());
 	std::vector<LPEvalKey<Element>> ek(cryptoParamsLWE->GetMaxDepth());
@@ -1020,7 +1021,7 @@ shared_ptr<vector<LPEvalKey<Element>>> LPAlgorithmSHEFV<Element>::EvalMultKeysGe
 	for(size_t i=0; i<cryptoParamsLWE->GetMaxDepth(); i++){
 		originalPrivateKeyPowered->SetPrivateElement(std::move(sPower[i]));
 		ek[i] = this->KeySwitchGen(originalPrivateKeyPowered, originalPrivateKey);
-		evalMultKeys->push_back(ek[i]);
+		evalMultKeys.push_back(ek[i]);
 	}
 
 	return evalMultKeys;

@@ -700,6 +700,16 @@ public:
 	void EvalMultKeyGen(const LPPrivateKey<Element> key);
 
 	/**
+	* EvalMultsKeyGen creates a vector evalmult keys that can be used with the PALISADE EvalMult operator
+	* 1st key (for s^2) is used for multiplication of ciphertexts of depth 1
+	* 2nd key (for s^3) is used for multiplication of ciphertexts of depth 2, etc.
+	*
+	* @param key
+	* @return a vector of evaluation keys
+	*/
+	void EvalMultKeysGen(const LPPrivateKey<Element> key);
+
+	/**
 	 * GetEvalMultKeyVector fetches the eval mult keys for a given KeyID
 	 * @param keyID
 	 * @return key vector from ID
@@ -1494,6 +1504,55 @@ public:
 			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
 		}
 		return rv;
+	}
+
+	/**
+	* EvalMultMany - PALISADE function for evaluating multiplication on ciphertext followed by relinearization operation (at the end).
+	* It computes the multiplication in a binary tree manner. Also, it reduces the number of
+	* elements in the ciphertext to two after each multiplication.
+	* Currently it assumes that the consecutive two input arguments have
+	* total depth smaller than the supported depth. Otherwise, it throws an error.
+	*
+	* @param cipherTextList  is the ciphertext list.
+	*
+	* @return new ciphertext.
+	*/
+	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& ct) const{
+
+		const auto ek = GetEvalMultKeyVector(ct[0]->GetKeyTag());
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMultMany(ct, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
+
+	}
+
+	/**
+	* Function for evaluating multiplication on ciphertext followed by relinearization operation (after each multiplication).
+	* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
+	*
+	* @param ct1 first input ciphertext.
+	* @param ct2 second input ciphertext.
+	*
+	* @return new ciphertext
+	*/
+	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
+			const Ciphertext<Element> ct2) const{
+
+		const auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = GetEncryptionAlgorithm()->EvalMultAndRelinearize(ct1, ct2, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+		}
+		return rv;
+
 	}
 
 	/**

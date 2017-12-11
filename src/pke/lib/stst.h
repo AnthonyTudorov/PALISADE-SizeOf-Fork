@@ -350,7 +350,7 @@ public:
 	* @param originalPrivateKey private key to start from when key switching.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+	vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultKeysGen is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -365,7 +365,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2,
-		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		const vector<LPEvalKey<Element>> &ek) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
 	}
