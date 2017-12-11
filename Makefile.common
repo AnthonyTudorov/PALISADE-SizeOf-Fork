@@ -139,6 +139,9 @@ include Makefile.pke
 include Makefile.trapdoor
 include Makefile.circuit
 
+include Makefile.gmp
+include Makefile.ntl
+
 include Makefile.wrapper
 include Makefile.benchmark     #builds the benchmark framework
 include Makefile.docs          #populates doxgen documentation
