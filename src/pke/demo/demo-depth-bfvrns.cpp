@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			plaintextModulus, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,2);
+			plaintextModulus, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,2);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);

@@ -199,6 +199,16 @@ GenCryptoContextBFVrns(usint ptm) {
 	return cc;
 }
 
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayBFVrns(usint ptm) {
+
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 4, 0, 2, 0);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
 
 template<typename Element>
 inline CryptoContext<Element>

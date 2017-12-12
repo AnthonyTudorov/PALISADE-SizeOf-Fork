@@ -389,14 +389,12 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 
 std::vector<usint> BFVrnsAutomorphismPackedArray(usint i) {
 
-	usint plaintextModulus = 65537;
+	PlaintextModulus p = 65537;
 	double sigma = 4;
 	double rootHermiteFactor = 1.006;
 	usint batchSize = 8;
 
-	BigInteger modulusP(plaintextModulus);
-
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(

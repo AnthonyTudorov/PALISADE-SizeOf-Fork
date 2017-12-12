@@ -255,8 +255,8 @@ Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Cipher
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
-	const Ciphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(const Ciphertext<NativePoly> ct1,
+	const Ciphertext<NativePoly> ct, const vector<LPEvalKey<NativePoly>> &ek) const{
 	NONATIVEPOLY
 }
 
