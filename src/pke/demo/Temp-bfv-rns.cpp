@@ -89,13 +89,15 @@ void PKE() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<31;
+	usint ptm = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 			ptm, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
+
+	std::cout << "ran context gen" << std::endl;
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -186,7 +188,7 @@ void SHETestCoeff() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<31;
+	usint ptm = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
@@ -313,7 +315,7 @@ void SHETestPacked() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	PlaintextModulus ptm = 536903681;
+	usint ptm = 536903681;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
@@ -514,7 +516,7 @@ void SHETestPackedInnerProduct() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	PlaintextModulus ptm = 268460033;
+	usint ptm = 268460033;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 	usint batchSize = 32;
@@ -632,7 +634,7 @@ void SwitchCRT() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<31;
+	usint ptm = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
@@ -695,7 +697,7 @@ void Multiply() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<31;
+	usint ptm = 1<<31;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
@@ -830,7 +832,7 @@ void MultiplyTwo() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<15;
+	usint ptm = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
@@ -1023,7 +1025,7 @@ void MultiplyThree() {
 	//Generate parameters.
 	//double diff, start, finish;
 
-	PlaintextModulus ptm = 1<<15;
+	usint ptm = 1<<15;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
