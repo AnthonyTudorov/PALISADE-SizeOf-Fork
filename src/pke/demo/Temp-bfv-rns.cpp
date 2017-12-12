@@ -519,7 +519,7 @@ void SHETestPackedInnerProduct() {
 	usint ptm = 268460033;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
-	usint batchSize = 32;
+	usint batchSize = 16;
 
 	BigInteger modulusP(ptm);
 

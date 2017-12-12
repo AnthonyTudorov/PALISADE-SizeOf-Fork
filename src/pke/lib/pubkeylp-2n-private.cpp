@@ -41,6 +41,8 @@ namespace lbcrypto {
 			indices.push_back(g);
 			g = (g * g) % m;
 		}
+		if (2*batchSize<m)
+			indices.push_back(g);
 		indices.push_back(3);
 
 		return indices;
@@ -59,6 +61,8 @@ namespace lbcrypto {
 			newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
 			g = (g * g) % m;
 		}
+		if (2*batchSize<m)
+			newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
 		newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, 3, evalKeys));
 
 		return newCiphertext;
