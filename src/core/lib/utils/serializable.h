@@ -25,7 +25,7 @@
  */ 
 #ifndef LBCRYPTO_SERIALIZABLE_H
 #define LBCRYPTO_SERIALIZABLE_H
-
+#include <vector>
 #include <unordered_map>
 #include <sstream>
 #include <string>
@@ -89,6 +89,19 @@ namespace lbcrypto {
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
 	};
+#if 1
+//helper template to stream vector contents provided T has an stream operator<< 
+template < typename T >
+ std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+{
+    os << "[";
+    for (const auto& itr : v){
+      os << " " << *itr;
+    }
+    os << " ]";
+    return os;
+ };
+#endif
 
 }
 

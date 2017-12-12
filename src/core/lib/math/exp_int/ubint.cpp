@@ -2961,6 +2961,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
   template class ubint<expdtype>;
 
+  //to stream internal representation
   template std::ostream& operator << <expdtype>(std::ostream& os, const std::vector<expdtype>& v);
 
 } // namespace exp_int ends

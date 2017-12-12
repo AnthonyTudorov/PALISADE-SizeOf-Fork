@@ -39,5 +39,8 @@ template<> unique_ptr<NativeInteger<uint64_t>> NativeInteger<uint64_t>::Allocato
 	return lbcrypto::make_unique<NativeInteger<uint64_t>>();
 };
 
+  //to stream internal representation
+  template std::ostream& operator << <uint64_t>(std::ostream& os, const std::vector<uint64_t>& v);
+
 }
 
