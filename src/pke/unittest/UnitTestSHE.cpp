@@ -204,6 +204,7 @@ TYPED_TEST(SHETests, SHEMultiply) {
 			continue;
 		}
 
+		if( AllSchemes[i] == "FV" ) cout << *cc->GetCryptoParameters() << endl;
 		UnitTest_Mult<TypeParam>(cc, AllSchemes[i]);
 	}
 }
