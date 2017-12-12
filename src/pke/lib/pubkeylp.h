@@ -1315,7 +1315,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
-		virtual Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const = 0;
+		virtual Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
+				const vector<LPEvalKey<Element>> &evalKeys) const = 0;
 
 		/**
 		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1327,7 +1328,7 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct2, const shared_ptr<vector<LPEvalKey<Element>>> ek) const = 0;
+			const Ciphertext<Element> ct2, const vector<LPEvalKey<Element>> &ek) const = 0;
 
 		/**
 		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
@@ -1479,7 +1480,7 @@ namespace lbcrypto {
 		* @param &originalPrivateKey Original private key used for encryption.
 		* @param *evalMultKeys the resulting evalution key vector list.
 		*/
-		virtual	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(
+		virtual	vector<LPEvalKey<Element>> EvalMultKeysGen(
 			const LPPrivateKey<Element> originalPrivateKey) const = 0;
 
 		/**
@@ -2219,7 +2220,7 @@ namespace lbcrypto {
 			}
 		}
 
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& ciphertext, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& ciphertext, const vector<LPEvalKey<Element>> &evalKeys) const {
 
 			if (this->m_algorithmSHE){
 				return this->m_algorithmSHE->EvalMultMany(ciphertext, evalKeys);
@@ -2438,16 +2439,20 @@ namespace lbcrypto {
 				}
 		}
 		
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
-				if(this->m_algorithmSHE)
-					return this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+		vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+				if(this->m_algorithmSHE){
+					auto ek = this->m_algorithmSHE->EvalMultKeysGen(originalPrivateKey);
+					for(size_t i=0; i<ek.size(); i++)
+						ek[i]->SetKeyTag( originalPrivateKey->GetKeyTag() );
+					return ek;
+				}
 				else {
-					throw std::logic_error("EvalMultKeyGen operation has not been enabled");
+					throw std::logic_error("EvalMultKeysGen operation has not been enabled");
 				}
 		}
 
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct2, const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+			const Ciphertext<Element> ct2, const vector<LPEvalKey<Element>> &ek) const {
 				if(this->m_algorithmSHE)
 					return this->m_algorithmSHE->EvalMultAndRelinearize(ct1, ct2, ek);
 				else {

@@ -468,7 +468,7 @@ namespace lbcrypto {
 		* @return new ciphertext
 		*/
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct, const shared_ptr<vector<LPEvalKey<Element>>> ek) const;
+			const Ciphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
 
 
 	};

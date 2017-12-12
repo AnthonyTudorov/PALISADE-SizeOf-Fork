@@ -172,26 +172,36 @@ inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayFV(usint ORDER, usint
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers);
+GenCryptoContextBFVrns(usint ptm);
 
 template<>
 inline CryptoContext<Poly>
-GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits, usint towers) {
+GenCryptoContextBFVrns(usint ptm) {
 
 	PALISADE_THROW(not_available_error, "Poly is not supported for BFVrns");
 }
 
 template<>
 inline CryptoContext<NativePoly>
-GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits, usint towers) {
+GenCryptoContextBFVrns(usint ptm) {
 
 	PALISADE_THROW(not_available_error, "NativePoly is not supported for BFVrns");
 }
 
 template<>
 inline CryptoContext<DCRTPoly>
-GenCryptoContextBFVrns(usint ORDER, usint ptm, usint bits, usint towers) {
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 3.2, 1, 4, 0);
+GenCryptoContextBFVrns(usint ptm) {
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 4, 0, 2, 0);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
+inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayBFVrns(usint ptm) {
+
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 4, 0, 2, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -217,7 +227,7 @@ GenTestCryptoContext(const string& name, usint ORDER, usint ptm, usint bits=Defa
 	else if( name == "FV" )
 		cc = GenCryptoContextFV<Element>(ORDER, ptm, bits, towers);
 	else if( name == "BFVrns" )
-		cc = GenCryptoContextBFVrns<Element>(ORDER, ptm, bits, towers);
+		cc = GenCryptoContextBFVrns<Element>(ptm);
 	else {
 		cout << "nothing for " << name << endl;
 		PALISADE_THROW(not_available_error, "No generator for " + name);
@@ -229,6 +239,5 @@ GenTestCryptoContext(const string& name, usint ORDER, usint ptm, usint bits=Defa
 
 	return cc;
 }
-
 
 #endif /* SRC_PKE_LIB_CRYPTOCONTEXTGEN_H_ */

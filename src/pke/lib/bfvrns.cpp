@@ -129,7 +129,7 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 
 	SerialItem::ConstMemberIterator pIt;
 
-	return true;
+	return PrecomputeCRTTables();
 }
 
 // Enable for LPPublicKeyEncryptionSchemeFV

@@ -56,7 +56,7 @@ public:
 	}
 };
 
-TEST_F(UTEncryptStream, Stream_Encryptor_Test)
+TEST_F(UTEncryptStream, Stream_Encryptor_Test_FV)
 {
 	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government!";
 	stringstream		bigSource, mid, bigDest;
@@ -65,6 +65,22 @@ TEST_F(UTEncryptStream, Stream_Encryptor_Test)
 
 	CryptoContext<Poly> cc = GenCryptoContextElementFV(1024, 256);
 	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	cc->EncryptStream(kp.publicKey, bigSource, mid);
+	cc->DecryptStream(kp.secretKey, mid, bigDest);
+
+	EXPECT_EQ(bigSource.str(), bigDest.str());
+}
+
+TEST_F(UTEncryptStream, Stream_Encryptor_Test_BFVrns)
+{
+	string	base = "Strange women lying in ponds distributing swords is no basis for a system of government!";
+	stringstream		bigSource, mid, bigDest;
+	for( size_t i = 0; i < 5000; i++ )
+		bigSource << base;
+
+	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBFVrns(256);
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	cc->EncryptStream(kp.publicKey, bigSource, mid);
 	cc->DecryptStream(kp.secretKey, mid, bigDest);

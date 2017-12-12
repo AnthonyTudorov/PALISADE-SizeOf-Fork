@@ -550,7 +550,7 @@ public:
 	*/
 	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2,
-		const shared_ptr<vector<LPEvalKey<Element>>> ek) const {
+		const vector<LPEvalKey<Element>> &ek) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultAndRelinearize is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -562,7 +562,8 @@ public:
 	* @param evalKey is the evaluation keys input.
 	* @return A shared pointer to the ciphertext which is the result of the multiplication.
 	*/
-	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
+	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
+			const vector<LPEvalKey<Element>> &evalKeys) const {
 		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
@@ -661,7 +662,7 @@ public:
 	* @param originalPrivateKey private key to start from.
 	* @return resulting evalkeyswitch hint
 	*/
-	shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+	vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 		std::string errMsg = "LPAlgorithmSHELTV::EvalMultKeysGen is not implemented for LTV SHE Scheme.";
 		throw std::runtime_error(errMsg);
 	}

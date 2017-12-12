@@ -60,6 +60,8 @@ std::vector<usint> LTVAutomorphismPackedArray(usint i);
 std::vector<usint> BVAutomorphismPackedArray(usint i);
 //declaration for Automorphism Test on FV scheme with polynomial operation in power of 2 cyclotomics.
 std::vector<usint> FVAutomorphismPackedArray(usint i);
+//declaration for Automorphism Test on BFVrns scheme with polynomial operation in power of 2 cyclotomics.
+std::vector<usint> BFVrnsAutomorphismPackedArray(usint i);
 //Helper to function to produce a output of the input vector by i to the left(cyclic rotation).
 std::vector<usint> Rotate(const std::vector<usint> &input,usint i);
 //Helper to function to check if the elements in perm are the same in the init vector.
@@ -102,6 +104,16 @@ TEST_F(UTAUTOMORPHISM, Test_FV_Automorphism_PowerOf2) {
 	}
 }
 
+TEST_F(UTAUTOMORPHISM, Test_BFVrns_Automorphism_PowerOf2) {
+	PackedEncoding::Destroy();
+
+	std::vector<usint> initVector = { 1,2,3,4,5,6,7,8 };
+
+	for (usint index = 3; index < 16; index = index + 2) {
+		auto morphedVector = BFVrnsAutomorphismPackedArray(index);
+		EXPECT_TRUE(CheckAutomorphism(morphedVector, initVector));
+	}
+}
 
 TEST_F(UTAUTOMORPHISM, Test_LTV_Automorphism_Arb) {
 	
@@ -364,6 +376,48 @@ std::vector<usint> FVAutomorphismPackedArray(usint i) {
 	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
 
 	Ciphertext<Poly> p1;
+
+	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, p1, &intArrayNew);
+
+	return intArrayNew->GetPackedValue();
+
+}
+
+std::vector<usint> BFVrnsAutomorphismPackedArray(usint i) {
+
+	PlaintextModulus p = 65537;
+	double sigma = 4;
+	double rootHermiteFactor = 1.006;
+	usint batchSize = 8;
+
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			encodingParams, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,2);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+
+	Ciphertext<DCRTPoly> ciphertext;
+
+	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
+
+	ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = { 3,5,7,9,11,13,15 };
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	Ciphertext<DCRTPoly> p1;
 
 	p1 = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
 

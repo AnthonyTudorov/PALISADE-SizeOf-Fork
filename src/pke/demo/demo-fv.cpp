@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 	keyPair = cryptoContext->KeyGen();
 
 	//Create evaluation key vector to be used in keyswitching
-	shared_ptr<vector<LPEvalKey<Poly>>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
+	vector<LPEvalKey<Poly>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;

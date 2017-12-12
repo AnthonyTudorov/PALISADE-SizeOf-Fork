@@ -673,7 +673,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 			const Ciphertext<Element> ciphertext2,
-			const shared_ptr<vector<LPEvalKey<Element>>> evalKey) const {
+			const vector<LPEvalKey<Element>> &evalKey) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
@@ -685,7 +685,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param evalKeys is the evaluation key list input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const shared_ptr<vector<LPEvalKey<Element>>> evalKeys) const {
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
+				const vector<LPEvalKey<Element>> &evalKeys) const {
 			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
 			throw std::runtime_error(errMsg);
 		}
@@ -785,7 +786,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param &newPrivateKey private key for the new ciphertext.
 		* @param *keySwitchHint the key switch hint list.
 		*/
-		shared_ptr<vector<LPEvalKey<Element>>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
+		vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
 				std::string errMsg = "LPAlgorithmSHENULL::EvalMultKeysGen is not implemented for NULL SHE Scheme.";
 				throw std::runtime_error(errMsg);
 			}
