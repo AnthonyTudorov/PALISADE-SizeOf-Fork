@@ -194,17 +194,6 @@ BigVectorImpl<IntegerType>::~BigVectorImpl(){
 
 //ACCESSORS
 
-  template<class IntegerType_c>
-std::ostream& operator<<(std::ostream& os, const BigVectorImpl<IntegerType_c> &ptr_obj){
-        auto len = ptr_obj.m_length;
-        os<<"[";
-	for(usint i=0;i<len;i++){
-	  os<< ptr_obj.m_data[i];
-	  os << ((i == (len-1))?"]":" ");
-	}
-	return os;
-}
-
 template<class IntegerType>
 void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;

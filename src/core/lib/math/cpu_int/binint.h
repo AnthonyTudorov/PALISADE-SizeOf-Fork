@@ -847,10 +847,9 @@ namespace cpu_int{
     		BigInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);
     		//adds the bit value to the print_VALUE
     		BigInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
-
     	}
 
-    	//find the first occurrance of non-zero value in print_VALUE
+    	//find the first occurence of non-zero value in print_VALUE
     	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
     		if((sint)print_VALUE[counter]!=0)break;
     	}
@@ -865,7 +864,6 @@ namespace cpu_int{
     	delete print_obj;
     	return os;
     }
-
 
 	/**
     * Gets the bit at the specified index.

@@ -2048,65 +2048,6 @@ template<typename uint_type,usint BITLENGTH>
 	 return Val;
  }
 
-//Algorithm used is double and add
-//http://www.wikihow.com/Convert-from-Binary-to-Decimal
-template<typename uint_type_c,usint BITLENGTH_c>
-std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
-
-	//create reference for the object to be printed
-	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
-
-	usint counter;
-
-	//initiate to object to be printed
-	print_obj = new BigInteger<uint_type_c,BITLENGTH_c>(ptr_obj);
-
-	//print_obj->PrintLimbsInDec();
-
-	//print_VALUE array stores the decimal value in the array
-	uschar *print_VALUE = new uschar[ptr_obj.m_numDigitInPrintval];
-
-	//reset to zero
-	for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-		*(print_VALUE+i)=0;
-
-	//starts the conversion from base r to decimal value
-	for(size_t i=print_obj->m_MSB;i>0;i--){
-
-		//print_VALUE = print_VALUE*2
-		BigInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);	
-#ifdef DEBUG_OSTREAM
-		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-		 std::cout<<(sint)*(print_VALUE+i);
-		std::cout<<endl;
-#endif
-		//adds the bit value to the print_VALUE
-		BigInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
-#ifdef DEBUG_OSTREAM
-		for(size_t i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-		 std::cout<<(sint)*(print_VALUE+i);
-		std::cout<<endl;
-#endif
-
-	}
-
-	//find the first occurence of non-zero value in print_VALUE
-	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-		if((sint)print_VALUE[counter]!=0)break;							
-	}
-
-	//start inserting values into the ostream object 
-	for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
-		os<<(int)print_VALUE[counter];
-	}
-
-	//os<<endl;
-	delete [] print_VALUE;
-	//deallocate the memory since values are inserted into the ostream object
-	delete print_obj;
-	return os;
-}
-
  
  template<typename uint_type,usint BITLENGTH>
  void BigInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
@@ -2139,7 +2080,6 @@ std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGT
 		
 	}
  }
-
 
 template<typename uint_type,usint BITLENGTH>
 uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
@@ -2221,22 +2161,4 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 }
 
 template class BigInteger<integral_dtype,BigIntegerBitLength>;
-
-    
-//helper template to stream vector contents provided T has an stream operator<< 
-template < typename T >
- std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
-{
-    os << "[";
-    //for (const auto itr : v){
-    for (auto i = v.begin(); i!= v.end(); ++i){
-      os << " " << *i;
-    }
-    os << " ]";
-    return os;
- };
-
-  //to stream internal representation
-  template std::ostream& operator << <integral_dtype>(std::ostream& os, const std::vector<integral_dtype>& v);
-
 } // namespace cpu_int ends

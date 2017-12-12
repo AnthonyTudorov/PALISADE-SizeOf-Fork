@@ -566,14 +566,26 @@ namespace lbcrypto {
       //return *this;
     }
 
-    /**
-     * Matrix rows extractor in a range from row_start to row_and; inclusive
-     *
-     * @param &row_start &row_end row indices
-     * @return the rows in the range delimited by indices inclusive
-     */
-    inline Matrix<Element> ExtractRows(size_t row_start, size_t row_end) const {
-      Matrix<Element> result(this->allocZero,row_end-row_start+1,this->cols);
+	/**
+    *  Stream output operator
+	*
+	* @param &os stream
+	* @param &m matrix to be outputted
+	* @return the chained stream
+    */ 
+    template<class Element>
+    std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m) {
+    	os << "[ ";
+    	for (size_t row = 0; row < m.GetRows(); ++row) {
+    		os << "[ ";
+    		for (size_t col = 0; col < m.GetCols(); ++col) {
+    			os << *m.GetData()[row][col] << " ";
+    		}
+    		os << "]\n";
+    	}
+    	os << " ]\n";
+    	return os;
+    }
 
       for(usint row=row_start; row<row_end+1; row++) {
 	int i = 0;
