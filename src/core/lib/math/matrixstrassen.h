@@ -579,27 +579,8 @@ namespace lbcrypto {
 	* @param &m matrix to be outputted
 	* @return the chained stream
     */
-    
     template<class Element>
-       std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m) {
-      size_t nrows = m.GetRows();
-      size_t ncols = m.GetCols();
-
-      os << "[";
-      for (size_t i = 0; i < nrows; ++i) {
-	os << "[";
-	for (size_t j = 0; j < ncols; ++j) {
-	  os << m(i,j);
-	  if (j == (ncols-1)) {
-	    os << "]" << std::endl;
-	  } else {
-	    os << " ";
-	  }
-	}
-      }
-      os << "] " << std::endl;
-      return os;
-    }
+    inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m);
     
     /**
     * Gives the Choleshky decomposition of the input matrix. 

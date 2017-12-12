@@ -261,8 +261,10 @@ public:
 		return *this;
 	}
 
-	NativeInteger GetInternalRepresentation() {
-	  return m_value;
+	vector<NativeInteger> GetInternalRepresentation() {
+	  vector<NativeInteger> ret;
+	  ret.push_back(m_value);
+	  return ret;
 	}
 
 	/**

@@ -627,4 +627,5 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 
 template class BigVectorImpl<BigInteger<integral_dtype,BigIntegerBitLength>>;
 
+
 } // namespace lbcrypto ends

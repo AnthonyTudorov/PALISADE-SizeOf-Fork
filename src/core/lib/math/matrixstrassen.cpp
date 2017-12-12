@@ -458,6 +458,20 @@ MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat) {
     return result;
 }
 
+template<class Element>
+inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>& m){
+    os << "[ ";
+    for (size_t row = 0; row < m.GetRows(); ++row) {
+        os << "[ ";
+        for (size_t col = 0; col < m.GetCols(); ++col) {
+            os << *m.GetData()[row][col] << " ";
+        }
+        os << "]\n";
+    }
+    os << " ]\n";
+    return os;
+}
+
 // YSP removed the MatrixStrassen class because it is not defined for all possible data types
 // needs to be checked to make sure input matrix is used in the right places
 // the assumption is that covariance matrix does not have large coefficients because it is formed by

@@ -95,8 +95,9 @@ template < typename T >
  std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
 {
     os << "[";
-    for (const auto& itr : v){
-      os << " " << *itr;
+    //for (const auto itr : v){
+    for (auto i = v.begin(); i!= v.end(); ++i){
+      os << " " << *i;
     }
     os << " ]";
     return os;

@@ -29,6 +29,7 @@ Description:
 */
 
 #include "../backend.h"
+#include "../../utils/serializable.h"
 #include "../../utils/debug.h"
 
 #if defined(_MSC_VER)
@@ -770,16 +771,16 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
 	//counter
-	int i;
+	size_t i;
         // DTS: watch sign/unsign compare!!!!
-	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
+	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
 	if(ofl){
-		for(;i>=(int)(m_nSize-ceilIntA);i--){
+		for(;i>=(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -795,7 +796,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 		}
 	}
 	else{
-		for(;i>=(int)(m_nSize-ceilIntA);i--) {
+		for(;i>=(m_nSize-ceilIntA);i--) {
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -2220,6 +2221,20 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 }
 
 template class BigInteger<integral_dtype,BigIntegerBitLength>;
+
+    
+//helper template to stream vector contents provided T has an stream operator<< 
+template < typename T >
+ std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+{
+    os << "[";
+    //for (const auto itr : v){
+    for (auto i = v.begin(); i!= v.end(); ++i){
+      os << " " << *i;
+    }
+    os << " ]";
+    return os;
+ };
 
   //to stream internal representation
   template std::ostream& operator << <integral_dtype>(std::ostream& os, const std::vector<integral_dtype>& v);
