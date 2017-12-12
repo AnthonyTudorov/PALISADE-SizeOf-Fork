@@ -51,6 +51,8 @@ else
  GMP_INSTALL_NEEDED := gmp_install
 endif
 
+$(GMPLIB): gmp_all
+
 gmp_all: $(GMP_UNPACK_NEEDED) $(GMP_CONFIG_NEEDED) $(GMP_MAKE_NEEDED) $(GMP_CHECK_NEEDED) $(GMP_INSTALL_NEEDED)
 
 gmp_unpack: 
