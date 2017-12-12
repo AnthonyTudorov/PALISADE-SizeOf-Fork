@@ -1118,8 +1118,6 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
 {
-	std::cout << "entered" << std::endl;
-
 	int nonZeroCount = 0;
 
 	if( numAdds > 0 ) nonZeroCount++;
@@ -1142,13 +1140,9 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 			1,
 			maxDepth) );
 
-	std::cout << "step 2" << std::endl;
-
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFVrns<T>() );
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
-
-	std::cout << "step 3" << std::endl;
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
