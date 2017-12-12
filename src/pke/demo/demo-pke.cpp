@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 	
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper::printAllParmSetNames(std::cout);
+	CryptoContextHelper::printParmSetNamesByExcludeFilter(std::cout,"BFVrns");
 
 	string input;
 	std::cin >> input;
