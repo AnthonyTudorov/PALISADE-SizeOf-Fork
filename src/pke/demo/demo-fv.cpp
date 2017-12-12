@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 	keyPair = cryptoContext->KeyGen();
 
 	//Create evaluation key vector to be used in keyswitching
-	vector<LPEvalKey<Poly>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
+	cryptoContext->EvalMultKeysGen(keyPair.secretKey);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -199,11 +199,11 @@ int main(int argc, char *argv[]) {
 
 	start = currentDateTime();
 	//Perform consecutive multiplications and do a keyswtiching at the end.
-	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1,ciphertext2);
-	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3);
-	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul123, ciphertext4);
-	ciphertextMul12345  = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul1234, ciphertext5);
-	ciphertextMul123456 = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul12345, ciphertext6, evalKeys);
+	ciphertextMul12     = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
+	ciphertextMul123    = cryptoContext->EvalMultNoRelin(ciphertextMul12, ciphertext3);
+	ciphertextMul1234   = cryptoContext->EvalMultNoRelin(ciphertextMul123, ciphertext4);
+	ciphertextMul12345  = cryptoContext->EvalMultNoRelin(ciphertextMul1234, ciphertext5);
+	ciphertextMul123456 = cryptoContext->EvalMultAndRelinearize(ciphertextMul12345, ciphertext6);
 
 	finish = currentDateTime();
 	diff = finish - start;
@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
 	cipherTextList.push_back(ciphertext4);
 	cipherTextList.push_back(ciphertext5);
 
-	ciphertextMul1234567 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
+	ciphertextMul1234567 = cryptoContext->EvalMultMany(cipherTextList);
 
 	Plaintext plaintextMul7;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234567, &plaintextMul7);
