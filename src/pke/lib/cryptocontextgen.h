@@ -35,12 +35,12 @@
 
 using namespace lbcrypto;
 
-static const usint DefaultPrimeBits = 50;
-static const usint DefaultTowers = 3;
+static const usint DefaultQbits = 50;
+static const usint DefaultT = 3;
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextNull(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+GenCryptoContextNull(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
 	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextNull(p, ptm);
@@ -53,7 +53,7 @@ GenCryptoContextNull(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeB
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextLTV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+GenCryptoContextLTV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
 	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);
@@ -66,7 +66,7 @@ GenCryptoContextLTV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBi
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextStSt(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+GenCryptoContextStSt(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
@@ -80,7 +80,7 @@ GenCryptoContextStSt(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeB
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextBV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+GenCryptoContextBV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
@@ -94,7 +94,7 @@ GenCryptoContextBV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBit
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers);
+GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT);
 
 template<>
 inline CryptoContext<Poly>
@@ -113,15 +113,7 @@ template<>
 inline CryptoContext<NativePoly>
 GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers) {
 
-	if( bits > 24 ) bits = 24;
-	cout << "native " << ORDER << " " << bits << endl;
-
-	shared_ptr<typename NativePoly::Params> p = ElemParamFactory::GenElemParams<typename NativePoly::Params,typename NativePoly::Integer>(ORDER, bits, towers);
-	NativeInteger delta(p->GetModulus().DividedBy(ptm));
-	CryptoContext<NativePoly> cc = CryptoContextFactory<NativePoly>::genCryptoContextFV(p, ptm, 1, 4, delta.ToString());
-//	,
-//			MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel);
-	 //= CryptoContextFactory<NativePoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0);
+	CryptoContext<NativePoly> cc = CryptoContextFactory<NativePoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 0, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -177,7 +169,8 @@ inline CryptoContext<DCRTPoly> GenCryptoContextElementArrayBFVrns(PlaintextModul
 
 template<typename Element>
 inline CryptoContext<Element>
-GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usint bits=DefaultPrimeBits, usint towers=DefaultTowers) {
+GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm,
+		MODE mode = RLWE, usint bits=DefaultQbits, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 	CryptoContext<Element> cc;
 

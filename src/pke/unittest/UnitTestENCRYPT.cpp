@@ -90,6 +90,7 @@ TYPED_TEST(Encrypt_Decrypt, Scalar) {
 			continue;
 		}
 
+		cout << AllSchemes[i] << endl;
 		EncryptionScalar<TypeParam>(cc, AllSchemes[i]);
 	}
 }
