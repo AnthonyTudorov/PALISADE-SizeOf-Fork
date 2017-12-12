@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 		float stdDev = 4;
 		usint assurance = 144;
 		usint m = 1811;
-		usint ptm = 10400;
+		PlaintextModulus ptm = 10400;
 
 		BigInteger modulus("147573952589676481307");
 		BigInteger rootUnity("36745553101704677056");
@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigInteger(ptm),
+				ptm,
 				stdDev,
 				assurance,
 				1.006, // securityLevel,
@@ -166,7 +166,7 @@ main(int argc, char *argv[])
 		float stdDev = 4;
 		usint assurance = 144;
 		usint m = 1559;
-		usint ptm = 512;
+		PlaintextModulus ptm = 512;
 
 		BigInteger modulus("144115188075962143");
 		BigInteger rootUnity("62176233231091969");
@@ -177,7 +177,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,
-				BigInteger(ptm),
+				ptm,
 				stdDev,
 				assurance,
 				1.006, // securityLevel,
@@ -248,18 +248,18 @@ main(int argc, char *argv[])
 		usint assurance = 144;
 		usint batchSize = 64;
 		usint m = 1733;
-		usint ptm = 10399;
+		PlaintextModulus ptm = 10399;
 
 		BigInteger modulus("1152921504606909071");
 		BigInteger rootUnity("44343872016735288");
 		BigInteger bigModulus("10889035741470030830827987437816582848513");
 		BigInteger bigRootUnity("5879632101734955395039618227388702592012");
 
-		PackedEncoding::SetParams(ptm, m);
+		PackedEncoding::SetParams(m, ptm);
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<EncodingParams> encodingParams(new EncodingParams(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
+		EncodingParams encodingParams(new EncodingParamsImpl(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,

@@ -51,22 +51,31 @@ class PackedEncoding : public PlaintextImpl
 
 public:
 	// these two constructors are used inside of Decrypt
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep) {}
+
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
+
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
+		PlaintextImpl(vp,ep), value(coeffs) {}
+
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	/**
@@ -98,8 +107,8 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const BigInteger &modulus) {
-		NativeInteger modulusNI(modulus.ConvertToInt());
+	static usint GetAutomorphismGenerator(const PlaintextModulus &modulus) {
+		NativeInteger modulusNI(modulus);
 		return m_automorphismGenerator[modulusNI];
 	}
 
@@ -129,14 +138,14 @@ public:
 	 * @param m the encoding cyclotomic order.
 	 * @params params data structure storing encoding parameters
 	 */
-	static void SetParams(usint m, shared_ptr<EncodingParams> params);
+	static void SetParams(usint m, EncodingParams params);
 
 	/**
-	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, shared_ptr<EncodingParams> params);)
-	* @params modulus is the plaintext modulus
+	* @brief Method to set encoding params (this method should eventually be replaced by void SetParams(usint m, EncodingParams params);)
 	* @param m the encoding cyclotomic order.
+	* @params modulus is the plaintext modulus
 	*/
-	static void SetParams(const BigInteger &modulus, usint m);
+	static void SetParams(usint m, const PlaintextModulus &modulus);
 
 	/**
 	 * SetLength of the plaintext to the given size
@@ -183,7 +192,7 @@ private:
 	static std::map<NativeInteger, std::vector<usint>> m_fromCRTPerm;
 
 	static void SetParams_2n(usint m, const NativeInteger &modulus);
-	static void SetParams_2n(usint m, shared_ptr<EncodingParams> params);
+	static void SetParams_2n(usint m, EncodingParams params);
 
 	/**
 	* @brief Packs the slot values into aggregate plaintext space.
@@ -191,7 +200,8 @@ private:
 	* @param ring is the element containing slot values.
 	* @param modulus is the plaintext modulus used for packing.
 	*/
-	void Pack(Poly *ring, const BigInteger &modulus) const;
+	template<typename P>
+	void Pack(P *ring, const PlaintextModulus &modulus) const;
 
 	/**
 	* @brief Unpacks the data from aggregated plaintext to slot values.
@@ -199,7 +209,8 @@ private:
 	* @param ring is the input polynomial ring in aggregate plaintext.
 	* @param modulus is the plaintext modulus used in packing operation.
 	*/
-	void Unpack(Poly *ring, const BigInteger &modulus) const;
+	template<typename P>
+	void Unpack(P *ring, const PlaintextModulus &modulus) const;
 
 };
 

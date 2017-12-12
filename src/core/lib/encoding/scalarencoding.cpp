@@ -31,7 +31,7 @@ namespace lbcrypto {
 bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
-	uint64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 	uint32_t entry = value;
 
 	if( this->isSigned ) {
@@ -45,10 +45,18 @@ ScalarEncoding::Encode() {
 		}
 	}
 
-	this->encodedVector.SetValuesToZero();
-	if( entry >= mod )
-		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-	this->encodedVector.at(0) = entry;
+	if( this->typeFlag == IsNativePoly ) {
+		this->encodedNativeVector.SetValuesToZero();
+		if( entry >= mod )
+			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
+		this->encodedNativeVector[0] = entry;
+	}
+	else {
+		this->encodedVector.SetValuesToZero();
+		if( entry >= mod )
+			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
+		this->encodedVector[0] = entry;
+	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
 		this->encodedVectorDCRT = this->encodedVector;
@@ -61,13 +69,15 @@ ScalarEncoding::Encode() {
 bool
 ScalarEncoding::Decode() {
 	if( isSigned ) {
-		this->valueSigned = this->encodedVector.at(0).ConvertToInt();
-		int64_t mod = this->encodingParams->GetPlaintextModulus().ConvertToInt();
-		if( this->valueSigned >  mod/2)
+		this->valueSigned = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
+
+		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+		if( (int64_t)this->valueSigned > (int64_t)(mod/2) )
 			this->valueSigned -= mod;
 	}
-	else
-		this->value = this->encodedVector.at(0).ConvertToInt();
+	else {
+		this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
+	}
 	return true;
 }
 

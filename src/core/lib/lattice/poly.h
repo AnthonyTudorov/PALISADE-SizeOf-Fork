@@ -40,6 +40,7 @@ using std::shared_ptr;
 #include "../lattice/ilparams.h"
 #include "../lattice/ildcrtparams.h"
 #include "../lattice/ilelement.h"
+#include "../encoding/encodingparams.h"
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
@@ -362,7 +363,6 @@ public:
 		return m_params->GetRootOfUnity();
 	}
 
-
 	/**
 	 * @brief Get value of element at index i.
 	 *
@@ -370,6 +370,14 @@ public:
 	 */
 	IntType& at(usint i) ;
 	const IntType& at(usint i) const;
+
+	/**
+	 * @brief Get value of element at index i.
+	 *
+	 * @return value at index i.
+	 */
+	IntType& operator[](usint i) ;
+	const IntType& operator[](usint i) const;
 
 	//SETTERS
 	/**
@@ -574,13 +582,15 @@ public:
 
 	/**
 	 * @brief Interpolates based on the Chinese Remainder Transform Interpolation.
-	 * Does nothing for PolyImpl. Needed to support the 0linear CRT interpolation in DCRTPoly.
+	 * Does nothing for PolyImpl. Needed to support the linear CRT interpolation in DCRTPoly.
 	 *
 	 * @return the original ring element.
 	 */
 	PolyImpl CRTInterpolate() const {
 		return *this;
 	}
+
+	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
 	 * @brief Transpose the ring element using the automorphism operation
@@ -821,6 +831,32 @@ private:
 
 	void ArbitrarySwitchFormat();
 };
+
+// biginteger version
+template<>
+inline NativePoly
+PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+
+	Poly smaller = this->Mod(ptm);
+	NativePoly interp(
+			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
+															this->GetFormat(), true);
+
+	for (usint i = 0; i<smaller.GetLength(); i++) {
+		interp[i] = smaller[i].ConvertToInt();
+	}
+
+	return std::move( interp );
+}
+
+// native poly version
+template<>
+inline NativePoly
+PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+
+	return this->Mod(ptm);
+}
+
 
 } //namespace lbcrypto ends
 

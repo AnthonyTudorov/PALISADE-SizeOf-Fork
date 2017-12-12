@@ -94,7 +94,7 @@ int main() {
 void ArbBVEvalSumPackedArray() {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 	/*BigInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
@@ -109,7 +109,7 @@ void ArbBVEvalSumPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -117,7 +117,7 @@ void ArbBVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -150,12 +150,12 @@ void BVEvalSumPackedArray2n() {
 
 	usint m = 32;
 	//usint phim = 1024;
-	usint p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -195,7 +195,7 @@ void BVEvalSumPackedArray2n() {
 void ArbLTVEvalSumPackedArray() {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 	/*BigInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
@@ -215,7 +215,7 @@ void ArbLTVEvalSumPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -223,7 +223,7 @@ void ArbLTVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
@@ -256,7 +256,7 @@ void ArbLTVEvalSumPackedArray() {
 void ArbFVEvalSumPackedArray() {
 
 	usint m = 22;
-	usint p = 89;
+	PlaintextModulus p = 89;
 	BigInteger modulusP(p);
 	/*BigInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
@@ -271,7 +271,7 @@ void ArbFVEvalSumPackedArray() {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	float stdDev = 4;
 
@@ -279,7 +279,7 @@ void ArbFVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

@@ -922,7 +922,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
 
-	DEBUG("in InterpolateIlArrayVector2n ring " << ringDimension << " towers " << nTowers);
+	DEBUG("in Interpolate ring " << ringDimension << " towers " << nTowers);
 
 	for( usint vi = 0; vi < nTowers; vi++ )
 		DEBUG("tower " << vi << " is " << m_vectors[vi]);
@@ -993,6 +993,12 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	DEBUG("answer: " << polynomialReconstructed);
 
 	return std::move( polynomialReconstructed );
+}
+
+// todo can we be smarter with this method?
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+	return this->CRTInterpolate().DecryptionCRTInterpolate(ptm);
 }
 
 // Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS

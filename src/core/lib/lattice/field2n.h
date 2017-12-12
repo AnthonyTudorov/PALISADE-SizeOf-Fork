@@ -63,6 +63,12 @@ public:
 	explicit Field2n(const Poly & element);
 
 	/**
+	 * @brief Constructor from ring element
+	 * @param & element ring element
+	 */
+	explicit Field2n(const NativePoly & element);
+
+	/**
 	* @brief Constructor from DCRTPoly ring element
 	* @param & element ring element
 	*/

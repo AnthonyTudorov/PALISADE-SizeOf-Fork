@@ -91,17 +91,17 @@ namespace lbcrypto {
 			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
-				const BigInteger &plaintextModulus, 
+				const PlaintextModulus &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
 				usint relinWindow,
-				const BigInteger &delta = BigInteger(0),
+				const typename Element::Integer &delta = typename Element::Integer(0),
 				MODE mode = RLWE,
-				const BigInteger &bigModulus = BigInteger(0),
-				const BigInteger &bigRootOfUnity = BigInteger(0),
-				const BigInteger &bigModulusArb = BigInteger(0),
-				const BigInteger &bigRootOfUnityArb = BigInteger(0),
+				const typename Element::Integer &bigModulus = typename Element::Integer(0),
+				const typename Element::Integer &bigRootOfUnity = typename Element::Integer(0),
+				const typename Element::Integer &bigModulusArb = typename Element::Integer(0),
+				const typename Element::Integer &bigRootOfUnityArb = typename Element::Integer(0),
 				int depth = 1,
 				int maxDepth = 2);
 
@@ -124,17 +124,17 @@ namespace lbcrypto {
 			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
 			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
-				shared_ptr<EncodingParams> encodingParams,
+				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,
 				usint relinWindow,
-				const BigInteger &delta = BigInteger(0),
+				const typename Element::Integer &delta = typename Element::Integer(0),
 				MODE mode = RLWE,
-				const BigInteger &bigModulus = BigInteger(0),
-				const BigInteger &bigRootOfUnity = BigInteger(0),
-				const BigInteger &bigModulusArb = BigInteger(0),
-				const BigInteger &bigRootOfUnityArb = BigInteger(0),
+				const typename Element::Integer &bigModulus = typename Element::Integer(0),
+				const typename Element::Integer &bigRootOfUnity = typename Element::Integer(0),
+				const typename Element::Integer &bigModulusArb = typename Element::Integer(0),
+				const typename Element::Integer &bigRootOfUnityArb = typename Element::Integer(0),
 				int depth = 1,
 				int maxDepth = 2);
 
@@ -162,64 +162,64 @@ namespace lbcrypto {
 			*
 			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
 			*/
-			const BigInteger& GetDelta() const { return m_delta; }
+			const typename Element::Integer& GetDelta() const { return m_delta; }
 
 			/**
 			* Gets the modulus used for polynomial multiplications in EvalMult
 			*
 			* @return the modulus value.
 			*/
-			const BigInteger& GetBigModulus() const { return m_bigModulus; }
+			const typename Element::Integer& GetBigModulus() const { return m_bigModulus; }
 
 			/**
 			* Gets the primitive root of unity used for polynomial multiplications in EvalMult
 			*
 			* @return the primitive root of unity value.
 			*/
-			const BigInteger& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
+			const typename Element::Integer& GetBigRootOfUnity() const { return m_bigRootOfUnity; }
 
 			/**
 			* Gets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*
 			* @return the modulus value.
 			*/
-			const BigInteger& GetBigModulusArb() const { return m_bigModulusArb; }
+			const typename Element::Integer& GetBigModulusArb() const { return m_bigModulusArb; }
 
 			/**
 			* Gets the primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*
 			* @return the primitive root of unity value.
 			*/
-			const BigInteger& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
+			const typename Element::Integer& GetBigRootOfUnityArb() const { return m_bigRootOfUnityArb; }
 
 			/**
 			* Sets the value of the delta factor
 			* @param &delta is the delta factor
 			*/
-			void SetDelta(const BigInteger &delta) { m_delta = delta; }
+			void SetDelta(const typename Element::Integer &delta) { m_delta = delta; }
 
 			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult
 			* 
 			* @param &bigModulus the modulus value.
 			*/
-			void SetBigModulus(const BigInteger &bigModulus) { m_bigModulus = bigModulus; }
+			void SetBigModulus(const typename Element::Integer &bigModulus) { m_bigModulus = bigModulus; }
 
 			/**
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult
 			* @param &bigRootOfUnity is the root of unity used for EvalMult operations.
 			*/
-			void SetBigRootOfUnity(const BigInteger &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
+			void SetBigRootOfUnity(const typename Element::Integer &bigRootOfUnity) { m_bigRootOfUnity = bigRootOfUnity; }
 
 			/**
 			* Sets the modulus used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
-			void SetBigModulusArb(const BigInteger &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
+			void SetBigModulusArb(const typename Element::Integer &bigModulusArb) { m_bigModulusArb = bigModulusArb; }
 
 			/**
 			* Sets primitive root of unity used for polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			*/
-			void SetBigRootOfUnityArb(const BigInteger &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
+			void SetBigRootOfUnityArb(const typename Element::Integer &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersFV object. 
@@ -253,19 +253,19 @@ namespace lbcrypto {
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in FV (most significant bit ranges are used to represent the message)
-			BigInteger m_delta;
+			typename Element::Integer m_delta;
 			
 			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
-			BigInteger m_bigModulus;
+			typename Element::Integer m_bigModulus;
 			
 			// primitive root of unity for m_bigModulus
-			BigInteger m_bigRootOfUnity;
+			typename Element::Integer m_bigRootOfUnity;
 
 			// Large modulus used for CRT with m_bigModulus
-			BigInteger m_bigModulusArb;
+			typename Element::Integer m_bigModulusArb;
 
 			// Primitive root of unity for m_bigModulusArb
-			BigInteger m_bigRootOfUnityArb;
+			typename Element::Integer m_bigRootOfUnityArb;
 	};
 
 	/**
@@ -354,7 +354,7 @@ namespace lbcrypto {
 		*/
 		virtual DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 		/**
 		* Function to generate public and private keys. See the class description for citations on where the algorithms were
@@ -652,7 +652,7 @@ namespace lbcrypto {
 		*/
 		LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the FV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -744,7 +744,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 	};
 

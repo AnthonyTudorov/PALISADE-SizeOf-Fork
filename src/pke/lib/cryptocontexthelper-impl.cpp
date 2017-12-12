@@ -48,7 +48,7 @@ getValueForName(const map<string,string>& allvals, const string key, string& val
 
 template <typename Element>
 static CryptoContext<Element>
-buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms, shared_ptr<EncodingParams> ep = 0)
+buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Element::Params> parms, EncodingParams ep = 0)
 {
 	std::string parmtype;
 	std::string plaintextModulus;
@@ -208,7 +208,7 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeAndValidateCryptoParam
 }
 
 CryptoContext<Poly>
-CryptoContextHelper::getNewContext(const string& parmset, shared_ptr<EncodingParams> ep)
+CryptoContextHelper::getNewContext(const string& parmset, EncodingParams ep)
 {
 	std::string parmtype;
 	std::string ring;
@@ -269,7 +269,7 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 			return 0;
 		}
 
-		parms = GenerateDCRTParams(stoul(ring), stoul(plaintextModulus), numTowers, primeBits);
+		parms = GenerateDCRTParams(stoul(ring), numTowers, primeBits);
 
 	}
 	return buildContextFromSerialized<DCRTPoly>(it->second, parms);

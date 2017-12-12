@@ -40,6 +40,7 @@ using std::invalid_argument;
 namespace lbcrypto {
 
 template class Matrix<Poly>;
+template class Matrix<NativePoly>;
 template class Matrix<BigInteger>;
 template class Matrix<BigVector>;
 template class Matrix<double>;
@@ -55,6 +56,7 @@ template<>
 bool Matrix<int32_t>::Deserialize(const Serialized& serObj) {
 	return false;
 }
+
 template<>
 bool Matrix<int64_t>::Serialize(Serialized* serObj) const {
 	return false;
@@ -64,6 +66,7 @@ template<>
 bool Matrix<int64_t>::Deserialize(const Serialized& serObj) {
 	return false;
 }
+
 template<>
 bool Matrix<uint64_t>::Serialize(Serialized* serObj) const {
 	return false;
@@ -104,8 +107,6 @@ bool Matrix<NativeInteger>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
-#endif
-
 template<>
 bool Matrix<BigVector>::Serialize(Serialized* serObj) const {
 	return false;
@@ -134,6 +135,27 @@ bool Matrix<Poly>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<Poly>::Deserialize(const Serialized& serObj) {
+	return false;
+}
+
+template<>
+bool Matrix<NativePoly>::Serialize(Serialized* serObj) const {
+	serObj->SetObject();
+	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
+
+	//std::cout << typeid(Element).name() << std::endl;
+
+	for( size_t r=0; r<rows; r++ ) {
+		for( size_t c=0; c<cols; c++ ) {
+			data[r][c]->Serialize(serObj);
+		}
+	}
+
+	return true;
+}
+
+template<>
+bool Matrix<NativePoly>::Deserialize(const Serialized& serObj) {
 	return false;
 }
 
@@ -201,6 +223,7 @@ Matrix<T>& Matrix<T>::Ones() { \
 ONES_FOR_TYPE(int32_t)
 ONES_FOR_TYPE(double)
 ONES_FOR_TYPE(Poly)
+ONES_FOR_TYPE(NativePoly)
 ONES_FOR_TYPE(BigInteger)
 ONES_FOR_TYPE(BigVector)
 ONES_FOR_TYPE(Field2n)
@@ -234,6 +257,7 @@ Matrix<T>& Matrix<T>::Identity() { \
 IDENTITY_FOR_TYPE(int32_t)
 IDENTITY_FOR_TYPE(double)
 IDENTITY_FOR_TYPE(Poly)
+IDENTITY_FOR_TYPE(NativePoly)
 IDENTITY_FOR_TYPE(BigInteger)
 IDENTITY_FOR_TYPE(BigVector)
 IDENTITY_FOR_TYPE(Field2n)
@@ -270,6 +294,7 @@ Matrix<T> Matrix<T>::GadgetVector(int32_t base) const { \
 GADGET_FOR_TYPE(int32_t)
 GADGET_FOR_TYPE(double)
 GADGET_FOR_TYPE(Poly)
+GADGET_FOR_TYPE(NativePoly)
 GADGET_FOR_TYPE(DCRTPoly)
 GADGET_FOR_TYPE(BigInteger)
 GADGET_FOR_TYPE(BigVector)
@@ -324,6 +349,7 @@ Matrix<T> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, const s
 }
 
 SPLIT64_FOR_TYPE(Poly)
+SPLIT64_FOR_TYPE(NativePoly)
 SPLIT64_FOR_TYPE(DCRTPoly)
 
 //  split a vector of BBI into a vector of ring elements with ring dimension n
@@ -343,6 +369,7 @@ Matrix<T> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, cons
 }
 
 SPLIT32ALT_FOR_TYPE(Poly)
+SPLIT32ALT_FOR_TYPE(NativePoly)
 SPLIT32ALT_FOR_TYPE(DCRTPoly)
 
 template<>
@@ -462,6 +489,29 @@ void Matrix<int>::fooprintValues() const {
   
 template<>
 void Matrix<Poly>::SwitchFormat() {
+
+	if (rows == 1)
+	{
+		for (size_t row = 0; row < rows; ++row) {
+#pragma omp parallel for
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+	else
+	{
+		for (size_t col = 0; col < cols; ++col) {
+#pragma omp parallel for
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+}
+
+template<>
+void Matrix<NativePoly>::SwitchFormat() {
 
 	if (rows == 1)
 	{
@@ -621,3 +671,5 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
 }
 
 }
+
+#endif

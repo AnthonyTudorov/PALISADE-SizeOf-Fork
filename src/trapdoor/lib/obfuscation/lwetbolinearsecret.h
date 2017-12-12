@@ -86,7 +86,7 @@ namespace lbcrypto {
 		 * Gets the "plaintext" modulus p used by the LWE scheme
 		 * @return p
 		 */
-		uint64_t GetPlaintextModulus() const {return m_p;}
+		PlaintextModulus GetPlaintextModulus() const {return m_p;}
 
 		/**
 		 * Gets "ciphertext" modulus for the LWE problem
@@ -157,7 +157,7 @@ namespace lbcrypto {
 		usint m_wmax;
 
 		// Plaintext modulus p
-		uint64_t m_p;
+		PlaintextModulus m_p;
 
 		// Infinity norm for the input data vector
 		usint m_pmax;

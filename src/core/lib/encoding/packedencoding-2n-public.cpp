@@ -35,9 +35,9 @@ namespace lbcrypto {
 
 	}
 
-	void PackedEncoding::SetParams_2n(usint m, shared_ptr<EncodingParams> params) {
+	void PackedEncoding::SetParams_2n(usint m, EncodingParams params) {
 
-		NativeInteger modulusNI(params->GetPlaintextModulus().ConvertToInt()); //native int modulus
+		NativeInteger modulusNI(params->GetPlaintextModulus()); //native int modulus
 
 		// Power of two: m/2-point FTT. So we need the mth root of unity
 		if (params->GetPlaintextRootOfUnity() == 0)
@@ -46,7 +46,7 @@ namespace lbcrypto {
 			params->SetPlaintextRootOfUnity(m_initRoot[modulusNI].ConvertToInt());
 		}
 		else
-			m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity().ConvertToInt();
+			m_initRoot[modulusNI] = params->GetPlaintextRootOfUnity();
 
 	}
 

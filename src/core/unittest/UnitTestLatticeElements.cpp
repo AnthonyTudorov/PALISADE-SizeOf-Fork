@@ -174,7 +174,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 
 TEST(UTILDCRT2n, ops_tests) {
 	operators_tests<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>(
-			GenerateDCRTParams(8, 8, 3, 20) );
+			GenerateDCRTParams(8, 3, 20) );
 }
 
 // template for rounding_operations tests
@@ -1467,12 +1467,11 @@ TEST(UTILDCRT2n, decompose_test) {
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
-	usint ptm = 2;
 
 	float stdDev = 4;
 	DCRTPoly::DggType dgg(stdDev);
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(order, ptm, towersize, nBits);
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(order, towersize, nBits);
 	DCRTPoly DCRTPolyFirst(dgg, params, Format::COEFFICIENT);
 
 	DCRTPoly DCRTPolyOriginal(DCRTPolyFirst);
@@ -1546,9 +1545,8 @@ TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
-	usint ptm = 2;
 
-	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams = GenerateDCRTParams(order, ptm, towersize, nBits);
+	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams = GenerateDCRTParams(order, towersize, nBits);
 
 	DCRTPoly::DugType dug;
 

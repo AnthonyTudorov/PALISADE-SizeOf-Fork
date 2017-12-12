@@ -39,25 +39,37 @@ class CoefPackedEncoding: public PlaintextImpl {
 
 public:
 	// these two constructors are used inside of Decrypt
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isSigned = false) :
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
+		PlaintextImpl(vp,ep), isSigned(isSigned) {}
+
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
 		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<int32_t> coeffs) :
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
 		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
+		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
+
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
 	}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, vector<uint32_t> coeffs, bool isSigned=false) :
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
+		PlaintextImpl(vp,ep), isSigned(isSigned) {
+		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
+		else value = coeffs;
+	}
+
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;

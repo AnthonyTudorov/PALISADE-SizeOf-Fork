@@ -247,8 +247,8 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 			if( lhsE.size() != rhsE.size() ) return false;
 
 			for( size_t i=0; i<lhsE.size(); i++ ) {
-				const Element& lE = lhsE.at(i);
-				const Element& rE = rhsE.at(i);
+				const Element& lE = lhsE[i];
+				const Element& rE = rhsE[i];
 
 				if( lE != rE ) return false;
 			}
@@ -258,6 +258,17 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 
 		bool operator!=(const CiphertextImpl<Element>& rhs) const {
 			return ! (*this == rhs);
+		}
+
+		friend ostream& operator<<(ostream& out, const CiphertextImpl<Element>& c) {
+			out << "enc=" << c.encodingType << " depth=" << c.m_depth << endl;
+			for( size_t i=0; i<c.m_elements.size(); i++ )
+				out << i << ": " << c.m_elements[i] << endl;
+			return out;
+		}
+
+		friend ostream& operator<<(ostream& out, Ciphertext<Element> c) {
+			return out << *c;
 		}
 
 	private:

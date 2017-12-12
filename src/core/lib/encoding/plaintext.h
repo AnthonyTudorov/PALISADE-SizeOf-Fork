@@ -65,20 +65,27 @@ typedef shared_ptr<PlaintextImpl> Plaintext;
  * which depend on the application the plaintext is used with.  It provides virtual methods for encoding
  * and decoding of data.
  */
+
+enum PtxtPolyType { IsPoly, IsDCRTPoly, IsNativePoly };
+
 class PlaintextImpl
 {
 protected:
-	bool								isEncoded;
-	enum { IsPoly, IsDCRTPoly }			typeFlag;
-	shared_ptr<EncodingParams>			encodingParams;
-	Poly								encodedVector;
-	DCRTPoly							encodedVectorDCRT;
+	bool						isEncoded;
+	PtxtPolyType				typeFlag;
+	EncodingParams				encodingParams;
+	Poly						encodedVector;
+	NativePoly					encodedNativeVector;
+	DCRTPoly					encodedVectorDCRT;
 
 public:
-	PlaintextImpl(shared_ptr<Poly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
 
-	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, shared_ptr<EncodingParams> ep, bool isEncoded = false) :
+	PlaintextImpl(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
+		isEncoded(isEncoded), typeFlag(IsNativePoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
+
+	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
 		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
 
 	virtual ~PlaintextImpl() {}
@@ -99,7 +106,7 @@ public:
 	 * GetEncodingParams
 	 * @return Encoding params used with this plaintext
 	 */
-	const shared_ptr<EncodingParams> GetEncodingParams() const { return encodingParams; }
+	const EncodingParams GetEncodingParams() const { return encodingParams; }
 
 	/**
 	 * Encode the plaintext into a polynomial
@@ -121,6 +128,8 @@ public:
 	void SetFormat(Format fmt) {
 		if( typeFlag == IsPoly )
 			encodedVector.SetFormat(fmt);
+		else if( typeFlag == IsNativePoly )
+			encodedNativeVector.SetFormat(fmt);
 		else
 			encodedVectorDCRT.SetFormat(fmt);
 	}
@@ -139,12 +148,24 @@ public:
 	template <typename Element>
 	Element& GetElement();
 
+	/**
+	 * GetElementRingDimension
+	 * @return ring dimension on the underlying element
+	 */
 	const usint GetElementRingDimension() const {
-		return typeFlag == IsPoly ? encodedVector.GetRingDimension() : encodedVectorDCRT.GetRingDimension();
+		return typeFlag == IsPoly ? encodedVector.GetRingDimension() :
+				(typeFlag == IsNativePoly ? encodedNativeVector.GetRingDimension() :
+						encodedVectorDCRT.GetRingDimension());
 	}
 
-	const BigInteger& GetElementModulus() const {
-		return typeFlag == IsPoly ? encodedVector.GetModulus() : encodedVectorDCRT.GetModulus();
+	/**
+	 * GetElementModulus
+	 * @return modulus on the underlying elemenbt
+	 */
+	const BigInteger GetElementModulus() const {
+		return typeFlag == IsPoly ? encodedVector.GetModulus() :
+				(typeFlag == IsNativePoly ? BigInteger(encodedNativeVector.GetModulus().ConvertToInt()) :
+						encodedVectorDCRT.GetModulus());
 	}
 
 	/**
@@ -184,15 +205,6 @@ public:
 	 * @return whether the two plaintext are the same.
 	 */
 	bool operator==(const PlaintextImpl& other) const {
-		if( typeid(this) != typeid(&other) )
-			return false;
-
-		if( this->typeFlag != other.typeFlag )
-			return false;
-
-		if( this->encodingParams != other.encodingParams )
-			return false;
-
 		return CompareTo(other);
 	}
 
@@ -211,21 +223,6 @@ public:
 	 * @param out
 	 */
 	virtual void PrintValue(std::ostream& out) const = 0;
-
-	/**
-	 * Method to convert plaintext modulus to a native data type.
-	 *
-	 * @param ptm - the plaintext modulus.
-	 * @return the plaintext modulus in native type.
-	 */
-	NativeInteger ConvertToNativeModulus(const BigInteger& ptm) {
-		static BigInteger largestNative( ~((uint64_t)0) );
-
-		if( ptm > largestNative )
-			throw std::logic_error("plaintext modulus of " + ptm.ToString() + " is too big to convert to a native_int integer");
-
-		return NativeInteger( ptm.ConvertToInt() );
-	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PlaintextImpl& item)
@@ -251,6 +248,15 @@ inline bool operator!=(const Plaintext p1, const Plaintext p2) { return *p1 != *
 template <>
 inline Poly& PlaintextImpl::GetElement<Poly>() {
 	return encodedVector;
+}
+
+/**
+ * GetElement
+ * @return the NativePolynomial that the element was encoded into
+ */
+template <>
+inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
+	return encodedNativeVector;
 }
 
 /**

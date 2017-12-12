@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
@@ -142,7 +142,7 @@ namespace lbcrypto {
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 		typename Element::TugType tug;
@@ -188,7 +188,7 @@ namespace lbcrypto {
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 
 		typename Element::DugType dug;
@@ -215,10 +215,10 @@ namespace lbcrypto {
 	template <class Element>
 	DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 	{
 		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const std::vector<Element> &c = ciphertext->GetElements();
 		const Element &s = privateKey->GetPrivateElement();
 
@@ -226,10 +226,7 @@ namespace lbcrypto {
 
 		b.SwitchFormat();
 
-		// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
-		// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
-		Poly interpolatedElement = b.CRTInterpolate();
-		*plaintext = interpolatedElement.Mod(p);
+		*plaintext = b.DecryptionCRTInterpolate(p);
 
 		return DecryptResult(plaintext->GetLength());
 	}
@@ -427,7 +424,7 @@ namespace lbcrypto {
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
-		const BigInteger &p = cryptoParams->GetPlaintextModulus();
+		auto p = cryptoParams->GetPlaintextModulus();
 
 		LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
 
@@ -462,7 +459,7 @@ namespace lbcrypto {
 												   // Generate a_i * newSK + p * e - PowerOfBase(oldSK)
 			Element e(dgg, originalKeyParams, Format::EVALUATION);
 
-			evalKeyElements.at(i) = (a*sNew + p*e) - evalKeyElements.at(i);
+			evalKeyElements[i] = (a*sNew + p*e) - evalKeyElements[i];
 
 		}
 
@@ -615,7 +612,7 @@ namespace lbcrypto {
 
 		std::vector<Element> cipherTextElements(cipherText->GetElements());
 
-		BigInteger plaintextModulus(cipherText->GetCryptoParameters()->GetPlaintextModulus());
+		const auto plaintextModulus = cipherText->GetCryptoParameters()->GetPlaintextModulus();
 
 		for (auto &cipherTextElement : cipherTextElements) {
 			cipherTextElement.ModReduce(plaintextModulus); // this is being done at the lattice layer. The ciphertext is mod reduced.
@@ -637,7 +634,7 @@ namespace lbcrypto {
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::DugType dug;
 		typename Element::TugType tug;
@@ -680,7 +677,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
-		const typename Element::Integer &p = cryptoParams->GetPlaintextModulus();
+		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 		typename Element::DugType dug;
 		typename Element::TugType tug;
@@ -752,11 +749,11 @@ Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(cons
 
 template <class Element>
 DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
 
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = ciphertextVec[0]->GetCryptoParameters();
-	const BigInteger &p = cryptoParams->GetPlaintextModulus();
+	const auto p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<Element> &cElem = ciphertextVec[0]->GetElements();
 	Element b = cElem[0];
@@ -769,10 +766,7 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 	b.SwitchFormat();	
 
-	// Interpolation is needed in the case of Double-CRT interpolation, for example, DCRTPoly
-	// CRTInterpolate does nothing when dealing with single-CRT ring elements, such as Poly
-	Poly interpolatedElement = b.CRTInterpolate();
-	*plaintext = interpolatedElement.Mod(p);
+	*plaintext = b.DecryptionCRTInterpolate(p);
 
 	return DecryptResult(plaintext->GetLength());
 

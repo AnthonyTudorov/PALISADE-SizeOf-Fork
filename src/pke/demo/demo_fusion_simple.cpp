@@ -32,7 +32,6 @@
 
 #include "palisade.h"
 #include "cryptocontexthelper.h"
-#include "cryptocontextgen.h"
 #include "utils/debug.h"
 #include "utils/serializablehelper.h"
 
@@ -88,8 +87,6 @@ int main(int argc, char *argv[]) {
 	diff = finish - start;
 
 	cout << "Param generation time: " << "\t" << diff << " ms" << endl;
-
-	//CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM);
 
 	//Turn on features
 	cc->Enable(ENCRYPTION);

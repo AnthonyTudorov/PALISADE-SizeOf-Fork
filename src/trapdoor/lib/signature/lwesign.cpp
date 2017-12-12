@@ -82,7 +82,7 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
-		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
@@ -137,7 +137,7 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
-		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;
@@ -175,7 +175,7 @@ namespace lbcrypto {
 		const string& plainText) {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 
-		shared_ptr<EncodingParams> ep( new EncodingParams(typename Element::Integer("256")) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<uint8_t> digest;

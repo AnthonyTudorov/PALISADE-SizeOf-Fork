@@ -31,6 +31,7 @@
 #include "../utils/inttypes.h"
 #include "../math/nbtheory.h"
 #include "../math/discretegaussiangenerator.h"
+#include "../encoding/encodingparams.h"
 
 namespace lbcrypto
 {
@@ -144,6 +145,14 @@ public:
 	virtual const IntType& at(usint i) const {
 		throw std::logic_error("const at not implemented");
 	}
+	virtual IntType& operator[](usint i) {
+		throw std::logic_error("[] not implemented");
+	}
+	virtual const IntType& operator[](usint i) const {
+		throw std::logic_error("const [] not implemented");
+	}
+
+	virtual NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const = 0;
 
 	// OPERATORS
 	/**

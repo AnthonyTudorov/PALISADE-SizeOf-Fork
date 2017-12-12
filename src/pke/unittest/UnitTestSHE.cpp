@@ -27,15 +27,19 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 #include <vector>
+#include <list>
 
-#include "../lib/cryptocontext.h"
-
-#include "encoding/encodings.h"
-
-#include "utils/debug.h"
-
+#include "palisade.h"
+#include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
-#include "lattice/elemparamfactory.h"
+//#include "../lib/cryptocontext.h"
+//
+//#include "encoding/encodings.h"
+//
+//#include "utils/debug.h"
+//
+//#include "cryptocontextgen.h"
+//#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -57,13 +61,36 @@ protected:
 	}
 };
 
+// This file unit tests the PRE capabilities for all schemes, using all known elements
+
+template <typename Element>
+class SHETests : public ::testing::Test {
+public:
+	virtual ~SHETests() {}
+	typedef std::list<Element> List;
+	static Element shared_;
+	Element value_;
+
+protected:
+	void SetUp() {}
+
+	void TearDown() {
+		CryptoContextFactory<NativePoly>::ReleaseAllContexts();
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
+};
+
+static vector<string> AllSchemes( {"Null", "LTV", "BV", "FV", /*"BFVrns"*/} );
+typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
+TYPED_TEST_CASE(SHETests, EncryptElementTypes);
+
 // NOTE the SHE tests are all based on these
 static const usint ORDER = 16;
 static const usint PTM = 64;
-static const usint TOWERS = 3;
 
 template<class Element>
-void UnitTest_Add(CryptoContext<Element> cc) {
+static void UnitTest_Add(const CryptoContext<Element> cc, const string& failmsg) {
 
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -87,82 +114,45 @@ void UnitTest_Add(CryptoContext<Element> cc) {
 	cc->Decrypt(kp.secretKey, cResult, &results);
 
 	results->SetLength(plaintextAdd->GetLength());
-	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd fails";
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalAdd fails";
 
 	cResult = cc->EvalSub(ciphertext1, ciphertext2);
 
 	cc->Decrypt(kp.secretKey, cResult, &results);
 
 	results->SetLength(plaintextSub->GetLength());
-	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalSub fails";
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub fails";
 
 	cResult = cc->EvalAdd(ciphertext1, plaintext2);
 
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextAdd->GetLength());
-	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalAdd Ct and Pt fails";
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalAdd Ct and Pt fails";
 
 	cResult = cc->EvalSub(ciphertext1, plaintext2);
 
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextSub->GetLength());
-	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalSub Ct and Pt fails";
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub Ct and Pt fails";
 }
 
-/// add
-TEST_F(UTSHE, LTV_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM);
-	UnitTest_Add<Poly>(cc);
+TYPED_TEST(SHETests, SHEAddSubtract) {
+	CryptoContext<TypeParam> cc;
+
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], ORDER, PTM);
+		} catch( ... ) {
+			continue;
+		}
+
+		UnitTest_Add<TypeParam>(cc, AllSchemes[i]);
+	}
 }
 
-TEST_F(UTSHE, LTV_DCRTPoly_Add) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, StSt_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM, 50);
-	UnitTest_Add<Poly>(cc);
-}
-
-TEST_F(UTSHE, StSt_DCRTPoly_Add) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, Null_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
-	UnitTest_Add<Poly>(cc);
-}
-
-TEST_F(UTSHE, Null_DCRTPoly_Add) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, BV_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
-	UnitTest_Add<Poly>(cc);
-}
-
-TEST_F(UTSHE, BV_DCRTPoly_Add) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM, 30);
-	UnitTest_Add<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, FV_Poly_Add) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
-	UnitTest_Add<Poly>(cc);
-}
-
-//TEST_F(UTSHE, FV_DCRTPoly_Add) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-//	UnitTest_Add<DCRTPoly>(cc);
-//}
-
-///
 template<class Element>
-void UnitTest_Mult(CryptoContext<Element> cc) {
+static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg) {
+
 	std::vector<uint32_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
@@ -195,65 +185,28 @@ void UnitTest_Mult(CryptoContext<Element> cc) {
 	cc->Decrypt(kp.secretKey, cResult, &results);
 
 	results->SetLength(intArrayExpected->GetLength());
-	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalMult fails";
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalMult fails";
 
 	cResult = cc->EvalMult(ciphertext1, plaintext2);
 
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(intArrayExpected->GetLength());
-	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << "EvalMult Ct and Pt fails";
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalMult Ct and Pt fails";
 }
 
+TYPED_TEST(SHETests, SHEMultiply) {
+	CryptoContext<TypeParam> cc;
 
-TEST_F(UTSHE, LTV_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(ORDER, PTM, 60);
-	UnitTest_Mult<Poly>(cc);
+	for( size_t i=0; i<AllSchemes.size(); i++ ) {
+		try {
+			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], ORDER, PTM);
+		} catch( ... ) {
+			continue;
+		}
+
+		UnitTest_Mult<TypeParam>(cc, AllSchemes[i]);
+	}
 }
-
-TEST_F(UTSHE, LTV_DCRTPoly_Mult) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayLTV(ORDER, TOWERS, PTM);
-	UnitTest_Mult<DCRTPoly>(cc);
-}
-
-//TEST_F(UTSHE, StSt_Poly_Mult) {
-//	CryptoContext<Poly> cc = GenCryptoContextElementStSt(ORDER, PTM);
-//	UnitTest_Mult<Poly>(cc);
-//}
-//
-//TEST_F(UTSHE, StSt_DCRTPoly_Mult) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayStSt(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<DCRTPoly>(cc);
-//}
-
-TEST_F(UTSHE, Null_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementNull(ORDER, PTM);
-	UnitTest_Mult<Poly>(cc);
-}
-
-TEST_F(UTSHE, Null_DCRTPoly_Mult) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayNull(ORDER, TOWERS, PTM, 30);
-	UnitTest_Mult<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, BV_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementBV(ORDER, PTM);
-	UnitTest_Mult<Poly>(cc);
-}
-
-TEST_F(UTSHE, BV_DCRTPoly_Mult) {
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBV(ORDER, TOWERS, PTM);
-	UnitTest_Mult<DCRTPoly>(cc);
-}
-
-TEST_F(UTSHE, FV_Poly_Mult) {
-	CryptoContext<Poly> cc = GenCryptoContextElementFV(ORDER, PTM);
-	UnitTest_Mult<Poly>(cc);
-}
-
-//TEST_F(UTSHE, FV_DCRTPoly_Mult) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
-//	UnitTest_Mult<DCRTPoly>(cc);
-//}
 
 
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
@@ -261,7 +214,7 @@ TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 	usint m = 512;
 	usint plaintextModulus = 256;
 
-	CryptoContext<Poly> cc = GenCryptoContextElementLTV(m, plaintextModulus, 50);
+	CryptoContext<Poly> cc = GenCryptoContextLTV<Poly>(m, plaintextModulus, 50);
 
 	Plaintext plaintext = cc->MakeStringPlaintext("I am good, what are you?! 32 ch");
 
@@ -404,7 +357,7 @@ TEST_F(UTSHE, keyswitch_ModReduce_DCRT) {
 	usint plaintextmodulus = 256;
 	usint relinWindow = 1;
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, size, 30 );
 
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 
@@ -503,7 +456,7 @@ TEST_F(UTSHE, ringreduce_double_crt) {
 	usint relinWindow = 1;
 	usint size = 3;
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, plaintextmodulus, size, 30 );
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( m, size, 30 );
 
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, plaintextmodulus, relinWindow, stdDev);
 	cc->Enable(ENCRYPTION);

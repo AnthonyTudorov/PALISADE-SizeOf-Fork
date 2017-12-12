@@ -41,12 +41,12 @@ int main() {
 	//------------------ Setup Parameters ------------------
 	usint m = 2048;
 	usint phim = 1024;
-	usint p = 1093633; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 1093633; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 1024;
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("2595390732297411718");

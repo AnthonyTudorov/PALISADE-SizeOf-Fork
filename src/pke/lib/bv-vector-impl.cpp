@@ -31,4 +31,8 @@ namespace lbcrypto {
 template class LPCryptoParametersBV<Poly>;
 template class LPPublicKeyEncryptionSchemeBV<Poly>;
 template class LPAlgorithmBV<Poly>;
+
+template class LPCryptoParametersBV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBV<NativePoly>;
+template class LPAlgorithmBV<NativePoly>;
 }

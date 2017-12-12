@@ -102,7 +102,7 @@ namespace lbcrypto {
 			 */
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				const BigInteger &plaintextModulus,
+				const PlaintextModulus &plaintextModulus,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,
@@ -111,7 +111,7 @@ namespace lbcrypto {
 				int depth = 1)
 					: LPCryptoParametersRLWE<Element>(
 						params,
-						shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+						EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 						distributionParameter,
 						assuranceMeasure,
 						securityLevel,
@@ -134,7 +134,7 @@ namespace lbcrypto {
 			*/
 			LPCryptoParametersBV(
 				shared_ptr<typename Element::Params> params,
-				shared_ptr<EncodingParams> encodingParams,
+				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,
@@ -246,7 +246,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 		/**
 		* Function to generate public and private keys
@@ -644,7 +644,7 @@ namespace lbcrypto {
 		 * @return the decoding result.
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 	};
 
 

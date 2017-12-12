@@ -393,7 +393,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	PackedEncoding::Destroy();
 
 	usint m = 22;
-	usint p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
+	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusQ("72385066601");
 	BigInteger modulusP(p);
 	BigInteger rootOfUnity("69414828251");
@@ -416,11 +416,11 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedEncoding::SetParams(modulusP, m);
+	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 8;
 
-	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

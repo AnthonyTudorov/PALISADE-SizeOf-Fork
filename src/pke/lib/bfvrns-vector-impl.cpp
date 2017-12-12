@@ -29,21 +29,37 @@
 
 namespace lbcrypto {
 
+#define NOPOLY \
+		std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead."; \
+		throw std::runtime_error(errMsg);
+
+#define NONATIVEPOLY \
+		std::string errMsg = "BFVrns does not support NativePoly. Use DCRTPoly instead."; \
+		throw std::runtime_error(errMsg);
+
 template <>
 LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(){
+	NONATIVEPOLY
 }
 
 template <>
 LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs){
+	NONATIVEPOLY
 }
 
 template <>
 LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
-		const BigInteger &plaintextModulus,
+		const PlaintextModulus &plaintextModulus,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -51,13 +67,12 @@ LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Pol
 		MODE mode,
 		int depth,
 		int maxDepth){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
 }
 
 template <>
-LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(shared_ptr<typename NativePoly::Params> params,
+		const PlaintextModulus &plaintextModulus,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -65,96 +80,184 @@ LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Pol
 		MODE mode,
 		int depth,
 		int maxDepth){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NONATIVEPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
+		EncodingParams encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(shared_ptr<typename NativePoly::Params> params,
+		EncodingParams encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NONATIVEPOLY
 }
 
 // Parameter generation for FV-RNS
 template <>
 bool LPCryptoParametersBFVrns<Poly>::PrecomputeCRTTables(){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+bool LPCryptoParametersBFVrns<NativePoly>::PrecomputeCRTTables(){
+	NONATIVEPOLY
 }
 
 template <>
 LPPublicKeyEncryptionSchemeBFVrns<Poly>::LPPublicKeyEncryptionSchemeBFVrns(){
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+LPPublicKeyEncryptionSchemeBFVrns<NativePoly>::LPPublicKeyEncryptionSchemeBFVrns(){
+	NONATIVEPOLY
 }
 
 template <>
 bool LPAlgorithmParamsGenBFVrns<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
 {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+bool LPAlgorithmParamsGenBFVrns<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams, int32_t evalAddCount,
+	int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPublicKey<Poly> publicKey,
 		Poly ptxt) const
 {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmBFVrns<NativePoly>::Encrypt(const LPPublicKey<NativePoly> publicKey,
+		NativePoly ptxt) const
+{
+	NONATIVEPOLY
 }
 
 template <>
 DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const LPPrivateKey<Poly> privateKey,
 		const Ciphertext<Poly> ciphertext,
-		Poly *plaintext) const
+		NativePoly *plaintext) const
 {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmBFVrns<NativePoly>::Decrypt(const LPPrivateKey<NativePoly> privateKey,
+		const Ciphertext<NativePoly> ciphertext,
+		NativePoly *plaintext) const
+{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPrivateKey<Poly> privateKey,
 		Poly ptxt) const
 {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmBFVrns<NativePoly>::Encrypt(const LPPrivateKey<NativePoly> privateKey,
+		NativePoly ptxt) const
+{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMult(const Ciphertext<Poly> ciphertext1,
 	const Ciphertext<Poly> ciphertext2) const {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMult(const Ciphertext<NativePoly> ciphertext1,
+	const Ciphertext<NativePoly> ciphertext2) const {
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalAdd(const Ciphertext<NativePoly> ct,
+	const Plaintext pt) const{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalSub(const Ciphertext<Poly> ct,
 	const Plaintext pt) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalSub(const Ciphertext<NativePoly> ct,
+	const Plaintext pt) const{
+	NONATIVEPOLY
 }
 
 template <>
 LPEvalKey<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const LPPrivateKey<Poly> originalPrivateKey,
 	const LPPrivateKey<Poly> newPrivateKey) const {
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+LPEvalKey<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitchGen(const LPPrivateKey<NativePoly> originalPrivateKey,
+	const LPPrivateKey<NativePoly> newPrivateKey) const {
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const LPEvalKey<Poly> keySwitchHint,
 	const Ciphertext<Poly> cipherText) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitch(const LPEvalKey<NativePoly> keySwitchHint,
+	const Ciphertext<NativePoly> cipherText) const{
+	NONATIVEPOLY
 }
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
 	const Ciphertext<Poly> ct, const shared_ptr<vector<LPEvalKey<Poly>>> ek) const{
-	std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead.";
-	throw std::runtime_error(errMsg);
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(const Ciphertext<NativePoly> ct1,
+	const Ciphertext<NativePoly> ct, const shared_ptr<vector<LPEvalKey<NativePoly>>> ek) const{
+	NONATIVEPOLY
 }
 
 template class LPCryptoParametersBFVrns<Poly>;
@@ -162,5 +265,11 @@ template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
 template class LPAlgorithmSHEBFVrns<Poly>;
 template class LPAlgorithmParamsGenBFVrns<Poly>;
+
+template class LPCryptoParametersBFVrns<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBFVrns<NativePoly>;
+template class LPAlgorithmBFVrns<NativePoly>;
+template class LPAlgorithmSHEBFVrns<NativePoly>;
+template class LPAlgorithmParamsGenBFVrns<NativePoly>;
 
 }

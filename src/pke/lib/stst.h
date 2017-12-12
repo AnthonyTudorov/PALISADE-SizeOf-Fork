@@ -102,7 +102,7 @@ public:
 	 */
 	LPCryptoParametersStehleSteinfeld(
 			shared_ptr<typename Element::Params> params,
-			const BigInteger &plaintextModulus,
+			const PlaintextModulus &plaintextModulus,
 			float distributionParameter,
 			float assuranceMeasure,
 			float securityLevel,
@@ -110,7 +110,7 @@ public:
 			float distributionParmStst,
 			int depth = 1)
 	: LPCryptoParametersRLWE<Element>(params,
-			shared_ptr<EncodingParams>( new EncodingParams(plaintextModulus) ),
+			EncodingParams( new EncodingParamsImpl(plaintextModulus) ),
 			distributionParameter,
 			assuranceMeasure,
 			securityLevel,
@@ -138,7 +138,7 @@ public:
 	*/
 	LPCryptoParametersStehleSteinfeld(
 		shared_ptr<typename Element::Params> params,
-		shared_ptr<EncodingParams> encodingParams,
+		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
 		float securityLevel,
@@ -287,7 +287,7 @@ public:
 
 		const shared_ptr<LPCryptoParametersStehleSteinfeld<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersStehleSteinfeld<Element>>(cc->GetCryptoParameters());
 
-		const BigInteger &p = cryptoParams->GetPlaintextModulus();
+		const auto &p = cryptoParams->GetPlaintextModulus();
 
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGeneratorStSt();
 

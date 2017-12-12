@@ -52,9 +52,9 @@ protected:
 };
 
 static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
-	BigInteger modulusP(256);
+	PlaintextModulus modulusP(256);
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmsetName,
-			shared_ptr<EncodingParams>(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8)));
+			EncodingParams(new EncodingParamsImpl(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8)));
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
@@ -171,7 +171,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
         // generate a context with encoding params
     	usint m = 22;
-    	usint p = 2333;
+    	PlaintextModulus p = 2333;
     	BigInteger modulusP(p);
     	BigInteger modulusQ("1267650600228229401496703214121");
     	BigInteger squareRootOfRoot("498618454049802547396506932253");
@@ -181,7 +181,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
     	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
     	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-    	PackedEncoding::SetParams(modulusP, m);
+    	PackedEncoding::SetParams(m, p);
 
     	float stdDev = 4;
 
@@ -189,7 +189,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
     	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-    	shared_ptr<EncodingParams> encodingParams(new EncodingParams(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),batchSize));
+    	EncodingParams encodingParams(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),batchSize));
 
     	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 

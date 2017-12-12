@@ -87,7 +87,7 @@ namespace lbcrypto {
 			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
 			LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
-				const BigInteger &plaintextModulus, 
+				const PlaintextModulus &plaintextModulus,
 				float distributionParameter, 
 				float assuranceMeasure, 
 				float securityLevel, 
@@ -110,7 +110,7 @@ namespace lbcrypto {
 			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
 			LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
-				shared_ptr<EncodingParams> encodingParams,
+				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
 				float securityLevel,
@@ -386,7 +386,7 @@ namespace lbcrypto {
 		*/
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			const Ciphertext<Element> ciphertext,
-			Poly *plaintext) const;
+			NativePoly *plaintext) const;
 
 
 	};

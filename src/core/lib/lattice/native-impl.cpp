@@ -57,6 +57,7 @@ template class BinaryUniformGeneratorImpl<NativeInteger,NativeVector>;
 template class TernaryUniformGeneratorImpl<NativeInteger,NativeVector>;
 template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
 
-template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
+template class ElemParams<NativeInteger>;
 template class ILParamsImpl<NativeInteger>;
+template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
 }

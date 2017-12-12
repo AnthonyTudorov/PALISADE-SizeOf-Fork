@@ -175,6 +175,7 @@ uint64_t BigInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 		result += ((uint64_t)this->m_value[m_nSize - i - 1] << (m_uintBitLength*i));
 	}
 	if (this->m_MSB >= 64) {
+		throw std::logic_error("Convert To Int");
 		std::cerr<<"BBI::Warning ConvertToInt() Loss of precision. "<<std::endl;
 		std::cerr<<"input  "<< *this<<std::endl;			
 		std::cerr<<"result  "<< result<<std::endl;			
