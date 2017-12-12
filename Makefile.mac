@@ -1,13 +1,12 @@
 ## for mac OSx
 
+TAR := gnutar
+
 OMPINCLUDE := -I /opt/local/include/libomp -fopenmp
 
 ifneq ($(wildcard third-party/include), )
-  #$(info GMP/NTL directory third-party/include exists)
   NTLLIB := third-party/lib/libntl.dylib
   GMPLIB := third-party/lib/libgmp.dylib
-else
-  #$(info GMP/NTL directory third-party does not exist)
 endif
 
 CPPSTD := -std=c++11 -stdlib=libc++ -fPIC
