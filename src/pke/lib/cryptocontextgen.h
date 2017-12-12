@@ -113,6 +113,7 @@ template<>
 inline CryptoContext<NativePoly>
 GenCryptoContextFV(usint ORDER, usint ptm, usint bits, usint towers) {
 
+	cout << "native " << ORDER << " " << bits << endl;
 	if( bits > 24 ) bits = 24;
 
 	shared_ptr<typename NativePoly::Params> p = ElemParamFactory::GenElemParams<typename NativePoly::Params,typename NativePoly::Integer>(ORDER, bits, towers);
