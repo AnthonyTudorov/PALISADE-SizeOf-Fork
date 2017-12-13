@@ -104,7 +104,6 @@ namespace NTL {
     //SO INSTEAD I am just regenerating the MSB each time
     size_t sz = this->size();
     usint MSB;
-    //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
       MSB = 0;
       return(MSB);
@@ -123,26 +122,18 @@ namespace NTL {
   {
 
     size_t sz = this->size();
-    //std::cout<<"size "<<sz <<" ";
     if (sz==0) { //special case for empty data
       m_MSB = 0;
     }
     else {
     m_MSB = (sz-1) * NTL_ZZ_NBITS; //figure out bit location of all but last limb
-    //std::cout<<"msb starts with "<<m_MSB<< " ";
     //could also try
     //m_MSB = NumBytes(*this)*8;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
-    //for (usint i = 0; i < sz; i++){
-    //std::cout<< "limb["<<i<<"] = "<<zlp[i]<<std::endl;
-    //}
 
     usint tmp = GetMSBLimb_t(zlp[sz-1]); //add the value of that last limb.
-    //std::cout<< "tmp = "<<tmp<<std::endl;
     m_MSB+=tmp;
-    //std::cout<<"msb ends with "<<m_MSB<< " " <<std::endl;
   }
-    //std::cout << "myZZ::SetMSB(): this = " << *this << ", m_MSB = " << m_MSB << std::endl;
     return;
   }
 
@@ -252,11 +243,9 @@ namespace NTL {
     GetMSB();
 
     if(index<=0){
-      std::cout<<"Invalid index \n";
       return 0;
     }
     else if (index > m_MSB) {
-      //TP: std::cout << "index > m_MSB = " << m_MSB << std::endl;
       return 0;
     }
 
@@ -265,7 +254,6 @@ namespace NTL {
     sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
 
     if (idx >= (this->size())){
-      //std::cout <<"myZZ::GetBitAtIndex Warning idx > length"<<std::endl;
       return (uschar)0;
     }
 

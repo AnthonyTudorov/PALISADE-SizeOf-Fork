@@ -389,15 +389,11 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
     for(usint index=0; index<randBigVector.GetLength(); index++) {
       sum += randBigVector.at(index).ConvertToInt();
     }
-    //std::cout << "Observed sum is " << sum << std::endl;
-    //std::cout << "Length is " << length << std::endl;
-    float computedMean = (float)sum/(float)length;
-    //std::cout << "The computedMean is " << computedMean << std::endl;
+
+   float computedMean = (float)sum/(float)length;
     float expectedMean = 0.5;
     float dif = abs(computedMean-expectedMean);
-    //std::cout << "The difference is " << dif << std::endl;
 
-    //std::cout << "Running Test." << std::endl;
     EXPECT_LT(dif,0.01)
       << "Failure Mean is incorrect";
     // a large sample. Max of them should be less than q
@@ -428,7 +424,6 @@ void testParallelDiscreteUniformGenerator(BigInteger &modulus, std::string test_
 	 float expectedMean = 0;
 	 float dif = abs(computedMean - expectedMean);
 
-	 //std::cout << "Running Test." << std::endl;
 	 EXPECT_LT(dif, 0.01)
 		 << "Ternary Uniform Distribution Failure Mean is incorrect";
 	 // a large sample. Max of them should be less than q
@@ -445,7 +440,6 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
   //mean test
 
   {
-    //std::cout<<"note this sometimes fails. are limits set correctly?"<<std::endl;
     sint stdev = 5;
     usint size = 100000;
     BigInteger modulus("10403");
@@ -455,10 +449,8 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     double mean = 0;
     for(usint i=0; i<size; i++) {
       mean += (double) (dggCharVector.get())[i];
-      // std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
     }
     mean /= size;
-    // std::cout << "The mean of the values is " << mean << std::endl;
 
     EXPECT_LE(mean, 0.1) << "Failure generate_char_vector_mean_test mean > 0.1";
     EXPECT_GE(mean, -0.1) << "Failure generate_char_vector_mean_test mean < -0.1";;
@@ -484,7 +476,6 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
     }
 
     mean /= (size - countOfZero);
-    // std::cout << "The mean of the values is " << mean << std::endl;
 
     double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
 
@@ -538,10 +529,8 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
   double mean = 0;
   for(usint i=0; i<size; i++) {
     mean += (double) dggCharVector[i];
-    // std::cout << i << "th value is " << std::to_string(dggCharVector[i]) << std::endl;
   }
     mean /= size;
-    // std::cout << "The mean of the values is " << mean << std::endl;
     
     EXPECT_LE(mean, 0.1) << "Failure parallel generate_char_vector_mean_test mean > 0.1";
     EXPECT_GE(mean, -0.1) << "Failure parallel generate_char_vector_mean_test mean < -0.1";;
@@ -592,7 +581,6 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
     }
 
     mean /= (size - countOfZero);
-    // std::cout << "The mean of the values is " << mean << std::endl;
 
     double modulusByTwoInDouble = std::stod(modulusByTwo.ToString());
 

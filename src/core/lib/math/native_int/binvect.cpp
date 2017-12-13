@@ -183,7 +183,6 @@ BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl 
 
 template<class IntegerType>
 BigVectorImpl<IntegerType>::~BigVectorImpl(){
-	//std::cout<<"destructor called for vector of size: "<<this->m_length<<"  "<<std::endl;
 	delete [] m_data;
 }
 
@@ -354,7 +353,6 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::DivideAndRound(const Inte
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType &b) const{
-	//std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
 
 	BigVectorImpl ans(*this);
 
@@ -383,10 +381,7 @@ template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModInverse() const{
 
 	BigVectorImpl ans(*this);
-	//std::cout << ans << std::endl;
 	for(usint i=0;i<this->m_length;i++){
-		//std::cout << ans.m_data[i] << std::endl;
-		//ans.m_data[i].PrintValueInDec();
 		ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
 	}
 	return ans;

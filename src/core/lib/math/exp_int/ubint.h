@@ -958,19 +958,9 @@ namespace exp_int{
 
 	//print_VALUE = print_VALUE*2
 	ubint::double_bitVal(print_VALUE);
-#ifdef DEBUG_OSTREAM
-	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-	  std::cout<<(sint)*(print_VALUE+i);
-	std::cout<<std::endl;
-#endif
+
 	//adds the bit value to the print_VALUE
 	ubint::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
-#ifdef DEBUG_OSTREAM
-	for(sint i=0;i<ptr_obj.m_numDigitInPrintval;i++)
-	  std::cout<<(sint)*(print_VALUE+i);
-	std::cout<<std::endl;
-#endif
-
       }
 
       //find the first occurence of non-zero value in print_VALUE

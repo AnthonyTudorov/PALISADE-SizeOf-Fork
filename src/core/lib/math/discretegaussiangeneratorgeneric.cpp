@@ -224,13 +224,6 @@ void BaseSampler::Initialize(double mean) {
 	for (usint i = 1; i < m_vals.size(); i++) {
 		m_vals[i] += m_vals[i - 1];
 	}
-
-	//for (usint i = 0; i<m_vals.size(); i++) {
-	//	std::cout << m_vals[i] << std::endl;
-	//}
-
-	//std::cout<<m_a<<std::endl;
-
 }
 
 int64_t BaseSampler::GenerateIntegerPeikert() const {
@@ -244,7 +237,7 @@ int64_t BaseSampler::GenerateIntegerPeikert() const {
 		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()); //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
 		val = FindInVector(m_vals,seed);
 		ans = val;
-	}catch (std::runtime_error e) {}
+	} catch (std::runtime_error& e) {}
 	return ans - fin + b_mean;
 }
 

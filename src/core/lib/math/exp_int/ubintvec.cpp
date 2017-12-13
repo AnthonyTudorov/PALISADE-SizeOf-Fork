@@ -176,7 +176,6 @@ namespace exp_int {
   //desctructor
   template<class ubint_el_t>
   ubintvec<ubint_el_t>::~ubintvec(){
-    //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
     m_data.clear();
   }
 

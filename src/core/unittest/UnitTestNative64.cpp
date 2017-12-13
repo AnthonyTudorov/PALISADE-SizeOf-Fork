@@ -791,8 +791,6 @@ TEST(UTNative64Int,mod_arithmetic){
     NativeInteger n("399");
     NativeInteger q("406");
 
-    //std::cout << "Before : " << std::endl;
-
     calculatedResult = m.ModSub(n,q);
     expectedResult = 196;
 

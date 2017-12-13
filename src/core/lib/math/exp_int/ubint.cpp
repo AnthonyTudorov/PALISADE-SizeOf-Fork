@@ -177,7 +177,6 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint(const ubint& rhs){
     bool dbg_flag = false;		// if true then print dbg output
-    //std::cout<<"Cc";
     if (rhs.m_state == GARBAGE)
       std::cout<<"copy garbage"<<std::endl;
 
@@ -200,7 +199,6 @@ namespace exp_int {
   template<typename limb_t>
   ubint<limb_t>::ubint(ubint &&rhs){
     bool dbg_flag = false;		// if true then print dbg output
-    //std::cout<<"Mc";
     DEBUG("move copy ctor(&bint)");
 
     //copy MSB
@@ -336,7 +334,6 @@ return result;
     try {
       ans = std::stof(this->ToString());
     } catch (const std::exception& e) {
-      std::cerr << e.what();
       throw std::logic_error("ConvertToFloat() parse error converting to float");
       ans = -1.0; //TODO: this signifies an error... 
     }
@@ -352,7 +349,6 @@ return result;
     try {
       ans = std::stod(this->ToString());
     } catch (const std::exception& e) {
-      std::cerr << e.what();
       throw std::logic_error("ConvertToDouble() parse error converting to double");
       ans = -1.0; 
     }
@@ -368,7 +364,6 @@ return result;
     try {
       ans = std::stold(this->ToString());
     } catch (const std::exception& e) {
-      std::cerr << e.what();
       throw std::logic_error("ConvertToLongDouble() parse error converting to long double");
       ans = -1.0; 
     }

@@ -289,15 +289,12 @@ namespace NTL{
 
       //Error if modulus is ZERO
       if(modulus==ZERO){
-	//std::cout<<"ZERO HAS NO INVERSE\n";
-	//system("pause");
 	PALISADE_THROW(lbcrypto::math_error, "zero has no inverse");
       }
       myZZ tmp(myZZ::ZERO);
       try {
 	tmp = InvMod(*this%modulus, modulus);
       } catch (InvModErrorObject &e) { //note this code requires NTL Excptions coto be turned on. TODO: provide alternative when that is off.
-	//std::cout<< e.what() << std::endl;
 
 	std::stringstream errmsg;
 	errmsg <<"ModInverse exception "

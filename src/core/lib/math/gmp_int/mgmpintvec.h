@@ -393,7 +393,6 @@ namespace NTL {
 	DEBUG("GetModulus returns "<<this->m_modulus);
 	return (this->m_modulus);
       }else{
-	std::cout<<"myZZ GetModulus() on uninitialized modulus"<<std::endl;
 	return myZZ::ZERO;
       }
     };
@@ -408,7 +407,6 @@ namespace NTL {
 	//ZZ_p::init(this->m_modulus);
 	return (0);
       } else{
-	//std::cout<<"Warning: myVec_p::CopyModulus() from uninitialized modulus"<<std::endl; //happens many many times
 	this->m_modulus_state = GARBAGE;
 	return (-1);
       }

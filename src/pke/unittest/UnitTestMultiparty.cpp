@@ -73,21 +73,9 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	kp2 = cc->MultipartyKeyGen(kp1.publicKey);
 	kp3 = cc->MultipartyKeyGen(kp1.publicKey);
 
-	if( !kp1.good() ) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-	if( !kp2.good() ) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-	if( !kp3.good() ) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();
+	ASSERT_TRUE(kp1.good()) << "Key generation failed!";
+	ASSERT_TRUE(kp2.good()) << "Key generation failed!";
+	ASSERT_TRUE(kp3.good()) << "Key generation failed!";
 
 	////////////////////////////////////////////////////////////
 	//Perform the second key generation operation.
@@ -101,13 +89,7 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 
 	kpMultiparty = cc->MultipartyKeyGen(secretKeys);	// This is the same core key generation operation.
 
-	if( !kpMultiparty.good() ) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
-
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();	
+	ASSERT_TRUE(kpMultiparty.good()) << "Key generation failed!";
 
 	////////////////////////////////////////////////////////////
 	//Perform the proxy re-encryption key generation operation.
@@ -117,10 +99,6 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	evalKey1 = cc->ReKeyGen(kpMultiparty.secretKey, kp1.secretKey);
 	evalKey2 = cc->ReKeyGen(kpMultiparty.secretKey, kp2.secretKey);
 	evalKey3 = cc->ReKeyGen(kpMultiparty.secretKey, kp3.secretKey);
-
-	//std::cout << "Press any key to continue." << std::endl;
-	//std::cin.get();	
-
 
 	////////////////////////////////////////////////////////////
 	// Encode source data

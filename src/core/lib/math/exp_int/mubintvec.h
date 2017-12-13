@@ -312,9 +312,6 @@ public:
     for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
       this->m_data[i] = 0;
     }
-    //m_modulus=0;
-    //m_modulus_state = GARBAGE;
-    //std::cout<<"inline operator=usint "<<val<<std::endl;
     return *this;
   }
   
@@ -327,9 +324,6 @@ public:
     for (size_t i = 1; i < this->ubintvec<ubint_el_t>::GetLength(); ++i) {
       this->m_data[i] = 0;
     }
-    //m_modulus=0;
-    //m_modulus_state = GARBAGE;
-    //std::cout<<"inline operator=sint "<<val<<std::endl;
     return *this;
   }
   
@@ -346,10 +340,6 @@ public:
     for (size_t i = 1; i < this->m_data.size(); ++i) {
       this->m_data[i] = 0;
     }
-    //      m_modulus=0;
-    // m_modulus_state = GARBAGE;
-
-    //std::cout<<"inline operator=ubint "<<val.ToString()<<std::endl;
     return *this;
   }
 

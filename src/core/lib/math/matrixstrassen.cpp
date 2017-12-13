@@ -53,7 +53,6 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::operator=(const MatrixStrassen
 
 template<class Element>
 MatrixStrassen<Element>& MatrixStrassen<Element>::Ones() {
-  //std::cout<<"in Ones"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             *data[row][col] = 1;
@@ -74,7 +73,6 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::Fill(const Element &val) {
 
 template<class Element>
 MatrixStrassen<Element>& MatrixStrassen<Element>::Identity() {
-  //std::cout<<"in Identity"<<std::endl;
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             if (row == col) {
@@ -106,12 +104,9 @@ double MatrixStrassen<Element>::Norm() const {
     double retVal = 0.0;
 	double locVal = 0.0;
 
-	//std::cout << " Norm: " << rows << "-" << cols << "-"  << locVal << "-"  << retVal << std::endl;
-
 	for (size_t row = 0; row < rows; ++row) {
 		for (size_t col = 0; col < cols; ++col) {
 			locVal = data[row][col]->Norm();
-			//std::cout << " Norm: " << row << "-" << col << "-"  << locVal << "-"  << retVal << std::endl;
 			if (locVal > retVal) {
 				retVal = locVal;
 			}
@@ -1293,18 +1288,6 @@ MatrixStrassen<Element> MatrixStrassen<Element>::MultByUnityVector() const {
 template<class Element>
 MatrixStrassen<Element> MatrixStrassen<Element>::MultByRandomVector(std::vector<int> ranvec) const {
 	MatrixStrassen<Element> result(allocZero, rows, 1);
-//	std::vector<int> ranvec;
-//	ranvec.reserve(cols);
-//	int counter = 0;
-//
-//	for (int i = 0; i < cols; i++){
-//		int zeroOrOne = rand() % 2;
-//		//int zeroOrOne = i % 2;
-//		counter += zeroOrOne;
-//		ranvec.push_back(zeroOrOne);
-//		//std::cout<<"ranvec["<<i<<"] = "<<ranvec[i]<<std::endl;
-//	}
-//	std::cout<<"Number of 1's in vector with "<<cols<<" elements = "<<counter<<std::endl;
 #pragma omp parallel for
 	for (int32_t row = 0; row < result.rows; ++row) {
 
