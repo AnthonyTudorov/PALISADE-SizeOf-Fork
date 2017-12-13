@@ -229,18 +229,30 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
     std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::Serialize failed to serialize m_elemParams"<< std::endl;
     return false;
   };
+  DEBUGEXP(m_elemParams);
 
   //length of the pattern
   topobj.AddMember("Length", std::to_string(this->GetLength()), topobj.GetAllocator());
-  
+
+  DEBUGEXP(this->GetLength());
   //lattice security parameter
-  topobj.AddMember("RootHermiteFactor", std::to_string(this->GetRootHermiteFactor()), topobj.GetAllocator());
+  //note to_string() rounds off answer
+  stringstream s;
+  s.clear();
+  s.str(""); //reset the internal state of stringstream
+  s << std::setprecision(std::numeric_limits<double>::digits) << this->GetRootHermiteFactor(); //write ALL digits
   
+  topobj.AddMember("RootHermiteFactor", s.str(), topobj.GetAllocator());
+
+  DEBUGEXP(this->GetRootHermiteFactor());
+
   //number of bits encoded by one matrix
   topobj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), topobj.GetAllocator());
+  DEBUGEXP(this->GetChunkSize());
   //base for G-sampling
   topobj.AddMember("Base", std::to_string(this->GetBase()), topobj.GetAllocator());
-  
+  DEBUGEXP(this->GetBase());  
+
   SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &topobj);
   
   SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_R_vec), &topobj);
@@ -306,7 +318,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       return false;
     }
     this->m_elemParams = deserialized_params;
-    
+    DEBUGEXP("this->m_elemParams");
     
     pIt= iter->value.FindMember("Length"); //find length of the pattern
     
@@ -322,6 +334,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find RootHermiteFactor");
       return false;
     }
+    
     this->m_rootHermiteFactor = std::stod(pIt->value.GetString()); //set it
     DEBUGEXP(this->m_rootHermiteFactor);
     
@@ -347,6 +360,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find S_Vec");
       return false;
     }
+
 #if 0
     //deserialize S_vec
     shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
@@ -359,7 +373,10 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 
     DeserializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), pIt, R_vec);
     this->m_R_vec = R_vec;
+#else
+    DEBUG("cant deserialize S_vec R_vec yet");
 #endif
+	  
     auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
 
     //empty matrix
@@ -373,9 +390,72 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 #if 0
     DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, &(this->m_pk));
 
-    shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+    and do this shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+#else
+    DEBUG("cant deserialize PK or EK yet");    
 #endif
     return true;
+};
+  
+  
+// Compare Operation
+template<typename  Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjunctionPattern<Element>& b){
+    bool dbg_flag= true;
+    bool fail = false;
+    DEBUG("in ObfuscatedLWEConjunctionPattern<Element>Compare()");
+  if( m_length != b.m_length) {
+    std::cout<< "m_length mismatch"<<std::endl;
+    fail ^=false;
+  }    
+
+  if (*m_elemParams != *(b.m_elemParams)) {
+    std::cout<< "m_elemParams mismatch"<<std::endl;
+    fail ^=false;
+  }    
+
+  if (m_rootHermiteFactor != b.m_rootHermiteFactor) {
+    std::cout<< "m_rootHermiteFactor mismatch"<<std::endl;
+    std::cout<< "this->m_rootHermiteFactor: "<<m_rootHermiteFactor<<std::endl;
+    std::cout<< "delta is "<< this->m_rootHermiteFactor-b.m_rootHermiteFactor<<std::endl;    
+
+    fail ^=false;
+  }    
+
+  if (m_chunkSize != b.m_chunkSize){
+    std::cout<< "m_chunkSize mismatch"<<std::endl;
+    fail ^=false;
+  }
+  if (m_base != b.m_base){
+    std::cout<< "m_base mismatch"<<std::endl;
+    fail ^=false;
+  }
+
+  
+  // shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+  std::cout<< "can't test S_Vec yet"<<std::endl;  
+  // shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+  std::cout<< "can't test R_Vec yet"<<std::endl;  
+  // shared_ptr<Matrix<Element>> m_Sl;
+  if (*m_Sl != *(b.m_Sl)){
+    std::cout<< "m_Sl mismatch"<<std::endl;
+    DEBUGEXP(*m_Sl);
+    DEBUGEXP(*(b.m_Sl));
+    fail ^=false;
+  }
+  // shared_ptr<Matrix<Element>> m_Rl;
+  if (*m_Rl != *(b.m_Rl)){
+    std::cout<< "m_Rl mismatch"<<std::endl;
+    DEBUGEXP(*m_Rl);
+    DEBUGEXP(*(b.m_Rl));
+    fail ^=false;
+  }
+  
+  // shared_ptr<std::vector<Matrix<Element>>> m_pk;
+  std::cout<< "can't test PK yet"<<std::endl;
+  // shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+  std::cout<< "can't test EK yet"<<std::endl;  
+  return fail;
 };
   
   

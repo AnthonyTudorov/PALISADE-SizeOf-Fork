@@ -39,6 +39,7 @@ using std::invalid_argument;
 namespace lbcrypto {
 
   template class Matrix<Poly>;
+  template class Matrix<NativePoly>;
   template class Matrix<BigInteger>;
   template class Matrix<BigVector>;
   template class Matrix<double>;
@@ -62,9 +63,10 @@ namespace lbcrypto {
   ONES_FOR_TYPE(int32_t)
   ONES_FOR_TYPE(double)
   ONES_FOR_TYPE(Poly)
+  ONES_FOR_TYPE(NativePoly)
   ONES_FOR_TYPE(BigInteger)
   ONES_FOR_TYPE(BigVector)
-  
+ 
   ONES_FOR_TYPE(Field2n)
 
 //template<>
@@ -96,6 +98,7 @@ namespace lbcrypto {
   IDENTITY_FOR_TYPE(int32_t)
   IDENTITY_FOR_TYPE(double)
   IDENTITY_FOR_TYPE(Poly)
+  IDENTITY_FOR_TYPE(NativePoly)
   IDENTITY_FOR_TYPE(BigInteger)
   IDENTITY_FOR_TYPE(BigVector)
   IDENTITY_FOR_TYPE(Field2n)
@@ -117,13 +120,13 @@ namespace lbcrypto {
   GADGET_FOR_TYPE(int32_t)
   GADGET_FOR_TYPE(double)
   GADGET_FOR_TYPE(Poly)
+  GADGET_FOR_TYPE(NativePoly)
   GADGET_FOR_TYPE(DCRTPoly)
   GADGET_FOR_TYPE(BigInteger)
   GADGET_FOR_TYPE(BigVector)
-  //GADGET_FOR_TYPE(IntPlaintextEncoding)
   GADGET_FOR_TYPE(Field2n)
 
-  //double Matrix<T>::Norm() for types that have a norm
+  //template Matrix<T>::Norm() for types that have a norm
 #define NORM_FOR_TYPE(T)			\
   template<>					\
   double Matrix<T>::Norm() const {		\
@@ -141,9 +144,10 @@ namespace lbcrypto {
   }
 
   NORM_FOR_TYPE(Poly)
+ //TODO: note there is no NORM_FOR_TYPE(NativePoly)
   NORM_FOR_TYPE(DCRTPoly)
 
-  //double Matrix<T>::Norm() for types that have NO norm
+  //template Matrix<T>::Norm() for types that have NO norm
 #define NONORM_FOR_TYPE(T)					\
   template<>							\
   double Matrix<T>::Norm() const {				\
@@ -289,6 +293,29 @@ namespace lbcrypto {
   }
 
   template<>
+  void Matrix<NativePoly>::SwitchFormat() {
+
+	if (rows == 1)
+	{
+		for (size_t row = 0; row < rows; ++row) {
+#pragma omp parallel for
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+	else
+	{
+		for (size_t col = 0; col < cols; ++col) {
+#pragma omp parallel for
+			for (size_t row = 0; row < rows; ++row) {
+				data[row][col]->SwitchFormat();
+			}
+		}
+	}
+}
+
+template<>
   void Matrix<DCRTPoly>::SwitchFormat() {
 
     if (rows == 1)

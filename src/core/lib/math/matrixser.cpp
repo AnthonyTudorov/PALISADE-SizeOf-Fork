@@ -33,6 +33,8 @@
 #include "matrixstrassen.h"
 using std::invalid_argument;
 
+// this is the serializations of matricies
+
 namespace lbcrypto {
 
 template<>
@@ -225,54 +227,7 @@ bool Matrix<Field2n>::Serialize(Serialized* serObj) const {
 
 template<>
 bool Matrix<Field2n>::Deserialize(const Serialized& serObj) {
-  std::cout<<"Matrix<Field2n>::Deserialize() not written"<<std::endl;
-  return false;
-}
-
-
-template<>
-void Matrix<Poly>::PrintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<>
-void Matrix<BigInteger>::PrintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->PrintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<>
-void Matrix<Poly>::SwitchFormat() {
-
-	if (rows == 1)
-	{
-		for (size_t row = 0; row < rows; ++row) {
-#pragma omp parallel for
-			for (size_t col = 0; col < cols; ++col) {
-				data[row][col]->SwitchFormat();
-			}
-		}
-	}
-	else
-	{
-		for (size_t col = 0; col < cols; ++col) {
-#pragma omp parallel for
-			for (size_t row = 0; row < rows; ++row) {
-				data[row][col]->SwitchFormat();
-			}
-		}
-	}
+	return false;
 }
 
 }

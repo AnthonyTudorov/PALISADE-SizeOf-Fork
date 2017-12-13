@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <string>
+#include <iomanip>
 #ifndef RAPIDJSON_HAS_STDSTRING
 #define RAPIDJSON_HAS_STDSTRING
 #endif

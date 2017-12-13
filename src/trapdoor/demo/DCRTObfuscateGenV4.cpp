@@ -47,6 +47,8 @@ void  SerializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> clearPattern);
 void  DeserializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
 void  SerializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern);
 void  DeserializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern);
+bool CompareObfuscatedPatterns(ObfuscatedLWEConjunctionPattern<DCRTPoly> &a,
+			       ObfuscatedLWEConjunctionPattern<DCRTPoly> &b);
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
@@ -232,6 +234,12 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
   DeserializeObfuscatedPattern(testObfuscatedPattern);
+
+  if (!CompareObfuscatedPatterns(obfuscatedPattern, testObfuscatedPattern)) {
+    std::cout<<"Serialization did not work"<<std::endl;
+  }else{
+    std::cout<<"Serialization worked"<<std::endl;
+  }
   
   DEBUG("Done" );
   //get the total program run time.
@@ -321,7 +329,9 @@ void  SerializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> obfus
   bool dbg_flag = true;
 
   DEBUG("in SerializeObfuscatedPattern");
-  
+  DEBUGEXP(*obfuscatedPattern.GetParameters());
+  //DEBUGEXP(*obfuscatedPattern.GetRl());
+
   Serialized serObj;
   serObj.SetObject();
   
@@ -335,8 +345,14 @@ void  SerializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> obfus
   
   
   DEBUG("done in SerializeObfuscatedPattern");
-  
 
+};
+
+bool CompareObfuscatedPatterns(ObfuscatedLWEConjunctionPattern<DCRTPoly> &a, ObfuscatedLWEConjunctionPattern<DCRTPoly> &b){
+  bool dbg_flag = true;
+  DEBUG("in CompareObfuscatedPattern");
+  
+  return(a.Compare(b));
 
 };
 

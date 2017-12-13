@@ -337,6 +337,13 @@ namespace lbcrypto {
 			 */
 			bool Deserialize(const Serialized& serObj);
 
+						/**
+			 * @brief Compare this with another pattern object
+			 * @param b pattern object to compare
+			 * @return true on success
+			 */
+			bool Compare(const ObfuscatedLWEConjunctionPattern& b);
+
 			/**
 			 * @brief ostream operator
 			 * @param os the input preceding output stream
