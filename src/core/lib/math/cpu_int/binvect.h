@@ -330,6 +330,14 @@ public:
 	BigVectorImpl ModSub(const IntegerType &b) const;
 
 	/**
+	 * Scalar modulus subtraction.
+	 * After substraction modulus operation is performed with the current vector modulus.
+	 * @param &b is the scalar to subtract from all locations.
+	 * @return a new vector which is the result of the modulus substraction operation.
+	 */
+	const BigVectorImpl& ModSubEq(const IntegerType &b);
+
+	/**
 	 * Scalar modular multiplication. Generalized Barrett modulo reduction algorithm. 
 	 * See the comments in the cpp files for details of the implementation.
 	 *
@@ -364,18 +372,6 @@ public:
 	 */
 	BigVectorImpl ModInverse() const;
 
-//	/**
-//	 * Modulus scalar multiplication assignment.
-//	 *
-//	 * @param &a is the input vector to multiply.
-//	 * @param &i is the input integer to multiply at all entries.
-//	 * @return a new vector which is the result of the modulus multiplication operation.
-//	 */
-//	BigVectorImpl &operator*=(const IntegerType &i) {
-//	    *this=this->ModMul(i);
-//	    return *this;
-//	  }
-
 	//Vector Operations
 
 	//component-wise addition
@@ -402,23 +398,6 @@ public:
 	*/
 	BigVectorImpl ModByTwo() const;
 
-//	/**
-//	 * Vector Self Modulus Addition.
-//	 *
-//	 * @param &b is the vector to add.
-//	 * @return a reference to the result of the modulus addition operation.
-//	 */
-//	const BigVectorImpl& operator+=(const BigVectorImpl &b);
-
-
-	/**
- 	 * Vector Self Modulus Substraction.
- 	 *
-	 * @param &b is the vector to substract.
-	 * @return a reference to the result of the modulus substraction operation.
-	 */
-	const BigVectorImpl& operator-=(const BigVectorImpl &b);
-
 	//component-wise subtraction
 
 	/**
@@ -428,6 +407,14 @@ public:
 	 * @return a new vector which is the result of the modulus subtraction operation.
 	 */
 	BigVectorImpl ModSub(const BigVectorImpl &b) const;
+
+	/**
+	 * Vector Modulus subtraction.
+	 *
+	 * @param &b is the vector to subtract.
+	 * @return a new vector which is the result of the modulus subtraction operation.
+	 */
+	const BigVectorImpl& ModSubEq(const BigVectorImpl &b);
 
 	//component-wise multiplication
 

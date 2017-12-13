@@ -256,7 +256,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 }
 
 TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	DEBUG("start tests");
 	
 	usint m = 1024;

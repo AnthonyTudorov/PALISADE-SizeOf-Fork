@@ -381,24 +381,6 @@ namespace cpu_int{
     */
     const BigInteger& PlusEq(const BigInteger& b);
 
-
-//    /**
-//    * Addition accumulator.
-//    *
-//    * @param &b is the value to add of type BigInteger.
-//    * @return result of the addition operation of type BigInteger.
-//    */
-//    const BigInteger& operator+=(const BigInteger &b);
-
-		
-    /**
-    * Subtraction accumulator.
-    *
-    * @param &b is the value to subtract of type BigInteger.
-    * @return result of the subtraction operation of type BigInteger.
-    */
-    const BigInteger& operator-=(const BigInteger &b);
-
     /**
     * Subtraction operation.
     *
@@ -406,6 +388,14 @@ namespace cpu_int{
     * @return result of the subtraction operation of type BigInteger.
     */
     BigInteger Minus(const BigInteger& b) const;
+
+    /**
+    * Subtraction operation.
+    *
+    * @param b is the value to subtract of type BigInteger.
+    * @return result of the subtraction operation of type BigInteger.
+    */
+    const BigInteger& MinusEq(const BigInteger& b);
       
     /**
     * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
@@ -432,6 +422,14 @@ namespace cpu_int{
     * @return result of the division operation.
     */
     BigInteger DividedBy(const BigInteger& b) const;
+
+    /**
+    * Division operation.
+    *
+    * @param b of type BigInteger is the value to divide by.
+    * @return result of the division operation.
+    */
+    const BigInteger& DividedByEq(const BigInteger& b);
 
 //modular arithmetic operations
 		
@@ -530,6 +528,15 @@ namespace cpu_int{
     * @return result of the modulus subtraction operation.
     */
     BigInteger ModSub(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
+    * Scalar modular subtraction.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus subtraction operation.
+    */
+    const BigInteger& ModSubEq(const BigInteger& b, const BigInteger& modulus);
 
     /**
     * Scalar modular subtraction where Barrett modular reduction is used.
