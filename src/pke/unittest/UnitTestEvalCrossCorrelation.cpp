@@ -53,6 +53,7 @@ public:
 
 usint BVCrossCorrelation();
 usint FVCrossCorrelation();
+usint BFVrnsCrossCorrelation();
 
 
 TEST_F(UTEvalCC, Test_BV_EvalCC) {
@@ -71,6 +72,15 @@ TEST_F(UTEvalCC, Test_FV_EvalCC) {
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
+}
+
+TEST_F(UTEvalCC, Test_BFVrns_EvalCC) {
+
+	usint result = BFVrnsCrossCorrelation();
+	usint expectedResult = 11;
+
+	EXPECT_EQ(result, expectedResult);
+
 }
 
 usint BVCrossCorrelation() {
@@ -215,6 +225,68 @@ usint FVCrossCorrelation() {
 	shared_ptr<Matrix<RationalCiphertext<Poly>>> xEncrypted = cc->EncryptMatrix(kp.publicKey, x);
 
 	shared_ptr<Matrix<RationalCiphertext<Poly>>> yEncrypted = cc->EncryptMatrix(kp.publicKey, y);
+
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc->EvalCrossCorrelation(xEncrypted, yEncrypted, batchSize);
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, result, &intArrayNew);
+
+	return intArrayNew->GetPackedValue()[0];
+
+}
+
+usint BFVrnsCrossCorrelation() {
+
+	usint ptm = 65537;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.06;
+	usint batchSize = 8;
+
+	EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+
+	// Compute evaluation keys
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
+
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+
+	Matrix<Plaintext> x = Matrix<Plaintext>(zeroAlloc, 2, 1);
+
+	x(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	x(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
+
+	Matrix<Plaintext> y = Matrix<Plaintext>(zeroAlloc, 2, 1);
+
+	y(0, 0) = cc->MakePackedPlaintext({ 0, 1, 1, 1, 0, 1, 1, 1 });
+	y(1, 0) = cc->MakePackedPlaintext({ 1, 0, 1, 1, 0, 1, 1, 0 });
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xEncrypted = cc->EncryptMatrix(kp.publicKey, x);
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yEncrypted = cc->EncryptMatrix(kp.publicKey, y);
 
 
 	////////////////////////////////////////////////////////////

@@ -152,7 +152,7 @@ GenCryptoContextBFVrns(PlaintextModulus ptm, MODE mode) {
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
-
+	cc->Enable(MULTIPARTY);
 	return cc;
 }
 

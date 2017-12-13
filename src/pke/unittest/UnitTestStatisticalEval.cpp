@@ -307,3 +307,83 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 }
 
+/** Tests linear regression for the BFVrns scheme
+* based on of a design matrix of 2x2 and response vector of 2x1
+* In contrast to the previous test, this one also converts an integer
+* into a binary polynomial
+*/
+/*TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
+
+	usint plaintextModulus = 256;
+	float stdDev = 4;
+
+	//Set crypto parametes
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(plaintextModulus, 1.006, stdDev, 0, 4, 0, OPTIMIZED);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<DCRTPoly> kp;
+
+	// Set the plaintext matrices
+
+	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
+
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
+
+	xP(0, 0) = cc->MakeIntegerPlaintext(173);
+	xP(0, 1) = cc->MakeIntegerPlaintext(107);
+	xP(1, 0) = cc->MakeIntegerPlaintext(175);
+	xP(1, 1) = cc->MakeIntegerPlaintext(105);
+
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
+
+	yP(0, 0) = cc->MakeIntegerPlaintext(167);
+	yP(1, 0) = cc->MakeIntegerPlaintext(105);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operations.
+	////////////////////////////////////////////////////////////
+
+	kp = cc->KeyGen();
+
+	cc->EvalMultKeyGen(kp.secretKey);
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc->EvalLinRegression(x, y);
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
+
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+
+	////////////////////////////////////////////////////////////
+	// Correct output
+	////////////////////////////////////////////////////////////
+
+	uint32_t numerator1 = -3528000;
+	uint32_t numerator2 = 6193600;
+	uint32_t denominatorExpected = 313600;
+
+	EXPECT_EQ((int32_t)numerator1, (int32_t)(*numerator)(0, 0)->GetIntegerValue());
+	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue());
+	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue());
+
+}*/

@@ -743,7 +743,7 @@ namespace lbcrypto {
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
+		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
 
 	};

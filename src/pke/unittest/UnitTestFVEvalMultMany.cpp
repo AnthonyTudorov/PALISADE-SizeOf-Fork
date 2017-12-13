@@ -46,7 +46,7 @@ protected:
 public:
 };
 
-//Tests EvalMult w/o keyswitching and EvalMultMany for FV in the RLWE mode
+//Tests EvalMult w/o keyswitching and EvalMultMany for FV in the OPTIMIZED mode
 TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 
 	int relWindow = 1;
@@ -74,7 +74,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	}
 
 	//Create evaluation key vector to be used in keyswitching
-	vector<LPEvalKey<Poly>> evalKeys = cryptoContext->GetEncryptionAlgorithm()->EvalMultKeysGen(keyPair.secretKey);
+	cryptoContext->EvalMultKeysGen(keyPair.secretKey);
 
 	////////////////////////////////////////////////////////////
 	//Plaintext
@@ -125,9 +125,9 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	Ciphertext<Poly> ciphertextMulVect5;
 
 	//Perform consecutive multiplications and do a keyswtiching at the end.
-	ciphertextMul12     = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertext1,ciphertext2);
-	ciphertextMul123    = cryptoContext->GetEncryptionAlgorithm()->EvalMult(ciphertextMul12, ciphertext3);
-	ciphertextMul1234   = cryptoContext->GetEncryptionAlgorithm()->EvalMultAndRelinearize(ciphertextMul123, ciphertext4, evalKeys);
+	ciphertextMul12     = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
+	ciphertextMul123    = cryptoContext->EvalMultNoRelin(ciphertextMul12, ciphertext3);
+	ciphertextMul1234   = cryptoContext->EvalMultAndRelinearize(ciphertextMul123, ciphertext4);
 
 	////////////////////////////////////////////////////////////
 	//Decryption of multiplicative results with and without keyswtiching (depends on the level)
@@ -157,7 +157,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	//Compute EvalMultMany
 	////////////////////////////////////////////////////////////
 
-	ciphertextMul12345 = cryptoContext->GetEncryptionAlgorithm()->EvalMultMany(cipherTextList, evalKeys);
+	ciphertextMul12345 = cryptoContext->EvalMultMany(cipherTextList);
 
 	////////////////////////////////////////////////////////////
 	//Decrypt EvalMultMany
@@ -174,6 +174,136 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
 	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
 	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
+
+}
+
+//Tests EvalMult w/o keyswitching and EvalMultMany for BFVrns in the OPTIMIZED mode
+TEST(UTBFVrnsEVALMM, Poly_BFVrns_Eval_Mult_Many_Operations) {
+
+	int plaintextModulus = 256;
+	double sigma = 4;
+	double rootHermiteFactor = 1.03;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			plaintextModulus, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,4);
+
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	////////////////////////////////////////////////////////////
+
+	LPKeyPair<DCRTPoly> keyPair;
+	keyPair = cryptoContext->KeyGen();
+
+	if (!keyPair.good()) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	//Create evaluation key vector to be used in keyswitching
+	cryptoContext->EvalMultKeysGen(keyPair.secretKey);
+
+	////////////////////////////////////////////////////////////
+	//Plaintext
+	////////////////////////////////////////////////////////////
+
+	std::vector<uint32_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
+	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts3 = {3,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint32_t> vectorOfInts4 = {4,0,0,0,0,0,0,0,0,0,0,0};
+
+	std::vector<uint32_t> vectorOfInts5 = {10,8,6,4,2,0,10,8,6,4,2,0};
+	std::vector<uint32_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
+	std::vector<uint32_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
+
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+	Plaintext plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);
+	Plaintext plaintext4 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts4);
+
+	Plaintext plaintextResult1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts5);
+	Plaintext plaintextResult2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts6);
+	Plaintext plaintextResult3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts7);
+
+	Ciphertext<DCRTPoly> ciphertext1;
+	Ciphertext<DCRTPoly> ciphertext2;
+	Ciphertext<DCRTPoly> ciphertext3;
+	Ciphertext<DCRTPoly> ciphertext4;
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+	ciphertext3 = cryptoContext->Encrypt(keyPair.publicKey, plaintext3);
+	ciphertext4 = cryptoContext->Encrypt(keyPair.publicKey, plaintext4);
+
+	////////////////////////////////////////////////////////////
+	//EvalMult Operation
+	////////////////////////////////////////////////////////////
+
+	Ciphertext<DCRTPoly> ciphertextMul12;
+	Ciphertext<DCRTPoly> ciphertextMul123;
+	Ciphertext<DCRTPoly> ciphertextMul1234;
+
+	Ciphertext<DCRTPoly> ciphertextMulVect3;
+	Ciphertext<DCRTPoly> ciphertextMulVect4;
+	Ciphertext<DCRTPoly> ciphertextMulVect5;
+
+	//Perform consecutive multiplications and do a keyswtiching at the end.
+	ciphertextMul12     = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
+	ciphertextMul123    = cryptoContext->EvalMultNoRelin(ciphertextMul12, ciphertext3);
+	ciphertextMul1234   = cryptoContext->EvalMultAndRelinearize(ciphertextMul123, ciphertext4);
+
+	////////////////////////////////////////////////////////////
+	//Decryption of multiplicative results with and without keyswtiching (depends on the level)
+	////////////////////////////////////////////////////////////
+
+	Plaintext plaintextMul1;
+	Plaintext plaintextMul2;
+	Plaintext plaintextMul3;
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12, &plaintextMul1);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul123, &plaintextMul2);
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul1234, &plaintextMul3);
+
+	////////////////////////////////////////////////////////////
+	//Prepare EvalMultMany
+	////////////////////////////////////////////////////////////
+
+	Ciphertext<DCRTPoly> ciphertextMul12345;
+	vector<Ciphertext<DCRTPoly>> cipherTextList;
+
+	cipherTextList.push_back(ciphertext1);
+	cipherTextList.push_back(ciphertext2);
+	cipherTextList.push_back(ciphertext3);
+	cipherTextList.push_back(ciphertext4);
+
+	////////////////////////////////////////////////////////////
+	//Compute EvalMultMany
+	////////////////////////////////////////////////////////////
+
+	ciphertextMul12345 = cryptoContext->EvalMultMany(cipherTextList);
+
+	////////////////////////////////////////////////////////////
+	//Decrypt EvalMultMany
+	////////////////////////////////////////////////////////////
+
+	Plaintext plaintextMulMany;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMul12345, &plaintextMulMany);
+
+	plaintextResult1->SetLength( plaintextMul1->GetLength() );
+	plaintextResult2->SetLength( plaintextMul2->GetLength() );
+	plaintextResult3->SetLength( plaintextMul3->GetLength() );
+
+	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "BFVrns.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "BFVrns.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "BFVrns.EvalMultAndRelinearize gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "BFVrns.EvalMultMany gives incorrect results.\n";
 
 }
 
