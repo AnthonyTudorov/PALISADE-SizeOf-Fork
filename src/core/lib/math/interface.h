@@ -96,7 +96,7 @@ namespace lbcrypto {
 		virtual T ModAdd(const T& b, const T& modulus) const = 0;
 
 		/**
-		 * Scalar modulus addition.
+		 * Scalar modulus= addition.
 		 *
 		 * @param &b is the scalar to add.
 		 * @param modulus is the modulus to perform operations with.
@@ -107,10 +107,49 @@ namespace lbcrypto {
 		T operator+(const T& b) const { return this->Plus(b); }
 		const T& operator+=(const T& b) { return this->PlusEq(b); }
 
+		//// SUBTRACTION
+
+		/**
+		 * - operation.
+		 *
+		 * @param b is the value to subtract.
+		 * @return is the result of the subtraction operation.
+		 */
+		virtual T Minus(const T& b) const = 0;
+
+		/**
+		 * -= operation.
+		 *
+		 * @param b is the value to subtract.
+		 * @return is the result of the subtraction operation.
+		 */
+		virtual const T& MinusEq(const T& b) = 0;
+
+		/**
+		 * Scalar modulus subtraction.
+		 *
+		 * @param &b is the scalar to subtract.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus subtraction operation.
+		 */
+		virtual T ModSub(const T& b, const T& modulus) const = 0;
+
+		/**
+		 * Scalar modulus= subtraction.
+		 *
+		 * @param &b is the scalar to subtract.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus subtraction operation.
+		 */
+		virtual const T& ModSubEq(const T& b, const T& modulus) = 0;
+
+		T operator-(const T& b) const { return this->Minus(b); }
+		const T& operator-=(const T& b) { return this->MinusEq(b); }
+
 		//// MULTIPLICATION
 
 		/**
-		 * Multiplication operation.
+		 * * operation.
 		 *
 		 * @param b is the value to multiply with.
 		 * @return is the result of the multiplication operation.
@@ -118,7 +157,7 @@ namespace lbcrypto {
 		virtual T Times(const T& b) const = 0;
 
 		/**
-		 * Multiplication operation.
+		 * *= operation.
 		 *
 		 * @param b is the value to multiply with.
 		 * @return is the result of the multiplication operation.
@@ -128,24 +167,26 @@ namespace lbcrypto {
 		T operator*(const T& b) const { return this->Times(b); }
 		const T& operator*=(const T& b) { return this->TimesEq(b); }
 
-#if 0
 		/**
-		 * Subtraction operation.
+		 * Division operation.
 		 *
-		 * @param b is the value to subtract.
-		 * @return is the result of the subtraction operation.
+		 * @param b is the value to divide by.
+		 * @return is the result of the division operation.
 		 */
-		virtual T Minus(const T& b) const = 0;
-
-
-		///**
-		// * Division operation.
-		// *
-		// * @param b is the value to divide by.
-		// * @return is the result of the division operation.
-		// */
 		virtual T DividedBy(const T& b) const = 0;
 
+		/**
+		 * Division operation.
+		 *
+		 * @param b is the value to divide by.
+		 * @return is the result of the division operation.
+		 */
+		virtual const T& DividedByEq(const T& b) = 0;
+
+		T operator/(const T& b) const { return this->DividedBy(b); }
+		const T& operator/=(const T& b) { return this->DividedByEq(b); }
+
+#if 0
 		//modular arithmetic operations
 
 		/**
@@ -174,15 +215,6 @@ namespace lbcrypto {
 		virtual T ModInverse(const T& modulus) const = 0;
 
 		/**
-		 * Scalar modulus subtraction.
-		 *
-		 * @param &b is the scalar to subtract.
-		 * @param modulus is the modulus to perform operations with.
-		 * @return is the result of the modulus subtraction operation.
-		 */
-		virtual T ModSub(const T& b, const T& modulus) const = 0;
-
-		/**
 		 * Scalar modulus multiplication.
 		 *
 		 * @param &b is the scalar to multiply.
@@ -209,14 +241,6 @@ namespace lbcrypto {
 		 * @return is the result of the modulus exponentiation operation.
 		 */
 		virtual T ModExp(const T& b, const T& modulus) const = 0;
-
-		/**
-		 * Subtraction accumulator.
-		 *
-		 * @param &b is the value to subtract.
-		 * @return is the result of the subtraction operation.
-		 */
-		virtual const T& operator-=(const T &b) = 0;
 
 		////bit shifting operators
 
@@ -265,7 +289,6 @@ namespace lbcrypto {
 
 		/**
 		 * Stores the value of this T in a string object and returns it.
-		 * Added by Arnab Deb Gupta <ad479@njit.edu> on 9/21/15.
 		 *
 		 * @return the value of this T as a string.
 		 */
@@ -311,7 +334,7 @@ namespace lbcrypto {
 		 */
 		//static T intToBigIntegereger(usint m);
 
-		////constant definations
+		////constant definitions
 
 		/**
 		 * Constant zero.	  
@@ -445,7 +468,6 @@ public:
 		*/
 		T&  operator=(T &&rhs);
 
-		//todo replace <sint> with <usint>
 		/**
 		* Initializer list for T.
 		*
@@ -638,6 +660,43 @@ public:
 		const T& operator+=(const T &b) { return this->ModAddEq(b); }
 
 		/**
+		 * Scalar modulus addition.
+		 *
+		 * After addition modulus operation is performed with the current vector modulus.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual T ModSub(const I &b) const = 0;
+
+		/**
+		 * Scalar modulus addition.
+		 *
+		 * After addition modulus operation is performed with the current vector modulus.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual const T& ModSubEq(const I &b) = 0;
+
+		/**
+		 * vector modulus addition.
+		 *
+		 * @param &b is the vector to add at all locations.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual T ModSub(const T &b) const = 0;
+
+		/**
+		 * vector modulus addition.
+		 *
+		 * @param &b is the vector to add at all locations.
+		 * @return a new vector which is the result of the modulus addition operation.
+		 */
+		virtual const T& ModSubEq(const T &b) = 0;
+
+		T operator-(const I &b) const { return this->ModSub(b); }
+		const T& operator-=(const I &b) { return this->ModSubEq(b); }
+		T operator-(const T &b) const { return this->ModSub(b); }
+		const T& operator-=(const T &b) { return this->ModSubEq(b); }
+
+		/**
 		 * Scalar modular multiplication.
 		 *
 		 * @param &b is the scalar to multiply at all locations.
@@ -685,15 +744,6 @@ public:
 
 		//scalar operations
 
-
-		/**
-		 * Scalar modulus subtraction.
-		 * After substraction modulus operation is performed with the current vector modulus.
-		 * @param &b is the scalar to subtract from all locations.
-		 * @return a new vector which is the result of the modulus substraction operation.
-		 */
-		T ModSub(const T::BVInt &b) const;
-
 		/**
 		 * Scalar modulus exponentiation.
 		 *
@@ -711,18 +761,6 @@ public:
 		 */
 		T ModInverse() const;
 
-		/**
-		 * Modulus scalar multiplication assignment.
-		 *
-		 * @param &a is the input vector to multiply.
-		 * @param &i is the input integer to multiply at all entries.
-		 * @return a new vector which is the result of the modulus multiplication operation.
-		 */
-		T &operator*=(const T::BVInt &i) {
-		    *this=this->ModMul(i);
-		    return *this;
-		  }
-
 		//Vector Operations
 
 		/**
@@ -735,24 +773,6 @@ public:
 #endif
 
 #if 0
-		/**
-	 	 * Vector Self Modulus Substraction.
-	 	 *
-		 * @param &b is the vector to substract.
-		 * @return a reference to the result of the modulus substraction operation.
-		 */
-		const T& operator-=(const T &b);
-
-		//component-wise subtraction
-
-		/**
-		 * Vector Modulus subtraction.
-		 *
-		 * @param &b is the vector to subtract.
-		 * @return a new vector which is the result of the modulus subtraction operation.
-		 */
-		T ModSub(const T &b) const;
-
 		//component-wise multiplication
 
 		/**

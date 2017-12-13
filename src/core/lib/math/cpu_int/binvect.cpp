@@ -488,19 +488,19 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 //
 //}
 
-template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const BigVectorImpl &b) {
-
-	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("operator-= called on BigVectorImpl's with different parameters.");
-	}
-
-	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i] = this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
-	}
-	return *this;
-
-}
+//template<class IntegerType>
+//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const BigVectorImpl &b) {
+//
+//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+//        throw std::logic_error("operator-= called on BigVectorImpl's with different parameters.");
+//	}
+//
+//	for(usint i=0;i<this->m_length;i++){
+//		this->m_data[i] = this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
+//	}
+//	return *this;
+//
+//}
 
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf

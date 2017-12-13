@@ -860,51 +860,51 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq
 //	return *this;
 //}
 
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator-=(const BigInteger &b){
-	
-	if(!(*this>b)){
-		*this=ZERO;
-		return *this;
-	}
+//template<typename uint_type,usint BITLENGTH>
+//const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator-=(const BigInteger &b){
+//
+//	if(!(*this>b)){
+//		*this=ZERO;
+//		return *this;
+//	}
+//
+//	int cntr=0,current=0;
+//
+//	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+//	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
+//	sint i;
+//	for(i=m_nSize-1;i>=endValB;i--){
+//		if(this->m_value[i]<b.m_value[i]){
+//			current=i;
+//			cntr = current-1;
+//			while(cntr>=0 && this->m_value[cntr]==0){
+//				this->m_value[cntr]=m_uintMax;
+//				cntr--;
+//			}
+//			if(cntr>=0)
+//				this->m_value[cntr]--;
+//			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];
+//		}
+//		else{
+//			this->m_value[i]=this->m_value[i]- b.m_value[i];
+//		}
+//	}
+//
+//	while(this->m_value[endValA]==0){
+//		endValA++;
+//	}
+//
+//	this->m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(this->m_value[endValA]);
+//
+//
+//	return *this;
+//
+//}
 
-	int cntr=0,current=0;
-
-	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
-	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
-	sint i;
-	for(i=m_nSize-1;i>=endValB;i--){
-		if(this->m_value[i]<b.m_value[i]){
-			current=i;
-			cntr = current-1;
-			while(cntr>=0 && this->m_value[cntr]==0){
-				this->m_value[cntr]=m_uintMax;
-				cntr--;
-			}
-			if(cntr>=0)
-				this->m_value[cntr]--;
-			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];		
-		}
-		else{
-			this->m_value[i]=this->m_value[i]- b.m_value[i];
-		}
-	}
-
-	while(this->m_value[endValA]==0){
-		endValA++;
-	}
-
-	this->m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(this->m_value[endValA]);
-
-
-	return *this;
-
-}
-
-template<typename uint_type, usint BITLENGTH>
-BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::operator*(const BigInteger &a) const{
-	return this->Times(a);
-}
+//template<typename uint_type, usint BITLENGTH>
+//BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::operator*(const BigInteger &a) const{
+//	return this->Times(a);
+//}
 
 /* Times operation:
 *  Algorithm used is usual school book multiplication.

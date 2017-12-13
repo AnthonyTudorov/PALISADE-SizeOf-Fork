@@ -325,37 +325,6 @@ public:
 		return *this;
 	}
 
-//FIXME needed??
-//	/**
-//	 * Addition accumulator.
-//	 *
-//	 * @param &b is the value to add of type BigInteger.
-//	 * @return result of the addition operation of type BigInteger.
-//	 */
-//	const NativeInteger& operator+=(const NativeInteger &b) {
-//		uint_type oldv = m_value;
-//		m_value += b.m_value;
-//		if( m_value < oldv ) {
-//			PALISADE_THROW( lbcrypto::math_error, "Overflow");
-//		}
-//		return *this;
-//	}
-
-
-	/**
-	 * Subtraction accumulator.
-	 *
-	 * @param &b is the value to subtract of type BigInteger.
-	 * @return result of the subtraction operation of type BigInteger.
-	 */
-	const NativeInteger& operator-=(const NativeInteger &b) {
-		if( m_value <= b.m_value )
-			m_value = 0;
-		else
-			m_value -= b.m_value;
-		return *this;
-	}
-
 	/**
 	 * Subtraction operation.
 	 *
@@ -364,6 +333,17 @@ public:
 	 */
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
+	}
+
+	/**
+	 * Subtraction operation.
+	 *
+	 * @param b is the value to subtract of type BigInteger.
+	 * @return result of the subtraction operation of type BigInteger.
+	 */
+	const NativeInteger& MinusEq(const NativeInteger& b) {
+		m_value -= m_value <= b.m_value ? m_value : b.m_value;
+		return *this;
 	}
 
 	/**
@@ -404,14 +384,17 @@ public:
 			PALISADE_THROW( lbcrypto::math_error, "Divide by zero");
 		return this->m_value / b.m_value;
 	}
+
 	/**
-	 * Division accumulator.
+	 * Division operation.
 	 *
-	 * @param &b is the value of divisor of type BigInteger.
-	 * @return result of the divide accumulate operation of type BigInteger.
+	 * @param b of type NativeInteger is the value to divide by.
+	 * @return result of the division operation.
 	 */
-	const NativeInteger& operator/=(const NativeInteger &b) {
-	  m_value /= b.m_value;
+	const NativeInteger& DividedByEq(const NativeInteger& b) {
+		if( b.m_value == 0 )
+			PALISADE_THROW( lbcrypto::math_error, "Divide by zero");
+		this->m_value /= b.m_value;
 		return *this;
 	}
 
@@ -630,11 +613,41 @@ public:
 		}
 
 		if(av >= bv){
-			return (av-bv)%mod;
+			return (av - bv) % mod;
 		}
 		else{
 			return (av + mod) - bv;
 		}
+	}
+
+	/**
+	 * Scalar modular subtraction.
+	 *
+	 * @param &b is the scalar to subtract.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus subtraction operation.
+	 */
+	const NativeInteger& ModSubEq(const NativeInteger& b, const NativeInteger& modulus) {
+		uint_type bv = b.m_value;
+		uint_type mod = modulus.m_value;
+
+		//reduce this to a value lower than modulus
+		if(m_value > mod) {
+			m_value %= mod;
+		}
+		//reduce b to a value lower than modulus
+		if(bv > mod){
+			bv %= mod;
+		}
+
+		if(m_value >= bv){
+			m_value = (m_value - bv) % mod;
+		}
+		else{
+			m_value = (m_value + mod) - bv;
+		}
+
+		return *this;
 	}
 
 	/**
