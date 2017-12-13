@@ -516,7 +516,7 @@ void SHETestPackedInnerProduct() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	usint ptm = 268460033;
+	usint ptm = 536903681;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 	usint batchSize = 16;

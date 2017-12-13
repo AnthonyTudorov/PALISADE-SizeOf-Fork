@@ -37,6 +37,9 @@
 namespace lbcrypto
 {
 
+// STL pair used as a key for some tables in PackedEncoding
+using ModulusM = std::pair<NativeInteger, uint32_t>;
+
 /**
  * @class PackedEncoding
  * @brief Type used for representing IntArray types.
@@ -180,10 +183,10 @@ public:
 
 private:
 	//initial root of unity for plaintext space
-	static std::map<NativeInteger, NativeInteger> m_initRoot;
+	static std::map<ModulusM, NativeInteger> m_initRoot;
 	//modulus and root of unity to be used for Arbitrary CRT
-	static std::map<NativeInteger, NativeInteger> m_bigModulus;
-	static std::map<NativeInteger, NativeInteger> m_bigRoot;
+	static std::map<ModulusM, NativeInteger> m_bigModulus;
+	static std::map<ModulusM, NativeInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
 	static std::map<usint, usint> m_automorphismGenerator;
