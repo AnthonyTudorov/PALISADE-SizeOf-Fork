@@ -31,19 +31,16 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
+#include "utils/testcasegen.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 // This file unit tests the PRE capabilities for all schemes, using all known elements
 
-template <typename Element>
 class ReEncrypt : public ::testing::Test {
 public:
 	virtual ~ReEncrypt() {}
-	typedef std::list<Element> List;
-	static Element shared_;
-	Element value_;
 
 protected:
 	void SetUp() {}
@@ -55,13 +52,40 @@ protected:
 	}
 };
 
-// FIXME StSt AND skip DCRTPoly for FV please
-static vector<string> AllSchemes( {"Null", "LTV", /*"StSt",*/ "BV", /*"FV",*/ "BFVrns"} );
-typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
-TYPED_TEST_CASE(ReEncrypt, EncryptElementTypes);
+// FIXME StSt PRE is broken
+//GENERATE_PKE_TEST_CASE(x, y, Poly, StSt, ORD, PTM)
+//GENERATE_PKE_TEST_CASE(x, y, NativePoly, StSt, ORD, PTM)
+
+#define GENERATE_TEST_CASES_FUNC(x,y,ORD,PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, StSt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
+
+// FIXME StSt please
+//static vector<string> AllSchemes( {"Null", "LTV", /*"StSt",*/ "BV", /*"FV",*/ "BFVrns"} );
 
 static const usint ORDER = 4096;
-static const usint PTM = 256;
+static const usint PTMOD = 256;
 
 template<typename Element>
 static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg) {
@@ -99,7 +123,7 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	// This generates the keys which are used to perform the key switching.
 	LPEvalKey<Element> evalKey;
-	if( failmsg == "BV" || failmsg == "FV" || failmsg == "BFVrns" ) {
+	if( failmsg.substr(0,2) == "BV" || failmsg.substr(0,2) == "FV" || failmsg.substr(0,6) == "BFVrns" ) {
 		evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
 	} else {
 		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
@@ -124,16 +148,4 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 	EXPECT_EQ(plaintextIntNew->GetCoefPackedValue(), plaintextInt->GetCoefPackedValue()) << failmsg << " ReEncrypt integer plaintext";
 }
 
-TYPED_TEST(ReEncrypt, PRE) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], ORDER, PTM);
-		} catch( ... ) {
-			continue;
-		}
-
-		ReEncryption<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(ReEncrypt, ReEncryption, ORDER, PTMOD)

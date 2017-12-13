@@ -79,7 +79,7 @@ TEST_F(UTEncryptStream, Stream_Encryptor_Test_BFVrns)
 	for( size_t i = 0; i < 5000; i++ )
 		bigSource << base;
 
-	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBFVrns(256);
+	CryptoContext<DCRTPoly> cc = GenCryptoContextBFVrns<DCRTPoly>(256);
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
 	cc->EncryptStream(kp.publicKey, bigSource, mid);
