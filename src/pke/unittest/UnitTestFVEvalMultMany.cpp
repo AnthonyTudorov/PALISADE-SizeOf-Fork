@@ -68,10 +68,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	LPKeyPair<Poly> keyPair;
 	keyPair = cryptoContext->KeyGen();
 
-	if (!keyPair.good()) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
-	}
+	ASSERT_TRUE(keyPair.good()) << "Key generation failed!";
 
 	//Create evaluation key vector to be used in keyswitching
 	cryptoContext->EvalMultKeysGen(keyPair.secretKey);

@@ -135,14 +135,22 @@ TEST(UTNbTheory, method_miller_rabin_primality) {
 }
 // TEST CASE FOR FACTORIZATION
 
+template<typename Element>
+::testing::AssertionResult isMemberOf(Element val, const vector<Element>& values) {
+	if( std::find(values.begin(), values.end(), val) != values.end() )
+	    return ::testing::AssertionSuccess();
+    return ::testing::AssertionFailure();
+}
+
 TEST(UTNbTheory, method_factorize_returns_factors){
 	BigInteger comp("53093040");
 	std::set<BigInteger> factors;
+	vector<BigInteger> answers({2, 3, 5, 7, 11, 13, 15, 17});
+
 	lbcrypto::PrimeFactorize(comp, factors);
 
 	for(std::set<BigInteger>::iterator it = factors.begin(); it != factors.end(); ++it) {
-		// std::cout << *it << std::endl;
-		// ASSERT_THAT(*it, ElementsAre(2, 3, 5));
+		EXPECT_TRUE(isMemberOf(*it, answers));
 	}
 }
 

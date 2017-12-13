@@ -163,7 +163,7 @@ TEST(UTPoly, ops_tests) {
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m) );
 }
 
-TEST(UTILNativeVector2n, ops_tests) {
+TEST(UTNativePoly, ops_tests) {
 	usint m = 8;
 	NativeInteger primeModulus("73");
 	NativeInteger primitiveRootOfUnity("22");
@@ -172,7 +172,7 @@ TEST(UTILNativeVector2n, ops_tests) {
 			ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(m) );
 }
 
-TEST(UTILDCRT2n, ops_tests) {
+TEST(UTDCRTPoly, ops_tests) {
 	operators_tests<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>(
 			GenerateDCRTParams(8, 3, 20) );
 }
@@ -261,11 +261,11 @@ TEST(UTPoly, rounding_operations) {
 	rounding_operations<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, rounding_operations) {
+TEST(UTNativePoly, rounding_operations) {
 	rounding_operations<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, rounding_operations) {
+//TEST(UTDCRTPoly, rounding_operations) {
 //	rounding_operations<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -316,7 +316,7 @@ TEST(UTPoly, setters_tests) {
 	setters_tests<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, setters_tests) {
+TEST(UTNativePoly, setters_tests) {
 	setters_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
@@ -411,11 +411,11 @@ TEST(UTPoly, binary_ops) {
 	binary_ops<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, binary_ops) {
+TEST(UTNativePoly, binary_ops) {
 	binary_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, binary_ops) {
+//TEST(UTDCRTPoly, binary_ops) {
 //	binary_ops<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -466,11 +466,11 @@ TEST(UTPoly, clone_ops) {
 	clone_ops<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, clone_ops) {
+TEST(UTNativePoly, clone_ops) {
 	clone_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, clone_ops) {
+//TEST(UTDCRTPoly, clone_ops) {
 //	clone_ops<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -551,11 +551,11 @@ TEST(UTPoly, arithmetic_ops_element) {
 	arithmetic_ops_element<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, arithmetic_ops_element) {
+TEST(UTNativePoly, arithmetic_ops_element) {
 	arithmetic_ops_element<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, arithmetic_ops_element) {
+//TEST(UTDCRTPoly, arithmetic_ops_element) {
 //	arithmetic_ops_element<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -791,7 +791,6 @@ void other_methods() {
 
 	DEBUG("A");
 	{
-		std::cout<<"this might fail"<<std::endl;
 		Element ilv(ilparams);
 		VecType bbv(m/2, primeModulus);
 		bbv = {"56","1","37","1"};
@@ -819,11 +818,11 @@ TEST(UTPoly, other_methods) {
 	other_methods<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, other_methods) {
+TEST(UTNativePoly, other_methods) {
 	other_methods<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, other_methods) {
+//TEST(UTDCRTPoly, other_methods) {
 //	other_methods<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -840,16 +839,16 @@ TEST(UTPoly, cyclotomicOrder_test) {
 	cyclotomicOrder_test<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, cyclotomicOrder_test) {
+TEST(UTNativePoly, cyclotomicOrder_test) {
 	cyclotomicOrder_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-TEST(UTILDCRT2n, cyclotomicOrder_test) {
+TEST(UTDCRTPoly, cyclotomicOrder_test) {
 	cyclotomicOrder_test<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>();
 }
 
 // this test is only for DCRTPoly so isn't templated
-TEST(UTILDCRT2n, constructors_test) {
+TEST(UTDCRTPoly, constructors_test) {
 
 	bool dbg_flag = false;
 	usint m = 8;
@@ -967,7 +966,6 @@ TEST(UTILDCRT2n, constructors_test) {
 			{
 				EXPECT_EQ(ilvaVector[i].GetElementAtIndex(j), ilvaCopyVector[i].GetElementAtIndex(j))
 					<<"Failure: ctor ilvaCopyVector["<<i<<"].GetElementAtIndex("<<j<<")";
-;
 			}
 		}
 
@@ -995,11 +993,9 @@ TEST(UTILDCRT2n, constructors_test) {
 
 		std::vector<NativePoly> towersInClone = ilvaClone.GetAllElements();
 
-		EXPECT_EQ(Format::EVALUATION, ilva.GetFormat());
-		EXPECT_EQ(modulus, ilva.GetModulus());
-		EXPECT_EQ(m, ilva.GetCyclotomicOrder());
-		//todo: finish this test
-		std::cout<<"Not all tests written yet for this function"<<std::endl;
+		EXPECT_EQ(Format::EVALUATION, ilva.GetFormat()) << "Failure: clone parameters format mismatch";
+		EXPECT_EQ(ilva.GetParams(), ilvaClone.GetParams()) << "Failure: clone parameters parameter mismatch";
+		EXPECT_EQ(towersInClone.size(), ilva.GetAllElements().size()) << "Failure: clone parameters towers size mismatch";
 	}
 
 }
@@ -1044,11 +1040,11 @@ TEST(UTPoly, signed_mod_tests) {
 	signed_mod_tests<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, signed_mod_tests) {
+TEST(UTNativePoly, signed_mod_tests) {
 	signed_mod_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-//TEST(UTILDCRT2n, signed_mod_tests) {
+//TEST(UTDCRTPoly, signed_mod_tests) {
 //	signed_mod_tests<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
@@ -1093,12 +1089,12 @@ TEST(UTPoly, transposition_test) {
 	transposition_test<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, transposition_test) {
+TEST(UTNativePoly, transposition_test) {
 	transposition_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
 // DCRTPoly Only
-TEST(UTILDCRT2n, getters_and_operators) {
+TEST(UTDCRTPoly, getters_and_operators) {
 	usint m = 8;
 	usint towersize = 3;
 
@@ -1192,7 +1188,7 @@ TEST(UTILDCRT2n, getters_and_operators) {
 
 }
 
-TEST(UTILDCRT2n, arithmetic_ops_element_2) {
+TEST(UTDCRTPoly, arithmetic_ops_element_2) {
 	usint m = 8;
 	usint towersize = 3;
 
@@ -1390,7 +1386,6 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 		NativeVector bbvS0(m/2, moduli[0]);
 		bbvS0 = {"23462","467986","33863","2113"};
 		ilvS0.SetValues(bbvS0, Format::EVALUATION);
-		std::cout << ilvS0.GetValues() << std::endl;
 
 		NativePoly ilvS1(ilvS0);
 		NativePoly ilvS2(ilvS0);
@@ -1453,17 +1448,15 @@ TEST(UTILDCRT2n, arithmetic_ops_element_2) {
 			if(i==0){
 				EXPECT_EQ(modulus2.ConvertToInt(), ilv.GetModulus().ConvertToInt())
 					<<"Failure: SwitchModulusAtIndex modulus";
-;
 				EXPECT_EQ(rootOfUnity2.ConvertToInt(), ilv.GetRootOfUnity().ConvertToInt())	
 				<<"Failure: SwitchModulusAtIndex rootOfUnity";
-;
 			}
 		}
 	}
 
 }
 
-TEST(UTILDCRT2n, decompose_test) {
+TEST(UTDCRTPoly, decompose_test) {
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
@@ -1536,11 +1529,11 @@ TEST(UTPoly, ensures_mod_operation_during_ops_on_two_Polys) {
 	ensures_mod_operation_during_ops_on_two_Polys<BigInteger, BigVector, ILParams, Poly>();
 }
 
-TEST(UTILNativeVector2n, ensures_mod_operation_during_ops_on_two_Polys) {
+TEST(UTNativePoly, ensures_mod_operation_during_ops_on_two_Polys) {
 	ensures_mod_operation_during_ops_on_two_Polys<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
 }
 
-TEST(UTILDCRT2n, ensures_mod_operation_during_ops_on_two_DCRTPolys){
+TEST(UTDCRTPoly, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 
 	usint order = 16;
 	usint nBits = 24;

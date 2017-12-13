@@ -123,11 +123,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 
 	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
 
-	if (!result.isValid) {
-		std::cout << "Decryption failed!" << std::endl;
-		exit(1);
-	}
-
+	ASSERT_TRUE(result.isValid) << "Decryption failed!";
 	EXPECT_EQ(intArrayNew->GetPackedValue(), vectorOfInts1);
 }
 
@@ -189,11 +185,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 
 	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertextResult, &intArrayNew);
 
-	if (!result.isValid) {
-		std::cout << "Decryption failed!" << std::endl;
-		exit(1);
-	}
-
+	ASSERT_TRUE(result.isValid) << "Decryption failed!";
 	EXPECT_EQ(intArrayNew->GetPackedValue(), vectorOfIntsExpected);
 }
 

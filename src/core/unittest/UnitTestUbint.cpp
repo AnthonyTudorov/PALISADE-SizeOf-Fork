@@ -1021,7 +1021,6 @@ TEST(UTubint,mod_operations){
       modresult = first.Mod(second);
     }
     catch (exception& e){
-      std::cout<<e.what()<<std::endl;
       thrown = true;
     }
 
@@ -1089,10 +1088,8 @@ TEST(UTubint,mod_inverse){
       calculatedResult = m.ModInverse(p);
     }
     catch (exception& e){
-      std::cout<<e.what()<<std::endl;
       thrown = true;
     }
-    //expectedResult = 77;
 
     EXPECT_TRUE(thrown)
       << "Failure testing ModInverse() non co-prime arguments";
@@ -1114,7 +1111,6 @@ TEST(UTubint,mod_inverse){
     }
     catch (exception& e){
       thrown = true;
-      std::cout<<e.what()<<std::endl;
       modIresult = 0;
     }
 
@@ -1205,8 +1201,6 @@ TEST(UTubint,mod_arithmetic){
     exp_int::xubint m("595");
     exp_int::xubint n("399");
     exp_int::xubint q("406");
-
-    //std::cout << "Before : " << std::endl;
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 196;

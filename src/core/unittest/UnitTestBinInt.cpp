@@ -757,8 +757,6 @@ TEST(UTBinInt,mod_arithmetic){
     BigInteger n("399");
     BigInteger q("406");
 
-    //std::cout << "Before : " << std::endl;
-
     calculatedResult = m.ModSub(n,q);
     expectedResult = 196;
 
