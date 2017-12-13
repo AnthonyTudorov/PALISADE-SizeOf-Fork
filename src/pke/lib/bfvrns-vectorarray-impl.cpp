@@ -488,9 +488,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 
 	// this is the resulting vector of coefficients;
-	// currently it is required to be a Poly of BigIntegers to be compatible with other API calls in the ryptocontext framework
-
-	*plaintext = NativePoly(b.ScaleAndRound(p,invTable,lyamTable),COEFFICIENT);
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable);
 
 	return DecryptResult(plaintext->GetLength());
 
@@ -813,10 +811,42 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(cons
 
 }
 
+template <>
+DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(const vector<Ciphertext<DCRTPoly>>& ciphertextVec,
+		NativePoly *plaintext) const
+{
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertextVec[0]->GetCryptoParameters());
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
+
+	const auto &p = cryptoParams->GetPlaintextModulus();
+
+	const std::vector<DCRTPoly> &cElem = ciphertextVec[0]->GetElements();
+	DCRTPoly b = cElem[0];
+
+	size_t numCipher = ciphertextVec.size();
+	for( size_t i = 1; i < numCipher; i++ ) {
+		const std::vector<DCRTPoly> &c2 = ciphertextVec[i]->GetElements();
+		b += c2[0];
+	}
+
+	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
+
+	// this is the resulting vector of coefficients;
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable);
+
+	return DecryptResult(plaintext->GetLength());
+
+}
+
+
 template class LPCryptoParametersBFVrns<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<DCRTPoly>;
 template class LPAlgorithmBFVrns<DCRTPoly>;
 template class LPAlgorithmSHEBFVrns<DCRTPoly>;
+template class LPAlgorithmMultipartyBFVrns<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrns<DCRTPoly>;
 
 }

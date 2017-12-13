@@ -260,16 +260,30 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(
 	NONATIVEPOLY
 }
 
+template <>
+DecryptResult LPAlgorithmMultipartyBFVrns<Poly>::MultipartyDecryptFusion(const vector<Ciphertext<Poly>>& ciphertextVec,
+		NativePoly *plaintext) const {
+	NOPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(const vector<Ciphertext<NativePoly>>& ciphertextVec,
+		NativePoly *plaintext) const {
+	NONATIVEPOLY
+}
+
 template class LPCryptoParametersBFVrns<Poly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
 template class LPAlgorithmSHEBFVrns<Poly>;
+template class LPAlgorithmMultipartyBFVrns<Poly>;
 template class LPAlgorithmParamsGenBFVrns<Poly>;
 
 template class LPCryptoParametersBFVrns<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<NativePoly>;
 template class LPAlgorithmBFVrns<NativePoly>;
 template class LPAlgorithmSHEBFVrns<NativePoly>;
+template class LPAlgorithmMultipartyBFVrns<NativePoly>;
 template class LPAlgorithmParamsGenBFVrns<NativePoly>;
 
 }

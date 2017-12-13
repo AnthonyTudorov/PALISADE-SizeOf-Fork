@@ -52,19 +52,18 @@ public:
 //static const usint TOWERS = 3;
 
 template <class Element>
-void
-UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
+void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	
 	// Initialize Public Key Containers
-	LPKeyPair<Poly> kp1;
-	LPKeyPair<Poly> kp2;
-	LPKeyPair<Poly> kp3;
+	LPKeyPair<Element> kp1;
+	LPKeyPair<Element> kp2;
+	LPKeyPair<Element> kp3;
 
-	LPKeyPair<Poly> kpMultiparty;
+	LPKeyPair<Element> kpMultiparty;
 
-	LPEvalKey<Poly> evalKey1;
-	LPEvalKey<Poly> evalKey2;
-	LPEvalKey<Poly> evalKey3;
+	LPEvalKey<Element> evalKey1;
+	LPEvalKey<Element> evalKey2;
+	LPEvalKey<Element> evalKey3;
 	
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -95,7 +94,7 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// This generates the keys which should be able to decrypt the ciphertext after the re-encryption operation.
 	////////////////////////////////////////////////////////////
 
-	vector<LPPrivateKey<Poly>> secretKeys;
+	vector<LPPrivateKey<Element>> secretKeys;
 	secretKeys.push_back(kp1.secretKey);
 	secretKeys.push_back(kp2.secretKey);
 	secretKeys.push_back(kp3.secretKey);
@@ -137,9 +136,9 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// Encryption
 	////////////////////////////////////////////////////////////
 
-	Ciphertext<Poly> ciphertext1;
-	Ciphertext<Poly> ciphertext2;
-	Ciphertext<Poly> ciphertext3;
+	Ciphertext<Element> ciphertext1;
+	Ciphertext<Element> ciphertext2;
+	Ciphertext<Element> ciphertext3;
 
 	ciphertext1 = cc->Encrypt(kp1.publicKey, plaintext1);
 	ciphertext2 = cc->Encrypt(kp2.publicKey, plaintext2);
@@ -149,9 +148,9 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// Re-Encryption
 	////////////////////////////////////////////////////////////
 
-	Ciphertext<Poly> ciphertext1New;
-	Ciphertext<Poly> ciphertext2New;
-	Ciphertext<Poly> ciphertext3New;
+	Ciphertext<Element> ciphertext1New;
+	Ciphertext<Element> ciphertext2New;
+	Ciphertext<Element> ciphertext3New;
 
 	ciphertext1New = cc->ReEncrypt(evalKey1, ciphertext1);
 	ciphertext2New = cc->ReEncrypt(evalKey2, ciphertext2);
@@ -161,8 +160,8 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	// EvalAdd Operation on Re-Encrypted Data
 	////////////////////////////////////////////////////////////
 
-	Ciphertext<Poly> ciphertextAddNew12;
-	Ciphertext<Poly> ciphertextAddNew;
+	Ciphertext<Element> ciphertextAddNew12;
+	Ciphertext<Element> ciphertextAddNew;
 
 	ciphertextAddNew12 = cc->EvalAdd(ciphertext1New,ciphertext2New);
 	ciphertextAddNew = cc->EvalAdd(ciphertextAddNew12,ciphertext3New);
@@ -185,20 +184,20 @@ UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	Plaintext plaintextAddNew2;
 	Plaintext plaintextAddNew3;
 
-	Poly partialPlaintext1;
-	Poly partialPlaintext2;
-	Poly partialPlaintext3;
+	Element partialPlaintext1;
+	Element partialPlaintext2;
+	Element partialPlaintext3;
 
 	Plaintext plaintextMultipartyNew;
 
-	const shared_ptr<LPCryptoParameters<Poly>> cryptoParams = kp1.secretKey->GetCryptoParameters();
-	const shared_ptr<typename Poly::Params> elementParams = cryptoParams->GetElementParams();
+	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = kp1.secretKey->GetCryptoParameters();
+	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
 	auto ciphertextPartial1 = cc->MultipartyDecryptLead(kp1.secretKey, {ciphertextAddNew});
 	auto ciphertextPartial2 = cc->MultipartyDecryptMain(kp2.secretKey, {ciphertextAddNew});
 	auto ciphertextPartial3 = cc->MultipartyDecryptMain(kp3.secretKey, {ciphertextAddNew});
 
-	vector<Ciphertext<Poly>> partialCiphertextVec;
+	vector<Ciphertext<Element>> partialCiphertextVec;
 	partialCiphertextVec.push_back(ciphertextPartial1[0]);
 	partialCiphertextVec.push_back(ciphertextPartial2[0]);
 	partialCiphertextVec.push_back(ciphertextPartial3[0]);
@@ -273,6 +272,24 @@ TEST_F(UTMultiparty, FV2_Poly_Multiparty_pri) {
 	cc->Enable(PRE);
 	cc->Enable(MULTIPARTY);
 	UnitTestMultiparty<Poly>(cc, true);
+}
+
+TEST_F(UTMultiparty, BFVrns_RLWE_DCRTPoly_Multiparty_pri) {
+	CryptoContext<DCRTPoly> cc = GenCryptoContextBFVrns<DCRTPoly>(4, RLWE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
+	UnitTestMultiparty<DCRTPoly>(cc, true);
+}
+
+TEST_F(UTMultiparty, BFVrns2_OPTIMIZED_DCRTPoly_Multiparty_pri) {
+	CryptoContext<DCRTPoly> cc = GenCryptoContextBFVrns<DCRTPoly>(16, OPTIMIZED);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
+	UnitTestMultiparty<DCRTPoly>(cc, true);
 }
 
 TEST_F(UTMultiparty, BV1_Poly_Multiparty_pri) {

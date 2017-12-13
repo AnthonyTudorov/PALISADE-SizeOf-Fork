@@ -515,6 +515,17 @@ namespace lbcrypto {
 		*/
 		LPAlgorithmMultipartyBFVrns() {}
 
+		/**
+		 * Method for fusing the partially decrypted ciphertext.
+		 *
+		 * @param &ciphertextVec ciphertext id decrypted.
+		 * @param *plaintext the plaintext output.
+		 * @return the decoding result.
+		 */
+		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
+			NativePoly *plaintext) const;
+
+
 	};
 
 
