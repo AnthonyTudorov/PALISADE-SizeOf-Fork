@@ -312,7 +312,7 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 * In contrast to the previous test, this one also converts an integer
 * into a binary polynomial
 */
-TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
+/*TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	float stdDev = 4;
@@ -386,4 +386,4 @@ TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
 	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue());
 	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue());
 
-}
+}*/
