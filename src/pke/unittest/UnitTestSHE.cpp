@@ -32,14 +32,7 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
-//#include "../lib/cryptocontext.h"
-//
-//#include "encoding/encodings.h"
-//
-//#include "utils/debug.h"
-//
-//#include "cryptocontextgen.h"
-//#include "lattice/elemparamfactory.h"
+#include "utils/testcasegen.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -61,33 +54,40 @@ protected:
 	}
 };
 
-// This file unit tests the PRE capabilities for all schemes, using all known elements
+// This file unit tests the SHE capabilities for all schemes, using all known elements
 
-template <typename Element>
-class SHETests : public ::testing::Test {
-public:
-	virtual ~SHETests() {}
-	typedef std::list<Element> List;
-	static Element shared_;
-	Element value_;
+// FIXME NativePoly SHE tests no bueno on Mult
+//GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM)
+//GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM)
 
-protected:
-	void SetUp() {}
-
-	void TearDown() {
-		CryptoContextFactory<NativePoly>::ReleaseAllContexts();
-		CryptoContextFactory<Poly>::ReleaseAllContexts();
-		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
-	}
-};
+#define GENERATE_TEST_CASES_FUNC(x,y,ORD,PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
 
 static vector<string> AllSchemes( {"Null", "LTV", "BV", "FV", /*"BFVrns"*/} );
 typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
-TYPED_TEST_CASE(SHETests, EncryptElementTypes);
 
 // NOTE the SHE tests are all based on these
 static const usint ORDER = 16;
-static const usint PTM = 64;
+static const usint PTMOD = 64;
 
 template<class Element>
 static void UnitTest_Add(const CryptoContext<Element> cc, const string& failmsg) {
@@ -136,19 +136,7 @@ static void UnitTest_Add(const CryptoContext<Element> cc, const string& failmsg)
 	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub Ct and Pt fails";
 }
 
-TYPED_TEST(SHETests, SHEAddSubtract) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], ORDER, PTM);
-		} catch( ... ) {
-			continue;
-		}
-
-		UnitTest_Add<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Add, ORDER, PTMOD)
 
 template<class Element>
 static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg) {
@@ -194,20 +182,7 @@ static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg
 	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalMult Ct and Pt fails";
 }
 
-TYPED_TEST(SHETests, SHEMultiply) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], ORDER, PTM);
-		} catch( ... ) {
-			continue;
-		}
-
-		UnitTest_Mult<TypeParam>(cc, AllSchemes[i]);
-	}
-}
-
+GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Mult, ORDER, PTMOD)
 
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 

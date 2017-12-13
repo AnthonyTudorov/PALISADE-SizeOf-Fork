@@ -32,19 +32,16 @@
 #include "cryptocontextparametersets.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
+#include "utils/testcasegen.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 // This file unit tests the ENCRYPTION capabilities for all schemes, using all known elements
 
-template <typename Element>
 class Encrypt_Decrypt : public ::testing::Test {
 public:
 	virtual ~Encrypt_Decrypt() {}
-	typedef std::list<Element> List;
-	static Element shared_;
-	Element value_;
 
 protected:
 	void SetUp() {}
@@ -56,9 +53,32 @@ protected:
 	}
 };
 
-static vector<string> AllSchemes( {"Null", "LTV", "StSt", "BV", "FV", "BFVrns"} );
-typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
-TYPED_TEST_CASE(Encrypt_Decrypt, EncryptElementTypes);
+#define GENERATE_TEST_CASES_FUNC(x,y,ORD,PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, StSt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, StSt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, StSt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
 
 template<typename Element>
 static void EncryptionScalar(const CryptoContext<Element> cc, const string& failmsg) {
@@ -79,20 +99,7 @@ static void EncryptionScalar(const CryptoContext<Element> cc, const string& fail
 	EXPECT_EQ(*plaintext2, *plaintextNew) << failmsg << " signed scalar encrypt/decrypt failed";
 }
 
-
-TYPED_TEST(Encrypt_Decrypt, Scalar) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 8, 64);
-		} catch( ... ) {
-			continue;
-		}
-
-		EncryptionScalar<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionScalar, 8, 64)
 
 template <typename Element>
 void
@@ -109,19 +116,7 @@ EncryptionInteger(const CryptoContext<Element> cc, const string& failmsg) {
 	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " integer encrypt/decrypt failed";
 }
 
-TYPED_TEST(Encrypt_Decrypt, Integer) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 128, 64);
-		} catch( ... ) {
-			continue;
-		}
-
-		EncryptionInteger<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionInteger, 128, 8)
 
 template <typename Element>
 void
@@ -138,19 +133,7 @@ EncryptionString(const CryptoContext<Element> cc, const string& failmsg) {
 	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " string encrypt/decrypt failed";
 }
 
-TYPED_TEST(Encrypt_Decrypt, String) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 512, 256);
-		} catch( ... ) {
-			continue;
-		}
-
-		EncryptionString<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionString, 512, 256)
 
 template <typename Element>
 void
@@ -186,16 +169,4 @@ EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << failmsg << "coef packed encrypt/decrypt failed for signed integer plaintext";
 }
 
-TYPED_TEST(Encrypt_Decrypt, CoefPacked) {
-	CryptoContext<TypeParam> cc;
-
-	for( size_t i=0; i<AllSchemes.size(); i++ ) {
-		try {
-			cc = GenTestCryptoContext<TypeParam>(AllSchemes[i], 2048, 256);
-		} catch( ... ) {
-			continue;
-		}
-
-		EncryptionString<TypeParam>(cc, AllSchemes[i]);
-	}
-}
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionCoefPacked, 256, 64)
