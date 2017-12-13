@@ -56,8 +56,8 @@ public:
 	 */
 	EncodingParamsImpl(
 		PlaintextModulus plaintextModulus = 0,
-		uint32_t plaintextGenerator = 0,
 		uint32_t batchSize = 0,
+		uint32_t plaintextGenerator = 0,
 		const NativeInteger& plaintextRootOfUnity = NativeInteger(0),
 		const NativeInteger& plaintextBigModulus = NativeInteger(0),
 		const NativeInteger& plaintextBigRootOfUnity = NativeInteger(0)) {
@@ -65,8 +65,8 @@ public:
 			m_plaintextRootOfUnity = plaintextRootOfUnity;
 			m_plaintextBigModulus = plaintextBigModulus;
 			m_plaintextBigRootOfUnity = plaintextBigRootOfUnity;
-			m_plaintextGenerator = plaintextGenerator;
 			m_batchSize = batchSize;
+			m_plaintextGenerator = plaintextGenerator;
 	}
 
 	/**

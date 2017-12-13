@@ -32,9 +32,9 @@ std::map<NativeInteger, NativeInteger> PackedEncoding::m_initRoot;
 std::map<NativeInteger, NativeInteger> PackedEncoding::m_bigModulus;
 std::map<NativeInteger, NativeInteger> PackedEncoding::m_bigRoot;
 
-std::map<NativeInteger, usint> PackedEncoding::m_automorphismGenerator;
-std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_toCRTPerm;
-std::map<NativeInteger, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
+std::map<usint, usint> PackedEncoding::m_automorphismGenerator;
+std::map<usint, std::vector<usint>> PackedEncoding::m_toCRTPerm;
+std::map<usint, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
 bool PackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
@@ -177,11 +177,11 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 			if (params->GetPlaintextGenerator() == 0) {
 				NativeInteger M(m); // Hackish typecast
 				NativeInteger automorphismGenerator = FindGeneratorCyclic<NativeInteger>(M);
-				m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
-				params->SetPlaintextGenerator(m_automorphismGenerator[modulusNI]);
+				m_automorphismGenerator[m] = automorphismGenerator.ConvertToInt();
+				params->SetPlaintextGenerator(m_automorphismGenerator[m]);
 			}
 			else
-				m_automorphismGenerator[modulusNI] = params->GetPlaintextGenerator();
+				m_automorphismGenerator[m] = params->GetPlaintextGenerator();
 
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
@@ -191,15 +191,15 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 				tIdx[tList[i]] = i;
 			}
 
-			m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-			m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+			m_toCRTPerm[m] = std::vector<usint>(phim);
+			m_fromCRTPerm[m] = std::vector<usint>(phim);
 
 			usint curr_index = 1;
 			for (usint i=0; i<phim; i++){
-				m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
-				m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
+				m_toCRTPerm[m][tIdx[curr_index]] = i;
+				m_fromCRTPerm[m][i] = tIdx[curr_index];
 
-				curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
+				curr_index = curr_index*m_automorphismGenerator[m] % m;
 			}
 		}
 	}
@@ -250,7 +250,7 @@ void PackedEncoding::SetParams(usint m, const PlaintextModulus &modulus)
 			// Find a generator for the automorphism group
 			NativeInteger M(m); // Hackish typecast
 			NativeInteger automorphismGenerator = FindGeneratorCyclic<NativeInteger>(M);
-			m_automorphismGenerator[modulusNI] = automorphismGenerator.ConvertToInt();
+			m_automorphismGenerator[m] = automorphismGenerator.ConvertToInt();
 
 			// Create the permutations that interchange the automorphism and crt ordering
 			usint phim = GetTotient(m);
@@ -260,15 +260,15 @@ void PackedEncoding::SetParams(usint m, const PlaintextModulus &modulus)
 				tIdx[tList[i]] = i;
 			}
 
-			m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-			m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+			m_toCRTPerm[m] = std::vector<usint>(phim);
+			m_fromCRTPerm[m] = std::vector<usint>(phim);
 
 			usint curr_index = 1;
 			for (usint i = 0; i<phim; i++) {
-				m_toCRTPerm[modulusNI][tIdx[curr_index]] = i;
-				m_fromCRTPerm[modulusNI][i] = tIdx[curr_index];
+				m_toCRTPerm[m][tIdx[curr_index]] = i;
+				m_fromCRTPerm[m][i] = tIdx[curr_index];
 
-				curr_index = curr_index*m_automorphismGenerator[modulusNI] % m;
+				curr_index = curr_index*m_automorphismGenerator[m] % m;
 			}
 		}
 	}
@@ -310,13 +310,13 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 	// Transform Eval to Coeff
 	if (!(m & (m-1))) { // Check if m is a power of 2
 
-		if (m_toCRTPerm[modulusNI].size() > 0)
+		if (m_toCRTPerm[m].size() > 0)
 		{
 			// Permute to CRT Order
 			NativeVector permutedSlots(phim, modulusNI);
 
 			for (usint i = 0; i < phim; i++) {
-				permutedSlots[i] = slotValues[m_toCRTPerm[modulusNI][i]];
+				permutedSlots[i] = slotValues[m_toCRTPerm[m][i]];
 			}
 			ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(permutedSlots, m_initRoot[modulusNI], m, &slotValues);
 		}
@@ -330,7 +330,7 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 		// Permute to CRT Order
 		NativeVector permutedSlots(phim, modulusNI);
 		for (usint i = 0; i < phim; i++) {
-			permutedSlots[i] = slotValues[m_toCRTPerm[modulusNI][i]];
+			permutedSlots[i] = slotValues[m_toCRTPerm[m][i]];
 		}
 
 		DEBUG("permutedSlots " << permutedSlots);
@@ -387,10 +387,10 @@ void PackedEncoding::Unpack(P *ring, const PlaintextModulus &modulus) const {
 				ForwardTransform(packedVector, m_initRoot[modulusNI], m_bigModulus[modulusNI], m_bigRoot[modulusNI], m);
 	}
 
-	if (m_fromCRTPerm[modulusNI].size() > 0) {
+	if (m_fromCRTPerm[m].size() > 0) {
 		// Permute to automorphism Order
 		for (usint i = 0; i < phim; i++) {
-			packedVector[i] = permutedSlots[m_fromCRTPerm[modulusNI][i]];
+			packedVector[i] = permutedSlots[m_fromCRTPerm[m][i]];
 		}
 	}
 	else

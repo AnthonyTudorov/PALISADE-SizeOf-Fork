@@ -523,7 +523,7 @@ void SHETestPackedInnerProduct() {
 
 	BigInteger modulusP(ptm);
 
-	EncodingParams encodingParams(new EncodingParamsImpl(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(

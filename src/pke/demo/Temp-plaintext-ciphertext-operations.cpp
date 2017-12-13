@@ -125,7 +125,7 @@ void LTVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, batchSize));
 
 	PackedEncoding::SetParams(m, p);
 
@@ -179,7 +179,7 @@ void BVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, batchSize));
 
 	PackedEncoding::SetParams(m, p);
 
@@ -235,7 +235,7 @@ void FVPlaintextPKE() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, PackedEncoding::GetAutomorphismGenerator(modulusP), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(modulusP, batchSize));
 
 	PackedEncoding::SetParams(m, p);
 
@@ -292,7 +292,7 @@ void LTVEvalMultPlain() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	PackedEncoding::SetParams(m, p);
 
@@ -352,7 +352,7 @@ void BVEvalMultPlain() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	PackedEncoding::SetParams(m, p);
 
@@ -421,7 +421,7 @@ void FVEvalMultPlain() {
 
 	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

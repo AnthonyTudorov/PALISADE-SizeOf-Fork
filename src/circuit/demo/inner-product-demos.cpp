@@ -259,7 +259,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		EncodingParams encodingParams(new EncodingParamsImpl(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
+		EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
 
 		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
 				params,

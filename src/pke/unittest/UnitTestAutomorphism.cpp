@@ -392,9 +392,8 @@ std::vector<usint> BFVrnsAutomorphismPackedArray(usint i) {
 	PlaintextModulus p = 65537;
 	double sigma = 4;
 	double rootHermiteFactor = 1.006;
-	usint batchSize = 8;
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p));
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(

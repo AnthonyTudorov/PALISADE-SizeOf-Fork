@@ -1579,8 +1579,8 @@ namespace lbcrypto {
 
 			usint m = elementParams->GetCyclotomicOrder();
 
-			if (encodingParams->GetBatchSize() == 0)
-				throw std::runtime_error("EvalSum: Packed encoding parameters are missing or incomplete; please check the EncodingParams settings passed to the crypto context.");
+			if ((encodingParams->GetBatchSize() == 0))
+				throw std::runtime_error("EvalSum: Packed encoding parameters 'batch size' is not set; Please check the EncodingParams passed to the crypto context.");
 			else
 			{
 
@@ -1589,15 +1589,22 @@ namespace lbcrypto {
 					newCiphertext = EvalSum_2n(batchSize, m, evalKeys,newCiphertext);
 
 				} else { // Arbitray cyclotomics
-					usint g = encodingParams->GetPlaintextGenerator();
-					for (int i = 0; i < floor(log2(batchSize)); i++)
+
+					if (encodingParams->GetPlaintextGenerator() == 0)
+						throw std::runtime_error("EvalSum: Packed encoding parameters 'plaintext generator' is not set; Please check the EncodingParams passed to the crypto context.");
+					else
 					{
-						auto ea = EvalAutomorphism(newCiphertext, g, evalKeys);
-						newCiphertext = EvalAdd(newCiphertext, ea);
-						g = (g * g) % m;
+						usint g = encodingParams->GetPlaintextGenerator();
+						for (int i = 0; i < floor(log2(batchSize)); i++)
+						{
+							auto ea = EvalAutomorphism(newCiphertext, g, evalKeys);
+							newCiphertext = EvalAdd(newCiphertext, ea);
+							g = (g * g) % m;
+						}
 					}
 				}
 			}
+
 
 			return newCiphertext;
 

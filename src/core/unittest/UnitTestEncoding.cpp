@@ -118,7 +118,7 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	PackedEncoding::SetParams(m, p);
 
 	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-	EncodingParams ep(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),8));
+	EncodingParams ep(new EncodingParamsImpl(p,8));
 
 	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(lp, ep, vectorOfInts1);

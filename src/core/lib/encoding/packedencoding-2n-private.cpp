@@ -39,17 +39,17 @@ namespace lbcrypto {
 		usint phim = (m >> 1);
 		usint phim_by_2 = (m >> 2);
 
-		m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-		m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+		m_toCRTPerm[m] = std::vector<usint>(phim);
+		m_fromCRTPerm[m] = std::vector<usint>(phim);
 
 		usint curr_index = 1;
 		for (usint i = 0; i < phim_by_2; i++) {
-			m_toCRTPerm[modulusNI][(curr_index - 1) / 2] = i;
-			m_fromCRTPerm[modulusNI][i] = (curr_index - 1) / 2;
+			m_toCRTPerm[m][(curr_index - 1) / 2] = i;
+			m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
 
 			usint cofactor_index = curr_index * 3 % m;
-			m_toCRTPerm[modulusNI][(cofactor_index - 1) / 2] = i + phim_by_2;
-			m_fromCRTPerm[modulusNI][i + phim_by_2] = (cofactor_index - 1) / 2;
+			m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
+			m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
 
 			curr_index = curr_index * 5 % m;
 
@@ -76,17 +76,17 @@ namespace lbcrypto {
 		usint phim = (m >> 1);
 		usint phim_by_2 = (m >> 2);
 
-		m_toCRTPerm[modulusNI] = std::vector<usint>(phim);
-		m_fromCRTPerm[modulusNI] = std::vector<usint>(phim);
+		m_toCRTPerm[m] = std::vector<usint>(phim);
+		m_fromCRTPerm[m] = std::vector<usint>(phim);
 
 		usint curr_index = 1;
 		for (usint i = 0; i < phim_by_2; i++) {
-			m_toCRTPerm[modulusNI][(curr_index - 1) / 2] = i;
-			m_fromCRTPerm[modulusNI][i] = (curr_index - 1) / 2;
+			m_toCRTPerm[m][(curr_index - 1) / 2] = i;
+			m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
 
 			usint cofactor_index = curr_index * 3 % m;
-			m_toCRTPerm[modulusNI][(cofactor_index - 1) / 2] = i + phim_by_2;
-			m_fromCRTPerm[modulusNI][i + phim_by_2] = (cofactor_index - 1) / 2;
+			m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
+			m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
 
 			curr_index = curr_index * 5 % m;
 

@@ -107,9 +107,8 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const PlaintextModulus &modulus) {
-		NativeInteger modulusNI(modulus);
-		return m_automorphismGenerator[modulusNI];
+	static usint GetAutomorphismGenerator(usint m) {
+		return m_automorphismGenerator[m];
 	}
 
 	bool Encode();
@@ -187,9 +186,9 @@ private:
 	static std::map<NativeInteger, NativeInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<NativeInteger, usint> m_automorphismGenerator;
-	static std::map<NativeInteger, std::vector<usint>> m_toCRTPerm;
-	static std::map<NativeInteger, std::vector<usint>> m_fromCRTPerm;
+	static std::map<usint, usint> m_automorphismGenerator;
+	static std::map<usint, std::vector<usint>> m_toCRTPerm;
+	static std::map<usint, std::vector<usint>> m_fromCRTPerm;
 
 	static void SetParams_2n(usint m, const NativeInteger &modulus);
 	static void SetParams_2n(usint m, EncodingParams params);
