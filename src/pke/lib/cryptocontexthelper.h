@@ -59,11 +59,20 @@ public:
 	static void printAllParmSetNames(std::ostream& out);
 
 	/**
+	* Prints all parameter sets matching the filter
 	*
 	* @param out stream to write to
 	* @param filter is a substring that matches parameter set names
 	*/
 	static void printParmSetNamesByFilter(std::ostream& out, const string &filter);
+
+	/**
+	* Prints all parameter sets excluding the ones matching the filter
+	*
+	* @param out stream to write to
+	* @param filter is a substring that matches parameter set names
+	*/
+	static void printParmSetNamesByExcludeFilter(std::ostream& out, const string &filter);
 
 	/**
 	 * Generate a CryptoContext for a given parameter set name

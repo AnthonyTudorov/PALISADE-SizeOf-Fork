@@ -117,7 +117,7 @@ void ArbBVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
 
@@ -155,7 +155,7 @@ void BVEvalSumPackedArray2n() {
 	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -223,7 +223,7 @@ void ArbLTVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
 
@@ -279,7 +279,7 @@ void ArbFVEvalSumPackedArray() {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

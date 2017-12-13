@@ -235,7 +235,7 @@ namespace lbcrypto {
 	/*
 	A helper function for arbitrary cyclotomics. This finds a generator for any composite q (cyclic group).
 	Input: BigInteger q (cyclic group).
-	Output: A generator of prime q
+	Output: A generator of q
 	*/
 	template<typename IntType>
 	IntType FindGeneratorCyclic(const IntType& q)

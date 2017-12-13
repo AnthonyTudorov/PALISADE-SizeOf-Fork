@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::cout << "Choose parameter set: ";
-	CryptoContextHelper::printAllParmSetNames(std::cout);
+	CryptoContextHelper::printParmSetNamesByExcludeFilter(std::cout,"BFVrns");
 
 	string input;
 	std::cin >> input;

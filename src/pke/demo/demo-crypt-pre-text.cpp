@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 	// no name specified? print out the names of all available parameter sets
 	if( !haveName ) {
 		cout << "Available crypto parameter sets are:" << endl;
-		CryptoContextHelper::printAllParmSetNames(cout);
+		CryptoContextHelper::printParmSetNamesByExcludeFilter(std::cout,"BFVrns");
 		return 1;
 	}
 

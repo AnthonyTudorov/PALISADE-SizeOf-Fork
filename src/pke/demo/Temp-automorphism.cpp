@@ -451,7 +451,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(
 		params, encodingParams);
@@ -494,7 +494,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");

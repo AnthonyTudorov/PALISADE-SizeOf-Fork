@@ -46,7 +46,7 @@ int main() {
 	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 1024;
-	EncodingParams encodingParams(new EncodingParamsImpl(p, PackedEncoding::GetAutomorphismGenerator(p), batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("2595390732297411718");

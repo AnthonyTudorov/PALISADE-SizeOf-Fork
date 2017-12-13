@@ -138,7 +138,7 @@ void BM_encoding_PackedIntPlaintext(benchmark::State& state) {
 		ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 		lp.reset(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-		ep.reset(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),8));
+		ep.reset(new EncodingParamsImpl(p,8));
 		state.ResumeTiming();
 	}
 
@@ -177,7 +177,7 @@ void BM_encoding_PackedIntPlaintext_SetParams(benchmark::State& state) {
 
 
 		lp.reset(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-		ep.reset(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),8));
+		ep.reset(new EncodingParamsImpl(p,8));
 		state.ResumeTiming();
 	}
 

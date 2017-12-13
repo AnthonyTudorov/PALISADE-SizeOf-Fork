@@ -37,6 +37,9 @@
 namespace lbcrypto
 {
 
+// STL pair used as a key for some tables in PackedEncoding
+using ModulusM = std::pair<NativeInteger, uint32_t>;
+
 /**
  * @class PackedEncoding
  * @brief Type used for representing IntArray types.
@@ -107,9 +110,8 @@ public:
 		return BigInteger(modulusNI.ConvertToInt());
 	}
 
-	static usint GetAutomorphismGenerator(const PlaintextModulus &modulus) {
-		NativeInteger modulusNI(modulus);
-		return m_automorphismGenerator[modulusNI];
+	static usint GetAutomorphismGenerator(usint m) {
+		return m_automorphismGenerator[m];
 	}
 
 	bool Encode();
@@ -181,15 +183,15 @@ public:
 
 private:
 	//initial root of unity for plaintext space
-	static std::map<NativeInteger, NativeInteger> m_initRoot;
+	static std::map<ModulusM, NativeInteger> m_initRoot;
 	//modulus and root of unity to be used for Arbitrary CRT
-	static std::map<NativeInteger, NativeInteger> m_bigModulus;
-	static std::map<NativeInteger, NativeInteger> m_bigRoot;
+	static std::map<ModulusM, NativeInteger> m_bigModulus;
+	static std::map<ModulusM, NativeInteger> m_bigRoot;
 
 	//stores the list of primitive roots used in packing.
-	static std::map<NativeInteger, usint> m_automorphismGenerator;
-	static std::map<NativeInteger, std::vector<usint>> m_toCRTPerm;
-	static std::map<NativeInteger, std::vector<usint>> m_fromCRTPerm;
+	static std::map<usint, usint> m_automorphismGenerator;
+	static std::map<usint, std::vector<usint>> m_toCRTPerm;
+	static std::map<usint, std::vector<usint>> m_fromCRTPerm;
 
 	static void SetParams_2n(usint m, const NativeInteger &modulus);
 	static void SetParams_2n(usint m, EncodingParams params);

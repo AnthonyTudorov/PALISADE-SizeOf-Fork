@@ -334,13 +334,33 @@ CryptoContextHelper::printAllParmSetNames(std::ostream& out)
 void
 CryptoContextHelper::printParmSetNamesByFilter(std::ostream& out, const string &filter)
 {
-	map<string, map<string, string>>::iterator it = CryptoContextParameterSets.begin();
+	size_t counter = 0;
+	for (map<string, map<string, string>>::iterator it = CryptoContextParameterSets.begin(); it != CryptoContextParameterSets.end(); it++) {
+		if (it->first.find(filter) != string::npos) {
+			if (counter == 0)
+				out << it->first;
+			else
+				out << ", " << it->first;
+			counter++;
+		}
+	}
+	out << std::endl;
 
-	out << it->first;
+}
 
-	for (it++; it != CryptoContextParameterSets.end(); it++) {
-		if (it->first.find(filter) != string::npos)
-			out << ", " << it->first;
+void
+CryptoContextHelper::printParmSetNamesByExcludeFilter(std::ostream& out, const string &filter)
+{
+
+	size_t counter = 0;
+	for (map<string, map<string, string>>::iterator it = CryptoContextParameterSets.begin(); it != CryptoContextParameterSets.end(); it++) {
+		if (it->first.find(filter) == string::npos) {
+			if (counter == 0)
+				out << it->first;
+			else
+				out << ", " << it->first;
+			counter++;
+		}
 	}
 	out << std::endl;
 

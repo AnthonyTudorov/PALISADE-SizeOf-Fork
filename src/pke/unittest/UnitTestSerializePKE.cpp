@@ -54,7 +54,7 @@ protected:
 static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
 	PlaintextModulus modulusP(256);
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmsetName,
-			EncodingParams(new EncodingParamsImpl(modulusP,PackedEncoding::GetAutomorphismGenerator(modulusP),8)));
+			EncodingParams(new EncodingParamsImpl(modulusP,8)));
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
@@ -189,7 +189,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
     	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-    	EncodingParams encodingParams(new EncodingParamsImpl(p,PackedEncoding::GetAutomorphismGenerator(p),batchSize));
+    	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
     	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
 

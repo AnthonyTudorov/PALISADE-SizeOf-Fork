@@ -516,14 +516,14 @@ void SHETestPackedInnerProduct() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	usint ptm = 268460033;
+	usint ptm = 536903681;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
-	usint batchSize = 32;
+	usint batchSize = 16;
 
 	BigInteger modulusP(ptm);
 
-	EncodingParams encodingParams(new EncodingParamsImpl(ptm,PackedEncoding::GetAutomorphismGenerator(ptm),batchSize));
+	EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
