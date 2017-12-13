@@ -120,9 +120,6 @@ bool Matrix<BigVector>::Deserialize(const Serialized& serObj) {
 template<>
 bool Matrix<Poly>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
-	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
-
-	//std::cout << typeid(Element).name() << std::endl;
 
 	for( size_t r=0; r<rows; r++ ) {
 		for( size_t c=0; c<cols; c++ ) {
@@ -141,9 +138,6 @@ bool Matrix<Poly>::Deserialize(const Serialized& serObj) {
 template<>
 bool Matrix<NativePoly>::Serialize(Serialized* serObj) const {
 	serObj->SetObject();
-	//SerializeVectorOfVector("Matrix", elementName<Element>(), this->data, serObj);
-
-	//std::cout << typeid(Element).name() << std::endl;
 
 	for( size_t r=0; r<rows; r++ ) {
 		for( size_t c=0; c<cols; c++ ) {
@@ -441,51 +435,6 @@ Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat) {
     }
     return result;
 }
-#if 0
-template<>
-void Matrix<Poly>::fooprintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->fooprintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<>
-void Matrix<BigInteger>::fooprintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->fooprintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<>
-void Matrix<BigVector>::fooprintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            data[row][col]->fooprintValues();
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-template<>
-void Matrix<int>::fooprintValues() const {
-    for (size_t col = 0; col < cols; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            std::cout << *data[row][col];
-            std::cout << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-#endif
   
 template<>
 void Matrix<Poly>::SwitchFormat() {

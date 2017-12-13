@@ -189,7 +189,6 @@ BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl 
 
 template<class IntegerType>
 BigVectorImpl<IntegerType>::~BigVectorImpl(){
-	//std::cout<<"destructor called for vector of size: "<<this->m_length<<"  "<<std::endl;
 	delete [] m_data;
 }
 
@@ -359,7 +358,6 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType &b) const{
-	//std::cout<< "Printing Modulus: "<< m_modulus<< std::endl;
 
 	BigVectorImpl ans(*this);
 
@@ -367,9 +365,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType 
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
 
 	for(usint i=0;i<this->m_length;i++){
-		//std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
 		ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
-		//std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
 	}
 
 	return ans;
@@ -390,10 +386,7 @@ template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModInverse() const{
 
 	BigVectorImpl ans(*this);
-	//std::cout << ans << std::endl;
 	for(usint i=0;i<this->m_length;i++){
-		//std::cout << ans.m_data[i] << std::endl;
-		//ans.m_data[i].PrintValueInDec();
 		ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
 	}
 	return ans;

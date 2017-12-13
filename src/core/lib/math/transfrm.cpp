@@ -814,7 +814,6 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		const auto &RevCPM = InversePolyMod(m_cyclotomicPolyMap[modulus], modulus, power);
 		auto RevCPMPadded = BluesteinFFT<IntType, VecType>::PadZeros(RevCPM, nttDim);
 		RevCPMPadded.SetModulus(nttMod);
-		//std::cout << RevCPMPadded << std::endl;
 		//end of part1
 
 		VecType RA(nttDim);
@@ -935,7 +934,6 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		const ModulusRoot<IntType> nttModulusRoot = { nttModulus, nttRoot };
 		const ModulusRootPair<IntType> modulusRootPair = {  modulusRootInverse, nttModulusRoot };
 
-		// std::cout << "CRT-ARB-IT: " << modulus << " " << root << " " << nttModulus << " " << nttRoot << std::endl;
 #pragma omp critical
 {
 		if (BluesteinFFT<IntType, VecType>::m_rootOfUnityTableByModulusRoot[nttModulusRoot].GetLength() == 0) {
@@ -1073,8 +1071,6 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 				for (usint i = n; i < element.GetLength(); i++) {
 					aPadded2.at(power - (i - n) - 1)= element.at(i);
 		}
-
-		//std::cout << aPadded2 << std::endl;
 
 		VecType A(m_nttDivisionDim[cycloOrder]);
 		NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(aPadded2, rootTable, m_nttDivisionDim[cycloOrder], &A);

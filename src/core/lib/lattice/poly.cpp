@@ -492,37 +492,25 @@ Format PolyImpl<ModType,IntType,VecType,ParmType>::GetFormat() const
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-usint PolyImpl<ModType,IntType,VecType,ParmType>::GetLength() const
-{
+	usint PolyImpl<ModType,IntType,VecType,ParmType>::GetLength() const
+	{
 		if (m_values == 0)
 			throw std::logic_error("No values in PolyImpl");
 		return m_values->GetLength();
 	}
 
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
-void PolyImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format)
-{
-	if (m_params->GetRootOfUnity() == 0 || m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
-		std::cout<<"PolyImpl::SetValues warning, mismatch in parameters"<<std::endl;
+	void PolyImpl<ModType,IntType,VecType,ParmType>::SetValues(const VecType& values, Format format)
+	{
 		if (m_params->GetRootOfUnity() == 0){
-			std::cout<<"m_params->GetRootOfUnity "<<m_params->GetRootOfUnity()<<std::endl;
+			PALISADE_THROW(type_error, "Polynomial has a 0 root of unity");
 		}
-		if (m_params->GetRingDimension() != values.GetLength()){
-			std::cout<<"m_params->GetRingDimension() "<<m_params->GetRingDimension()<<std::endl;
-			std::cout<<"!= values.GetLength()"<< values.GetLength() <<std::endl;
+		if (m_params->GetRingDimension() != values.GetLength() || m_params->GetModulus() != values.GetModulus()) {
+			PALISADE_THROW(type_error, "Parameter mismatch on SetValues for Polynomial");
 		}
-		if ( m_params->GetModulus() != values.GetModulus()) {
-			std::cout<<"m_params->GetModulus() "<<m_params->GetModulus()<<std::endl;
-			std::cout<<"values->GetModulus() "<<values.GetModulus()<<std::endl;
-		}
-		//throw std::logic_error("Exisiting m_params do not match with the input parameter IntType& values.\n");
-		// if (m_values != nullptr) { //dbc no need with smart pointers
-		//   delete m_values;
-		// }
+		m_values = make_unique<VecType>(values);
+		m_format = format;
 	}
-	m_values = make_unique<VecType>(values);
-	m_format = format;
-}
 	
 	template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void PolyImpl<ModType,IntType,VecType,ParmType>::SetValuesToZero()

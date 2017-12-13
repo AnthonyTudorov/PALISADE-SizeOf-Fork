@@ -426,7 +426,6 @@ namespace exp_int {
   //desctructor
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::~mubintvec(){
-    //std::cout<<"destructor called for vector of size: "<<this->m_data.size()<<"  "<<std::endl;
     this->m_data.clear();
   }
 
@@ -710,9 +709,7 @@ namespace exp_int {
       }*/
 
     for(usint i=0;i<this->m_data.size();i++){
-      //std::cout<< "before data: "<< ans.m_data[i]<< std::endl;
       ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
-      //std::cout<< "after data: "<< ans.m_data[i]<< std::endl;
     }
 
     return ans;
@@ -755,10 +752,7 @@ template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModInverse() const{
 
     mubintvec ans(*this);
-    //std::cout << ans << std::endl;
     for(usint i=0;i<this->m_data.size();i++){
-      //std::cout << ans.m_data[i] << std::endl;
-      //ans.m_data[i].PrintValueInDec();
       ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
     }
     return std::move(ans);

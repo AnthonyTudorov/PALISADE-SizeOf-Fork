@@ -68,7 +68,6 @@ IntType DiscreteUniformGeneratorImpl<IntType,VecType>::GenerateInteger () const 
 	uint32_t value;
 
 	if( m_modulus == 0 ) {
-	std::cout << "DUG " << m_modulus << ":: " << CHUNK_WIDTH << "," << m_chunksPerValue << std::endl;
 		throw std::logic_error("0 modulus?");
 	}
 

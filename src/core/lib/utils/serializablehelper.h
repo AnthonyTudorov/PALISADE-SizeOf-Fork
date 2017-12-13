@@ -218,7 +218,7 @@ bool DeserializeVectorOfPointers(const std::string& vectorName, const std::strin
 
 	SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
 	if( mIt == it->value.MemberEnd() ) {
-		std::cout << "no member named Typename" << std::endl;
+		// FIXME this needs to PALISADE_THROW "no member named Typename"
 		return false;
 	}
 

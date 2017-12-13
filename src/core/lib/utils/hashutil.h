@@ -46,7 +46,7 @@ public:
 			return;
 
 		case SHA_512:
-			std::cerr << "error: SHA512 disabled, returning SHA256 instead" <<std::endl;
+			// FIXME SHA512 disabled, returning SHA256 instead
 			SHA256(message, digest);
 			return;
 

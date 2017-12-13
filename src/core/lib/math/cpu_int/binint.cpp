@@ -463,29 +463,6 @@ BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(u
 
 }
 
-#if 0
-template<typename uint_type,usint BITLENGTH>
-void BigInteger<uint_type,BITLENGTH>::PrintLimbsInDec() const{
-
-	sint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
-	for(i=m_nSize-i;i<m_nSize;i++)//actual
-    //(i=0;i<Nchar;i++)//for debug
-	    std::cout<<std::dec<<(uint_type)m_value[i]<<" ";
-
-    std::cout<<std::endl;
-}
-
-template<typename uint_type,usint BITLENGTH>
-void BigInteger<uint_type,BITLENGTH>::PrintLimbsInHex() const{
-
-	usint i= m_MSB%m_uintBitLength==0&&m_MSB!=0? m_MSB/m_uintBitLength:(sint)m_MSB/m_uintBitLength +1;
-	for(i=m_nSize-i;i<m_nSize;i++)//actual
-    //(i=0;i<Nchar;i++)//for debug
-	  std::cout<<std::hex<<(uint_type)m_value[i]<<std::dec<<" ";
-
-    std::cout<<std::endl;
-}
-#endif
 /*
  * This function is only used for serialization
  *
@@ -1610,29 +1587,14 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const BigInteger& b, const BigInteger& modulus) const{
 
-	#ifdef DEBUG_MODEXP
-		std::cout<<*this<<std::endl<<b<<std::endl<<modulus<<std::endl;
-	#endif
-
 	//mid is intermidiate value that calculates mid^2%q
 	BigInteger mid = this->Mod(modulus);	
-
-	#ifdef DEBUG_MODEXP
-		std::cout<<mid<<"  mid"<<std::endl;
-	#endif
 
 	//product calculates the running product of mod values
 	BigInteger product(ONE);
 
-	#ifdef DEBUG_MODEXP
-		std::cout<<*product<<"  product"<<std::endl;
-	#endif
 	//Exp is used for spliting b to bit values/ bit extraction
 	BigInteger Exp(b);
-
-	#ifdef DEBUG_MODEXP
-		std::cout<<Exp<<"  Exp"<<std::endl;
-	#endif
 
 	//Precompute the Barrett mu parameter
 	BigInteger temp(BigInteger::ONE);
@@ -1640,7 +1602,6 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 	BigInteger mu = temp.DividedBy(modulus);
 
 	while(true){
-
 		
 		//product is multiplied only if bitvalue is 1
 		if(Exp.m_value[m_nSize-1]%2==1){
@@ -1652,26 +1613,14 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 			product.ModBarrettInPlace(modulus,mu);
 		}
 
-		#ifdef DEBUG_MODEXP
-				std::cout<<*product<<std::endl;
-		#endif
 		//divide by 2 and check even to odd to find bit value
 		Exp = Exp>>1;
 		if(Exp==ZERO)break;
-
-		#ifdef DEBUG_MODEXP
-				std::cout<<"Exp: "<<Exp<<std::endl;
-		#endif
 
 		//mid calculates mid^2%q
 		mid = mid*mid;
 		
 		mid.ModBarrettInPlace(modulus,mu);
-
-		#ifdef DEBUG_MODEXP
-				std::cout<<mid<<std::endl;
-		#endif
-
 	}
 
 	return product;
@@ -1877,7 +1826,6 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRoun
 		throw std::logic_error("DIVISION BY ZERO");
 
 	BigInteger halfQ(q>>1);
-	//std::cout<< "halfq "<<halfQ.ToString()<<std::endl;
 
 	if (*this < q) {
 		if (*this <= halfQ)
@@ -1885,9 +1833,6 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRoun
 		else
 			return BigInteger(ONE);
 	}
-
-	//std::cout<< "*this "<<this->ToString()<<std::endl;
-	//std::cout<< "q "<<q.ToString()<<std::endl;
 
 	BigInteger ans;
 
@@ -1983,16 +1928,9 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRoun
 	//Computation of MSB value 
 	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize - 1 - ansCtr)*m_uintBitLength;
 
-
-	//std::cout<< "ans "<<ans.ToString()<<std::endl;
-	//std::cout<< "rv "<<runningRemainder.ToString()<<std::endl;
-
-
-
 	//Rounding operation from running remainder
 	if (!(runningRemainder <= halfQ)){
 		ans += ONE;
-		//std::cout<< "added1 ans "<<ans.ToString()<<std::endl;
 	}
 
 	return ans;
@@ -2058,7 +1996,6 @@ uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 
 	DEBUG("BigInteger::GetBitAtIndex(" << index << ")");
 	if(index<=0){
-		std::cout<<"Invalid index \n";
 		return 0;
 	}
 	else if (index > m_MSB)
