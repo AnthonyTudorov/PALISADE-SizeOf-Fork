@@ -729,6 +729,59 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
 
 }
 
+/* Minus operation:
+*  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
+*/
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::MinusEq(const BigInteger& b) {
+
+	//return 0 if b is higher than *this as there is no support for negative number
+	if(!(*this>b)) {
+		*this = BigInteger(0);
+		return *this;
+	}
+
+        // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
+	int cntr=0,current=0;
+
+        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
+
+	//array position in A to end substraction
+	volatile int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
+	//array position in B to end substraction
+	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
+	sint i;
+	for(i=m_nSize-1;i>=endValB;i--){
+		//carryover condtion
+		if(this->m_value[i]<b.m_value[i]){
+			current=i;
+			cntr = current-1;
+			//assigning carryover value
+			// DTS: added check against cntr being < 0 (I think)
+			while(cntr>=0 && this->m_value[cntr]==0){
+				this->m_value[cntr]=m_uintMax;cntr--;
+			}
+			// DTS: probably need to check cntr >= 0 here, too
+			this->m_value[cntr]--;
+			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];
+		}
+		//usual substraction condition
+		else{
+			this->m_value[i]=this->m_value[i]- b.m_value[i];
+		}
+		cntr=0;
+	}
+
+	while(this->m_value[endValA]==0){
+		endValA++;
+	}
+	//reset the MSB after subtraction
+	this->m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(this->m_value[endValA]);
+
+	return *this;
+
+}
+
 /* Times operation:
 *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
 */
@@ -1495,6 +1548,33 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSub(const Bi
 	else{
 		return ((*a + modulus) - *b_op);
 	}
+}
+
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModSubEq(const BigInteger& b, const BigInteger& modulus) {
+	BigInteger* b_op = const_cast<BigInteger*>(&b);
+
+	//reduce this to a value lower than modulus
+	if(*this>modulus){
+
+		*this = this->Mod(modulus);
+	}
+	//reduce b to a value lower than modulus
+	if(b>modulus){
+		*b_op = b.Mod(modulus);
+	}
+
+	if(*this >= *b_op){
+		// FIXME use modeq
+		*this = this->Mod(*b_op).Mod(modulus);
+	}
+	else{
+		// ugh, the *Eq ops return const so we cannot chain them
+		this->PlusEq(modulus);
+		this->MinusEq(*b_op);
+	}
+
+	return *this;
 }
 
 //Optimized Mod Substraction using ModBarrett

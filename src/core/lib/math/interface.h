@@ -286,14 +286,16 @@ namespace lbcrypto {
 		 * @return the return value.	  
 		 */
 		//virtual friend std::ostream& operator<<(std::ostream& os, const T &ptr_obj);
+#endif
 
 		/**
 		 * Stores the value of this T in a string object and returns it.
 		 *
 		 * @return the value of this T as a string.
 		 */
-		virtual std::string ToString() const = 0;
+		virtual const std::string ToString() const = 0;
 
+#if 0
 		/**
 		 * Returns the MSB location of the value.
 		 *
