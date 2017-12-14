@@ -206,7 +206,7 @@ namespace cpu_int{
 	/**
 	 * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
 	 * @tparam uint_type native unsigned integer type
-	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
+	 * @tparam BITLENGTH maximum bitwidth supported for big integers
 	 */
 	template<typename uint_type,usint BITLENGTH>
 	class BigInteger : public lbcrypto::BigIntegerInterface<BigInteger<uint_type,BITLENGTH>>
@@ -756,29 +756,6 @@ namespace cpu_int{
 
 
     //overloaded binary operators based on integer arithmetic and comparison functions
-    /**
-    * Addition operation.
-    *
-    * @param a is the value to add.
-    * @return is the result of the addition operation.
-    */
-    BigInteger operator+(const BigInteger &a) const {return this->Plus(a);}
-
-    /**
-    * Subtraction operation.
-    *
-    * @param a is the value to subtract.
-    * @return is the result of the subtraction operation.
-    */
-    BigInteger operator-(const BigInteger &a) const {return this->Minus(a);}
-
-    /**
-    * Multiplication operation.
-    *
-    * @param a is the value to multiply with.
-    * @return is the result of the multiplication operation.
-    */
-	BigInteger operator*(const BigInteger &a) const;
 
     /**
     * Modulo operation. Classical modular reduction algorithm is used.
@@ -787,18 +764,6 @@ namespace cpu_int{
     * @return is the result of the modulus operation.
     */
     BigInteger operator%(const BigInteger &a) const {return this->Mod(a);}
-
-	/**
-	 * Division operation.
-	 *
-	 * @param a is the value to divide.
-	 * @param b is the value to divide by.
-	 * @return is the result of the integral part after division operation.
-	 */
-	BigInteger operator/ (const BigInteger &a) const {return this->DividedBy(a);}
-
-
-	BigInteger operator/=(const BigInteger &a);
 
 	/**
 	 * Console output operation.

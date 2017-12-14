@@ -839,112 +839,6 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq
 	return *this;
 }
 
-
-//template<typename uint_type,usint BITLENGTH>
-//const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator+=(const BigInteger &b){
-//	const BigInteger* A = NULL;//two operands A and B for addition, A is the greater one, B is the smaller one
-//	const BigInteger* B = NULL;
-//
-//	//check for trivial cases
-//	if(b.m_MSB==0){
-//		return *this;
-//	}
-//
-//	//assigning pointers, A is assigned higher value and B the lower one
-//	if(this->m_MSB > b.m_MSB){
-//	//if(*this>b){
-//		A = this; B = &b;
-//	}
-//	else {A = &b; B = this;}
-//	//overflow variable
-//	Duint_type ofl=0;
-//	//position in the array of A to start addition
-//	uint_type ceilIntA = ceilIntByUInt(A->m_MSB);
-//	//position in the array of B to start addition
-//	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
-//
-//	//counter
-//	int i;
-//        // DTS: watch sign/unsign compare!!!!
-//	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
-//		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
-//		this->m_value[i] = (uint_type)ofl;
-//		ofl>>=m_uintBitLength;//current overflow
-//	}
-//
-//	if(ofl){
-//		for(;i>=(int)(m_nSize-ceilIntA);i--){
-//			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
-//			this->m_value[i] = (uint_type)ofl;
-//			ofl>>=m_uintBitLength;//current overflow
-//		}
-//
-//		if(ofl){//in the end if overflow is set it indicates MSB is one greater than the one we started with
-//			this->m_value[m_nSize-ceilIntA-1] = 1;
-//			this->m_MSB = A->m_MSB + 1;
-//		}
-//		else{
-//			this->m_MSB = (m_nSize - i - 2)*m_uintBitLength;
-//			this->m_MSB += GetMSBUint_type(this->m_value[++i]);
-//		}
-//	}
-//	else{
-//		for(;i>=(int)(m_nSize-ceilIntA);i--) {
-//			this->m_value[i] = A->m_value[i];
-//		}
-//		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
-//		this->m_MSB += GetMSBUint_type(this->m_value[++i]);
-//	}
-//
-//	return *this;
-//}
-
-//template<typename uint_type,usint BITLENGTH>
-//const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator-=(const BigInteger &b){
-//
-//	if(!(*this>b)){
-//		*this=ZERO;
-//		return *this;
-//	}
-//
-//	int cntr=0,current=0;
-//
-//	int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
-//	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
-//	sint i;
-//	for(i=m_nSize-1;i>=endValB;i--){
-//		if(this->m_value[i]<b.m_value[i]){
-//			current=i;
-//			cntr = current-1;
-//			while(cntr>=0 && this->m_value[cntr]==0){
-//				this->m_value[cntr]=m_uintMax;
-//				cntr--;
-//			}
-//			if(cntr>=0)
-//				this->m_value[cntr]--;
-//			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];
-//		}
-//		else{
-//			this->m_value[i]=this->m_value[i]- b.m_value[i];
-//		}
-//	}
-//
-//	while(this->m_value[endValA]==0){
-//		endValA++;
-//	}
-//
-//	this->m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(this->m_value[endValA]);
-//
-//
-//	return *this;
-//
-//}
-
-//template<typename uint_type, usint BITLENGTH>
-//BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::operator*(const BigInteger &a) const{
-//	return this->Times(a);
-//}
-
 /* Times operation:
 *  Algorithm used is usual school book multiplication.
 *  This function is used in the Multiplication of two BigInteger objects
@@ -1131,11 +1025,124 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const
 
 }
 
+// FIXME this really doesn't divide in place...
+/* Division operation:
+*  Algorithm used is usual school book long division , except for that radix is 2^m_bitLength.
+*  Optimization done: Uses bit shift operation for logarithmic convergence.
+*/
 template<typename uint_type,usint BITLENGTH>
-inline BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::operator/=(const BigInteger &b){
-    *this = *this/b;
-    return *this;
-  }
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::DividedByEq(const BigInteger& b) {
+
+	//check for the 0 condition
+	if(b==ZERO)
+		throw std::logic_error("DIVISION BY ZERO");
+
+	if(b.m_MSB>this->m_MSB) {
+		*this = BigInteger(ZERO);
+		return *this;
+	}
+	else if(b==*this) {
+		*this = BigInteger(ONE);
+		return *this;
+	}
+
+	BigInteger ans;
+
+	//normalised_dividend = result*quotient
+	BigInteger normalised_dividend( this->Minus( this->Mod(b) ) );
+	//Number of array elements in Divisor
+	uint_type ncharInDivisor = ceilIntByUInt(b.m_MSB);
+	//Number of array elements in Normalised_dividend
+	uint_type ncharInNormalised_dividend = ceilIntByUInt(normalised_dividend.m_MSB);
+	//variable to store the running dividend
+	BigInteger running_dividend;
+	//variable to store the running remainder
+	BigInteger runningRemainder;
+	BigInteger expectedProd;
+	BigInteger estimateFinder;
+
+	//Initialize the running dividend
+	for(usint i=0;i<ncharInDivisor;i++){
+		running_dividend.m_value[ m_nSize-ncharInDivisor+i] = normalised_dividend.m_value[ m_nSize-ncharInNormalised_dividend+i];
+	}
+	running_dividend.m_MSB = GetMSBUint_type(running_dividend.m_value[m_nSize-ncharInDivisor]) + (ncharInDivisor-1)*m_uintBitLength;
+
+	uint_type estimate=0;
+	uint_type maskBit = 0;
+	uint_type shifts =0;
+	usint ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+	//Long Division Computation to determine quotient
+	for(usint i=ncharInNormalised_dividend-ncharInDivisor;;){
+		//Get the remainder from the Modulus operation
+		runningRemainder = running_dividend.Mod(b);
+		//Compute the expected product from the running dividend and remainder
+		expectedProd = running_dividend-runningRemainder;
+		estimateFinder = expectedProd;
+
+		estimate =0;
+
+		//compute the quotient
+		if(expectedProd>b){
+			while(estimateFinder.m_MSB > 0){
+				/*
+				if(expectedProd.m_MSB-b.m_MSB==m_uintBitLength){
+					maskBit= (uint_type)1<<(m_uintBitLength-1);
+				}
+				else
+					maskBit= (uint_type)1<<(expectedProd.m_MSB-b.m_MSB);
+					*/
+				shifts = estimateFinder.m_MSB-b.m_MSB;
+				if(shifts==m_uintBitLength){
+					maskBit= (uint_type)1<<(m_uintBitLength-1);
+				}
+				else
+					maskBit= (uint_type)1<<(shifts);
+
+				if((b.MulIntegerByChar(maskBit))>estimateFinder){
+					maskBit>>=1;
+					estimateFinder-= b<<(shifts-1);
+				}
+				else if(shifts==m_uintBitLength)
+					estimateFinder-= b<<(shifts-1);
+				else
+					estimateFinder-= b<<shifts;
+
+				estimate |= maskBit;
+			}
+
+		}
+		else if(expectedProd.m_MSB==0)
+			estimate = 0;
+		else
+			estimate = 1;
+		//assgning the quotient in the result array
+		ans.m_value[ansCtr] = estimate;
+		ansCtr++;
+		if(i==0)
+			break;
+		//Get the next uint element from the divisor and proceed with long division
+		if(running_dividend.m_MSB==0){
+			running_dividend.m_MSB=GetMSBUint_type(normalised_dividend.m_value[m_nSize-i]);
+		}
+		else
+			running_dividend = runningRemainder<<m_uintBitLength;
+
+		running_dividend.m_value[ m_nSize-1] = normalised_dividend.m_value[m_nSize-i];
+		if (running_dividend.m_MSB == 0)
+			running_dividend.m_MSB = GetMSBUint_type(normalised_dividend.m_value[m_nSize - i]);
+		i--;
+	}
+	ansCtr = m_nSize - ncharInNormalised_dividend+ncharInDivisor-1;
+	//Loop to the MSB position
+	while(ans.m_value[ansCtr]==0){
+		ansCtr++;
+	}
+	//Computation of MSB value
+	ans.m_MSB = GetMSBUint_type(ans.m_value[ansCtr]) + (m_nSize-1-ansCtr)*m_uintBitLength;
+
+	*this = ans;
+	return *this;
+}
 
 //Initializes the array of uint_array from the string equivalent of BigInteger
 //Algorithm used is repeated division by 2

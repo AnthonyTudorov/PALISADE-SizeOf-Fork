@@ -1105,21 +1105,13 @@ public:
 //	 */
 //	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
 
-	/**
-	 * Subtraction operation.
-	 *
-	 * @param a is the value to subtract.
-	 * @return is the result of the subtraction operation.
-	 */
-	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
-
 //	/**
-//	 * Multiplication operation.
+//	 * Subtraction operation.
 //	 *
-//	 * @param a is the value to multiply with.
-//	 * @return is the result of the multiplication operation.
+//	 * @param a is the value to subtract.
+//	 * @return is the result of the subtraction operation.
 //	 */
-//	inline NativeInteger operator*(const NativeInteger &a) const {return this->Times(a);}
+//	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
 
 	/**
 	 * Modulo operation. Classical modular reduction algorithm is used.
@@ -1129,14 +1121,14 @@ public:
 	 */
 	inline NativeInteger operator%(const NativeInteger &a) const {return this->Mod(a);}
 
-	/**
-	 * Division operation.
-	 *
-	 * @param a is the value to divide.
-	 * @param b is the value to divide by.
-	 * @return is the result of the integral part after division operation.
-	 */
-	inline NativeInteger operator/ (const NativeInteger &a) const {return this->DividedBy(a);}
+//	/**
+//	 * Division operation.
+//	 *
+//	 * @param a is the value to divide.
+//	 * @param b is the value to divide by.
+//	 * @return is the result of the integral part after division operation.
+//	 */
+//	inline NativeInteger operator/ (const NativeInteger &a) const {return this->DividedBy(a);}
 
 	/**
 	 * Console output operation.
