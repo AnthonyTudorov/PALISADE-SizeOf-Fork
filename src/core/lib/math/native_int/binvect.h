@@ -372,18 +372,6 @@ public:
 	 */
 	BigVectorImpl ModInverse() const;
 
-//	/**
-//	 * Modulus scalar multiplication assignment.
-//	 *
-//	 * @param &a is the input vector to multiply.
-//	 * @param &i is the input integer to multiply at all entries.
-//	 * @return a new vector which is the result of the modulus multiplication operation.
-//	 */
-//	const BigVectorImpl &operator*=(const IntegerType &i) {
-//	    *this=this->ModMul(i);
-//	    return *this;
-//	  }
-
 	//Vector Operations
 
 	//component-wise addition
@@ -515,69 +503,69 @@ private:
 	}
 };
 
-template<typename IntegerType>
-inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a) { return BigVectorImpl<IntegerType>(0) - a; }
+//template<typename IntegerType>
+//inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a) { return BigVectorImpl<IntegerType>(0) - a; }
 
 //BINARY OPERATORS
 
-/**
- * Modulus scalar addition.
- *
- * @param &a is the input vector to add.
- * @param &i is the input integer to add at all entries.
- * @return a new vector which is the result of the modulus addition operation.
- */
-template<class IntegerType>
-inline BigVectorImpl<IntegerType> operator+(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
+///**
+// * Modulus scalar addition.
+// *
+// * @param &a is the input vector to add.
+// * @param &i is the input integer to add at all entries.
+// * @return a new vector which is the result of the modulus addition operation.
+// */
+//template<class IntegerType>
+//inline BigVectorImpl<IntegerType> operator+(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
 
-/**
-* Modulus scalar substraction.
-*
-* @param &a is the input vector to substract from.
-* @param &i is the input integer to substract at all entries.
-* @return a new vector which is the result of the modulus substraction operation.
-*/
-template<class IntegerType>
-inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModSub(i);}
+///**
+//* Modulus scalar substraction.
+//*
+//* @param &a is the input vector to substract from.
+//* @param &i is the input integer to substract at all entries.
+//* @return a new vector which is the result of the modulus substraction operation.
+//*/
+//template<class IntegerType>
+//inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModSub(i);}
 
-/**
- * Modulus scalar multiplication.
- *
- * @param &a is the input vector to multiply.
- * @param &i is the input integer to multiply at all entries.
- * @return a new vector which is the result of the modulus multiplication operation.
- */
-template<class IntegerType>
-inline BigVectorImpl<IntegerType> operator*(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
+///**
+// * Modulus scalar multiplication.
+// *
+// * @param &a is the input vector to multiply.
+// * @param &i is the input integer to multiply at all entries.
+// * @return a new vector which is the result of the modulus multiplication operation.
+// */
+//template<class IntegerType>
+//inline BigVectorImpl<IntegerType> operator*(const BigVectorImpl<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
 
-/**
- * Modulus vector addition.
- *
- * @param &a is the first input vector to add.
- * @param &b is the second input vector to add.
- * @return is the result of the modulus addition operation.
- */
-template<class IntegerType>
-inline BigVectorImpl<IntegerType> operator+(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModAdd(b);}
-
-
-/**
- * Modulus vector substraction.
- *
- * @param &a is the first input vector.
- * @param &b is the second input vector.
- * @return is the result of the modulus substraction operation.
- */
- template<class IntegerType>
- inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModSub(b);}
+///**
+// * Modulus vector addition.
+// *
+// * @param &a is the first input vector to add.
+// * @param &b is the second input vector to add.
+// * @return is the result of the modulus addition operation.
+// */
+//template<class IntegerType>
+//inline BigVectorImpl<IntegerType> operator+(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModAdd(b);}
+//
+//
+///**
+// * Modulus vector substraction.
+// *
+// * @param &a is the first input vector.
+// * @param &b is the second input vector.
+// * @return is the result of the modulus substraction operation.
+// */
+// template<class IntegerType>
+// inline BigVectorImpl<IntegerType> operator-(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModSub(b);}
  
- /**
-  * Modulus vector multiplication.
-  *
-  * @param &a is the first input vector to multiply.
-  */
- template<class IntegerType>
- inline BigVectorImpl<IntegerType> operator*(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModMul(b);}
+// /**
+//  * Modulus vector multiplication.
+//  *
+//  * @param &a is the first input vector to multiply.
+//  */
+// template<class IntegerType>
+// inline BigVectorImpl<IntegerType> operator*(const BigVectorImpl<IntegerType> &a, const BigVectorImpl<IntegerType> &b) {return a.ModMul(b);}
 
 
 } // namespace lbcrypto ends

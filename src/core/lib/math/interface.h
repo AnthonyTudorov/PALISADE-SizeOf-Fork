@@ -104,7 +104,7 @@ namespace lbcrypto {
 		 */
 		virtual const T& ModAddEq(const T& b, const T& modulus) = 0;
 
-		T operator+(const T& b) const { return this->Plus(b); }
+		friend T operator+(const T& a, const T& b) { return a.Plus(b); }
 		const T& operator+=(const T& b) { return this->PlusEq(b); }
 
 		//// SUBTRACTION
@@ -143,7 +143,7 @@ namespace lbcrypto {
 		 */
 		virtual const T& ModSubEq(const T& b, const T& modulus) = 0;
 
-		T operator-(const T& b) const { return this->Minus(b); }
+		friend T operator-(const T& a, const T& b) { return a.Minus(b); }
 		const T& operator-=(const T& b) { return this->MinusEq(b); }
 
 		//// MULTIPLICATION
@@ -164,7 +164,7 @@ namespace lbcrypto {
 		 */
 		virtual const T& TimesEq(const T& b) = 0;
 
-		T operator*(const T& b) const { return this->Times(b); }
+		friend T operator*(const T& a, const T& b) { return a.Times(b); }
 		const T& operator*=(const T& b) { return this->TimesEq(b); }
 
 		/**
@@ -183,7 +183,7 @@ namespace lbcrypto {
 		 */
 		virtual const T& DividedByEq(const T& b) = 0;
 
-		T operator/(const T& b) const { return this->DividedBy(b); }
+		friend T operator/(const T& a, const T& b) { return a.DividedBy(b); }
 		const T& operator/=(const T& b) { return this->DividedByEq(b); }
 
 #if 0
@@ -691,6 +691,8 @@ public:
 		 */
 		virtual const T& ModSubEq(const T &b) = 0;
 
+		T operator-() const { return this->ModMul(I(-1)); }
+
 		T operator-(const I &b) const { return this->ModSub(b); }
 		const T& operator-=(const I &b) { return this->ModSubEq(b); }
 		T operator-(const T &b) const { return this->ModSub(b); }
@@ -751,8 +753,6 @@ public:
 		 * @return a new vector which is the result of the modulus exponentiation operation.
 		 */
 		T ModExp(const T::BVInt &b) const;
-		//T& ScalarExp(const BigInteger &a) const;
-
 
 		/**
 		 * Modulus inverse.
@@ -801,8 +801,6 @@ public:
 		T DivideAndRound(const T::BVInt &q) const;
 
 		//matrix operations
-
-		//matrix product - used in FFT and IFFT; new_vector = A*this_vector
 
 		/**
 		 * Returns a vector of digits at a specific index for all entries for a given number base.

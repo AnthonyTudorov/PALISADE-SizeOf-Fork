@@ -928,7 +928,7 @@ double PolyImpl<ModType,IntType,VecType,ParmType>::Norm() const
 
 	for (usint i = 0; i < GetValues().GetLength(); i++) {
 		if (m_values->at(i) > half) 
-			locVal = q - m_values->at(i);
+			locVal = q - (*m_values)[i];
 		else
 			locVal = m_values->at(i);
 

@@ -257,13 +257,6 @@ usint BigVectorImpl<IntegerType>::GetLength() const{
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& modulus) const{
 
-	//BigVectorImpl ans(*this);
-
-	//for(usint i=0;i<this->m_length;i++){
-	//	ans.m_data[i] = ans.m_data[i].Mod(modulus);
-	//}
-	//return ans;
-
 	if (modulus==2)
 		return this->ModByTwo();
 	else 
@@ -296,6 +289,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAddAtIndex(usint i, co
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType &b) const{
+
 	BigVectorImpl ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
@@ -305,7 +299,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType 
 
 template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const IntegerType &b) {
-	BigVectorImpl ans(*this);
+
 	for(usint i=0;i<this->m_length;i++){
 		this->m_data[i].ModAddEq(b, this->m_modulus);
 	}
@@ -314,8 +308,8 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const Int
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType &b) const{
-	BigVectorImpl ans(*this);
 
+	BigVectorImpl ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModSub(b,this->m_modulus);
 	}
@@ -323,19 +317,16 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType 
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const IntegerType &b) {
 
-	//BigVectorImpl ans(this->GetLength(), this->GetModulus());
-	//IntegerType halfQ(this->GetModulus() >> 1);
-	//for (usint i = 0; i<ans.GetLength(); i++) {
-	//	if (this->at(i)>halfQ) {
-	//		ans.at(i) =this->at(i).ModSub(this->GetModulus(), modulus));
-	//	}
-	//	else {
-	//		ans.at(i) =this->at(i).Mod(modulus));
-	//	}
-	//}
-	//return ans;
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModSub(b,this->m_modulus);
+	}
+	return *this;
+}
+
+template<class IntegerType>
+BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
 
 	BigVectorImpl ans(*this);
 	IntegerType halfQ(this->m_modulus >> 1);
@@ -430,7 +421,7 @@ template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const BigVectorImpl &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModAdd called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModAddEq called on BigVectorImpl's with different parameters.");
 	}
 
 	for(usint i=0;i<this->m_length;i++){
@@ -457,6 +448,20 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const BigVectorImp
 }
 
 template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const BigVectorImpl &b) {
+
+	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
+        throw std::logic_error("ModSubEq called on BigVectorImpl's with different parameters.");
+	}
+
+	for(usint i=0;i<this->m_length;i++){
+		this->m_data[i].ModSubEq(b.m_data[i],this->m_modulus);
+	}
+	return *this;
+
+}
+
+template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 
 	BigVectorImpl ans(this->GetLength(),this->GetModulus());
@@ -478,34 +483,6 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 	}
 	return ans;
 }
-
-//template<class IntegerType>
-//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator+=(const BigVectorImpl &b) {
-//
-//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-//        throw std::logic_error("operator+= called on BigVectorImpl's with different parameters.");
-//	}
-//
-//	for(usint i=0;i<this->m_length;i++){
-//		this->m_data[i] = this->m_data[i].ModAdd(b.m_data[i],this->m_modulus);
-//	}
-//	return *this;
-//
-//}
-
-//template<class IntegerType>
-//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const BigVectorImpl &b) {
-//
-//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-//        throw std::logic_error("operator-= called on BigVectorImpl's with different parameters.");
-//	}
-//
-//	for(usint i=0;i<this->m_length;i++){
-//		this->m_data[i] = this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
-//	}
-//	return *this;
-//
-//}
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImpl &b) const{
