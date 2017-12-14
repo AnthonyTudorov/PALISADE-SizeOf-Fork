@@ -36,37 +36,22 @@ namespace lbcrypto {
 	class BigIntegerInterface
 	{
 	public:
+		virtual ~BigIntegerInterface() {}
 
-#if 0
-		/**
-		 * ???
-		 *
-		 * @param &rhs is the big binary integer to test equality with.  
-		 * @return the return value.	  
-		 */
-		virtual T& operator=(const T &rhs) = 0;
+		// CONSTRUCTORS
 
-		/**
-		 * ???
-		 *
-		 * @param &&rhs is the big binary integer to test equality with.  
-		 * @return the return value.	  
-		 */
-		virtual T&  operator=(T &&rhs) = 0;
-#endif
+		// Constructors should be implemented in the derived classes
+		// The derived classes should implement constructors from integers and strings
+		// There should be copy and move constructors, as well as copy and move assignment
 
 		//ACCESSORS
 
-#if 0
 		/**
-		 * Basic set method for setting the value of a big binary integer
+		 * Set from a string
 		 *
-		 * @param str is the string representation of the big binary integer to be copied.  	  
+		 * @param str is the string representation of the value
 		 */
 		virtual void SetValue(const std::string& str) = 0;
-#endif
-
-		virtual ~BigIntegerInterface() {}
 
 		//// ADDITION
 
@@ -275,34 +260,25 @@ namespace lbcrypto {
 		 * @return the result of the shift.	  
 		 */
 		virtual const T& operator>>=(usshort shift) = 0;
-
-		//virtual friend methods are not allowed in abstract classes
-		//input/output operators
-		/**
-		 * ???
-		 *
-		 * @param os the output stream.
-		 * @param &ptr_obj ???.
-		 * @return the return value.	  
-		 */
-		//virtual friend std::ostream& operator<<(std::ostream& os, const T &ptr_obj);
 #endif
 
+		// The derived classes MAY implement std::ostream& operator<< but are not required to
+
 		/**
-		 * Stores the value of this T in a string object and returns it.
+		 * Convert this integer into a std::string, for serialization
 		 *
 		 * @return the value of this T as a string.
 		 */
 		virtual const std::string ToString() const = 0;
 
-#if 0
 		/**
 		 * Returns the MSB location of the value.
 		 *
 		 * @return the index of the most significant bit.	  
 		 */
-		virtual usint GetMSB()const = 0;
+		virtual usint GetMSB() const = 0;
 
+#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
@@ -337,21 +313,6 @@ namespace lbcrypto {
 		//static T intToBigIntegereger(usint m);
 
 		////constant definitions
-
-		/**
-		 * Constant zero.	  
-		 */
-		//const static T ZERO;
-
-		/**
-		 * Constant one.	  
-		 */
-		//const static T ONE;
-
-		/**
-		 * Constant two.	  
-		 */
-		//const static T TWO;
 
 		/**
 		 * Test equality of the inputs.
@@ -409,117 +370,50 @@ namespace lbcrypto {
 #endif
 	}; 
 
-#if 0
-	//overloaded binary operators based on integer arithmetic and comparison functions
-	/**
-		* Addition operation.
-		*
-		* @param a is the value to add.
-		* @param b is the value to add.
-		* @return is the result of the addition operation.
-	*/
-	//inline BigIntegeregerInterface operator+(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Plus(b);}
-
-	/**
-		* Subtraction operation.
-		*
-		* @param a is the value to subtract from.
-		* @param b is the value to subtract.
-		* @return is the result of the subtraction operation.
-	*/
-	//inline BigIntegeregerInterface operator-(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Minus(b);}
-
-	/**
-		* Multiplication operation.
-		*
-		* @param a is the value to multiply with.
-		* @param b is the value to multiply with.
-		* @return is the result of the multiplication operation.
-	*/
-	//inline BigIntegeregerInterface operator*(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.Times(b);}
-
-	/**
-		* Division operation.
-		*
-		* @param a is the value to divide.
-		* @param b is the value to divide by.
-		* @return is the result of the division operation.
-	*/
-	//inline BigIntegeregerInterface operator/(const BigIntegeregerInterface &a, const BigIntegeregerInterface &b) {return a.DividedBy(b);}
-#endif
-
 	template<typename T, typename I>
 	class BigVectorInterface{
 public:
 		virtual ~BigVectorInterface() {}
 
-#if 0
-		/**
-		* Assignment operator to assign value from rhs
-		*
-		* @param &rhs is the native vector to be assigned from.
-		* @return Assigned T.
-		*/
-		const T& operator=(const T &rhs);
+		// CONSTRUCTORS
 
-		/**
-		* Move assignment operator
-		*
-		* @param &&rhs is the native vector to be moved.
-		* @return moved T object
-		*/
-		T&  operator=(T &&rhs);
+		// Constructors should be implemented in the derived classes
+		// The derived classes should implement constructors from initializer lists of integers and strings
+		// There should be copy and move constructors, as well as copy and move assignment
+		// There should also be assignment from an unsigned int? FIXME
 
-		/**
-		* Initializer list for T.
-		*
-		* @param &&rhs is the list of integers to be assigned to the BBV.
-		* @return T object
-		*/
-		const T& operator=(std::initializer_list<sint> rhs);
-
-		/**
-		* Initializer list for T.
-		*
-		* @param &&rhs is the list of strings containing integers to be assigned to the BBV.
-		* @return T object
-		*/
-		const T& operator=(std::initializer_list<std::string> rhs);
-#endif
-
-#if 0
 		/**
 		* Equals to operator, checks if two T obj are equal or not.
 		*
 		* @param b is vector to be compared.
 		* @return true if equal and false otherwise.
 		*/
-		inline bool operator==(const T &b) const {
+		bool operator==(const T &b) const {
 	        if (this->GetLength() != b.GetLength())
 	            return false;
 	        if (this->GetModulus() != b.GetModulus())
 	        	return false;
 	        for (size_t i = 0; i < this->GetLength(); ++i) {
-	            if (this->at(i) != b.at(i)) {
+	            if ((*this)[i] != b[i]) {
 	                return false;
 	            }
 	        }
 	        return true;
 	    }
 
-	    /**
-		* Assignment operator to assign value val to first entry, 0 for the rest of entries.
-		*
-		* @param val is the value to be assigned at the first entry.
-		* @return Assigned T.
-		*/
-	    inline const T& operator=(usint val) {
-	        this->m_data[0] = val;
-	        for (size_t i = 1; i < GetLength(); ++i) {
-	            this->m_data[i] = 0;
-	        }
-	        return *this;
-	    }
+//	    /**
+//		* Assignment operator to assign value val to first entry, 0 for the rest of entries.
+//		*
+//		* @param val is the value to be assigned at the first entry.
+//		* @return Assigned T.
+//		*/
+//	    inline const T& operator=(usint val) {
+//	        this->m_data[0] = val;
+//	        for (size_t i = 1; i < GetLength(); ++i) {
+//	            this->m_data[i] = 0;
+//	        }
+//	        return *this;
+//	    }
 
 	    /**
 		* Inequality operator, checks if two T obj are equal or not.
@@ -530,59 +424,16 @@ public:
 	    inline bool operator!=(const T &b) const {
 	        return !(*this == b);
 	    }
-#endif
+
 		//ACCESSORS
-
-#if 0
-		/**
-		* ostream operator to output vector values to console
-		*
-		* @param os is the std ostream object.
-		* @param &ptr_obj is the T object to be printed.
-		* @return std ostream object which captures the vector values.
-		*/
-		template<class IntegerType_c>
-		friend std::ostream& operator<<(std::ostream& os, const T<IntegerType_c> &ptr_obj);
-
-		T::BVInt& at(usint i) {
-		  if(!this->IndexCheck(i)) {
-		    throw std::logic_error("index out of range in NativeVector");
-		  }
-		  return this->m_data[i];
-		  }
-
-		const T::BVInt& at(usint i) const {
-	 	  if(!this->IndexCheck(i)) {
-		    throw std::logic_error("index out of range in NativeVector");
-		  }
-		  return this->m_data[i];
-		}
-
-		void atMod(usint i, const T::BVInt &val) {
-		  if(!this->IndexCheck(i)) {
-		    throw std::logic_error("index out of range in NativeVector");
-		  }
-		  this->m_data[i]=val%m_modulus;
-		  return;
-		}
-
-		void atMod(usint i, const std::string& val) const {
-	 	  if(!this->IndexCheck(i)) {
-		    throw std::logic_error("index out of range in NativeVector");
-		  }
-		  T::BVInt tmp(val);
-		  this->m_data[i]=tmp%m_modulus;
-		  return;
-		}
 
 		/**
 		 * operators to get a value at an index.
 		 * @param idx is the index to get a value at.
 		 * @return is the value at the index. return NULL if invalid index.
 		 */
-		inline T::BVInt& operator[](std::size_t idx) { return (this->m_data[idx]); }
-		inline const T::BVInt& operator[](std::size_t idx) const { return (this->m_data[idx]); }
-#endif
+//		I& operator[](size_t idx) { return this->m_data[idx]; }
+//		inline const I& operator[](std::size_t idx) const { return (this->m_data[idx]); }
 
 #if 0
 		/**
@@ -599,21 +450,21 @@ public:
 		 * @param value is the value to set.
 		 */
 		void SwitchModulus(const T::BVInt& value);
+#endif
 
 		/**
 		 * Gets the vector modulus.
 		 *
 		 * @return the vector modulus.
 		 */
-		const T::BVInt& GetModulus() const;
+		virtual const I& GetModulus() const = 0;
 
 		/**
 		 * Gets the vector length.
 		 *
 		 * @return vector length.
 		 */
-		usint GetLength() const;
-#endif
+		virtual usint GetLength() const = 0;
 
 		/**
 		 * Scalar modulus addition.
