@@ -888,7 +888,7 @@ namespace lbcrypto {
      DEBUG(fname<<"could not find Length");
      return false;
    }
-   size_t length = std::stoi(mIt->value.GetString());
+//   size_t length = std::stoi(mIt->value.GetString());
     
    outVector->clear();
    outVector->resize( std::stoi(mIt->value.GetString()) );

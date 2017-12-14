@@ -636,9 +636,8 @@ namespace cpu_int{
     // BigVectors, and [De]Serialize otherwise (to work the same as all
     // other serialized objects.
 
-    const std::string SerializeToString(const BigInteger& mod = BigInteger::ZERO) const;
-    const char * DeserializeFromString(const char * str, const BigInteger& mod = BigInteger::ZERO);
-
+    const std::string SerializeToString(const BigInteger& mod = BigInteger(0)) const;
+    const char * DeserializeFromString(const char * str, const BigInteger& mod = BigInteger(0));
     /**
      * Serialize the object into a Serialized
      * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());

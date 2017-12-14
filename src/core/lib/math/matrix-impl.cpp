@@ -420,7 +420,7 @@ template<>
   Matrix<int32_t> ConvertToInt32(const Matrix<BigInteger> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigInteger negativeThreshold(modulus / BigInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger(2));
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
       for (size_t j = 0; j < cols; ++j) {
@@ -437,7 +437,7 @@ template<>
   Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger& modulus) {
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
-    BigInteger negativeThreshold(modulus / BigInteger::TWO);
+    BigInteger negativeThreshold(modulus / BigInteger(2));
     Matrix<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
       for (size_t j = 0; j < cols; ++j) {
