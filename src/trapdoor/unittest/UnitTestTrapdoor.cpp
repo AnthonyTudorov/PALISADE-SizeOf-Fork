@@ -317,6 +317,8 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//std::cout << maxValue << std::endl;
 
 	Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
+	DEBUG("4.5");
+
 	z.SwitchFormat();
 
 	DEBUG("5");
