@@ -36,6 +36,8 @@
 
 #include "math/matrix.h"
 
+#include <omp.h>
+
 using namespace lbcrypto;
 
 class UTStatisticalEval : public ::testing::Test {
@@ -312,13 +314,13 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 * In contrast to the previous test, this one also converts an integer
 * into a binary polynomial
 */
-/*TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
+TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(plaintextModulus, 1.006, stdDev, 0, 4, 0, OPTIMIZED);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(plaintextModulus, 1.06, stdDev, 0, 4, 0, OPTIMIZED);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -360,9 +362,16 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 
 	////////////////////////////////////////////////////////////
 	//Linear Regression
-	////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////
 
-	auto result = cc->EvalLinRegression(x, y);
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> result;
+
+	// turns off loop parallelization for the main computation
+	omp_set_num_threads(1);
+#pragma omp parallel
+	{
+		result = cc->EvalLinRegression(x, y);
+	}
 
 	////////////////////////////////////////////////////////////
 	//Decryption
@@ -386,4 +395,4 @@ TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
 	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue());
 	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue());
 
-}*/
+}
