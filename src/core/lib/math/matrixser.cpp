@@ -98,13 +98,13 @@ bool Matrix<BigInteger>::Deserialize(const Serialized& serObj) {
 }
 
 template<>
-bool Matrix<native_int::BigInteger>::Serialize(Serialized* serObj) const {
+bool Matrix<NativeInteger>::Serialize(Serialized* serObj) const {
   std::cout<<"Matrix<native_int::BigInteger>::Serialize() not written"<<std::endl;
   return false;
 }
 
 template<>
-bool Matrix<native_int::BigInteger>::Deserialize(const Serialized& serObj) {
+bool Matrix<NativeInteger>::Deserialize(const Serialized& serObj) {
   std::cout<<"Matrix<native_int::BigInteger>::Deserialize() not written"<<std::endl;
   return false;
 }

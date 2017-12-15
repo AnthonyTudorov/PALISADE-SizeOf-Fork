@@ -90,20 +90,18 @@ namespace lbcrypto {
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
 	};
-#if 1
+
 //helper template to stream vector contents provided T has an stream operator<< 
 template < typename T >
- std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
 {
     os << "[";
-    //for (const auto itr : v){
     for (auto i = v.begin(); i!= v.end(); ++i){
       os << " " << *i;
     }
     os << " ]";
     return os;
  };
-#endif
 
 }
 

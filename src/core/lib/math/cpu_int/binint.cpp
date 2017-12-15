@@ -1667,20 +1667,12 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 }
 
 template<typename uint_type,usint BITLENGTH>
-const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
+const std::string BigInteger<uint_type,BITLENGTH>::ToString() const {
 
 	//this string object will store this BigInteger's value
 	std::string bbiString;
 
-	//create reference for the object to be printed
-	//BigInteger<uint_type,BITLENGTH> *print_obj;
-
 	usint counter;
-
-	//initiate to object to be printed
-	//print_obj = new BigInteger<uint_type,BITLENGTH>(*this);
-
-	//print_obj->PrintLimbsInDec();
 
 	//print_VALUE array stores the decimal value in the array
 	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
@@ -1701,7 +1693,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
 
 	}
 
-	//find the first occurence of non-zero value in print_VALUE
+	//find the first occurrence of non-zero value in print_VALUE
 	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
 		if((sint)print_VALUE[counter]!=0)break;							
 	}
@@ -1712,11 +1704,8 @@ const std::string BigInteger<uint_type,BITLENGTH>::ToString() const{
 	}
 
 	delete [] print_VALUE;
-	//deallocate the memory since values are inserted into the ostream object
-	//delete print_obj;
 
 	return bbiString;
-
 }
 
 //Compares the current object with the BigInteger a.

@@ -203,7 +203,7 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   //This code is run only when performing execution time measurements
 
   //Precomputations for FTT
-  DiscreteFourierTransform::GetInstance().PreComputeTable(m);
+  DiscreteFourierTransform::PreComputeTable(m);
 
   ////////////////////////////////////////////////////////////
   //Generate and save the obfuscated pattern
@@ -253,7 +253,6 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
   std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
-  DiscreteFourierTransform::GetInstance().Destroy();
   return (errorflag);
 }
 //////////////////////////////////////////////////////////////

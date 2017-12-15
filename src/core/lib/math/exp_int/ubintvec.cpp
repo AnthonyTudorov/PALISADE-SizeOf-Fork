@@ -486,10 +486,10 @@ namespace exp_int {
 
     size_t pkVectorLength = GetLength();
     if( pkVectorLength > 0 ) {
-      std::string pkBufferString = (*this)[0]SerializeToString();
+      std::string pkBufferString = (*this)[0].SerializeToString();
       for (size_t i = 1; i < pkVectorLength; i++) {
 	pkBufferString += "|";
-	pkBufferString += (*this)[i]SerializeToString();
+	pkBufferString += (*this)[i].SerializeToString();
       }
       bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
     }

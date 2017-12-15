@@ -193,18 +193,6 @@ namespace lbcrypto {
 
 	typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
 	typedef PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams> NativePoly;
-
-	// template to allow contents of a vector of streamables to stream
-
-	template<typename T> std::ostream& operator << (std::ostream& os, const std::vector<T>& v ){
-	  os << "[";
-	  for (const auto& itr : v){
-	    os << " " << itr;
-	  }
-	  os << " ]";
-	  return os;
-	};
-
 	
 } // namespace lbcrypto ends
 
