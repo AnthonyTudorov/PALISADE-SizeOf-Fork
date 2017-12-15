@@ -151,6 +151,24 @@ namespace lbcrypto {
 		 */
 		virtual const T& TimesEq(const T& b) = 0;
 
+		/**
+		 * Scalar modulus multiplication.
+		 *
+		 * @param &b is the scalar to multiply.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual T ModMul(const T& b, const T& modulus) const = 0;
+
+		/**
+		 * Scalar modulus multiplication.
+		 *
+		 * @param &b is the scalar to multiply.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		virtual const T& ModMulEq(const T& b, const T& modulus) = 0;
+
 		friend T operator*(const T& a, const T& b) { return a.Times(b); }
 		const T& operator*=(const T& b) { return this->TimesEq(b); }
 
@@ -196,15 +214,14 @@ namespace lbcrypto {
 		friend T operator%(const T& a, const T& b) { return a.Mod(b); }
 		const T& operator%=(const T& b) { return this->ModEq(b); }
 
-#if 0
 		/**
-		 * returns the Barrett modulus with respect to the input modulus and the Barrett value.
+		 * Scalar modulus exponentiation.
 		 *
-		 * @param modulus is the modulus to perform.
-		 * @param mu is the Barrett value.
-		 * @return is the result of the modulus operation.
+		 * @param &b is the scalar to exponentiate at all locations.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus exponentiation operation.
 		 */
-		virtual T ModBarrett(const T& modulus, const T& mu) const = 0;
+		virtual T ModExp(const T& b, const T& modulus) const = 0;
 
 		/**
 		 * returns the modulus inverse with respect to the input value.
@@ -215,13 +232,13 @@ namespace lbcrypto {
 		virtual T ModInverse(const T& modulus) const = 0;
 
 		/**
-		 * Scalar modulus multiplication.
+		 * returns the Barrett modulus with respect to the input modulus and the Barrett value.
 		 *
-		 * @param &b is the scalar to multiply.
-		 * @param modulus is the modulus to perform operations with.
-		 * @return is the result of the modulus multiplication operation.
+		 * @param modulus is the modulus to perform.
+		 * @param mu is the Barrett value.
+		 * @return is the result of the modulus operation.
 		 */
-		virtual T ModMul(const T& b, const T& modulus) const = 0;
+		virtual T ModBarrett(const T& modulus, const T& mu) const = 0;
 
 		/**
 		 * Scalar Barrett modulus multiplication.
@@ -232,16 +249,6 @@ namespace lbcrypto {
 		 * @return is the result of the modulus multiplication operation.
 		 */
 		virtual T ModBarrettMul(const T& b, const T& modulus,const T& mu) const = 0;
-
-		/**
-		 * Scalar modulus exponentiation.
-		 *
-		 * @param &b is the scalar to exponentiate at all locations.
-		 * @param modulus is the modulus to perform operations with.
-		 * @return is the result of the modulus exponentiation operation.
-		 */
-		virtual T ModExp(const T& b, const T& modulus) const = 0;
-#endif
 
 		////bit shifting operators
 
@@ -299,7 +306,6 @@ namespace lbcrypto {
 		 */
 		virtual usshort GetMSB() const = 0;
 
-#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
@@ -316,7 +322,6 @@ namespace lbcrypto {
 		 * @return the length of the representation in a specific base.	  
 		 */
 		virtual usint GetDigitAtIndexForBase(usint index, usint base) const = 0;
-#endif
 
 #if 0
 		/**
@@ -345,7 +350,9 @@ public:
 
 		// Constructors should be implemented in the derived classes
 		// The derived classes should implement constructors from initializer lists of integers and strings
+
 		// There should be copy and move constructors, as well as copy and move assignment
+
 		// There should also be assignment from an unsigned int? FIXME
 
 		/**
@@ -387,19 +394,17 @@ public:
 		* @param b is vector to be compared.
 		* @return false  if not equal and false otherwise.
 		*/
-	    inline bool operator!=(const T &b) const {
+	    bool operator!=(const T &b) const {
 	        return !(*this == b);
 	    }
 
 		//ACCESSORS
 
-		/**
-		 * operators to get a value at an index.
-		 * @param idx is the index to get a value at.
-		 * @return is the value at the index. return NULL if invalid index.
-		 */
-//		I& operator[](size_t idx) { return this->m_data[idx]; }
-//		inline const I& operator[](std::size_t idx) const { return (this->m_data[idx]); }
+	    // The derived class should implement at and operator[]
+		virtual I& at(size_t idx) = 0;
+		virtual const I& at(size_t idx) const = 0;
+		virtual I& operator[](size_t idx) = 0;
+		virtual const I& operator[](size_t idx) const = 0;
 
 		/**
 		 * Sets the vector modulus.
@@ -616,8 +621,7 @@ public:
 		* @return the result of divide and round.
 		*/
 		T DivideAndRound(const T::BVInt &q) const;
-
-		//matrix operations
+#endif
 
 		/**
 		 * Returns a vector of digits at a specific index for all entries for a given number base.
@@ -626,8 +630,7 @@ public:
 		 * @param base is the base to use for the operation.
 		 * @return is the resulting vector.
 		 */
-		T GetDigitAtIndexForBase(usint index, usint base) const;
-#endif
+		virtual T GetDigitAtIndexForBase(usint index, usint base) const = 0;
 	};
 
 	// TODO

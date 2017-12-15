@@ -33,8 +33,8 @@
 namespace lbcrypto {
 
 class CoefPackedEncoding: public PlaintextImpl {
-	vector<uint32_t>	value;
-	vector<int32_t>		valueSigned;
+	vector<uint64_t>	value;
+	vector<int64_t>		valueSigned;
 	bool				isSigned;
 
 public:
@@ -48,28 +48,28 @@ public:
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
 		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
-	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
 		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<int32_t> coeffs) :
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
 		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
 	}
 
-	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
 	}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs, bool isSigned=false) :
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
 		PlaintextImpl(vp,ep), isSigned(isSigned) {
 		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
 		else value = coeffs;
@@ -83,7 +83,7 @@ public:
 	 * GetCoeffsValue
 	 * @return the un-encoded scalar
 	 */
-	const vector<uint32_t>& GetCoefPackedValue() const {
+	const vector<uint64_t>& GetCoefPackedValue() const {
 		if( !isSigned )
 			return value;
 		throw std::logic_error("not a packed coefficient vector");
@@ -93,7 +93,7 @@ public:
 	 * GetCoeffsValueSigned
 	 * @return
 	 */
-	const vector<int32_t>& GetCoefPackedSignedValue() const {
+	const vector<int64_t>& GetCoefPackedSignedValue() const {
 		if( isSigned )
 			return valueSigned;
 		throw std::logic_error("not an unsigned packed coefficient vector");

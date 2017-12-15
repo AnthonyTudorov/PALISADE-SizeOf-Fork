@@ -118,7 +118,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_size = 2;
 
-	usint plaintextModulus = 9;
+	PlaintextModulus plaintextModulus = 9;
 
 	vector<NativeInteger> init_moduli(init_size);
 
@@ -131,7 +131,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	for (usint i = 0; i < init_size; i++) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigInteger(init_moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(init_moduli[i]);
 		q = NextPrime(q, init_m);
 	}
 
@@ -257,7 +257,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	for (size_t i = 0; i < init_size; i++) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigInteger(init_moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(init_moduli[i]);
 		q = NextPrime(q, init_m);
 	}
 	DEBUG("2");
@@ -313,7 +313,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint init_size = 5;
 
-	usint ptm = 9;
+	PlaintextModulus ptm = 9;
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 

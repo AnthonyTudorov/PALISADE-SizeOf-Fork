@@ -30,7 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include "obfuscation/lweconjunctionobfuscate.h"
-//#include "obfuscation/lweconjunctionobfuscate.cpp"
+#include "obfuscation/lweconjunctionobfuscate.cpp"
 
 #include "utils/debug.h"
 

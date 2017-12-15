@@ -550,6 +550,15 @@ namespace cpu_int{
     BigInteger ModMul(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modulus multiplication.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
+    const BigInteger& ModMulEq(const BigInteger& b, const BigInteger& modulus);
+
+    /**
     * Scalar modular multiplication where Barrett modular reduction is used.
 	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
 	* Uses one precomputed value \mu.

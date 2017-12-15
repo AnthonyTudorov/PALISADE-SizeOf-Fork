@@ -96,7 +96,7 @@ bool PackedEncoding::Encode() {
 }
 
 template<typename T>
-static void fillVec(const T& poly, vector<uint32_t>& vec) {
+static void fillVec(const T& poly, vector<uint64_t>& vec) {
 	vec.clear();
 	for (size_t i = 0; i<poly.GetLength(); i++) {
 		vec.push_back(poly[i].ConvertToInt());

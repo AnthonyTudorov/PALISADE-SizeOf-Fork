@@ -216,21 +216,21 @@ public:
 	 * @param index is the index to set a value at.
  */
 
-	IntegerType& at(usint i) {
+	IntegerType& at(size_t i) {
 	  if(!this->IndexCheck(i)) {
 	    throw std::logic_error("index out of range in BigVector");
 	  }
 	  return this->m_data[i];
 	  }
 
-	const IntegerType& at(usint i) const {
+	const IntegerType& at(size_t i) const {
  	  if(!this->IndexCheck(i)) {
 	    throw std::logic_error("index out of range in BigVector");
 	  }
 	  return this->m_data[i];
 	}
 
-	void atMod(usint i, const IntegerType &val) {
+	void atMod(size_t i, const IntegerType &val) {
 	  if(!this->IndexCheck(i)) {
 	    throw std::logic_error("index out of range in BigVector");
 	  }
@@ -238,7 +238,7 @@ public:
 	  return;
 	}
 
-	void atMod(usint i, const std::string& val) const {
+	void atMod(size_t i, const std::string& val) const {
  	  if(!this->IndexCheck(i)) {
 	    throw std::logic_error("index out of range in BigVector");
 	  }
@@ -252,8 +252,8 @@ public:
 	* @param idx is the index to get a value at.
 	* @return is the value at the index. return NULL if invalid index.
 	*/
-	inline IntegerType& operator[](std::size_t idx) { return (this->m_data[idx]); }
-	inline const IntegerType& operator[](std::size_t idx) const { return (this->m_data[idx]); }
+	inline IntegerType& operator[](size_t idx) { return (this->m_data[idx]); }
+	inline const IntegerType& operator[](size_t idx) const { return (this->m_data[idx]); }
 
 	/**
 	 * Sets the vector modulus.
@@ -496,7 +496,7 @@ private:
 	IntegerType m_modulus = 0;
 
 	//function to check if the index is a valid index.
-	bool IndexCheck(usint length) const {
+	bool IndexCheck(size_t length) const {
 		if(length>this->m_length)
 			return false;
 		return true;

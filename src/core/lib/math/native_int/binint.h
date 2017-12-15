@@ -688,6 +688,24 @@ public:
 	}
 
 	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type bv = b.m_value;
+
+		if( this->m_value > modulus.m_value ) this->m_value %= modulus.m_value;
+		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+
+		(this->m_value *= bv) %= modulus.m_value;
+
+		return *this;
+	}
+
+	/**
 	 * Scalar modulus multiplication. Fast version, assumes inputs are
 	 * already < modulus. 
 	 *

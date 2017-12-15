@@ -1718,6 +1718,26 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMul(const Bi
 	return (a*bb).Mod(modulus);
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulEq(const BigInteger& b, const BigInteger& modulus) {
+	BigInteger bb(b);
+
+	//if a is greater than q reduce a to its mod value
+	if(*this>modulus){
+		this->ModEq(modulus);
+	}
+
+	//if b is greater than q reduce b to its mod value
+	if(b>modulus){
+		bb.ModEq(modulus);
+	}
+
+	*this *= bb;
+	*this %= modulus;
+
+	return *this;
+}
+
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,

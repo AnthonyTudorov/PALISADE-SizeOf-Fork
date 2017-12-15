@@ -55,11 +55,9 @@ protected:
 };
 
 TEST_F(UTEncoding,scalar_encoding) {
-	usint value = 47;
-	int	valueSigned = -47;
+	uint64_t value = 47;
+	int64_t	valueSigned = -47;
 	usint m = 8;
-	Poly::Integer primeModulus("73");
-	Poly::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ILParams> lp =
 			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
@@ -84,8 +82,8 @@ TEST_F(UTEncoding,scalar_encoding) {
 }
 
 TEST_F(UTEncoding,coef_packed_encoding) {
-	vector<uint32_t> value = {32, 17, 8};
-	vector<int32_t>	valueSigned = { -32, 22, -101, 6 };
+	vector<uint64_t> value = {32, 17, 8};
+	vector<int64_t>	valueSigned = { -32, 22, -101, 6 };
 	usint m = 8;
 
 	shared_ptr<ILParams> lp =
