@@ -239,6 +239,12 @@ namespace cpu_int{
     * @param bigInteger is the big binary integer to be copied.
     */
     BigInteger(const BigInteger& bigInteger);
+
+    /**
+     * Construct a BigInteger from a NativeInteger
+     * @param native
+     */
+    BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
    
     /**
     * Destructor.

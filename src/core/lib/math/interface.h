@@ -40,11 +40,13 @@ namespace lbcrypto {
 
 		// CONSTRUCTORS
 
-		// Constructors should be implemented in the derived classes
+		// Constructors must be implemented in the derived classes
+		// There are no base class constructors that need to be called
+
 		// The derived classes should implement constructors from integers and strings
 		// There should be copy and move constructors, as well as copy and move assignment
 
-		//ACCESSORS
+		// ACCESSORS
 
 		/**
 		 * Set from a string
@@ -196,7 +198,7 @@ namespace lbcrypto {
 
 #if 0
 		/**
-		 * returns the Barret modulus with respect to the input modulus and the Barrett value.
+		 * returns the Barrett modulus with respect to the input modulus and the Barrett value.
 		 *
 		 * @param modulus is the modulus to perform.
 		 * @param mu is the Barrett value.
@@ -305,7 +307,6 @@ namespace lbcrypto {
 		 */
 		virtual usint GetLengthForBase(usint base) const = 0;
 
-#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
@@ -315,78 +316,22 @@ namespace lbcrypto {
 		 */
 		virtual usint GetDigitAtIndexForBase(usint index, usint base) const = 0;
 
+#if 0
 		/**
 		 * Convert the value to an int.
 		 *
 		 * @return the int representation of the value.	  
 		 */
-		virtual usint ConvertToInt() const = 0;
-
-		//static methods cannot be added to the interface
-		/**
-		 * Convert a value from an int to a T.
-		 *
-		 * @param the value to convert from.
-		 * @return the int represented as a big binary int.	  
-		 */
-		//static T intToBigIntegereger(usint m);
-
-		////constant definitions
-
-		/**
-		 * Test equality of the inputs.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the inputs are equal.	  
-		 */
-		//friend bool operator==(const T& a, const T& b);
-
-		/**
-		 * Test inequality of the inputs.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the inputs are inequal.	  
-		 */
-		//friend bool operator!=(const T& a, const T& b);
-
-		/**
-		 * Test if first input is great than the second input.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the first inputs is greater.
-		 */
-		//friend bool operator> (const T& a, const T& b);
-
-		/**
-		 * Test if first input is great than or equal to the second input.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the first inputs is greater than or equal to the second input.
-		 */
-		//friend bool operator>=(const T& a, const T& b);
-
-		/**
-		 * Test if first input is less than the second input.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the first inputs is lesser.
-		 */
-		//friend bool operator< (const T& a, const T& b);
-
-		/**
-		 * Test if first input is less than or equal to the second input.
-		 *
-		 * @param a first value to test.
-		 * @param b second value to test.
-		 * @return true if the first inputs is less than or equal to the second input.
-		 */
-		//friend bool operator<=(const T& a, const T& b);
+		virtual uint64_t ConvertToInt() const = 0;
 #endif
+
+		//// relational operators
+		virtual bool operator==(const T& a) const = 0;
+		virtual bool operator!=(const T& a) const = 0;
+		virtual bool operator> (const T& a) const = 0;
+		virtual bool operator>=(const T& a) const = 0;
+		virtual bool operator< (const T& a) const = 0;
+		virtual bool operator<=(const T& a) const = 0;
 	}; 
 
 	template<typename T, typename I>

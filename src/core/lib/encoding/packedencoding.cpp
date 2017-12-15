@@ -165,8 +165,8 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 					m_bigModulus[modulusM] = FirstPrime<NativeInteger>(bigModulusSize, nttDim);
 				}
 				m_bigRoot[modulusM] = RootOfUnity<NativeInteger>(nttDim, m_bigModulus[modulusM]);
-				params->SetPlaintextBigModulus(m_bigModulus[modulusM].ConvertToInt());
-				params->SetPlaintextBigRootOfUnity(m_bigRoot[modulusM].ConvertToInt());
+				params->SetPlaintextBigModulus(m_bigModulus[modulusM]);
+				params->SetPlaintextBigRootOfUnity(m_bigRoot[modulusM]);
 			}
 			else
 			{

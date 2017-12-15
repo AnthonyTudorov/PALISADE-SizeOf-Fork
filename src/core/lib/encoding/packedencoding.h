@@ -101,15 +101,6 @@ public:
 	PackedEncoding()
 		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value() {}
 
-	/**
-	 * @brief Method to return the initial root.
-	 * @param modulus the initial root.
-	 */
-	static BigInteger GetInitRoot(const BigInteger &modulus) {
-		NativeInteger modulusNI(modulus.ConvertToInt());
-		return BigInteger(modulusNI.ConvertToInt());
-	}
-
 	static usint GetAutomorphismGenerator(usint m) {
 		return m_automorphismGenerator[m];
 	}

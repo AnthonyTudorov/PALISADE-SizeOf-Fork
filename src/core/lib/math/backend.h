@@ -36,6 +36,15 @@
 #error "MSVC COMPILER IS NOT SUPPORTED"
 #endif
 
+////////// definitions for native integer and native vector
+#include "native_int/binint.h"
+#include "native_int/binvect.h"
+#include <initializer_list>
+
+typedef native_int::NativeInteger<uint64_t>			NativeInteger;
+typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
+
+
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
 // Each math backend is defined in its own namespace, and can be used at any time by referencing
@@ -144,14 +153,6 @@ namespace gmp_int {
 typedef NTL::myZZ ubint;
 
 }
-
-////////// for native int
-#include "native_int/binint.h"
-#include "native_int/binvect.h"
-#include <initializer_list>
-
-typedef native_int::NativeInteger<uint64_t>			NativeInteger;
-typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
 
 /**
  * @namespace lbcrypto

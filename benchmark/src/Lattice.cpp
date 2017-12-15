@@ -93,7 +93,7 @@ static shared_ptr<ILDCRTParams<BigInteger>> generate_DCRT_parms(int s) {
 	for(usint i=0; i < nTowers; i++){
 		moduli[i] = q;
 		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
-		modulus = modulus * BigInteger(moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(moduli[i]);
 		q = NextPrime(q, Scenarios[s].m);
 	}
 
