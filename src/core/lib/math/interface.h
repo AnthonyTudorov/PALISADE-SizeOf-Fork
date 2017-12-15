@@ -316,6 +316,7 @@ namespace lbcrypto {
 		 * @return the length of the representation in a specific base.	  
 		 */
 		virtual usint GetDigitAtIndexForBase(usint index, usint base) const = 0;
+#endif
 
 #if 0
 		/**
