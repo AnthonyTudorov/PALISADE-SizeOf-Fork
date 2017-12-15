@@ -38,30 +38,6 @@ Description:
 
 namespace cpu_int {
 
-//constant static member variable initialization of 0
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ZERO = BigInteger(0);
-
-//constant static member variable initialization of 1
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ONE = BigInteger(1);
-
-//constant static member variable initialization of 2
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::TWO = BigInteger(2);
-
-//constant static member variable initialization of 3
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::THREE = BigInteger(3);
-
-//constant static member variable initialization of 4
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::FOUR = BigInteger(4);
-
-//constant static member variable initialization of 5
-template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::FIVE = BigInteger(5);
-
 //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
 
 //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
@@ -111,7 +87,7 @@ template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH>::BigInteger()
 {
 	memset(this->m_value, 0, sizeof(this->m_value));
-	//MSB set to zero since value set to ZERO
+	//MSB set to zero since value set to 0
 	this->m_MSB = 0;
 
 }
@@ -212,10 +188,10 @@ const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operato
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator<<(usshort shift) const{
+BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::LShift(usshort shift) const{
 
 	if(this->m_MSB==0)
-		return BigInteger(ZERO);
+		return 0;
 
 	BigInteger ans(*this);
 	//check for OVERFLOW
@@ -271,7 +247,7 @@ BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator<<(uss
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator<<=(usshort shift){
+const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::LShiftEq(usshort shift){
 
 	if(this->m_MSB==0)
 		return *this;
@@ -331,7 +307,7 @@ const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operato
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator>>(usshort shift) const{
+BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::RShift(usshort shift) const{
 
 	//trivial cases
 	if(this->m_MSB==0 || this->m_MSB <= shift)
@@ -401,12 +377,12 @@ BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::operator>>(uss
 *   Shifting is done by using bit shift operations and carry over propagation.
 */
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(usshort shift){
+const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::RShiftEq(usshort shift){
 
 	if(this->m_MSB==0 )
 		return *this;
 	else if(this->m_MSB<=shift){
-		*this = ZERO;
+		*this = 0;
 		return *this;
 	}
 
@@ -477,7 +453,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::SerializeToString(const BigIn
 	// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 	bool isneg = false;
 	BigInteger signedVal;
-	if( modulus == BigInteger::ZERO || *this < modulus>>1 ) // divide by 2
+	if( modulus == 0 || *this < modulus>>1 ) // divide by 2
 		signedVal = *this;
 	else {
 		signedVal = modulus - *this;
@@ -724,7 +700,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
 
 	//return 0 if b is higher than *this as there is no support for negative number
 	if(!(*this>b))
-		return BigInteger(ZERO);
+		return 0;
 
         // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
@@ -831,7 +807,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type, BITLENGTH>::Times(const Bi
 
 	//if one of them is zero
 	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		ans = ZERO;
+		ans = 0;
 		return ans;
 	}
 
@@ -866,7 +842,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq
 
 	//if one of them is zero
 	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		*this = ZERO;
+		*this = 0;
 		return *this;
 	}
 
@@ -900,7 +876,7 @@ template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
 	
 	if(b==0 || this->m_MSB==0)
-		return BigInteger(ZERO);
+		return 0;
 	
 	BigInteger ans;
 	//position in the array to start multiplication
@@ -935,7 +911,7 @@ template<typename uint_type, usint BITLENGTH>
 void BigInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b, BigInteger *ans) const {
 
 	if (b == 0 || this->m_MSB == 0) {
-		*ans = ZERO;
+		*ans = 0;
 		return;
 	}
 
@@ -972,13 +948,13 @@ template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const BigInteger& b) const{
 	
 	//check for the 0 condition
-	if(b==ZERO)
+	if(b==0)
 		throw std::logic_error("DIVISION BY ZERO");
 
 	if(b.m_MSB>this->m_MSB)
-		return BigInteger(ZERO);
+		return 0;
 	else if(b==*this)
-		return BigInteger(ONE);
+		return 1;
 	
 	BigInteger ans;
 	
@@ -1087,15 +1063,15 @@ template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::DividedByEq(const BigInteger& b) {
 
 	//check for the 0 condition
-	if(b==ZERO)
+	if(b==0)
 		throw std::logic_error("DIVISION BY ZERO");
 
 	if(b.m_MSB>this->m_MSB) {
-		*this = BigInteger(ZERO);
+		*this = 0;
 		return *this;
 	}
 	else if(b==*this) {
-		*this = BigInteger(ONE);
+		*this = 1;
 		return *this;
 	}
 
@@ -1302,9 +1278,9 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigIn
 	//masking operation if modulus is 2
 	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
 		if(this->m_value[m_nSize-1]%2==0)
-			return BigInteger(ZERO);
+			return 0;
 		else
-			return BigInteger(ONE);
+			return 1;
 	}
 	
 	Duint_type initial_shift = 0;
@@ -1344,6 +1320,57 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigIn
 	}
 
 	return result;
+}
+
+//Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
+//Complexity: O(log(*this)-log(modulus))
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModEq(const BigInteger& modulus) {
+	//return the same value if value is less than modulus
+	if(*this<modulus){
+		return *this;
+	}
+	//masking operation if modulus is 2
+	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
+		if(this->m_value[m_nSize-1]%2==0)
+			return *this = 0;
+		else
+			return *this = 1;
+	}
+
+	Duint_type initial_shift = 0;
+	//No of initial left shift that can be performed which will make it comparable to the current value.
+	if(this->m_MSB > modulus.m_MSB)
+		initial_shift=this->m_MSB - modulus.m_MSB -1;
+
+	BigInteger j = modulus<<initial_shift;
+
+	BigInteger temp;
+	while(true){
+		//exit criteria
+		if(*this < modulus) break;
+		if (this->m_MSB > j.m_MSB) {
+			temp = j<<1;
+			if (this->m_MSB == j.m_MSB + 1) {
+				if(*this>temp){
+					j=temp;
+				}
+			}
+		}
+		//subtracting the running remainder by a multiple of modulus
+		*this -= j;
+
+		initial_shift = j.m_MSB - this->m_MSB +1;
+		if(this->m_MSB-1>=modulus.m_MSB){
+			j>>=initial_shift;
+		}
+		else{
+			j = modulus;
+		}
+
+	}
+
+	return *this;
 }
 
 /*
@@ -1489,13 +1516,13 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 
 	BigInteger first(mods[0]);
 	BigInteger second(mods[1]);
-	if(mods[1]==ONE){
-		result = ONE;
+	if(mods[1]==1){
+		result = 1;
 		return result;
 	}
 
 	//Inverse of zero does not exist
-	if(second==ZERO)
+	if(second==0)
 	{
 		throw std::logic_error("Zero does not have a ModInverse");
 	}
@@ -1505,9 +1532,9 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 	while(true){
 		mods.push_back(first.Mod(second));
 		quotient.push_back(first.DividedBy(second));
-		if(mods.back()==ONE)
+		if(mods.back()==1)
 			break;
-		if(mods.back()==ZERO){
+		if(mods.back()==0){
 			std::string msg = this->ToString() + " does not have a ModInverse using " + modulus.ToString();
 			throw std::logic_error(msg);
 		}
@@ -1517,8 +1544,8 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 	}
 
 	mods.clear();
-	mods.push_back(BigInteger(ZERO));
-	mods.push_back(BigInteger(ONE));
+	mods.push_back(0);
+	mods.push_back(1);
 
 	first = mods[0];
 	second = mods[1];
@@ -1813,13 +1840,13 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 	BigInteger mid = this->Mod(modulus);	
 
 	//product calculates the running product of mod values
-	BigInteger product(ONE);
+	BigInteger product(1);
 
 	//Exp is used for spliting b to bit values/ bit extraction
 	BigInteger Exp(b);
 
 	//Precompute the Barrett mu parameter
-	BigInteger temp(BigInteger::ONE);
+	BigInteger temp(1);
 	temp <<= 2 * modulus.GetMSB() + 3;
 	BigInteger mu = temp.DividedBy(modulus);
 
@@ -1837,7 +1864,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 
 		//divide by 2 and check even to odd to find bit value
 		Exp = Exp>>1;
-		if(Exp==ZERO)break;
+		if(Exp==0)break;
 
 		//mid calculates mid^2%q
 		mid = mid*mid;
@@ -2064,7 +2091,7 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::BitStringToBi
 //Recursive Exponentiation function
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Exp(usint p) const{
-	if (p == 0) return BigInteger(BigInteger::ONE);
+	if (p == 0) return 1;
 	BigInteger x(*this);
   	if (p == 1) return x;
 
@@ -2086,16 +2113,16 @@ template<typename uint_type, usint BITLENGTH>
 BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRound(const BigInteger &q) const {
 
 	//check for garbage initialization and 0 condition
-	if (q == ZERO)
+	if (q == 0)
 		throw std::logic_error("DIVISION BY ZERO");
 
 	BigInteger halfQ(q>>1);
 
 	if (*this < q) {
 		if (*this <= halfQ)
-			return BigInteger(ZERO);
+			return 0;
 		else
-			return BigInteger(ONE);
+			return 1;
 	}
 
 	BigInteger ans;
@@ -2194,7 +2221,7 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRoun
 
 	//Rounding operation from running remainder
 	if (!(runningRemainder <= halfQ)){
-		ans += ONE;
+		ans += 1;
 	}
 
 	return ans;

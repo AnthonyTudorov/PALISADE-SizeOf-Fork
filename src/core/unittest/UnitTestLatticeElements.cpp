@@ -106,7 +106,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 		Element ilv1 = ilvector2n1;
 		ilv1 -= ilvector2n1;
 		for (usint i = 0; i < m/2; ++i) {
-			EXPECT_EQ(IntType::ZERO, ilv1.at(i))
+			EXPECT_EQ(0, ilv1.at(i))
 				<< "Faiure: Operator-= @ index "<<i;
 		}
 	}
@@ -116,7 +116,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 		ilv1 += ilvector2n1;
 		for (usint i = 0; i < m/2; ++i)
 			{//we expect a+a == 2*a
-			EXPECT_EQ(IntType::TWO * ilvector2n1.at(i),
+			EXPECT_EQ(2 * ilvector2n1.at(i),
 				  ilv1.at(i))
 				<< "Faiure: Operator+= @ index "<<i;
 		}

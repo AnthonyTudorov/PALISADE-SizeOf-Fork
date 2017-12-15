@@ -152,8 +152,10 @@ namespace lbcrypto {
 		friend T operator*(const T& a, const T& b) { return a.Times(b); }
 		const T& operator*=(const T& b) { return this->TimesEq(b); }
 
+		//// DIVISION
+
 		/**
-		 * Division operation.
+		 * / operation.
 		 *
 		 * @param b is the value to divide by.
 		 * @return is the result of the division operation.
@@ -161,7 +163,7 @@ namespace lbcrypto {
 		virtual T DividedBy(const T& b) const = 0;
 
 		/**
-		 * Division operation.
+		 * /= operation.
 		 *
 		 * @param b is the value to divide by.
 		 * @return is the result of the division operation.
@@ -171,17 +173,28 @@ namespace lbcrypto {
 		friend T operator/(const T& a, const T& b) { return a.DividedBy(b); }
 		const T& operator/=(const T& b) { return this->DividedByEq(b); }
 
-#if 0
-		//modular arithmetic operations
+		//// MODULUS
 
 		/**
-		 * returns the modulus with respect to the input value.
+		 * % operation
 		 *
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus operation.
 		 */
 		virtual T Mod(const T& modulus) const = 0;
 
+		/**
+		 * %= operation
+		 *
+		 * @param modulus is the modulus to perform.
+		 * @return is the result of the modulus operation.
+		 */
+		virtual const T& ModEq(const T& modulus) = 0;
+
+		friend T operator%(const T& a, const T& b) { return a.Mod(b); }
+		const T& operator%=(const T& b) { return this->ModEq(b); }
+
+#if 0
 		/**
 		 * returns the Barret modulus with respect to the input modulus and the Barrett value.
 		 *
@@ -226,41 +239,47 @@ namespace lbcrypto {
 		 * @return is the result of the modulus exponentiation operation.
 		 */
 		virtual T ModExp(const T& b, const T& modulus) const = 0;
+#endif
 
 		////bit shifting operators
 
 		/**
-		 * Left shift operator and creates a new variable as output.
+		 * << operation
 		 *
-		 * @param shift is the amount to shift.
-		 * @return the result of the shift.	  
+		 * @param shift # of bits
+		 * @return result of the shift operation.
 		 */
-		virtual T  operator<<(usshort shift) const = 0;
+		virtual T LShift(usshort shift) const = 0;
 
 		/**
-		 * Right shift operator and creates a new variable as output.
+		 * <<= operation
 		 *
-		 * @param shift is the amount to shift.
-		 * @return the result of the shift.	  
+		 * @param shift # of bits
+		 * @return result of the shift operation.
 		 */
-		virtual T  operator>>(usshort shift) const = 0;
+		virtual const T& LShiftEq(usshort shift) = 0;
+
+		friend T operator<<(const T& a, usshort shift) { return a.LShift(shift); }
+		const T& operator<<=(usshort shift) { return this->LShiftEq(shift); }
 
 		/**
-		 * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+		 * >> operation
 		 *
-		 * @param shift is the amount to shift.
-		 * @return the result of the shift.	  
+		 * @param shift # of bits
+		 * @return result of the shift operation.
 		 */
-		virtual const T& operator<<=(usshort shift) = 0;
+		virtual T RShift(usshort shift) const = 0;
 
 		/**
-		 * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+		 * >>= operation
 		 *
-		 * @param shift is the amount to shift.
-		 * @return the result of the shift.	  
+		 * @param shift # of bits
+		 * @return result of the shift operation.
 		 */
-		virtual const T& operator>>=(usshort shift) = 0;
-#endif
+		virtual const T& RShiftEq(usshort shift) = 0;
+
+		friend T operator>>(const T& a, usshort shift) { return a.RShift(shift); }
+		const T& operator>>=(usshort shift) { return this->RShiftEq(shift); }
 
 		// The derived classes MAY implement std::ostream& operator<< but are not required to
 
@@ -276,9 +295,8 @@ namespace lbcrypto {
 		 *
 		 * @return the index of the most significant bit.	  
 		 */
-		virtual usint GetMSB() const = 0;
+		virtual usshort GetMSB() const = 0;
 
-#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
@@ -287,6 +305,7 @@ namespace lbcrypto {
 		 */
 		virtual usint GetLengthForBase(usint base) const = 0;
 
+#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
@@ -435,22 +454,20 @@ public:
 //		I& operator[](size_t idx) { return this->m_data[idx]; }
 //		inline const I& operator[](std::size_t idx) const { return (this->m_data[idx]); }
 
-#if 0
 		/**
 		 * Sets the vector modulus.
 		 *
 		 * @param value is the value to set.
 		 * @param value is the modulus value to set.
 		 */
-		void SetModulus(const T::BVInt& value);
+		virtual void SetModulus(const I& value) = 0;
 
 		/**
 		 * Sets the vector modulus and changes the values to match the new modulus.
 		 *
 		 * @param value is the value to set.
 		 */
-		void SwitchModulus(const T::BVInt& value);
-#endif
+		virtual void SwitchModulus(const I& value) = 0;
 
 		/**
 		 * Gets the vector modulus.

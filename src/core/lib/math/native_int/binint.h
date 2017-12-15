@@ -205,48 +205,6 @@ public:
 		return *this;
 	}
 
-	//Shift Operators
-
-	/**
-	 * Left shift operator
-	 * @param shift is the amount to shift of type usshort.
-	 * @return the object of type NativeInteger
-	 */
-	NativeInteger  operator<<(usshort shift) const {
-		return NativeInteger( m_value << shift );
-	}
-
-	/**
-	 * Left shift operator uses in-place algorithm and operates on the same variable.
-	 *
-	 * @param shift is the amount to shift of type usshort.
-	 * @return the object of type NativeInteger
-	 */
-	const NativeInteger&  operator<<=(usshort shift) {
-		m_value <<= shift;
-		return *this;
-	}
-
-	/**
-	 * Right shift operator
-	 * @param shift is the amount to shift of type usshort.
-	 * @return the object of type NativeInteger
-	 */
-	NativeInteger  operator>>(usshort shift) const {
-		return NativeInteger( m_value >> shift );
-	}
-
-	/**
-	 * Right shift operator uses in-place algorithm and operates on the same variable.
-	 *
-	 * @param shift is the amount to shift of type usshort.
-	 * @return the object of type NativeInteger
-	 */
-	NativeInteger&  operator>>=(usshort shift) {
-		m_value >>= shift;
-		return *this;
-	}
-
 	vector<NativeInteger> GetInternalRepresentation() {
 	  vector<NativeInteger> ret;
 	  ret.push_back(m_value);
@@ -404,13 +362,24 @@ public:
 	//modular arithmetic operations
 
 	/**
-	 * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
+	 * returns the modulus with respect to the input value
 	 *
-	 * @param modulus is value of the modulus to perform. Its of type NativeInteger.
+	 * @param modulus is value of the modulus to perform
 	 * @return NativeInteger that is the result of the modulus operation.
 	 */
 	NativeInteger Mod(const NativeInteger& modulus) const {
 		return m_value % modulus.m_value;
+	}
+
+	/**
+	 * performs %=
+	 *
+	 * @param modulus is value of the modulus to perform
+	 * @return NativeInteger that is the result of the modulus operation.
+	 */
+	const NativeInteger& ModEq(const NativeInteger& modulus) {
+		m_value %= modulus.m_value;
+		return *this;
 	}
 
 	/**
@@ -807,15 +776,55 @@ public:
 		return (uint_type)product;
 	}
 
+	//Shift Operators
+
+	/**
+	 * Left shift operator
+	 * @param shift is the amount to shift of type usshort.
+	 * @return the object of type NativeInteger
+	 */
+	NativeInteger  LShift(usshort shift) const {
+		return m_value << shift;
+	}
+
+	/**
+	 * Left shift operator uses in-place algorithm and operates on the same variable.
+	 *
+	 * @param shift is the amount to shift of type usshort.
+	 * @return the object of type NativeInteger
+	 */
+	const NativeInteger&  LShiftEq(usshort shift) {
+		m_value <<= shift;
+		return *this;
+	}
+
+	/**
+	 * Right shift operator
+	 * @param shift is the amount to shift of type usshort.
+	 * @return the object of type NativeInteger
+	 */
+	NativeInteger  RShift(usshort shift) const {
+		return m_value >> shift;
+	}
+
+	/**
+	 * Right shift operator uses in-place algorithm and operates on the same variable.
+	 *
+	 * @param shift is the amount to shift of type usshort.
+	 * @return the object of type NativeInteger
+	 */
+	const NativeInteger&  RShiftEq(usshort shift) {
+		m_value >>= shift;
+		return *this;
+	}
+
 	/**
 	 * Stores the based 10 equivalent/Decimal value of the NativeInteger in a string object and returns it.
 	 *
 	 * @return value of this NativeInteger in base 10 represented as a string.
 	 */
 	const std::string ToString() const {
-		std::stringstream ss;
-		ss << m_value;
-		return ss.str();
+		return std::to_string(m_value);
 	}
 
 	// note that for efficiency, we use [De]Serialize[To|From]String when serializing
@@ -1097,39 +1106,6 @@ public:
 	//overloaded binary operators based on integer arithmetic and comparison functions
 	NativeInteger operator-() const { return NativeInteger(0).Minus(*this); }
 
-//	/**
-//	 * Addition operation.
-//	 *
-//	 * @param a is the value to add.
-//	 * @return is the result of the addition operation.
-//	 */
-//	NativeInteger operator+(const NativeInteger &a) const {return this->Plus(a);}
-
-//	/**
-//	 * Subtraction operation.
-//	 *
-//	 * @param a is the value to subtract.
-//	 * @return is the result of the subtraction operation.
-//	 */
-//	NativeInteger operator-(const NativeInteger &a) const {return this->Minus(a);}
-
-	/**
-	 * Modulo operation. Classical modular reduction algorithm is used.
-	 *
-	 * @param a is the value to Mod.
-	 * @return is the result of the modulus operation.
-	 */
-	inline NativeInteger operator%(const NativeInteger &a) const {return this->Mod(a);}
-
-//	/**
-//	 * Division operation.
-//	 *
-//	 * @param a is the value to divide.
-//	 * @param b is the value to divide by.
-//	 * @return is the result of the integral part after division operation.
-//	 */
-//	inline NativeInteger operator/ (const NativeInteger &a) const {return this->DividedBy(a);}
-
 	/**
 	 * Console output operation.
 	 *
@@ -1166,39 +1142,6 @@ public:
 	uschar Get6BitsAtIndex(usint index) const {
 		return lbcrypto::get_6bits_atoffset(m_value, index);
 	}
-
-
-	//constant definations
-
-	/**
-	 * Constant zero.
-	 */
-	static const NativeInteger ZERO;
-
-	/**
-	 * Constant one.
-	 */
-	static const NativeInteger ONE;
-
-	/**
-	 * Constant two.
-	 */
-	static const NativeInteger TWO;
-
-	/**
-	 * Constant three.
-	 */
-	static const NativeInteger THREE;
-
-	/**
-	 * Constant four.
-	 */
-	static const NativeInteger FOUR;
-
-	/**
-	 * Constant five.
-	 */
-	static const NativeInteger FIVE;
 
 	/**
 	 * Compares the current NativeInteger to NativeInteger a.
