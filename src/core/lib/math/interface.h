@@ -299,6 +299,7 @@ namespace lbcrypto {
 		 */
 		virtual usshort GetMSB() const = 0;
 
+#if 0
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
 		 *
