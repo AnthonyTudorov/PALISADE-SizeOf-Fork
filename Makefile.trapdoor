@@ -34,11 +34,15 @@ TRAPDOORBINDIR := $(BINDIR)/build/trapdoor
 TRAPDOORTESTDIR := src/trapdoor/unittest
 TRAPDOORDEMODIR := src/trapdoor/demo
 
-TRAPDOORSOURCES := $(wildcard $(TRAPDOORSRCDIR)/lib/*/*.cpp)
+##TRAPDOORSOURCES := $(wildcard $(TRAPDOORSRCDIR)/lib/*/*.cpp)
+TRAPDOORSOURCES := $(shell find $(TRAPDOORSRCDIR)/lib -name '*.cpp' ! -name '*-public.cpp')
 TRAPDOORUNITSOURCES := $(wildcard $(TRAPDOORSRCDIR)/unittest/*.cpp)
 TRAPDOORDEMOSOURCES := $(wildcard $(TRAPDOORSRCDIR)/demo/*.cpp)
 
+TRAPDOOROBJECTSALL = $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORSOURCES)))
+##TRAPDOOROBJECTS = $(filter %-impl.o,$(TRAPDOOROBJECTSALL))
 TRAPDOOROBJECTS = $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORSOURCES)))
+
 TRAPDOORUNITOBJECTS := $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORUNITSOURCES)))
 TRAPDOORDEMOOBJECTS += $(patsubst $(TRAPDOORSRCDIR)/%,$(TRAPDOORBINDIR)/%,$(patsubst %.cpp,%.o,$(TRAPDOORDEMOSOURCES)))
 
@@ -83,6 +87,7 @@ $(TRAPDOORBINDIR)/%:
 
 .PHONY: cleantrapdoor 
 
+#this target is used to cleanup, it is called from the top Makefile
 cleantrapdoor: 
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` $(BINDIR)/demo/trapdoor
 

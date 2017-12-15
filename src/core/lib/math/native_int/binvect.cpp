@@ -67,7 +67,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for (usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] = IntegerType(*(rhs.begin()+i));  
+			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
 		} else {
 			m_data[i] = 0;
 		}
@@ -83,7 +83,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each entry
 		if(i<len) {
-			m_data[i] = IntegerType(*(rhs.begin()+i));  
+			m_data[i] =  IntegerType(*(rhs.begin()+i))%m_modulus;  
 		} else {
 			m_data[i] = 0;
 		}
@@ -140,6 +140,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
+		  if (m_modulus!=0)
+			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
+		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
 			m_data[i] = 0;
@@ -155,6 +158,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
+		  if (m_modulus!=0)
+			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
+		  else
 			m_data[i] = IntegerType(*(rhs.begin()+i));
 		} else {
 			m_data[i] = 0;
@@ -536,7 +542,7 @@ bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 	if( pkVectorLength > 0 ) {
 		std::string pkBufferString = "";
 		for (size_t i = 0; i < pkVectorLength; i++) {
-			pkBufferString += at(i).Serialize(this->GetModulus());
+			pkBufferString += at(i).SerializeToString(this->GetModulus());
 		}
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
@@ -545,7 +551,7 @@ bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 
 	return true;
 }
-
+  
 // Deserialize Operation
 template<class IntegerType>
 bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
@@ -580,7 +586,7 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 		if( *vp == '\0' ) {
 			return false; // premature end of vector
 		}
-		vp = vectorElem.Deserialize(vp, bbiModulus);
+		vp = vectorElem.DeserializeFromString(vp, bbiModulus);
 		newVec[ePos] = vectorElem;
 	}
 

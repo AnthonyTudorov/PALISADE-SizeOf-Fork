@@ -49,6 +49,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
+#include "../../utils/serializable.h"
 #include "../native_int/binint.h"
 
 /**
@@ -587,52 +588,29 @@ namespace cpu_int{
     *
     * @return value of this BigInteger in base 10 represented as a string.
     */
-    const std::string ToString() const {
+    const std::string ToString() const;
 
-    	//this string object will store this BigInteger's value
-    	std::string bbiString;
+    // note that for efficiency, we use [De]Serialize[To|From]String when serializing
+    // BigVectors, and [De]Serialize otherwise (to work the same as all
+    // other serialized objects.
 
-    	usint counter;
+    const std::string SerializeToString(const BigInteger& mod = BigInteger(0)) const;
+    const char * DeserializeFromString(const char * str, const BigInteger& mod = BigInteger(0));
+    /**
+     * Serialize the object into a Serialized
+     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+     * @return true if successfully serialized
+     */
+    bool Serialize(lbcrypto::Serialized* serObj) const;
 
-    	//print_VALUE array stores the decimal value in the array
-    	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
-
-    	//reset to zero
-    	for(size_t i=0;i<m_numDigitInPrintval;i++)
-    		*(print_VALUE+i)=0;
-
-    	//starts the conversion from base r to decimal value
-    	for(size_t i=this->m_MSB;i>0;i--){
-
-    		//print_VALUE = print_VALUE*2
-    		BigInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);
-
-    		//adds the bit value to the print_VALUE
-    		BigInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
-
-    	}
-
-    	//find the first occurence of non-zero value in print_VALUE
-    	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
-    		if((sint)print_VALUE[counter]!=0)break;
-    	}
-
-    	//append this BigInteger's digits to this method's returned string object
-    	for (; counter < m_numDigitInPrintval; counter++) {
-    		bbiString += std::to_string(print_VALUE[counter]);
-    	}
-
-    	delete [] print_VALUE;
-
-    	return bbiString;
-    }
-
-
-
-    const std::string Serialize(const BigInteger& mod = 0) const;
-    const char * Deserialize(const char * str, const BigInteger& mod = 0);
+    /**
+     * Populate the object from the deserialization of the Serialized
+     * @param serObj contains the serialized object
+     * @return true on success
+     */
+    bool Deserialize(const lbcrypto::Serialized& serObj);
+    
     static const std::string IntegerTypeName() { return "BBI"; }
-
 
     /**
     * Tests whether the BigInteger is a power of 2.
@@ -826,10 +804,9 @@ namespace cpu_int{
     		BigInteger<uint_type_c,BITLENGTH_c>::double_bitVal(print_VALUE);
     		//adds the bit value to the print_VALUE
     		BigInteger<uint_type_c,BITLENGTH_c>::add_bitVal(print_VALUE,print_obj->GetBitAtIndex(i));
-
     	}
 
-    	//find the first occurrance of non-zero value in print_VALUE
+    	//find the first occurence of non-zero value in print_VALUE
     	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
     		if((sint)print_VALUE[counter]!=0)break;
     	}
@@ -844,7 +821,6 @@ namespace cpu_int{
     	delete print_obj;
     	return os;
     }
-
 
 	/**
     * Gets the bit at the specified index.

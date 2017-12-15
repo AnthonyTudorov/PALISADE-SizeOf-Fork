@@ -443,9 +443,29 @@ namespace NTL{
     static const usint m_log2LimbBitLength;
 
     //Serialization functions
-    const std::string Serialize(const myZZ& mod = myZZ::ZERO) const;
-    const char * Deserialize(const char * str, const myZZ& mod = myZZ::ZERO);
 
+    // note that for efficiency, we use [De]Serialize[To|From]String when serializing
+    // BigVectors, and [De]Serialize otherwise (to work the same as all
+    // other serialized objects.
+
+    const std::string SerializeToString(const myZZ& mod = myZZ::ZERO) const;
+    const char * DeserializeFromString(const char * str, const myZZ& mod = myZZ::ZERO);
+
+    /**
+     * Serialize the object into a Serialized
+     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+     * @return true if successfully serialized
+     */
+    bool Serialize(lbcrypto::Serialized* serObj) const;
+    
+    /**
+     * Populate the object from the deserialization of the Serialized
+     * @param serObj contains the serialized object
+     * @return true on success
+     */
+    bool Deserialize(const lbcrypto::Serialized& serObj);
+    
+    
     static const std::string IntegerTypeName() { return "NTL"; }
 
 

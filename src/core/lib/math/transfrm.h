@@ -68,11 +68,10 @@ namespace lbcrypto {
 
 		auto modulus = element.GetModulus();
 
-		//Precompute the Barrett mu parameter
 #if MATHBACKEND != 6
+		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
 #endif
-
 		if( result->GetLength() != n )
 			throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 		result->SetModulus(modulus);

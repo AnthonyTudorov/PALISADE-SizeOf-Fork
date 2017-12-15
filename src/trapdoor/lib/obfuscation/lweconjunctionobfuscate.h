@@ -39,6 +39,9 @@
 #include "lattice/ilelement.h"
 #include "../sampling/trapdoor.h"
 
+#include "utils/serializable.h"
+#include "utils/serializablehelper.h"
+
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -50,7 +53,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element> {
+	  class ClearLWEConjunctionPattern : public ClearPattern<Element>, public ConjunctionPattern<Element>, public Serializable {
 	public:
 
 		/**
@@ -73,8 +76,17 @@ namespace lbcrypto {
 		std::string GetPatternString() const;
 
 		/**
+		* Method to set the pattern's string representation.
+		* Used mostly for debugging.
+		*
+		* @param patternString the string the plaintext pattern.
+		* @return void
+		*/
+		void SetPatternString(const std::string patternString);
+
+		/**
 		* Gets character at a specific location
-		* @param index the index of the pattern to return a value for.
+		* @param index the index into the pattern 
 		* @return the character at an index
 		*/
 		char GetIndex(usint index) const;
@@ -84,12 +96,39 @@ namespace lbcrypto {
 		* @return the length of the pattern.
 		*/
 		usint GetLength() const;
+
+		
+		/**
+		 * @brief Serialize the object into a Serialized
+		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @return true if successfully serialized
+		 */
+		bool Serialize(Serialized* serObj) const;
+
+		/**
+		 * @brief Populate the object from the deserialization of the Setialized
+		 * @param serObj contains the serialized object
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized& serObj);
+
+		/**
+		 * @brief ostream operator
+		 * @param os the input preceding output stream
+		 * @param vec the element to add to the output stream.
+		 * @return a resulting concatenated output stream
+		 */
+		friend inline std::ostream& operator<<(std::ostream& os, const ClearLWEConjunctionPattern & pat) {
+		  os << pat.GetPatternString();
+		  return os;
+		}
+		
 	private:
 		// stores the local instance of the pattern string
 		std::string m_patternString;
 	};
-
-
+	
+	
 	/**
 	 * @brief Class for obfuscated patterns
 	 * @tparam Element a ring element.
@@ -280,6 +319,65 @@ namespace lbcrypto {
 			* @param base to be set;
 			*/
 			void SetBase(usint base) { m_base = base; }
+
+
+
+		
+			/**
+			 * @brief Serialize the object into a Serialized
+			 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			 * @return true if successfully serialized
+			 */
+			bool Serialize(Serialized* serObj) const;
+
+			/**
+			 * @brief Populate the object from the deserialization of the Setialized
+			 * @param serObj contains the serialized object
+			 * @return true on success
+			 */
+			bool Deserialize(const Serialized& serObj);
+
+						/**
+			 * @brief Compare this with another pattern object
+			 * @param b pattern object to compare
+			 * @return true on success
+			 */
+			bool Compare(const ObfuscatedLWEConjunctionPattern& b);
+
+			/**
+			 * @brief ostream operator
+			 * @param os the input preceding output stream
+			 * @param vec the element to add to the output stream.
+			 * @return a resulting concatenated output stream
+			 */
+			friend inline std::ostream& operator<<(std::ostream& os, const ObfuscatedLWEConjunctionPattern & pat) {
+
+			  //length of the pattern
+			  os << "Length: "<<pat.GetLength() <<";";
+			  os << "elemParams: "<< *(pat.GetParameters()) <<";";
+#if 0
+			shared_ptr<typename Element::Params> m_elemParams;
+
+			//lattice security parameter
+			double m_rootHermiteFactor;
+
+			//number of bits encoded by one matrix
+			usint m_chunkSize;
+
+			//base for G-sampling
+			usint m_base;
+
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+			shared_ptr<Matrix<Element>> m_Sl;
+			shared_ptr<Matrix<Element>> m_Rl;
+
+			shared_ptr<std::vector<Matrix<Element>>> m_pk;
+			shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+
+#endif
+			  return os;
+			}
 
 		private:
 

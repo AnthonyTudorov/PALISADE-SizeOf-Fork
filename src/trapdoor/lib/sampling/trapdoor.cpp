@@ -80,7 +80,10 @@ namespace lbcrypto {
 	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
 		const RLWETrapdoorPair<Element>& T, const Element &u,
 		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int32_t base){
-
+                bool dbg_flag = false;
+		TimeVar t1, t1_tot, t2, t2_tot, t3, t3_tot;
+		TIC(t1);
+		TIC(t1_tot);
 		const shared_ptr<typename Element::Params> params = u.GetParams();
 		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
 
@@ -93,27 +96,38 @@ namespace lbcrypto {
 
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, k + 2, 1));
-
+		DEBUG("t1a: "<<TOC(t1));
+		TIC(t1);
 		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
-
+		DEBUG("t1b: "<<TOC(t1)); //this takes the most time 61
+		TIC(t1);
 		// It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
-
+		DEBUG("t1c: "<<TOC(t1)); //takes 2
+		TIC(t1);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
-
+		DEBUG("t1d: "<<TOC(t1)); //takes 0
+		DEBUG("t1: "<<TOC(t1_tot));//takes 64
+		TIC(t2);
+		TIC(t2_tot);
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
-
+		DEBUG("t2a: "<<TOC(t2)); //takes 1
+		TIC(t2);
 		LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
-
+		DEBUG("t2b: "<<TOC(t2)); //takes 36
+		TIC(t2);
 		// Convert zHat from a matrix of BBI to a vector of Element ring elements
 		// zHat is in the coefficient representation
 		Matrix<Element> zHat = SplitInt32AltIntoElements<Element>(zHatBBI, n, params);
 
+		DEBUG("t2c: "<<TOC(t2)); //takes 0
 		// Now converting it to the evaluation representation before multiplication
 		zHat.SwitchFormat();
-
+		DEBUG("t2d: "<<TOC(t2)); //takes 17
+		DEBUG("t2: "<<TOC(t2_tot));
+		//TIC(t3); seems trivial 
 		Matrix<Element> zHatPrime(zero_alloc, k + 2, 1);
 
 		zHatPrime(0, 0) = (*pHat)(0, 0) + T.m_e.Mult(zHat)(0, 0);
@@ -121,7 +135,7 @@ namespace lbcrypto {
 
 		for (size_t row = 2; row < k + 2; ++row)
 			zHatPrime(row, 0) = (*pHat)(row, 0) + zHat(row - 2, 0);
-
+		//DEBUG("t3: "<<TOC(t3));
 		//This code is helpful in tightening parameter constraints
 
 		//zHatPrime(0, 0).SwitchFormat();
@@ -164,7 +178,7 @@ namespace lbcrypto {
 		//zHat(0, 0).SwitchFormat();
 
 		//std::cout << "zHat=" << zHat2.Norm() << std::endl;
-
+		
 		return zHatPrime;
 
 	}
@@ -241,7 +255,11 @@ namespace lbcrypto {
 		const RLWETrapdoorPair<Element>& Tprime,
 		const typename Element::DggType &dgg, const typename Element::DggType &dggLargeSigma,
 		shared_ptr<Matrix<Element>> perturbationVector) {
+		bool dbg_flag = false;
+		TimeVar t1, t2, t3, t1_tot, t2_tot, t3_tot;
 
+		TIC(t1);
+		TIC(t1_tot);
 		Matrix<Element> Tprime0 = Tprime.m_e;
 		Matrix<Element> Tprime1 = Tprime.m_r;
 
@@ -249,7 +267,8 @@ namespace lbcrypto {
 		size_t k = Tprime0.GetCols();
 
 		const shared_ptr<typename Element::Params> params = Tprime0(0, 0).GetParams();
-
+		DEBUG("z1a: "<<TOC(t1)); //0
+		TIC(t1);
 		// all three Polynomials are initialized with "0" coefficients
 		Element va(params, EVALUATION, 1);
 		Element vb(params, EVALUATION, 1);
@@ -260,11 +279,17 @@ namespace lbcrypto {
 			vb = vb + Tprime1(0, i)*Tprime0(0, i).Transpose();
 			vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
 		}
+		DEBUG("z1b: "<<TOC(t1)); //9
+		TIC(t1);
 
 		//Switch the ring elements (Polynomials) to coefficient representation
 		va.SwitchFormat();
 		vb.SwitchFormat();
 		vd.SwitchFormat();
+
+		DEBUG("z1c: "<<TOC(t1));  //5
+		TIC(t1);
+
 
 		//Create field elements from ring elements
 		Field2n a(va), b(vb), d(vd);
@@ -277,11 +302,15 @@ namespace lbcrypto {
 
 		a = a + s*s;
 		d = d + s*s;
+		DEBUG("z1d: "<<TOC(t1)); //0
+		TIC(t1);
 
 		//converts the field elements to DFT representation
 		a.SwitchFormat();
 		b.SwitchFormat();
 		d.SwitchFormat();
+		DEBUG("z1e: "<<TOC(t1)); //0
+		TIC(t1);
 
 		Matrix<int64_t> p2ZVector([]() { return make_unique<int64_t>(); }, n*k, 1);
 
@@ -307,20 +336,33 @@ namespace lbcrypto {
 			}
 
 		}
+		DEBUG("z1f1: "<<TOC(t1));
+		TIC(t1);
 
 		//create k ring elements in coefficient representation
 		Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
+		DEBUG("z1f2: "<<TOC(t1));
+		TIC(t1);
 
 		//now converting to evaluation representation before multiplication
 		p2.SwitchFormat();
 
+		DEBUG("z1g: "<<TOC(t1));  //17
+		TIC(t1);
+
 		Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
+		DEBUG("z1h1: "<<TOC(t1)); 
+		TIC(t1);
 
 		//the dimension is 2x1 - a vector of 2 ring elements
 		Matrix<Element> Tp2 = TprimeMatrix * p2;
 
+		DEBUG("z1h2: "<<TOC(t1)); 
+		TIC(t1);
 		//change to coefficient representation before converting to field elements
 		Tp2.SwitchFormat();
+		DEBUG("z1h3: "<<TOC(t1)); 
+		TIC(t1);
 
 		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
 
@@ -328,16 +370,28 @@ namespace lbcrypto {
 		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
 		shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return make_unique<int64_t>(); }, n * 2, 1));
+		DEBUG("z1i: "<<TOC(t1)); 
+		TIC(t1);
 
 		LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
+		DEBUG("z1j1: "<<TOC(t1)); //14
+		TIC(t1);
 
 		//create 2 ring elements in coefficient representation
 		Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
+		DEBUG("z1j2: "<<TOC(t1)); 
+		TIC(t1);
 
 		//Converts p1 to Evaluation representation
 		p1.SwitchFormat();
+		DEBUG("z1j3: "<<TOC(t1)); 
+		TIC(t1);
 
 		*perturbationVector = p1.VStack(p2);
+		DEBUG("z1j4: "<<TOC(t1)); 
+		TIC(t1);
+		DEBUG("z1tot: "<<TOC(t1_tot)); 
+
 
 	}
 

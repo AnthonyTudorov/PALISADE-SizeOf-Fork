@@ -952,7 +952,6 @@ template<class ubint_el_t>
 
 
   //new serialize and deserialise operations
-  //todo: not tested just added to satisfy compilier
   //currently using the same map as bigVector, with modulus. 
  // serialize and deserialise operations
   template<class ubint_el_t>
@@ -993,7 +992,7 @@ template<class ubint_el_t>
       std::string pkBufferString = "";
       for (size_t i = 0; i < pkVectorLength; i++) {
 	DEBUG("element "<<i<<" "<<this->m_data[i]);
-	std::string tmp = this->m_data[i].Serialize(this->GetModulus());
+	std::string tmp = this->m_data[i].SerializeToString(this->GetModulus());
 	pkBufferString += tmp;
       }
       DEBUG("add VectorValues");
@@ -1078,7 +1077,7 @@ template<class ubint_el_t>
 	return false; // premature end of vector
       }
       DEBUG("loop "<<ePos<<" vp before is size "<<strlen(vp));
-      vp = vectorElem.Deserialize(vp, bbiModulus); //decode element
+      vp = vectorElem.DeserializeFromString(vp, bbiModulus); //decode element
       DEBUG("vp after is size "<<strlen(vp));
       newVec[ePos] = vectorElem;//store it
     }

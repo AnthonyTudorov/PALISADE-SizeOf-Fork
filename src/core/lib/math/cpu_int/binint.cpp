@@ -29,6 +29,7 @@ Description:
 */
 
 #include "../backend.h"
+#include "../../utils/serializable.h"
 #include "../../utils/debug.h"
 
 #if defined(_MSC_VER)
@@ -471,7 +472,7 @@ BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator>>=(u
  * We preface with a base64 encoding of the length, followed by a sign (to delineate length from number)
  */
 template<typename uint_type,usint BITLENGTH>
-const std::string BigInteger<uint_type,BITLENGTH>::Serialize(const BigInteger& modulus) const {
+const std::string BigInteger<uint_type,BITLENGTH>::SerializeToString(const BigInteger& modulus) const {
 
 	// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
 	bool isneg = false;
@@ -510,7 +511,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::Serialize(const BigInteger& m
 }
 
 template<typename uint_type, usint BITLENGTH>
-const char *BigInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const BigInteger& modulus){
+const char *BigInteger<uint_type, BITLENGTH>::DeserializeFromString(const char *str, const BigInteger& modulus){
 
 	// first decode the length
 	uint32_t len = 0;
@@ -543,6 +544,44 @@ const char *BigInteger<uint_type, BITLENGTH>::Deserialize(const char *str, const
 }
 
 
+template<typename uint_type, usint BITLENGTH>
+bool BigInteger<uint_type, BITLENGTH>::Serialize(lbcrypto::Serialized* serObj) const{
+    
+    if( !serObj->IsObject() )
+      return false;
+    
+    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+    
+    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+    return true;
+    
+  }
+  
+template<typename uint_type, usint BITLENGTH>
+bool BigInteger<uint_type, BITLENGTH>::Deserialize(const lbcrypto::Serialized& serObj){
+  //find the outer name
+  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
+  if( mIter == serObj.MemberEnd() )//not found, so fail
+    return false;
+  
+  lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
+  
+  //is this the correct integer type?
+  if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
+    return false;
+  if( IntegerTypeName() != vIt->value.GetString() )
+    return false;
+  
+  //find the value
+  if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
+    return false;
+  //assign the value found
+  AssignVal(vIt->value.GetString());
+  return true;
+}
+  
 template<typename uint_type,usint BITLENGTH>
 usshort BigInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
@@ -732,16 +771,16 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 	uint_type ceilIntB = ceilIntByUInt(B->m_MSB);
 
 	//counter
-	int i;
+	size_t i;
         // DTS: watch sign/unsign compare!!!!
-	for(i=m_nSize-1;i>=(int)(m_nSize-ceilIntB);i--){
+	for(i=m_nSize-1;i>=m_nSize-ceilIntB;i--){
 		ofl =(Duint_type)A->m_value[i]+ (Duint_type)B->m_value[i]+ofl;//sum of the two apint and the carry over
 		this->m_value[i] = (uint_type)ofl;
 		ofl>>=m_uintBitLength;//current overflow
 	}
 
 	if(ofl){
-		for(;i>=(int)(m_nSize-ceilIntA);i--){
+		for(;i>=(m_nSize-ceilIntA);i--){
 			ofl = (Duint_type)A->m_value[i]+ofl;//sum of the two int and the carry over
 			this->m_value[i] = (uint_type)ofl;
 			ofl>>=m_uintBitLength;//current overflow
@@ -757,7 +796,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::operator
 		}
 	}
 	else{
-		for(;i>=(int)(m_nSize-ceilIntA);i--) {
+		for(;i>=(m_nSize-ceilIntA);i--) {
 			this->m_value[i] = A->m_value[i];
 		}
 		this->m_MSB = (m_nSize-i-2)*m_uintBitLength;
@@ -1627,6 +1666,48 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModExp(const Bi
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+const std::string BigInteger<uint_type,BITLENGTH>::ToString() const {
+
+	//this string object will store this BigInteger's value
+	std::string bbiString;
+
+	usint counter;
+
+	//print_VALUE array stores the decimal value in the array
+	uschar *print_VALUE = new uschar[m_numDigitInPrintval];
+
+	//reset to zero
+	for(size_t i=0;i<m_numDigitInPrintval;i++)
+		*(print_VALUE+i)=0;
+
+	//starts the conversion from base r to decimal value
+	for(size_t i=this->m_MSB;i>0;i--){
+
+		//print_VALUE = print_VALUE*2
+		BigInteger<uint_type,BITLENGTH>::double_bitVal(print_VALUE);	
+
+		//adds the bit value to the print_VALUE
+		BigInteger<uint_type,BITLENGTH>::add_bitVal(print_VALUE,this->GetBitAtIndex(i));
+
+
+	}
+
+	//find the first occurrence of non-zero value in print_VALUE
+	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
+		if((sint)print_VALUE[counter]!=0)break;							
+	}
+
+	//append this BigInteger's digits to this method's returned string object
+	for (; counter < m_numDigitInPrintval; counter++) {
+		bbiString += std::to_string(print_VALUE[counter]);
+	}
+
+	delete [] print_VALUE;
+
+	return bbiString;
+}
+
 //Compares the current object with the BigInteger a.
 //Uses MSB comparision to output requisite value.
 template<typename uint_type,usint BITLENGTH>
@@ -1989,7 +2070,6 @@ template<typename uint_type,usint BITLENGTH>
 	}
  }
 
-
 template<typename uint_type,usint BITLENGTH>
 uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	bool dbg_flag = false;
@@ -2070,5 +2150,4 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::intToBigInteger
 }
 
 template class BigInteger<integral_dtype,BigIntegerBitLength>;
-
 } // namespace cpu_int ends

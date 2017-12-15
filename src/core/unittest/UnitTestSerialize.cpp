@@ -60,7 +60,7 @@ protected:
   }
 };
 
-TEST(UTSer,cpu_int){
+TEST(UTSer,bigint){
 	bool dbg_flag = false;
 	BigInteger small(7);
 	BigInteger medium(1ULL<<27 | 1ULL<<22);
@@ -70,16 +70,16 @@ TEST(UTSer,cpu_int){
 	string ser;
 	BigInteger deser;
 
-	ser = small.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = small.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
 
-	ser = medium.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = medium.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
 
-	ser = larger.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = larger.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 
 	if (dbg_flag){
@@ -87,11 +87,11 @@ TEST(UTSer,cpu_int){
 	  DEBUGEXP(deser.GetInternalRepresentation());
 	}
 
-	ser = yooge.Serialize();
+	ser = yooge.SerializeToString();
 
 	DEBUG("SER "<<ser);
 
-	deser.Deserialize(ser.c_str());
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(yooge, deser) << "Yooge integer ser/deser fails";
 }
 
@@ -103,20 +103,20 @@ TEST(UTSer,native_int){
 	string ser;
 	NativeInteger deser;
 
-	ser = small.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = small.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(small, deser) << "Small integer ser/deser fails";
 
-	ser = medium.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = medium.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(medium, deser) << "Medium integer ser/deser fails";
 
-	ser = larger.Serialize();
-	deser.Deserialize(ser.c_str());
+	ser = larger.SerializeToString();
+	deser.DeserializeFromString(ser.c_str());
 	EXPECT_EQ(larger, deser) << "Larger integer ser/deser fails";
 }
 
-TEST(UTSer,vector_of_cpu_int){
+TEST(UTSer,vector_of_bigint){
 	bool dbg_flag = false;
 	const int vecsize = 100;
 
@@ -241,5 +241,152 @@ TEST(UTSer,ildcrtpoly_test) {
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << "Deserialization failed";
 
 	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
+
+}
+TEST(UTSer,serialize_vector_bigint){
+  //Serialize/DeserializeVector is a helper function to test
+  //note the object has to be created outside of the function. 
+  bool dbg_flag = false;
+  const int vecsize = 1024;
+  
+  DEBUG("step 0");
+  const BigInteger mod((uint64_t)1<<40);
+  DEBUG("step 1");
+
+  vector<BigInteger>testvec(vecsize);
+  DEBUG("step 2");
+  Poly::DugType	dug;
+  DEBUG("step 3");
+  dug.SetModulus(mod);
+  BigInteger ranval;
+  const std::string BBITypeName = ranval.IntegerTypeName();
+  
+  for( int i=0; i<vecsize; i++ ) {
+    ranval = dug.GenerateInteger();
+    testvec.push_back(ranval);
+  }
+  
+  DEBUG("step 4");
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
+
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVector<BigInteger>("Vector", "BigIntegerImpl", testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVector", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+
+  DEBUG("step 5");
+  
+  vector <BigInteger>newvec;
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVector");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVector";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Vector");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Vector";
+  DEBUG("step 8");
+
+  DeserializeVector<BigInteger>("Vector", "BigIntegerImpl", mIter, &newvec);
+
+    
+  DEBUG("step 9");
+  EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
+}
+
+
+TEST(UTSer,serialize_matrix_bigint){
+  bool dbg_flag = false;
+  //dimensions of matrix. 
+  const int nrows = 4;
+  const int ncols = 8;
+
+  
+  DEBUG("step 0");
+  const BigInteger mod((uint64_t)1<<40);
+
+  DEBUG("step 1");
+  Matrix<BigInteger> testmat(BigInteger::Allocator, nrows, ncols);
+
+  DEBUG("step 2");
+  Poly::DugType	dug;
+
+  DEBUG("step 3");
+  dug.SetModulus(mod);
+  BigInteger ranval;
+
+  //load up the matix with random values
+  for(size_t i=0; i<nrows; i++ ) {
+    for(size_t j=0; j<ncols; j++ ) {
+      ranval = dug.GenerateInteger();
+      testmat(i,j) = ranval;
+    }
+  }
+  
+  //build the top level serial object
+  Serialized serObj;
+  serObj.SetObject();
+
+  //build the object to hold the matrix
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+  DEBUG("step 4");
+  //serialize the Matrix
+
+  SerializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", testmat, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestMatrix", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+  DEBUG("step 5");
+
+  //have to make a shared newmatP
+  ///auto newmatP = std::make_shared<Matrix<BigInteger>> (BigInteger::Allocator, 0, 0); //empty matrix
+  Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
+  auto newmatP = &newmat;
+  
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMatrix");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestMatrix";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Matrix");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Matrix";
+  DEBUG("step 8");
+
+  DeserializeMatrix<BigInteger>("Matrix", "BigIntegerImpl", mIter, newmatP);
+
+    
+  DEBUG("step 9");
+  EXPECT_EQ( testmat, *newmatP ) << "Mismatch after ser/deser";
 
 }

@@ -38,6 +38,23 @@ template<> const NativeInteger<uint64_t> NativeInteger<uint64_t>::FIVE = (5);
 template<> unique_ptr<NativeInteger<uint64_t>> NativeInteger<uint64_t>::Allocator() {
 	return lbcrypto::make_unique<NativeInteger<uint64_t>>();
 };
+  
+//helper template to stream vector contents provided T has an stream operator<< 
+template < typename T >
+ std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+{
+    os << "[";
+    //for (const auto itr : v){
+    for (auto i = v.begin(); i!= v.end(); ++i){
+      os << " " << *i;
+    }
+    os << " ]";
+    return os;
+ };
+
+
+  //to stream internal representation
+  template std::ostream& operator << <uint64_t>(std::ostream& os, const std::vector<uint64_t>& v);
 
 }
 

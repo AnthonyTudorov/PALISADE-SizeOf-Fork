@@ -81,8 +81,11 @@ namespace lbcrypto {
 	template bool IsGenerator(const NativeInteger& g, const NativeInteger& modulo);
 
 	template NativeInteger ComputeMu(const NativeInteger& q);
-
-	/*
+#if MATHBACKEND != 2
+  //TODO: figure out why this needs to be here at all for BE = 4,6
+  template cpu_int::BigInteger<integral_dtype,BigIntegerBitLength> ComputeMu(const cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>& q);
+#endif
+  /*
 		Generates a random number between 0 and n.
 		Input: BigInteger n.
 		Output: Randomly generated BigInteger between 0 and n.

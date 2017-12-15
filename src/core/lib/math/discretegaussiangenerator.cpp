@@ -196,10 +196,10 @@ namespace lbcrypto {
 			sint v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
-				ans.at(i)= modulus - IntType(v);
+				ans[i] = modulus - IntType(v);
 			}
 			else {
-			  ans.at(i)= IntType(v);
+			  ans[i] = IntType(v);
 			}
 		}
 

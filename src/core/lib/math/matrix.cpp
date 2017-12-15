@@ -294,20 +294,6 @@ void Matrix<Element>::deepCopyData(data_t const& src) {
     }
 }
 
-template<class Element>
-inline std::ostream& operator<<(std::ostream& os, const Matrix<Element>& m){
-    os << "[ ";
-    for (size_t row = 0; row < m.GetRows(); ++row) {
-        os << "[ ";
-        for (size_t col = 0; col < m.GetCols(); ++col) {
-            os << *m.GetData()[row][col] << " ";
-        }
-        os << "]\n";
-    }
-    os << " ]\n";
-    return os;
-}
-
 /*
  * Multiply the matrix by a vector of 1's, which is the same as adding all the
  * elements in the row together.
