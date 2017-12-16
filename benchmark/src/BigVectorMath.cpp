@@ -56,7 +56,7 @@ static void add_BigVec(benchmark::State& state) {
 	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigVector c1 = a+b;
+	a = a+b;
 }
 
 static void BM_BigVec_Addition(benchmark::State& state) { // benchmark
@@ -94,7 +94,7 @@ static void mult_BigVec(benchmark::State& state) {	// function
 	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigVector c1 = a*b;
+	a = a*b;
 }
 
 static void BM_BigVec_Multiplication(benchmark::State& state) { // benchmark
