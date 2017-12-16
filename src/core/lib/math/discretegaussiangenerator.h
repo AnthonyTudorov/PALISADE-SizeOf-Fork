@@ -96,7 +96,7 @@ public:
 
 	/**
 	* @brief      Returns a generated signed integer. Uses Peikert's Inversion Method
-	* @return     an schar value generated with the distribution.
+	* @return     a value generated with the distribution.
 	*/
 	sint GenerateInt () const;
 

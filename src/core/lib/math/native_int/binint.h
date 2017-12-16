@@ -170,7 +170,7 @@ public:
 	 *
 	 * @param bigInteger is the integer to be copied.
 	 */
-	NativeInteger(const NativeInteger& bigInteger) : m_value(bigInteger.m_value) {}
+	NativeInteger(const NativeInteger& nInteger) : m_value(nInteger.m_value) {}
 
 	/**
 	 * Assignment operator

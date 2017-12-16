@@ -103,9 +103,9 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 	// Encode source data
 	////////////////////////////////////////////////////////////
-	std::vector<uint32_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 	Plaintext plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);

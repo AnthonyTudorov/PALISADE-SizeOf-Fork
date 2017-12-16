@@ -70,8 +70,8 @@ int main() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1(phim);
-	std::vector<usint> vectorOfInts2(phim, 1);
+	std::vector<uint64_t> vectorOfInts1(phim);
+	std::vector<uint64_t> vectorOfInts2(phim, 1);
 	for (usint i=0; i<phim; i++){
 		vectorOfInts1[i] = i % 8;
 	}

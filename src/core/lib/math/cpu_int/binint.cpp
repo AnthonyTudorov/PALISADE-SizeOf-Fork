@@ -1193,7 +1193,7 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		for( sint i=0;i<arrSize;i++)
 			DEBUG("DecValue[" << i << "]=" << (int)DecValue[i]);
 
-	sshort zptr = 0;
+	int zptr = 0;
 	//index of highest non-zero number in decimal number
 	//define  bit register array
 	uschar *bitArr = new uschar[m_uintBitLength]();
@@ -1478,13 +1478,13 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(cons
 	BigInteger z(*this);
 	BigInteger q(*this);
 
-	uschar n = modulus.m_MSB;
+	usint n = modulus.m_MSB;
 	//level is set to the index between 0 and BARRET_LEVELS - 1
-	uschar level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
-	uschar gamma = (n*level)/BARRETT_LEVELS;
+	usint level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
+	usint gamma = (n*level)/BARRETT_LEVELS;
 
-	uschar alpha = gamma + 3;
-	schar beta = -2;
+	usint alpha = gamma + 3;
+	int beta = -2;
 
 	const BigInteger& mu = mu_arr[level];
 
@@ -1950,9 +1950,8 @@ sint BigInteger<uint_type,BITLENGTH>::Compare(const BigInteger& a) const
 		return 1;
 	if(this->m_MSB==a.m_MSB){
 		uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-		sshort testChar;
 		for(usint i=m_nSize-ceilInt;i< m_nSize;i++){
-			testChar = this->m_value[i]-a.m_value[i] ;
+			auto testChar = this->m_value[i]-a.m_value[i] ;
 			if(testChar<0)return -1;
 			else if(testChar>0)return 1;
 		}

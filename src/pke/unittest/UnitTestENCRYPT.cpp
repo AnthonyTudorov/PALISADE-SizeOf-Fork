@@ -82,7 +82,7 @@ GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
 
 template<typename Element>
 static void EncryptionScalar(const CryptoContext<Element> cc, const string& failmsg) {
-	uint32_t		value = 29;
+	uint64_t		value = 29;
 	Plaintext plaintext = cc->MakeScalarPlaintext(value);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
@@ -142,12 +142,12 @@ EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 	size_t intSize = cc->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
-	vector<uint32_t> intvec;
+	vector<uint64_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
 		intvec.push_back( rand() % ptm );
 	Plaintext plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
 
-	vector<int32_t> sintvec;
+	vector<int64_t> sintvec;
 	for( size_t ii=0; ii<intSize; ii++) {
 		int rnum = rand() % ptm;
 		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;

@@ -165,7 +165,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
@@ -261,12 +261,12 @@ void EvalMult() {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
 
-	std::vector<usint> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
+	std::vector<uint64_t> vectorOfInts2 = { 2,3,4,4,5,6,7,8,9,101 };
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	auto ciphertext2 = cc->Encrypt(kp.publicKey, intArray2);
@@ -359,7 +359,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
@@ -447,13 +447,13 @@ void ArbBVInnerProductPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1 \n\t" << intArray1 << std::endl;
 
 
-	std::vector<usint> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
+	std::vector<uint64_t> vectorOfInts2 = { 1,2,3,2,1,2,1,2,0,0 };
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2 \n\t" << intArray2 << std::endl;

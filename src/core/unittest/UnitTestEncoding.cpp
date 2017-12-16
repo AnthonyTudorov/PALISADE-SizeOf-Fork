@@ -75,10 +75,10 @@ TEST_F(UTEncoding,scalar_encoding) {
 	se2.Decode();
 	EXPECT_EQ( se2.GetScalarSignedValue(), valueSigned ) << "signed negative";
 
-	ScalarEncoding	se3(lp, ep, (int32_t)value);
+	ScalarEncoding	se3(lp, ep, (int64_t)value);
 	se3.Encode();
 	se3.Decode();
-	EXPECT_EQ( se3.GetScalarSignedValue(), (int32_t)value ) << "signed positive";
+	EXPECT_EQ( se3.GetScalarSignedValue(), (int64_t)value ) << "signed positive";
 }
 
 TEST_F(UTEncoding,coef_packed_encoding) {
@@ -118,11 +118,10 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 	EncodingParams ep(new EncodingParamsImpl(p,8));
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(lp, ep, vectorOfInts1);
 	se.Encode();
 	se.Decode();
-	//se.SetLength( vectorOfInts1.size() );
 	EXPECT_EQ( se.GetPackedValue(), vectorOfInts1 ) << "packed int";
 }
 

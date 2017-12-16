@@ -222,6 +222,7 @@ namespace lbcrypto {
 		 * @return is the result of the modulus exponentiation operation.
 		 */
 		virtual T ModExp(const T& b, const T& modulus) const = 0;
+			// FIXME there is no ModExpEq -- is it needed?
 
 		/**
 		 * returns the modulus inverse with respect to the input value.
@@ -230,6 +231,7 @@ namespace lbcrypto {
 		 * @return is the result of the modulus inverse operation.
 		 */
 		virtual T ModInverse(const T& modulus) const = 0;
+			// FIXME there is no ModInverseEq -- is it needed?
 
 		/**
 		 * returns the Barrett modulus with respect to the input modulus and the Barrett value.
@@ -239,6 +241,7 @@ namespace lbcrypto {
 		 * @return is the result of the modulus operation.
 		 */
 		virtual T ModBarrett(const T& modulus, const T& mu) const = 0;
+			// FIXME there is no ModBarrettEq -- is it needed?
 
 		/**
 		 * Scalar Barrett modulus multiplication.
@@ -249,6 +252,7 @@ namespace lbcrypto {
 		 * @return is the result of the modulus multiplication operation.
 		 */
 		virtual T ModBarrettMul(const T& b, const T& modulus,const T& mu) const = 0;
+			// FIXME there is no ModBarrettMulEq -- is it needed?
 
 		////bit shifting operators
 
@@ -323,14 +327,12 @@ namespace lbcrypto {
 		 */
 		virtual usint GetDigitAtIndexForBase(usint index, usint base) const = 0;
 
-#if 0
 		/**
 		 * Convert the value to an int.
 		 *
 		 * @return the int representation of the value.	  
 		 */
 		virtual uint64_t ConvertToInt() const = 0;
-#endif
 
 		//// relational operators
 		virtual bool operator==(const T& a) const = 0;
@@ -557,16 +559,14 @@ public:
 		T operator*(const T &b) const { return this->ModMul(b); }
 		const T& operator*=(const T &b) { return this->ModMulEq(b); }
 
-#if 0
 		/**
 		 * Vector Modulus operator.
 		 *
 		 * @param modulus is the modulus to perform on the current vector entries.
 		 * @return a new vector after the modulus operation on current vector.
 		 */
-		T Mod(const T::BVInt& modulus) const;
-
-		//scalar operations
+		virtual T Mod(const I& modulus) const = 0;
+			// FIXME there is no ModEq -- is it needed
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -574,14 +574,16 @@ public:
 		 * @param &b is the scalar to exponentiate at all locations.
 		 * @return a new vector which is the result of the modulus exponentiation operation.
 		 */
-		T ModExp(const T::BVInt &b) const;
+		virtual T ModExp(const I& b) const = 0;
+			// FIXME there is no ModExpEq -- is it needed
 
 		/**
 		 * Modulus inverse.
 		 *
 		 * @return a new vector which is the result of the modulus inverse operation.
 		 */
-		T ModInverse() const;
+		virtual T ModInverse() const = 0;
+			// FIXME there is no ModInverseEq -- is it needed
 
 		//Vector Operations
 
@@ -590,9 +592,8 @@ public:
 		*
 		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 		*/
-		T ModByTwo() const;
-
-#endif
+		virtual T ModByTwo() const = 0;
+			// FIXME there is no ModByTwoEq -- is it needed
 
 #if 0
 		//component-wise multiplication

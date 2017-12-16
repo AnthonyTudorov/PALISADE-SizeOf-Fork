@@ -919,9 +919,9 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	Plaintext MakeScalarPlaintext(uint32_t value, bool isSigned = false) const {
+	Plaintext MakeScalarPlaintext(uint64_t value, bool isSigned = false) const {
 		if( isSigned )
-			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int32_t)value ) );
+			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int64_t)value ) );
 		else
 			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
@@ -950,7 +950,7 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	Plaintext MakeCoefPackedPlaintext(const vector<uint32_t>& value, bool isSigned = false) const {
+	Plaintext MakeCoefPackedPlaintext(const vector<uint64_t>& value, bool isSigned = false) const {
 		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
@@ -959,7 +959,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeCoefPackedPlaintext(const vector<int32_t>& value) const {
+	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
 		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -969,7 +969,7 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<uint32_t>& value, bool isSigned = false) const {
+	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<uint64_t>& value, bool isSigned = false) const {
 		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
 	}
 
@@ -978,7 +978,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int32_t>& value) const {
+	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
 		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -987,7 +987,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakePackedPlaintext(const vector<uint32_t>& value) const {
+	Plaintext MakePackedPlaintext(const vector<uint64_t>& value) const {
 		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -996,7 +996,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakePackedPlaintext(const std::initializer_list<uint32_t>& value) const {
+	Plaintext MakePackedPlaintext(const std::initializer_list<uint64_t>& value) const {
 		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 

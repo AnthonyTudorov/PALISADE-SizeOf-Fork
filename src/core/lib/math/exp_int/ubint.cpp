@@ -2280,13 +2280,13 @@ return result;
 	ubint z(*this);
 	ubint q(*this);
 
-	uschar n = modulus.m_MSB;
+	usint n = modulus.m_MSB;
 	//level is set to the index between 0 and BARRET_LEVELS - 1
-	uschar level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
-	uschar gamma = (n*level)/BARRETT_LEVELS;
+	usint level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
+	usint gamma = (n*level)/BARRETT_LEVELS;
 
-	uschar alpha = gamma + 3;
-	schar beta = -2;
+	usint alpha = gamma + 3;
+	int beta = -2;
 
 	const ubint& mu = mu_arr[level];
 

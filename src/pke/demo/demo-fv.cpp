@@ -105,12 +105,12 @@ int main(int argc, char *argv[]) {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
-	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts4 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts5 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts6 = {1,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
+	std::vector<uint64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts3 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts4 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts5 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts6 = {1,0,0,0,0,0,0,0,0,0,0,0};
 
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);

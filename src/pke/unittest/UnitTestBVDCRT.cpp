@@ -73,7 +73,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1 = { 4,1,2,3 };
+	std::vector<uint64_t> vectorOfInts1 = { 4,1,2,3 };
 
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext intArrayNew;

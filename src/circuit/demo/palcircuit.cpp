@@ -290,8 +290,8 @@ main(int argc, char *argv[])
 		cc->Enable(LEVELEDSHE);
 
 		Plaintext ints[] = {
-				cc->MakeCoefPackedPlaintext({ 7 }),
-				cc->MakeCoefPackedPlaintext({ 3 })
+				cc->MakeCoefPackedPlaintext({ uint64_t(7) }),
+				cc->MakeCoefPackedPlaintext({ uint64_t(3) })
 		};
 
 		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
@@ -302,12 +302,12 @@ main(int argc, char *argv[])
 			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
 
 		vector<Ciphertext<DCRTPoly>> cipherVecs;
-		for( usint d = 0; d < 4; d++ )
-			for( usint i=1; i<10; i++ ){
+		for( uint64_t d = 0; d < 4; d++ )
+			for( uint64_t i=1; i<10; i++ ){
 				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
 			}
 
-		Matrix<Plaintext> mat([cc](){return make_unique<Plaintext>(cc->MakePackedPlaintext({0}));},mdim,mdim);
+		Matrix<Plaintext> mat([cc](){return make_unique<Plaintext>(cc->MakePackedPlaintext({uint64_t(0)}));},mdim,mdim);
 		usint mi=1;
 		for(usint r=0; r<mat.GetRows(); r++)
 			for(usint c=0; c<mat.GetCols(); c++) {
