@@ -52,13 +52,13 @@ protected:
 	}
 };
 
-// FIXME StSt PRE is broken
-//GENERATE_PKE_TEST_CASE(x, y, Poly, StSt, ORD, PTM)
-//GENERATE_PKE_TEST_CASE(x, y, NativePoly, StSt, ORD, PTM)
+// FIXME StSt will not work with NativePoly because the bits for q are too big for a NativeInteger
+//GENERATE_PKE_TEST_CASE_BITS(x, y, NativePoly, StSt, ORD, PTM, 80)
 
 #define GENERATE_TEST_CASES_FUNC(x,y,ORD,PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
+GENERATE_PKE_TEST_CASE_BITS(x, y, Poly, StSt, ORD, PTM, 80) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BV_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
@@ -81,9 +81,6 @@ GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
 
-// FIXME StSt please
-//static vector<string> AllSchemes( {"Null", "LTV", /*"StSt",*/ "BV", /*"FV",*/ "BFVrns"} );
-
 static const usint ORDER = 4096;
 static const usint PTMOD = 256;
 
@@ -92,7 +89,7 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 	size_t vecSize = cc->GetRingDimension();
 
 	auto randchar = []() -> char {
-        const char charset[] =
+		const char charset[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
