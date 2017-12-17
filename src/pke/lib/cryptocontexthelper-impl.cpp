@@ -108,14 +108,14 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 				0, 0, 1);
 
 	}
-	else if( parmtype == "BV" ) {
+	else if( parmtype == "BGV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
 				!getValueForName(s, "stDev", stDev) ) {
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextBV(parms,
+		return CryptoContextFactory<Element>::genCryptoContextBGV(parms,
 				stoul(plaintextModulus), stoul(relinWindow), stof(stDev));
 	}
 	else if( parmtype == "Null" ) {
@@ -167,8 +167,8 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 	else if (type == "LPCryptoParametersStehleSteinfeld") {
 		parmPtr = new LPCryptoParametersStehleSteinfeld<Element>();
 	}
-	else if (type == "LPCryptoParametersBV") {
-		parmPtr = new LPCryptoParametersBV<Element>();
+	else if (type == "LPCryptoParametersBGV") {
+		parmPtr = new LPCryptoParametersBGV<Element>();
 	}
 	else if (type == "LPCryptoParametersNull") {
 		parmPtr = new LPCryptoParametersNull<Element>();

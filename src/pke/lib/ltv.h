@@ -431,7 +431,7 @@ public:
 	*/
 	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const {
-		std::string errMsg = "LPAlgorithmPREBV::MultipartyDecrypt is not implemented for the LTV Scheme.";
+		std::string errMsg = "LPAlgorithmPREBGV::MultipartyDecrypt is not implemented for the BGV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
 };

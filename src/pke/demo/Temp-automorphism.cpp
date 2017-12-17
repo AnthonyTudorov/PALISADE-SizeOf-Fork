@@ -65,8 +65,8 @@ using namespace lbcrypto;
 //void LTVAutomorphismIntArray();
 void LTVAutomorphismPackedArray(usint i);
 void ArbLTVAutomorphismPackedArray(usint i);
-void BVAutomorphismPackedArray(usint i);
-void ArbBVAutomorphismPackedArray(usint i);
+void BGVAutomorphismPackedArray(usint i);
+void ArbBGVAutomorphismPackedArray(usint i);
 void FVAutomorphismPackedArray(usint i);
 void ArbFVAutomorphismPackedArray(usint i);
 void ArbFVAutomorphismPackedArray2n(usint i);
@@ -91,17 +91,17 @@ int main() {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
 	}
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		BVAutomorphismPackedArray(index);
+		BGVAutomorphismPackedArray(index);
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
-		ArbBVAutomorphismPackedArray(totientList[index]);
+		ArbBGVAutomorphismPackedArray(totientList[index]);
 	}
 
 	std::cout << "\n==============FV TESTS (EVALAUTOMORPHISM)================: " << std::endl;
@@ -180,7 +180,7 @@ void LTVAutomorphismPackedArray(usint i) {
 }
 
 
-void BVAutomorphismPackedArray(usint i) {
+void BGVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
 	BigInteger q("67108913");
@@ -191,7 +191,7 @@ void BVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, plaintextModulus, 1, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -265,7 +265,7 @@ void FVAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
-void ArbBVAutomorphismPackedArray(usint i) {
+void ArbBGVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 	usint p = 2333;
@@ -287,7 +287,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

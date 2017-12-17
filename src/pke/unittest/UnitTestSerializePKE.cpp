@@ -135,13 +135,13 @@ TEST_F(UTPKESer, StSt_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST_F(UTPKESer, BV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("BV2");
+TEST_F(UTPKESer, BGV_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("BGV2");
 	UnitTestContext<Poly>(cc);
 }
 
-TEST_F(UTPKESer, BV_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BV2", 3, 20);
+TEST_F(UTPKESer, BGV_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BGV2", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
@@ -165,7 +165,7 @@ TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-// REMAINDER OF THE TESTS USE BV AS A REPRESENTITIVE CONTEXT
+// REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, Keys_and_ciphertext) {
         bool dbg_flag = false;
 
@@ -191,7 +191,7 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
     	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-    	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+    	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
     	cc->Enable(ENCRYPTION|SHE);
 

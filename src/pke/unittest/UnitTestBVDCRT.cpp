@@ -38,7 +38,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UTBVDCRT : public ::testing::Test {
+class UTBGVDCRT : public ::testing::Test {
 protected:
 	void SetUp() {}
 
@@ -53,7 +53,7 @@ public:
 //FIXME this test might be redundant in other files; perhaps this entire file can go
 
 #if !defined(_MSC_VER)
-TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
+TEST_F(UTBGVDCRT, Poly_bgv_DCRT_MODREDUCE) {
 
 	usint m = 8;
 
@@ -65,7 +65,7 @@ TEST_F(UTBVDCRT, Poly_bv_DCRT_MODREDUCE) {
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(m, numOfTower, 48);
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(params, plaintextModulus, m, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(params, plaintextModulus, m, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);

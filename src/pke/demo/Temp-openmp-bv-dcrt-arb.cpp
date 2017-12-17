@@ -65,9 +65,9 @@ using namespace lbcrypto;
 
 //Poly tests
 void EvalMult();
-void ArbBVAutomorphismPackedArray(usint i);
+void ArbBGVAutomorphismPackedArray(usint i);
 void ArbNullAutomorphismPackedArray(usint i);
-void ArbBVInnerProductPackedArray();
+void ArbBGVInnerProductPackedArray();
 
 int main() {
 
@@ -96,17 +96,17 @@ int main() {
 	usint m = 22;
 	std::vector<usint> totientList = GetTotientList(m);
 
-	std::cout << "\n===========BV TESTS (EVALMULT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALMULT-ARBITRARY)===============: " << std::endl;
 	EvalMult();
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
-	ArbBVAutomorphismPackedArray(3);
+	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	ArbBGVAutomorphismPackedArray(3);
 
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 	ArbNullAutomorphismPackedArray(3);
 
-	std::cout << "\n===========BV TESTS (EVALINNER-PRODUCT-ARBITRARY)===============: " << std::endl;
-	ArbBVInnerProductPackedArray();
+	std::cout << "\n===========BGV TESTS (EVALINNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	ArbBGVInnerProductPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -115,7 +115,7 @@ int main() {
 }
 
 
-void ArbBVAutomorphismPackedArray(usint i) {
+void ArbBGVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 
@@ -179,7 +179,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	float stdDev = 4;
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -274,7 +274,7 @@ void EvalMult() {
 
 	float stdDev = 4;
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, p, 8, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -401,7 +401,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << intArrayNew << std::endl;
 }
 
-void ArbBVInnerProductPackedArray() {
+void ArbBGVInnerProductPackedArray() {
 
 	float stdDev = 4;
 
@@ -460,7 +460,7 @@ void ArbBVInnerProductPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 8, stdDev);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

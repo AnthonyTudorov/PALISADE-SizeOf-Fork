@@ -38,13 +38,13 @@ using namespace std;
 using namespace lbcrypto;
 
 void ArbLTVInnerProductPackedArray();
-void ArbBVInnerProductPackedArray();
+void ArbBGVInnerProductPackedArray();
 void ArbFVInnerProductPackedArray();
 void ArbFVEvalMultPackedArray();
 
 int main() {
 
-	std::cout << "\nThis code demonstrates the use of packing on the FV, BV and LTV schemes. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of packing on the FV, BGV and LTV schemes. " << std::endl;
 	std::cout << "We show inner product operations for all schemes and a bit-packed EvalMult for the FV scheme. " << std::endl;
 	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
 	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
@@ -62,9 +62,9 @@ int main() {
 
 	ArbLTVInnerProductPackedArray();
 
-	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BGV scheme. ===============: " << std::endl;
 
-	ArbBVInnerProductPackedArray();
+	ArbBGVInnerProductPackedArray();
 
 
 	std::cout << "Please press any key to continue..." << std::endl;
@@ -73,7 +73,7 @@ int main() {
 	return 0;
 }
 
-void ArbBVInnerProductPackedArray() {
+void ArbBGVInnerProductPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -101,7 +101,7 @@ void ArbBVInnerProductPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

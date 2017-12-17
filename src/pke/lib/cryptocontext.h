@@ -2289,7 +2289,7 @@ public:
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BV Scheme
+	* construct a PALISADE CryptoContextImpl for the BGV Scheme
 	* @param plaintextmodulus
 	* @param ringdim
 	* @param modulus
@@ -2299,13 +2299,13 @@ public:
 	* @param mode
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+	static CryptoContext<Element> genCryptoContextBGV(shared_ptr<typename Element::Params> params,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BV Scheme
+	* construct a PALISADE CryptoContextImpl for the BGV Scheme
 	* @param encodingParams
 	* @param ringdim
 	* @param modulus
@@ -2315,7 +2315,7 @@ public:
 	* @param mode
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBV(shared_ptr<typename Element::Params> params,
+	static CryptoContext<Element> genCryptoContextBGV(shared_ptr<typename Element::Params> params,
 		EncodingParams encodingParams,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);

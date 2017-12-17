@@ -696,8 +696,8 @@ static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(string& parmst
 	if (parmstype == "LPCryptoParametersLTV") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersLTV<Element>());
 	}
-	else if (parmstype == "LPCryptoParametersBV") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBV<Element>());
+	else if (parmstype == "LPCryptoParametersBGV") {
+		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBGV<Element>());
 	}
 	else if (parmstype == "LPCryptoParametersFV") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersFV<Element>());
@@ -722,8 +722,8 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 	if (parmstype == "LPCryptoParametersLTV") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeLTV<Element>());
 	}
-	else if (parmstype == "LPCryptoParametersBV") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBV<Element>());
+	else if (parmstype == "LPCryptoParametersBGV") {
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBGV<Element>());
 	}
 	else if (parmstype == "LPCryptoParametersFV") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeFV<Element>());
@@ -1186,12 +1186,12 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
+CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode, int depth)
 {
-	shared_ptr<LPCryptoParametersBV<T>> params( new LPCryptoParametersBV<T>(
+	shared_ptr<LPCryptoParametersBGV<T>> params( new LPCryptoParametersBGV<T>(
 		ep,
 		plaintextmodulus,
 		stDev,
@@ -1201,19 +1201,19 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		mode, //Mode of noise generation
 		depth) );
 
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBV<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBGV<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
+CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
 	EncodingParams encodingParams,
 	usint relinWindow, float stDev,
 	MODE mode, int depth)
 {
-	shared_ptr<LPCryptoParametersBV<T>> params(new LPCryptoParametersBV<T>(
+	shared_ptr<LPCryptoParametersBGV<T>> params(new LPCryptoParametersBGV<T>(
 		ep,
 		encodingParams,
 		stDev,
@@ -1224,7 +1224,7 @@ CryptoContextFactory<T>::genCryptoContextBV(shared_ptr<typename T::Params> ep,
 		depth
 ));
 
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBV<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBGV<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }

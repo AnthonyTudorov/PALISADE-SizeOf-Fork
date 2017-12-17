@@ -51,14 +51,14 @@ protected:
 public:
 };
 
-usint BVCrossCorrelation();
+usint BGVCrossCorrelation();
 usint FVCrossCorrelation();
 usint BFVrnsCrossCorrelation();
 
 
-TEST_F(UTEvalCC, Test_BV_EvalCC) {
+TEST_F(UTEvalCC, Test_BGV_EvalCC) {
 
-	usint result = BVCrossCorrelation();
+	usint result = BGVCrossCorrelation();
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
@@ -83,7 +83,7 @@ TEST_F(UTEvalCC, Test_BFVrns_EvalCC) {
 
 }
 
-usint BVCrossCorrelation() {
+usint BGVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -108,7 +108,7 @@ usint BVCrossCorrelation() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

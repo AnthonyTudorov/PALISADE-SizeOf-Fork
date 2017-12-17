@@ -80,11 +80,11 @@ GenCryptoContextStSt(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits,
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextBV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT, MODE mode=RLWE) {
+GenCryptoContextBGV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT, MODE mode=RLWE) {
 
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
-	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextBV(p, ptm, 1, 4, mode);
+	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, mode);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -168,10 +168,10 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);
 	else if( name == "StSt" )
 		cc = CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
-	else if( name == "BV_rlwe" )
-		cc = CryptoContextFactory<Element>::genCryptoContextBV(p, ptm, 1, 4, RLWE);
-	else if( name == "BV_opt" )
-		cc = CryptoContextFactory<Element>::genCryptoContextBV(p, ptm, 1, 4, OPTIMIZED);
+	else if( name == "BGV_rlwe" )
+		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, RLWE);
+	else if( name == "BGV_opt" )
+		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, OPTIMIZED);
 	else if( name == "FV_rlwe" )
 		cc = GenCryptoContextFV<Element>(ORDER, ptm, bits, towers, RLWE);
 	else if( name == "FV_opt" )

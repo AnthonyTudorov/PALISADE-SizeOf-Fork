@@ -58,13 +58,13 @@ struct rationalInt {
 	rationalInt(usint n,usint d) :m_numerator(n), m_denominator(d) {}
 };
 
-rationalInt ArbBVLinearRegressionPackedArray();
+rationalInt ArbBGVLinearRegressionPackedArray();
 
 rationalInt ArbFVLinearRegressionPackedArray();
 
-TEST_F(UTEvalLR, Test_BV_EvalLR) {
+TEST_F(UTEvalLR, Test_BGV_EvalLR) {
 	
-	rationalInt result = ArbBVLinearRegressionPackedArray();
+	rationalInt result = ArbBGVLinearRegressionPackedArray();
 
 	rationalInt expectedResult(300,270);
 
@@ -82,7 +82,7 @@ TEST_F(UTEvalLR, Test_FV_EvalLR) {
 	EXPECT_EQ(result.m_denominator, expectedResult.m_denominator);
 }
 
-rationalInt ArbBVLinearRegressionPackedArray() {
+rationalInt ArbBGVLinearRegressionPackedArray() {
 
 	PackedEncoding::Destroy();
 
@@ -108,7 +108,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

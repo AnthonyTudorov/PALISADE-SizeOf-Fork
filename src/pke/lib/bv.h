@@ -1,5 +1,5 @@
 /**
- * @file bv.h -- Operations for the BV cryptoscheme.
+ * @file bgv.h -- Operations for the BGV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,7 +24,7 @@
  *
  */
  /*
- * This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
+ * This code implements the Brakerski-Vaikuntanathan (BGV) homomorphic encryption scheme.
  * The basic scheme is described here:
  *   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
  *      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
@@ -39,8 +39,8 @@
  */
 
 
-#ifndef LBCRYPTO_CRYPTO_BV_H
-#define LBCRYPTO_CRYPTO_BV_H
+#ifndef LBCRYPTO_CRYPTO_BGV_H
+#define LBCRYPTO_CRYPTO_BGV_H
 
 //Includes Section
 #include "palisade.h"
@@ -68,20 +68,20 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPCryptoParametersBV : public LPCryptoParametersRLWE<Element> {
+	class LPCryptoParametersBGV : public LPCryptoParametersRLWE<Element> {
 		public:
 
 			/**
 			 * Default Constructor.
 			 */
-			LPCryptoParametersBV() : LPCryptoParametersRLWE<Element>() {}
+			LPCryptoParametersBGV() : LPCryptoParametersRLWE<Element>() {}
 
 			/**
 			 * Copy constructor.
 			 *
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersBV(const LPCryptoParametersBV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+			LPCryptoParametersBGV(const LPCryptoParametersBGV &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
@@ -100,7 +100,7 @@ namespace lbcrypto {
 			 * @param mode sets the mode of operation: RLWE or OPTIMIZED
 			 * @param depth depth which is set to 1.
 			 */
-			LPCryptoParametersBV(
+			LPCryptoParametersBGV(
 				shared_ptr<typename Element::Params> params,
 				const PlaintextModulus &plaintextModulus,
 				float distributionParameter,
@@ -132,7 +132,7 @@ namespace lbcrypto {
 			* @param mode sets the mode of operation: RLWE or OPTIMIZED
 			* @param depth depth which is set to 1.
 			*/
-			LPCryptoParametersBV(
+			LPCryptoParametersBGV(
 				shared_ptr<typename Element::Params> params,
 				EncodingParams encodingParams,
 				float distributionParameter,
@@ -155,7 +155,7 @@ namespace lbcrypto {
 			/**
 			* Destructor.
 			*/
-			virtual ~LPCryptoParametersBV() {}
+			virtual ~LPCryptoParametersBGV() {}
 
 			/**
 			* Serialize the object into a Serialized
@@ -172,12 +172,12 @@ namespace lbcrypto {
 			bool Deserialize(const Serialized& serObj);
 
 			/**
-			* == operator to compare to this instance of LPCryptoParametersBV object.
+			* == operator to compare to this instance of LPCryptoParametersBGV object.
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
 			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersBV<Element> *el = dynamic_cast<const LPCryptoParametersBV<Element> *>(&rhs);
+				const LPCryptoParametersBGV<Element> *el = dynamic_cast<const LPCryptoParametersBGV<Element> *>(&rhs);
 
 				if (el == 0) return false;
 
@@ -192,7 +192,7 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Encryption algorithm implementation template for BV-based schemes.
+	* @brief Encryption algorithm implementation template for BGV-based schemes.
 	* The basic scheme is described here:
 	*   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
 	*      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
@@ -208,16 +208,16 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmBV : public LPEncryptionAlgorithm<Element> {
+	class LPAlgorithmBGV : public LPEncryptionAlgorithm<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmBV() {};
+		LPAlgorithmBGV() {};
 
 		/**
-		* Method for encrypting plaintext using BV Scheme
+		* Method for encrypting plaintext using BGV Scheme
 		*
 		* @param publicKey is the public key used for encryption.
 		* @param plaintext the plaintext input.
@@ -227,7 +227,7 @@ namespace lbcrypto {
 		Ciphertext<Element> Encrypt(const LPPublicKey<Element> publicKey, Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext using BV Scheme
+		* Method for encrypting plaintext using BGV Scheme
 		*
 		* @param privateKey is the private key used for encryption.
 		* @param plaintext the plaintext input.
@@ -237,7 +237,7 @@ namespace lbcrypto {
 		Ciphertext<Element> Encrypt(const LPPrivateKey<Element> privateKey, Element plaintext) const;
 
 		/**
-		* Method for decrypting plaintext using BV
+		* Method for decrypting plaintext using BGV
 		*
 		* @param &privateKey private key used for decryption.
 		* @param &ciphertext ciphertext id decrypted.
@@ -276,13 +276,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEBV : public LPSHEAlgorithm<Element> {
+	class LPAlgorithmSHEBGV : public LPSHEAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmSHEBV() {}
+		LPAlgorithmSHEBGV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -359,7 +359,7 @@ namespace lbcrypto {
 			const LPEvalKey<Element> ek) const;
 
 		/**
-		* Unimplemented function to support  a multiplication with depth larger than 2 for the BV scheme.
+		* Unimplemented function to support  a multiplication with depth larger than 2 for the BGV scheme.
 		*
 		* @param ciphertext1 The first input ciphertext.
 		* @param ciphertext2 The second input ciphertext.
@@ -369,19 +369,19 @@ namespace lbcrypto {
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 			const Ciphertext<Element> ciphertext2,
 			const vector<LPEvalKey<Element>> &ek) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalMultAndRelinearize is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::EvalMultAndRelinearize is not implemented for the BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
-		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the BV scheme.
+		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the BGV scheme.
 		*
 		* @param cipCount is the number of input ciphertext.
 		* @param evalKey The evaluation key input.
 		* @return A shared pointer to the ciphertext which is the result of the multiplication.
 		*/
 		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const vector<LPEvalKey<Element>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalMultMany is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::EvalMultMany is not implemented for the BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 		/**
@@ -426,7 +426,7 @@ namespace lbcrypto {
 			const Ciphertext<Element> cipherText) const;
 
 		/**
-		* Method for KeySwitching based on NTRU key generation and RLWE relinearization. Not used for BV.
+		* Method for KeySwitching based on NTRU key generation and RLWE relinearization. Not used for BGV.
 		* Function to generate 1..log(q) encryptions for each bit of the original private key
 		*
 		* @param &newPublicKey encryption key for the new ciphertext.
@@ -434,12 +434,12 @@ namespace lbcrypto {
 		*/
 		LPEvalKey<Element> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmSHEBV:KeySwitchRelinGen is not implemented for BV as relinearization is the default technique and no NTRU key generation is used in BV.";
+			std::string errMsg = "LPAlgorithmSHEBGV:KeySwitchRelinGen is not implemented for BGV as relinearization is the default technique and no NTRU key generation is used in BGV.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
-		* Method for KeySwitching based on NTRU key generation and RLWE relinearization. Not used for BV.
+		* Method for KeySwitching based on NTRU key generation and RLWE relinearization. Not used for BGV.
 		*
 		* @param evalKey the evaluation key.
 		* @param ciphertext the input ciphertext.
@@ -447,7 +447,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> KeySwitchRelin(const LPEvalKey<Element> evalKey,
 			const Ciphertext<Element> ciphertext) const {
-			std::string errMsg = "LPAlgorithmSHEBV:KeySwitchRelin is not implemented for BV as relinearization is the default technique and no NTRU key generation is used in BV.";
+			std::string errMsg = "LPAlgorithmSHEBGV:KeySwitchRelin is not implemented for BGV as relinearization is the default technique and no NTRU key generation is used in BGV.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -461,13 +461,13 @@ namespace lbcrypto {
 
 		/**
 		* Function to generate key switch hint on a ciphertext for depth more than 2.
-		* Currently this method is not supported for BV.
+		* Currently this method is not supported for BGV.
 		*
 		* @param originalPrivateKey is the original private key used for generating ciphertext.
 		* @return keySwitchHint generated to switch the ciphertext.
 		*/
 		vector<LPEvalKey<Element>> EvalMultKeysGen(const LPPrivateKey<Element> originalPrivateKey) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalMultKeysGen is not implemented for BV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::EvalMultKeysGen is not implemented for BGV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -503,14 +503,14 @@ namespace lbcrypto {
 		*/
 		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const {
-			std::string errMsg = "LPAlgorithmSHEBV::EvalAutomorphismKeyGen is not implemented for BV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::EvalAutomorphismKeyGen is not implemented for BGV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 	};
 
 	/**
-	* @brief PRE scheme based on BV.
+	* @brief PRE scheme based on BGV.
 	* The basic scheme is described here:
 	*   -  Brakerski Z., Vaikuntanathan V. (2011) Fully Homomorphic Encryption from Ring-LWE and Security for Key Dependent Messages. In: Rogaway P. (eds) Advances in Cryptology – CRYPTO 2011. CRYPTO 2011. Lecture Notes in Computer Science, vol 6841. Springer, Berlin, Heidelberg
 	*      (http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf) or alternative Internet source: (http://dx.doi.org/10.1007/978-3-642-22792-9_29).
@@ -525,13 +525,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmPREBV : public LPPREAlgorithm<Element> {
+	class LPAlgorithmPREBGV : public LPPREAlgorithm<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmPREBV() {}
+		LPAlgorithmPREBGV() {}
 
 		/**
 		* Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
@@ -554,7 +554,7 @@ namespace lbcrypto {
 		*/
 		LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmPREBV::ReKeyGen using a public key of the new secret key is not implemented for the BV Scheme.";
+			std::string errMsg = "LPAlgorithmPREBGV::ReKeyGen using a public key of the new secret key is not implemented for the BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -571,7 +571,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	 * @brief The multiparty homomorphic encryption capability for the BV scheme. A version of this multiparty scheme built on the BGV scheme is seen here:
+	 * @brief The multiparty homomorphic encryption capability for the BGV scheme. A version of this multiparty scheme built on the BGV scheme is seen here:
 	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
 	 *
 	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
@@ -586,13 +586,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmMultipartyBV : public LPMultipartyAlgorithm<Element> {
+	class LPAlgorithmMultipartyBGV : public LPMultipartyAlgorithm<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmMultipartyBV() {}
+		LPAlgorithmMultipartyBGV() {}
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
@@ -649,7 +649,7 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Concrete feature class for Leveled SHEBV operations. This class adds leveled (BGV scheme) features to the BV scheme.
+	* @brief Concrete feature class for Leveled SHEBGV operations. This class adds leveled (BGV scheme) features to the BGV scheme.
 	* 
 	* We use advances from the BGV scheme for levelled homomorphic capabilities from here:
 	*   - Brakerski Z., Gentry C., Halevi S. (2013) Packed Ciphertexts in LWE-Based Homomorphic Encryption. In: Kurosawa K., Hanaoka G. (eds) Public-Key Cryptography – PKC 2013. Lecture Notes in Computer Science, vol 7778. Springer, Berlin, Heidelberg
@@ -658,14 +658,14 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPLeveledSHEAlgorithmBV : public LPLeveledSHEAlgorithm<Element> {
+	class LPLeveledSHEAlgorithmBGV : public LPLeveledSHEAlgorithm<Element> {
 	public:
 		/**
 		* Default constructor
 		*/
-		LPLeveledSHEAlgorithmBV() {}
+		LPLeveledSHEAlgorithmBGV() {}
 
-		virtual ~LPLeveledSHEAlgorithmBV() {}
+		virtual ~LPLeveledSHEAlgorithmBGV() {}
 
 		/**
 		* Method for ModReducing CipherText.
@@ -676,19 +676,19 @@ namespace lbcrypto {
 		virtual Ciphertext<Element> ModReduce(Ciphertext<Element> cipherText) const;
 
 		/**
-		* Method for RingReducing CipherText. Not implemented for the BV/BGV scheme.
+		* Method for RingReducing CipherText. Not implemented for the BGV/BGV scheme.
 		*
 		* @param cipherText is the ciphertext to perform ringreduce on.
 		* @param keySwitchHint is the keyswitchhint to switch the ciphertext from original private key to a sparse private key.
 		*/
 		virtual Ciphertext<Element> RingReduce(Ciphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const {
 
-			std::string errMsg = "LPAlgorithmSHEBV::RindReduce is not currently implemented for the BV/BGV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::RindReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
-		* Method for Composed EvalMult, which includes homomorphic multiplication, key switching, and modulo reduction. Not implemented for the BV/BGV scheme.
+		* Method for Composed EvalMult, which includes homomorphic multiplication, key switching, and modulo reduction. Not implemented for the BGV/BGV scheme.
 		*
 		* @param cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
 		* @param cipherText2 cipherText2, second input ciphertext to perform multiplication on.
@@ -700,13 +700,13 @@ namespace lbcrypto {
 			const Ciphertext<Element> cipherText2,
 			const LPEvalKey<Element> quadKeySwitchHint) const
 		{
-			std::string errMsg = "LPAlgorithmSHEBV::ComposedEvalMult is not currently implemented for the BV/BGV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::ComposedEvalMult is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
 		* Method for Level Reduction from sk -> sk1. This method peforms a keyswitch on the ciphertext and then performs a modulus reduction.
-		* Not implemented for the BV/BGV scheme.
+		* Not implemented for the BGV/BGV scheme.
 		*
 		* @param cipherText1 is the original ciphertext to be key switched and mod reduced.
 		* @param linearKeySwitchHint is the linear key switch hint to perform the key switch operation.
@@ -715,13 +715,13 @@ namespace lbcrypto {
 		virtual Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
 			const LPEvalKey<Element> linearKeySwitchHint) const 
 		{
-			std::string errMsg = "LPAlgorithmSHEBV::LevelReduce is not currently implemented for the BV/BGV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::LevelReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
 		* Function that determines if security requirements are met if ring dimension is reduced by half.
-		* Not implemented for the BV/BGV scheme.
+		* Not implemented for the BGV/BGV scheme.
 		*
 		* @param ringDimension is the original ringDimension
 		* @param &moduli is the vector of moduli that is used
@@ -730,23 +730,23 @@ namespace lbcrypto {
 		*/
 		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const
 		{
-			std::string errMsg = "LPAlgorithmSHEBV::CanRingReduce is not currently implemented for the BV/BGV Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBGV::CanRingReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 	};
 
 
 	/**
-	* @brief Main public key encryption scheme for the BV/BGV implementation
+	* @brief Main public key encryption scheme for the BGV/BGV implementation
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPPublicKeyEncryptionSchemeBV : public LPPublicKeyEncryptionScheme<Element> {
+	class LPPublicKeyEncryptionSchemeBGV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeBV() : LPPublicKeyEncryptionScheme<Element>() {}
+		LPPublicKeyEncryptionSchemeBGV() : LPPublicKeyEncryptionScheme<Element>() {}
 
 		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
-			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBV<Element> *>(&sch) == 0 )
+			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBGV<Element> *>(&sch) == 0 )
 				return false;
 			return true;
 		}

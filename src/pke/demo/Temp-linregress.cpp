@@ -61,14 +61,14 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-void ArbBVLinearRegressionPackedArray();
+void ArbBGVLinearRegressionPackedArray();
 void ArbFVInnerProductPackedArray();
 
 int main() {
 
-	std::cout << "\n===========BV TESTS (LINEAR-REGRESSION-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (LINEAR-REGRESSION-ARBITRARY)===============: " << std::endl;
 
-	ArbBVLinearRegressionPackedArray();
+	ArbBGVLinearRegressionPackedArray();
 
 	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
@@ -80,7 +80,7 @@ int main() {
 	return 0;
 }
 
-void ArbBVLinearRegressionPackedArray() {
+void ArbBGVLinearRegressionPackedArray() {
 
 	PackedEncoding::Destroy();
 
@@ -116,7 +116,7 @@ void ArbBVLinearRegressionPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

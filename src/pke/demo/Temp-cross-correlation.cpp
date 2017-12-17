@@ -60,14 +60,14 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-void BVCrossCorrelation();
+void BGVCrossCorrelation();
 void FVCrossCorrelation();
 
 int main() {
 
-	std::cout << "\n===========BV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
-	BVCrossCorrelation();
+	BGVCrossCorrelation();
 
 	std::cout << "\n===========FV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
@@ -79,7 +79,7 @@ int main() {
 	return 0;
 }
 
-void BVCrossCorrelation() {
+void BGVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -104,7 +104,7 @@ void BVCrossCorrelation() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

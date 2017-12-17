@@ -61,7 +61,7 @@ protected:
 public:
 };
 
-class UTBVBATCHING : public ::testing::Test {
+class UTBGVBATCHING : public ::testing::Test {
 protected:
 	void SetUp() {}
 
@@ -92,7 +92,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(ep, 17, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 
@@ -148,7 +148,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 	std::vector<uint64_t> vectorOfIntsExpected = { 5,5,5,5 };
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(ep, 17, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(ep, 17, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -264,7 +264,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, p, 8, stdDev);
 	cc->Enable(ENCRYPTION);
 
 	// Initialize the public key containers.
@@ -299,7 +299,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	float stdDev = 4;
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -330,7 +330,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	EXPECT_EQ(intArrayNew->GetPackedValue(), vectorOfIntsAdd);
 }
 
-TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
+TEST_F(UTBGVBATCHING, Poly_EVALMULT_Arb) {
 	PackedEncoding::Destroy();
 
 	usint m = 22;
@@ -349,7 +349,7 @@ TEST_F(UTBVBATCHING, Poly_EVALMULT_Arb) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity, bigmodulus, bigroot));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, p, 1, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 

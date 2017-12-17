@@ -61,8 +61,8 @@ using namespace lbcrypto;
 #include <iterator>
 
 void ArbLTVEvalSumPackedArray();
-void ArbBVEvalSumPackedArray();
-void BVEvalSumPackedArray2n();
+void ArbBGVEvalSumPackedArray();
+void BGVEvalSumPackedArray2n();
 void ArbFVEvalSumPackedArray();
 
 int main() {
@@ -73,13 +73,13 @@ int main() {
 
 	ArbLTVEvalSumPackedArray();
 
-	std::cout << "\n===========BV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
 
-	ArbBVEvalSumPackedArray();
+	ArbBGVEvalSumPackedArray();
 
-	std::cout << "\n===========BV TESTS (EVALSUM-POWER-OF-TWO)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALSUM-POWER-OF-TWO)===============: " << std::endl;
 
-	BVEvalSumPackedArray2n();
+	BGVEvalSumPackedArray2n();
 
 	std::cout << "\n===========FV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
 
@@ -91,7 +91,7 @@ int main() {
 	return 0;
 }
 
-void ArbBVEvalSumPackedArray() {
+void ArbBGVEvalSumPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -119,7 +119,7 @@ void ArbBVEvalSumPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -146,7 +146,7 @@ void ArbBVEvalSumPackedArray() {
 
 }
 
-void BVEvalSumPackedArray2n() {
+void BGVEvalSumPackedArray2n() {
 
 	usint m = 32;
 	//usint phim = 1024;
@@ -165,7 +165,7 @@ void BVEvalSumPackedArray2n() {
 	usint relinWindow = 1;
 	float stdDev = 4;
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, relinWindow, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, relinWindow, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

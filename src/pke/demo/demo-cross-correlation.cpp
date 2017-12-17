@@ -168,7 +168,7 @@ void KeyGen()
 
 		float stdDev = 4;
 
-		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 24, stdDev);
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 24, stdDev);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);

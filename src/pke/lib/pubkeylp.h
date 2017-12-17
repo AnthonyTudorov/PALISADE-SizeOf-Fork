@@ -64,7 +64,7 @@ namespace lbcrypto {
 	class LPCryptoParametersLTV;
 
 	template<typename Element>
-	class LPCryptoParametersBV;
+	class LPCryptoParametersBGV;
 
 	template<typename Element>
 	class LPCryptoParametersFV;

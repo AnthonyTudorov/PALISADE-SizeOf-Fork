@@ -207,7 +207,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 	float stdDev = 4;
 
 	CryptoContext<DCRTPoly> cc =
-	    CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 30, stdDev);
+	    CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 30, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

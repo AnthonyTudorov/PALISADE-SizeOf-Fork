@@ -60,7 +60,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 void ArbLTVInnerProductPackedArray();
-void ArbBVInnerProductPackedArray();
+void ArbBGVInnerProductPackedArray();
 void ArbFVInnerProductPackedArray();
 void ArbFVEvalMultPackedArray();
 
@@ -72,9 +72,9 @@ int main() {
 
 	ArbLTVInnerProductPackedArray();
 
-	std::cout << "\n===========BV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
-	ArbBVInnerProductPackedArray();
+	ArbBGVInnerProductPackedArray();
 
 	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
@@ -90,7 +90,7 @@ int main() {
 	return 0;
 }
 
-void ArbBVInnerProductPackedArray() {
+void ArbBGVInnerProductPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -118,7 +118,7 @@ void ArbBVInnerProductPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
