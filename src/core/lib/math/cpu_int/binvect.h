@@ -141,25 +141,6 @@ public:
 	*/
 	const BigVectorImpl& operator=(std::initializer_list<std::string> rhs);
 
-	/**
-	* Equals to operator, checks if two BigVectorImpl obj are equal or not.
-	*
-	* @param b is vector to be compared.
-	* @return true if equal and false otherwise.
-	*/
-	inline bool operator==(const BigVectorImpl &b) const {
-        if (this->GetLength() != b.GetLength())
-            return false;
-        if (this->GetModulus() != b.GetModulus())
-        	return false;
-        for (size_t i = 0; i < this->GetLength(); ++i) {
-            if (this->at(i) != b.at(i)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
 	* Assignment operator to assign value val to first entry, 0 for the rest of entries.
 	*
@@ -172,16 +153,6 @@ public:
             this->m_data[i] = 0;
         }
         return *this;
-    }
-
-    /**
-	* Inequality operator, checks if two BigVectorImpl obj are equal or not.
-	*
-	* @param b is vector to be compared.
-	* @return false  if not equal and false otherwise.
-	*/
-    inline bool operator!=(const BigVectorImpl &b) const {
-        return !(*this == b);
     }
 
 	/**
