@@ -232,8 +232,8 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 //	UnitTestMultiparty<DCRTPoly>(cc, false);
 //}
 
-TEST_F(UTMultiparty, FV1_Poly_Multiparty_pri) {
-	string input = "FV1";
+TEST_F(UTMultiparty, BFV1_Poly_Multiparty_pri) {
+	string input = "BFV1";
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(input);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -242,8 +242,8 @@ TEST_F(UTMultiparty, FV1_Poly_Multiparty_pri) {
 	UnitTestMultiparty<Poly>(cc, true);
 }
 
-TEST_F(UTMultiparty, FV2_Poly_Multiparty_pri) {
-	string input = "FV2";
+TEST_F(UTMultiparty, BFV2_Poly_Multiparty_pri) {
+	string input = "BFV2";
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(input);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -340,7 +340,7 @@ TEST_F(UTMultiparty, Null2_Poly_Multiparty_pri) {
 	UnitTestMultiparty<Poly>(cc, true);
 }
 
-//TEST_F(UTMultiparty, FV_DCRTPoly_Multiparty_pri) {
-//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayFV(ORDER, TOWERS, PTM);
+//TEST_F(UTMultiparty, BFV_DCRTPoly_Multiparty_pri) {
+//	CryptoContext<DCRTPoly> cc = GenCryptoContextElementArrayBFV(ORDER, TOWERS, PTM);
 //	UnitTestMultiparty<DCRTPoly>(cc, false);
 //}

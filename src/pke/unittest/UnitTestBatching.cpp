@@ -49,7 +49,7 @@ protected:
 public:
 };
 
-class UTFVBATCHING : public ::testing::Test {
+class UTBFVBATCHING : public ::testing::Test {
 protected:
 	void SetUp() {}
 
@@ -381,7 +381,7 @@ TEST_F(UTBGVBATCHING, Poly_EVALMULT_Arb) {
 	EXPECT_EQ(intArrayNew->GetPackedValue(), vectorOfIntsMult);
 }
 
-TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
+TEST_F(UTBFVBATCHING, Poly_EVALMULT_Arb) {
 	PackedEncoding::Destroy();
 
 	usint m = 22;
@@ -416,7 +416,7 @@ TEST_F(UTFVBATCHING, Poly_EVALMULT_Arb) {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev,delta.ToString(),OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(),1,9,1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 	
 	cc->Enable(ENCRYPTION);

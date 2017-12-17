@@ -24,7 +24,7 @@
  *
  */
  /*
-FV RNS testing programs
+BFV RNS testing programs
 */
 
 #include <iostream>

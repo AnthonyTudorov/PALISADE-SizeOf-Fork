@@ -155,8 +155,8 @@ TEST_F(UTPKESer, Null_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST_F(UTPKESer, FV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("FV2");
+TEST_F(UTPKESer, BFV_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
 	UnitTestContext<Poly>(cc);
 }
 

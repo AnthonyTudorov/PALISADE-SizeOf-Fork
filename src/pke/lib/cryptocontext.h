@@ -2183,7 +2183,7 @@ public:
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the FV Scheme
+	* construct a PALISADE CryptoContextImpl for the BFV Scheme
 	* @param plaintextmodulus
 	* @param ringdim
 	* @param modulus
@@ -2201,7 +2201,7 @@ public:
 	* @param bigrootofunityarb
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	static CryptoContext<Element> genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
@@ -2209,7 +2209,7 @@ public:
 		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the FV Scheme
+	* construct a PALISADE CryptoContextImpl for the BFV Scheme
 	* @param encodingParams
 	* @param ringdim
 	* @param modulus
@@ -2227,7 +2227,7 @@ public:
 	* @param bigrootofunityarb
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	static CryptoContext<Element> genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 		EncodingParams encodingParams,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
@@ -2235,7 +2235,7 @@ public:
 		const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0", int maxDepth = 2);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the FV Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus
 	* @param securityLevel
 	* @param numAdds
@@ -2243,12 +2243,12 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static CryptoContext<Element> genCryptoContextBFV(
 		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the FV Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
 	* @param encodingParams
 	* @param securityLevel
 	* @param numAdds
@@ -2256,7 +2256,7 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextFV(
+	static CryptoContext<Element> genCryptoContextBFV(
 		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 

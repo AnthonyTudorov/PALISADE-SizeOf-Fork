@@ -37,7 +37,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-class UnitTestFV : public ::testing::Test {
+class UnitTestBFV : public ::testing::Test {
 protected:
 	virtual void SetUp() {}
 
@@ -46,8 +46,8 @@ protected:
 public:
 };
 
-//Tests EvalMult w/o keyswitching and EvalMultMany for FV in the OPTIMIZED mode
-TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
+//Tests EvalMult w/o keyswitching and EvalMultMany for BFV in the OPTIMIZED mode
+TEST(UTBFVEVALMM, Poly_BFV_Eval_Mult_Many_Operations) {
 
 	int relWindow = 1;
 	int plaintextModulus = 256;
@@ -55,7 +55,7 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	double rootHermiteFactor = 1.03;
 
 	//Set Crypto Parameters
-	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextBFV(
 			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
 
 	cryptoContext->Enable(ENCRYPTION);
@@ -167,10 +167,10 @@ TEST(UTFVEVALMM, Poly_FV_Eval_Mult_Many_Operations) {
 	plaintextResult2->SetLength( plaintextMul2->GetLength() );
 	plaintextResult3->SetLength( plaintextMul3->GetLength() );
 
-	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "FV.EvalMult gives incorrect results.\n";
-	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "FV.EvalMultAndRelinearize gives incorrect results.\n";
-	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "FV.EvalMultMany gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul1, *plaintextResult1) << "BFV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul2, *plaintextResult2) << "BFV.EvalMult gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMul3, *plaintextResult3) << "BFV.EvalMultAndRelinearize gives incorrect results.\n";
+	EXPECT_EQ(*plaintextMulMany, *plaintextResult3) << "BFV.EvalMultMany gives incorrect results.\n";
 
 }
 

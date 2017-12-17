@@ -52,7 +52,7 @@ public:
 };
 
 usint BGVCrossCorrelation();
-usint FVCrossCorrelation();
+usint BFVCrossCorrelation();
 usint BFVrnsCrossCorrelation();
 
 
@@ -66,9 +66,9 @@ TEST_F(UTEvalCC, Test_BGV_EvalCC) {
 }
 
 
-TEST_F(UTEvalCC, Test_FV_EvalCC) {
+TEST_F(UTEvalCC, Test_BFV_EvalCC) {
 	
-	usint result = FVCrossCorrelation();
+	usint result = BFVCrossCorrelation();
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
@@ -159,7 +159,7 @@ usint BGVCrossCorrelation() {
 }
 
 
-usint FVCrossCorrelation() {
+usint BFVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -193,7 +193,7 @@ usint FVCrossCorrelation() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

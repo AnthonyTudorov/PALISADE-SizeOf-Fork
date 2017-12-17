@@ -25,7 +25,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
- * Demo software for FV multiparty operations.
+ * Demo software for BFV multiparty operations.
  *
  */
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 
-	std::cout << "\nThis code demonstrates a simple use of json serialization for FV schemes with public key encryption. " << std::endl;
+	std::cout << "\nThis code demonstrates a simple use of json serialization for BFV schemes with public key encryption. " << std::endl;
 	std::cout << "This code creates and saves keys to disk, loads the keys from disk, encrypts data and saves ciphertext to disk. " << std::endl;
 	std::cout << "The code then loads the ciphertext from disk and decrypts. " << std::endl;
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextBFV(
 	            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 1, 0);
 
 	// enable features that you wish to use

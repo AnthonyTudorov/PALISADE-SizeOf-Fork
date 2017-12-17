@@ -67,7 +67,7 @@ namespace lbcrypto {
 	class LPCryptoParametersBGV;
 
 	template<typename Element>
-	class LPCryptoParametersFV;
+	class LPCryptoParametersBFV;
 
 	template<typename Element>
 	class LPCryptoParametersStehleSteinfeld;

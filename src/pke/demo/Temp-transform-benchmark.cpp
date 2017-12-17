@@ -248,7 +248,7 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 
 int main() {
 
-	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
 	//------------------ Setup Parameters ------------------
 	usint m = 2048;

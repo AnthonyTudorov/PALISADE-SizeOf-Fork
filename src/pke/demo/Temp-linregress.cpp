@@ -62,7 +62,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 void ArbBGVLinearRegressionPackedArray();
-void ArbFVInnerProductPackedArray();
+void ArbBFVInnerProductPackedArray();
 
 int main() {
 
@@ -70,9 +70,9 @@ int main() {
 
 	ArbBGVLinearRegressionPackedArray();
 
-	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
-	ArbFVInnerProductPackedArray();
+	ArbBFVInnerProductPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -177,7 +177,7 @@ void ArbBGVLinearRegressionPackedArray() {
 
 }
 
-void ArbFVInnerProductPackedArray() {
+void ArbBFVInnerProductPackedArray() {
 
 	usint m = 22;
 
@@ -214,14 +214,14 @@ void ArbFVInnerProductPackedArray() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
 	//	usint relinWindow, float stDev, const std::string& delta,
 	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

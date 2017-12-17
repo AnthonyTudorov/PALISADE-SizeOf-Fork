@@ -94,15 +94,15 @@ GenCryptoContextBGV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, 
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT, MODE mode=RLWE);
+GenCryptoContextBFV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT, MODE mode=RLWE);
 
 template<>
 inline CryptoContext<Poly>
-GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
+GenCryptoContextBFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
 
 	shared_ptr<typename Poly::Params> p = ElemParamFactory::GenElemParams<typename Poly::Params,typename Poly::Integer>(ORDER, bits, towers);
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 2, 0, mode);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(ptm, 1.006, 1, 4, 0, 2, 0, mode);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -111,9 +111,9 @@ GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, 
 
 template<>
 inline CryptoContext<NativePoly>
-GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
+GenCryptoContextBFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
 
-	CryptoContext<NativePoly> cc = CryptoContextFactory<NativePoly>::genCryptoContextFV(ptm, 1.006, 1, 4, 0, 0, 0, mode);
+	CryptoContext<NativePoly> cc = CryptoContextFactory<NativePoly>::genCryptoContextBFV(ptm, 1.006, 1, 4, 0, 0, 0, mode);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -122,9 +122,9 @@ GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, 
 
 template<>
 inline CryptoContext<DCRTPoly>
-GenCryptoContextFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
+GenCryptoContextBFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers, MODE mode) {
 
-	PALISADE_THROW(not_available_error, "DCRT is not supported for FV");
+	PALISADE_THROW(not_available_error, "DCRT is not supported for BFV");
 }
 
 template<typename Element>
@@ -172,10 +172,10 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, RLWE);
 	else if( name == "BGV_opt" )
 		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, OPTIMIZED);
-	else if( name == "FV_rlwe" )
-		cc = GenCryptoContextFV<Element>(ORDER, ptm, bits, towers, RLWE);
-	else if( name == "FV_opt" )
-		cc = GenCryptoContextFV<Element>(ORDER, ptm, bits, towers, OPTIMIZED);
+	else if( name == "BFV_rlwe" )
+		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, RLWE);
+	else if( name == "BFV_opt" )
+		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, OPTIMIZED);
 	else if( name == "BFVrns_rlwe" )
 		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
 	else if( name == "BFVrns_opt" )

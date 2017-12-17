@@ -53,7 +53,7 @@ public:
 
 usint ArbLTVInnerProductPackedArray(std::vector<uint64_t> &input1,std::vector<uint64_t> &input2);
 usint ArbBGVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2);
-usint ArbFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2);
+usint ArbBFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2);
 
 TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 
@@ -112,7 +112,7 @@ TEST_F(UTEvalIP, Test_BGV_EvalInnerProduct) {
 
 }
 
-TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
+TEST_F(UTEvalIP, Test_BFV_EvalInnerProduct) {
 	
 	usint size = 10;
 	std::vector<uint64_t> input1(size, 0);
@@ -132,7 +132,7 @@ TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 	expectedResult %= plainttextMod;
 
 	try {
-		usint result = ArbFVInnerProductPackedArray(input1, input2);
+		usint result = ArbBFVInnerProductPackedArray(input1, input2);
 
 		EXPECT_EQ(result, expectedResult);
 	} catch( const std::logic_error& e ) {
@@ -260,7 +260,7 @@ usint ArbBGVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<u
 }
 
 
-usint ArbFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2) {
+usint ArbBFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2) {
 
 	usint m = 22;
 	PlaintextModulus p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -294,7 +294,7 @@ usint ArbFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<ui
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

@@ -59,8 +59,8 @@ GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, StSt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_opt, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
@@ -68,8 +68,8 @@ GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, StSt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_opt, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \

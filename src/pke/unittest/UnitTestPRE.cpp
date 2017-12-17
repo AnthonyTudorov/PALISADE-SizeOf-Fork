@@ -61,16 +61,16 @@ GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
 GENERATE_PKE_TEST_CASE_BITS(x, y, Poly, StSt, ORD, PTM, 80) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_opt, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_opt, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
@@ -120,7 +120,7 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	// This generates the keys which are used to perform the key switching.
 	LPEvalKey<Element> evalKey;
-	if( failmsg.substr(0,2) == "BGV" || failmsg.substr(0,2) == "FV" || failmsg.substr(0,6) == "BFVrns" ) {
+	if( failmsg.substr(0,2) == "BGV" || failmsg.substr(0,2) == "BFV" || failmsg.substr(0,6) == "BFVrns" ) {
 		evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
 	} else {
 		evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);

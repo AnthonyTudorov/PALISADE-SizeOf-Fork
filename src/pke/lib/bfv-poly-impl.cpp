@@ -1,5 +1,5 @@
 /*
-* @file fv-poly-impl.cpp - poly implementation for the FV scheme.
+* @file bfv-poly-impl.cpp - poly implementation for the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,16 +25,16 @@
  */
 
 #include "cryptocontext.h"
-#include "fv.cpp"
+#include "bfv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersFV<Poly>;
-template class LPPublicKeyEncryptionSchemeFV<Poly>;
-template class LPAlgorithmFV<Poly>;
-template class LPAlgorithmParamsGenFV<Poly>;
+template class LPCryptoParametersBFV<Poly>;
+template class LPPublicKeyEncryptionSchemeBFV<Poly>;
+template class LPAlgorithmBFV<Poly>;
+template class LPAlgorithmParamsGenBFV<Poly>;
 
-template class LPCryptoParametersFV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeFV<NativePoly>;
-template class LPAlgorithmFV<NativePoly>;
-template class LPAlgorithmParamsGenFV<NativePoly>;
+template class LPCryptoParametersBFV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBFV<NativePoly>;
+template class LPAlgorithmBFV<NativePoly>;
+template class LPAlgorithmParamsGenBFV<NativePoly>;
 }

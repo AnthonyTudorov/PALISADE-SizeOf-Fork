@@ -109,7 +109,7 @@ LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(shared_ptr<typena
 	NONATIVEPOLY
 }
 
-// Parameter generation for FV-RNS
+// Parameter generation for BFV-RNS
 template <>
 bool LPCryptoParametersBFVrns<Poly>::PrecomputeCRTTables(){
 	NOPOLY

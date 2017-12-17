@@ -1,5 +1,5 @@
 /*
-* @file fv-dcrtpoly-impl.cpp - dcrtpoly implementation for the FV scheme.
+* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -238,7 +238,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 }
 
-// Parameter generation for FV-RNS
+// Parameter generation for BFV-RNS
 template <>
 bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount) const
@@ -287,14 +287,14 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
 		//Correctness constraint
-		auto qFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+		auto qBFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
 
 		//initial value
-		q = qFV(n);
+		q = qBFV(n);
 
 		while (nRLWE(q) > n) {
 			n = 2 * n;
-			q = qFV(n);
+			q = qBFV(n);
 		}
 
 	}
@@ -305,11 +305,11 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		double w = pow(2, dcrtBits);
 
 		//Correctness constraint
-		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
+		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
 
 		//initial values
 		double qPrev = 1e6;
-		q = qFV(n, qPrev);
+		q = qBFV(n, qPrev);
 		qPrev = q;
 
 		//this "while" condition is needed in case the iterative solution for q
@@ -318,15 +318,15 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			while (nRLWE(q) > n) {
 				n = 2 * n;
-				q = qFV(n, qPrev);
+				q = qBFV(n, qPrev);
 				qPrev = q;
 			}
 
-			q = qFV(n, qPrev);
+			q = qBFV(n, qPrev);
 
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
-				q = qFV(n, qPrev);
+				q = qBFV(n, qPrev);
 			}
 
 		}
@@ -350,11 +350,11 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr;  };
 
 		//main correctness constraint
-		auto qFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
 
 		//initial values
 		double qPrev = 1e6;
-		q = qFV(n, qPrev);
+		q = qBFV(n, qPrev);
 		qPrev = q;
 
 		//this "while" condition is needed in case the iterative solution for q
@@ -363,15 +363,15 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			while (nRLWE(q) > n) {
 				n = 2 * n;
-				q = qFV(n, qPrev);
+				q = qBFV(n, qPrev);
 				qPrev = q;
 			}
 
-			q = qFV(n, qPrev);
+			q = qBFV(n, qPrev);
 
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
-				q = qFV(n, qPrev);
+				q = qBFV(n, qPrev);
 			}
 
 		}

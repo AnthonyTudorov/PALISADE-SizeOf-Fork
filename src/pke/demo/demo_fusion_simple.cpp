@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 
 	bool flagBGV = true;
 
-	if ((input.find("BGV") == string::npos) && (input.find("FV") == string::npos))
+	if ((input.find("BGV") == string::npos) && (input.find("BFV") == string::npos))
 		flagBGV = false;
 
 	start = currentDateTime();

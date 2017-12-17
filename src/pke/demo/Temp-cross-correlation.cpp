@@ -61,7 +61,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 void BGVCrossCorrelation();
-void FVCrossCorrelation();
+void BFVCrossCorrelation();
 
 int main() {
 
@@ -69,9 +69,9 @@ int main() {
 
 	BGVCrossCorrelation();
 
-	std::cout << "\n===========FV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
-	FVCrossCorrelation();
+	BFVCrossCorrelation();
 
 	std::cout << "\nPress any key to continue..." << std::endl;
 
@@ -166,7 +166,7 @@ void BGVCrossCorrelation() {
 }
 
 
-void FVCrossCorrelation() {
+void BFVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -201,7 +201,7 @@ void FVCrossCorrelation() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

@@ -25,7 +25,7 @@
  */
  /*
  *
- * This code implements a RNS variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.
+ * This code implements a RNS variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.  This scheme is also referred to as the FV scheme.
  *
  * The BFV scheme is introduced in the following papers:
  *   - Zvika Brakerski (2012). Fully Homomorphic Encryption without Modulus Switching from Classical GapSVP. Cryptology ePrint Archive, Report 2012/078. (https://eprint.iacr.org/2012/078)
@@ -44,7 +44,7 @@
 namespace lbcrypto {
 
 	/**
- 	* @brief This is the parameters class for the BFVrns encryption scheme.
+ 	* @brief This is the parameters class for the BFVrns encryption scheme.  This scheme is also referred to as the FVrns scheme.
  	*
  	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
@@ -306,9 +306,9 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Parameter generation for BFVrns.
+	* @brief Parameter generation for BFVrns.  This scheme is also referred to as the FV scheme.
 	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -317,7 +317,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenBFVrns : public LPAlgorithmParamsGenFV<Element> {
+	class LPAlgorithmParamsGenBFVrns : public LPAlgorithmParamsGenBFV<Element> {
 	public:
 
 		/**
@@ -345,7 +345,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmBFVrns : public LPAlgorithmFV<Element> {
+	class LPAlgorithmBFVrns : public LPAlgorithmBFV<Element> {
 	public:
 
 		/**
@@ -397,7 +397,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEBFVrns : public LPAlgorithmSHEFV<Element> {
+	class LPAlgorithmSHEBFVrns : public LPAlgorithmSHEBFV<Element> {
 	public:
 
 		/**
@@ -479,7 +479,7 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmPREBFVrns : public LPAlgorithmPREFV<Element> {
+	class LPAlgorithmPREBFVrns : public LPAlgorithmPREBFV<Element> {
 	public:
 
 		/**
@@ -492,7 +492,7 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrns.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrns.    This scheme is also referred to as the FV scheme.  A version of this multiparty scheme built on the BGV scheme is seen here:
 	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
 	 *
 	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
@@ -507,7 +507,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmMultipartyBFVrns : public LPAlgorithmMultipartyFV<Element> {
+	class LPAlgorithmMultipartyBFVrns : public LPAlgorithmMultipartyBFV<Element> {
 	public:
 
 		/**

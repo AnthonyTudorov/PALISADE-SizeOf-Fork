@@ -90,12 +90,12 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, stoul(plaintextModulus),
 				stoul(relinWindow), stof(stDev), stof(stDevStSt));
 	}
-	else if( parmtype == "FV" ) {
+	else if( parmtype == "BFV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "securityLevel", secLevel) )
 			return 0;
 
-		return CryptoContextFactory<Element>::genCryptoContextFV(stoul(plaintextModulus), stof(secLevel), 16, 4,
+		return CryptoContextFactory<Element>::genCryptoContextBFV(stoul(plaintextModulus), stof(secLevel), 16, 4,
 				0, 0, 1);
 
 	}
@@ -173,8 +173,8 @@ inline shared_ptr<LPCryptoParameters<Element>> DeserializeCryptoParameters(const
 	else if (type == "LPCryptoParametersNull") {
 		parmPtr = new LPCryptoParametersNull<Element>();
 	}
-	else if (type == "LPCryptoParametersFV") {
-		parmPtr = new LPCryptoParametersFV<Element>();
+	else if (type == "LPCryptoParametersBFV") {
+		parmPtr = new LPCryptoParametersBFV<Element>();
 	}
 	else if (type == "LPCryptoParametersBFVrns") {
 		parmPtr = new LPCryptoParametersBFVrns<Element>();
@@ -238,9 +238,9 @@ CryptoContextHelper::getNewContext(const string& parmset, EncodingParams ep)
 		return 0;
 	}
 
-	// FV uses parm generation so we skip this code for FV
+	// BFV uses parm generation so we skip this code for BFV
 	shared_ptr<typename Poly::Params> parms;
-	if(( parmtype != "FV" ) && ( parmtype != "BFVrns" )) {
+	if(( parmtype != "BFV" ) && ( parmtype != "BFVrns" )) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "modulus", modulus) ||
 				!getValueForName(it->second, "rootOfUnity", rootOfUnity) ) {
@@ -273,9 +273,9 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 		return 0;
 	}
 
-	// FV uses parm generation so we skip this code for FV
+	// BFV uses parm generation so we skip this code for BFV
 	shared_ptr<DCRTPoly::Params> parms;
-	if(( parmtype != "FV" ) && ( parmtype != "BFVrns" )) {
+	if(( parmtype != "BFV" ) && ( parmtype != "BFVrns" )) {
 		if( !getValueForName(it->second, "ring", ring) ||
 				!getValueForName(it->second, "plaintextModulus", plaintextModulus) ) {
 			return 0;

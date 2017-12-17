@@ -897,7 +897,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 };
 
 /**
-* @brief Parameter generation for FV.
+* @brief Parameter generation for BFV.
 * @tparam Element a ring element.
 */
 template <class Element>

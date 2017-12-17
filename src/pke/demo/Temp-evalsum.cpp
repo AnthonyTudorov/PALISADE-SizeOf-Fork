@@ -63,7 +63,7 @@ using namespace lbcrypto;
 void ArbLTVEvalSumPackedArray();
 void ArbBGVEvalSumPackedArray();
 void BGVEvalSumPackedArray2n();
-void ArbFVEvalSumPackedArray();
+void ArbBFVEvalSumPackedArray();
 
 int main() {
 
@@ -81,9 +81,9 @@ int main() {
 
 	BGVEvalSumPackedArray2n();
 
-	std::cout << "\n===========FV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (EVALSUM-ARBITRARY)===============: " << std::endl;
 
-	ArbFVEvalSumPackedArray();
+	ArbBFVEvalSumPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -253,7 +253,7 @@ void ArbLTVEvalSumPackedArray() {
 }
 
 
-void ArbFVEvalSumPackedArray() {
+void ArbBFVEvalSumPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -283,7 +283,7 @@ void ArbFVEvalSumPackedArray() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 		params, encodingParams,
 		8, stdDev, delta.ToString());
 
