@@ -652,14 +652,20 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
 		break;
 	case PRE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
 		break;
 	case SHE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
 		break;
 	case LEVELEDSHE:
+		if (this->m_algorithmEncryption == NULL)
+			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
 		if (this->m_algorithmLeveledSHE == NULL)
 			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
 		break;

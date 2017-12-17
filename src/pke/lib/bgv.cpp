@@ -782,18 +782,26 @@ DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const v
 				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			break;
 		case PRE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPREBGV<Element>();
 			break;
 		case SHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHEBGV<Element>();
 			break;
 		case LEVELEDSHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBGV<Element>();
 			break;
 		case MULTIPARTY:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmMultiparty == NULL)
 				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBGV<Element>();
 			break;
