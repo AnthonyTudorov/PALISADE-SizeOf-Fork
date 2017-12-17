@@ -27,9 +27,6 @@
 #ifndef SRC_CORE_LIB_UTILS_TESTCASEGEN_H_
 #define SRC_CORE_LIB_UTILS_TESTCASEGEN_H_
 
-#define _PP_0(_1, ...) _1
-#define _PP_X(_1, ...) (__VA_ARGS__)
-
 #define GENERATE_PKE_TEST_CASE(TOPNAME, FUNC, ELEMENT, SCHEME, ORD, PTM) \
 		TEST_F(TOPNAME, FUNC ## _ ## ELEMENT ## _ ## SCHEME ) { \
 	CryptoContext<ELEMENT> cc; \
@@ -41,7 +38,21 @@
 	FUNC<ELEMENT>(cc, #SCHEME); \
 }
 
+#define GENERATE_PKE_TEST_CASE_BITS(TOPNAME, FUNC, ELEMENT, SCHEME, ORD, PTM, BITS) \
+		TEST_F(TOPNAME, FUNC ## _ ## ELEMENT ## _ ## SCHEME ) { \
+	CryptoContext<ELEMENT> cc; \
+	try { \
+		cc = GenTestCryptoContext<ELEMENT>(#SCHEME, ORD, PTM, BITS); \
+	} catch( ... ) { \
+		return; \
+	} \
+	FUNC<ELEMENT>(cc, #SCHEME); \
+}
+
 // Somebody should figure out how to do recursive macros. I give up. For now.
+
+//#define _PP_0(_1, ...) _1
+//#define _PP_X(_1, ...) (__VA_ARGS__)
 
 //#define ITER_0(VECTOR, ACTION, TOPNAME, FUNC, ELEMENT) ACTION(TOPNAME, FUNC, ELEMENT, VECTOR[0])
 //#define ITER_1(VECTOR, ACTION, TOPNAME, FUNC, ELEMENT) ITER_0(VECTOR, ACTION, TOPNAME, FUNC, ELEMENT) ACTION(TOPNAME, FUNC, ELEMENT, VECTOR[1])

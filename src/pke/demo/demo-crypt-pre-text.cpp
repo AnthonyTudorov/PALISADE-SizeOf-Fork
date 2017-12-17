@@ -36,7 +36,7 @@
 //
 // This program uses the "group of named predetermined sets" method. Pass the parameter set name to the
 // program and it will use that set. Pass no names and it will tell you all the available names.
-// Use the -v option and the program will be verbose as it operates
+// Use the -s option and the program will not be verbose as it operates
  */
 
 #include <iostream>
@@ -47,32 +47,54 @@
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
-
 #include "cryptocontextparametersets.h"
+#include "cryptocontextgen.h"
 
 #include "utils/debug.h"
 using namespace std;
 using namespace lbcrypto;
 
 ////////////////////////////////////////////////////////////
-// This program demonstrates the use of the PALISADE library to encrypt bytes of text
+// This program demonstrates the use of the PALISADE library's proxy re-encryption feature
 //
 // All PALISADE functionality takes place as a part of a CryptoContext, and so the first
 // step in using PALISADE is creating a CryptoContext
 //
-// A CryptoContext can be created on the fly by passing parameters into a method provided
-// in the CryptoContextFactory.
-// A CryptoContext can be custom tuned for your particular application by using parameter generation
-// A CryptoContext can be constructed from one of a group of named, predetermined parameter sets
+// This program creates CryptoContexts for one of three user-specified schemes
 //
-// This program uses the "group of named predetermined sets" method. Pass the parameter set name to the
-// program and it will use that set. Pass no names and it will tell you all the available names.
+// Pass the scheme name to the program and it will use that scheme.
+// Pass no scheme name and it will tell you all the available schemes supported in this program.
 // Use the -v option and the program will be verbose as it operates
 
+CryptoContext<Poly>
+GeneratePREContext(string scheme, PlaintextModulus ptm) {
+	shared_ptr<Poly::Params> ep;
+	CryptoContext<Poly>	cc;
+	unsigned int m = 2048;
+
+	if( scheme == "LTV" ) {
+		cc = GenTestCryptoContext<Poly>(scheme, m, ptm);
+	}
+	else if( scheme == "StSt" ) {
+		cc = GenTestCryptoContext<Poly>("StSt", m, ptm, 80);
+	}
+	else if( scheme == "Null" ) {
+		cc = GenTestCryptoContext<Poly>(scheme, m, ptm);
+	}
+	else if( scheme == "FV" ) {
+		cc = GenTestCryptoContext<Poly>("FV_rlwe", m, ptm);
+	}
+	else {
+		cout << "Unrecognized scheme '" << scheme << "'" << endl;
+		cout << "Available schemes are: LTV, StSt, Null, and FV" << endl;
+	}
+
+	return cc;
+}
 
 int main(int argc, char *argv[])
 {
-	string parmSetName;
+	string schemeName;
 	bool beVerbose = true;
 	bool haveName = false;
 
@@ -81,8 +103,8 @@ int main(int argc, char *argv[])
 		string parm( argv[i] );
 
 		if( parm[0] == '-' ) {
-			if( parm == "-v" )
-				beVerbose = true;
+			if( parm == "-s" )
+				beVerbose = false;
 			else {
 				cout << "Unrecognized parameter " << parm << endl;
 				return 1;
@@ -96,46 +118,24 @@ int main(int argc, char *argv[])
 			}
 
 			haveName = true;
-			parmSetName = parm;
-
+			schemeName = parm;
 		}
 	}
 
-	// If a name has been specified, make sure it is recognized
-	if( haveName ) {
-		auto parmfind = CryptoContextParameterSets.find(parmSetName);
-		if( parmfind == CryptoContextParameterSets.end() ) {
-			cout << "Parameter set " << parmSetName << " is not a recognized name" << endl;
-			haveName = false;
-		}
-	}
+	CryptoContext<Poly> cc = GeneratePREContext(schemeName, 256);
 
-	// no name specified? print out the names of all available parameter sets
-	if( !haveName ) {
-		cout << "Available crypto parameter sets are:" << endl;
-		CryptoContextHelper::printParmSetNamesByExcludeFilter(std::cout,"BFVrns");
-		return 1;
-	}
+	if( cc == 0 )
+		return 0;
 
 	if( beVerbose ) {
-		CryptoContextHelper::printParmSet(cout, parmSetName);
+		cout << "Crypto system for " << schemeName << " initialized with parameters:" << endl;
+		cout << *cc->GetCryptoParameters() << endl;
 	}
-
-	// Construct a crypto context for this parameter set
-
-	if( beVerbose ) cout << "Initializing crypto system" << endl;
-
-	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmSetName);
 
 	// enable features that you wish to use
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(PRE);
-
-	if( cc->GetEncodingParams()->GetPlaintextModulus() != 256 ) {
-		cout << "This program requires a parameter set with a plaintext modulus of 256, sorry!" << endl;
-		return 1;
-	}
 
 	// The largest possible plaintext is the size of the ring
 	size_t ptsize = cc->GetRingDimension();
@@ -173,18 +173,12 @@ int main(int argc, char *argv[])
 
 	////////////////////////////////////////////////////////////
 	// Encryption
-	//
-	// The Encrypt routine splits the input into chunks of size "chunksize"
-	// and encrypts each chunk into a ciphertext. We expect only one entry
-	// in the resulting table
 	////////////////////////////////////////////////////////////
 
 	Ciphertext<Poly> ciphertext;
 
 	if( beVerbose ) cout << "Running encryption" << endl;
 
-	// we tell Encrypt not to pad this entry by using false for the third parameter;
-	// if we said true instead, padding would be added on Encrypt and removed on Decrypt
 	ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 
 	////////////////////////////////////////////////////////////
@@ -228,16 +222,16 @@ int main(int argc, char *argv[])
 	// This generates the keys which are used to perform the key switching.
 	////////////////////////////////////////////////////////////
 
-	bool flagBV = true;
+	bool flagSecretSecret = true;
 
-	if ((parmSetName.find("BV") == string::npos) && (parmSetName.find("FV") == string::npos))
-		flagBV = false;
+	if (schemeName.find("FV") == string::npos)
+		flagSecretSecret = false;
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;
 
 	LPEvalKey<Poly> evalKey;
 	try {
-		if (flagBV)
+		if (flagSecretSecret)
 			evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
 		else
 			evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
@@ -272,17 +266,22 @@ int main(int argc, char *argv[])
 	if( plaintext != plaintextNew2 ) {
 		cout << "Mismatch on decryption of PRE ciphertext" << endl;
 		if( plaintext->GetEncodingType() != plaintextNew2->GetEncodingType() )
-			cout << "encoding" << endl;
+			cout << "encoding mismatch" << endl;
 
 		if( plaintext->GetEncodingParams() != plaintextNew2->GetEncodingParams() )
 			cout << "params" << endl;
 
 		if( plaintext->GetLength() != plaintextNew2->GetLength() )
-			cout << "len" << endl;
+			cout << "length mismatch " << plaintext->GetLength() << " and " << plaintextNew2->GetLength() << endl;
 
-		for( size_t i=0; i<plaintext->GetLength(); i++ )
-			if( plaintext->GetStringValue().at(i) != plaintextNew2->GetStringValue().at(i) )
+		for( size_t i=0; i<plaintext->GetLength(); i++ ) {
+			if( plaintext->GetStringValue().at(i) != plaintextNew2->GetStringValue().at(i) ) {
 				cout << "mismatch at " << i << endl;
+				cout << plaintext->GetStringValue() << endl;
+				cout << plaintextNew2->GetStringValue() << endl;
+				break;
+			}
+		}
 		return 1;
 	}
 
