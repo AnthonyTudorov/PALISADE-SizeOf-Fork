@@ -1371,7 +1371,7 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalAddMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1412,7 +1412,7 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalSubMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1596,7 +1596,7 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 	EvalMultMatrix(const shared_ptr<Matrix<RationalCiphertext<Element>>> ct1, const shared_ptr<Matrix<RationalCiphertext<Element>>> ct2) const
 	{
-		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // FIXME only checking one is OK? is this needed or does the underlying operation check?
+		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1812,6 +1812,7 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>>
 		EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 			const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const;
+
 	/**
 	* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 	* @param x - matrix of regressors
@@ -1822,7 +1823,7 @@ public:
 		EvalLinRegression(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 			const shared_ptr<Matrix<RationalCiphertext<Element>>> y) const
 	{
-		TypeCheck((*x)(0,0), (*y)(0,0));
+		TypeCheck((*x)(0,0), (*y)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
@@ -1843,7 +1844,6 @@ public:
 		const LPEvalKey<Element> keySwitchHint,
 		const Ciphertext<Element> ciphertext) const
 	{
-		// FIXME
 		if( keySwitchHint == NULL || Mismatched(keySwitchHint->GetCryptoContext()) )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
 

@@ -207,7 +207,7 @@ void BaseSampler::Initialize(double mean) {
 	//double mr = 20; // see DG14 for details
 	//int fin = (int)ceil(m_std * mr);
 	double cusum = 0.0;
-	for (sint x = -1*fin; x <= fin; x++) {
+	for (int x = -1*fin; x <= fin; x++) {
 		cusum = cusum + exp(-(x-mean) * (x-mean)/ (variance * 2));
 	}
 
@@ -215,7 +215,7 @@ void BaseSampler::Initialize(double mean) {
 
 	double temp;
 
-	for (sint i = -1*fin; i <= fin; i++) {
+	for (int i = -1*fin; i <= fin; i++) {
 		temp = b_a* exp(-((double) ((i - mean)* (i - mean) / (2 * variance))));
 		m_vals.push_back(temp);
 	}

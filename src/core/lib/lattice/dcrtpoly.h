@@ -375,7 +375,7 @@ public:
 	* @param &rhs the list to initalized the element.
 	* @return the resulting element.
 	*/
-	DCRTPolyType& operator=(std::initializer_list<sint> rhs);
+	DCRTPolyType& operator=(std::initializer_list<uint64_t> rhs);
 
 	/**
 	* @brief Assignment Operator. The usint val will be set at index zero and all other indices will be set to zero.

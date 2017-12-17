@@ -31,11 +31,6 @@
 #include <stdint.h>
 
 /**
- * @brief Type used for representing signed 32-bit integers.
- */
-typedef int32_t sint;
-
-/**
  * @brief Type used for representing unsigned 8-bit integers.
  */
 typedef uint8_t uschar;

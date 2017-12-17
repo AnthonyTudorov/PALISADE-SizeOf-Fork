@@ -313,7 +313,7 @@ namespace cpu_int{
     *
     * @return the index of the most significant bit.
     */
-    usshort GetMSB()const;
+    usint GetMSB()const;
 
     /**
     * Converts the value to an int.
@@ -721,54 +721,6 @@ namespace cpu_int{
 	*/
 	BigInteger DivideAndRound(const BigInteger &q) const;
 
-    /**
-    * Test equality of the inputs.
-    *
-    * @param a second value to test.
-    * @return true if the inputs are equal.
-    */
-    bool operator==(const BigInteger& a) const;
-
-    /**
-    * Test inequality of the inputs.
-    *
-    * @param a second value to test.
-    * @return true if the inputs are inequal.
-    */
-    bool operator!=(const BigInteger& a) const;
-
-    /**
-    * Test if first input is great than the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is greater.
-    */
-    bool operator> (const BigInteger& a) const;
-
-    /**
-    * Test if first input is great than or equal to the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is greater than or equal to the second input.
-    */
-    bool operator>=(const BigInteger& a) const;
-
-    /**
-    * Test if first input is less than the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is lesser.
-    */
-    bool operator< (const BigInteger& a) const;
-
-    /**
-    * Test if first input is less than or equal to the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is less than or equal to the second input.
-    */
-    bool operator<=(const BigInteger& a) const;
-
 	/**
 	 * Unary minus on a lattice
 	 * @return
@@ -788,7 +740,7 @@ namespace cpu_int{
 	 * @return is the ostream object.
 	 */
     template<typename uint_type_c,usint BITLENGTH_c>
-    friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj){
+    friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj) {
 
     	//create reference for the object to be printed
     	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
@@ -816,7 +768,7 @@ namespace cpu_int{
 
     	//find the first occurence of non-zero value in print_VALUE
     	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-    		if((sint)print_VALUE[counter]!=0)break;
+    		if((int)print_VALUE[counter]!=0)break;
     	}
 
     	//start inserting values into the ostream object
@@ -859,7 +811,7 @@ namespace cpu_int{
     * @param a is the BigInteger to be compared with.
     * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
     */
-    sint Compare(const BigInteger& a) const;
+    int Compare(const BigInteger& a) const;
 
     /**
      *  Set this int to 1.

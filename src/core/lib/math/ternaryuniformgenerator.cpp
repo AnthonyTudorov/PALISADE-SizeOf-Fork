@@ -51,9 +51,9 @@ VecType TernaryUniformGeneratorImpl<IntType,VecType>::GenerateVector (usint size
 }
 
 template<typename IntType, typename VecType>
-std::shared_ptr<sint> TernaryUniformGeneratorImpl<IntType,VecType>::GenerateIntVector (usint size) const {
+std::shared_ptr<int32_t> TernaryUniformGeneratorImpl<IntType,VecType>::GenerateIntVector (usint size) const {
 	
-	std::shared_ptr<sint> ans( new sint[size], std::default_delete<sint[]>() );
+	std::shared_ptr<int32_t> ans( new int32_t[size], std::default_delete<int32_t[]>() );
 
 	for (usint i = 0; i < size; i++) {
 		(ans.get())[i] = m_distribution(PseudoRandomNumberGenerator::GetPRNG());		

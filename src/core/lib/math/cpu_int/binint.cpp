@@ -206,9 +206,9 @@ BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::LShift(usshort
 		uint_type endVal = m_nSize - ceilIntByUInt(m_MSB);
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
-		sint i;
+		int i;
 		// DTS- BUG FIX!!!!! (signed < unsigned(0) is always true)
-		for(i=m_nSize-1;i>=static_cast<sint>(endVal);i--){
+		for(i=m_nSize-1;i>=static_cast<int>(endVal);i--){
 			temp = ans.m_value[i];
 			temp <<=remShift;
 			ans.m_value[i] = (uint_type)temp + oFlow;
@@ -266,9 +266,9 @@ const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::LShiftE
 		uint_type endVal = m_nSize-ceilIntByUInt(this->m_MSB);
 		uint_type oFlow = 0;
 		Duint_type temp = 0;
-		sint i ;
+		int i ;
 		// DTS- BUG FIX!!!!! (endVal may be computed <0)
-		for(i=m_nSize-1; i>= static_cast<sint>(endVal); i--){
+		for(i=m_nSize-1; i>= static_cast<int>(endVal); i--){
 			temp = this->m_value[i];
 			temp <<= remShift;
 			this->m_value[i] = (uint_type)temp + oFlow;
@@ -325,7 +325,7 @@ BigInteger<uint_type,BITLENGTH>  BigInteger<uint_type,BITLENGTH>::RShift(usshort
 		usint endVal= m_nSize-ceilIntByUInt(ans.m_MSB);
 		usint j= endVal;
 		//array shifting operation
-		for(sint i= m_nSize-1-shiftByUint;i>=static_cast<sint>(endVal);i--){
+		for(int i= m_nSize-1-shiftByUint;i>=static_cast<int>(endVal);i--){
 			ans.m_value[i+shiftByUint] = ans.m_value[i];
 		}
 		//msb adjusted to show the shifts
@@ -387,16 +387,16 @@ const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::RShiftE
 	}
 
 	//no of array shifts
-	sint shiftByUint = shift>>m_logUintBitLength;
+	int shiftByUint = shift>>m_logUintBitLength;
 	//no of bit shifts
 	uschar remShift = (shift&(m_uintBitLength-1));
 	//perform shifting in arrays
 	if(shiftByUint!=0){
 
-		sint endVal= m_nSize-ceilIntByUInt(this->m_MSB);
-		sint j= endVal;
+		int endVal= m_nSize-ceilIntByUInt(this->m_MSB);
+		int j= endVal;
 		
-		for(sint i= m_nSize-1-shiftByUint; i>=endVal; i--){
+		for(int i= m_nSize-1-shiftByUint; i>=endVal; i--){
 			this->m_value[i+shiftByUint] = this->m_value[i];
 		}
 		//adjust shift to reflect left shifting 
@@ -559,7 +559,7 @@ bool BigInteger<uint_type, BITLENGTH>::Deserialize(const lbcrypto::Serialized& s
 }
   
 template<typename uint_type,usint BITLENGTH>
-usshort BigInteger<uint_type,BITLENGTH>::GetMSB()const{
+usint BigInteger<uint_type,BITLENGTH>::GetMSB()const{
 	return m_MSB;
 }
 
@@ -705,13 +705,13 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
         // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
 	
-        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
+        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions
 	BigInteger result(*this);
-	//array position in A to end substraction
+	//array position in A to end subtraction
 	volatile int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
-	//array position in B to end substraction
+	//array position in B to end subtraction
 	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
-	sint i;
+	int i;
 	for(i=m_nSize-1;i>=endValB;i--){
 		//carryover condtion
 		if(result.m_value[i]<b.m_value[i]){
@@ -726,7 +726,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
 			result.m_value[cntr]--;
 			result.m_value[i]=result.m_value[i]+m_uintMax+1- b.m_value[i];		
 		}
-		//usual substraction condition
+		//usual subtraction condition
 		else{
 			result.m_value[i]=result.m_value[i]- b.m_value[i];
 		}
@@ -736,7 +736,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Minus(const Big
 	while(result.m_value[endValA]==0){
 		endValA++;
 	}
-	//reset the MSB after substraction
+	//reset the MSB after subtraction
 	result.m_MSB = (m_nSize-endValA-1)*m_uintBitLength + GetMSBUint_type(result.m_value[endValA]);
 
 	//return the result
@@ -759,13 +759,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::MinusEq(
         // DTS: note: these variables are confusing. if you look close you will find (a) they are only inside the inner if block (cntr=0 is superfluous); (b) current simply equals i (neither changes after the current=i assignment); and (c) the while loop needs to check cntr >= 0 (when m_value[] == 0...)
 	int cntr=0,current=0;
 
-        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions. (why does this combine int and sint? sure, all the values should be small, )
+        // DTS: (see Plus(), above) this function uses [signed] int for endValA and endValB, unlike all the similar loops in the previous functions.
 
-	//array position in A to end substraction
+	//array position in A to end subtraction
 	volatile int endValA = m_nSize-ceilIntByUInt(this->m_MSB);
-	//array position in B to end substraction
+	//array position in B to end subtraction
 	int endValB = m_nSize-ceilIntByUInt(b.m_MSB);
-	sint i;
+	int i;
 	for(i=m_nSize-1;i>=endValB;i--){
 		//carryover condtion
 		if(this->m_value[i]<b.m_value[i]){
@@ -780,7 +780,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::MinusEq(
 			this->m_value[cntr]--;
 			this->m_value[i]=this->m_value[i]+m_uintMax+1- b.m_value[i];
 		}
-		//usual substraction condition
+		//usual subtraction condition
 		else{
 			this->m_value[i]=this->m_value[i]- b.m_value[i];
 		}
@@ -955,9 +955,9 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const
 		return 0;
 	else if(b==*this)
 		return 1;
-	
+
 	BigInteger ans;
-	
+
 	//normalised_dividend = result*quotient
 	BigInteger normalised_dividend( this->Minus( this->Mod(b) ) );
 	//Number of array elements in Divisor
@@ -1025,7 +1025,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const
 			estimate = 0;
 		else
 			estimate = 1; 
-		//assgning the quotient in the result array
+		//assigning the quotient in the result array
 		ans.m_value[ansCtr] = estimate;
 		ansCtr++;		
 		if(i==0)
@@ -1185,12 +1185,12 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//memory allocated for decimal array
 	DecValue = new uschar[arrSize];
 	
-	for(sint i=0;i<arrSize;i++)//store the string to decimal array
+	for(int i=0;i<arrSize;i++)//store the string to decimal array
 		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
 
 	DEBUG("v=" << v);
 	if( dbg_flag )
-		for( sint i=0;i<arrSize;i++)
+		for( int i=0;i<arrSize;i++)
 			DEBUG("DecValue[" << i << "]=" << (int)DecValue[i]);
 
 	int zptr = 0;
@@ -1198,17 +1198,17 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 	//define  bit register array
 	uschar *bitArr = new uschar[m_uintBitLength]();
 	
-	sint bitValPtr=m_nSize-1;
+	int bitValPtr=m_nSize-1;
 	//bitValPtr is a pointer to the Value char array, initially pointed to the last char
 	//we increment the pointer to the next char when we get the complete value of the char array
 	
-	sint cnt=m_uintBitLength-1;
+	int cnt=m_uintBitLength-1;
 	DEBUG("bitValPtr " << bitValPtr << " cnt " << cnt);
 	//cnt8 is a pointer to the bit position in bitArr, when bitArr is complete it is ready to be transfered to Value
 	while(zptr!=arrSize){
 		bitArr[cnt]=DecValue[arrSize-1]%2;
 		//start divide by 2 in the DecValue array
-		for(sint i=zptr;i<arrSize-1;i++){
+		for(int i=zptr;i<arrSize-1;i++){
 			DecValue[i+1]= (DecValue[i]%2)*10 + DecValue[i+1];
 			DecValue[i]>>=1;
 		}
@@ -1267,7 +1267,7 @@ void BigInteger<uint_type, BITLENGTH>::SetValue(const std::string& str){
 	AssignVal(str);
 }
 
-//Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
+//Algorithm used: Repeated subtraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigInteger& modulus) const{
@@ -1287,10 +1287,8 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigIn
 	//No of initial left shift that can be performed which will make it comparable to the current value.
 	if(this->m_MSB > modulus.m_MSB)
 		initial_shift=this->m_MSB - modulus.m_MSB -1;
-
 	
 	BigInteger j = modulus<<initial_shift;
-
 	
 	BigInteger result(*this);
 
@@ -1322,7 +1320,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigIn
 	return result;
 }
 
-//Algorithm used: Repeated substraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
+//Algorithm used: Repeated subtraction by a multiple of modulus, which will be referred to as "Classical Modulo Reduction Algorithm"
 //Complexity: O(log(*this)-log(modulus))
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModEq(const BigInteger& modulus) {
@@ -1398,9 +1396,9 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(cons
 	BigInteger z(*this);
 	BigInteger q(*this);
 
-	usint n = modulus.m_MSB;
-	usint alpha = n + 3;
-	sint beta = -2;
+	unsigned int n = modulus.m_MSB;
+	unsigned int alpha = n + 3;
+	int beta = -2;
 
 	q>>=n + beta;
 	q = q*mu;
@@ -1440,9 +1438,9 @@ void BigInteger<uint_type, BITLENGTH>::ModBarrettInPlace(const BigInteger& modul
 
 	BigInteger q(*this);
 
-	usint n = modulus.m_MSB;
-	usint alpha = n + 3;
-	sint beta = -2;
+	unsigned int n = modulus.m_MSB;
+	unsigned int alpha = n + 3;
+	int beta = -2;
 
 	q >>= n + beta;
 	q = q*mu;
@@ -1550,7 +1548,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 	first = mods[0];
 	second = mods[1];
 	//SOUTH ALGORITHM
-	for(sint i=quotient.size()-1;i>=0;i--){
+	for(int i=quotient.size()-1;i>=0;i--){
 		mods.push_back(quotient[i]*second + first);
 		first = second;
 		second = mods.back();
@@ -1925,7 +1923,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::ToString() const {
 
 	//find the first occurrence of non-zero value in print_VALUE
 	for(counter=0;counter<m_numDigitInPrintval-1;counter++){
-		if((sint)print_VALUE[counter]!=0)break;							
+		if((int)print_VALUE[counter]!=0)break;
 	}
 
 	//append this BigInteger's digits to this method's returned string object
@@ -1941,7 +1939,7 @@ const std::string BigInteger<uint_type,BITLENGTH>::ToString() const {
 //Compares the current object with the BigInteger a.
 //Uses MSB comparision to output requisite value.
 template<typename uint_type,usint BITLENGTH>
-sint BigInteger<uint_type,BITLENGTH>::Compare(const BigInteger& a) const
+int BigInteger<uint_type,BITLENGTH>::Compare(const BigInteger& a) const
 {
 
 	if(this->m_MSB<a.m_MSB)
@@ -1950,97 +1948,25 @@ sint BigInteger<uint_type,BITLENGTH>::Compare(const BigInteger& a) const
 		return 1;
 	if(this->m_MSB==a.m_MSB){
 		uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-		for(usint i=m_nSize-ceilInt;i< m_nSize;i++){
-			auto testChar = this->m_value[i]-a.m_value[i] ;
-			if(testChar<0)return -1;
-			else if(testChar>0)return 1;
+		for(usint i=m_nSize-ceilInt;i< m_nSize;i++) {
+			auto testChar = int64_t(this->m_value[i]) - int64_t(a.m_value[i]) ;
+			if(testChar<0) return -1;
+			else if(testChar>0) return 1;
 		}
 	}
 
 	return 0;
-
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator==(const BigInteger& a) const{
-
-	if(this->m_MSB!=a.m_MSB)
-		return false;
-	else{
-		uschar ceilInt = ceilIntByUInt(a.m_MSB); 
-		for(usint i= m_nSize-ceilInt;i< m_nSize;i++)
-			if(this->m_value[i]!=a.m_value[i])
-				return false;	
-	}
-	return true;
-
 }
 
 template<typename uint_type,usint BITLENGTH>
 bool BigInteger<uint_type,BITLENGTH>::CheckIfPowerOfTwo(const BigInteger& m_numToCheck){
 	usint m_MSB = m_numToCheck.m_MSB;
 	for(int i=m_MSB-1;i>0;i--){
-		if((sint)m_numToCheck.GetBitAtIndex(i)==(sint)1){
+		if((int)m_numToCheck.GetBitAtIndex(i)==1){
 			return false;
 		}
 	}
 	return true;
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator!=(const BigInteger& a)const{
-	return !(*this==a);
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator>(const BigInteger& a)const{
-
-	if(this->m_MSB<a.m_MSB)
-		return false;
-	else if(this->m_MSB>a.m_MSB)
-		return true;
-	else{
-		uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-		for(usint i=m_nSize-ceilInt;i< m_nSize;i++){
-			if(this->m_value[i]<a.m_value[i])
-				return false;
-			else if(this->m_value[i]>a.m_value[i])
-				return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator>=(const BigInteger& a) const{
-	return (*this>a || *this==a);
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator<(const BigInteger& a) const{
-
-	if(this->m_MSB<a.m_MSB)
-		return true;
-	else if(this->m_MSB>a.m_MSB)
-		return false;
-	else{
-		uschar ceilInt = ceilIntByUInt(this->m_MSB); 
-		for(usint i= m_nSize-ceilInt;i< m_nSize;i++){
-			if(this->m_value[i]>a.m_value[i])
-				return false;
-			else if(this->m_value[i]<a.m_value[i])
-				return true;
-		}
-
-	}
-	return false;
-
-}
-
-template<typename uint_type,usint BITLENGTH>
-bool BigInteger<uint_type,BITLENGTH>::operator<=(const BigInteger& a) const{
-	return (*this<a || *this==a);
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -2064,7 +1990,6 @@ usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint
 	}
 	DEBUG("digit = " << digit);
 	return digit;
-
 }
 
 template<typename uint_type, usint BITLENGTH>
@@ -2257,7 +2182,7 @@ template<typename uint_type,usint BITLENGTH>
  uint_type BigInteger<uint_type,BITLENGTH>::UintInBinaryToDecimal(uschar *a){
 	 uint_type Val = 0;
 	 uint_type one =1;
-	 for(sint i=m_uintBitLength-1;i>=0;i--){
+	 for(int i=m_uintBitLength-1;i>=0;i--){
 		 Val+= one**(a+i);
 		 one<<=1;
 		 *(a+i)=0;
@@ -2271,7 +2196,7 @@ template<typename uint_type,usint BITLENGTH>
  void BigInteger<uint_type,BITLENGTH>::double_bitVal(uschar* a){
 	
 	uschar ofl=0;
-	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
+	for(int i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i)<<=1;
 		if(*(a+i)>9){
 			*(a+i)=*(a+i)-10+ofl;
@@ -2289,7 +2214,7 @@ template<typename uint_type,usint BITLENGTH>
  void BigInteger<uint_type,BITLENGTH>::add_bitVal(uschar* a,uschar b){
 	uschar ofl=0;
 	*(a+m_numDigitInPrintval-1)+=b;
-	for(sint i=m_numDigitInPrintval-1;i>-1;i--){
+	for(int i=m_numDigitInPrintval-1;i>-1;i--){
 		*(a+i) += ofl;
 		if(*(a+i)>9){
 			*(a+i)=0;
@@ -2310,7 +2235,7 @@ uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
 	else if (index > m_MSB)
 		return 0;
 	uint_type result;
-	sint idx = m_nSize - ceilIntByUInt(index);//idx is the index of the character array
+	int idx = m_nSize - ceilIntByUInt(index);//idx is the index of the character array
 	uint_type temp = this->m_value[idx];
 	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;//bmask is the bit number in the 8 bit array
 	uint_type bmask = 1;
@@ -2332,7 +2257,7 @@ uschar BigInteger<uint_type,BITLENGTH>::Get6BitsAtIndex(usint index) const{
 	}
 
 	uint_type result;
-	sint idx = m_nSize - ceilIntByUInt(index);	//idx is the slot holding the first bit
+	int idx = m_nSize - ceilIntByUInt(index);	//idx is the slot holding the first bit
 	uint_type temp = this->m_value[idx];
 
 	uint_type bmask_counter = index%m_uintBitLength==0? m_uintBitLength:index%m_uintBitLength;

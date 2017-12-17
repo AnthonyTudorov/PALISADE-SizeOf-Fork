@@ -255,7 +255,7 @@ namespace NTL {
 
   //for some dumb reason they coded this., it is dangerous
   template<class myT>
-  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<sint> rhs){
+  const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int32_t> rhs){
     bool dbg_flag = false;
     DEBUG("in op=initializerlist <uint64_t>");
 
@@ -266,7 +266,7 @@ namespace NTL {
 
     for(size_t i=0;i<this->size();i++){ // this loops over each entry
       if (i<len) {
-	sint tmp = *(rhs.begin()+i);
+	int tmp = *(rhs.begin()+i);
 	if (tmp<0){
 	  std::cout<<"warning trying to assign negative integer value"<<std::endl;
 	}

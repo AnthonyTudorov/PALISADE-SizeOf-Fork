@@ -419,8 +419,8 @@ TEST(UTNativeInteger,basic_compare){
   // Result is stored in signed integer, and then the result is
   // typecasted to int as EXPECT_EQ takes integer
 
-  sint c;
-  sint expectedResult;
+  int c;
+  int expectedResult;
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {

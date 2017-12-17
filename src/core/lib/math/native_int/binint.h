@@ -235,7 +235,7 @@ public:
 	 *
 	 * @return the index of the most significant bit.
 	 */
-	usshort GetMSB() const { return lbcrypto::GetMSB64(this->m_value); }
+	usint GetMSB() const { return lbcrypto::GetMSB64(this->m_value); }
 
 	/**
 	 * Converts the value to an int.
@@ -474,7 +474,7 @@ public:
 		second = mods[1];
 
 		//SOUTH ALGORITHM
-		for(sint i=quotient.size()-1;i>=0;i--){
+		for(int i=quotient.size()-1;i>=0;i--){
 			mods.push_back(quotient[i]*second + first);
 			first = second;
 			second = mods.back();
@@ -1073,54 +1073,6 @@ public:
 		return ans;
 	}
 
-	/**
-	 * Test equality of the inputs.
-	 *
-	 * @param a second value to test.
-	 * @return true if the inputs are equal.
-	 */
-	bool operator==(const NativeInteger& a) const { return m_value == a.m_value; }
-
-	/**
-	 * Test inequality of the inputs.
-	 *
-	 * @param a second value to test.
-	 * @return true if the inputs are inequal.
-	 */
-	bool operator!=(const NativeInteger& a) const { return m_value != a.m_value; }
-
-	/**
-	 * Test if first input is great than the second input.
-	 *
-	 * @param a second value to test.
-	 * @return true if the first inputs is greater.
-	 */
-	bool operator> (const NativeInteger& a) const { return m_value > a.m_value; }
-
-	/**
-	 * Test if first input is great than or equal to the second input.
-	 *
-	 * @param a second value to test.
-	 * @return true if the first inputs is greater than or equal to the second input.
-	 */
-	bool operator>=(const NativeInteger& a) const { return m_value >= a.m_value; }
-
-	/**
-	 * Test if first input is less than the second input.
-	 *
-	 * @param a second value to test.
-	 * @return true if the first inputs is lesser.
-	 */
-	bool operator< (const NativeInteger& a) const { return m_value < a.m_value; }
-
-	/**
-	 * Test if first input is less than or equal to the second input.
-	 *
-	 * @param a second value to test.
-	 * @return true if the first inputs is less than or equal to the second input.
-	 */
-	bool operator<=(const NativeInteger& a) const { return m_value <= a.m_value; }
-
 	//overloaded binary operators based on integer arithmetic and comparison functions
 	NativeInteger operator-() const { return NativeInteger(0).Minus(*this); }
 
@@ -1167,7 +1119,7 @@ public:
 	 * @param a is the NativeInteger to be compared with.
 	 * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
 	 */
-	sint Compare(const NativeInteger& a) const {
+	int Compare(const NativeInteger& a) const {
 		if( this->m_value < a.m_value )
 			return -1;
 		else if( this->m_value > a.m_value )

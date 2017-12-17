@@ -261,8 +261,7 @@ public:
 	 * @param &rhs the list to set the PolyImpl to.
 	 * @return the resulting PolyImpl.
 	 */
-	const PolyType& operator=(std::initializer_list<sint> rhs);
-	//todo: this should be changed from sint to usint!
+	const PolyType& operator=(std::initializer_list<uint64_t> rhs);
 
 	/**
 	* @brief Creates a Poly from a vector of signed integers (used for trapdoor sampling)

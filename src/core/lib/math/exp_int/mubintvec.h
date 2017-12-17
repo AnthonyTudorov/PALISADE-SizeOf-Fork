@@ -214,7 +214,7 @@ public:
    * note modulus remains unchanged.
    */
 
-  const mubintvec& operator=(std::initializer_list<sint> rhs);
+  const mubintvec& operator=(std::initializer_list<int32_t> rhs);
 
   /**
    * Initializer list for mubintvec.
@@ -315,8 +315,8 @@ public:
     return *this;
   }
   
-  //assignment from sint
-  inline const mubintvec& operator=(sint val) {
+  //assignment from int32_t
+  inline const mubintvec& operator=(int32_t val) {
     //todo this is the way kurt and yuri want it
     if (val<0) 
       throw std::logic_error("mubintvec() = with  negative number");

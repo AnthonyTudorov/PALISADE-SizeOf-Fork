@@ -64,7 +64,7 @@ public:
 	* @param size The number of values to return.
 	* @return     A pointer to an array of integer values generated with the distribution.
 	*/
-	std::shared_ptr<sint> GenerateIntVector (usint size) const;
+	std::shared_ptr<int32_t> GenerateIntVector (usint size) const;
 
     virtual ~TernaryUniformGeneratorImpl() {}
 private:

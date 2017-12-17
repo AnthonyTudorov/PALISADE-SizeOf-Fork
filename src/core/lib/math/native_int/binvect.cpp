@@ -136,7 +136,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const Bi
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<sint> rhs){
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<uint64_t> rhs){
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {

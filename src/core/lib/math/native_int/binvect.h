@@ -133,14 +133,13 @@ public:
 	*/
 	BigVectorImpl&  operator=(BigVectorImpl &&rhs);
 
-	//todo replace <sint> with <usint>
 	/**
 	* Initializer list for BigVectorImpl.
 	*
 	* @param &&rhs is the list of integers to be assigned to the BBV.
 	* @return BigVectorImpl object 
 	*/
-	const BigVectorImpl& operator=(std::initializer_list<sint> rhs);
+	const BigVectorImpl& operator=(std::initializer_list<uint64_t> rhs);
 
 	/**
 	* Initializer list for BigVectorImpl.
@@ -175,7 +174,7 @@ public:
 	* @param val is the value to be assigned at the first entry.
 	* @return Assigned BigVectorImpl.
 	*/
-    inline const BigVectorImpl& operator=(usint val) {
+    inline const BigVectorImpl& operator=(uint64_t val) {
         this->m_data[0] = val;
         for (size_t i = 1; i < GetLength(); ++i) {
             this->m_data[i] = 0;

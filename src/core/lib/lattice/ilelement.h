@@ -94,7 +94,7 @@ public:
 	 * @brief Assignment operator that copies elements.
 	 * @param rhs
 	 */
-	virtual const Element& operator=(std::initializer_list<sint> rhs) = 0;
+	virtual const Element& operator=(std::initializer_list<uint64_t> rhs) = 0;
 
 	// GETTERS
 	/**
@@ -347,8 +347,8 @@ public:
 	virtual void MakeSparse(const uint32_t &wFactor) = 0;
 
 	/**
-	 * @brief ModByTwo operation on the Element
-	 * FIXME: comment
+	 * @brief Calculate Element mod 2
+	 *
 	 * @return result of performing a mod-2 operation on the element.
 	 */
 	virtual Element ModByTwo() const = 0;
@@ -385,18 +385,7 @@ public:
 	 * @return
 	 */
 	virtual std::vector<Element> PowersOfBase(usint baseBits) const = 0;
-#if 0 //TODO should define a virtual member here.
-	/**
-	 * @brief Test function to prints all values in either coefficient or evaluation format.
-	 * 
-	 */
-	virtual  std::ostream& operator<<(std::ostream& os, const Element &element) {
-	  //TODO: would be good to return a string for the Element Name
-	  os<<"stream operator<< not defined for this Element";
-	  return os;
-	}
-#endif
-	
+
 	/**
 	 * @brief Mod - perform a modulus operation.
 	 * Does proper mapping of [-modulus/2, modulus/2) to [0, modulus).

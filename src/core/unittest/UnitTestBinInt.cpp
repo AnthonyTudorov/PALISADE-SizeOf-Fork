@@ -318,6 +318,7 @@ TEST(UTBinInt,basic_math){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing times_test";
   }
+
   /************************************************/
   /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
   /************************************************/
@@ -342,6 +343,7 @@ TEST(UTBinInt,basic_math){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_less_than_b";
   }
+
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
 
@@ -354,6 +356,7 @@ TEST(UTBinInt,basic_math){
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_equals_b";
   }
+
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
     BigInteger a("2048956567");
@@ -365,7 +368,6 @@ TEST(UTBinInt,basic_math){
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << "Failure testing divided_by_a_greater_than_b";
   }
-
 
   {
 	  BigInteger a("8096");
@@ -447,7 +449,7 @@ TEST(UTBinInt,basic_compare){
   // Result is stored in signed integer, and then the result is
   // typecasted to int as EXPECT_EQ takes integer
 
-  sint c;
+  int c;
   int expectedResult;
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
@@ -1094,13 +1096,13 @@ TEST(UTBinInt, method_GetBitAtIndex){
   DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
 
   // index is 1 for lsb!
-  EXPECT_EQ(sint(x.GetBitAtIndex(1)), 0);  
-  EXPECT_EQ(sint(x.GetBitAtIndex(2)), 1);  
+  EXPECT_EQ(x.GetBitAtIndex(1), 0);
+  EXPECT_EQ(x.GetBitAtIndex(2), 1);
 
   for (auto idx = 3; idx < 100; idx++){
-    EXPECT_EQ(sint(x.GetBitAtIndex(idx)), 0);  
+    EXPECT_EQ(x.GetBitAtIndex(idx), 0);
   }
-  EXPECT_EQ(sint(x.GetBitAtIndex(101)), 1);  
+  EXPECT_EQ(x.GetBitAtIndex(101), 1);
 
 }
 

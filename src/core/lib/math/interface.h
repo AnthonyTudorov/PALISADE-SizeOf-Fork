@@ -308,7 +308,7 @@ namespace lbcrypto {
 		 *
 		 * @return the index of the most significant bit.	  
 		 */
-		virtual usshort GetMSB() const = 0;
+		virtual usint GetMSB() const = 0;
 
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
@@ -334,13 +334,22 @@ namespace lbcrypto {
 		 */
 		virtual uint64_t ConvertToInt() const = 0;
 
-		//// relational operators
-		virtual bool operator==(const T& a) const = 0;
-		virtual bool operator!=(const T& a) const = 0;
-		virtual bool operator> (const T& a) const = 0;
-		virtual bool operator>=(const T& a) const = 0;
-		virtual bool operator< (const T& a) const = 0;
-		virtual bool operator<=(const T& a) const = 0;
+		/**
+	    * Compares the current BigInteger to BigInteger a.
+	    *
+	    * @param a is the BigInteger to be compared with.
+	    * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
+	    */
+	    virtual int Compare(const T& a) const = 0;
+
+		//// relational operators, using Compare
+	    bool operator==(const T& b) const {return this->Compare(b) == 0;}
+	    bool operator!=(const T& b) const {return this->Compare(b) != 0;}
+
+		bool operator> (const T& b) const {return this->Compare(b) >  0;}
+		bool operator>=(const T& b) const {return this->Compare(b) >= 0;}
+		bool operator< (const T& b) const {return this->Compare(b) <  0;}
+		bool operator<=(const T& b) const {return this->Compare(b) <= 0;}
 	}; 
 
 	template<typename T, typename I>
@@ -353,12 +362,49 @@ public:
 		// Constructors should be implemented in the derived classes
 		// The derived classes should implement constructors from initializer lists of integers and strings
 
-		// There should be copy and move constructors, as well as copy and move assignment
-
-		// There should also be assignment from an unsigned int? FIXME
+		// The following assignment operators must be provided
 
 		/**
-		* Equals to operator, checks if two T obj are equal or not.
+		* Assignment operator from Vector
+		*
+		* @param &rhs is the vector to be assigned from.
+		* @return this
+		*/
+		virtual const T& operator=(const T& rhs) = 0;
+
+		/**
+		* Move assignment operator from Vector
+		*
+		* @param &&rhs is the native vector to be moved.
+		* @return this
+		*/
+		virtual const T& operator=(T &&rhs) = 0;
+
+		/**
+		* Assignment from initializer list of unsigned integers
+		*
+		* @param &&rhs is the list of integers
+		* @return this
+		*/
+		virtual const T& operator=(std::initializer_list<uint64_t> rhs) = 0;
+
+		/**
+		* Assignment from initializer list of strings
+		*
+		* @param &&rhs is the list of strings
+		* @return this
+		*/
+		virtual const T& operator=(std::initializer_list<std::string> rhs) = 0;
+
+		/**
+		 * Assignment to assign value val to first entry, 0 for the rest of entries.
+		 * @param val
+		 * @return this
+		 */
+		virtual const T& operator=(uint64_t val) = 0;
+
+		/**
+		* Equals to operator
 		*
 		* @param b is vector to be compared.
 		* @return true if equal and false otherwise.
@@ -376,25 +422,11 @@ public:
 	        return true;
 	    }
 
-//	    /**
-//		* Assignment operator to assign value val to first entry, 0 for the rest of entries.
-//		*
-//		* @param val is the value to be assigned at the first entry.
-//		* @return Assigned T.
-//		*/
-//	    inline const T& operator=(usint val) {
-//	        this->m_data[0] = val;
-//	        for (size_t i = 1; i < GetLength(); ++i) {
-//	            this->m_data[i] = 0;
-//	        }
-//	        return *this;
-//	    }
-
 	    /**
-		* Inequality operator, checks if two T obj are equal or not.
+		* Not equal to operator
 		*
 		* @param b is vector to be compared.
-		* @return false  if not equal and false otherwise.
+		* @return true if not equal and false otherwise.
 		*/
 	    bool operator!=(const T &b) const {
 	        return !(*this == b);
@@ -402,7 +434,7 @@ public:
 
 		//ACCESSORS
 
-	    // The derived class should implement at and operator[]
+	    // The derived class must implement at and operator[]
 		virtual I& at(size_t idx) = 0;
 		virtual const I& at(size_t idx) const = 0;
 		virtual I& operator[](size_t idx) = 0;
@@ -478,6 +510,7 @@ public:
 		 */
 		virtual const T& ModAddEq(const T &b) = 0;
 
+		// inlines for overloaded operators
 		T operator+(const I &b) const { return this->ModAdd(b); }
 		const T& operator+=(const I &b) { return this->ModAddEq(b); }
 		T operator+(const T &b) const { return this->ModAdd(b); }
@@ -515,8 +548,10 @@ public:
 		 */
 		virtual const T& ModSubEq(const T &b) = 0;
 
+		// inlines for overloaded operator unary minus
 		T operator-() const { return this->ModMul(I(-1)); }
 
+		// inlines for overloaded operators
 		T operator-(const I &b) const { return this->ModSub(b); }
 		const T& operator-=(const I &b) { return this->ModSubEq(b); }
 		T operator-(const T &b) const { return this->ModSub(b); }
@@ -554,6 +589,7 @@ public:
 		 */
 		virtual const T& ModMulEq(const T &b) = 0;
 
+		// inlines for overloaded operators
 		T operator*(const I &b) const { return this->ModMul(b); }
 		const T& operator*=(const I &b) { return this->ModMulEq(b); }
 		T operator*(const T &b) const { return this->ModMul(b); }
@@ -566,7 +602,7 @@ public:
 		 * @return a new vector after the modulus operation on current vector.
 		 */
 		virtual T Mod(const I& modulus) const = 0;
-			// FIXME there is no ModEq -- is it needed
+			// FIXME there is no ModEq -- is it needed?
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -575,7 +611,7 @@ public:
 		 * @return a new vector which is the result of the modulus exponentiation operation.
 		 */
 		virtual T ModExp(const I& b) const = 0;
-			// FIXME there is no ModExpEq -- is it needed
+			// FIXME there is no ModExpEq -- is it needed?
 
 		/**
 		 * Modulus inverse.
@@ -583,7 +619,7 @@ public:
 		 * @return a new vector which is the result of the modulus inverse operation.
 		 */
 		virtual T ModInverse() const = 0;
-			// FIXME there is no ModInverseEq -- is it needed
+			// FIXME there is no ModInverseEq -- is it needed?
 
 		//Vector Operations
 
@@ -593,18 +629,16 @@ public:
 		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 		*/
 		virtual T ModByTwo() const = 0;
-			// FIXME there is no ModByTwoEq -- is it needed
+			// FIXME there is no ModByTwoEq -- is it needed?
 
-#if 0
-		//component-wise multiplication
-
+		// FIXME this method does not seem to be used -- is it needed?
 		/**
 		 * Vector multiplication without applying the modulus operation.
 		 *
 		 * @param &b is the vector to multiply.
 		 * @return is the result of the multiplication operation.
 		 */
-		T MultWithOutMod(const T &b) const;
+		virtual T MultWithOutMod(const T &b) const = 0;
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
@@ -613,7 +647,7 @@ public:
 		* @param q is the denominator to be divided.
 		* @return the result of multiply and round.
 		*/
-		T MultiplyAndRound(const T::BVInt &p, const T::BVInt &q) const;
+		virtual T MultiplyAndRound(const I& p, const I& q) const = 0;
 
 		/**
 		* Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
@@ -621,8 +655,7 @@ public:
 		* @param q is the denominator to be divided.
 		* @return the result of divide and round.
 		*/
-		T DivideAndRound(const T::BVInt &q) const;
-#endif
+		virtual T DivideAndRound(const I& q) const = 0;
 
 		/**
 		 * Returns a vector of digits at a specific index for all entries for a given number base.

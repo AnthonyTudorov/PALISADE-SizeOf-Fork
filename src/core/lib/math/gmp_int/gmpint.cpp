@@ -251,7 +251,7 @@ namespace NTL {
 
     ZZ_limb_t result;
     const ZZ_limb_t *zlp = ZZ_limbs_get(*this); //get access to limb array
-    sint idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
+    int idx =ceilIntByUInt(index)-1;//idx is the index of the limb array
 
     if (idx >= (this->size())){
       return (uschar)0;

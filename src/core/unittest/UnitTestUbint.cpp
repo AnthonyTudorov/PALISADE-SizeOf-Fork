@@ -388,8 +388,8 @@ TEST(UTubint, compare){
   // Result is stored in signed integer, and then the result is
   // typecasted to int as  if  takes integer
 
-  sint c;
-  sint expectedResult;
+  int c;
+  int expectedResult;
   bool cbool;
   
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER

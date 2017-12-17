@@ -66,7 +66,7 @@ namespace lbcrypto {
 
 		double cusum = 1.0;
 
-		for (sint x = 1; x <= fin; x++) {
+		for (int x = 1; x <= fin; x++) {
 			cusum = cusum + 2 * exp(-x * x / (variance * 2));
 		}
 
@@ -75,7 +75,7 @@ namespace lbcrypto {
 		//fin = (int)ceil(sqrt(-2 * variance * log(acc))); //not needed - same as above
 		double temp;
 
-		for (sint i = 1; i <= fin; i++) {
+		for (int i = 1; i <= fin; i++) {
 			temp = m_a * exp(-((double)(i * i) / (2 * variance)));
 			m_vals.push_back(temp);
 		}
@@ -88,13 +88,13 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	sint DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInt() const {
+	int32_t DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateInt() const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
 		usint val = 0;
 		double seed;
-		sint ans;
+		int32_t ans;
 
 
 		seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
@@ -113,16 +113,16 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType, typename VecType>
-	std::shared_ptr<sint> DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntVector(usint size) const {
+	std::shared_ptr<int32_t> DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateIntVector(usint size) const {
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
 		usint val = 0;
 		double seed;
-		std::shared_ptr<sint> ans( new sint[size], std::default_delete<int[]>() );
+		std::shared_ptr<int32_t> ans( new int32_t[size], std::default_delete<int[]>() );
 
 		for (usint i = 0; i < size; i++) {
-			seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rathen than regular continuous distribution; see DG14 for details
+			seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
 			if (std::abs(seed) <= m_a / 2) {
 				val = 0;
 			}
@@ -187,13 +187,13 @@ namespace lbcrypto {
 	template<typename IntType, typename VecType>
 	VecType DiscreteGaussianGeneratorImpl<IntType,VecType>::GenerateVector(const usint size, const IntType &modulus) const {
 
-		std::shared_ptr<sint> result = GenerateIntVector(size);
+		std::shared_ptr<int32_t> result = GenerateIntVector(size);
 
 		VecType ans(size);
 		ans.SetModulus(modulus);
 
 		for (usint i = 0; i < size; i++) {
-			sint v = (result.get())[i];
+			int32_t v = (result.get())[i];
 			if (v < 0) {
 				v *= -1;
 				ans[i] = modulus - IntType(v);

@@ -364,7 +364,7 @@ namespace exp_int {
   // an exception to throw
   //todo: add throw
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<int32_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
     if (this->m_data.size()< len){
@@ -381,7 +381,7 @@ namespace exp_int {
       *this = this->Mod(this->m_modulus);
     }
     return *this;
-    DEBUG("mubintvec assignment copy CTOR sint init list length "<<this->m_data.size());
+    DEBUG("mubintvec assignment copy CTOR int32_t init list length "<<this->m_data.size());
   }
 
   //Assignment with initializer list of strings

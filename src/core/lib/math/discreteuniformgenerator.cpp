@@ -49,7 +49,7 @@ void DiscreteUniformGeneratorImpl<IntType,VecType>::SetModulus (const IntType & 
 	m_modulus = modulus;
 
 	// Update values that depend on modulus.
-	usint modulusWidth = m_modulus.GetMSB();
+	auto modulusWidth = m_modulus.GetMSB();
 	// Get the number of chunks in the modulus
 	// 1 is subtracted to make sure the last chunk is fully used by the modulus
 	m_chunksPerValue = (modulusWidth-1) / CHUNK_WIDTH;
