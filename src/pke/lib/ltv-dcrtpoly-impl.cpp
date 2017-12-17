@@ -1,5 +1,5 @@
 /*
-* @file ltv-dcrtpoly-impl.cpp - vector array implementation for the LTV scheme.
+* @file ltv-dcrtpoly-impl.cpp - dcrtpoly implementation for the LTV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

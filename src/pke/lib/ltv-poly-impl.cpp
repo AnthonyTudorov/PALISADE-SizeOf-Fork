@@ -1,10 +1,8 @@
 /*
-* @file cryptocontext-dcrtpoly-impl.cpp - vector array for the crypto context.
+* @file ltv-poly-impl.cpp - poly implementation for the LTV scheme.
  * @author  TPOC: palisade@njit.edu
  *
- * @section LICENSE
- *
- * Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -23,13 +21,39 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *
+ */
 
-#include "cryptocontext.cpp"
+#include "cryptocontext.h"
+#include "ltv.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<DCRTPoly>;
-template class CryptoContextImpl<DCRTPoly>;
-template class CryptoObject<DCRTPoly>;
+template class LPCryptoParametersLTV<Poly>;
+template class LPPublicKeyEncryptionSchemeLTV<Poly>;
+template class LPAlgorithmLTV<Poly>;
+template class LPAlgorithmPRELTV<Poly>;
+template class LPAlgorithmSHELTV<Poly>;
+template class LPLeveledSHEAlgorithmLTV<Poly>;
+
+template class LPCryptoParametersLTV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeLTV<NativePoly>;
+template class LPAlgorithmLTV<NativePoly>;
+template class LPAlgorithmPRELTV<NativePoly>;
+template class LPAlgorithmSHELTV<NativePoly>;
+template class LPLeveledSHEAlgorithmLTV<NativePoly>;
+
+template <>
+bool LPAlgorithmParamsGenLTV<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	return false;
 }
 
+template <>
+bool LPAlgorithmParamsGenLTV<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams,
+		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount) const
+{
+	return false;
+}
+
+}

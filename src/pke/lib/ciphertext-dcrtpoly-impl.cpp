@@ -1,5 +1,5 @@
 /*
-* @file rationalct-dcrtpoly-impl.cpp - rational ciphertext vector array class implementation
+* @file ciphertext-dcrtpoly-impl.cpp - ciphertext dcrtpoly implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,13 +24,14 @@
  *
  */
 
+#include "../../core/lib/lattice/dcrtpoly.cpp"
+#include "../../core/lib/lattice/poly.cpp"
 #include "cryptocontext.h"
-#include "ciphertext.h"
-#include "rationalciphertext.cpp"
+#include "ciphertext.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContextImpl<DCRTPoly>;
 
-template class RationalCiphertext<DCRTPoly>;
+template class CiphertextImpl<DCRTPoly>;
 }
 

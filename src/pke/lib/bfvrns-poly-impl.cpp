@@ -1,5 +1,5 @@
 /*
-* @file bfvrns-vector-impl.cpp - vector implementation for the BFVrns scheme.
+* @file bfvrns-poly-impl.cpp - poly implementation for the BFVrns scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

@@ -1,5 +1,5 @@
 /*
- * @file bv-dcrtpoly-impl.cpp - BV vector array implementation.
+* @file ciphertext-poly-impl.cpp - ciphertext poly implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,11 +24,17 @@
  *
  */
 
+#include "../../core/lib/lattice/poly.cpp"
 #include "cryptocontext.h"
-#include "bv.cpp"
+#include "ciphertext.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersBV<DCRTPoly>;
-template class LPPublicKeyEncryptionSchemeBV<DCRTPoly>;
-template class LPAlgorithmBV<DCRTPoly>;
+extern template class CryptoContextImpl<Poly>;
+
+template class CiphertextImpl<Poly>;
+
+extern template class CryptoContextImpl<NativePoly>;
+
+template class CiphertextImpl<NativePoly>;
 }
+

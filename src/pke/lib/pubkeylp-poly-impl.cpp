@@ -1,5 +1,5 @@
 /*
-* @file cryptocontext-vector-impl.cpp - cryptocontext vector class implementation
+ * @file pubkeylp-poly-impl.cpp - public key poly implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,14 +24,28 @@
  *
  */
 
-#include "cryptocontext.cpp"
+#include "cryptocontext.h"
+#include "pubkeylp.cpp"
+#include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
-template class CryptoContextFactory<Poly>;
-template class CryptoContextImpl<Poly>;
-template class CryptoObject<Poly>;
+extern template class CryptoContextImpl<Poly>;
 
-template class CryptoContextFactory<NativePoly>;
-template class CryptoContextImpl<NativePoly>;
-template class CryptoObject<NativePoly>;
+template class LPPublicKeyImpl<Poly>;
+template class LPPrivateKeyImpl<Poly>;
+template class LPEvalKeyRelinImpl<Poly>;
+template class LPEvalKeyNTRUImpl<Poly>;
+template class LPEvalKeyNTRURelinImpl<Poly>;
+template class LPSHEAlgorithm<Poly>;
+
+extern template class CryptoContextImpl<NativePoly>;
+
+template class LPPublicKeyImpl<NativePoly>;
+template class LPPrivateKeyImpl<NativePoly>;
+template class LPEvalKeyRelinImpl<NativePoly>;
+template class LPEvalKeyNTRUImpl<NativePoly>;
+template class LPEvalKeyNTRURelinImpl<NativePoly>;
+template class LPSHEAlgorithm<NativePoly>;
+
 }
+

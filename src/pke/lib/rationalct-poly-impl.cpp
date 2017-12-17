@@ -1,5 +1,5 @@
 /*
-* @file ciphertext-vector-impl.cpp - ciphertext vector class implementation
+* @file rationalct-poly-impl.cpp - rational ciphertext poly implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,17 +24,14 @@
  *
  */
 
-#include "../../core/lib/lattice/poly.cpp"
 #include "cryptocontext.h"
-#include "ciphertext.cpp"
+#include "ciphertext.h"
+#include "rationalciphertext.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContextImpl<Poly>;
 
-template class CiphertextImpl<Poly>;
-
-extern template class CryptoContextImpl<NativePoly>;
-
-template class CiphertextImpl<NativePoly>;
+template class RationalCiphertext<Poly>;
+template class RationalCiphertext<NativePoly>;
 }
 
