@@ -1,5 +1,5 @@
 /*
-* @file fv-vector-impl.cpp - vector implementation for the FV scheme.
+ * @file pubkeylp-dcrtpoly-impl.cpp - public key dcrtpoly implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,16 +25,17 @@
  */
 
 #include "cryptocontext.h"
-#include "fv.cpp"
+#include "pubkeylp.cpp"
+#include "pubkeylp-2n-private.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersFV<Poly>;
-template class LPPublicKeyEncryptionSchemeFV<Poly>;
-template class LPAlgorithmFV<Poly>;
-template class LPAlgorithmParamsGenFV<Poly>;
+extern template class CryptoContextImpl<DCRTPoly>;
 
-template class LPCryptoParametersFV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeFV<NativePoly>;
-template class LPAlgorithmFV<NativePoly>;
-template class LPAlgorithmParamsGenFV<NativePoly>;
+template class LPPublicKeyImpl<DCRTPoly>;
+template class LPPrivateKeyImpl<DCRTPoly>;
+template class LPEvalKeyRelinImpl<DCRTPoly>;
+template class LPEvalKeyNTRUImpl<DCRTPoly>;
+template class LPEvalKeyNTRURelinImpl<DCRTPoly>;
+template class LPSHEAlgorithm<DCRTPoly>;
 }
+

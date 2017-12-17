@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-vector-impl.cpp - public key vector implementation.
+ * @file stst-dcrtpoly-impl.cpp - Stehle-Stenfeld dcrtpoly implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,27 +25,11 @@
  */
 
 #include "cryptocontext.h"
-#include "pubkeylp.cpp"
-#include "pubkeylp-2n-private.cpp"
+#include "ltv.h"
+#include "stst.h"
 
 namespace lbcrypto {
-extern template class CryptoContextImpl<Poly>;
-
-template class LPPublicKeyImpl<Poly>;
-template class LPPrivateKeyImpl<Poly>;
-template class LPEvalKeyRelinImpl<Poly>;
-template class LPEvalKeyNTRUImpl<Poly>;
-template class LPEvalKeyNTRURelinImpl<Poly>;
-template class LPSHEAlgorithm<Poly>;
-
-extern template class CryptoContextImpl<NativePoly>;
-
-template class LPPublicKeyImpl<NativePoly>;
-template class LPPrivateKeyImpl<NativePoly>;
-template class LPEvalKeyRelinImpl<NativePoly>;
-template class LPEvalKeyNTRUImpl<NativePoly>;
-template class LPEvalKeyNTRURelinImpl<NativePoly>;
-template class LPSHEAlgorithm<NativePoly>;
-
+template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
+template class LPAlgorithmStSt<DCRTPoly>;
 }
-

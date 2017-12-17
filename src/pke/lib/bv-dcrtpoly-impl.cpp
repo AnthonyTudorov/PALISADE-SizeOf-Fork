@@ -1,5 +1,5 @@
 /*
-* @file bv-vector-impl.cpp - BV scheme vector class implementation
+ * @file bv-dcrtpoly-impl.cpp - BV dcrtpoly implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,11 +28,7 @@
 #include "bv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersBV<Poly>;
-template class LPPublicKeyEncryptionSchemeBV<Poly>;
-template class LPAlgorithmBV<Poly>;
-
-template class LPCryptoParametersBV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeBV<NativePoly>;
-template class LPAlgorithmBV<NativePoly>;
+template class LPCryptoParametersBV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeBV<DCRTPoly>;
+template class LPAlgorithmBV<DCRTPoly>;
 }

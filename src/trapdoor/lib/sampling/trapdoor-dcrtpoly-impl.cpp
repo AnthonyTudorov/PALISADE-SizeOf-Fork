@@ -1,5 +1,5 @@
-/*
- * @file stst-vector-impl.cpp - Stehle-Stenfeld vector implementation.
+/**
+ * @file trapdoor-dcrtpoly-impl.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,13 +24,17 @@
  *
  */
 
+// Forward definition of implementation classes for DCRTPoly
 
-#include "cryptocontext.h"
-#include "ltv.h"
-#include "stst.h"
+#include "dgsampling.cpp"
+#include "trapdoor.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<Poly>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
-template class LPAlgorithmStSt<Poly>;
+
+	template class LatticeGaussSampUtility<DCRTPoly>;
+	template class RLWETrapdoorPair<DCRTPoly>;
+	template class RLWETrapdoorUtility<DCRTPoly>;
+	template class Matrix<DCRTPoly>;
+
 }

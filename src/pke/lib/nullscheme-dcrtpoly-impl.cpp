@@ -1,5 +1,5 @@
 /*
- * @file nullscheme-dcrtpoly-impl.cpp - null scheme vector array implementation
+ * @file nullscheme-dcrtpoly-impl.cpp - null scheme dcrtpoly implementation
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

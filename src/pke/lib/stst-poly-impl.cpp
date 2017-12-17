@@ -1,5 +1,5 @@
 /*
-* @file rationalct-vector-impl.cpp - rational ciphertext vector class implementation
+ * @file stst-poly-impl.cpp - Stehle-Stenfeld poly implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,14 +24,13 @@
  *
  */
 
+
 #include "cryptocontext.h"
-#include "ciphertext.h"
-#include "rationalciphertext.cpp"
+#include "ltv.h"
+#include "stst.h"
 
 namespace lbcrypto {
-extern template class CryptoContextImpl<Poly>;
-
-template class RationalCiphertext<Poly>;
-template class RationalCiphertext<NativePoly>;
+template class LPCryptoParametersStehleSteinfeld<Poly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
+template class LPAlgorithmStSt<Poly>;
 }
-

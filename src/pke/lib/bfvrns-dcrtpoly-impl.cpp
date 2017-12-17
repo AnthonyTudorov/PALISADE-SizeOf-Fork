@@ -1,5 +1,5 @@
 /*
-* @file fv-dcrtpoly-impl.cpp - vector array implementation for the FV scheme.
+* @file fv-dcrtpoly-impl.cpp - dcrtpoly implementation for the FV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

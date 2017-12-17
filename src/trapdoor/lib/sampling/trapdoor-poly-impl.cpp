@@ -1,5 +1,5 @@
-/*
-* @file ciphertext-dcrtpoly-impl.cpp - ciphertext vector array class implementation
+/**
+ * @file trapdoor-poly-impl.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,14 +24,22 @@
  *
  */
 
-#include "../../core/lib/lattice/dcrtpoly.cpp"
-#include "../../core/lib/lattice/poly.cpp"
-#include "cryptocontext.h"
-#include "ciphertext.cpp"
+// Forward definition of implementation classes for Poly
+
+#include "dgsampling.cpp"
+#include "trapdoor.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
-extern template class CryptoContextImpl<DCRTPoly>;
 
-template class CiphertextImpl<DCRTPoly>;
+	template class LatticeGaussSampUtility<Poly>;
+	template class RLWETrapdoorPair<Poly>;
+	template class RLWETrapdoorUtility<Poly>;
+	template class Matrix<Poly>;
+
+//	template class LatticeGaussSampUtility<NativePoly>;
+//	template class RLWETrapdoorPair<NativePoly>;
+//	template class RLWETrapdoorUtility<NativePoly>;
+//	template class Matrix<NativePoly>;
+
 }
-
