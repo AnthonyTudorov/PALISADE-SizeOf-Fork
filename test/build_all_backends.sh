@@ -5,7 +5,10 @@ if [ "$1" != "" ];
 then
 	backends=$1
 else
-	make clean
+	for i in $backends
+	do
+		rm -fr bin/backend-$i 
+	done
 fi
 
 echo "****************************"

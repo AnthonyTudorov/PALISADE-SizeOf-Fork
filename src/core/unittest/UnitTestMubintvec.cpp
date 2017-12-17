@@ -198,7 +198,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   expectedvecint.SetModulus(q);
   EXPECT_EQ (expectedvecint, m)<< "Failure exp_int::xubint initializer list";
 
-  expectedvecint = {9872U,5888u,4620u,2376u,4631u}; //usints
+  expectedvecint = {9872ULL,5888ULL,4620ULL,2376ULL,4631ULL}; //usints
   EXPECT_EQ (expectedvecint, m)<< "Failure usint initializer list";
 
   expectedvecint = {9872,5888,4620,2376,4631}; //ints (compiler promotes)

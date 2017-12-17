@@ -340,7 +340,7 @@ namespace exp_int {
 
   //Assignment with initializer list of usints
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<uint64_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
     if (this->m_data.size()< len){
