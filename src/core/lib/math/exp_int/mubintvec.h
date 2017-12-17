@@ -205,16 +205,16 @@ public:
 
   const mubintvec& operator=(std::initializer_list<uint64_t> rhs);
 
-  /**
-   * Initializer list for mubintvec.
-   *
-   * @param &&rhs is the list of sints to be assigned to the mubintvec.
-   * @return mubintvec object 
-   * note if  modulus is set then mod(input) is stored
-   * note modulus remains unchanged.
-   */
-
-  const mubintvec& operator=(std::initializer_list<int32_t> rhs);
+//  /**
+//   * Initializer list for mubintvec.
+//   *
+//   * @param &&rhs is the list of sints to be assigned to the mubintvec.
+//   * @return mubintvec object
+//   * note if  modulus is set then mod(input) is stored
+//   * note modulus remains unchanged.
+//   */
+//
+//  const mubintvec& operator=(std::initializer_list<int32_t> rhs);
 
   /**
    * Initializer list for mubintvec.
