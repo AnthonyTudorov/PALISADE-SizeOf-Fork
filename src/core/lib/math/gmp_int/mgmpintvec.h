@@ -126,7 +126,7 @@ namespace NTL {
 
 
     const myVecP& operator=(std::initializer_list<uint64_t> rhs);
-    const myVecP& operator=(std::initializer_list<sint> rhs);
+    const myVecP& operator=(std::initializer_list<int32_t> rhs);
     const myVecP& operator=(std::initializer_list<std::string> rhs);
     const myVecP& operator=(uint64_t rhs);
 
@@ -431,7 +431,7 @@ namespace NTL {
 
     //need to add comparison operators == and !=
     //note these should fail if the modulii are different!
-    // inline sint Compare(const myVecP& a) const {return compare(this->_ZZ_p__rep,a._ZZ_p__rep); };
+    // inline int32_t Compare(const myVecP& a) const {return compare(this->_ZZ_p__rep,a._ZZ_p__rep); };
     // myvecP and myvecP
     inline bool operator==(const myVecP& b) const
     { 

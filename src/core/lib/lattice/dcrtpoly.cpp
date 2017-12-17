@@ -155,7 +155,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DggType& dgg,
 	m_vectors.reserve(vecSize);
 
 	//dgg generating random values
-	std::shared_ptr<sint> dggValues = dgg.GenerateIntVector(dcrtParams->GetRingDimension());
+	std::shared_ptr<int32_t> dggValues = dgg.GenerateIntVector(dcrtParams->GetRingDimension());
 
 	for(usint i = 0; i < vecSize; i++) {
 
@@ -220,7 +220,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const TugType& tug,
 	m_vectors.reserve(numberOfTowers);
 
 	//tug generating random values
-	std::shared_ptr<sint> tugValues = tug.GenerateIntVector(dcrtParams->GetRingDimension());
+	std::shared_ptr<int32_t> tugValues = tug.GenerateIntVector(dcrtParams->GetRingDimension());
 
 	for (usint i = 0; i < numberOfTowers; i++) {
 
@@ -575,7 +575,7 @@ const DCRTPolyImpl<ModType,IntType,VecType,ParmType> & DCRTPolyImpl<ModType,IntT
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<sint> rhs)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(std::initializer_list<uint64_t> rhs)
 {
 	usint len = rhs.size();
 	static PolyType::Integer ZERO(0);
@@ -591,7 +591,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,Vec
 			}
 		}
 	} else {
-		for(usint i=0; i<m_vectors.size(); i++) {
+		for(size_t i=0; i<m_vectors.size(); i++) {
 			NativeVector temp(m_params->GetRingDimension());
 			temp.SetModulus(m_vectors.at(i).GetModulus());
 			temp = rhs;

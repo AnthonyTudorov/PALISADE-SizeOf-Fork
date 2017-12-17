@@ -139,7 +139,7 @@ void LTVPlaintextPKE() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -195,7 +195,7 @@ void BVPlaintextPKE() {
 
 	vector<Ciphertext<Poly>> ciphertext;
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedEncoding intArray(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -253,7 +253,7 @@ void FVPlaintextPKE() {
 
 	vector<Ciphertext<Poly>> ciphertext;
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	PackedEncoding intArray(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -306,12 +306,12 @@ void LTVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
-	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
+	std::vector<uint64_t> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
@@ -366,12 +366,12 @@ void BVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
-	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
+	std::vector<uint64_t> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;
@@ -443,12 +443,12 @@ void FVEvalMultPlain() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 
 	std::cout << "Input array 1\n\t" << intArray1 << std::endl;
 
-	std::vector<usint> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
+	std::vector<uint64_t> vectorOfInts2 = { 1,2,3,2,2,1,2,2,3,4 };
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 	std::cout << "Input array 2\n\t" << intArray2 << std::endl;

@@ -317,30 +317,30 @@ namespace exp_int {
   //Assignment with initializer list of ubints
   // does not resize the vector
   // unless lhs size is too small
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
-    bool dbg_flag = false;
-    size_t len = rhs.size();
-        if (this->m_data.size()< len){
-      this->m_data.resize(len);
-    }
-    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
-      if(i<len) {
-	this->m_data[i]= ubint_el_t(*(rhs.begin()+i));
-      } else {
-	this->m_data[i]=0;
-      }
-    }
-    if (this->m_modulus_state == INITIALIZED) {
-      *this=this->Mod(this->m_modulus);
-    }
-    return *this;
-    DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->m_data.size());
-  }
+//  template<class ubint_el_t>
+//  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<ubint_el_t> rhs){
+//    bool dbg_flag = false;
+//    size_t len = rhs.size();
+//        if (this->m_data.size()< len){
+//      this->m_data.resize(len);
+//    }
+//    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
+//      if(i<len) {
+//	this->m_data[i]= ubint_el_t(*(rhs.begin()+i));
+//      } else {
+//	this->m_data[i]=0;
+//      }
+//    }
+//    if (this->m_modulus_state == INITIALIZED) {
+//      *this=this->Mod(this->m_modulus);
+//    }
+//    return *this;
+//    DEBUG("mubintvec assignment copy CTOR ubint init list length "<<this->m_data.size());
+//  }
 
   //Assignment with initializer list of usints
   template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<uint64_t> rhs){
     bool dbg_flag = false;
     size_t len = rhs.size();
     if (this->m_data.size()< len){
@@ -360,29 +360,29 @@ namespace exp_int {
     DEBUG("mubintvec assignment copy CTOR usint init list length "<<this->m_data.size());
   }
 
-  //Assignment with initializer list of sints, note, negative values cause 
-  // an exception to throw
-  //todo: add throw
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<sint> rhs){
-    bool dbg_flag = false;
-    size_t len = rhs.size();
-    if (this->m_data.size()< len){
-      this->m_data.resize(len);
-    }
-    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
-      if(i<len) {
-	this->m_data[i] = ubint_el_t(*(rhs.begin()+i));
-      } else {
-	this->m_data[i] = 0;
-      }
-    }
-    if (this->m_modulus_state == INITIALIZED) {
-      *this = this->Mod(this->m_modulus);
-    }
-    return *this;
-    DEBUG("mubintvec assignment copy CTOR sint init list length "<<this->m_data.size());
-  }
+//  //Assignment with initializer list of sints, note, negative values cause
+//  // an exception to throw
+//  //todo: add throw
+//  template<class ubint_el_t>
+//  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<int32_t> rhs){
+//    bool dbg_flag = false;
+//    size_t len = rhs.size();
+//    if (this->m_data.size()< len){
+//      this->m_data.resize(len);
+//    }
+//    for(usint i=0;i<this->m_data.size();i++){ // this loops over each entry
+//      if(i<len) {
+//	this->m_data[i] = ubint_el_t(*(rhs.begin()+i));
+//      } else {
+//	this->m_data[i] = 0;
+//      }
+//    }
+//    if (this->m_modulus_state == INITIALIZED) {
+//      *this = this->Mod(this->m_modulus);
+//    }
+//    return *this;
+//    DEBUG("mubintvec assignment copy CTOR int32_t init list length "<<this->m_data.size());
+//  }
 
   //Assignment with initializer list of strings
   template<class ubint_el_t>

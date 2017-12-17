@@ -96,6 +96,8 @@ namespace NTL{
     //todo: figure out how to do && for wrapper
     //myZZ(NTL::myZZ_p &&a);
 
+    myZZ(const NativeInteger& n) : myZZ(n.ConvertToInt()) {}
+
     const myZZ& operator=(const myZZ &rhs);
 
     //TODO: this mimics backend 2 should this be uint_64_t val?
@@ -133,7 +135,7 @@ namespace NTL{
     double ConvertToDouble() const;
 
     //comparison method inline for speed
-    inline sint Compare(const myZZ& a) const { return compare(*this,a); };
+    int Compare(const myZZ& a) const { return compare(*this,a); };
 
     //associated comparison operators
     inline long operator==(const myZZ& b) const {return this->Compare(b)==0;};

@@ -51,15 +51,15 @@ protected:
 public:
 };
 
-usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1,std::vector<usint> &input2);
-usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2);
-usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2);
+usint ArbLTVInnerProductPackedArray(std::vector<uint64_t> &input1,std::vector<uint64_t> &input2);
+usint ArbBVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2);
+usint ArbFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2);
 
 TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 
 	usint size = 10;
-	std::vector<usint> input1(size, 0);
-	std::vector<usint> input2(size, 0);
+	std::vector<uint64_t> input1(size, 0);
+	std::vector<uint64_t> input2(size, 0);
 	usint limit = 15;
 	usint plainttextMod = 89;
 
@@ -86,8 +86,8 @@ TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 
 TEST_F(UTEvalIP, Test_BV_EvalInnerProduct) {
 	usint size = 10;
-	std::vector<usint> input1(size, 0);
-	std::vector<usint> input2(size, 0);
+	std::vector<uint64_t> input1(size, 0);
+	std::vector<uint64_t> input2(size, 0);
 	usint limit = 15;
 	usint plainttextMod = 89;
 
@@ -115,8 +115,8 @@ TEST_F(UTEvalIP, Test_BV_EvalInnerProduct) {
 TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 	
 	usint size = 10;
-	std::vector<usint> input1(size, 0);
-	std::vector<usint> input2(size, 0);
+	std::vector<uint64_t> input1(size, 0);
+	std::vector<uint64_t> input2(size, 0);
 	usint limit = 15;
 	usint plainttextMod = 2333;
 
@@ -142,7 +142,7 @@ TEST_F(UTEvalIP, Test_FV_EvalInnerProduct) {
 
 
 
-usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
+usint ArbLTVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2) {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -178,8 +178,8 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 	Ciphertext<Poly> ciphertext1;
 	Ciphertext<Poly> ciphertext2;
 
-	std::vector<usint> vectorOfInts1 = std::move(input1);
-	std::vector<usint> vectorOfInts2 = std::move(input2);
+	std::vector<uint64_t> vectorOfInts1 = std::move(input1);
+	std::vector<uint64_t> vectorOfInts2 = std::move(input2);
 
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
@@ -201,7 +201,7 @@ usint ArbLTVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usin
 }
 
 
-usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
+usint ArbBVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2) {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -237,8 +237,8 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	Ciphertext<Poly> ciphertext1;
 	Ciphertext<Poly> ciphertext2;
 
-	std::vector<usint> vectorOfInts1 = std::move(input1);
-	std::vector<usint> vectorOfInts2 = std::move(input2);
+	std::vector<uint64_t> vectorOfInts1 = std::move(input1);
+	std::vector<uint64_t> vectorOfInts2 = std::move(input2);
 
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
@@ -260,7 +260,7 @@ usint ArbBVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 }
 
 
-usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint> &input2) {
+usint ArbFVInnerProductPackedArray(std::vector<uint64_t> &input1, std::vector<uint64_t> &input2) {
 
 	usint m = 22;
 	PlaintextModulus p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -306,8 +306,8 @@ usint ArbFVInnerProductPackedArray(std::vector<usint> &input1, std::vector<usint
 	Ciphertext<Poly> ciphertext1;
 	Ciphertext<Poly> ciphertext2;
 
-	std::vector<usint> vectorOfInts1 = std::move(input1);
-	std::vector<usint> vectorOfInts2 = std::move(input2);
+	std::vector<uint64_t> vectorOfInts1 = std::move(input1);
+	std::vector<uint64_t> vectorOfInts2 = std::move(input2);
 
 	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
 	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);

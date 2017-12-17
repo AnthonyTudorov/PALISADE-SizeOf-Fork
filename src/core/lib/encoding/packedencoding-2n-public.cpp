@@ -47,7 +47,7 @@ namespace lbcrypto {
 		if (params->GetPlaintextRootOfUnity() == 0)
 		{
 			m_initRoot[modulusM] = RootOfUnity<NativeInteger>(m, modulusNI);
-			params->SetPlaintextRootOfUnity(m_initRoot[modulusM].ConvertToInt());
+			params->SetPlaintextRootOfUnity(m_initRoot[modulusM]);
 		}
 		else
 			m_initRoot[modulusM] = params->GetPlaintextRootOfUnity();

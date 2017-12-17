@@ -189,9 +189,6 @@ namespace cpu_int{
 		typedef uint64_t T;
 	};
 
-//this is to support the multiprecision backend running over uint64_t limbs
-//__uint128_t is not supported by VC++
-#if !defined(_MSC_VER)
     /**
     * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
     * sets T as of type unsigned integer 128 bit if integral datatype is 64bit
@@ -200,8 +197,6 @@ namespace cpu_int{
 	struct DoubleDataType<uint64_t>{
 		typedef __uint128_t T;
 	};
-#endif
-
 
 
     const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
@@ -211,10 +206,10 @@ namespace cpu_int{
 	/**
 	 * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
 	 * @tparam uint_type native unsigned integer type
-	 * @tparam BITLENGTH maximum bitdwidth supported for big integers
+	 * @tparam BITLENGTH maximum bitwidth supported for big integers
 	 */
 	template<typename uint_type,usint BITLENGTH>
-	class BigInteger
+	class BigInteger : public lbcrypto::BigIntegerInterface<BigInteger<uint_type,BITLENGTH>>
 	{
 
 	public:
@@ -244,6 +239,12 @@ namespace cpu_int{
     * @param bigInteger is the big binary integer to be copied.
     */
     BigInteger(const BigInteger& bigInteger);
+
+    /**
+     * Construct a BigInteger from a NativeInteger
+     * @param native
+     */
+    BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
    
     /**
     * Destructor.
@@ -276,38 +277,6 @@ namespace cpu_int{
     }
 
 	
-//Shift Operators
-   
-	/**
-    * Left shift operator of big binary integer
-    * @param shift is the amount to shift of type usshort.
-    * @return the object of type BigInteger
-    */
-	BigInteger  operator<<(usshort shift) const;
-
-    /**
-    * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-    *
-    * @param shift is the amount to shift of type usshort.
-    * @return the object of type BigInteger
-    */
-    const BigInteger&  operator<<=(usshort shift);
-        
-    /**
-    * Right shift operator of big binary integer
-    * @param shift is the amount to shift of type usshort.
-    * @return the object of type BigInteger
-    */
-    BigInteger  operator>>(usshort shift) const;
-
-    /**
-    * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-    *
-    * @param shift is the amount to shift of type usshort.
-    * @return the object of type BigInteger
-    */
-    BigInteger&  operator>>=(usshort shift);
-
 //Auxillary Functions
     
     /**
@@ -344,7 +313,7 @@ namespace cpu_int{
     *
     * @return the index of the most significant bit.
     */
-    usshort GetMSB()const;
+    usint GetMSB()const;
 
     /**
     * Converts the value to an int.
@@ -378,23 +347,13 @@ namespace cpu_int{
     */
     BigInteger Plus(const BigInteger& b) const;
 
-		
     /**
-    * Addition accumulator.
+    * Addition operation.
     *
-    * @param &b is the value to add of type BigInteger.
+    * @param b is the value to add of type BigInteger.
     * @return result of the addition operation of type BigInteger.
     */
-    const BigInteger& operator+=(const BigInteger &b);
-
-		
-    /**
-    * Subtraction accumulator.
-    *
-    * @param &b is the value to subtract of type BigInteger.
-    * @return result of the subtraction operation of type BigInteger.
-    */
-    const BigInteger& operator-=(const BigInteger &b);
+    const BigInteger& PlusEq(const BigInteger& b);
 
     /**
     * Subtraction operation.
@@ -403,6 +362,14 @@ namespace cpu_int{
     * @return result of the subtraction operation of type BigInteger.
     */
     BigInteger Minus(const BigInteger& b) const;
+
+    /**
+    * Subtraction operation.
+    *
+    * @param b is the value to subtract of type BigInteger.
+    * @return result of the subtraction operation of type BigInteger.
+    */
+    const BigInteger& MinusEq(const BigInteger& b);
       
     /**
     * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
@@ -411,7 +378,16 @@ namespace cpu_int{
 	* @param *ans - stores the result
     * @return result of the multiplication operation.
     */
-    void Times(const BigInteger& b, BigInteger *ans) const;
+    BigInteger Times(const BigInteger& b) const;
+
+    /**
+    * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
+    *
+    * @param b of type BigInteger is the value to multiply with.
+	* @param *ans - stores the result
+    * @return result of the multiplication operation.
+    */
+    const BigInteger& TimesEq(const BigInteger& b);
 
     /**
     * Division operation.
@@ -421,16 +397,32 @@ namespace cpu_int{
     */
     BigInteger DividedBy(const BigInteger& b) const;
 
+    /**
+    * Division operation.
+    *
+    * @param b of type BigInteger is the value to divide by.
+    * @return result of the division operation.
+    */
+    const BigInteger& DividedByEq(const BigInteger& b);
+
 //modular arithmetic operations
 		
     /**
-    * returns the modulus with respect to the input value. Classical modular reduction algorithm is used.
+    * returns the modulus with respect to the input value.
     *
-    * @param modulus is value of the modulus to perform. Its of type BigInteger.
+    * @param modulus is value of the modulus to perform
     * @return BigInteger that is the result of the modulus operation.
     */
     BigInteger Mod(const BigInteger& modulus) const;
     
+    /**
+    * returns the modulus with respect to the input value.
+    *
+    * @param modulus is value of the modulus to perform
+    * @return BigInteger that is the result of the modulus operation.
+    */
+    const BigInteger& ModEq(const BigInteger& modulus);
+
     /**
     * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
@@ -482,6 +474,15 @@ namespace cpu_int{
     BigInteger ModAdd(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modular addition.
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus addition operation.
+    */
+    const BigInteger& ModAddEq(const BigInteger& b, const BigInteger& modulus);
+
+    /**
     * Modular addition where Barrett modulo reduction is used.
     *
     * @param &b is the scalar to add.
@@ -511,6 +512,15 @@ namespace cpu_int{
     BigInteger ModSub(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modular subtraction.
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus subtraction operation.
+    */
+    const BigInteger& ModSubEq(const BigInteger& b, const BigInteger& modulus);
+
+    /**
     * Scalar modular subtraction where Barrett modular reduction is used.
     *
     * @param &b is the scalar to subtract.
@@ -538,6 +548,15 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigInteger ModMul(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
+    * Scalar modulus multiplication.
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
+    const BigInteger& ModMulEq(const BigInteger& b, const BigInteger& modulus);
 
     /**
     * Scalar modular multiplication where Barrett modular reduction is used.
@@ -575,13 +594,45 @@ namespace cpu_int{
     BigInteger ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const;
 
     /**
-    * Scalar modular exponentiation. Square-and-multiply algorithm is used.
-    *
-    * @param &b is the scalar to exponentiate.
-    * @param modulus is the modulus to perform operations with.
-    * @return is the result of the modulus exponentiation operation.
-    */
+     * Scalar modular exponentiation. Square-and-multiply algorithm is used.
+     *
+     * @param &b is the scalar to exponentiate.
+     * @param modulus is the modulus to perform operations with.
+     * @return is the result of the modulus exponentiation operation.
+     */
     BigInteger ModExp(const BigInteger& b, const BigInteger& modulus) const;
+
+    //Shift Operators
+
+    /**
+     * Left shift operator of big binary integer
+     * @param shift is the amount to shift of type usshort.
+     * @return the object of type BigInteger
+     */
+    BigInteger  LShift(usshort shift) const;
+
+    /**
+     * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+     *
+     * @param shift is the amount to shift of type usshort.
+     * @return the object of type BigInteger
+     */
+    const BigInteger&  LShiftEq(usshort shift);
+
+    /**
+     * Right shift operator of big binary integer
+     * @param shift is the amount to shift of type usshort.
+     * @return the object of type BigInteger
+     */
+    BigInteger  RShift(usshort shift) const;
+
+    /**
+     * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+     *
+     * @param shift is the amount to shift of type usshort.
+     * @return the object of type BigInteger
+     */
+    const BigInteger&  RShiftEq(usshort shift);
 
     /**
     * Stores the based 10 equivalent/Decimal value of the BigInteger in a string object and returns it.
@@ -670,54 +721,6 @@ namespace cpu_int{
 	*/
 	BigInteger DivideAndRound(const BigInteger &q) const;
 
-    /**
-    * Test equality of the inputs.
-    *
-    * @param a second value to test.
-    * @return true if the inputs are equal.
-    */
-    bool operator==(const BigInteger& a) const;
-
-    /**
-    * Test inequality of the inputs.
-    *
-    * @param a second value to test.
-    * @return true if the inputs are inequal.
-    */
-    bool operator!=(const BigInteger& a) const;
-
-    /**
-    * Test if first input is great than the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is greater.
-    */
-    bool operator> (const BigInteger& a) const;
-
-    /**
-    * Test if first input is great than or equal to the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is greater than or equal to the second input.
-    */
-    bool operator>=(const BigInteger& a) const;
-
-    /**
-    * Test if first input is less than the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is lesser.
-    */
-    bool operator< (const BigInteger& a) const;
-
-    /**
-    * Test if first input is less than or equal to the second input.
-    *
-    * @param a second value to test.
-    * @return true if the first inputs is less than or equal to the second input.
-    */
-    bool operator<=(const BigInteger& a) const;
-
 	/**
 	 * Unary minus on a lattice
 	 * @return
@@ -728,49 +731,6 @@ namespace cpu_int{
 
 
     //overloaded binary operators based on integer arithmetic and comparison functions
-    /**
-    * Addition operation.
-    *
-    * @param a is the value to add.
-    * @return is the result of the addition operation.
-    */
-    BigInteger operator+(const BigInteger &a) const {return this->Plus(a);}
-
-    /**
-    * Subtraction operation.
-    *
-    * @param a is the value to subtract.
-    * @return is the result of the subtraction operation.
-    */
-    BigInteger operator-(const BigInteger &a) const {return this->Minus(a);}
-
-    /**
-    * Multiplication operation.
-    *
-    * @param a is the value to multiply with.
-    * @return is the result of the multiplication operation.
-    */
-	BigInteger operator*(const BigInteger &a) const;
-
-    /**
-    * Modulo operation. Classical modular reduction algorithm is used.
-    *
-    * @param a is the value to Mod.
-    * @return is the result of the modulus operation.
-    */
-    BigInteger operator%(const BigInteger &a) const {return this->Mod(a);}
-
-	/**
-	 * Division operation.
-	 *
-	 * @param a is the value to divide.
-	 * @param b is the value to divide by.
-	 * @return is the result of the integral part after division operation.
-	 */
-	BigInteger operator/ (const BigInteger &a) const {return this->DividedBy(a);}
-
-
-	BigInteger operator/=(const BigInteger &a);
 
 	/**
 	 * Console output operation.
@@ -780,7 +740,7 @@ namespace cpu_int{
 	 * @return is the ostream object.
 	 */
     template<typename uint_type_c,usint BITLENGTH_c>
-	friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c> &ptr_obj) {
+    friend std::ostream& operator<<(std::ostream& os, const BigInteger<uint_type_c,BITLENGTH_c>& ptr_obj) {
 
     	//create reference for the object to be printed
     	BigInteger<uint_type_c,BITLENGTH_c> *print_obj;
@@ -808,7 +768,7 @@ namespace cpu_int{
 
     	//find the first occurence of non-zero value in print_VALUE
     	for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-    		if((sint)print_VALUE[counter]!=0)break;
+    		if((int)print_VALUE[counter]!=0)break;
     	}
 
     	//start inserting values into the ostream object
@@ -822,7 +782,7 @@ namespace cpu_int{
     	return os;
     }
 
-	/**
+   /**
     * Gets the bit at the specified index.
     *
     * @param index is the index of the bit to get.
@@ -845,50 +805,18 @@ namespace cpu_int{
 	*/
 	void SetIntAtIndex(usint idx, uint_type value);
         
-    //constant definations
-        
-    /**
-    * Constant zero.
-    */
-    static const BigInteger ZERO;
-
-    /**
-    * Constant one.
-    */
-    static const BigInteger ONE;
-
-    /**
-    * Constant two.
-    */
-    static const BigInteger TWO;
-
-    /**
-    * Constant three.
-    */
-    static const BigInteger THREE;
-
-    /**
-    * Constant four.
-    */
-    static const BigInteger FOUR;
-
-    /**
-    * Constant five.
-    */
-    static const BigInteger FIVE;
-    
 	/**
     * Compares the current BigInteger to BigInteger a.
     *
     * @param a is the BigInteger to be compared with.
     * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
     */
-    sint Compare(const BigInteger& a) const;
+    int Compare(const BigInteger& a) const;
 
     /**
      *  Set this int to 1.
      */
-	void SetIdentity() { *this = BigInteger::ONE; };
+	void SetIdentity() { *this = 1; };
 
 	/**
 	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigInteger objects.
@@ -1002,6 +930,8 @@ namespace cpu_int{
 		*/
 		static void add_bitVal(uschar* a,uschar b);
 	};
+
+	extern template class BigInteger<integral_dtype,BigIntegerBitLength>;
 
 }//namespace ends
 

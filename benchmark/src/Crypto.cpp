@@ -52,7 +52,7 @@ Description:
 using namespace std;
 using namespace lbcrypto;
 
-#include "BBVhelper.h"
+#include "vechelper.h"
 #include "ElementParmsHelper.h"
 #include "EncryptHelper.h"
 

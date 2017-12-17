@@ -110,7 +110,7 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
-	vector<uint32_t> intvec;
+	vector<uint64_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)
 		intvec.push_back( rand() % ptm );
 	Plaintext plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );

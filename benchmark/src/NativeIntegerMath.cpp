@@ -28,32 +28,9 @@
 */
 #include "benchmark/benchmark_api.h"
 
-
-/* this is an example of very basic google benchmarks
-   all the benchmarks have
-             no input parameters
-	     cannot runover differnt length operations
-	     some generate an output
-  future examples will show the use of fixtures and templates to reduce
-  the amount of 
-  code needed
-
-  for documentation on google benchmarks see https://github.com/google/benchmark
-  as well as example code in the benchmark/examples directory
-
-  note to increase the number of iterations call it as follows
-             ./BBIMath --benchmark_min_time=4.0
-
-
-  increase the min_time (as a float) to increase the # iterations
-
- */
-
-
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include "math/backend.h"
-#if 1
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
@@ -64,8 +41,6 @@
 #include "lattice/poly.h"
 #include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
-#endif
-
 
 using namespace std;
 using namespace lbcrypto;
@@ -75,92 +50,131 @@ using namespace lbcrypto;
 // called within the actual benchmark.
 
 // test BBI constants
-static void make_BBINative_constants(void) {	// function
+static void make_NativeInt_constants(void) {	// function
 	NativeInteger one(1);
 }
 
-void BM_BBINative_constants(benchmark::State& state) { // benchmark
+void BM_NativeInt_constants(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		make_BBINative_constants();		// note even with -O3 it appears
+		make_NativeInt_constants();		// note even with -O3 it appears
 		// this is not optimized out
 		// though check with your compiler
 	}
 }
 
-BENCHMARK(BM_BBINative_constants);		// register benchmark
+BENCHMARK(BM_NativeInt_constants);		// register benchmark
 
 // make variables
 static NativeInteger smalla("10403"), smallb("103");
 static NativeInteger largea("4294967295"), largeb("4294967");
 
-static void make_BBINative_small_variables (void) {	// function
+static void make_NativeInt_small_variables (void) {	// function
 	NativeInteger a("10403"), b("103");
 }
 
 
-void BM_BBINative_small_variables(benchmark::State& state) { // benchmark
+void BM_NativeInt_small_variables(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		make_BBINative_small_variables();		// note even with -O3 it appears
+		make_NativeInt_small_variables();		// note even with -O3 it appears
 		// this is not optimized out
 		// though check with your compiler
 	}
 }
 
-BENCHMARK(BM_BBINative_small_variables);		// register benchmark
+BENCHMARK(BM_NativeInt_small_variables);		// register benchmark
 
 
-static void make_BBINative_large_variables (void) {	// function
+static void make_NativeInt_large_variables (void) {	// function
 	NativeInteger a("9446744073709551616"), b("9446744073709551617");
 }
 
-void BM_BBINative_large_variables(benchmark::State& state) { // benchmark
+void BM_NativeInt_large_variables(benchmark::State& state) { // benchmark
 	while (state.KeepRunning()) {
-		make_BBINative_large_variables();
+		make_NativeInt_large_variables();
 	}
 }
 
-BENCHMARK(BM_BBINative_large_variables);
+BENCHMARK(BM_NativeInt_large_variables);
 
 // add
-static void add_BBINative(benchmark::State& state) {	// function
+static void add_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
 	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
 	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	NativeInteger c1 = a+b;
+	NativeInteger c = a+b;
 }
 
-static void BM_BBINative_Addition(benchmark::State& state) { // benchmark
+static void BM_NativeInt_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBINative(state);
+		add_NativeInt(state);
 	}
 }
 
-BENCHMARK(BM_BBINative_Addition)->ArgName("Small")->Arg(0);
-BENCHMARK(BM_BBINative_Addition)->ArgName("Large")->Arg(1);
+BENCHMARK(BM_NativeInt_Addition)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_NativeInt_Addition)->ArgName("Large")->Arg(1);
 
-// add
-static void mult_BBINative(benchmark::State& state) {	// function
+// +=
+static void addeq_NativeInt(benchmark::State& state) {	// function
+	state.PauseTiming();
+	NativeInteger a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger b = state.range(0) == 0 ? smallb : largeb;
+	state.ResumeTiming();
+
+	a += b;
+}
+
+static void BM_NativeInt_Addeq(benchmark::State& state) { // benchmark
+
+	while (state.KeepRunning()) {
+		addeq_NativeInt(state);
+	}
+}
+
+BENCHMARK(BM_NativeInt_Addeq)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_NativeInt_Addeq)->ArgName("Large")->Arg(1);
+
+// mult
+static void mult_NativeInt(benchmark::State& state) {	// function
 	state.PauseTiming();
 	NativeInteger& a = state.range(0) == 0 ? smalla : largea;
 	NativeInteger& b = state.range(0) == 0 ? smallb : largeb;
 	state.ResumeTiming();
 
-	NativeInteger c1 = a*b;
+	NativeInteger c = a*b;
 }
 
-static void BM_BBINative_Multiplication(benchmark::State& state) { // benchmark
+static void BM_NativeInt_Mult(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		mult_BBINative(state);
+		mult_NativeInt(state);
 	}
 }
 
-BENCHMARK(BM_BBINative_Multiplication)->ArgName("Small")->Arg(0);
-BENCHMARK(BM_BBINative_Multiplication)->ArgName("Large")->Arg(1);
+BENCHMARK(BM_NativeInt_Mult)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_NativeInt_Mult)->ArgName("Large")->Arg(1);
 
+// *=
+static void multeq_NativeInt(benchmark::State& state) {	// function
+	state.PauseTiming();
+	NativeInteger a = state.range(0) == 0 ? smalla : largea;
+	NativeInteger b = state.range(0) == 0 ? smallb : largeb;
+	state.ResumeTiming();
+
+	a *= b;
+}
+
+static void BM_NativeInt_Multeq(benchmark::State& state) { // benchmark
+
+	while (state.KeepRunning()) {
+		multeq_NativeInt(state);
+	}
+}
+
+BENCHMARK(BM_NativeInt_Multeq)->ArgName("Small")->Arg(0);
+BENCHMARK(BM_NativeInt_Multeq)->ArgName("Large")->Arg(1);
 
 //execute the benchmarks
 BENCHMARK_MAIN()

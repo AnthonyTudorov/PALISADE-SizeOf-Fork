@@ -194,11 +194,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_EQ (expectedvecstr, m)<< "Failure string initializer list";
 
   exp_int::xmubintvec expectedvecint(5);
-  expectedvecint = {exp_int::xubint(9872U),exp_int::xubint(5888U),exp_int::xubint(4620U),exp_int::xubint(2376U),exp_int::xubint(4631U)}; //ubints
-  expectedvecint.SetModulus(q);
-  EXPECT_EQ (expectedvecint, m)<< "Failure exp_int::xubint initializer list";
+//  expectedvecint = {exp_int::xubint(9872U),exp_int::xubint(5888U),exp_int::xubint(4620U),exp_int::xubint(2376U),exp_int::xubint(4631U)}; //ubints
+//  expectedvecint.SetModulus(q);
+//  EXPECT_EQ (expectedvecint, m)<< "Failure exp_int::xubint initializer list";
 
-  expectedvecint = {9872U,5888u,4620u,2376u,4631u}; //usints
+  expectedvecint = {9872ULL,5888ULL,4620ULL,2376ULL,4631ULL}; //usints
   EXPECT_EQ (expectedvecint, m)<< "Failure usint initializer list";
 
   expectedvecint = {9872,5888,4620,2376,4631}; //ints (compiler promotes)

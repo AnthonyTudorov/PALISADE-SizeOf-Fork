@@ -38,19 +38,19 @@ namespace lbcrypto
 {
 
 // STL pair used as a key for some tables in PackedEncoding
-using ModulusM = std::pair<NativeInteger, uint32_t>;
+using ModulusM = std::pair<NativeInteger, uint64_t>;
 
 /**
  * @class PackedEncoding
  * @brief Type used for representing IntArray types.
- * Provides conversion functions to encode and decode plaintext data as type vector<uint32_t>.
+ * Provides conversion functions to encode and decode plaintext data as type vector<uint64_t>.
  * This class uses bit packing techniques to enable efficient computing on vectors of integers.
  * It is NOT supported for DCRTPoly
  */
 
 class PackedEncoding : public PlaintextImpl
 {
-	vector<uint32_t>		value;
+	vector<uint64_t>		value;
 
 public:
 	// these two constructors are used inside of Decrypt
@@ -63,36 +63,36 @@ public:
 	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, std::initializer_list<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, std::initializer_list<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, std::initializer_list<uint32_t> coeffs) :
+	PackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, std::initializer_list<uint64_t> coeffs) :
 		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in rhs, in the same order.
 	 * @param rhs - The input object to copy.
 	 */
-	PackedEncoding(const std::vector<uint32_t> &rhs)
+	PackedEncoding(const std::vector<uint64_t> &rhs)
 		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value(rhs) {}
 
 	/**
 	 * @brief Constructs a container with a copy of each of the elements in il, in the same order.
 	 * @param arr the list to copy.
 	 */
-	PackedEncoding(std::initializer_list<uint32_t> arr)
+	PackedEncoding(std::initializer_list<uint64_t> arr)
 		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value(arr) {}
 
 	/**
@@ -100,15 +100,6 @@ public:
 	 */
 	PackedEncoding()
 		: PlaintextImpl(shared_ptr<Poly::Params>(0),NULL), value() {}
-
-	/**
-	 * @brief Method to return the initial root.
-	 * @param modulus the initial root.
-	 */
-	static BigInteger GetInitRoot(const BigInteger &modulus) {
-		NativeInteger modulusNI(modulus.ConvertToInt());
-		return BigInteger(modulusNI.ConvertToInt());
-	}
 
 	static usint GetAutomorphismGenerator(usint m) {
 		return m_automorphismGenerator[m];
@@ -118,7 +109,7 @@ public:
 
 	bool Decode();
 
-	const vector<uint32_t>&	GetPackedValue() const { return value; }
+	const vector<uint64_t>&	GetPackedValue() const { return value; }
 
 	/**
 	 * GetEncodingType
@@ -164,8 +155,8 @@ public:
 	 * @return whether the two plaintext are equivalent.
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
-		const std::vector<uint32_t>& lv = dynamic_cast<const std::vector<uint32_t>&>(*this);
-		const std::vector<uint32_t>& rv = dynamic_cast<const std::vector<uint32_t>&>(other);
+		const std::vector<uint64_t>& lv = dynamic_cast<const std::vector<uint64_t>&>(*this);
+		const std::vector<uint64_t>& rv = dynamic_cast<const std::vector<uint64_t>&>(other);
 		return lv == rv;
 	}
 

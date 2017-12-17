@@ -211,21 +211,13 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 	// Encode source data
 	////////////////////////////////////////////////////////////
-/*
-	std::vector<uint32_t> vectorOfInts1 = {2,2,2,2,2,2,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {3,3,3,3,3,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
-*/
-	std::vector<uint32_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts1 = {1,1,1,1,1,1,1,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts2 = {1,0,0,1,1,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts3 = {1,1,1,1,0,0,0,0,0,0,0,0};
 
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 	Plaintext plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);
-
-	//std::vector<uint32_t> vectorOfIntsAdd = { 2, 1, 1, 3, 0, 0, 0, 0, 3, 0, 3, 3, 3, 3 };
-	//Plaintext plaintextAdd(vectorOfIntsAdd);
 
 	////////////////////////////////////////////////////////////
 	// Encryption

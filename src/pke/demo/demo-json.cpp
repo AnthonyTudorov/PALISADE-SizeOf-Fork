@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
 
 	keymaker(cryptoContext, keyFileName);
 
-	std::vector<uint32_t> vectorOfInts1 = {3,1,4,2,1,1,0,1,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts1 = {3,1,4,2,1,1,0,1,0,0,0,0};
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
-	std::vector<uint32_t> vectorOfInts2 = {1,1,1,0,1,1,0,1,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts2 = {1,1,1,0,1,1,0,1,0,0,0,0};
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	string ciphertextFileName1 = "ciphertext1.txt";

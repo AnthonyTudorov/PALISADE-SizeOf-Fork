@@ -183,16 +183,16 @@ public:
    */
   const mubintvec& operator=(mubintvec &&rhs);
 
-  /**
-   * Initializer list for mubintvec.
-   *
-   * @param &&rhs is the list of ubints to be assigned to the mubintvec.
-   * @return mubintvec object 
-   * note if  modulus is set then mod(input) is stored
-   * note modulus remains unchanged.
-   */
-
-  const mubintvec& operator=(std::initializer_list<ubint_el_t> rhs);
+//  /**
+//   * Initializer list for mubintvec.
+//   *
+//   * @param &&rhs is the list of ubints to be assigned to the mubintvec.
+//   * @return mubintvec object
+//   * note if  modulus is set then mod(input) is stored
+//   * note modulus remains unchanged.
+//   */
+//
+//  const mubintvec& operator=(std::initializer_list<ubint_el_t> rhs);
 
   /**
    * Initializer list for mubintvec.
@@ -203,18 +203,18 @@ public:
    * note modulus remains unchanged.
    */
 
-  const mubintvec& operator=(std::initializer_list<usint> rhs);
+  const mubintvec& operator=(std::initializer_list<uint64_t> rhs);
 
-  /**
-   * Initializer list for mubintvec.
-   *
-   * @param &&rhs is the list of sints to be assigned to the mubintvec.
-   * @return mubintvec object 
-   * note if  modulus is set then mod(input) is stored
-   * note modulus remains unchanged.
-   */
-
-  const mubintvec& operator=(std::initializer_list<sint> rhs);
+//  /**
+//   * Initializer list for mubintvec.
+//   *
+//   * @param &&rhs is the list of sints to be assigned to the mubintvec.
+//   * @return mubintvec object
+//   * note if  modulus is set then mod(input) is stored
+//   * note modulus remains unchanged.
+//   */
+//
+//  const mubintvec& operator=(std::initializer_list<int32_t> rhs);
 
   /**
    * Initializer list for mubintvec.
@@ -315,8 +315,8 @@ public:
     return *this;
   }
   
-  //assignment from sint
-  inline const mubintvec& operator=(sint val) {
+  //assignment from int32_t
+  inline const mubintvec& operator=(int32_t val) {
     //todo this is the way kurt and yuri want it
     if (val<0) 
       throw std::logic_error("mubintvec() = with  negative number");

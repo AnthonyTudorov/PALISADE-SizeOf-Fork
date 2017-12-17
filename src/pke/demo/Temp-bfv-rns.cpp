@@ -133,7 +133,7 @@ void PKE() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
+	std::vector<uint64_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
 	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
@@ -230,10 +230,10 @@ void SHETestCoeff() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////
@@ -357,10 +357,10 @@ void SHETestPacked() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
 
-	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////
@@ -563,10 +563,10 @@ void SHETestPackedInnerProduct() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
 
-	std::vector<uint32_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////

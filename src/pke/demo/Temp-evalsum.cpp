@@ -127,7 +127,7 @@ void ArbBVEvalSumPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -173,7 +173,7 @@ void BVEvalSumPackedArray2n() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -233,7 +233,7 @@ void ArbLTVEvalSumPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;
@@ -293,7 +293,7 @@ void ArbFVEvalSumPackedArray() {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	std::cout << "Input array\n\t" << intArray << std::endl;

@@ -164,7 +164,7 @@ public:
 	 */
 	const BigInteger GetElementModulus() const {
 		return typeFlag == IsPoly ? encodedVector.GetModulus() :
-				(typeFlag == IsNativePoly ? BigInteger(encodedNativeVector.GetModulus().ConvertToInt()) :
+				(typeFlag == IsNativePoly ? BigInteger(encodedNativeVector.GetModulus()) :
 						encodedVectorDCRT.GetModulus());
 	}
 
@@ -183,11 +183,11 @@ public:
 
 	virtual const std::string&		GetStringValue() const { throw std::logic_error("not a string"); }
 	virtual const uint64_t&			GetIntegerValue() const { throw std::logic_error("not an integer"); }
-	virtual const uint32_t&			GetScalarValue() const { throw std::logic_error("not a scalar"); }
-	virtual const int32_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
-	virtual const vector<uint32_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
-	virtual const vector<int32_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
-	virtual const vector<uint32_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const uint64_t&			GetScalarValue() const { throw std::logic_error("not a scalar"); }
+	virtual const int64_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
+	virtual const vector<uint64_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const vector<int64_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
+	virtual const vector<uint64_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 
 	/**
 	 * Method to compare two plaintext to test for equivalence.

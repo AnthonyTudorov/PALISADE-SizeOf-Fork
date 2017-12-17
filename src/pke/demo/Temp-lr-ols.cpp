@@ -1047,8 +1047,8 @@ void EncodeData(CryptoContext<DCRTPoly> cc,
 		Plaintext* y)
 {
 	Plaintext ptx;
-	vector<vector<uint32_t>> xmat;
-	vector<uint32_t> yvec;
+	vector<vector<uint64_t>> xmat;
+	vector<uint64_t> yvec;
 
 	for(size_t i = 0; i < dataColumns.size(); i++)
 		xmat.push_back({});

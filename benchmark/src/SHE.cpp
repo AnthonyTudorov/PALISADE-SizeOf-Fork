@@ -41,8 +41,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-static std::vector<uint32_t> makeVector(int siz, const PlaintextModulus& ptmi) {
-	std::vector<uint32_t>			elem;
+static std::vector<uint64_t> makeVector(int siz, const PlaintextModulus& ptmi) {
+	std::vector<uint64_t>			elem;
 
 	for( int i=0; i<siz; i++ )
 		elem.push_back(i%ptmi);

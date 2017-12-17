@@ -52,13 +52,13 @@ public:
 };
 
 
-usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
-usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
-usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, PlaintextModulus p);
-usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p);
+usint ArbLTVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
 
 void
-EvalSumSetup(std::vector<usint>& input, usint& expectedSum, PlaintextModulus plaintextMod) {
+EvalSumSetup(std::vector<uint64_t>& input, usint& expectedSum, PlaintextModulus plaintextMod) {
 
 	usint limit = 15;
 
@@ -77,7 +77,7 @@ EvalSumSetup(std::vector<usint>& input, usint& expectedSum, PlaintextModulus pla
 TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 
 	usint size = 10;
-	std::vector<usint> input(size,0);
+	std::vector<uint64_t> input(size,0);
 	usint expectedSum;
 	
 	EvalSumSetup(input,expectedSum, 89);
@@ -90,7 +90,7 @@ TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 TEST_F(UTEvalSum, Test_BV_EvalSum) {
 
 	usint size = 10;
-	std::vector<usint> input(size,0);
+	std::vector<uint64_t> input(size,0);
 	usint expectedSum;
 
 	EvalSumSetup(input,expectedSum, 89);
@@ -103,7 +103,7 @@ TEST_F(UTEvalSum, Test_BV_EvalSum) {
 TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 
 	usint size = 10;
-	std::vector<usint> input(size,0);
+	std::vector<uint64_t> input(size,0);
 	usint expectedSum;
 
 	EvalSumSetup(input,expectedSum, 23);
@@ -116,7 +116,7 @@ TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 TEST_F(UTEvalSum, Test_FV_EvalSum) {
 	
 	usint size = 10;
-	std::vector<usint> input(size,0);
+	std::vector<uint64_t> input(size,0);
 	usint expectedSum;
 
 	EvalSumSetup(input,expectedSum, 89);
@@ -127,7 +127,7 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 
 }
 
-usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p) {
+usint ArbLTVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 22;
 	BigInteger modulusP(p);
@@ -167,7 +167,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus
 
 	Ciphertext<Poly> ciphertext;
 
-	std::vector<usint> vectorOfInts = std::move(clearVector);
+	std::vector<uint64_t> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
@@ -184,7 +184,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus
 
 }
 
-usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p) {
+usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 22;
 	BigInteger modulusP(p);
@@ -233,7 +233,7 @@ usint ArbBVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus 
 	return intArrayNew->GetPackedValue()[0];
 }
 
-usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, PlaintextModulus p) {
+usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 11;
 	BigInteger modulusP(p);
@@ -282,7 +282,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<usint> &clearVector, PlaintextMod
 	return intArrayNew->GetPackedValue()[0];
 }
 
-usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus p) {
+usint ArbFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 22;
 	BigInteger modulusP(p);
@@ -318,7 +318,7 @@ usint ArbFVEvalSumPackedArray(std::vector<usint> &clearVector, PlaintextModulus 
 
 	Ciphertext<Poly> ciphertext;
 
-	std::vector<usint> vectorOfInts = std::move(clearVector);
+	std::vector<uint64_t> vectorOfInts = std::move(clearVector);
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	cc->EvalSumKeyGen(kp.secretKey);

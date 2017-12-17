@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef _BBVHELPER_H_
-#define _BBVHELPER_H_
+#ifndef _VECHELPER_H_
+#define _VECHELPER_H_
 
 #include <utility>
 #define _USE_MATH_DEFINES
@@ -42,7 +42,7 @@ inline BigVector makeVector(shared_ptr<T> p) {
 
 inline NativeVector makeNativeVector(shared_ptr<ILNativeParams> p) {
 	NativePoly::DugType dug;
-	dug.SetModulus(p->GetModulus().ConvertToInt());
+	dug.SetModulus(p->GetModulus());
 
 	return dug.GenerateVector(p->GetRingDimension());
 }

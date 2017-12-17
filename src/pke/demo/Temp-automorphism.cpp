@@ -158,7 +158,7 @@ void LTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -199,7 +199,7 @@ void BVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -244,7 +244,7 @@ void FVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -295,7 +295,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -348,7 +348,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,9,10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -404,7 +404,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10};
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10};
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -462,7 +462,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10 };
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10 };
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)
@@ -517,7 +517,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
 
-	std::vector<usint> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
 	if (i == 3)

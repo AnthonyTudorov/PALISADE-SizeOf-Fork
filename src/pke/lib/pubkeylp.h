@@ -1402,14 +1402,14 @@ namespace lbcrypto {
 			dug.SetModulus(encodingParams->GetPlaintextModulus());
 			BigVector randomVector = dug.GenerateVector(n - 1);
 
-			std::vector<usint> randomIntVector(n);
+			std::vector<uint64_t> randomIntVector(n);
 
 			//first plaintext slot does not need to change
 			randomIntVector[0] = 0;
 
 			for (usint i = 0; i < n - 1; i++)
 			{
-				randomIntVector[i + 1] = randomVector.at(i).ConvertToInt();
+				randomIntVector[i + 1] = randomVector[i].ConvertToInt();
 			}
 
 			Plaintext plaintext = cc->MakePackedPlaintext(randomIntVector);

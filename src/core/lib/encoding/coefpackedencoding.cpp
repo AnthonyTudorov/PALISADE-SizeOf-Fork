@@ -81,7 +81,7 @@ CoefPackedEncoding::Encode() {
 }
 
 template<typename P>
-static void fillVec(const P& poly, const PlaintextModulus& mod, bool isSigned, vector<uint32_t>& value, vector<int32_t>& valueSigned) {
+static void fillVec(const P& poly, const PlaintextModulus& mod, bool isSigned, vector<uint64_t>& value, vector<int64_t>& valueSigned) {
 	value.clear();
 	valueSigned.clear();
 

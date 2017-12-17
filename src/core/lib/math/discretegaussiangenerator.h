@@ -96,16 +96,16 @@ public:
 
 	/**
 	* @brief      Returns a generated signed integer. Uses Peikert's Inversion Method
-	* @return     an schar value generated with the distribution.
+	* @return     a value generated with the distribution.
 	*/
-	sint GenerateInt () const;
+	int32_t GenerateInt () const;
 
 	/**
 	* @brief      Returns a generated integer vector. Uses Peikert's inversion method.
 	* @param size The number of values to return.
 	* @return     A pointer to an array of integer values generated with the distribution.
 	*/
-	std::shared_ptr<sint> GenerateIntVector (usint size) const;
+	std::shared_ptr<int32_t> GenerateIntVector (usint size) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.

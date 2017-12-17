@@ -32,9 +32,9 @@
 namespace lbcrypto {
 
 class ScalarEncoding : public PlaintextImpl {
-	uint32_t		value;
-	int32_t		valueSigned;
-	bool			isSigned;
+	uint64_t	value;
+	int64_t		valueSigned;
+	bool		isSigned;
 
 public:
 	// these two constructors are used inside of Decrypt
@@ -47,22 +47,22 @@ public:
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int32_t scalar) :
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint32_t scalar) :
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
 
 	virtual ~ScalarEncoding() {}
@@ -73,7 +73,7 @@ public:
 	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	const uint32_t& GetScalarValue() const {
+	const uint64_t& GetScalarValue() const {
 		if( !isSigned )
 			return value;
 		throw std::logic_error("not an unsigned scalar");
@@ -83,7 +83,7 @@ public:
 	 * GetScalarValueSigned
 	 * @return the un-encoded scalar
 	 */
-	const int32_t& GetScalarSignedValue() const {
+	const int64_t& GetScalarSignedValue() const {
 		if( isSigned )
 			return valueSigned;
 		throw std::logic_error("not a signed scalar");

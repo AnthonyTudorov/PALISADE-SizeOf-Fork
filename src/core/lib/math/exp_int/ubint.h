@@ -315,6 +315,12 @@ namespace exp_int{
      * @param &&rhs is the ubint to be moved from.
      */
      explicit ubint(ubint&& rhs);
+
+     /**
+      * Construct from a NativeInteger
+      * @param n
+      */
+     ubint(const NativeInteger& n) : ubint(n.ConvertToInt()) {}
     
     /**
      * Destructor.
@@ -425,8 +431,6 @@ namespace exp_int{
      * @return the index of the most significant bit.
      */
     usint GetMSB()const;
-
-    //usshort GetMSB()const; //TODO: deprecate shouldn't be using shorts!
 
     /**
      * Returns the size of the underlying vector of Limbs
@@ -979,12 +983,12 @@ namespace exp_int{
 
       //find the first occurence of non-zero value in print_VALUE
       for(counter=0;counter<ptr_obj.m_numDigitInPrintval-1;counter++){
-	if((sint)print_VALUE[counter]!=0)break;							
+    	  	  if(print_VALUE[counter]!=0)break;
       }
 
       //start inserting values into the ostream object 
       for(;counter<ptr_obj.m_numDigitInPrintval;counter++){
-	os<<(int)print_VALUE[counter];
+    	  	  os<<(int)print_VALUE[counter];
       }
 
       //os<<endl;
@@ -1043,7 +1047,7 @@ namespace exp_int{
      * @param a is the ubint to be compared with.
      * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
      */
-    sint Compare(const ubint& a) const;
+    int Compare(const ubint& a) const;
 
     /**
      *  Set this int to 1.

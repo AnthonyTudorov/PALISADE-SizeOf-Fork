@@ -78,10 +78,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	//Initialize the public key containers.
 	LPKeyPair<Poly> kp;
 
-	std::vector<usint> vectorOfInts1 = { 2 };
+	std::vector<uint64_t> vectorOfInts1 = { 2 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 3 };
+	std::vector<uint64_t> vectorOfInts2 = { 3 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
@@ -118,7 +118,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_size = 2;
 
-	usint plaintextModulus = 9;
+	PlaintextModulus plaintextModulus = 9;
 
 	vector<NativeInteger> init_moduli(init_size);
 
@@ -131,7 +131,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	for (usint i = 0; i < init_size; i++) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigInteger(init_moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(init_moduli[i]);
 		q = NextPrime(q, init_m);
 	}
 
@@ -149,10 +149,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	LPKeyPair<DCRTPoly> kp;
 
 	//Generating new cryptoparameters for when modulus reduction is done. - not used?
-	std::vector<usint> vectorOfInts1 = { 2, 4 };
+	std::vector<uint64_t> vectorOfInts1 = { 2, 4 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 3, 3 };
+	std::vector<uint64_t> vectorOfInts2 = { 3, 3 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
@@ -200,11 +200,11 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	LPKeyPair<Poly> kp;
 
 	DEBUG("Filling 1");
-	std::vector<usint> vectorOfInts1 = { 2, 3, 1, 4 };
+	std::vector<uint64_t> vectorOfInts1 = { 2, 3, 1, 4 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	DEBUG("Filling 2");
-	std::vector<usint> vectorOfInts2 = { 3, 6, 3, 1 };
+	std::vector<uint64_t> vectorOfInts2 = { 3, 6, 3, 1 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	DEBUG("getting pairs");
@@ -257,7 +257,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	for (size_t i = 0; i < init_size; i++) {
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(init_m, init_moduli[i]);
-		modulus = modulus * BigInteger(init_moduli[i].ConvertToInt());
+		modulus = modulus * BigInteger(init_moduli[i]);
 		q = NextPrime(q, init_m);
 	}
 	DEBUG("2");
@@ -273,10 +273,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 
-	std::vector<usint> vectorOfInts1 = { 2, 4, 8, 5 };
+	std::vector<uint64_t> vectorOfInts1 = { 2, 4, 8, 5 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<usint> vectorOfInts2 = { 3, 3, 4, 1 };
+	std::vector<uint64_t> vectorOfInts2 = { 3, 3, 4, 1 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	//Generate the secret key for the initial ciphertext:
@@ -313,7 +313,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint init_size = 5;
 
-	usint ptm = 9;
+	PlaintextModulus ptm = 9;
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
@@ -338,10 +338,10 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	std::vector<usint> firstElement = { 8, 5, 4 };
+	std::vector<uint64_t> firstElement = { 8, 5, 4 };
 	Plaintext firstElementEncoding = cc->MakeCoefPackedPlaintext(firstElement);
 
-	std::vector<usint> secondElement = { 7, 4, 2 };
+	std::vector<uint64_t> secondElement = { 7, 4, 2 };
 	Plaintext secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
 
 	Ciphertext<DCRTPoly> ciphertextElementOne;

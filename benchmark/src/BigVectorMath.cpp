@@ -28,26 +28,6 @@
 #include "benchmark/benchmark_api.h"
 
 
-/* this is an example of very basic google benchmarks
-   all the benchmarks have
-             no input parameters
-	     cannot runover differnt length operations
-	     some generate an output
-  future examples will show the use of fixtures and templates to reduce
-  the amount of 
-  code needed
-
-  for documentation on google benchmarks see https://github.com/google/benchmark
-  as well as example code in the benchmark/examples directory
-
-  note to increase the number of iterations call it as follows
-             ./BBVMath --benchmark_min_time=4.0
-
-
-  increase the min_time (as a float) to increase the # iterations
-
- */
-
 
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -63,49 +43,87 @@
 #include "../../src/core/lib/lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
-#include "BBVhelper.h"
+#include "vechelper.h"
 #include "ElementParmsHelper.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 // add
-static void add_BBV(benchmark::State& state) {
+static void add_BigVec(benchmark::State& state) {
 	state.PauseTiming();
 	BigVector a = makeVector(parmArray[state.range(0)]);
 	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigVector c1 = a+b;
+	a = a+b;
 }
 
-static void BM_BBV_Addition(benchmark::State& state) { // benchmark
+static void BM_BigVec_Addition(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		add_BBV(state);
+		add_BigVec(state);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_BBV_Addition)
+DO_PARM_BENCHMARK(BM_BigVec_Addition)
 
-// add
-static void mult_BBV(benchmark::State& state) {	// function
+// +=
+static void addeq_BigVec(benchmark::State& state) {
 	state.PauseTiming();
 	BigVector a = makeVector(parmArray[state.range(0)]);
 	BigVector b = makeVector(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
-	BigVector c1 = a*b;
+	a += b;
 }
 
-static void BM_BBV_Multiplication(benchmark::State& state) { // benchmark
+static void BM_BigVec_Addeq(benchmark::State& state) { // benchmark
 
 	while (state.KeepRunning()) {
-		mult_BBV(state);
+		addeq_BigVec(state);
 	}
 }
 
-DO_PARM_BENCHMARK(BM_BBV_Multiplication)
+DO_PARM_BENCHMARK(BM_BigVec_Addeq)
+
+// mult
+static void mult_BigVec(benchmark::State& state) {	// function
+	state.PauseTiming();
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
+	state.ResumeTiming();
+
+	a = a*b;
+}
+
+static void BM_BigVec_Multiplication(benchmark::State& state) { // benchmark
+
+	while (state.KeepRunning()) {
+		mult_BigVec(state);
+	}
+}
+
+DO_PARM_BENCHMARK(BM_BigVec_Multiplication)
+
+// mult
+static void multeq_BigVec(benchmark::State& state) {	// function
+	state.PauseTiming();
+	BigVector a = makeVector(parmArray[state.range(0)]);
+	BigVector b = makeVector(parmArray[state.range(0)]);
+	state.ResumeTiming();
+
+	a *= b;
+}
+
+static void BM_BigVec_Multeq(benchmark::State& state) { // benchmark
+
+	while (state.KeepRunning()) {
+		multeq_BigVec(state);
+	}
+}
+
+DO_PARM_BENCHMARK(BM_BigVec_Multeq)
 
 //execute the benchmarks
 BENCHMARK_MAIN()

@@ -105,9 +105,9 @@ int main(int argc, char *argv[]) {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint32_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint32_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts1 = {3,2,1,3,2,1,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<uint64_t> vectorOfInts3 = {1,0,0,0,0,0,0,0,0,0,0,0};
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 	Plaintext plaintext3 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts3);

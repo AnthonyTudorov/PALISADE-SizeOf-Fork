@@ -440,11 +440,11 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
   //mean test
 
   {
-    sint stdev = 5;
+    int stdev = 5;
     usint size = 100000;
     BigInteger modulus("10403");
     const DiscreteGaussianGenerator& dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
-    std::shared_ptr<sint> dggCharVector = dgg.GenerateIntVector(size);
+    std::shared_ptr<int32_t> dggCharVector = dgg.GenerateIntVector(size);
 
     double mean = 0;
     for(usint i=0; i<size; i++) {
@@ -458,7 +458,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
 
   // generate_vector_mean_test
   {
-    sint stdev = 5;
+    int stdev = 5;
     usint size = 100000;
     BigInteger modulus("10403");
     BigInteger modulusByTwo(modulus.DividedBy(2));
@@ -491,18 +491,18 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
   bool dbg_flag = false;
 
   {
-    sint stdev = 5;
+    int stdev = 5;
     usint size = 10000;
     BigInteger modulus("10403");
 
 
-    vector<sint>dggCharVector;
-    //    sint* dggCharVector = dgg.GenerateIntVector(size);
+    vector<int32_t>dggCharVector;
+    //    int32_t* dggCharVector = dgg.GenerateIntVector(size);
 
 #pragma omp parallel // this is executed in parallel
   {
     //private copies of our vector
-    vector <sint> dggCharVectorPvt;
+    vector <int32_t> dggCharVectorPvt;
     const DiscreteGaussianGenerator& dgg = lbcrypto::DiscreteGaussianGenerator(stdev);
 
     // build the vectors in parallel
@@ -538,7 +538,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
 
   // generate_vector_mean_test
   {
-    sint stdev = 5;
+    int stdev = 5;
     usint size = 100000;
     BigInteger modulus("10403");
     BigInteger modulusByTwo(modulus.DividedBy(2));
@@ -593,7 +593,7 @@ TEST(UTDistrGen, ParallelDiscreteGaussianGenerator_VERY_LONG) {
 //Mean test for Karney sampling
 TEST(UTDistrGen, Karney_Mean) {
 
-	sint stdev = 10;
+	int stdev = 10;
 	usint size = 10000;
 	double mean = 0;
 	double center = 10;
@@ -610,7 +610,7 @@ TEST(UTDistrGen, Karney_Mean) {
 //Variance test for Karney sampling
 TEST(UTDistrGen, Karney_Variance) {
 
-	sint stdev = 10;
+	int stdev = 10;
 	usint size = 10000;
 	double mean = 0;
 	double variance = 0;
