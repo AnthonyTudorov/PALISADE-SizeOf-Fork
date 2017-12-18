@@ -58,13 +58,13 @@ struct rationalInt {
 	rationalInt(usint n,usint d) :m_numerator(n), m_denominator(d) {}
 };
 
-rationalInt ArbBVLinearRegressionPackedArray();
+rationalInt ArbBGVLinearRegressionPackedArray();
 
-rationalInt ArbFVLinearRegressionPackedArray();
+rationalInt ArbBFVLinearRegressionPackedArray();
 
-TEST_F(UTEvalLR, Test_BV_EvalLR) {
+TEST_F(UTEvalLR, Test_BGV_EvalLR) {
 	
-	rationalInt result = ArbBVLinearRegressionPackedArray();
+	rationalInt result = ArbBGVLinearRegressionPackedArray();
 
 	rationalInt expectedResult(300,270);
 
@@ -72,9 +72,9 @@ TEST_F(UTEvalLR, Test_BV_EvalLR) {
 	EXPECT_EQ(result.m_denominator, expectedResult.m_denominator);
 }
 
-TEST_F(UTEvalLR, Test_FV_EvalLR) {
+TEST_F(UTEvalLR, Test_BFV_EvalLR) {
 	
-	rationalInt result = ArbFVLinearRegressionPackedArray();
+	rationalInt result = ArbBFVLinearRegressionPackedArray();
 
 	rationalInt expectedResult(300, 270);
 
@@ -82,7 +82,7 @@ TEST_F(UTEvalLR, Test_FV_EvalLR) {
 	EXPECT_EQ(result.m_denominator, expectedResult.m_denominator);
 }
 
-rationalInt ArbBVLinearRegressionPackedArray() {
+rationalInt ArbBGVLinearRegressionPackedArray() {
 
 	PackedEncoding::Destroy();
 
@@ -108,7 +108,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -161,7 +161,7 @@ rationalInt ArbBVLinearRegressionPackedArray() {
 }
 
 
-rationalInt ArbFVLinearRegressionPackedArray() {
+rationalInt ArbBFVLinearRegressionPackedArray() {
 
 	ChineseRemainderTransformArb<BigInteger, BigVector>::Reset();
 
@@ -198,14 +198,14 @@ rationalInt ArbFVLinearRegressionPackedArray() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
 	//	usint relinWindow, float stDev, const std::string& delta,
 	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

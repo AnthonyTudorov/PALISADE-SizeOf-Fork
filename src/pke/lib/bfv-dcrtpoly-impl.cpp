@@ -1,5 +1,5 @@
 /*
-* @file fv-dcrtpoly-impl.cpp - dcrtpoly implementation for the FV scheme.
+* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,24 +25,24 @@
  */
 
 #include "cryptocontext.h"
-#include "fv.cpp"
+#include "bfv.cpp"
 
 namespace lbcrypto {
 
 template <>
-LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV() {
-	std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV() {
+	std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(const LPCryptoParametersFV &rhs) {
-	std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV(const LPCryptoParametersBFV &rhs) {
+	std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 	throw std::runtime_error(errMsg);
 }
 
 template <>
-LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
+LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV(shared_ptr<typename DCRTPoly::Params> params,
 	const PlaintextModulus &plaintextModulus,
 	float distributionParameter,
 	float assuranceMeasure,
@@ -56,12 +56,12 @@ LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPol
 	const BigInteger &bigRootOfUnityArb,
 	int depth,
 	int maxDepth) {
-		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+		std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 		throw std::runtime_error(errMsg);
 }
 
 template <>
-LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPoly::Params> params,
+LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV(shared_ptr<typename DCRTPoly::Params> params,
 	EncodingParams encodingParams,
 	float distributionParameter,
 	float assuranceMeasure,
@@ -75,19 +75,19 @@ LPCryptoParametersFV<DCRTPoly>::LPCryptoParametersFV(shared_ptr<typename DCRTPol
 	const BigInteger &bigRootOfUnityArb,
 	int depth,
 	int maxDepth)	{
-		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+		std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 		throw std::runtime_error(errMsg);
 	}
 
 template <>
-LPPublicKeyEncryptionSchemeFV<DCRTPoly>::LPPublicKeyEncryptionSchemeFV(){
-		std::string errMsg = "FV does not support DCRTPoly. Use Poly instead.";
+LPPublicKeyEncryptionSchemeBFV<DCRTPoly>::LPPublicKeyEncryptionSchemeBFV(){
+		std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 		throw std::runtime_error(errMsg);
 	}
 
-template class LPCryptoParametersFV<DCRTPoly>;
-template class LPPublicKeyEncryptionSchemeFV<DCRTPoly>;
-template class LPAlgorithmFV<DCRTPoly>;
-template class LPAlgorithmParamsGenFV<DCRTPoly>;
+template class LPCryptoParametersBFV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeBFV<DCRTPoly>;
+template class LPAlgorithmBFV<DCRTPoly>;
+template class LPAlgorithmParamsGenBFV<DCRTPoly>;
 
 }

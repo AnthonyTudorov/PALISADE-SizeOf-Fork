@@ -897,7 +897,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 };
 
 /**
-* @brief Parameter generation for FV.
+* @brief Parameter generation for BFV.
 * @tparam Element a ring element.
 */
 template <class Element>
@@ -950,20 +950,28 @@ public:
 				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 			break;
 		case PRE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 			if (this->m_algorithmPRE == NULL)
 				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
 			break;
 		case MULTIPARTY:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 			if (this->m_algorithmMultiparty == NULL)
 				this->m_algorithmMultiparty = new LPAlgorithmMultipartyNull<Element>();
 			break;
 		case SHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 			if (this->m_algorithmSHE == NULL)
 				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
 			break;
 		case FHE:
 			throw std::logic_error("FHE feature not supported for Null scheme");
 		case LEVELEDSHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
 			break;

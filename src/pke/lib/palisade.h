@@ -75,8 +75,8 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 #include "rlwe.h"
 #include "ltv.h"
 #include "stst.h"
-#include "bv.h"
-#include "fv.h"
+#include "bgv.h"
+#include "bfv.h"
 #include "bfvrns.h"
 #include "nullscheme.h"
 

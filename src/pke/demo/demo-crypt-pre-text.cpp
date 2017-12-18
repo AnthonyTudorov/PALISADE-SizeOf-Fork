@@ -81,12 +81,12 @@ GeneratePREContext(string scheme, PlaintextModulus ptm) {
 	else if( scheme == "Null" ) {
 		cc = GenTestCryptoContext<Poly>(scheme, m, ptm);
 	}
-	else if( scheme == "FV" ) {
-		cc = GenTestCryptoContext<Poly>("FV_rlwe", m, ptm);
+	else if( scheme == "BFV" ) {
+		cc = GenTestCryptoContext<Poly>("BFV_rlwe", m, ptm);
 	}
 	else {
 		cout << "Unrecognized scheme '" << scheme << "'" << endl;
-		cout << "Available schemes are: LTV, StSt, Null, and FV" << endl;
+		cout << "Available schemes are: LTV, StSt, Null, and BFV" << endl;
 	}
 
 	return cc;
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
 	bool flagSecretSecret = true;
 
-	if (schemeName.find("FV") == string::npos)
+	if (schemeName.find("BFV") == string::npos)
 		flagSecretSecret = false;
 
 	if( beVerbose ) cout << "Generating proxy re-encryption key" << endl;

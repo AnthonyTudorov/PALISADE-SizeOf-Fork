@@ -1,5 +1,5 @@
 /**
- * @file fv.h -- Operations for the FV cryptoscheme.
+ * @file bfv.h -- Operations for the BFV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,8 +25,8 @@
  */
  /*
  *
- * This code implements the Fan-Vercauteren (FV) homomorphic encryption scheme.
- * The FV scheme is introduced here:
+ * This code implements the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.  This scheme is also referred to as the FV scheme.
+ * The BFV scheme is introduced here:
  *   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  *
  * Our implementation builds from the designs here:
@@ -34,17 +34,17 @@
  *
  */
 
-#ifndef LBCRYPTO_CRYPTO_FV_H
-#define LBCRYPTO_CRYPTO_FV_H
+#ifndef LBCRYPTO_CRYPTO_BFV_H
+#define LBCRYPTO_CRYPTO_BFV_H
 
 #include "palisade.h"
 
 namespace lbcrypto {
 
 	/**
- 	* @brief This is the parameters class for the FV encryption scheme.
+ 	* @brief This is the parameters class for the BFV encryption scheme.  This scheme is also referred to as the FV scheme.
  	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -53,19 +53,19 @@ namespace lbcrypto {
  	* @tparam Element a ring element type.
  	*/
 	template <class Element>
-	class LPCryptoParametersFV : public LPCryptoParametersRLWE<Element> {
+	class LPCryptoParametersBFV : public LPCryptoParametersRLWE<Element> {
 
 		public:
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersFV();
+			LPCryptoParametersBFV();
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersFV(const LPCryptoParametersFV &rhs);
+			LPCryptoParametersBFV(const LPCryptoParametersBFV &rhs);
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
@@ -81,7 +81,7 @@ namespace lbcrypto {
 			 * @param assuranceMeasure Assurance level, typically denoted as w in most applications.  This is oftern perceived as a fudge factor in the literature, with a typical value of 9.
 			 * @param securityLevel Security level as Root Hermite Factor.  We use the Root Hermite Factor representation of the security level to better conform with US ITAR and EAR export regulations.  This is typically represented as /delta in the literature.  Typically a Root Hermite Factor of 1.006 or less provides reasonable security for RLWE crypto schemes, although extra care is need for the LTV scheme because LTV makes an additional security assumption that make it suceptible to subfield lattice attacks.
 			 * @param relinWindow The size of the relinearization window.  This is relevant when using this scheme for proxy re-encryption, and the value is denoted as r in the literature.
-			 * @param delta FV-specific factor that is multiplied by the plaintext polynomial.
+			 * @param delta BFV-specific factor that is multiplied by the plaintext polynomial.
 			 * @param mode mode for secret polynomial, defaults to RLWE.
 			 * @param bigModulus modulus used in polynomial multiplications in EvalMult
 			 * @param bigRootOfUnity root of unity for bigModulus
@@ -90,7 +90,7 @@ namespace lbcrypto {
 			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
-			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+			LPCryptoParametersBFV(shared_ptr<typename Element::Params> params,
 				const PlaintextModulus &plaintextModulus, 
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -114,7 +114,7 @@ namespace lbcrypto {
 			* @param assuranceMeasure assurance level. = BigInteger::ZERO
 			* @param securityLevel security level (root Hermite factor).
 			* @param relinWindow the size of the relinearization window.
-			* @param delta FV-specific factor that is multiplied by the plaintext polynomial.
+			* @param delta BFV-specific factor that is multiplied by the plaintext polynomial.
 			* @param mode mode for secret polynomial, defaults to RLWE.
 			* @param bigModulus modulus used in polynomial multiplications in EvalMult
 			* @param bigRootOfUnity root of unity for bigModulus
@@ -123,7 +123,7 @@ namespace lbcrypto {
 			* @param depth depth which is set to 1.
 			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
-			LPCryptoParametersFV(shared_ptr<typename Element::Params> params,
+			LPCryptoParametersBFV(shared_ptr<typename Element::Params> params,
 				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
@@ -141,7 +141,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersFV() {}
+			virtual ~LPCryptoParametersBFV() {}
 			
 			/**
 			* Serialize the object
@@ -160,7 +160,7 @@ namespace lbcrypto {
 			/**
 			* Gets the value of the delta factor.
 			*
-			* @return the delta factor. It is an FV-specific factor that is multiplied by the plaintext polynomial.
+			* @return the delta factor. It is an BFV-specific factor that is multiplied by the plaintext polynomial.
 			*/
 			const typename Element::Integer& GetDelta() const { return m_delta; }
 
@@ -222,12 +222,12 @@ namespace lbcrypto {
 			void SetBigRootOfUnityArb(const typename Element::Integer &bigRootOfUnityArb) { m_bigRootOfUnityArb = bigRootOfUnityArb; }
 
 			/**
-			* == operator to compare to this instance of LPCryptoParametersFV object. 
+			* == operator to compare to this instance of LPCryptoParametersBFV object. 
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
 			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersFV<Element> *el = dynamic_cast<const LPCryptoParametersFV<Element> *>(&rhs);
+				const LPCryptoParametersBFV<Element> *el = dynamic_cast<const LPCryptoParametersBFV<Element> *>(&rhs);
 
 				if( el == 0 ) return false;
 
@@ -252,7 +252,7 @@ namespace lbcrypto {
 
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
-			// in FV (most significant bit ranges are used to represent the message)
+			// in BFV (most significant bit ranges are used to represent the message)
 			typename Element::Integer m_delta;
 			
 			// larger modulus that is used in polynomial multiplications within EvalMult (before rounding is done)
@@ -269,9 +269,9 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Parameter generation for FV.
+	* @brief Parameter generation for BFV.  This scheme is also referred to as the FV scheme.
 	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -280,13 +280,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenFV : public LPParameterGenerationAlgorithm<Element> { 
+	class LPAlgorithmParamsGenBFV : public LPParameterGenerationAlgorithm<Element> { 
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmParamsGenFV() {}
+		LPAlgorithmParamsGenBFV() {}
 
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
@@ -299,14 +299,14 @@ namespace lbcrypto {
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
 
-		virtual ~LPAlgorithmParamsGenFV() {}
+		virtual ~LPAlgorithmParamsGenBFV() {}
 
 	};
 
 	/**
-	* @brief Encryption algorithm implementation for FV for the basic public key encrypt, decrypt and key generation methods for the FV encryption scheme.
+	* @brief Encryption algorithm implementation for BFV for the basic public key encrypt, decrypt and key generation methods for the BFV encryption scheme.  This scheme is also referred to as the FV scheme.
 	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -315,16 +315,16 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmFV : public LPEncryptionAlgorithm<Element> {
+	class LPAlgorithmBFV : public LPEncryptionAlgorithm<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmFV() {}
+		LPAlgorithmBFV() {}
 
 		/**
-		* Method for encrypting plaintext using FV.
+		* Method for encrypting plaintext using BFV.
 		*
 		* @param publicKey public key used for encryption.
 		* @param plaintext the plaintext input.
@@ -334,7 +334,7 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext with private key using FV.
+		* Method for encrypting plaintext with private key using BFV.
 		*
 		* @param privateKey private key used for encryption.
 		* @param plaintext the plaintext input.
@@ -344,7 +344,7 @@ namespace lbcrypto {
 				Element plaintext) const;
 
 		/**
-		* Method for decrypting using FV. See the class description for citations on where the algorithms were
+		* Method for decrypting using BFV. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
 		* @param privateKey private key used for decryption.
@@ -366,14 +366,14 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
 
-		virtual ~LPAlgorithmFV() {}
+		virtual ~LPAlgorithmBFV() {}
 
 	};
 
 	/**
-	* @brief SHE algorithms implementation for FV.
+	* @brief SHE algorithms implementation for BFV.  This scheme is also referred to as the FV scheme.
 	*
- 	* The FV scheme parameter guidelines are introduced here:
+ 	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  	*
  	* We used the optimized parameter selection from the designs here:
@@ -382,13 +382,13 @@ namespace lbcrypto {
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEFV : public LPSHEAlgorithm<Element> { 
+	class LPAlgorithmSHEBFV : public LPSHEAlgorithm<Element> { 
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmSHEFV() {}
+		LPAlgorithmSHEBFV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -535,20 +535,20 @@ namespace lbcrypto {
 		/**
 		* Method for KeySwitching based on RLWE relinearization and NTRU key generation.
 		* Function to generate 1..log(q) encryptions for each bit of the original private key
-		* Not implemented for FV.
+		* Not implemented for BFV.
 		*
 		* @param &newPublicKey encryption key for the new ciphertext.
 		* @param origPrivateKey original private key used for decryption.
 		*/
 		LPEvalKey<Element> KeySwitchRelinGen(const LPPublicKey<Element> newPublicKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
+			std::string errMsg = "LPAlgorithmSHEBFV:KeySwitchRelinGen is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
 		}
 
 		/**
 		* Method for KeySwitching based on RLWE relinearization and NTRU key generation
-		* Not implemented for FV.
+		* Not implemented for BFV.
 		*
 		* @param evalKey the evaluation key.
 		* @param ciphertext the input ciphertext.
@@ -556,7 +556,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> KeySwitchRelin(const LPEvalKey<Element> evalKey,
 			const Ciphertext<Element> ciphertext) const {
-			std::string errMsg = "LPAlgorithmSHEFV:KeySwitchRelin is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
+			std::string errMsg = "LPAlgorithmSHEBFV:KeySwitchRelin is not needed for this scheme as relinearization is the default technique and no NTRU key generation is used.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -611,25 +611,25 @@ namespace lbcrypto {
 		*/
 		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 			const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const {
-			std::string errMsg = "LPAlgorithmSHEFV::EvalAutomorphismKeyGen is not implemented for FV SHE Scheme.";
+			std::string errMsg = "LPAlgorithmSHEBFV::EvalAutomorphismKeyGen is not implemented for BFV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
 	};
 
 	/**
-	* @brief PRE scheme based on FV. This functionality is currently DISABLED in LPPublicKeyEncryptionSchemeFV because
+	* @brief PRE scheme based on BFV. This functionality is currently DISABLED in LPPublicKeyEncryptionSchemeBFV because
 	* it needs more testing
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmPREFV : public LPPREAlgorithm<Element> {
+	class LPAlgorithmPREBFV : public LPPREAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmPREFV() {}
+		LPAlgorithmPREBFV() {}
 
 		/*
 		* DISABLED. Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
@@ -644,7 +644,7 @@ namespace lbcrypto {
 
 		/**
 		* DISABLED. Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
-		* Variant that uses the public key for the new secret key. Not implemented for FV.
+		* Variant that uses the public key for the new secret key. Not implemented for BFV.
 		*
 		* @param newKey public key for the new private key.
 		* @param origPrivateKey original private key used for decryption.
@@ -652,7 +652,7 @@ namespace lbcrypto {
 		*/
 		LPEvalKey<Element> ReKeyGen(const LPPublicKey<Element> newKey,
 			const LPPrivateKey<Element> origPrivateKey) const {
-			std::string errMsg = "LPAlgorithmPREFV::ReKeyGen using a public key of the new secret key is not implemented for the FV Scheme.";
+			std::string errMsg = "LPAlgorithmPREBFV::ReKeyGen using a public key of the new secret key is not implemented for the BFV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 
@@ -671,7 +671,7 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Concrete class for the FHE Multiparty algorithms on FV.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 * @brief Concrete class for the FHE Multiparty algorithms on BFV.  A version of this multiparty scheme built on the BGV scheme is seen here:
 	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
 	 *
 	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
@@ -686,13 +686,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmMultipartyFV : public LPMultipartyAlgorithm<Element> {
+	class LPAlgorithmMultipartyBFV : public LPMultipartyAlgorithm<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmMultipartyFV() {}
+		LPAlgorithmMultipartyBFV() {}
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
@@ -750,18 +750,18 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Main public key encryption scheme for FV implementation,
+	* @brief Main public key encryption scheme for BFV implementation,
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPPublicKeyEncryptionSchemeFV : public LPPublicKeyEncryptionScheme<Element> {
+	class LPPublicKeyEncryptionSchemeBFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeFV() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenFV<Element>();
+		LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<Element>() {
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFV<Element>();
 		}
 
 		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
-			if( dynamic_cast<const LPPublicKeyEncryptionSchemeFV<Element> *>(&sch) == 0 )
+			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBFV<Element> *>(&sch) == 0 )
 				return false;
 			return true;
 		}

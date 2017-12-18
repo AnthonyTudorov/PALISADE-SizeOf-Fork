@@ -25,7 +25,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @section DESCRIPTION
- * Demo software for FV multiparty operations.
+ * Demo software for BFV multiparty operations.
  *
  */
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	string input;
 
 	if (argc < 2) {
-	  std::cout << "\nThis code demonstrates the use of the FV, BV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
+	  std::cout << "\nThis code demonstrates the use of the BFV, BGV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
 	  std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " ;
 	  std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
 	  std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
@@ -189,13 +189,13 @@ int main(int argc, char *argv[])
 	////////////////////////////////////////////////////////////
 
 	// Set a flag to determine which ReKeyGent interface is supported
-	// flagBV == true means BV or FV
-	// flagBV == false corresponds to LTV, StSt, and Null
+	// flagBGV == true means BGV or BFV
+	// flagBGV == false corresponds to LTV, StSt, and Null
 
-	bool flagBV = true;
+	bool flagBGV = true;
 
-	if ((input.find("BV") == string::npos) && (input.find("FV") == string::npos))
-		flagBV = false;
+	if ((input.find("BGV") == string::npos) && (input.find("BFV") == string::npos))
+		flagBGV = false;
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
 	start = currentDateTime();
 
-	if (flagBV)
+	if (flagBGV)
 		reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.secretKey, keyPair1.secretKey);
 	else
 		reencryptionKey12 = cryptoContext->ReKeyGen(keyPair2.publicKey, keyPair1.secretKey);

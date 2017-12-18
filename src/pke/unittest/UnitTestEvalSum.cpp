@@ -53,9 +53,9 @@ public:
 
 
 usint ArbLTVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
-usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
-usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p);
-usint ArbFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbBGVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbBGVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p);
+usint ArbBFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p);
 
 void
 EvalSumSetup(std::vector<uint64_t>& input, usint& expectedSum, PlaintextModulus plaintextMod) {
@@ -87,7 +87,7 @@ TEST_F(UTEvalSum, Test_LTV_EvalSum) {
 	EXPECT_EQ(result, expectedSum);
 }
 
-TEST_F(UTEvalSum, Test_BV_EvalSum) {
+TEST_F(UTEvalSum, Test_BGV_EvalSum) {
 
 	usint size = 10;
 	std::vector<uint64_t> input(size,0);
@@ -95,12 +95,12 @@ TEST_F(UTEvalSum, Test_BV_EvalSum) {
 
 	EvalSumSetup(input,expectedSum, 89);
 
-	usint result = ArbBVEvalSumPackedArray(input, 89);
+	usint result = ArbBGVEvalSumPackedArray(input, 89);
 
 	EXPECT_EQ(result, expectedSum);
 }
 
-TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
+TEST_F(UTEvalSum, Test_BGV_EvalSum_Prime_Cyclotomics) {
 
 	usint size = 10;
 	std::vector<uint64_t> input(size,0);
@@ -108,12 +108,12 @@ TEST_F(UTEvalSum, Test_BV_EvalSum_Prime_Cyclotomics) {
 
 	EvalSumSetup(input,expectedSum, 23);
 
-	usint result = ArbBVEvalSumPackedArrayPrime(input, 23);
+	usint result = ArbBGVEvalSumPackedArrayPrime(input, 23);
 
 	EXPECT_EQ(result, expectedSum);
 }
 
-TEST_F(UTEvalSum, Test_FV_EvalSum) {
+TEST_F(UTEvalSum, Test_BFV_EvalSum) {
 	
 	usint size = 10;
 	std::vector<uint64_t> input(size,0);
@@ -121,7 +121,7 @@ TEST_F(UTEvalSum, Test_FV_EvalSum) {
 
 	EvalSumSetup(input,expectedSum, 89);
 
-	usint result = ArbFVEvalSumPackedArray(input, 89);
+	usint result = ArbBFVEvalSumPackedArray(input, 89);
 
 	EXPECT_EQ(result, expectedSum);
 
@@ -184,7 +184,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModu
 
 }
 
-usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
+usint ArbBGVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 22;
 	BigInteger modulusP(p);
@@ -208,7 +208,7 @@ usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModul
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -233,7 +233,7 @@ usint ArbBVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModul
 	return intArrayNew->GetPackedValue()[0];
 }
 
-usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
+usint ArbBGVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 11;
 	BigInteger modulusP(p);
@@ -257,7 +257,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, Plaintext
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -282,7 +282,7 @@ usint ArbBVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, Plaintext
 	return intArrayNew->GetPackedValue()[0];
 }
 
-usint ArbFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
+usint ArbBFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModulus p) {
 
 	usint m = 22;
 	BigInteger modulusP(p);
@@ -308,7 +308,7 @@ usint ArbFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModul
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 8, stdDev, delta.ToString());
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 8, stdDev, delta.ToString());
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

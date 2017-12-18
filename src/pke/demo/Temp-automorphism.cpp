@@ -65,11 +65,11 @@ using namespace lbcrypto;
 //void LTVAutomorphismIntArray();
 void LTVAutomorphismPackedArray(usint i);
 void ArbLTVAutomorphismPackedArray(usint i);
-void BVAutomorphismPackedArray(usint i);
-void ArbBVAutomorphismPackedArray(usint i);
-void FVAutomorphismPackedArray(usint i);
-void ArbFVAutomorphismPackedArray(usint i);
-void ArbFVAutomorphismPackedArray2n(usint i);
+void BGVAutomorphismPackedArray(usint i);
+void ArbBGVAutomorphismPackedArray(usint i);
+void BFVAutomorphismPackedArray(usint i);
+void ArbBFVAutomorphismPackedArray(usint i);
+void ArbBFVAutomorphismPackedArray2n(usint i);
 void ArbNullAutomorphismPackedArray(usint i);
 
 int main() {
@@ -91,40 +91,40 @@ int main() {
 		ArbLTVAutomorphismPackedArray(totientList[index]);
 	}
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		BVAutomorphismPackedArray(index);
+		BGVAutomorphismPackedArray(index);
 
-	std::cout << "\n===========BV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
-		ArbBVAutomorphismPackedArray(totientList[index]);
+		ArbBGVAutomorphismPackedArray(totientList[index]);
 	}
 
-	std::cout << "\n==============FV TESTS (EVALAUTOMORPHISM)================: " << std::endl;
+	std::cout << "\n==============BFV TESTS (EVALAUTOMORPHISM)================: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 3; index < 16; index = index + 2)
-		FVAutomorphismPackedArray(index);
+		BFVAutomorphismPackedArray(index);
 
-	std::cout << "\n===========FV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
-		ArbFVAutomorphismPackedArray(totientList[index]);
+		ArbBFVAutomorphismPackedArray(totientList[index]);
 	}
 
-	std::cout << "\n===========FV TESTS (EVALAUTOMORPHISM-POWER-OF-TWO)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (EVALAUTOMORPHISM-POWER-OF-TWO)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	usint m2n = 32;
 	std::vector<usint> totientList2n = GetTotientList(m2n);
 
 	for (usint index = 1; index < 16; index++) {
-		ArbFVAutomorphismPackedArray2n(totientList2n[index]);
+		ArbBFVAutomorphismPackedArray2n(totientList2n[index]);
 	}
 
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
@@ -180,7 +180,7 @@ void LTVAutomorphismPackedArray(usint i) {
 }
 
 
-void BVAutomorphismPackedArray(usint i) {
+void BGVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
 	BigInteger q("67108913");
@@ -191,7 +191,7 @@ void BVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, plaintextModulus, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, plaintextModulus, 1, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -220,7 +220,7 @@ void BVAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
-void FVAutomorphismPackedArray(usint i) {
+void BFVAutomorphismPackedArray(usint i) {
 
 	usint m = 16;
 	BigInteger q("67108913");
@@ -234,7 +234,7 @@ void FVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params( new ILParams(m, q, rootOfUnity) );
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 		params, plaintextModulus,
 		relWindow, stdDev, delta.ToString());
 
@@ -265,7 +265,7 @@ void FVAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
-void ArbBVAutomorphismPackedArray(usint i) {
+void ArbBGVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 	usint p = 2333;
@@ -287,7 +287,7 @@ void ArbBVAutomorphismPackedArray(usint i) {
 
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, p, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, p, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -370,7 +370,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
-void ArbFVAutomorphismPackedArray(usint i) {
+void ArbBFVAutomorphismPackedArray(usint i) {
 
 	usint m = 22;
 	usint p = 2333;
@@ -394,7 +394,7 @@ void ArbFVAutomorphismPackedArray(usint i) {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 		params, p,
 		8, stdDev, delta.ToString());
 
@@ -484,7 +484,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
-void ArbFVAutomorphismPackedArray2n(usint i) {
+void ArbBFVAutomorphismPackedArray2n(usint i) {
 
 
 	usint m = 32;
@@ -506,7 +506,7 @@ void ArbFVAutomorphismPackedArray2n(usint i) {
 
 	usint relinWindow = 1;
 	float stdDev = 4;
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 			params, encodingParams, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
 			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
 		);

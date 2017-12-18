@@ -228,19 +228,19 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 }
 
-/** Tests linear regression for the FV scheme
+/** Tests linear regression for the BFV scheme
 * based on of a design matrix of 2x2 and response vector of 2x1
 * In contrast to the previous test, this one also converts an integer
 * into a binary polynomial
 */
-TEST_F(UTStatisticalEval, FV_Eval_Lin_Regression_Int) {
+TEST_F(UTStatisticalEval, BFV_Eval_Lin_Regression_Int) {
 
 	usint plaintextModulus = 256;
 	usint relWindow = 8;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 

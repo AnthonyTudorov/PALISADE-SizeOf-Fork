@@ -38,33 +38,33 @@ using namespace std;
 using namespace lbcrypto;
 
 void ArbLTVInnerProductPackedArray();
-void ArbBVInnerProductPackedArray();
-void ArbFVInnerProductPackedArray();
-void ArbFVEvalMultPackedArray();
+void ArbBGVInnerProductPackedArray();
+void ArbBFVInnerProductPackedArray();
+void ArbBFVEvalMultPackedArray();
 
 int main() {
 
-	std::cout << "\nThis code demonstrates the use of packing on the FV, BV and LTV schemes. " << std::endl;
-	std::cout << "We show inner product operations for all schemes and a bit-packed EvalMult for the FV scheme. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of packing on the BFV, BGV and LTV schemes. " << std::endl;
+	std::cout << "We show inner product operations for all schemes and a bit-packed EvalMult for the BFV scheme. " << std::endl;
 	std::cout << "This code shows how parameters can be manually set in our library. " << std::endl;
 	std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 
-	std::cout << "\n=========== In this code block we demonstrate inner product operations using the FV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BFV scheme. ===============: " << std::endl;
 
-	ArbFVInnerProductPackedArray();
+	ArbBFVInnerProductPackedArray();
 
-	std::cout << "\n=========== In this code block we demonstrate EvalMult operations using the FV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate EvalMult operations using the BFV scheme. ===============: " << std::endl;
 
-	ArbFVEvalMultPackedArray();
+	ArbBFVEvalMultPackedArray();
 
 
 	std::cout << "\n=========== In this code block we demonstrate inner product operations using the LTV scheme. ===============: " << std::endl;
 
 	ArbLTVInnerProductPackedArray();
 
-	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BV scheme. ===============: " << std::endl;
+	std::cout << "\n=========== In this code block we demonstrate inner product operations using the BGV scheme. ===============: " << std::endl;
 
-	ArbBVInnerProductPackedArray();
+	ArbBGVInnerProductPackedArray();
 
 
 	std::cout << "Please press any key to continue..." << std::endl;
@@ -73,7 +73,7 @@ int main() {
 	return 0;
 }
 
-void ArbBVInnerProductPackedArray() {
+void ArbBGVInnerProductPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -101,7 +101,7 @@ void ArbBVInnerProductPackedArray() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -208,7 +208,7 @@ void ArbLTVInnerProductPackedArray() {
 
 }
 
-void ArbFVInnerProductPackedArray() {
+void ArbBFVInnerProductPackedArray() {
 
 	usint m = 22;
 	PlaintextModulus p = 2333; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -244,14 +244,14 @@ void ArbFVInnerProductPackedArray() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
 	//	usint relinWindow, float stDev, const std::string& delta,
 	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	//BigInteger modulusQ("955263939794561");
@@ -293,7 +293,7 @@ void ArbFVInnerProductPackedArray() {
 }
 
 
-void ArbFVEvalMultPackedArray() {
+void ArbBFVEvalMultPackedArray() {
 
 	PackedEncoding::Destroy();
 
@@ -330,14 +330,14 @@ void ArbFVEvalMultPackedArray() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
 	//	usint relinWindow, float stDev, const std::string& delta,
 	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
 	//	int depth = 0, int assuranceMeasure = 0, float securityLevel = 0,
 	//	const std::string& bigmodulusarb = "0", const std::string& bigrootofunityarb = "0")
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

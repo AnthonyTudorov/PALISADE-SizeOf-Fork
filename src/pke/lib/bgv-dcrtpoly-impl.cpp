@@ -1,5 +1,5 @@
 /*
-* @file bv-poly-impl.cpp - BV scheme poly implementation
+ * @file bgv-dcrtpoly-impl.cpp - BGV dcrtpoly implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,14 +25,10 @@
  */
 
 #include "cryptocontext.h"
-#include "bv.cpp"
+#include "bgv.cpp"
 
 namespace lbcrypto {
-template class LPCryptoParametersBV<Poly>;
-template class LPPublicKeyEncryptionSchemeBV<Poly>;
-template class LPAlgorithmBV<Poly>;
-
-template class LPCryptoParametersBV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeBV<NativePoly>;
-template class LPAlgorithmBV<NativePoly>;
+template class LPCryptoParametersBGV<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeBGV<DCRTPoly>;
+template class LPAlgorithmBGV<DCRTPoly>;
 }

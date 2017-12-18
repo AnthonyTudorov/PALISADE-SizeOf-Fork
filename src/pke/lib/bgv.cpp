@@ -1,5 +1,5 @@
 /*
-* @file bv.cpp - BV scheme implementation.
+* @file bgv.cpp - BGV scheme implementation.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,7 +24,7 @@
  *
  */
 /*
-This code implements the Brakerski-Vaikuntanathan (BV) homomorphic encryption scheme.
+This code implements the Brakerski-Vaikuntanathan (BGV) homomorphic encryption scheme.
 The scheme is described at http://www.wisdom.weizmann.ac.il/~zvikab/localpapers/IdealHom.pdf (or alternative Internet source:
 http://dx.doi.org/10.1007/978-3-642-22792-9_29).
 The levelled Homomorphic scheme is described in
@@ -45,16 +45,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-#ifndef LBCRYPTO_CRYPTO_BV_C
-#define LBCRYPTO_CRYPTO_BV_C
+#ifndef LBCRYPTO_CRYPTO_BGV_C
+#define LBCRYPTO_CRYPTO_BGV_C
 
-#include "bv.h"
+#include "bgv.h"
 
 namespace lbcrypto {
 
 
 	template <class Element>
-	bool LPCryptoParametersBV<Element>::Serialize(Serialized* serObj) const {
+	bool LPCryptoParametersBGV<Element>::Serialize(Serialized* serObj) const {
 		if (!serObj->IsObject())
 			return false;
 
@@ -62,16 +62,16 @@ namespace lbcrypto {
 		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 			return false;
 
-		serObj->AddMember("LPCryptoParametersBV", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBV", serObj->GetAllocator());
+		serObj->AddMember("LPCryptoParametersBGV", cryptoParamsMap.Move(), serObj->GetAllocator());
+		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBGV", serObj->GetAllocator());
 
 		return true;
 	}
 
 
 	template <class Element>
-	bool LPCryptoParametersBV<Element>::Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBV");
+	bool LPCryptoParametersBGV<Element>::Deserialize(const Serialized& serObj) {
+		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBGV");
 		if (mIter == serObj.MemberEnd()) return false;
 
 		if (this->DeserializeRLWE(mIter) == false) {
@@ -84,12 +84,12 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmBV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
+	LPKeyPair<Element> LPAlgorithmBGV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
 
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBGV<Element>>(cc->GetCryptoParameters());
 
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
@@ -134,10 +134,10 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const LPPublicKey<Element> publicKey,
+	Ciphertext<Element> LPAlgorithmBGV<Element>::Encrypt(const LPPublicKey<Element> publicKey,
 		Element ptxt) const
 	{
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(publicKey->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBGV<Element>>(publicKey->GetCryptoParameters());
 
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(publicKey));
 
@@ -180,10 +180,10 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmBV<Element>::Encrypt(const LPPrivateKey<Element> privateKey,
+	Ciphertext<Element> LPAlgorithmBGV<Element>::Encrypt(const LPPrivateKey<Element> privateKey,
 		Element ptxt) const
 	{
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(privateKey->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBGV<Element>>(privateKey->GetCryptoParameters());
 
 		Ciphertext<Element> ciphertext(new CiphertextImpl<Element>(privateKey));
 
@@ -213,7 +213,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	DecryptResult LPAlgorithmBV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
+	DecryptResult LPAlgorithmBGV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext,
 		NativePoly *plaintext) const
 	{
@@ -232,7 +232,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAdd(
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalAdd(
 		const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2) const
 	{
@@ -255,7 +255,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAdd(
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalAdd(
 		const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const
 	{
@@ -279,7 +279,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalSub(const Ciphertext<Element> ciphertext1,
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalSub(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2) const {
 
 		Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
@@ -300,7 +300,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalSub(const Ciphertext<Element> ciphertext,
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalSub(const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const {
 
 		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
@@ -322,7 +322,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalMult(
 		const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2) const
 	{
@@ -352,7 +352,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalMult(
 		const Ciphertext<Element> ciphertext,
 		const Plaintext plaintext) const
 	{
@@ -383,7 +383,7 @@ namespace lbcrypto {
 
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
 		const Ciphertext<Element> ciphertext2, const LPEvalKey<Element> ek) const {
 
 		Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
@@ -393,7 +393,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
 		const Plaintext plaintext, const LPEvalKey<Element> ek) const {
 
 		Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, plaintext);
@@ -403,7 +403,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
 
 		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
@@ -418,9 +418,9 @@ namespace lbcrypto {
 
 
 	template <class Element>
-	LPEvalKey<Element> LPAlgorithmSHEBV<Element>::KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey) const {
+	LPEvalKey<Element> LPAlgorithmSHEBGV<Element>::KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey) const {
 
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBGV<Element>>(originalPrivateKey->GetCryptoParameters());
 
 		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
@@ -471,11 +471,11 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::KeySwitch(const LPEvalKey<Element> keySwitchHint, const Ciphertext<Element> cipherText) const {
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::KeySwitch(const LPEvalKey<Element> keySwitchHint, const Ciphertext<Element> cipherText) const {
 
 		Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(keySwitchHint->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBGV<Element>>(keySwitchHint->GetCryptoParameters());
 
 		const LPEvalKeyRelin<Element> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<Element>>(keySwitchHint);
 
@@ -522,7 +522,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	LPEvalKey<Element> LPAlgorithmSHEBV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const
+	LPEvalKey<Element> LPAlgorithmSHEBGV<Element>::EvalMultKeyGen(const LPPrivateKey<Element> originalPrivateKey) const
 	{
 
 		LPPrivateKey<Element> originalPrivateKeySquared = LPPrivateKey<Element>(new LPPrivateKeyImpl<Element>(originalPrivateKey->GetCryptoContext()));
@@ -536,7 +536,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBV<Element>::EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
+	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 		const std::map<usint, LPEvalKey<Element>> &evalKeys) const
 	{
 
@@ -557,7 +557,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmSHEBV<Element>::EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmSHEBGV<Element>::EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<usint> &indexList) const
 	{
 
@@ -590,7 +590,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	LPEvalKey<Element> LPAlgorithmPREBV<Element>::ReKeyGen(const LPPrivateKey<Element> newSK,
+	LPEvalKey<Element> LPAlgorithmPREBGV<Element>::ReKeyGen(const LPPrivateKey<Element> newSK,
 		const LPPrivateKey<Element> origPrivateKey) const
 	{
 		return origPrivateKey->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitchGen(origPrivateKey, newSK);
@@ -598,7 +598,7 @@ namespace lbcrypto {
 
 	//Function for re-encypting ciphertext using the arrays generated by ReKeyGen
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmPREBV<Element>::ReEncrypt(const LPEvalKey<Element> EK,
+	Ciphertext<Element> LPAlgorithmPREBGV<Element>::ReEncrypt(const LPEvalKey<Element> EK,
 		const Ciphertext<Element> ciphertext) const
 	{
 		return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
@@ -606,7 +606,7 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPLeveledSHEAlgorithmBV<Element>::ModReduce(Ciphertext<Element> cipherText) const {
+	Ciphertext<Element> LPLeveledSHEAlgorithmBGV<Element>::ModReduce(Ciphertext<Element> cipherText) const {
 
 		Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
@@ -626,13 +626,13 @@ namespace lbcrypto {
 
 	//makeSparse is not used by this scheme
 	template <class Element>
-	LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
+	LPKeyPair<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
 		const vector<LPPrivateKey<Element>>& secretKeys,
 		bool makeSparse)
 	{
 
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBGV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -669,13 +669,13 @@ namespace lbcrypto {
 
 //makeSparse is not used by this scheme
 template <class Element>
-LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
+LPKeyPair<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
 		const LPPublicKey<Element> pk1, bool makeSparse)
 	{
 
 
 		LPKeyPair<Element>	kp(new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc));
-		const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(cc->GetCryptoParameters());
+		const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBGV<Element>>(cc->GetCryptoParameters());
 		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 		const auto p = cryptoParams->GetPlaintextModulus();
 		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
@@ -713,7 +713,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBV<Element>::MultipartyKeyGen(CryptoCont
 	}
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(const LPPrivateKey<Element> privateKey,
+Ciphertext<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptLead(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext) const
 {
 
@@ -730,7 +730,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptLead(cons
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(const LPPrivateKey<Element> privateKey,
+Ciphertext<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptMain(const LPPrivateKey<Element> privateKey,
 		const Ciphertext<Element> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
@@ -748,7 +748,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBV<Element>::MultipartyDecryptMain(cons
 
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 
@@ -774,31 +774,39 @@ DecryptResult LPAlgorithmMultipartyBV<Element>::MultipartyDecryptFusion(const ve
 
 	// Enable for LPPublicKeyEncryptionSchemeLTV
 	template <class Element>
-	void LPPublicKeyEncryptionSchemeBV<Element>::Enable(PKESchemeFeature feature) {
+	void LPPublicKeyEncryptionSchemeBGV<Element>::Enable(PKESchemeFeature feature) {
 		switch (feature)
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBV<Element>();
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			break;
 		case PRE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBV<Element>();
+				this->m_algorithmPRE = new LPAlgorithmPREBGV<Element>();
 			break;
 		case SHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBV<Element>();
+				this->m_algorithmSHE = new LPAlgorithmSHEBGV<Element>();
 			break;
 		case LEVELEDSHE:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBV<Element>();
+				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBGV<Element>();
 			break;
 		case MULTIPARTY:
+			if (this->m_algorithmEncryption == NULL)
+				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
 			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBV<Element>();
+				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBGV<Element>();
 			break;
 		case FHE:
-			throw std::logic_error("FHE feature not supported for BV scheme");
+			throw std::logic_error("FHE feature not supported for BGV scheme");
 		}
 	}
 

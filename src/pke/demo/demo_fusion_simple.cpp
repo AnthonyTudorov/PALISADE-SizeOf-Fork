@@ -181,14 +181,14 @@ int main(int argc, char *argv[]) {
 
 	std::cout <<"\n"<< "Generating proxy re-encryption key..." << std::endl;
 
-	bool flagBV = true;
+	bool flagBGV = true;
 
-	if ((input.find("BV") == string::npos) && (input.find("FV") == string::npos))
-		flagBV = false;
+	if ((input.find("BGV") == string::npos) && (input.find("BFV") == string::npos))
+		flagBGV = false;
 
 	start = currentDateTime();
 
-	if (flagBV) { 
+	if (flagBGV) { 
 		evalKey1 = cc->ReKeyGen(kpMultiparty.secretKey, kp1.secretKey);
 		evalKey2 = cc->ReKeyGen(kpMultiparty.secretKey, kp2.secretKey);
 		evalKey3 = cc->ReKeyGen(kpMultiparty.secretKey, kp3.secretKey);

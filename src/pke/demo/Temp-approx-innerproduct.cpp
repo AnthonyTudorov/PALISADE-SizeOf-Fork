@@ -36,7 +36,7 @@ using namespace lbcrypto;
 #include <iterator>
 
 int main() {
-	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
 	//------------------ Setup Parameters ------------------
 	usint m = 2048;
@@ -58,7 +58,7 @@ int main() {
 
 	usint relinWindow = 21;
 	float stdDev = 4;
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 			params, encodingParams, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
 			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
 		);

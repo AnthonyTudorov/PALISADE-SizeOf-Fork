@@ -61,11 +61,11 @@ using namespace lbcrypto;
 #include <iterator>
 
 //void LTVPlaintextPKE();
-//void BVPlaintextPKE();
-//void FVPlaintextPKE();
+//void BGVPlaintextPKE();
+//void BFVPlaintextPKE();
 void LTVEvalMultPlain();
-void BVEvalMultPlain();
-void FVEvalMultPlain();
+void BGVEvalMultPlain();
+void BFVEvalMultPlain();
 
 
 int main() {
@@ -74,25 +74,25 @@ int main() {
 //
 //	LTVPlaintextPKE();
 //
-//	std::cout << "\n===========BV TESTS (PLAINTEXT PKE)===============: " << std::endl;
+//	std::cout << "\n===========BGV TESTS (PLAINTEXT PKE)===============: " << std::endl;
 //
-//	BVPlaintextPKE();
+//	BGVPlaintextPKE();
 //
-//	std::cout << "\n===========FV TESTS (PLAINTEXT PKE)===============: " << std::endl;
+//	std::cout << "\n===========BFV TESTS (PLAINTEXT PKE)===============: " << std::endl;
 //
-//	FVPlaintextPKE();
+//	BFVPlaintextPKE();
 
 	std::cout << "\n===========LTV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
 
 	LTVEvalMultPlain();
 
-	std::cout << "\n===========BV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
 
-	BVEvalMultPlain();
+	BGVEvalMultPlain();
 
-	std::cout << "\n===========FV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (CIPHERTEXT-PLAINTEXT MULTIPLICATION)===============: " << std::endl;
 
-	FVEvalMultPlain();
+	BFVEvalMultPlain();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -155,7 +155,7 @@ void LTVPlaintextPKE() {
 
 }
 
-void BVPlaintextPKE() {
+void BGVPlaintextPKE() {
 
 	//Set the parameters
 
@@ -185,7 +185,7 @@ void BVPlaintextPKE() {
 
 	//Create the context
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -210,7 +210,7 @@ void BVPlaintextPKE() {
 
 }
 
-void FVPlaintextPKE() {
+void BFVPlaintextPKE() {
 
 	//Set the parameters
 
@@ -241,7 +241,7 @@ void FVPlaintextPKE() {
 
 	//Create the context
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
 		params, encodingParams,
 		8, stdDev, delta.ToString());
 
@@ -328,7 +328,7 @@ void LTVEvalMultPlain() {
 	
 }
 
-void BVEvalMultPlain() {
+void BGVEvalMultPlain() {
 
 	//Set the parameters
 
@@ -358,7 +358,7 @@ void BVEvalMultPlain() {
 
 	//Create the context
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -388,7 +388,7 @@ void BVEvalMultPlain() {
 
 }
 
-void FVEvalMultPlain() {
+void BFVEvalMultPlain() {
 
 	//Set the parameters
 
@@ -425,7 +425,7 @@ void FVEvalMultPlain() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	//genCryptoContextFV(shared_ptr<typename Element::Params> params,
+	//genCryptoContextBFV(shared_ptr<typename Element::Params> params,
 	//	shared_ptr<typename EncodingParams> encodingParams,
 	//	usint relinWindow, float stDev, const std::string& delta,
 	//	MODE mode = RLWE, const std::string& bigmodulus = "0", const std::string& bigrootofunity = "0",
@@ -434,7 +434,7 @@ void FVEvalMultPlain() {
 
 	//Create the context
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

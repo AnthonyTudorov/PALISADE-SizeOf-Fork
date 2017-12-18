@@ -68,7 +68,7 @@
 
 //#define ITER(VECTOR, ACTION, TOPNAME, FUNC, ELEMENT) ITER_6(VECTOR, ACTION, TOPNAME, FUNC, ELEMENT)
 //
-//static vector<string> V( {"Null", "LTV", "StSt", "BV", "FV", "BFVrns"} );
+//static vector<string> V( {"Null", "LTV", "StSt", "BGV", "BFV", "BFVrns"} );
 //
 //ITER(V, GENERATE_PKE_TEST_CASE, Encrypt_Decrypt, EncryptionScalar, Poly)
 

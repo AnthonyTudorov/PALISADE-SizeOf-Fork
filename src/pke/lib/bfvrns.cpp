@@ -26,7 +26,7 @@
 /*
 Description:	
 
-This code implements a RNS variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.
+This code implements a RNS variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.  This scheme is also referred to as the FV scheme.
 
 The BFV scheme is introduced in the following papers:
    - Zvika Brakerski (2012). Fully Homomorphic Encryption without Modulus Switching from Classical GapSVP. Cryptology ePrint Archive, Report 2012/078. (https://eprint.iacr.org/2012/078)
@@ -132,7 +132,7 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 	return PrecomputeCRTTables();
 }
 
-// Enable for LPPublicKeyEncryptionSchemeFV
+// Enable for LPPublicKeyEncryptionSchemeBFV
 template <class Element>
 void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature) {
 	switch (feature)

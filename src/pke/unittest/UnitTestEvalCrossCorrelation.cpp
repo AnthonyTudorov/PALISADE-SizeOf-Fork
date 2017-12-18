@@ -51,14 +51,14 @@ protected:
 public:
 };
 
-usint BVCrossCorrelation();
-usint FVCrossCorrelation();
+usint BGVCrossCorrelation();
+usint BFVCrossCorrelation();
 usint BFVrnsCrossCorrelation();
 
 
-TEST_F(UTEvalCC, Test_BV_EvalCC) {
+TEST_F(UTEvalCC, Test_BGV_EvalCC) {
 
-	usint result = BVCrossCorrelation();
+	usint result = BGVCrossCorrelation();
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
@@ -66,9 +66,9 @@ TEST_F(UTEvalCC, Test_BV_EvalCC) {
 }
 
 
-TEST_F(UTEvalCC, Test_FV_EvalCC) {
+TEST_F(UTEvalCC, Test_BFV_EvalCC) {
 	
-	usint result = FVCrossCorrelation();
+	usint result = BFVCrossCorrelation();
 	usint expectedResult = 11;
 
 	EXPECT_EQ(result, expectedResult);
@@ -83,7 +83,7 @@ TEST_F(UTEvalCC, Test_BFVrns_EvalCC) {
 
 }
 
-usint BVCrossCorrelation() {
+usint BGVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -108,7 +108,7 @@ usint BVCrossCorrelation() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -159,7 +159,7 @@ usint BVCrossCorrelation() {
 }
 
 
-usint FVCrossCorrelation() {
+usint BFVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -193,7 +193,7 @@ usint FVCrossCorrelation() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

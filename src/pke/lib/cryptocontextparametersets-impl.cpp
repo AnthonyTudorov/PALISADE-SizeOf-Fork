@@ -149,14 +149,14 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDevStSt", "41411.5" }
 		} },
 
-		{ "FV1", {
-				{ "parameters", "FV" },
+		{ "BFV1", {
+				{ "parameters", "BFV" },
 				{ "plaintextModulus", "4" },
 				{ "securityLevel", "1.006" },
 		} },
 
-		{ "FV2", {
-				{ "parameters", "FV" },
+		{ "BFV2", {
+				{ "parameters", "BFV" },
 				{ "plaintextModulus", "16" },
 				{ "securityLevel", "1.006" }
 		} },
@@ -173,8 +173,8 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "securityLevel", "1.006" }
 		} },
 
-		{ "BV1", {
-				{ "parameters", "BV" },
+		{ "BGV1", {
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "268441601" },
@@ -183,8 +183,8 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDev", "4" },
 		} },
 
-		{ "BV2", {
-				{ "parameters", "BV" },
+		{ "BGV2", {
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "536881153" },
@@ -193,8 +193,8 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDev", "4" },
 		} },
 
-		{ "BV3", {
-				{ "parameters", "BV" },
+		{ "BGV3", {
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "1073750017" },
@@ -203,8 +203,8 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDev", "4" },
 		} },
 
-		{ "BV4", {
-				{ "parameters", "BV" },
+		{ "BGV4", {
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "8589987841" },
@@ -213,8 +213,8 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDev", "4" },
 		} },
 
-		{ "BV5", {
-				{ "parameters", "BV" },
+		{ "BGV5", {
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "4096" },
 				{ "modulus", "2199023288321" },
@@ -257,13 +257,13 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDev", "4" },
 				{ "stDevStSt", "214.9" }
 		} },
-		{ "FV-PRE",{
-				{ "parameters", "FV" },
+		{ "BFV-PRE",{
+				{ "parameters", "BFV" },
 				{ "plaintextModulus", "2" },
 				{ "securityLevel", "1.006" }
 		} },
-		{ "BV-PRE",{
-				{ "parameters", "BV" },
+		{ "BGV-PRE",{
+				{ "parameters", "BGV" },
 				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "8589987841" },

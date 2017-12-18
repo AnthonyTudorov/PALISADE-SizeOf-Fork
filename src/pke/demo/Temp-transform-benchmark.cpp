@@ -22,7 +22,7 @@ using namespace lbcrypto;
 
 typedef uint64_t BI;
 typedef unsigned __int128 BBI;
-typedef std::vector<uint64_t> BV;
+typedef std::vector<uint64_t> BGV;
 
 inline BI mod_mul(BI a, BI b, BI m, BI d2){
 	//BBI ab = (BBI)a*(BBI)b;
@@ -38,14 +38,14 @@ inline BI mod_mul(BI a, BI b, BI m, BI d2){
 	return (BI) z;
 }
 
-BV primitiveTransform(usint logn, const BI modulus, const BV& input, const BV& rootOfUnityTable){
+BGV primitiveTransform(usint logn, const BI modulus, const BGV& input, const BGV& rootOfUnityTable){
 	BI n = (1<<logn);
 	BI d2 = modulus*(-2);
 
-	BV element(n);
+	BGV element(n);
 	for (usint i = 0; i<n; i++)
 		element[i] = mod_mul(input[i], rootOfUnityTable[i], modulus, d2);
-	BV result(n);
+	BGV result(n);
 
 	//reverse coefficients (bit reversal)
 	for (usint i = 0; i < n; i++)
@@ -248,7 +248,7 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 
 int main() {
 
-	std::cout << "\n===========FV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
 	//------------------ Setup Parameters ------------------
 	usint m = 2048;
@@ -326,7 +326,7 @@ int main() {
 	nRep = 10000;
 	BI q = 9223372036589678593;
 	BI z = 5356268145311420142;
-	BV xVec(phim), zVec(phim), outVec;
+	BGV xVec(phim), zVec(phim), outVec;
 	BI zi = 1;
 	BI d2 = q*(-2);
 	for (usint i = 0; i<phim; i++) {

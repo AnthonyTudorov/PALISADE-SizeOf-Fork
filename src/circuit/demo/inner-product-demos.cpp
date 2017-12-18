@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
+		shared_ptr<LPCryptoParametersBGV<Poly>> cparams( new LPCryptoParametersBGV<Poly>(
 				params,
 				ptm,
 				stdDev,
@@ -106,7 +106,7 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBGV<Poly>() );
 
 		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
@@ -175,7 +175,7 @@ main(int argc, char *argv[])
 
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
-		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
+		shared_ptr<LPCryptoParametersBGV<Poly>> cparams( new LPCryptoParametersBGV<Poly>(
 				params,
 				ptm,
 				stdDev,
@@ -185,7 +185,7 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBGV<Poly>() );
 
 		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);
@@ -261,7 +261,7 @@ main(int argc, char *argv[])
 
 		EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
 
-		shared_ptr<LPCryptoParametersBV<Poly>> cparams( new LPCryptoParametersBV<Poly>(
+		shared_ptr<LPCryptoParametersBGV<Poly>> cparams( new LPCryptoParametersBGV<Poly>(
 				params,
 				encodingParams,
 				stdDev,
@@ -271,7 +271,7 @@ main(int argc, char *argv[])
 				OPTIMIZED, //Mode of noise generation
 				1) );
 
-		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBV<Poly>() );
+		shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeBGV<Poly>() );
 
 		CryptoContext<Poly> cc = CryptoContext<Poly>( new CryptoContextImpl<Poly>(cparams, scheme) );
 		cc->Enable(ENCRYPTION);

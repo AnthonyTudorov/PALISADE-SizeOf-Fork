@@ -60,18 +60,18 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-void BVCrossCorrelation();
-void FVCrossCorrelation();
+void BGVCrossCorrelation();
+void BFVCrossCorrelation();
 
 int main() {
 
-	std::cout << "\n===========BV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BGV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
-	BVCrossCorrelation();
+	BGVCrossCorrelation();
 
-	std::cout << "\n===========FV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
+	std::cout << "\n===========BFV TESTS (CROSS-CORRELATION-ARBITRARY)===============: " << std::endl;
 
-	FVCrossCorrelation();
+	BFVCrossCorrelation();
 
 	std::cout << "\nPress any key to continue..." << std::endl;
 
@@ -79,7 +79,7 @@ int main() {
 	return 0;
 }
 
-void BVCrossCorrelation() {
+void BGVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89;
@@ -104,7 +104,7 @@ void BVCrossCorrelation() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBV(params, encodingParams, 8, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -166,7 +166,7 @@ void BVCrossCorrelation() {
 }
 
 
-void FVCrossCorrelation() {
+void BFVCrossCorrelation() {
 
 	usint m = 22;
 	PlaintextModulus p = 89; // we choose s.t. 2m|p-1 to leverage CRTArb
@@ -201,7 +201,7 @@ void FVCrossCorrelation() {
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(params, encodingParams, 1, stdDev, delta.ToString(), OPTIMIZED,
 		bigEvalMultModulus.ToString(), bigEvalMultRootOfUnity.ToString(), 1, 9, 1.006, bigEvalMultModulusAlt.ToString(), bigEvalMultRootOfUnityAlt.ToString());
 
 	cc->Enable(ENCRYPTION);

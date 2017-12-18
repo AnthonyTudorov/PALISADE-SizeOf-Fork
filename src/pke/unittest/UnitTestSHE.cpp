@@ -57,32 +57,32 @@ protected:
 // This file unit tests the SHE capabilities for all schemes, using all known elements
 
 // FIXME NativePoly SHE tests no bueno on Mult
-//GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_rlwe, ORD, PTM)
-//GENERATE_PKE_TEST_CASE(x, y, NativePoly, FV_opt, ORD, PTM)
+//GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_rlwe, ORD, PTM)
+//GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFV_opt, ORD, PTM)
 
 #define GENERATE_TEST_CASES_FUNC(x,y,ORD,PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, LTV, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, BV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, BV_opt, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, Poly, FV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, LTV, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, NativePoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, LTV, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_rlwe, ORD, PTM) \
-GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BGV_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM)
 
-static vector<string> AllSchemes( {"Null", "LTV", "BV", "FV", /*"BFVrns"*/} );
+static vector<string> AllSchemes( {"Null", "LTV", "BGV", "BFV", /*"BFVrns"*/} );
 typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
 
 // NOTE the SHE tests are all based on these

@@ -378,7 +378,7 @@ void ParamGen(string &paramDir, const string &contextID) {
 		float stdDev = 4;
 
 		CryptoContext<DCRTPoly> cc =
-			CryptoContextFactory<DCRTPoly>::genCryptoContextBV(paramsDCRT, encodingParams, 30, stdDev);
+			CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 30, stdDev);
 
 		cc->Enable(ENCRYPTION);
 		cc->Enable(SHE);
@@ -2755,7 +2755,7 @@ LPEvalKey<Element> AddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Elemen
 template <class Element>
 LPEvalKey<Element> MultiplyEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk)
 {
-	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBV<Element>>(evalKey->GetCryptoContext()->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersBGV<Element>>(evalKey->GetCryptoContext()->GetCryptoParameters());
 	const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
 
@@ -2795,7 +2795,7 @@ template <class Element>
 LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey, 
 		const LPEvalKey<DCRTPoly> ek) {
 
-	const shared_ptr<LPCryptoParametersBV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBV<Element>>(originalPrivateKey->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBGV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBGV<Element>>(originalPrivateKey->GetCryptoParameters());
 
 	const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
 
