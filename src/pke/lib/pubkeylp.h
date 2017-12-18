@@ -1761,10 +1761,42 @@ namespace lbcrypto {
 		}
 
 		private:
-			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const;
-			Ciphertext<Element> EvalSum_2n(usint batchSize, usint m, const std::map<usint, LPEvalKey<Element>> &evalKeys,
-				const Ciphertext<Element> newCiphertext) const;
 
+			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const {
+				// stores automorphism indices needed for EvalSum
+				std::vector<usint> indices;
+
+				usint g = 5;
+				for (int i = 0; i < floor(log2(batchSize)) - 1; i++)
+				{
+					indices.push_back(g);
+					g = (g * g) % m;
+				}
+				if (2*batchSize<m)
+					indices.push_back(g);
+				indices.push_back(3);
+
+				return indices;
+			}
+
+			Ciphertext<Element> EvalSum_2n(usint batchSize, usint m, const std::map<usint, LPEvalKey<Element>> &evalKeys,
+				const Ciphertext<Element> ciphertext) const{
+
+				Ciphertext<Element> newCiphertext(new CiphertextImpl<Element>(*ciphertext));
+
+				usint g = 5;
+				for (int i = 0; i < floor(log2(batchSize)) - 1; i++)
+				{
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+					g = (g * g) % m;
+				}
+				if (2*batchSize<m)
+					newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, g, evalKeys));
+				newCiphertext = EvalAdd(newCiphertext, EvalAutomorphism(newCiphertext, 3, evalKeys));
+
+				return newCiphertext;
+
+			}
 
 	};
 

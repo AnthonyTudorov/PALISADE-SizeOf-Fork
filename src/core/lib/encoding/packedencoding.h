@@ -184,7 +184,8 @@ private:
 	static std::map<usint, std::vector<usint>> m_toCRTPerm;
 	static std::map<usint, std::vector<usint>> m_fromCRTPerm;
 
-	static void SetParams_2n(usint m, const NativeInteger &modulus);
+	static void SetParams_2n(usint m, const NativeInteger &modulusNI);
+
 	static void SetParams_2n(usint m, EncodingParams params);
 
 	/**
