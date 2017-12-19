@@ -975,13 +975,13 @@ public:
 	* @param base is the base with which to determine length in.
 	* @return is the requested digit
 	*/
-	usint GetDigitAtIndexForBase(usint index, uint64_t base) const {
+	usint GetDigitAtIndexForBase(usint index, uint32_t base) const {
 
 		usint DigitLen = ceil(log2(base));
 
 		usint digit = 0;
 		usint newIndex = 1 + (index - 1)*DigitLen;
-		for (uint64_t i = 1; i < base; i = i * 2)
+		for (uint32_t i = 1; i < base; i = i * 2)
 		{
 			digit += GetBitAtIndex(newIndex)*i;
 			newIndex++;

@@ -1975,7 +1975,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
 }
 
 template<typename uint_type,usint BITLENGTH>
-usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, uint64_t base) const{
+usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, uint32_t base) const{
 
 	bool dbg_flag = false;
 	DEBUG("BigInteger::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
@@ -1983,7 +1983,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, uint6
 
 	usint digit = 0;
 	usint newIndex = 1 + (index - 1)*DigitLen;
-	for (uint64_t i = 1; i < base; i = i * 2)
+	for (uint32_t i = 1; i < base; i = i * 2)
 	{
 		digit += GetBitAtIndex(newIndex)*i;
 		newIndex++;

@@ -201,7 +201,7 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-		Matrix<int64_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
+		Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, n);
 
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
@@ -231,7 +231,7 @@ namespace lbcrypto {
 	template <class Element>
 	shared_ptr<Matrix<Element>> RLWETrapdoorUtility<Element>::GaussSampOffline(size_t n, size_t k,
 		const RLWETrapdoorPair<Element>& T, typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma,
-		int32_t base) {
+		int64_t base) {
 
 		const shared_ptr<typename Element::Params> params = T.m_e(0, 0).GetParams();
 		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);

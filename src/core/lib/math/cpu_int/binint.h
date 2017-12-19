@@ -686,7 +686,7 @@ namespace cpu_int{
 	* @param base is the base with which to determine length in.
 	* @return is the requested digit
 	*/
-    usint GetDigitAtIndexForBase(usint index, uint64_t base) const;
+    usint GetDigitAtIndexForBase(usint index, uint32_t base) const;
 
 	/**
 	* Convert a string representation of a binary number to a decimal BigInteger.

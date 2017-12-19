@@ -120,7 +120,7 @@ private:
 	// Discrete sampling variant
 	// As described in Figure 2 of https://eprint.iacr.org/2017/308.pdf
 	static void Perturb(double sigma,  size_t k, size_t n,
-		const vector<double> &l, const vector<double> &h, int32_t base, typename Element::DggType &dgg, vector<int32_t> *p);
+		const vector<double> &l, const vector<double> &h, int64_t base, typename Element::DggType &dgg, vector<int64_t> *p);
 
 	// subroutine used by GaussSampGqArbBase
 	// Continuous sampling variant

@@ -145,7 +145,7 @@ namespace lbcrypto {
 
 		// c can be pre-computed as it only depends on the modulus
 		// (double) is added to avoid integer division
-		c(0, 0) = modulus.(1, base) / (double)base;
+		c(0, 0) = ((int64_t)modulus.GetDigitAtIndexForBase(1, base) )/ (double)base;
 
 		for (size_t i = 1; i < k; i++)
 			c(i, 0) = (c(i - 1, 0) + (int64_t)(modulus.GetDigitAtIndexForBase(i + 1, base))) / base;
