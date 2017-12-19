@@ -32,29 +32,33 @@ bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+	PlaintextModulus bound = this->isSigned ? mod/2 : mod;
 	uint32_t entry = value;
 
 	if( this->isSigned ) {
 		if( mod % 2 != 0 ) {
 			throw std::logic_error("Plaintext modulus must be an even number for signed ScalarEncoding");
 		}
+	}
 
+	if( this->isSigned ) {
 		entry = valueSigned;
+		if( valueSigned >= (int64_t)bound || valueSigned < -(int64_t)bound )
+			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus/2 " + std::to_string(mod) );
 		if( valueSigned < 0 ) {
 			entry = (int32_t)mod + valueSigned;
 		}
 	}
+	else if( entry >= bound )
+		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
+
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
-		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
 		this->encodedNativeVector[0] = entry;
 	}
 	else {
 		this->encodedVector.SetValuesToZero();
-		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
 		this->encodedVector[0] = entry;
 	}
 

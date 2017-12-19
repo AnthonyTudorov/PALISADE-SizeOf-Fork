@@ -2364,17 +2364,17 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param modulus
+	* @param plaintext modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const PlaintextModulus ptModulus);
+	static CryptoContext<Element> genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param modulus
+	* @param encodingParams
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, EncodingParams encodingParams);
+	static CryptoContext<Element> genCryptoContextNull(unsigned int m, EncodingParams encodingParams);
 
 	/**
 	* Create a PALISADE CryptoContextImpl from a serialization

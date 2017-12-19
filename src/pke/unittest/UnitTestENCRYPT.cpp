@@ -120,6 +120,23 @@ GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionInteger, 128, 8)
 
 template <typename Element>
 void
+EncryptionSignedInteger(const CryptoContext<Element> cc, const string& failmsg) {
+	uint64_t		value = -256*256*256;
+	Plaintext plaintext = cc->MakeSignedIntegerPlaintext(value);
+
+	LPKeyPair<Element> kp = cc->KeyGen();
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for signed integer encrypt/decrypt failed";
+
+	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
+	Plaintext plaintextNew;
+	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " signed integer encrypt/decrypt failed";
+}
+
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionSignedInteger, 128, 8)
+
+template <typename Element>
+void
 EncryptionString(const CryptoContext<Element> cc, const string& failmsg) {
 	string		value = "You keep using that word. I do not think it means what you think it means";
 	Plaintext plaintext = cc->MakeStringPlaintext(value);
@@ -150,7 +167,7 @@ EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 	vector<int64_t> sintvec;
 	for( size_t ii=0; ii<intSize; ii++) {
 		int rnum = rand() % ptm;
-		if( rnum > (int)ptm/2 ) rnum = ptm - rnum;
+		if( rnum >= (int)ptm/2 ) rnum = rnum - ptm;
 		sintvec.push_back( rnum );
 	}
 	Plaintext plaintextSInt = cc->MakeCoefPackedPlaintext(sintvec);
@@ -169,4 +186,4 @@ EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 	EXPECT_EQ(*plaintextSIntNew, *plaintextSInt) << failmsg << "coef packed encrypt/decrypt failed for signed integer plaintext";
 }
 
-GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionCoefPacked, 256, 64)
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionCoefPacked, 128, 512)

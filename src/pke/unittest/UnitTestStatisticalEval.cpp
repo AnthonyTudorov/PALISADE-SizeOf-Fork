@@ -65,7 +65,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	typename Poly::Integer rootOfUnity("268585022");
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, plaintextModulus);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -154,13 +154,13 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 */
 TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
-	usint plaintextModulus = 256;
+	PlaintextModulus plaintextModulus = 512;
 	usint m = 64;
-	typename Poly::Integer modulus("256");
+	typename Poly::Integer modulus(plaintextModulus);
 	typename Poly::Integer rootOfUnity("268585022");
 
 	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(ep, plaintextModulus);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, plaintextModulus);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -170,15 +170,15 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
-	xP(0, 0) = cc->MakeIntegerPlaintext(173);
-	xP(0, 1) = cc->MakeIntegerPlaintext(107);
-	xP(1, 0) = cc->MakeIntegerPlaintext(175);
-	xP(1, 1) = cc->MakeIntegerPlaintext(105);
+	xP(0, 0) = cc->MakeSignedIntegerPlaintext(173);
+	xP(0, 1) = cc->MakeSignedIntegerPlaintext(107);
+	xP(1, 0) = cc->MakeSignedIntegerPlaintext(175);
+	xP(1, 1) = cc->MakeSignedIntegerPlaintext(105);
 
 	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
-	yP(0, 0) = cc->MakeIntegerPlaintext(167);
-	yP(1, 0) = cc->MakeIntegerPlaintext(105);
+	yP(0, 0) = cc->MakeSignedIntegerPlaintext(167);
+	yP(1, 0) = cc->MakeSignedIntegerPlaintext(105);
 
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operations.
@@ -214,14 +214,14 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	uint64_t numerator1 = -3528000;
-	uint64_t numerator2 = 6193600;
-	uint64_t denominatorExpected = 313600;
+	int64_t numerator1 = -3528000;
+	int64_t numerator2 = 6193600;
+	int64_t denominatorExpected = 313600;
 
-	EXPECT_EQ((int64_t)numerator1, (int64_t)(*numerator)(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
-	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerValue()) << "numerator(1,0) mismatch";
-	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue()) << "denominator(0,0) mismatch";
-	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue()) << "denominator(1,0) mismatch";
+	EXPECT_EQ(numerator1, (*numerator)(0, 0)->GetIntegerSignedValue()) << "numerator(0,0) mismatch";
+	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerSignedValue()) << "numerator(1,0) mismatch";
+	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerSignedValue()) << "denominator(0,0) mismatch";
+	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerSignedValue()) << "denominator(1,0) mismatch";
 
 }
 

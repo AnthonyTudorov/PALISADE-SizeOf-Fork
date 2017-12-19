@@ -124,7 +124,12 @@ IntegerEncoding::Decode() {
 	else
 		val = decodePoly(this->encodedVector, modulus, isSigned);
 
-	if( isSigned ) valueSigned = (int64_t)val;
+	if( isSigned ) {
+		if( (int64_t)val > (int64_t)(modulus/2) )
+			val -= modulus;
+
+		valueSigned = (int64_t)val;
+	}
 	else value = val;
 
 	return true;

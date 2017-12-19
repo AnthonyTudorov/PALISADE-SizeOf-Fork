@@ -32,6 +32,7 @@ bool
 CoefPackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+	PlaintextModulus bound = this->isSigned ? mod/2 : mod;
 
 	if( this->isSigned && mod % 2 != 0 ) {
 		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
@@ -42,14 +43,21 @@ CoefPackedEncoding::Encode() {
 
 		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
 			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
-			if( isSigned && valueSigned[i] < 0 ) {
-				entry = mod + entry;
+			if( isSigned ) {
+				if( valueSigned[i] >= (int64_t)bound || valueSigned[i] < -(int64_t)bound )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
+				if( valueSigned[i] < 0 ) {
+					entry += mod;
+				}
 			}
-
-			if( entry >= mod )
-				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-						" at position " + std::to_string(i) +
-						" that is > plaintext modulus " + std::to_string(mod) );
+			else {
+				if( entry >= bound )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
+			}
 
 			this->encodedNativeVector[i] = entry;
 		}
@@ -59,15 +67,21 @@ CoefPackedEncoding::Encode() {
 
 		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
 			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
-			if( isSigned && valueSigned[i] < 0 ) {
-				entry = mod + entry;
+			if( isSigned ) {
+				if( valueSigned[i] >= (int64_t)bound || valueSigned[i] < -(int64_t)bound )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
+				if( valueSigned[i] < 0 ) {
+					entry += mod;
+				}
 			}
-
-			if( entry >= mod )
-				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-						" at position " + std::to_string(i) +
-						" that is > plaintext modulus " + std::to_string(mod) );
-
+			else {
+				if( entry >= bound )
+					throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
+							" at position " + std::to_string(i) +
+							" that is > plaintext modulus " + std::to_string(mod) );
+			}
 			this->encodedVector[i] = entry;
 		}
 	}

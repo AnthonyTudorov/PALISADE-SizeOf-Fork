@@ -59,20 +59,21 @@ public:
 	 *
 	 * @param order the order of the ciphertext.
 	 * @param depth is the modulus for the entire tower.
-	 * @param bits is the number of bits of the moduli.  This determines whether native data types can be used if # of bits
-	 * is less than 64.
+	 * @param bits is the number of bits of each moduli.
 	 */
 	ILDCRTParams(usint order=0, usint depth=1, usint bits=20);
 
 	/**
-	 * @brief Constructor with some pre-computed parameters. That value is automatically calculated. Root of unity of the modulus is also calculated.
+	 * @brief Constructor with basic parameters
 	 *
 	 * @param cyclotomic_order the order of the ciphertext
 	 * @param &modulus is the modulus for the primary ciphertext.
 	 * @param rootsOfUnity is unused
 	 */
-	ILDCRTParams(const usint cyclotomic_order, const BigInteger &modulus, const BigInteger& rootsOfUnity)
-		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {}
+	ILDCRTParams(const usint cyclotomic_order, const BigInteger &modulus, const BigInteger& rootOfUnity)
+		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {
+		// note this does not create a tower of native params
+	}
 
 	/**
 	 * @brief Constructor with some pre-computed parameters provided as input.
