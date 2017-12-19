@@ -166,7 +166,7 @@ public:
 	NativeInteger(const uint_type& init) : m_value(init) {}
 
 	/**
-	 * Basic constructor for copying 
+	 * Basic constructor for copying
 	 *
 	 * @param bigInteger is the integer to be copied.
 	 */
@@ -636,7 +636,7 @@ public:
 		uint_type bv = b.m_value;
 		uint_type mod = modulus.m_value;
 
-	
+
 		if(av >= bv){
 			return (av-bv)%mod;
 		}
@@ -710,7 +710,7 @@ public:
 
 	/**
 	 * Scalar modulus multiplication. Fast version, assumes inputs are
-	 * already < modulus. 
+	 * already < modulus.
 	 *
 	 * @param &b is the scalar to multiply.
 	 * @param modulus is the modulus to perform operations with.
@@ -921,16 +921,16 @@ public:
 
 	  if( !serObj->IsObject() )
 	    return false;
-	  
+
 	  lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
-	  
+
 	  bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
 	  bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
 	  serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
 	  return true;
-	  
+
 	};
-	
+
 	/**
 	* Populate the object from the deserialization of the Serialized
 	* @param serObj contains the serialized object
@@ -941,15 +941,15 @@ public:
 	  lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigIntegerImpl");
 	  if( mIter == serObj.MemberEnd() )//not found, so fail
 	    return false;
-	  
+
 	  lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
-	  
+
 	  //is this the correct integer type?
 	  if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
 	    return false;
 	  if( IntegerTypeName() != vIt->value.GetString() )
 	    return false;
-	  
+
 	  //find the value
 	  if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
 	    return false;
@@ -957,7 +957,7 @@ public:
 	  AssignVal(vIt->value.GetString());
 	  return true;
 	};
-	
+
     static const std::string IntegerTypeName() { return "NativeI"; }
 
 	/**
@@ -975,13 +975,13 @@ public:
 	* @param base is the base with which to determine length in.
 	* @return is the requested digit
 	*/
-	usint GetDigitAtIndexForBase(usint index, usint base) const {
+	usint GetDigitAtIndexForBase(usint index, uint64_t base) const {
 
 		usint DigitLen = ceil(log2(base));
 
 		usint digit = 0;
 		usint newIndex = 1 + (index - 1)*DigitLen;
-		for (usint i = 1; i < base; i = i * 2)
+		for (uint64_t i = 1; i < base; i = i * 2)
 		{
 			digit += GetBitAtIndex(newIndex)*i;
 			newIndex++;

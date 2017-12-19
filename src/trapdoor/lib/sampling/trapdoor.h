@@ -37,14 +37,14 @@ namespace lbcrypto {
 
 /**
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
-* This construction is based on the hardness of Ring-LWE problem 
+* This construction is based on the hardness of Ring-LWE problem
 */
 template <class Element>
 class RLWETrapdoorPair {
 public:
 	// matrix of noise Elementnomials
 	Matrix<Element> m_r;
-	// matrix 
+	// matrix
 	Matrix<Element> m_e;
 
 	RLWETrapdoorPair();
@@ -67,7 +67,7 @@ public:
 	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base = 2, bool bal = false);
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base = 2, bool bal = false);
 
 	/**
 	* Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
@@ -82,9 +82,9 @@ public:
 	* @param base base of gadget matrix
 	* @return the sampled vector (matrix)
 	*/
-	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A, 
-		const RLWETrapdoorPair<Element>& T, const Element &u, 
-		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int32_t base = 2);
+	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Element &u,
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
 
 	/**
 	* On-line stage of pre-image sampling (includes only G-sampling)
@@ -101,7 +101,7 @@ public:
 	*/
 	static Matrix<Element> GaussSampOnline(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u, typename Element::DggType &dgg,
-		 const shared_ptr<Matrix<Element>> perturbationVector, int32_t base = 2);
+		 const shared_ptr<Matrix<Element>> perturbationVector, int64_t base = 2);
 
 	/**
 	* Offline stage of pre-image sampling (perturbation sampling)
@@ -115,8 +115,8 @@ public:
 	* @return the sampled vector (matrix)
 	*/
 	static shared_ptr<Matrix<Element>> GaussSampOffline(size_t n, size_t k,
-		const RLWETrapdoorPair<Element>& T,typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, 
-		int32_t base = 2);
+		const RLWETrapdoorPair<Element>& T,typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma,
+		int64_t base = 2);
 
 	/**
 	* New method for perturbation generation as described in Algorithm 4 of https://eprint.iacr.org/2017/844.pdf

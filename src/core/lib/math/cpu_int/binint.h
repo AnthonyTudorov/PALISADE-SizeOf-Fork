@@ -72,7 +72,7 @@ namespace cpu_int{
 	struct Log2{
 		const static usint value = 1 + Log2<N/2>::value;
 	};
-    
+
     /**
     * @brief Struct to find log value of N.
 	*Base case for recursion.
@@ -82,7 +82,7 @@ namespace cpu_int{
 	struct Log2<2>{
 		const static usint value = 1;
 	};
-    
+
     /**
     * @brief Struct to find log value of U where U is a primitive datatype.
     *Needed in the preprocessing step of BigInteger to determine bitwidth.
@@ -93,7 +93,7 @@ namespace cpu_int{
 	struct LogDtype{
 		const static usint value = Log2<8*sizeof(U)>::value;
 	};
-    
+
     /**
     * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}
     *
@@ -105,7 +105,7 @@ namespace cpu_int{
 	};
 
     /**
-    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
     * sets value true if datatype is unsigned integer 8 bit.
     */
 	template<>
@@ -114,12 +114,12 @@ namespace cpu_int{
 	};
 
     /**
-    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}. 
+    * @brief Struct for validating if Dtype is amongst {uint8_t, uint16_t, uint32_t}.
     * sets value true if datatype is unsigned integer 16 bit.
     */
 	template<>
 	struct DataTypeChecker<uint16_t>{
-		const static bool value = true ;	
+		const static bool value = true ;
 	};
 
     /**
@@ -128,7 +128,7 @@ namespace cpu_int{
     */
 	template<>
 	struct DataTypeChecker<uint32_t>{
-		const static bool value = true ;	
+		const static bool value = true ;
 	};
 
     /**
@@ -137,11 +137,11 @@ namespace cpu_int{
     */
 	template<>
 	struct DataTypeChecker<uint64_t>{
-		const static bool value = true ;	
+		const static bool value = true ;
 	};
 
 	/**
-    * @brief Struct for calculating bit width from data type. 
+    * @brief Struct for calculating bit width from data type.
 	* Sets value to the bitwidth of uint_type
 	*
 	* @tparam uint_type native integer data type.
@@ -154,7 +154,7 @@ namespace cpu_int{
     /**
     * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
 	* sets T as of type void for default case
-	* 
+	*
 	* @tparam utype primitive integer data type.
     */
 	template<typename utype>
@@ -245,12 +245,12 @@ namespace cpu_int{
      * @param native
      */
     BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
-   
+
     /**
     * Destructor.
     */
     ~BigInteger();
-        
+
     /**
     * Assignment operator
     *
@@ -265,24 +265,24 @@ namespace cpu_int{
     * @param val is the unsigned integer value that is assigned.
     * @return the assigned BigInteger ref.
     */
-    //TODO: should this be uint_64_t?    
+    //TODO: should this be uint_64_t?
     inline const BigInteger& operator=(usint val) {
       *this = intToBigInteger(val);
       return *this;
     }
-	
+
     inline const BigInteger& operator=(std::string strval) {
       *this = BigInteger(strval);
       return *this;
     }
 
-	
+
 //Auxillary Functions
-    
+
     /**
     * Delivers value of the internal limb storage
     * Used primarily for debugging
-    * @return STL vector of uint_type    
+    * @return STL vector of uint_type
     */
     vector<uint_type> GetInternalRepresentation(void) const {
       vector<uint_type> ret;
@@ -292,14 +292,14 @@ namespace cpu_int{
       }
       return ret;
     }
- 
+
     /**
     * Basic set method for setting the value of a big binary integer
     *
     * @param str is the string representation of the big binary integer to be copied.
     */
     void SetValue(const std::string& str);
-        
+
 	//FIXME this is not implemented
     /**
     * Basic set method for setting the value of a big binary integer
@@ -321,7 +321,7 @@ namespace cpu_int{
     * @return the int representation of the value as uint64_t.
     */
     uint64_t ConvertToInt() const;
-    
+
 	/**
     * Converts the value to an double.
     *
@@ -370,7 +370,7 @@ namespace cpu_int{
     * @return result of the subtraction operation of type BigInteger.
     */
     const BigInteger& MinusEq(const BigInteger& b);
-      
+
     /**
     * Multiplication operation. Pointer is used to minimize the number of BigInteger instantiations.
     *
@@ -406,7 +406,7 @@ namespace cpu_int{
     const BigInteger& DividedByEq(const BigInteger& b);
 
 //modular arithmetic operations
-		
+
     /**
     * returns the modulus with respect to the input value.
     *
@@ -414,7 +414,7 @@ namespace cpu_int{
     * @return BigInteger that is the result of the modulus operation.
     */
     BigInteger Mod(const BigInteger& modulus) const;
-    
+
     /**
     * returns the modulus with respect to the input value.
     *
@@ -426,7 +426,7 @@ namespace cpu_int{
     /**
     * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
-	* See the cpp file for details of the implementation. 
+	* See the cpp file for details of the implementation.
     *
     * @param modulus is the modulus to perform.
     * @param mu is the Barrett value.
@@ -448,7 +448,7 @@ namespace cpu_int{
     /**
     * returns the modulus with respect to the input value.
 	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
-	* See the cpp file for details of the implementation. 
+	* See the cpp file for details of the implementation.
     *
     * @param modulus is the modulus to perform operations with.
     * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
@@ -560,9 +560,9 @@ namespace cpu_int{
 
     /**
     * Scalar modular multiplication where Barrett modular reduction is used.
-	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
+	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
 	* Uses one precomputed value \mu.
-	* See the cpp file for details of the implementation. 
+	* See the cpp file for details of the implementation.
     *
     * @param b is the scalar to multiply.
     * @param modulus is the modulus to perform operations with.
@@ -660,7 +660,7 @@ namespace cpu_int{
      * @return true on success
      */
     bool Deserialize(const lbcrypto::Serialized& serObj);
-    
+
     static const std::string IntegerTypeName() { return "BBI"; }
 
     /**
@@ -686,7 +686,7 @@ namespace cpu_int{
 	* @param base is the base with which to determine length in.
 	* @return is the requested digit
 	*/
-    usint GetDigitAtIndexForBase(usint index, usint base) const;
+    usint GetDigitAtIndexForBase(usint index, uint64_t base) const;
 
 	/**
 	* Convert a string representation of a binary number to a decimal BigInteger.
@@ -804,7 +804,7 @@ namespace cpu_int{
 	* @param index is the index of the int to set in the uint array.
 	*/
 	void SetIntAtIndex(usint idx, uint_type value);
-        
+
 	/**
     * Compares the current BigInteger to BigInteger a.
     *
@@ -824,7 +824,7 @@ namespace cpu_int{
 	static unique_ptr<BigInteger> Allocator();
 
     protected:
-    
+
 	/**
     * Converts the string v into base-r integer where r is equal to 2^bitwidth of integral data type.
     *
@@ -876,15 +876,15 @@ namespace cpu_int{
 
 		//currently unused array
 		static const BigInteger *m_modChain;
-		
+
 		/**
 		* function to return the MSB of number.
 		* @param x is the number.
 		* @return the MSB position in the number x.
 		*/
-		
+
 		static usint GetMSBUint_type(uint_type x);
-		
+
 		//Duint_type is the data type that has twice as many bits in the integral data type.
 		typedef typename DoubleDataType<uint_type>::T Duint_type;
 
@@ -894,7 +894,7 @@ namespace cpu_int{
 		* @return the MSB position in the number x.
 		*/
 		static usint GetMSBDUint_type(Duint_type x);
-		
+
 		/**
 		* function that returns the BigInteger after multiplication by b.
 		* @param b is the number to be multiplied.
@@ -909,7 +909,7 @@ namespace cpu_int{
 		* @param ans - where result is stored ("in-place")
 		*/
 		void MulIntegerByCharInPlace(uint_type b, BigInteger *ans) const;
-		
+
 		/**
 		* function that returns the decimal value from the binary array a.
 		* @param a is a pointer to the binary array.
