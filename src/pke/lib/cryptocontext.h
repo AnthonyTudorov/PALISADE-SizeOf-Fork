@@ -940,7 +940,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeIntegerPlaintext(uint32_t value) const {
+	Plaintext MakeIntegerPlaintext(uint64_t value) const {
 		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -1018,7 +1018,10 @@ private:
 			pt.reset( new ScalarEncoding(vp,ep,true) );
 			break;
 		case Integer:
-			pt.reset( new IntegerEncoding(vp,ep) );
+			pt.reset( new IntegerEncoding(vp,ep,false) );
+			break;
+		case IntegerSigned:
+			pt.reset( new IntegerEncoding(vp,ep,true) );
 			break;
 		case CoefPacked:
 			pt.reset( new CoefPackedEncoding(vp,ep,false) );

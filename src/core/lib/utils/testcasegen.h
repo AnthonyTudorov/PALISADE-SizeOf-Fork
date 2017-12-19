@@ -35,6 +35,7 @@
 	} catch( ... ) { \
 		return; \
 	} \
+	if( string(#ELEMENT) == "DCRTPoly" && string(#SCHEME) == "Null") std::cout << *cc->GetCryptoParameters() << std::endl; \
 	FUNC<ELEMENT>(cc, #SCHEME); \
 }
 

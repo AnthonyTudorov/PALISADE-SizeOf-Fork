@@ -32,35 +32,62 @@
 namespace lbcrypto {
 
 class IntegerEncoding: public PlaintextImpl {
-	uint64_t		value;
+	uint64_t	value;
+	int64_t		valueSigned;
+	bool		isSigned;
 
 public:
 	// these two constructors are used inside of Decrypt
-	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isSigned=false) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isSigned=false) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
-	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned=false) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
 
 	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+
+	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
 	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
 
 	virtual ~IntegerEncoding() {}
 
+	bool IsSigned() const { return isSigned; }
+
 	/**
-	 * GetIntegerValue
+	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	const uint64_t& GetIntegerValue() const { return value; }
+	const uint64_t& GetIntegerValue() const {
+		if( !isSigned )
+			return value;
+		throw std::logic_error("not an unsigned scalar");
+	}
+
+	/**
+	 * GetScalarValueSigned
+	 * @return the un-encoded scalar
+	 */
+	const int64_t& GetIntegerSignedValue() const {
+		if( isSigned )
+			return valueSigned;
+		throw std::logic_error("not a signed scalar");
+	}
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -78,7 +105,7 @@ public:
 	 * GetEncodingType
 	 * @return this is an Integer encoding
 	 */
-	PlaintextEncodings GetEncodingType() const { return Integer; }
+	PlaintextEncodings GetEncodingType() const { return isSigned ? IntegerSigned : Integer; }
 
 	/**
 	 * Get length of the plaintext
@@ -96,7 +123,8 @@ public:
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
 		const IntegerEncoding& oth = dynamic_cast<const IntegerEncoding&>(other);
-		return oth.value == this->value;
+		if( oth.isSigned != this->isSigned ) return false;
+		return this->isSigned ? oth.valueSigned == this->valueSigned : oth.value == this->value;
 	}
 
 	/**
@@ -104,7 +132,10 @@ public:
 	 * @param out
 	 */
 	void PrintValue(std::ostream& out) const {
-		out << value;
+		if( isSigned )
+			out << valueSigned;
+		else
+			out << value << "U";
 	}
 };
 
