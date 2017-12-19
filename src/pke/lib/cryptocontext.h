@@ -945,6 +945,15 @@ public:
 	}
 
 	/**
+	 * MakeIntegerPlaintext constructs an IntegerEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	Plaintext MakeSignedIntegerPlaintext(int64_t value) const {
+		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	}
+
+	/**
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
 	 * @param isSigned

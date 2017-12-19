@@ -162,8 +162,11 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 	CryptoContext<Element> cc;
 
-	if( name == "Null" )
+	if( name == "Null" ) {
+		//p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, typename Element::Integer(ptm), typename Element::Integer(1));
 		cc = CryptoContextFactory<Element>::genCryptoContextNull(p, ptm);
+		//cout << *cc->GetCryptoParameters() << endl;
+	}
 	else if( name == "LTV" )
 		cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);
 	else if( name == "StSt" )

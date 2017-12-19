@@ -154,22 +154,27 @@ TEST_F(UTEncoding,integer_encoding){
 
 	uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
 	uint64_t sv = 9;
-	int64_t svS = -1 * 9;
+	int64_t svS = sv * -1;
+	int64_t mvS = mv * -1;
 
 	IntegerEncoding small(lp, ep, sv);
 	IntegerEncoding smallS(lp, ep, svS);
 	IntegerEncoding medium(lp, ep, mv);
+	IntegerEncoding mediumS(lp, ep, mvS);
 	small.Encode();
 	smallS.Encode();
 	medium.Encode();
+	mediumS.Encode();
 	small.Decode();
 	smallS.Decode();
 	medium.Decode();
+	mediumS.Decode();
 
 	EXPECT_EQ( small.GetIntegerValue(), sv ) << "small";
 	EXPECT_EQ( smallS.GetIntegerSignedValue(), svS ) << "small signed";
 
 	EXPECT_EQ( medium.GetIntegerValue(), mv ) << "medium";
+	EXPECT_EQ( mediumS.GetIntegerSignedValue(), mvS ) << "medium signed";
 }
 
 

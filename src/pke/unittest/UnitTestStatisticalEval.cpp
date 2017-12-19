@@ -164,9 +164,6 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
-	// Initialize the public key containers.
-	LPKeyPair<Poly> kp;
-
 	// Set the plaintext matrices
 
 	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
@@ -187,7 +184,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	//Perform the key generation operations.
 	////////////////////////////////////////////////////////////
 
-	kp = cc->KeyGen();
+	LPKeyPair<Poly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
 	////////////////////////////////////////////////////////////
@@ -217,11 +214,11 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	uint32_t numerator1 = -3528000;
-	uint32_t numerator2 = 6193600;
-	uint32_t denominatorExpected = 313600;
+	uint64_t numerator1 = -3528000;
+	uint64_t numerator2 = 6193600;
+	uint64_t denominatorExpected = 313600;
 
-	EXPECT_EQ((int32_t)numerator1, (int32_t)(*numerator)(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
+	EXPECT_EQ((int64_t)numerator1, (int64_t)(*numerator)(0, 0)->GetIntegerValue()) << "numerator(0,0) mismatch";
 	EXPECT_EQ(numerator2, (*numerator)(1, 0)->GetIntegerValue()) << "numerator(1,0) mismatch";
 	EXPECT_EQ(denominatorExpected, (*denominator)(0, 0)->GetIntegerValue()) << "denominator(0,0) mismatch";
 	EXPECT_EQ(denominatorExpected, (*denominator)(1, 0)->GetIntegerValue()) << "denominator(1,0) mismatch";

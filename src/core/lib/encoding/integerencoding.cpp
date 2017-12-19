@@ -33,8 +33,21 @@ IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
 
 	auto mod = this->encodingParams->GetPlaintextModulus();
+	uint64_t entry = value;
+
 	if( mod < 2 )
 		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
+
+	if( this->isSigned ) {
+		if( mod % 2 != 0 ) {
+			throw std::logic_error("Plaintext modulus must be an even number for signed IntegerEncoding");
+		}
+
+		entry = valueSigned;
+		if( valueSigned < 0 ) {
+			entry = mod + valueSigned;
+		}
+	}
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
@@ -42,7 +55,7 @@ IntegerEncoding::Encode() {
 		if( log2((double)value) > (double)this->encodedNativeVector.GetLength() )
 			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
-		uint64_t val = this->value;
+		uint64_t val = entry;
 		size_t i = 0;
 
 		while( val > 0 ) {
@@ -56,7 +69,7 @@ IntegerEncoding::Encode() {
 		if( log2((double)value) > (double)this->encodedVector.GetLength() )
 			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
-		uint64_t val = this->value;
+		uint64_t val = entry;
 		size_t i = 0;
 
 		while( val > 0 ) {
@@ -74,7 +87,7 @@ IntegerEncoding::Encode() {
 }
 
 template<typename P>
-static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
+static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm, bool isSigned) {
 	uint64_t result = 0;
 	uint64_t powerFactor = 1;
 	uint64_t half(ptm >> 1);
@@ -84,7 +97,6 @@ static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 		auto val = poly[i].ConvertToInt();
 
 		if( val != 0 ) {
-			// deal with unsigned representation
 			if (val < half)
 				result += powerFactor * val;
 			else
@@ -95,16 +107,25 @@ static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 		powerFactor <<= 1;
 	}
 
+	if( isSigned ) {
+		if (result > half)
+			result -= ptm;
+	}
+
 	return result;
 }
 
 bool
 IntegerEncoding::Decode() {
 	auto modulus = this->encodingParams->GetPlaintextModulus();
+	uint64_t val;
 	if( this->typeFlag == IsNativePoly )
-		value = decodePoly(this->encodedNativeVector, modulus);
+		val = decodePoly(this->encodedNativeVector, modulus, isSigned);
 	else
-		value = decodePoly(this->encodedVector, modulus);
+		val = decodePoly(this->encodedVector, modulus, isSigned);
+
+	if( isSigned ) valueSigned = (int64_t)val;
+	else value = val;
 
 	return true;
 }
