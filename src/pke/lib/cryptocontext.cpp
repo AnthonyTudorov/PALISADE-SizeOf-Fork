@@ -1298,8 +1298,8 @@ template <>
 CryptoContext<DCRTPoly>
 CryptoContextFactory<DCRTPoly>::genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus)
 {
-	vector<NativeInteger> moduli( {ptModulus} );
-	vector<NativeInteger> roots( {1} );
+	vector<NativeInteger> moduli = {ptModulus};
+	vector<NativeInteger> roots = {1};
 	shared_ptr<typename DCRTPoly::Params> ep( new typename DCRTPoly::Params(m, moduli, roots) );
 	shared_ptr<LPCryptoParametersNull<DCRTPoly>> params( new LPCryptoParametersNull<DCRTPoly>(ep, ptModulus) );
 	shared_ptr<LPPublicKeyEncryptionScheme<DCRTPoly>> scheme( new LPPublicKeyEncryptionSchemeNull<DCRTPoly>() );
@@ -1311,8 +1311,8 @@ template <>
 CryptoContext<DCRTPoly>
 CryptoContextFactory<DCRTPoly>::genCryptoContextNull(unsigned int m, EncodingParams encodingParams)
 {
-	vector<NativeInteger> moduli( {encodingParams->GetPlaintextModulus()} );
-	vector<NativeInteger> roots( {1} );
+	vector<NativeInteger> moduli = {encodingParams->GetPlaintextModulus()};
+	vector<NativeInteger> roots = {1};
 	shared_ptr<typename DCRTPoly::Params> ep( new typename DCRTPoly::Params(m, moduli, roots) );
 	shared_ptr<LPCryptoParametersNull<DCRTPoly>> params( new LPCryptoParametersNull<DCRTPoly>(ep, encodingParams) );
 	shared_ptr<LPPublicKeyEncryptionScheme<DCRTPoly>> scheme( new LPPublicKeyEncryptionSchemeNull<DCRTPoly>() );

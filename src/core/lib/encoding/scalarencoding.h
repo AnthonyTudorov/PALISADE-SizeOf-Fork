@@ -32,62 +32,35 @@
 namespace lbcrypto {
 
 class ScalarEncoding : public PlaintextImpl {
-	uint64_t	value;
-	int64_t		valueSigned;
-	bool		isSigned;
+	int64_t		value;
 
 public:
 	// these two constructors are used inside of Decrypt
-	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
+	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0) {}
 
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
+	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0) {}
 
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(0), isSigned(isSigned) {}
+	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0) {}
 
 	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
-
-	ScalarEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
-
-	ScalarEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(0), valueSigned(scalar), isSigned(true) {}
-
-	ScalarEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar), valueSigned(0), isSigned(false) {}
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	virtual ~ScalarEncoding() {}
-
-	bool IsSigned() const { return isSigned; }
 
 	/**
 	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	const uint64_t& GetScalarValue() const {
-		if( !isSigned )
-			return value;
-		throw std::logic_error("not an unsigned scalar");
-	}
-
-	/**
-	 * GetScalarValueSigned
-	 * @return the un-encoded scalar
-	 */
-	const int64_t& GetScalarSignedValue() const {
-		if( isSigned )
-			return valueSigned;
-		throw std::logic_error("not a signed scalar");
-	}
+	const int64_t GetScalarValue() const { return value; 	}
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -105,7 +78,7 @@ public:
 	 * GetEncodingType
 	 * @return this is a Scalar encoding
 	 */
-	PlaintextEncodings GetEncodingType() const { return isSigned ? ScalarSigned : Scalar; }
+	PlaintextEncodings GetEncodingType() const { return Scalar; }
 
 	/**
 	 * Get length of the plaintext
@@ -123,20 +96,14 @@ public:
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
 		const ScalarEncoding& oth = dynamic_cast<const ScalarEncoding&>(other);
-		if( oth.isSigned != this->isSigned ) return false;
-		return this->isSigned ? oth.valueSigned == this->valueSigned : oth.value == this->value;
+		return oth.value == this->value;
 	}
 
 	/**
 	 * PrintValue - used by operator<< for this object
 	 * @param out
 	 */
-	void PrintValue(std::ostream& out) const {
-		if( isSigned )
-			out << valueSigned;
-		else
-			out << value << "U";
-	}
+	void PrintValue(std::ostream& out) const { out << value; }
 };
 
 } /* namespace lbcrypto */

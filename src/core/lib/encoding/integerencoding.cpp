@@ -31,50 +31,55 @@ namespace lbcrypto {
 bool
 IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
-	auto mod = this->encodingParams->GetPlaintextModulus();
-	uint64_t entry = value;
-
-	if( mod < 2 )
-		throw std::logic_error("Plaintext modulus must be 2 or more for integer encoding");
-
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed IntegerEncoding");
-		}
-
-		entry = valueSigned;
-		if( valueSigned < 0 ) {
-			entry = mod + valueSigned;
-		}
+	if( mod < 2 ) {
+		PALISADE_THROW( config_error, "Plaintext modulus must be 2 or more for integer encoding");
 	}
+
+	if( mod >= UINT32_MAX ) {
+		PALISADE_THROW( config_error, "Plaintext modulus must be less than " + std::to_string(UINT32_MAX) + " for integer encoding");
+	}
+
+	if( mod % 2 != 0 ) {
+		PALISADE_THROW( config_error, "Plaintext modulus must be an even number for IntegerEncoding");
+	}
+
+	uint32_t negvalue = mod - 1;
+	bool isNegative = value < 0;
+	uint64_t entry = isNegative ? -value : value;
+
+	if( value >= int64_t(mod) || value <= -int64_t(mod) )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is larger than the plaintext modulus " + std::to_string(mod) );
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
 
 		if( log2((double)value) > (double)this->encodedNativeVector.GetLength() )
-			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
+			PALISADE_THROW( config_error, "Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
-		uint64_t val = entry;
 		size_t i = 0;
 
-		while( val > 0 ) {
-			this->encodedNativeVector[i++] = val & 0x01;
-			val >>= 1;
+		while( entry > 0 ) {
+			if( entry & 0x01 )
+				this->encodedNativeVector[i] = isNegative ? negvalue : 1;
+			i++;
+			entry >>= 1;
 		}
 	}
 	else {
 		this->encodedVector.SetValuesToZero();
 
 		if( log2((double)value) > (double)this->encodedVector.GetLength() )
-			throw std::logic_error("Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
+			PALISADE_THROW( config_error, "Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
 
-		uint64_t val = entry;
 		size_t i = 0;
 
-		while( val > 0 ) {
-			this->encodedVector[i++] = val & 0x01;
-			val >>= 1;
+		while( entry > 0 ) {
+			if( entry & 0x01 )
+				this->encodedVector[i] = isNegative ? negvalue : 1;
+			i++;
+			entry >>= 1;
 		}
 	}
 
@@ -87,29 +92,24 @@ IntegerEncoding::Encode() {
 }
 
 template<typename P>
-static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm, bool isSigned) {
-	uint64_t result = 0;
-	uint64_t powerFactor = 1;
-	uint64_t half(ptm >> 1);
+static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
+	int64_t result = 0;
+	int64_t powerFactor = 1;
+	int64_t half = ptm/2;
 
 	for (size_t i = 0; i < poly.GetLength(); i++) {
 
-		auto val = poly[i].ConvertToInt();
+		int64_t val = poly[i].ConvertToInt();
 
 		if( val != 0 ) {
-			if (val < half)
+			if( val < half )
 				result += powerFactor * val;
 			else
-				result -= powerFactor * (ptm - val);
+				result += powerFactor * (val - ptm);
 		}
 
 		// multiply the power factor by 2
 		powerFactor <<= 1;
-	}
-
-	if( isSigned ) {
-		if (result > half)
-			result -= ptm;
 	}
 
 	return result;
@@ -118,19 +118,11 @@ static uint64_t decodePoly(const P& poly, const PlaintextModulus& ptm, bool isSi
 bool
 IntegerEncoding::Decode() {
 	auto modulus = this->encodingParams->GetPlaintextModulus();
-	uint64_t val;
+
 	if( this->typeFlag == IsNativePoly )
-		val = decodePoly(this->encodedNativeVector, modulus, isSigned);
+		value = decodePoly(this->encodedNativeVector, modulus);
 	else
-		val = decodePoly(this->encodedVector, modulus, isSigned);
-
-	if( isSigned ) {
-		if( (int64_t)val > (int64_t)(modulus/2) )
-			val -= modulus;
-
-		valueSigned = (int64_t)val;
-	}
-	else value = val;
+		value = decodePoly(this->encodedVector, modulus);
 
 	return true;
 }

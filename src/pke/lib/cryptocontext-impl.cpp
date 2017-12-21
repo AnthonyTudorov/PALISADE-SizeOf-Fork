@@ -34,4 +34,8 @@ template class CryptoObject<Poly>;
 template class CryptoContextFactory<NativePoly>;
 template class CryptoContextImpl<NativePoly>;
 template class CryptoObject<NativePoly>;
+
+template class CryptoContextFactory<DCRTPoly>;
+template class CryptoContextImpl<DCRTPoly>;
+template class CryptoObject<DCRTPoly>;
 }

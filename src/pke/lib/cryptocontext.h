@@ -1021,16 +1021,10 @@ private:
 			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
 			break;
 		case Scalar:
-			pt.reset( new ScalarEncoding(vp,ep,false) );
-			break;
-		case ScalarSigned:
-			pt.reset( new ScalarEncoding(vp,ep,true) );
+			pt.reset( new ScalarEncoding(vp,ep) );
 			break;
 		case Integer:
-			pt.reset( new IntegerEncoding(vp,ep,false) );
-			break;
-		case IntegerSigned:
-			pt.reset( new IntegerEncoding(vp,ep,true) );
+			pt.reset( new IntegerEncoding(vp,ep) );
 			break;
 		case CoefPacked:
 			pt.reset( new CoefPackedEncoding(vp,ep,false) );

@@ -104,7 +104,7 @@ GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionScalar, 8, 64)
 template <typename Element>
 void
 EncryptionInteger(const CryptoContext<Element> cc, const string& failmsg) {
-	uint64_t		value = 256*256*256;
+	int64_t		value = 250;
 	Plaintext plaintext = cc->MakeIntegerPlaintext(value);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
@@ -116,24 +116,24 @@ EncryptionInteger(const CryptoContext<Element> cc, const string& failmsg) {
 	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " integer encrypt/decrypt failed";
 }
 
-GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionInteger, 128, 8)
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionInteger, 128, 512)
 
 template <typename Element>
 void
-EncryptionSignedInteger(const CryptoContext<Element> cc, const string& failmsg) {
-	uint64_t		value = -256*256*256;
+EncryptionNegativeInteger(const CryptoContext<Element> cc, const string& failmsg) {
+	int64_t		value = -250;
 	Plaintext plaintext = cc->MakeSignedIntegerPlaintext(value);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
-	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for signed integer encrypt/decrypt failed";
+	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for negative integer encrypt/decrypt failed";
 
 	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
 	Plaintext plaintextNew;
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
-	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " signed integer encrypt/decrypt failed";
+	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " negative integer encrypt/decrypt failed";
 }
 
-GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionSignedInteger, 128, 8)
+GENERATE_TEST_CASES_FUNC(Encrypt_Decrypt, EncryptionNegativeInteger, 128, 512)
 
 template <typename Element>
 void

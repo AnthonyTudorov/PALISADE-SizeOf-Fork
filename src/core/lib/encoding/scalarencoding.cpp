@@ -32,26 +32,24 @@ bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-	PlaintextModulus bound = this->isSigned ? mod/2 : mod;
+
+	if( mod % 2 != 0 ) {
+		PALISADE_THROW( config_error, "Plaintext modulus must be an even number for ScalarEncoding");
+	}
+
+	if( value > INT32_MAX || value < INT32_MIN ) {
+		PALISADE_THROW( config_error, "Cannot encode a scalar larger than 32 bits");
+	}
+
 	uint32_t entry = value;
 
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed ScalarEncoding");
-		}
+	// map to -p/2 .. p/2
+	if( value < 0 ) {
+		entry += mod;
 	}
 
-	if( this->isSigned ) {
-		entry = valueSigned;
-		if( valueSigned >= (int64_t)bound || valueSigned < -(int64_t)bound )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus/2 " + std::to_string(mod) );
-		if( valueSigned < 0 ) {
-			entry = (int32_t)mod + valueSigned;
-		}
-	}
-	else if( entry >= bound )
-		throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
-
+	if( entry >= mod )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus/2 " + std::to_string(mod) );
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
@@ -72,16 +70,13 @@ ScalarEncoding::Encode() {
 
 bool
 ScalarEncoding::Decode() {
-	if( isSigned ) {
-		this->valueSigned = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 
-		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-		if( (int64_t)this->valueSigned > (int64_t)(mod/2) )
-			this->valueSigned -= mod;
-	}
-	else {
-		this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
-	}
+	this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
+
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+	if( this->value > int64_t(mod/2) )
+		this->value -= mod;
+
 	return true;
 }
 
