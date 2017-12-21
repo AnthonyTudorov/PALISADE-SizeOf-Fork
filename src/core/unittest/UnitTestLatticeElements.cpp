@@ -829,7 +829,7 @@ TEST(UTNativePoly, other_methods) {
 template<typename IntType, typename VecType, typename ParmType, typename Element>
 void cyclotomicOrder_test() {
 	usint m = 8;
-	shared_ptr<ParmType> ilparams0( new ParmType(m, IntType("17661"), IntType("8765")) );
+	shared_ptr<ParmType> ilparams0( new ParmType(m, IntType("1234"), IntType("5678")) );
 	Element ilv0(ilparams0);
 	EXPECT_EQ(ilparams0->GetCyclotomicOrder(), ilv0.GetCyclotomicOrder())
 		<< "Failure: GetCyclotomicOrder()";

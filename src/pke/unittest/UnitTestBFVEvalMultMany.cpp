@@ -77,14 +77,14 @@ TEST(UTBFVEVALMM, Poly_BFV_Eval_Mult_Many_Operations) {
 	//Plaintext
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
-	std::vector<uint64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint64_t> vectorOfInts3 = {3,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint64_t> vectorOfInts4 = {4,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
+	std::vector<int64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts3 = {3,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts4 = {4,0,0,0,0,0,0,0,0,0,0,0};
 
-	std::vector<uint64_t> vectorOfInts5 = {10,8,6,4,2,0,10,8,6,4,2,0};
-	std::vector<uint64_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
-	std::vector<uint64_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
+	std::vector<int64_t> vectorOfInts5 = {10,8,6,4,2,0,10,8,6,4,2,0};
+	std::vector<int64_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
+	std::vector<int64_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
 
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
@@ -204,14 +204,14 @@ TEST(UTBFVrnsEVALMM, Poly_BFVrns_Eval_Mult_Many_Operations) {
 	//Plaintext
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
-	std::vector<uint64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint64_t> vectorOfInts3 = {3,0,0,0,0,0,0,0,0,0,0,0};
-	std::vector<uint64_t> vectorOfInts4 = {4,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts1 = {5,4,3,2,1,0,5,4,3,2,1,0};
+	std::vector<int64_t> vectorOfInts2 = {2,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts3 = {3,0,0,0,0,0,0,0,0,0,0,0};
+	std::vector<int64_t> vectorOfInts4 = {4,0,0,0,0,0,0,0,0,0,0,0};
 
-	std::vector<uint64_t> vectorOfInts5 = {10,8,6,4,2,0,10,8,6,4,2,0};
-	std::vector<uint64_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
-	std::vector<uint64_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
+	std::vector<int64_t> vectorOfInts5 = {10,8,6,4,2,0,10,8,6,4,2,0};
+	std::vector<int64_t> vectorOfInts6 = {30,24,18,12,6,0,30,24,18,12,6,0};
+	std::vector<int64_t> vectorOfInts7 = {120,96,72,48,24,0,120,96,72,48,24,0};
 
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);

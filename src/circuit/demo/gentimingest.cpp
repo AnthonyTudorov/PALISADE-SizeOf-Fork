@@ -101,7 +101,7 @@ main(int argc, char *argv[])
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 	Plaintext inputs[NumInputs];
 	for( size_t i=0; i<NumInputs; i++ ) {
-		vector<uint64_t> vec;
+		vector<int64_t> vec;
 		vec.clear();
 		for( size_t n=0; n<cc->GetRingDimension(); n++ )
 			vec.push_back( rand() % ptm );

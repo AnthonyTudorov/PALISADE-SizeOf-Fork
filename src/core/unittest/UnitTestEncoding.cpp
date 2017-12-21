@@ -55,51 +55,55 @@ protected:
 };
 
 TEST_F(UTEncoding,scalar_encoding) {
-	uint64_t value = 47;
-	int64_t	valueSigned = -47;
+	int64_t value = 47;
 	usint m = 8;
+	PlaintextModulus ptm = 128;
 
-	shared_ptr<ILParams> lp =
-			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	EncodingParams ep( new EncodingParamsImpl( PlaintextModulus(128) ) );
+	shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	EncodingParams ep( new EncodingParamsImpl( ptm ) );
+
 	ScalarEncoding	se(lp, ep, value);
 	se.Encode();
-	EXPECT_EQ( se.GetElement<Poly>().at(0), value );
-	EXPECT_EQ( se.GetElement<Poly>().at(1), 0 );
+	EXPECT_EQ( se.GetElement<Poly>().at(0), value ) << "encoding failed";
+	EXPECT_EQ( se.GetElement<Poly>().at(1), 0 ) << "encoding failed";
 
 	se.Decode();
-	EXPECT_EQ( se.GetScalarValue(), value ) << "unsigned";
+	EXPECT_EQ( se.GetScalarValue(), value ) << "positive scalar";
 
-	ScalarEncoding	se2(lp, ep, valueSigned);
+	ScalarEncoding	se2(lp, ep, -value);
 	se2.Encode();
 	se2.Decode();
-	EXPECT_EQ( se2.GetScalarSignedValue(), valueSigned ) << "signed negative";
+	EXPECT_EQ( se2.GetScalarValue(), -value ) << "negative scalar";
 
-	ScalarEncoding	se3(lp, ep, (int64_t)value);
-	se3.Encode();
-	se3.Decode();
-	EXPECT_EQ( se3.GetScalarSignedValue(), (int64_t)value ) << "signed positive";
+	ScalarEncoding	se3(lp, ep, (ptm/2)+1);
+	EXPECT_THROW( se3.Encode(), config_error ) << "Encode did not throw the proper exception";
+
+	ScalarEncoding	se3n(lp, ep, ((-1*(int64_t)ptm)/2));
+	EXPECT_THROW( se3n.Encode(), config_error ) << "Encode did not throw the proper exception";
+
+	ScalarEncoding	se4(lp, ep, ptm/2);
+	se4.Encode();
+	se4.Decode();
+	EXPECT_EQ( se4.GetScalarValue(), ptm/2 ) << "largest number";
+
+	ScalarEncoding	se5(lp, ep, (-1*(int64_t)ptm)/2 + 1);
+	se5.Encode();
+	se5.Decode();
+	EXPECT_EQ( se5.GetScalarValue(), (-1*(int64_t)ptm)/2 + 1 ) << "smallest number";
 }
 
 TEST_F(UTEncoding,coef_packed_encoding) {
-	vector<uint64_t> value = {32, 17, 8};
-	vector<int64_t>	valueSigned = { -32, 22, -101, 6 };
-	usint m = 8;
+	vector<int64_t> value = {32, 17, 8, -12, -32, 22, -101, 6 };
+	usint m = 16;
 
-	shared_ptr<ILParams> lp =
-			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
 	EncodingParams ep( new EncodingParamsImpl(256) );
+
 	CoefPackedEncoding	se(lp, ep, value);
 	se.Encode();
 	se.Decode();
 	se.SetLength( value.size() );
-	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "unsigned";
-
-	CoefPackedEncoding	se2(lp, ep, valueSigned);
-	se2.Encode();
-	se2.Decode();
-	se2.SetLength( valueSigned.size() );
-	EXPECT_EQ( se2.GetCoefPackedSignedValue(), valueSigned ) << "signed negative";
+	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "CoefPacked";
 }
 
 TEST_F(UTEncoding,packed_int_ptxt_encoding) {
@@ -147,20 +151,18 @@ TEST_F(UTEncoding,string_encoding) {
 }
 
 TEST_F(UTEncoding,integer_encoding){
-	uint64_t	m = 64;
-	shared_ptr<ILParams> lp =
-			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
-	EncodingParams ep( new EncodingParamsImpl(64) );
+	int	m = 64;
+	PlaintextModulus ptm = ((uint64_t)1<<30);
+	shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	EncodingParams ep( new EncodingParamsImpl(ptm) );
 
-	uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
-	uint64_t sv = 9;
-	int64_t svS = sv * -1;
-	int64_t mvS = mv * -1;
+	int64_t mv = ((uint64_t)1<<20) + (uint64_t)1;
+	int64_t sv = 9;
 
 	IntegerEncoding small(lp, ep, sv);
-	IntegerEncoding smallS(lp, ep, svS);
+	IntegerEncoding smallS(lp, ep, -sv);
 	IntegerEncoding medium(lp, ep, mv);
-	IntegerEncoding mediumS(lp, ep, mvS);
+	IntegerEncoding mediumS(lp, ep, -mv);
 	small.Encode();
 	smallS.Encode();
 	medium.Encode();
@@ -171,10 +173,19 @@ TEST_F(UTEncoding,integer_encoding){
 	mediumS.Decode();
 
 	EXPECT_EQ( small.GetIntegerValue(), sv ) << "small";
-	EXPECT_EQ( smallS.GetIntegerSignedValue(), svS ) << "small signed";
+	EXPECT_EQ( smallS.GetIntegerValue(), -sv ) << "small negative";
 
 	EXPECT_EQ( medium.GetIntegerValue(), mv ) << "medium";
-	EXPECT_EQ( mediumS.GetIntegerSignedValue(), mvS ) << "medium signed";
+	EXPECT_EQ( mediumS.GetIntegerValue(), -mv ) << "medium negative";
+
+	EncodingParams ep2( new EncodingParamsImpl(2) );
+	IntegerEncoding one(lp, ep2, 1);
+	one.Encode();
+	one.Decode();
+	EXPECT_EQ( one.GetIntegerValue(), 1 ) << "one";
+
+	IntegerEncoding mone(lp, ep2, -1);
+	EXPECT_THROW( mone.Encode(), config_error ) << "Encode did not throw the proper exception";
 }
 
 

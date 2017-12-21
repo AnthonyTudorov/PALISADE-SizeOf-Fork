@@ -43,7 +43,7 @@ inline CryptoContext<Element>
 GenCryptoContextNull(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
-	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextNull(p, ptm);
+	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextNull(ORDER, ptm);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);
@@ -163,9 +163,7 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 	CryptoContext<Element> cc;
 
 	if( name == "Null" ) {
-		//p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, typename Element::Integer(ptm), typename Element::Integer(1));
-		cc = CryptoContextFactory<Element>::genCryptoContextNull(p, ptm);
-		//cout << *cc->GetCryptoParameters() << endl;
+		cc = CryptoContextFactory<Element>::genCryptoContextNull(ORDER, ptm);
 	}
 	else if( name == "LTV" )
 		cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);

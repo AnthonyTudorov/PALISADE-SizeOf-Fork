@@ -67,10 +67,11 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	usint m = 16;
 	usint relin = 1;
 	float stdDev = 4;
+	PlaintextModulus ptm = 20;
 
 	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m, 50);
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 5 + 4, relin, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptm, relin, stdDev);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);
@@ -78,10 +79,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 	//Initialize the public key containers.
 	LPKeyPair<Poly> kp;
 
-	std::vector<uint64_t> vectorOfInts1 = { 2 };
+	std::vector<int64_t> vectorOfInts1 = { 2 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = { 3 };
+	std::vector<int64_t> vectorOfInts2 = { 3 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
@@ -106,7 +107,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 
 	cc->Decrypt(newKp.secretKey, cResult, &results);
 
-	EXPECT_EQ(results->GetCoefPackedValue().at(0), 6U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 6);
 }
 
 
@@ -118,7 +119,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	usint init_size = 2;
 
-	PlaintextModulus plaintextModulus = 9;
+	PlaintextModulus plaintextModulus = 40;
 
 	vector<NativeInteger> init_moduli(init_size);
 
@@ -149,10 +150,10 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 	LPKeyPair<DCRTPoly> kp;
 
 	//Generating new cryptoparameters for when modulus reduction is done. - not used?
-	std::vector<uint64_t> vectorOfInts1 = { 2, 4 };
+	std::vector<int64_t> vectorOfInts1 = { 2, 4 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = { 3, 3 };
+	std::vector<int64_t> vectorOfInts2 = { 3, 3 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	kp = cc->KeyGen();
@@ -176,21 +177,22 @@ TEST_F(UTSHEAdvanced, test_eval_mult_double_crt) {
 
 	cc->Decrypt(newKp.secretKey, cResult, &results);
 
-	EXPECT_EQ(6U, results->GetCoefPackedValue().at(0));
-	EXPECT_EQ(0U, results->GetCoefPackedValue().at(1));
-	EXPECT_EQ(3U, results->GetCoefPackedValue().at(2));
+	EXPECT_EQ(6, results->GetCoefPackedValue().at(0));
+	EXPECT_EQ(18, results->GetCoefPackedValue().at(1));
+	EXPECT_EQ(12, results->GetCoefPackedValue().at(2));
 }
 
 
 TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	bool dbg_flag = false;
 	usint m = 16;
+	PlaintextModulus ptm = 20;
 
 	float stdDev = 4;
 
 	shared_ptr<Poly::Params> parms = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(m);
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, 8, 1, stdDev);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(parms, ptm, 1, stdDev);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -200,11 +202,11 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 	LPKeyPair<Poly> kp;
 
 	DEBUG("Filling 1");
-	std::vector<uint64_t> vectorOfInts1 = { 2, 3, 1, 4 };
+	std::vector<int64_t> vectorOfInts1 = { 2, 3, 1, 4 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
 	DEBUG("Filling 2");
-	std::vector<uint64_t> vectorOfInts2 = { 3, 6, 3, 1 };
+	std::vector<int64_t> vectorOfInts2 = { 3, 6, 3, 1 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	DEBUG("getting pairs");
@@ -229,10 +231,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
-	EXPECT_EQ(5U, results->GetCoefPackedValue().at(0));
-	EXPECT_EQ(1U, results->GetCoefPackedValue().at(1));
-	EXPECT_EQ(4U, results->GetCoefPackedValue().at(2));
-	EXPECT_EQ(5U, results->GetCoefPackedValue().at(3));
+	EXPECT_EQ(5, results->GetCoefPackedValue().at(0));
+	EXPECT_EQ(9, results->GetCoefPackedValue().at(1));
+	EXPECT_EQ(4, results->GetCoefPackedValue().at(2));
+	EXPECT_EQ(5, results->GetCoefPackedValue().at(3));
 }
 
 
@@ -243,7 +245,7 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	float init_stdDev = 4;
 
 	usint init_size = 2;
-	usint plaintextModulus = 9;
+	PlaintextModulus plaintextModulus = 16;
 
 	vector<NativeInteger> init_moduli(init_size);
 
@@ -273,10 +275,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
 
-	std::vector<uint64_t> vectorOfInts1 = { 2, 4, 8, 5 };
+	std::vector<int64_t> vectorOfInts1 = { 2, 4, 8, 5 };
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = { 3, 3, 4, 1 };
+	std::vector<int64_t> vectorOfInts2 = { 3, 3, 4, 1 };
 	Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	//Generate the secret key for the initial ciphertext:
@@ -298,10 +300,10 @@ TEST_F(UTSHEAdvanced, test_eval_add_double_crt) {
 
 	cc->Decrypt(kp.secretKey, ciphertextResults, &results);
 
-	EXPECT_EQ(results->GetCoefPackedValue().at(0), 5U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(1), 7U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(2), 3U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(3), 6U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 5);
+	EXPECT_EQ(results->GetCoefPackedValue().at(1), 7);
+	EXPECT_EQ(results->GetCoefPackedValue().at(2), -4);
+	EXPECT_EQ(results->GetCoefPackedValue().at(3), 6);
 	DEBUG("13");
 }
 
@@ -313,7 +315,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint init_size = 5;
 
-	PlaintextModulus ptm = 9;
+	PlaintextModulus ptm = 16;
 
 	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams( init_m, init_size, dcrtBits );
 
@@ -322,7 +324,7 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	usint relWindow = 4;
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, 5+4, relWindow, init_stdDev, init_size - 1, 6, 1.006);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(params, ptm, relWindow, init_stdDev, init_size - 1, 6, 1.006);
 	cc->Enable(SHE);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(LEVELEDSHE);
@@ -338,10 +340,10 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 	//Generating Quadratic KeySwitchHint from sk^2 to skNew
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	std::vector<uint64_t> firstElement = { 8, 5, 4 };
+	std::vector<int64_t> firstElement = { 8, 5, 4 };
 	Plaintext firstElementEncoding = cc->MakeCoefPackedPlaintext(firstElement);
 
-	std::vector<uint64_t> secondElement = { 7, 4, 2 };
+	std::vector<int64_t> secondElement = { 7, 4, 2 };
 	Plaintext secondElementEncoding = cc->MakeCoefPackedPlaintext(secondElement);
 
 	Ciphertext<DCRTPoly> ciphertextElementOne;
@@ -378,10 +380,10 @@ TEST_F(UTSHEAdvanced, test_composed_eval_mult_two_towers) {
 
 	ccSmall->Decrypt(kp1.secretKey, cResult, &results);
 
-	EXPECT_EQ(results->GetCoefPackedValue().at(0), 2U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(1), 4U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(2), 1U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(3), 8U);
-	EXPECT_EQ(results->GetCoefPackedValue().at(4), 8U);
+	EXPECT_EQ(results->GetCoefPackedValue().at(0), 8);
+	EXPECT_EQ(results->GetCoefPackedValue().at(1), 3);
+	EXPECT_EQ(results->GetCoefPackedValue().at(2), 0);
+	EXPECT_EQ(results->GetCoefPackedValue().at(3), -6);
+	EXPECT_EQ(results->GetCoefPackedValue().at(4), 8);
 }
 #endif

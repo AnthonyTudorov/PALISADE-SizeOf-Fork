@@ -1272,24 +1272,61 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
-template <typename T>
-CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
-		const PlaintextModulus ptModulus)
+template <>
+CryptoContext<Poly>
+CryptoContextFactory<Poly>::genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus)
 {
-	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, ptModulus) );
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
+	shared_ptr<typename Poly::Params> ep( new typename Poly::Params(m, typename Poly::Integer(ptModulus), 1) );
+	shared_ptr<LPCryptoParametersNull<Poly>> params( new LPCryptoParametersNull<Poly>(ep, ptModulus) );
+	shared_ptr<LPPublicKeyEncryptionScheme<Poly>> scheme( new LPPublicKeyEncryptionSchemeNull<Poly>() );
 
-	return CryptoContextFactory<T>::GetContext(params,scheme);
+	return CryptoContextFactory<Poly>::GetContext(params,scheme);
+}
+
+template <>
+CryptoContext<NativePoly>
+CryptoContextFactory<NativePoly>::genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus)
+{
+	shared_ptr<typename NativePoly::Params> ep( new typename NativePoly::Params(m, typename NativePoly::Integer(ptModulus), 1) );
+	shared_ptr<LPCryptoParametersNull<NativePoly>> params( new LPCryptoParametersNull<NativePoly>(ep, ptModulus) );
+	shared_ptr<LPPublicKeyEncryptionScheme<NativePoly>> scheme( new LPPublicKeyEncryptionSchemeNull<NativePoly>() );
+
+	return CryptoContextFactory<NativePoly>::GetContext(params,scheme);
+}
+
+template <>
+CryptoContext<DCRTPoly>
+CryptoContextFactory<DCRTPoly>::genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus)
+{
+	vector<NativeInteger> moduli = {ptModulus};
+	vector<NativeInteger> roots = {1};
+	shared_ptr<typename DCRTPoly::Params> ep( new typename DCRTPoly::Params(m, moduli, roots) );
+	shared_ptr<LPCryptoParametersNull<DCRTPoly>> params( new LPCryptoParametersNull<DCRTPoly>(ep, ptModulus) );
+	shared_ptr<LPPublicKeyEncryptionScheme<DCRTPoly>> scheme( new LPPublicKeyEncryptionSchemeNull<DCRTPoly>() );
+
+	return CryptoContextFactory<DCRTPoly>::GetContext(params,scheme);
+}
+
+template <>
+CryptoContext<DCRTPoly>
+CryptoContextFactory<DCRTPoly>::genCryptoContextNull(unsigned int m, EncodingParams encodingParams)
+{
+	vector<NativeInteger> moduli = {encodingParams->GetPlaintextModulus()};
+	vector<NativeInteger> roots = {1};
+	shared_ptr<typename DCRTPoly::Params> ep( new typename DCRTPoly::Params(m, moduli, roots) );
+	shared_ptr<LPCryptoParametersNull<DCRTPoly>> params( new LPCryptoParametersNull<DCRTPoly>(ep, encodingParams) );
+	shared_ptr<LPPublicKeyEncryptionScheme<DCRTPoly>> scheme( new LPPublicKeyEncryptionSchemeNull<DCRTPoly>() );
+
+	return CryptoContextFactory<DCRTPoly>::GetContext(params,scheme);
 }
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextNull(shared_ptr<typename T::Params> ep,
-	EncodingParams encodingParams)
+CryptoContextFactory<T>::genCryptoContextNull(unsigned int m, EncodingParams encodingParams)
 {
-	shared_ptr<LPCryptoParametersNull<T>> params(new LPCryptoParametersNull<T>(ep, encodingParams));
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeNull<T>());
+	shared_ptr<typename T::Params> ep( new typename T::Params(m, encodingParams->GetPlaintextModulus(), 1) );
+	shared_ptr<LPCryptoParametersNull<T>> params( new LPCryptoParametersNull<T>(ep, encodingParams) );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }

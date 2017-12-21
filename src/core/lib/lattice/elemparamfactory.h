@@ -129,7 +129,6 @@ ElemParamFactory::GenElemParams<ILDCRTParams<BigInteger>,BigInteger>(usint m, us
 	return GenerateDCRTParams(m, towersize, bits);
 }
 
-
 } /* namespace lbcrypto */
 
 #endif /* SRC_CORE_LIB_LATTICE_ELEMPARAMFACTORY_H_ */
