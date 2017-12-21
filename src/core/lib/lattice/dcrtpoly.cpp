@@ -1001,7 +1001,9 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 	return this->CRTInterpolate().DecryptionCRTInterpolate(ptm);
 }
 
-// Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
+//Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+//
+//Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
 // vectors alpha and beta are precomputed as
 // alpha_i = Floor[(p*[(q/qi)^{-1}]_qi)/qi]_p
 // beta_i = ((p*[(q/qi)^{-1}]_qi)%qi)/qi in (0,1)
@@ -1043,6 +1045,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 }
 
 /*
+ * Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+ *
  * The goal is to switch the basis of x from Q to S
  *
  * Let us write x as
@@ -1117,6 +1121,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 }
 
+// Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+//
 // @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
 // uses SwichCRTBasis as a subroutine; Outputs the resulting polynomial in EVALUATION representation
 
@@ -1163,6 +1169,8 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 }
 
+//Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+//
 // Computes Round(p/Q*x), where x is in the CRT basis Q*S,
 // as [\sum_{i=1}^n alpha_i*x_i + Round(\sum_{i=1}^n beta_i*x_i)]_si,
 // with the result in the Q CRT basis; used in homomorphic multiplication of BFVrns;
