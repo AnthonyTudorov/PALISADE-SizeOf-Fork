@@ -93,7 +93,7 @@ static void EncryptionScalar(const CryptoContext<Element> cc, const string& fail
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext, *plaintextNew) << failmsg << " unsigned scalar encrypt/decrypt failed";
 
-	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value, true);
+	Plaintext plaintext2 = cc->MakeScalarPlaintext(-value);
 	ciphertext = cc->Encrypt(kp.publicKey, plaintext2);
 	cc->Decrypt(kp.secretKey, ciphertext, &plaintextNew);
 	EXPECT_EQ(*plaintext2, *plaintextNew) << failmsg << " signed scalar encrypt/decrypt failed";
@@ -122,7 +122,7 @@ template <typename Element>
 void
 EncryptionNegativeInteger(const CryptoContext<Element> cc, const string& failmsg) {
 	int64_t		value = -250;
-	Plaintext plaintext = cc->MakeSignedIntegerPlaintext(value);
+	Plaintext plaintext = cc->MakeIntegerPlaintext(value);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
 	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for negative integer encrypt/decrypt failed";
@@ -158,16 +158,17 @@ EncryptionCoefPacked(const CryptoContext<Element> cc, const string& failmsg) {
 
 	size_t intSize = cc->GetRingDimension();
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
+	int half = ptm/2;
 
-	vector<uint64_t> intvec;
+	vector<int64_t> intvec;
 	for( size_t ii=0; ii<intSize; ii++)
-		intvec.push_back( rand() % ptm );
+		intvec.push_back( rand() % half );
 	Plaintext plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
 
 	vector<int64_t> sintvec;
 	for( size_t ii=0; ii<intSize; ii++) {
-		int rnum = rand() % ptm;
-		if( rnum >= (int)ptm/2 ) rnum = rnum - ptm;
+		int rnum = rand() % half;
+		if( rand()%2 ) rnum *= -1;
 		sintvec.push_back( rnum );
 	}
 	Plaintext plaintextSInt = cc->MakeCoefPackedPlaintext(sintvec);

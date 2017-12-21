@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts = {1,0,1,1,1,1,0,1,1,1,0,1};
+	std::vector<int64_t> vectorOfInts = {1,0,1,1,1,1,0,1,1,1,0,1};
 	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////

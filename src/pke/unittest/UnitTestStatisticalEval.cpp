@@ -74,28 +74,28 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)})); };
+	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)})); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
-	std::vector<uint64_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
+	std::vector<int64_t> vectorOfInts1 = { 1,0,1,1,0,1,0,1 };
 	xP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = { 1,1,0,1,0,1,1,0 };
+	std::vector<int64_t> vectorOfInts2 = { 1,1,0,1,0,1,1,0 };
 	xP(0, 1) = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
-	std::vector<uint64_t> vectorOfInts3 = { 1,1,1,1,0,1,0,1 };
+	std::vector<int64_t> vectorOfInts3 = { 1,1,1,1,0,1,0,1 };
 	xP(1, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts3);
 
-	std::vector<uint64_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
+	std::vector<int64_t> vectorOfInts4 = { 1,0,0,1,0,1,1,0 };
 	xP(1, 1) = cc->MakeCoefPackedPlaintext(vectorOfInts4);
 
 	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
-	std::vector<uint64_t> vectorOfInts5 = { 1,1,1,0,0,1,0,1 };
+	std::vector<int64_t> vectorOfInts5 = { 1,1,1,0,0,1,0,1 };
 	yP(0, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts5);
 
-	std::vector<uint64_t> vectorOfInts6 = { 1,0,0,1,0,1,1,0 };
+	std::vector<int64_t> vectorOfInts6 = { 1,0,0,1,0,1,1,0 };
 	yP(1, 0) = cc->MakeCoefPackedPlaintext(vectorOfInts6);
 
 	////////////////////////////////////////////////////////////
@@ -132,11 +132,11 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 	// Correct output
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> numerator1 = { 0, 0, 0, 254, 1, 0, 253, 5, 251, 255, 6, 251, 6, 1, 253, 3, 255, 1,
-		0, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	std::vector<uint64_t> numerator2 = { 0, 0, 4, 6, 6, 11, 7, 8, 14, 8, 11, 8, 1, 7, 0, 4, 3, 254, 3, 254,
+	std::vector<int64_t> numerator1 = { 0, 0, 0, -2, 1, 0, -3, 5, -5, -1, 6, -5, 6, 1, -3, 3, -1, 1,
+		0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	std::vector<int64_t> numerator2 = { 0, 0, 4, 6, 6, 11, 7, 8, 14, 8, 11, 8, 1, 7, 0, 4, 3, -2, 3, -2,
 		2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	std::vector<uint64_t> denominatorExpected = { 0, 0, 4, 4, 5, 10, 5, 12, 12, 10, 12, 6, 8, 4, 5, 2, 1, 0, 0, 0, 0,
+	std::vector<int64_t> denominatorExpected = { 0, 0, 4, 4, 5, 10, 5, 12, 12, 10, 12, 6, 8, 4, 5, 2, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	EXPECT_EQ(numerator1, (*numerator)(0, 0)->GetCoefPackedValue());
@@ -230,12 +230,12 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 */
 TEST_F(UTStatisticalEval, BFV_Eval_Lin_Regression_Int) {
 
-	usint plaintextModulus = 256;
+	usint plaintextModulus = 512;
 	usint relWindow = 8;
 	float stdDev = 4;
 
 	//Set crypto parametes
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 4, 0);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(plaintextModulus, 1.06, relWindow, stdDev, 0, 3, 0);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
@@ -311,7 +311,7 @@ TEST_F(UTStatisticalEval, BFV_Eval_Lin_Regression_Int) {
 */
 TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
 
-	usint plaintextModulus = 256;
+	usint plaintextModulus = 512;
 	float stdDev = 4;
 
 	//Set crypto parametes

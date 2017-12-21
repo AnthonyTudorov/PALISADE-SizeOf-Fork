@@ -133,7 +133,7 @@ void PKE() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
+	std::vector<int64_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
 	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
 
 	////////////////////////////////////////////////////////////
@@ -230,10 +230,10 @@ void SHETestCoeff() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////

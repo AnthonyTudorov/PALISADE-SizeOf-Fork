@@ -28,6 +28,27 @@
 
 namespace lbcrypto {
 
+template<typename P>
+inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& ptm) {
+	uint32_t negvalue = ptm - 1;
+	bool isNegative = value < 0;
+	uint64_t entry = isNegative ? -value : value;
+
+	poly.SetValuesToZero();
+
+	if( log2((double)value) > (double)poly.GetLength() )
+		PALISADE_THROW( config_error, "Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(poly.GetLength()));
+
+	size_t i = 0;
+
+	while( entry > 0 ) {
+		if( entry & 0x01 )
+			poly[i] = isNegative ? negvalue : 1;
+		i++;
+		entry >>= 1;
+	}
+}
+
 bool
 IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
@@ -41,46 +62,14 @@ IntegerEncoding::Encode() {
 		PALISADE_THROW( config_error, "Plaintext modulus must be less than " + std::to_string(UINT32_MAX) + " for integer encoding");
 	}
 
-	if( mod % 2 != 0 ) {
-		PALISADE_THROW( config_error, "Plaintext modulus must be an even number for IntegerEncoding");
-	}
-
-	uint32_t negvalue = mod - 1;
-	bool isNegative = value < 0;
-	uint64_t entry = isNegative ? -value : value;
-
-	if( value >= int64_t(mod) || value <= -int64_t(mod) )
-		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is larger than the plaintext modulus " + std::to_string(mod) );
+	if( value <= LowBound() || value > HighBound() )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
 
 	if( this->typeFlag == IsNativePoly ) {
-		this->encodedNativeVector.SetValuesToZero();
-
-		if( log2((double)value) > (double)this->encodedNativeVector.GetLength() )
-			PALISADE_THROW( config_error, "Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
-
-		size_t i = 0;
-
-		while( entry > 0 ) {
-			if( entry & 0x01 )
-				this->encodedNativeVector[i] = isNegative ? negvalue : 1;
-			i++;
-			entry >>= 1;
-		}
+		encodePoly(this->encodedNativeVector, value, mod);
 	}
 	else {
-		this->encodedVector.SetValuesToZero();
-
-		if( log2((double)value) > (double)this->encodedVector.GetLength() )
-			PALISADE_THROW( config_error, "Plaintext value " + std::to_string(value) + " will not fit in encoding of length " + std::to_string(this->encodedVector.GetLength()));
-
-		size_t i = 0;
-
-		while( entry > 0 ) {
-			if( entry & 0x01 )
-				this->encodedVector[i] = isNegative ? negvalue : 1;
-			i++;
-			entry >>= 1;
-		}
+		encodePoly(this->encodedVector, value, mod);
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -92,7 +81,7 @@ IntegerEncoding::Encode() {
 }
 
 template<typename P>
-static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
+inline static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 	int64_t result = 0;
 	int64_t powerFactor = 1;
 	int64_t half = ptm/2;
@@ -102,7 +91,7 @@ static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 		int64_t val = poly[i].ConvertToInt();
 
 		if( val != 0 ) {
-			if( val < half )
+			if( val <= half )
 				result += powerFactor * val;
 			else
 				result += powerFactor * (val - ptm);

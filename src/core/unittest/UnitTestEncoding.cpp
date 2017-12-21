@@ -75,29 +75,35 @@ TEST_F(UTEncoding,scalar_encoding) {
 	se2.Decode();
 	EXPECT_EQ( se2.GetScalarValue(), -value ) << "negative scalar";
 
-	ScalarEncoding	se3(lp, ep, ptm);
+	ScalarEncoding	se3(lp, ep, (ptm/2)+1);
 	EXPECT_THROW( se3.Encode(), config_error ) << "Encode did not throw the proper exception";
+
+	ScalarEncoding	se3n(lp, ep, ((-1*(int64_t)ptm)/2));
+	EXPECT_THROW( se3n.Encode(), config_error ) << "Encode did not throw the proper exception";
+
+	ScalarEncoding	se4(lp, ep, ptm/2);
+	se4.Encode();
+	se4.Decode();
+	EXPECT_EQ( se4.GetScalarValue(), ptm/2 ) << "largest number";
+
+	ScalarEncoding	se5(lp, ep, (-1*(int64_t)ptm)/2 + 1);
+	se5.Encode();
+	se5.Decode();
+	EXPECT_EQ( se5.GetScalarValue(), (-1*(int64_t)ptm)/2 + 1 ) << "smallest number";
 }
 
 TEST_F(UTEncoding,coef_packed_encoding) {
-	vector<uint64_t> value = {32, 17, 8};
-	vector<int64_t>	valueSigned = { -32, 22, -101, 6 };
-	usint m = 8;
+	vector<int64_t> value = {32, 17, 8, -12, -32, 22, -101, 6 };
+	usint m = 16;
 
-	shared_ptr<ILParams> lp =
-			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+	shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
 	EncodingParams ep( new EncodingParamsImpl(256) );
+
 	CoefPackedEncoding	se(lp, ep, value);
 	se.Encode();
 	se.Decode();
 	se.SetLength( value.size() );
-	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "unsigned";
-
-	CoefPackedEncoding	se2(lp, ep, valueSigned);
-	se2.Encode();
-	se2.Decode();
-	se2.SetLength( valueSigned.size() );
-	EXPECT_EQ( se2.GetCoefPackedSignedValue(), valueSigned ) << "signed negative";
+	EXPECT_EQ( se.GetCoefPackedValue(), value ) << "CoefPacked";
 }
 
 TEST_F(UTEncoding,packed_int_ptxt_encoding) {
@@ -171,6 +177,15 @@ TEST_F(UTEncoding,integer_encoding){
 
 	EXPECT_EQ( medium.GetIntegerValue(), mv ) << "medium";
 	EXPECT_EQ( mediumS.GetIntegerValue(), -mv ) << "medium negative";
+
+	EncodingParams ep2( new EncodingParamsImpl(2) );
+	IntegerEncoding one(lp, ep2, 1);
+	one.Encode();
+	one.Decode();
+	EXPECT_EQ( one.GetIntegerValue(), 1 ) << "one";
+
+	IntegerEncoding mone(lp, ep2, -1);
+	EXPECT_THROW( mone.Encode(), config_error ) << "Encode did not throw the proper exception";
 }
 
 

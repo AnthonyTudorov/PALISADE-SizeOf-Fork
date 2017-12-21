@@ -107,9 +107,9 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
-	vector<uint64_t> intvec;
+	vector<int64_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)
-		intvec.push_back( rand() % ptm );
+		intvec.push_back( (rand() % (ptm/2)) * (rand()%2 ? 1 : -1) );
 	Plaintext plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
 
 	LPKeyPair<Element> kp = cc->KeyGen();

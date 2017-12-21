@@ -33,71 +33,36 @@
 namespace lbcrypto {
 
 class CoefPackedEncoding: public PlaintextImpl {
-	vector<uint64_t>	value;
-	vector<int64_t>		valueSigned;
-	bool				isSigned;
+	vector<int64_t>		value;
 
 public:
 	// these two constructors are used inside of Decrypt
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {}
+	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep) {}
 
-	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {}
+	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep) {}
 
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isSigned = false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {}
+	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep) {}
 
 	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
-		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
-		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
 	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<int64_t> coeffs) :
-		PlaintextImpl(vp,ep), valueSigned(coeffs), isSigned(true) {}
+		PlaintextImpl(vp,ep), value(coeffs) {}
 
-	CoefPackedEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {
-		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
-		else value = coeffs;
-	}
-
-	CoefPackedEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {
-		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
-		else value = coeffs;
-	}
-
-	CoefPackedEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, vector<uint64_t> coeffs, bool isSigned=false) :
-		PlaintextImpl(vp,ep), isSigned(isSigned) {
-		if( isSigned ) valueSigned.insert(valueSigned.begin(), coeffs.begin(),coeffs.end());
-		else value = coeffs;
-	}
 
 	virtual ~CoefPackedEncoding() {}
-
-	bool IsSigned() const { return isSigned; }
 
 	/**
 	 * GetCoeffsValue
 	 * @return the un-encoded scalar
 	 */
-	const vector<uint64_t>& GetCoefPackedValue() const {
-		if( !isSigned )
-			return value;
-		throw std::logic_error("not a packed coefficient vector");
-	}
-
-	/**
-	 * GetCoeffsValueSigned
-	 * @return
-	 */
-	const vector<int64_t>& GetCoefPackedSignedValue() const {
-		if( isSigned )
-			return valueSigned;
-		throw std::logic_error("not an unsigned packed coefficient vector");
-	}
+	const vector<int64_t>& GetCoefPackedValue() const { return value; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -115,7 +80,7 @@ public:
 	 * GetEncodingType
 	 * @return this is a CoefPacked encoding
 	 */
-	PlaintextEncodings GetEncodingType() const { return isSigned ? CoefPackedSigned : CoefPacked; }
+	PlaintextEncodings GetEncodingType() const { return CoefPacked; }
 
 	/**
 	 * Get length of the plaintext
@@ -129,10 +94,7 @@ public:
 	 * @param siz
 	 */
 	void SetLength(size_t siz) {
-		if( isSigned )
-			valueSigned.resize(siz);
-		else
-			value.resize(siz);
+		value.resize(siz);
 	}
 
 	/**
@@ -144,7 +106,7 @@ public:
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
 		const CoefPackedEncoding& oth = dynamic_cast<const CoefPackedEncoding&>(other);
-		return oth.value == this->value && oth.isSigned == this->isSigned;
+		return oth.value == this->value;
 	}
 
 	/**
@@ -154,17 +116,13 @@ public:
 	void PrintValue(std::ostream& out) const {
 		// for sanity's sake, trailing zeros get elided into "..."
 		out << "(";
-		size_t i = isSigned ? valueSigned.size() : value.size();
+		size_t i = value.size();
 		while( --i > 0 )
-			if( isSigned ? valueSigned[i] != 0 : value[i] != 0 )
+			if( value[i] != 0 )
 				break;
 
-		if( isSigned )
-			for( size_t j = 0; j <= i; j++ )
-				out << ' ' << valueSigned[j];
-		else
-			for( size_t j = 0; j <= i; j++ )
-				out << ' ' << value[j] << 'U';
+		for( size_t j = 0; j <= i; j++ )
+			out << ' ' << value[j];
 
 		out << " ... )";
 	}

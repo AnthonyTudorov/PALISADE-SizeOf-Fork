@@ -1078,10 +1078,10 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		std::cout << "Encrypting some test data...";
 
-		std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+		std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
 		Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
-		std::vector<uint64_t> vectorOfInts2 = { 3,2,3,1,5,6,7,8,0,0 };
+		std::vector<int64_t> vectorOfInts2 = { 3,2,3,1,5,6,7,8,0,0 };
 		Plaintext intArray2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 
 		auto ciphertext1 = cc->Encrypt(pk, intArray);
@@ -1104,7 +1104,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		std::cout << "Completed" << std::endl;
 
-		std::cout << "Decrypted array = " << intArrayNew->GetCoefPackedSignedValue() << std::endl;
+		std::cout << "Decrypted array = " << intArrayNew->GetCoefPackedValue() << std::endl;
 
 		std::cout << "Computing product of input arrays...";
 		
@@ -1208,7 +1208,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 		std::cout << "Number of regressors: " << regressors << std::endl;
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)})); };
+		auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)})); };
 
 		Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, regressors);
 		Plaintext yP;
@@ -1750,7 +1750,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T X...";
 
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)})); };
+		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)})); };
 
 
 		shared_ptr<Matrix<Plaintext>> numeratorXTX;
@@ -2375,7 +2375,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		std::cout << "Fusion of partial decryptions of X^T X and X^T y...";
 
-		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)})); };
+		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)})); };
 
 		shared_ptr<Matrix<Plaintext>> xtxPlain(new Matrix<Plaintext>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols()));
 		shared_ptr<Matrix<Plaintext>> xtyPlain(new Matrix<Plaintext>(zeroAllocPlain, xty1->GetRows(),xty1->GetCols()));
@@ -2579,8 +2579,8 @@ void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, 
 
 	//counter on non-regressors
 	size_t counter = 0;
-	vector<uint64_t> yInts;
-	vector<uint64_t> xInts;
+	vector<int64_t> yInts;
+	vector<int64_t> xInts;
 
 	// i corresponds to columns
 	for (size_t i = 0; i < dataColumns.size(); i++)

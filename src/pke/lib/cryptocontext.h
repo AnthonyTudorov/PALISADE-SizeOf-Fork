@@ -919,11 +919,8 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	Plaintext MakeScalarPlaintext(uint64_t value, bool isSigned = false) const {
-		if( isSigned )
-			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int64_t)value ) );
-		else
-			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeScalarPlaintext(int64_t value) const {
+		return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
@@ -940,16 +937,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeIntegerPlaintext(uint64_t value) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-	}
-
-	/**
-	 * MakeIntegerPlaintext constructs an IntegerEncoding in this context
-	 * @param value
-	 * @return plaintext
-	 */
-	Plaintext MakeSignedIntegerPlaintext(int64_t value) const {
+	Plaintext MakeIntegerPlaintext(int64_t value) const {
 		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -957,15 +945,6 @@ public:
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
 	 * @param isSigned
-	 * @return plaintext
-	 */
-	Plaintext MakeCoefPackedPlaintext(const vector<uint64_t>& value, bool isSigned = false) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
-	}
-
-	/**
-	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
-	 * @param value
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
@@ -976,15 +955,6 @@ public:
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
 	 * @param isSigned
-	 * @return plaintext
-	 */
-	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<uint64_t>& value, bool isSigned = false) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
-	}
-
-	/**
-	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
-	 * @param value
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
@@ -1027,10 +997,7 @@ private:
 			pt.reset( new IntegerEncoding(vp,ep) );
 			break;
 		case CoefPacked:
-			pt.reset( new CoefPackedEncoding(vp,ep,false) );
-			break;
-		case CoefPackedSigned:
-			pt.reset( new CoefPackedEncoding(vp,ep,true) );
+			pt.reset( new CoefPackedEncoding(vp,ep) );
 			break;
 		case Packed:
 			pt.reset( new PackedEncoding(vp,ep) );

@@ -33,13 +33,12 @@ ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
-	if( mod % 2 != 0 ) {
-		PALISADE_THROW( config_error, "Plaintext modulus must be an even number for ScalarEncoding");
-	}
-
 	if( value > INT32_MAX || value < INT32_MIN ) {
 		PALISADE_THROW( config_error, "Cannot encode a scalar larger than 32 bits");
 	}
+
+	if( value <= LowBound() || value > HighBound() )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
 
 	uint32_t entry = value;
 
@@ -47,9 +46,6 @@ ScalarEncoding::Encode() {
 	if( value < 0 ) {
 		entry += mod;
 	}
-
-	if( entry >= mod )
-		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus/2 " + std::to_string(mod) );
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
@@ -74,6 +70,7 @@ ScalarEncoding::Decode() {
 	this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+
 	if( this->value > int64_t(mod/2) )
 		this->value -= mod;
 

@@ -200,7 +200,7 @@ encrypter(CryptoContext<Poly> ctx, string cmd, int argc, char *argv[]) {
 	else {
 		ctSer.close();
 
-		vector<uint64_t> intVector;
+		vector<int64_t> intVector;
 		for( size_t i=0; i<IntVectorLen; i++ ) {
 			int val;
 

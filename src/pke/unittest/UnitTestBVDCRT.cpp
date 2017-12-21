@@ -59,7 +59,7 @@ TEST_F(UTBGVDCRT, Poly_bgv_DCRT_MODREDUCE) {
 
 	usint numOfTower = 3;
 
-	usint plaintextModulus = 5;
+	PlaintextModulus plaintextModulus = 8;
 
 	float stdDev = 4;
 
@@ -73,7 +73,7 @@ TEST_F(UTBGVDCRT, Poly_bgv_DCRT_MODREDUCE) {
 	// Initialize the public key containers.
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 
-	std::vector<uint64_t> vectorOfInts1 = { 4,1,2,3 };
+	std::vector<int64_t> vectorOfInts1 = { 4,1,2,3 };
 
 	Plaintext intArray1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext intArrayNew;
