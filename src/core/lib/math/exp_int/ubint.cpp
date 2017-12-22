@@ -2237,6 +2237,34 @@ return result;
   }
 
 
+    //the following is deprecated
+  template<typename limb_t>
+  void ubint<limb_t>::ModBarrettMulInPlace(const ubint& b, const ubint& modulus,const ubint& mu) {
+#ifdef NO_BARRETT
+    *this = this->ModMul(b, modulus);
+    return ;
+
+#else
+
+    ubint* bb = const_cast<ubint*>(&b);
+    
+    //if this is greater than q reduce a to its mod value
+    if(*this>modulus)
+      this->ModBarrettInPlace(modulus,mu);
+    
+    //if b is greater than q reduce b to its mod value
+    if(b>modulus)
+      *bb = b.ModBarrett(modulus,mu);
+    	*this = *this**bb;
+
+	this->ModBarrettInPlace(modulus, mu);
+
+	return;
+
+#endif
+  }
+
+
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const{
