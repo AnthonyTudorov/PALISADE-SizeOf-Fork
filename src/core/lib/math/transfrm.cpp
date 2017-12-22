@@ -116,12 +116,12 @@ void ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecType&
 		m_rootOfUnityTable = new VecType(CycloOrder + 1);  //We may be able to change length to CycloOrder/2
 		IntType x(IntType::ONE);
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-		  m_rootOfUnityTable->at(i)= x;
-		  m_rootOfUnityTable->at(i + CycloOrder / 2)= element.GetModulus() - x;
+		  (*m_rootOfUnityTable)[i]= x;
+		  *m_rootOfUnityTable[i + CycloOrder/2]= element.GetModulus() - x;
 			x = x.ModMul(rootOfUnity, element.GetModulus());
 		}
 
-		m_rootOfUnityTable->at(CycloOrder)= IntType::ONE;
+		*m_rootOfUnityTable[CycloOrder]= IntType::ONE;
 
 	}
 
@@ -131,7 +131,7 @@ void ChineseRemainderTransform<IntType,VecType>::ForwardTransform(const VecType&
 	NumberTheoreticTransform<IntType,VecType>::ForwardTransformIterative(InputToFFT, *m_rootOfUnityTable, CycloOrder, &OpFFT);
 
 	for (usint i = 0; i<CycloOrder / 2; i++)
-	  ans->at(i)= OpFFT.at(2 * i + 1);
+	  *ans[i]= OpFFT[2 * i + 1];
 
 	ans->SetModulus(OpFFT.GetModulus());
 
@@ -157,12 +157,12 @@ void ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecType&
 		m_rootOfUnityInverseTable = new VecType(CycloOrder + 1);
 		IntType x(IntType::ONE);
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-		  m_rootOfUnityInverseTable->at(i)= x;
-		  m_rootOfUnityInverseTable->at(i + CycloOrder / 2)= element.GetModulus() - x;
+		  *m_rootOfUnityInverseTable[i]= x;
+		  *m_rootOfUnityInverseTable[i + CycloOrder / 2]= element.GetModulus() - x;
 			x = x.ModMul(rootOfUnityInverse, element.GetModulus());
 		}
 
-		m_rootOfUnityInverseTable->at(CycloOrder)= IntType::ONE;
+		*m_rootOfUnityInverseTable[CycloOrder]= IntType::ONE;
 
 	}
 
@@ -179,7 +179,7 @@ void ChineseRemainderTransform<IntType,VecType>::InverseTransform(const VecType&
 
 	//TODO:: can this be done quicker?
 	for (usint i = 0; i<CycloOrder / 2; i++)
-	  ans->at(i)= (OpIFFT).at(i).ModMul(IntType::TWO, (OpIFFT).GetModulus());
+	  *ans[i]= OpIFFT[i].ModMul(IntType::TWO, OpIFFT.GetModulus());
 
 	ans->SetModulus(OpIFFT.GetModulus());
 
@@ -207,7 +207,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 
 	// check to see if the modulus is in the table, and add it if it isn't
 	const auto mapSearch = m_rootOfUnityTableByModulus.find(element.GetModulus());
-	if( mapSearch == m_rootOfUnityTableByModulus.end() || mapSearch->second.at(1) != rootOfUnity ) {
+	if( mapSearch == m_rootOfUnityTableByModulus.end() || mapSearch->second[1] != rootOfUnity ) {
 #pragma omp critical
 		{
 			VecType rTable(CycloOrder / 2);
@@ -215,8 +215,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 			IntType x(1);
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
- 			        rTable.at(i)= x;
-				x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+ 			        rTable[i]= x;
+				x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
 			}
 
 			rootOfUnityTable = &(m_rootOfUnityTableByModulus[modulus] = std::move(rTable));
@@ -277,7 +277,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 
 		if( mSearch != m_rootOfUnityInverseTableByModulus.end() ) {
 			// i found it... make sure it's kosher
-			if( mSearch->second.GetLength() == 0 || mSearch->second.at(1) != rootofUnityInverse ) {
+			if( mSearch->second.GetLength() == 0 || mSearch->second[1] != rootofUnityInverse ) {
 				recompute = true;
 			}
 			else
@@ -290,8 +290,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 			IntType x(1);
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
-			  TableI.at(i)= x;
-				x = x.ModBarrettMul(rootofUnityInverse, element.GetModulus(), mu);
+			  TableI[i]= x;
+				x.ModBarrettMulInPlace(rootofUnityInverse, element.GetModulus(), mu);
 			}
 
 			rootOfUnityITable = &(m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI));
@@ -304,7 +304,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 
 	VecType rInvTable(*rootOfUnityITable);
 	for (usint i = 0; i<CycloOrder / 2; i++)
-	  (*OpIFFT)[i]= (*OpIFFT)[i].ModBarrettMul(rInvTable[i*ringDimensionFactor], element.GetModulus(), mu);
+	  (*OpIFFT)[i].ModBarrettMulInPlace(rInvTable[i*ringDimensionFactor], element.GetModulus(), mu);
 	return;
 }
 
@@ -325,8 +325,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-		  Table.at(i)= x;
-			x = x.ModBarrettMul(rootOfUnity, modulus, mu);
+		  Table[i]= x;
+			x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
 		}
 
 		m_rootOfUnityTableByModulus[modulus] = std::move(Table);
@@ -341,8 +341,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 		x = 1;
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-		  TableI.at(i)= x;
-			x = x.ModBarrettMul(rootOfUnityInverse, modulus, mu);
+		  TableI[i]= x;
+			x.ModBarrettMulInPlace(rootOfUnityInverse, modulus, mu);
 		}
 
 		m_rootOfUnityInverseTableByModulus[modulus] = std::move(TableI);
@@ -382,8 +382,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-		  rTable.at(i)= x;
-			x = x.ModBarrettMul(currentRoot, currentMod, mu);
+		  rTable[i]= x;
+			x.ModBarrettMulInPlace(currentRoot, currentMod, mu);
 		}
 
 		m_rootOfUnityTableByModulus[currentMod] = std::move(rTable);
@@ -397,8 +397,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
-			rTableI.at(i)= x;
-			x = x.ModBarrettMul(rootOfUnityInverse, currentMod, mu);
+			rTableI[i]= x;
+			x.ModBarrettMulInPlace(rootOfUnityInverse, currentMod, mu);
 		}
 
 		m_rootOfUnityInverseTableByModulus[currentMod] = std::move(rTableI);
@@ -512,9 +512,9 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		size_t k = 0;
 		for (int i = dft.size() - 1;i > 0;i--) {
 			if (i % 2 != 0) {
-				dftRemainder[k] = dft.at(i);
+				dftRemainder[k] = dft[i];
 				k++;
-				//dftRemainder.push_back(dft.at(i));
+				//dftRemainder.push_back(dft[i]);
 			}
 		}
 		return dftRemainder;
@@ -525,12 +525,12 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		std::vector<std::complex<double>> dft(2*n);
 		for (size_t i = 0; i < n; i++) {
 			dft[2*i] = 0;
-			dft[2 * i + 1] = A.at(i);
+			dft[2 * i + 1] = A[i];
 		}
 		std::vector<std::complex<double>> invDft = FFTInverseTransform(dft);
 		std::vector<std::complex<double>> invDftRemainder(invDft.size() / 2);
 		for (size_t i = 0;i<invDft.size() / 2;i++) {
-			invDftRemainder[i] = invDft.at(i);
+			invDftRemainder[i] = invDft[i];
 		}
 		return invDftRemainder;
 	}
@@ -561,13 +561,13 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		IntType x(1);
 		for (usint i = 0; i<nttDim / 2; i++) {
-			rootTable.at(i)= x;
+			rootTable[i]= x;
 			x = x.ModMul(root, nttModulus);
 		}
 
 		x = 1;
 		for (usint i = 0; i<nttDim / 2; i++) {
-			rootTableInverse.at(i)= x;
+			rootTableInverse[i]= x;
 			x = x.ModMul(rootInv, nttModulus);
 		}
 
@@ -581,11 +581,11 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		const auto &root = modulusRoot.second;
 
 		VecType powers(cycloOrder, modulus);
-		powers.at(0)= 1;
+		powers[0]= 1;
 		for (usint i = 1; i <cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = root.ModExp(IntType(iSqr), modulus);
-			powers.at(i)= val;
+			powers[i]= val;
 		}
 		m_powersTableByModulusRoot[modulusRoot] = std::move(powers);
 	}
@@ -604,12 +604,12 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		usint nttDim = pow(2, ceil(log2(2 * cycloOrder - 1)));
 
 		VecType b(2 * cycloOrder - 1, modulus);
-		b.at(cycloOrder - 1) = 1;
+		b[cycloOrder - 1] = 1;
 		for (usint i = 1; i < cycloOrder; i++) {
 			auto iSqr = (i*i) % (2 * cycloOrder);
 			auto val = rootInv.ModExp(IntType(iSqr), modulus);
-			b.at(cycloOrder - 1 + i)= val;
-			b.at(cycloOrder - 1 - i)= val;
+			b[cycloOrder - 1 + i]= val;
+			b[cycloOrder - 1 - i]= val;
 		}
 
 		auto Rb = PadZeros(b, nttDim);
@@ -672,11 +672,11 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		VecType result(finalSize, a.GetModulus());
 
 		for (usint i = 0; i < s; i++) {
-			result.at(i)= a.at(i);
+			result[i]= a[i];
 		}
 
 		for (usint i = a.GetLength(); i < finalSize; i++) {
-			result.at(i)= IntType(0);
+			result[i]= IntType(0);
 		}
 
 		return result;
@@ -687,7 +687,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		VecType result(hi - lo + 1, a.GetModulus());
 
 		for (usint i = lo, j = 0; i <= hi; i++, j++) {
-			result.at(j)= a.at(i);
+			result[j]= a[i];
 		}
 
 		return result;
@@ -746,13 +746,13 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		IntType x(1);
 		for (usint i = 0; i < nttDim / 2; i++) {
-			rootTable.at(i)= x;
+			rootTable[i]= x;
 			x = x.ModMul(root, nttMod);
 		}
 
 		x = 1;
 		for (usint i = 0; i < nttDim / 2; i++) {
-			rootTableInverse.at(i)= x;
+			rootTableInverse[i]= x;
 			x = x.ModMul(rootInv, nttMod);
 		}
 
@@ -774,7 +774,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		VecType QForwardTransform(nttDim, nttMod);
 		for (usint i = 0; i < cycloPoly.GetLength(); i++) {
-			QForwardTransform.at(i)= cycloPoly.at(i);
+			QForwardTransform[i]= cycloPoly[i];
 		}
 
 		VecType QFwdResult(nttDim);
@@ -789,7 +789,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		VecType result(power, modulus);
 		usint r = ceil(log2(power));
 		VecType h(1, modulus);//h is a unit polynomial
-		h.at(0)= 1;
+		h[0]= 1;
 
 		//Precompute the Barrett mu parameter
 		IntType mu = ComputeMu<IntType>(modulus);
@@ -797,7 +797,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		for (usint i = 0; i < r; i++) {
 			usint qDegree = std::pow(2, i + 1);
 			VecType q(qDegree + 1, modulus);//q = x^(2^i+1)
-			q.at(qDegree)= 1;
+			q[qDegree]= 1;
 			auto hSquare = PolynomialMultiplication(h, h);
 
 			auto a = h * IntType(2);
@@ -805,17 +805,17 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 			//b = 2h - gh^2
 			for (usint j = 0; j < b.GetLength(); j++) {
 				if (j < a.GetLength()) {
-					b.at(j)= a.at(j).ModBarrettSub(b.at(j), modulus, mu);
+					b[j]= a[j].ModBarrettSub(b[j], modulus, mu);
 				}
 				else
-					b.at(j)= modulus.ModBarrettSub(b.at(j), modulus, mu);
+					b[j]= modulus.ModBarrettSub(b[j], modulus, mu);
 			}
 			h = PolyMod(b, q, modulus);
 
 		}
 		//take modulo x^power
 		for (usint i = 0; i < power; i++) {
-			result.at(i)= h.at(i);
+			result[i]= h[i];
 		}
 
 		return result;
@@ -906,13 +906,13 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		if(forward){ // Forward transform padding
 			for (usint i = 0; i < n; i++) {
-				inputToBluestein.at(i)= element.at(i);
+				inputToBluestein[i]= element[i];
 			}
 		} else { // Inverse transform padding
 		auto tList = GetTotientList(cycloOrder);
 		usint i = 0;
 		for (auto &coprime : tList) {
-			inputToBluestein.at(coprime)= element.at(i++);
+			inputToBluestein[coprime]= element[i++];
 		}
 		}
 
@@ -929,19 +929,19 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		if(forward){ // Forward transform drop
 			auto tList = GetTotientList(cycloOrder);
 			for (usint i = 0; i < n; i++) {
-				output.at(i)= element.at(tList[i]);
+				output[i]= element[tList[i]];
 		}
 		} else { // Inverse transform drop
 			if((n+1) == cycloOrder){
 				// cycloOrder is prime: Reduce mod Phi_{n+1}(x)
 				// Reduction involves subtracting the coeff of x^n from all terms
-				auto coeff_n = element.at(n);
+				auto coeff_n = element[n];
 
 				//Precompute the Barrett mu parameter
 				IntType mu = ComputeMu<IntType>(modulus);
 
 				for (usint i = 0; i < n; i++) {
-					output.at(i) = element.at(i).ModBarrettSub(coeff_n, modulus, mu);
+					output[i] = element[i].ModBarrettSub(coeff_n, modulus, mu);
 				}
 			} else if ((n+1)*2 == cycloOrder){
 				// cycloOrder is 2*prime: 2 Step reduction
@@ -984,7 +984,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 		//perform mod operation
 		usint power = cycloOrder - n;
 				for (usint i = n; i < element.GetLength(); i++) {
-					aPadded2.at(power - (i - n) - 1)= element.at(i);
+					aPadded2[power-(i-n)-1]= element[i];
 		}
 
 		VecType A(m_nttDivisionDim[cycloOrder]);
@@ -996,7 +996,7 @@ void ChineseRemainderTransform<IntType,VecType>::Reset() {
 
 		VecType quotient(m_nttDivisionDim[cycloOrder], modulus);
 		for (usint i = 0; i < power; i++) {
-			quotient.at(i)= a.at(i);
+			quotient[i]= a[i];
 		}
 		quotient = quotient.Mod(modulus);
 		quotient.SetModulus(nttMod);
