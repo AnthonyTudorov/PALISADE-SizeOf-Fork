@@ -78,32 +78,32 @@ usint LWEConjunctionCHCPRFAlgorithm<Element>::GetLogModulus() const {
 }
 
 template <class Element>
-shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgorithm<Element>::KeyGen() {
+shared_ptr<vector<vector<Element>>> LWEConjunctionCHCPRFAlgorithm<Element>::KeyGen() {
 
-	shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S(new vector<vector<shared_ptr<Matrix<Element>>>>());
+	shared_ptr<vector<vector<Element>>> s(new vector<vector<Element>>());
 
 	for (usint i = 0; i < m_adjustedLength; i++) {
-		vector<shared_ptr<Matrix<Element>>> S_i;
+		vector<Element> s_i;
 
 		for (usint k = 0; k < m_chunkExponent; k++) {
 			Element s_ik = Element(m_tug, m_elemParams, COEFFICIENT);
 			s_ik.SwitchFormat();
 
-			shared_ptr<Matrix<Element>> S_ik = Encode(i, i + 1, s_ik);
-			S_i.push_back(S_ik);
+			s_i.push_back(s_ik);
 		}
 
-		S->push_back(S_i);
+		s->push_back(s_i);
 	}
 
-	return S;
+	return s;
+
 };
 
 
 template <class Element>
-shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgorithm<Element>::Constrain(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> key, const std::string &pattern) {
+shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgorithm<Element>::Constrain(const shared_ptr<vector<vector<Element>>> s, const std::string &pattern) {
 
-	shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> S(new vector<vector<shared_ptr<Matrix<Element>>>>());
+	shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D(new vector<vector<shared_ptr<Matrix<Element>>>>());
 
 	for (usint i = 0; i < m_adjustedLength; i++) {
 		// current chunk of cleartext pattern
@@ -119,32 +119,46 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 		chunkTemp = replaceChar(chunk, '?', '0');
 		usint chunkTarget = std::stoi(chunkTemp, nullptr, 2);
 
-		vector<shared_ptr<Matrix<Element>>> S_i;
+		vector<shared_ptr<Matrix<Element>>> D_i;
 
 		for (usint k = 0; k < m_chunkExponent; k++) {
-			if ((k & chunkMask) == chunkTarget) {
-				S_i.push_back((*key)[i][k]);
-			}
-			else {
-				// Replace S_ik with fresh encoding if k does not match pattern
-				Element s_ik = Element(m_tug, m_elemParams, COEFFICIENT);
-				s_ik.SwitchFormat();
+			Element s_ik = (*s)[i][k];
 
-				shared_ptr<Matrix<Element>> S_ik = Encode(i, i + 1, s_ik);
-				S_i.push_back(S_ik);
+			if ((k & chunkMask) != chunkTarget) {
+				s_ik = Element(m_tug, m_elemParams, COEFFICIENT);
+				s_ik.SwitchFormat();
 			}
+
+			shared_ptr<Matrix<Element>> D_ik = Encode(i, i + 1, s_ik);
+			D_i.push_back(D_ik);
 		}
 
-		S->push_back(S_i);
+		D->push_back(D_i);
 	}
 
-	return S;
+	return D;
 
 };
 
+template <class Element>
+std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const {
+
+	Matrix<Element> y = (*m_A)[m_adjustedLength];
+
+	for (usint i = 0; i < m_adjustedLength; i++) {
+		std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
+		int k = std::stoi(chunk, nullptr, 2);
+
+		y = y * (*s)[i][k];
+	}
+
+	return TransformMatrixToPRFOutput(y);
+
+}
+
 
 template <class Element>
-std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> key, const std::string &input) const {
+std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const {
 
 	Matrix<Element> y = (*m_A)[0];
 
@@ -152,22 +166,10 @@ std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<ve
 		std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
 		int k = std::stoi(chunk, nullptr, 2);
 
-		y = y * *(*key)[i][k];
+		y = y * *(*D)[i][k];
 	}
 
-	const BigInteger &q = m_elemParams->GetModulus();
-	std::stringstream output;
-
-	for (size_t i = 0; i < y.GetCols(); i++) {
-		Poly poly = y(0, i).CRTInterpolate();
-		poly = poly.DivideAndRound(q);
-
-		for (size_t j = 0; j < poly.GetLength(); j++) {
-			output << poly.at(j);
-		}
-	}
-
-	return output.str();
+	return TransformMatrixToPRFOutput(y);
 
 };
 
@@ -305,6 +307,25 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 	return result;
 
 };
+
+template <class Element>
+std::string LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const {
+
+	const BigInteger &q = m_elemParams->GetModulus();
+	std::stringstream output;
+
+	for (size_t i = 1; i < matrix.GetCols(); i++) {
+		Poly poly = matrix(0, i).CRTInterpolate();
+		poly = poly.DivideAndRound(q);
+
+		for (size_t j = 0; j < poly.GetLength(); j++) {
+			output << poly.at(j);
+		}
+	}
+
+	return output.str();
+
+}
 
 }
 
