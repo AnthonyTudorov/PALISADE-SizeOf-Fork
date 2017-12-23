@@ -45,7 +45,7 @@ void BM_encoding_Scalar(benchmark::State& state) {
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		uint64_t value = 47;
+		int64_t value = 47;
 
 		usint	m = 1024;
 		PlaintextModulus	ptm = 128;
@@ -73,7 +73,7 @@ void BM_encoding_Integer(benchmark::State& state) { // benchmark
 
 		usint	m = 1024;
 		PlaintextModulus	ptm = 128;
-		uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
+		int64_t mv = ((int64_t)1<<33) + (int64_t)1;
 
 		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
@@ -96,12 +96,12 @@ void BM_encoding_CoefPacked(benchmark::State& state) {
 
 		usint	m = 1024;
 		PlaintextModulus	ptm = 128;
-		uint64_t mv = ((uint64_t)1<<33) + (uint64_t)1;
+		int64_t mv = ((int64_t)1<<33) + (int64_t)1;
 
 		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
 
-		vector<uint64_t> intvec;
+		vector<int64_t> intvec;
 		for( usint ii=0; ii<m/2; ii++)
 			intvec.push_back( rand() % ptm );
 
