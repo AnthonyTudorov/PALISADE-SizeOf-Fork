@@ -45,10 +45,8 @@ namespace lbcrypto
 enum PlaintextEncodings {
 	Unknown,
 	Scalar,
-	ScalarSigned,
 	Integer,
 	CoefPacked,
-	CoefPackedSigned,
 	Packed,
 	String,
 };
@@ -73,9 +71,9 @@ class PlaintextImpl
 protected:
 	bool						isEncoded;
 	PtxtPolyType				typeFlag;
-	EncodingParams				encodingParams;
+	EncodingParams			encodingParams;
 	Poly						encodedVector;
-	NativePoly					encodedNativeVector;
+	NativePoly				encodedNativeVector;
 	DCRTPoly					encodedVectorDCRT;
 
 public:
@@ -119,6 +117,26 @@ public:
 	 * @return
 	 */
 	virtual bool Decode() = 0;
+
+	/**
+	 * Calculate and return lower bound that can be encoded with the plaintext modulus
+	 * the number to encode MUST be greater than this value
+	 * @return floor(-p/2)
+	 */
+	int64_t LowBound() const {
+		uint64_t half = GetEncodingParams()->GetPlaintextModulus() >> 1;
+		bool odd = (GetEncodingParams()->GetPlaintextModulus() & 0x1) == 1;
+		int64_t bound = -1 * half;
+		if( odd ) bound--;
+		return bound;
+	}
+
+	/**
+	 * Calculate and return upper bound that can be encoded with the plaintext modulus
+	 * the number to encode MUST be less than or equal to this value
+	 * @return floor(p/2)
+	 */
+	int64_t HighBound() const { return GetEncodingParams()->GetPlaintextModulus() >> 1; }
 
 	/**
 	 * SetFormat - allows format to be changed for PlaintextImpl evaluations
@@ -182,11 +200,9 @@ public:
 	virtual void SetLength(size_t newSize) { throw std::logic_error("resize not supported"); }
 
 	virtual const std::string&		GetStringValue() const { throw std::logic_error("not a string"); }
-	virtual const uint64_t&			GetIntegerValue() const { throw std::logic_error("not an integer"); }
-	virtual const uint64_t&			GetScalarValue() const { throw std::logic_error("not a scalar"); }
-	virtual const int64_t&			GetScalarSignedValue() const { throw std::logic_error("not a signed scalar"); }
-	virtual const vector<uint64_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
-	virtual const vector<int64_t>&	GetCoefPackedSignedValue() const { throw std::logic_error("not a signed packed coefficient vector"); }
+	virtual const int64_t			GetIntegerValue() const { throw std::logic_error("not an integer"); }
+	virtual const int64_t			GetScalarValue() const { throw std::logic_error("not a scalar"); }
+	virtual const vector<int64_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 	virtual const vector<uint64_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 
 	/**

@@ -919,11 +919,8 @@ public:
 	 * @param isSigned
 	 * @return plaintext
 	 */
-	Plaintext MakeScalarPlaintext(uint64_t value, bool isSigned = false) const {
-		if( isSigned )
-			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), (int64_t)value ) );
-		else
-			return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeScalarPlaintext(int64_t value) const {
+		return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
 	/**
@@ -940,7 +937,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeIntegerPlaintext(uint32_t value) const {
+	Plaintext MakeIntegerPlaintext(int64_t value) const {
 		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
 	}
 
@@ -948,15 +945,6 @@ public:
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
 	 * @param isSigned
-	 * @return plaintext
-	 */
-	Plaintext MakeCoefPackedPlaintext(const vector<uint64_t>& value, bool isSigned = false) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
-	}
-
-	/**
-	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
-	 * @param value
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
@@ -967,15 +955,6 @@ public:
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
 	 * @param isSigned
-	 * @return plaintext
-	 */
-	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<uint64_t>& value, bool isSigned = false) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value, isSigned ) );
-	}
-
-	/**
-	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
-	 * @param value
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
@@ -1012,19 +991,13 @@ private:
 			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
 			break;
 		case Scalar:
-			pt.reset( new ScalarEncoding(vp,ep,false) );
-			break;
-		case ScalarSigned:
-			pt.reset( new ScalarEncoding(vp,ep,true) );
+			pt.reset( new ScalarEncoding(vp,ep) );
 			break;
 		case Integer:
 			pt.reset( new IntegerEncoding(vp,ep) );
 			break;
 		case CoefPacked:
-			pt.reset( new CoefPackedEncoding(vp,ep,false) );
-			break;
-		case CoefPackedSigned:
-			pt.reset( new CoefPackedEncoding(vp,ep,true) );
+			pt.reset( new CoefPackedEncoding(vp,ep) );
 			break;
 		case Packed:
 			pt.reset( new PackedEncoding(vp,ep) );
@@ -2352,17 +2325,17 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param modulus
+	* @param plaintext modulus
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, const PlaintextModulus ptModulus);
+	static CryptoContext<Element> genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param modulus
+	* @param encodingParams
 	* @return
 	*/
-	static CryptoContext<Element> genCryptoContextNull(shared_ptr<typename Element::Params> ep, EncodingParams encodingParams);
+	static CryptoContext<Element> genCryptoContextNull(unsigned int m, EncodingParams encodingParams);
 
 	/**
 	* Create a PALISADE CryptoContextImpl from a serialization

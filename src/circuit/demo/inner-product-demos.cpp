@@ -69,10 +69,13 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	std::vector<uint64_t> vectorOfInts;
+	std::vector<int64_t> vectorOfInts;
+	std::vector<uint64_t> vectorOfUInts;
 
-	for( int i=0; i<64; i++ )
+	for( int i=0; i<64; i++ ) {
 		vectorOfInts.push_back(i%16);
+		vectorOfUInts.push_back(i%16);
+	}
 
 	cout << "Inner product of this vector with itself:" << endl << "[ ";
 	for( size_t i=0; i<64; i++ ) {
@@ -119,14 +122,14 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
-		Matrix<Plaintext> scalarMatrix1([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)}));},
+		Matrix<Plaintext> scalarMatrix1([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)}));},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			scalarMatrix1(0,c) = cc->MakeCoefPackedPlaintext({ vectorOfInts[c] });
 		}
 
 		// construct matrix for second vector
-		Matrix<Plaintext> scalarMatrix2([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({uint64_t(0)}));},
+		Matrix<Plaintext> scalarMatrix2([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)}));},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			scalarMatrix2(r,0) = cc->MakeCoefPackedPlaintext({ vectorOfInts[r] });
@@ -281,8 +284,8 @@ main(int argc, char *argv[])
 		cc->EvalMultKeyGen(kp.secretKey);
 		cc->EvalSumKeyGen(kp.secretKey);
 
-		Plaintext packedArray1 = cc->MakePackedPlaintext(vectorOfInts);
-		Plaintext packedArray2 = cc->MakePackedPlaintext(vectorOfInts);
+		Plaintext packedArray1 = cc->MakePackedPlaintext(vectorOfUInts);
+		Plaintext packedArray2 = cc->MakePackedPlaintext(vectorOfUInts);
 
 		auto A = cc->Encrypt(kp.publicKey, packedArray1);
 		auto B = cc->Encrypt(kp.publicKey, packedArray2);

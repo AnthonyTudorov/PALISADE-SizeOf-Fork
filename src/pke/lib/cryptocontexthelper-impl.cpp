@@ -123,7 +123,8 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 			return 0;
 		}
 
-		return CryptoContextFactory<Element>::genCryptoContextNull(parms, stoul(plaintextModulus));
+		auto ptm = stoul(plaintextModulus);
+		return CryptoContextFactory<Element>::genCryptoContextNull(parms->GetCyclotomicOrder(), ptm);
 	}
 	else {
 		throw std::logic_error("Unrecognized parmtype " + parmtype + " in buildContextFromSerialized");

@@ -453,8 +453,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(
-		params, encodingParams);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, encodingParams);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

@@ -32,7 +32,7 @@
 namespace lbcrypto {
 
 class IntegerEncoding: public PlaintextImpl {
-	uint64_t		value;
+	int64_t		value;
 
 public:
 	// these two constructors are used inside of Decrypt
@@ -45,22 +45,22 @@ public:
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep), value(0) {}
 
-	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, uint64_t scalar) :
+	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar) {}
 
-	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, uint64_t scalar) :
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar) {}
 
-	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, uint64_t scalar) :
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
 		PlaintextImpl(vp,ep), value(scalar) {}
 
 	virtual ~IntegerEncoding() {}
 
 	/**
-	 * GetIntegerValue
+	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	const uint64_t& GetIntegerValue() const { return value; }
+	const int64_t GetIntegerValue() const { return value; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -103,9 +103,7 @@ public:
 	 * PrintValue - used by operator<< for this object
 	 * @param out
 	 */
-	void PrintValue(std::ostream& out) const {
-		out << value;
-	}
+	void PrintValue(std::ostream& out) const { out << value; }
 };
 
 } /* namespace lbcrypto */

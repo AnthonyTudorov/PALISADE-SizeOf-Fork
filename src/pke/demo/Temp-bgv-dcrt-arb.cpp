@@ -351,7 +351,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(paramsDCRT, p);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(m, p);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

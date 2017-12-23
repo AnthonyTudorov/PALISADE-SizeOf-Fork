@@ -32,29 +32,27 @@ bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+
+	if( value > INT32_MAX || value < INT32_MIN ) {
+		PALISADE_THROW( config_error, "Cannot encode a scalar larger than 32 bits");
+	}
+
+	if( value <= LowBound() || value > HighBound() )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
+
 	uint32_t entry = value;
 
-	if( this->isSigned ) {
-		if( mod % 2 != 0 ) {
-			throw std::logic_error("Plaintext modulus must be an even number for signed ScalarEncoding");
-		}
-
-		entry = valueSigned;
-		if( valueSigned < 0 ) {
-			entry = (int32_t)mod + valueSigned;
-		}
+	// map to -p/2 .. p/2
+	if( value < 0 ) {
+		entry += mod;
 	}
 
 	if( this->typeFlag == IsNativePoly ) {
 		this->encodedNativeVector.SetValuesToZero();
-		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
 		this->encodedNativeVector[0] = entry;
 	}
 	else {
 		this->encodedVector.SetValuesToZero();
-		if( entry >= mod )
-			throw std::logic_error("Cannot encode integer " + std::to_string(entry) + " that is > plaintext modulus " + std::to_string(mod) );
 		this->encodedVector[0] = entry;
 	}
 
@@ -68,16 +66,14 @@ ScalarEncoding::Encode() {
 
 bool
 ScalarEncoding::Decode() {
-	if( isSigned ) {
-		this->valueSigned = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
 
-		PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
-		if( (int64_t)this->valueSigned > (int64_t)(mod/2) )
-			this->valueSigned -= mod;
-	}
-	else {
-		this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
-	}
+	this->value = this->typeFlag == IsNativePoly ? this->encodedNativeVector[0].ConvertToInt() : this->encodedVector[0].ConvertToInt();
+
+	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
+
+	if( this->value > int64_t(mod/2) )
+		this->value -= mod;
+
 	return true;
 }
 

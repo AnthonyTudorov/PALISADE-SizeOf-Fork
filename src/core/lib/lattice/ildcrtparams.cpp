@@ -37,7 +37,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 		return;
 	if( depth == 0 )
 		throw std::logic_error("Invalid depth for ILDCRTParams");
-	if( bits == 0 )
+	if( bits == 0 || bits > 64 )
 		throw std::logic_error("Invalid bits for ILDCRTParams");
 
 	m_parms.resize(depth);

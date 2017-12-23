@@ -28,48 +28,40 @@
 
 namespace lbcrypto {
 
+template<typename P>
+inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, int64_t ub, const vector<int64_t>& value) {
+
+	poly.SetValuesToZero();
+
+	for( size_t i=0; i < value.size(); i++ ) {
+		if( value[i] > INT32_MAX || value[i] < INT32_MIN ) {
+			PALISADE_THROW( config_error, "Cannot encode a coefficient larger than 32 bits");
+		}
+
+		if( value[i] <= lb || value[i] > ub )
+			PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value[i]) +
+					" at position " + std::to_string(i) +
+					" because it is out of range of plaintext modulus " + std::to_string(mod) );
+
+		uint32_t entry = value[i];
+		if( value[i] < 0 ) {
+			entry += mod;
+		}
+
+		poly[i] = entry;
+	}
+}
+
 bool
 CoefPackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
-	if( this->isSigned && mod % 2 != 0 ) {
-		throw std::logic_error("Plaintext modulus must be an even number for signed CoefPackedEncoding");
-	}
-
 	if( this->typeFlag == IsNativePoly ) {
-		this->encodedNativeVector.SetValuesToZero();
-
-		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
-			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
-			if( isSigned && valueSigned[i] < 0 ) {
-				entry = mod + entry;
-			}
-
-			if( entry >= mod )
-				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-						" at position " + std::to_string(i) +
-						" that is > plaintext modulus " + std::to_string(mod) );
-
-			this->encodedNativeVector[i] = entry;
-		}
+		encodeVec( this->encodedNativeVector, mod, LowBound(), HighBound(), this->value );
 	}
 	else {
-		this->encodedVector.SetValuesToZero();
-
-		for( size_t i=0; isSigned ? i < valueSigned.size() : i < value.size(); i++ ) {
-			uint32_t entry = isSigned ? (uint32_t)valueSigned[i] : value[i];
-			if( isSigned && valueSigned[i] < 0 ) {
-				entry = mod + entry;
-			}
-
-			if( entry >= mod )
-				throw std::logic_error("Cannot encode integer " + std::to_string(entry) +
-						" at position " + std::to_string(i) +
-						" that is > plaintext modulus " + std::to_string(mod) );
-
-			this->encodedVector[i] = entry;
-		}
+		encodeVec( this->encodedVector, mod, LowBound(), HighBound(), this->value );
 	}
 
 	if( this->typeFlag == IsDCRTPoly ) {
@@ -81,19 +73,16 @@ CoefPackedEncoding::Encode() {
 }
 
 template<typename P>
-static void fillVec(const P& poly, const PlaintextModulus& mod, bool isSigned, vector<uint64_t>& value, vector<int64_t>& valueSigned) {
+inline static void fillVec(const P& poly, const PlaintextModulus& mod, vector<int64_t>& value) {
 	value.clear();
-	valueSigned.clear();
+
+	int64_t half = int64_t(mod)/2;
 
 	for( size_t i = 0; i < poly.GetLength(); i++ ) {
-		uint64_t val = poly[i].ConvertToInt();
-		if( isSigned ) {
-			if( val >  mod/2)
-				val -= mod;
-			valueSigned.push_back(val);
-		}
-		else
-			value.push_back(val);
+		int64_t val = poly[i].ConvertToInt();
+		if( val > half )
+			val -= mod;
+		value.push_back(val);
 	}
 }
 
@@ -103,10 +92,10 @@ CoefPackedEncoding::Decode() {
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
 	if( this->typeFlag == IsNativePoly ) {
-		fillVec(this->encodedNativeVector, mod, isSigned, this->value, this->valueSigned);
+		fillVec(this->encodedNativeVector, mod, this->value);
 	}
 	else {
-		fillVec(this->encodedVector, mod, isSigned, this->value, this->valueSigned);
+		fillVec(this->encodedVector, mod, this->value);
 	}
 
 	return true;
