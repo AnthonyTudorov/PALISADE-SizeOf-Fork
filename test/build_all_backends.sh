@@ -24,7 +24,7 @@ do
 	touch src/core/lib/math/backend.h
 	result=build-backend-$i-result
 
-	make -j16  BINDIR=bin/backend-$i BACKEND=$i all benchmark >build-backend-$i-result 2>&1
+	make -j8  BINDIR=bin/backend-$i BACKEND=$i all benchmark >build-backend-$i-result 2>&1
 	if [ $? -eq 0 ];
 	then
 		echo "****************************"

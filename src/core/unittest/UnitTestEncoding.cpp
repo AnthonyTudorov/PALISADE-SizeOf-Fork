@@ -64,8 +64,8 @@ TEST_F(UTEncoding,scalar_encoding) {
 
 	ScalarEncoding	se(lp, ep, value);
 	se.Encode();
-	EXPECT_EQ( se.GetElement<Poly>().at(0), value ) << "encoding failed";
-	EXPECT_EQ( se.GetElement<Poly>().at(1), 0 ) << "encoding failed";
+	EXPECT_EQ( se.GetElement<Poly>()[0].ConvertToInt(), (uint64_t)value ) << "encoding failed";
+	EXPECT_EQ( se.GetElement<Poly>()[1].ConvertToInt(), (uint64_t)0 ) << "encoding failed";
 
 	se.Decode();
 	EXPECT_EQ( se.GetScalarValue(), value ) << "positive scalar";
@@ -84,7 +84,7 @@ TEST_F(UTEncoding,scalar_encoding) {
 	ScalarEncoding	se4(lp, ep, ptm/2);
 	se4.Encode();
 	se4.Decode();
-	EXPECT_EQ( se4.GetScalarValue(), ptm/2 ) << "largest number";
+	EXPECT_EQ( se4.GetScalarValue(), (int64_t)ptm/2 ) << "largest number";
 
 	ScalarEncoding	se5(lp, ep, (-1*(int64_t)ptm)/2 + 1);
 	se5.Encode();
