@@ -384,18 +384,6 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBGV::EvalMultMany is not implemented for the BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
-		/**
-		* Function for homomorphic multiplication of ciphertexts followed by key switching operation.
-		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
-		*
-		* @param ciphertext1 first input ciphertext.
-		* @param ciphertext2 second input ciphertext.
-		* @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @return result of homomorphic multiplication of input ciphertexts.
-		*/
-		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-			const Plaintext plaintext,
-			const LPEvalKey<Element> ek) const;
 
 		/**
 		* Function for homomorphic negation of ciphertexts.

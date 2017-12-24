@@ -393,16 +393,6 @@ namespace lbcrypto {
 	}
 
 	template <class Element>
-	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
-		const Plaintext plaintext, const LPEvalKey<Element> ek) const {
-
-		Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, plaintext);
-
-		return this->KeySwitch(ek, newCiphertext);
-
-	}
-
-	template <class Element>
 	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
 
 		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();

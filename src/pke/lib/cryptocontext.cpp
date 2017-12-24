@@ -586,11 +586,10 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertex
 		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
 
 	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
-	auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
-	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys, ek[0]);
+	auto rv = GetEncryptionAlgorithm()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys);
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalInnerProduct, currentDateTime() - start) );
 	}

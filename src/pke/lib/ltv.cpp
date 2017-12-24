@@ -305,21 +305,6 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(
 	return newCiphertext;
 }
 
-// Homomorphic multiplication of ciphertexts with key switching
-template <class Element>
-Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
-	const Plaintext plaintext, const LPEvalKey<Element> ek) const {
-
-	const shared_ptr<LPPublicKeyEncryptionSchemeLTV<Element>> scheme =
-			std::dynamic_pointer_cast<LPPublicKeyEncryptionSchemeLTV<Element>>(ciphertext1->GetCryptoContext()->GetEncryptionAlgorithm());
-
-	Ciphertext<Element> newCiphertext = scheme->EvalMult(ciphertext1, plaintext);
-
-	newCiphertext = scheme->KeySwitch(ek,newCiphertext);
-
-	return newCiphertext;
-}
-
 template <class Element>
 Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
 
