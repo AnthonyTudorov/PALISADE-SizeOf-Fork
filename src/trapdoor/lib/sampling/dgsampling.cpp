@@ -42,7 +42,7 @@ namespace lbcrypto {
 	{
 
 		// If DCRT is used, the polynomial is first converted from DCRT to large polynomial (in COEFFICIENT representation)		
-		Poly u = syndrome.CRTInterpolate();
+		typename Element::PolyLargeType u = syndrome.CRTInterpolate();
 
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl; 
@@ -118,7 +118,7 @@ namespace lbcrypto {
 	{
 
 		// If DCRT is used, the polynomial is first converted from DCRT to large polynomial (in COEFFICIENT representation)		
-		Poly u = syndrome.CRTInterpolate();
+		typename Element::PolyLargeType u = syndrome.CRTInterpolate();
 
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl; 
