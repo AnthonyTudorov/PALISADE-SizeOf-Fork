@@ -2633,8 +2633,7 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matr
 	std::vector<BigInteger> qInverse;
 
 	for (size_t i = 0; i < crtVector.size(); i++) {
-
-		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
+		qInverse.push_back(BigInteger(Q/q[i]).ModInverse(q[i]));
 	}
 
 	for (size_t k = 0; k < result.GetRows(); k++)
@@ -2643,7 +2642,7 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>> &crtVector, Matr
 		{
 			BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++) {
-				value += ((BigInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*Q/q[i]).Mod(Q);
+				value += ((BigInteger((*crtVector[i])(k,j)->GetCoefPackedValue()[0])*qInverse[i]).Mod(q[i])*BigInteger(Q/q[i])).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
