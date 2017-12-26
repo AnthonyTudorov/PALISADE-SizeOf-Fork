@@ -677,7 +677,6 @@ LPKeyPair<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyKeyGen(CryptoCon
 		//Generate the secret key
 		Element s;
 
-		//Done in two steps not to use a random polynomial from a pre-computed pool
 		//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 		if (cryptoParams->GetMode() == RLWE) {
 			s = Element(dgg, elementParams, Format::COEFFICIENT);
@@ -693,7 +692,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyKeyGen(CryptoCon
 		e.SwitchFormat();
 		//a.SwitchFormat();
 
-		Element b = a*s + p*e + pk1->GetPublicElements()[1];
+		Element b = a*s + p*e;
 
 		kp.secretKey->SetPrivateElement(std::move(s));
 		kp.publicKey->SetPublicElementAtIndex(0, std::move(a));

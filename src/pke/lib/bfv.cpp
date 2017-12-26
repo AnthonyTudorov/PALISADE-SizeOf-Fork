@@ -1115,7 +1115,6 @@ LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoCon
 	//Generate the secret key
 	Element s(elementParams, Format::EVALUATION, true);
 
-	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 
 	size_t numKeys = secretKeys.size();
