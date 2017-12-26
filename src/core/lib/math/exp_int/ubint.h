@@ -740,6 +740,18 @@ namespace exp_int{
     ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
 
     /**
+     * Scalar modular multiplication where Barrett modular reduction is used - In-place version
+     * Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo).
+     * Uses one precomputed value \mu.
+     * See the cpp file for details of the implementation.
+     *
+     * @param b is the scalar to multiply.
+     * @param modulus is the modulus to perform operations with.
+     * @param mu is the precomputed Barrett value.
+     */
+    void ModBarrettMulInPlace(const ubint& b, const ubint& modulus, const ubint& mu);
+    
+    /**
     * Scalar modular multiplication where Barrett modular reduction is used.
     * NOTE this actually just calls ModMul, mu_arr is ignored
     * @param &b is the scalar to multiply.
