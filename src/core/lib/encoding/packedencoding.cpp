@@ -141,7 +141,7 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 #pragma omp critical
 	try {
 		if (!(m & (m - 1))) { // Check if m is a power of 2
-			SetParams_2n(m, modulusNI);
+			SetParams_2n(m, params);
 		}
 		else {
 			const ModulusM modulusM = {modulusNI,m};

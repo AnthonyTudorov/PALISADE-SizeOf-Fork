@@ -9,6 +9,32 @@ bin/demo/pke/Temp-lr-ols encrypt demoData ccLR keyFileLinReg demoData lr-data.cs
 bin/demo/pke/Temp-lr-ols compute demoData ccLR keyFileLinReg demoData lr-data demoData lr-data-result
 bin/demo/pke/Temp-lr-ols decrypt demoData ccLR keyFileLinReg demoData lr-data-result demoData lr-data-plaintext-result
 
+FINAL RESULT SHOULD MATCH THE FOLLOWING
+
+[ 4.04444 1.80401 1.80034 -0.000435569 0.533758 0.583101 0.49063 0.542215 3.07148e-005 -0.00043295 0.000183213 0.000224717 -3.4364e-005 0.000354201 -9.17058e-005 -3.47916e-005 0.000129189 -0.000309232 0.000112229 0.000259837 ]
+/////////////// OLS Linear Regression lr-data-plaintext-result////////////
+Total Number of Features: 19
+(Intercept): 4.044438
+field2: 1.804011
+field3: 1.800341
+field4: -0.000436
+field5: 0.533758
+field6: 0.583101
+field7: 0.490630
+field8: 0.542215
+field9: 0.000031
+field10: -0.000433
+field11: 0.000183
+field12: 0.000225
+field13: -0.000034
+field14: 0.000354
+field15: -0.000092
+field16: -0.000035
+field17: 0.000129
+field18: -0.000309
+field19: 0.000112
+field20: 0.000260
+
 */
 
 #include <iostream>
