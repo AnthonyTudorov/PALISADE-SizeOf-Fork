@@ -939,17 +939,6 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultAndRelinearize(const Cip
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
-	const Plaintext plaintext,
-	const LPEvalKey<Element> ek) const {
-
-	Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, plaintext);
-
-	return this->KeySwitch(ek, newCiphertext);
-
-}
-
-template <class Element>
 LPEvalKey<Element> LPAlgorithmSHEBFV<Element>::KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
 	const LPPrivateKey<Element> newPrivateKey) const {
 

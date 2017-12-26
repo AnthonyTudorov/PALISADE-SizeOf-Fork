@@ -650,20 +650,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
-		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
-		 *
-		 * @param ciphertext1 first input ciphertext.
-		 * @param plaintext second input plaintext.
-		 * @param ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of the operands.
-		 * @return the new resulting ciphertext.
-		 */
-		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-				const Plaintext ciphertext2, const LPEvalKey<Element> ek) const {
-
-			return EvalMult(ciphertext1, ciphertext2);
-		}
-
-		/**
 		* Unimplemented function to support  a multiplication with depth larger than 2 for the NULL scheme.
 		*
 		* @param ciphertext1 The first input ciphertext.

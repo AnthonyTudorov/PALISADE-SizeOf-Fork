@@ -466,20 +466,6 @@ namespace lbcrypto {
 			const Ciphertext<Element> ct, const LPEvalKey<Element> ek) const;
 
 		/**
-		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
-		* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
-		* Currently it assumes that the input arguments are fresh ciphertexts (of depth 1). Support for the input ciphertexts of higher depths will be added later.
-		*
-		* @param ct1 first input ciphertext.
-		* @param ct2 second input ciphertext.
-		* @param ek is the evaluation key to make the newCiphertext
-		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @return new ciphertext
-		*/
-		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
-			const Plaintext ct, const LPEvalKey<Element> ek) const;
-
-		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation. It computes the
 		* multiplication in a binary tree manner. Also, it reduces the number of elements in the ciphertext to two after each multiplication.
 		* Currently it assumes that the consecutive two input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.

@@ -569,20 +569,6 @@ public:
 	}
 
 	/**
-	* Function for evaluating multiplication on ciphertext, but with a key switch performed after the
-	* EvalMult using the Evaluation Key input.
-	* See the class description for citations on where the algorithms were taken from.
-	*
-	* @param ciphertext1 The first input ciphertext.
-	* @param ciphertext2 The second input ciphertext.
-	* @param evalKey The evaluation key input.
-	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
-	*/
-	Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-		const Plaintext ciphertext2,
-		const LPEvalKey<Element> evalKey) const;
-
-	/**
 	* Function for homomorphic negation of ciphertexts.
 	* At a high level, this operation substracts the plaintext value encrypted in the ciphertext from the
 	* plaintext modulus p.

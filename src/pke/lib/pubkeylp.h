@@ -1331,17 +1331,6 @@ namespace lbcrypto {
 			const Ciphertext<Element> ct2, const vector<LPEvalKey<Element>> &ek) const = 0;
 
 		/**
-		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.
-		*
-		* @param &ciphertext1 first input ciphertext.
-		* @param &ciphertext2 second input ciphertext.
-		* @param &ek is the evaluation key to make the newCiphertext decryptable by the same secret key as that of ciphertext1 and ciphertext2.
-		* @param *newCiphertext the new resulting ciphertext.
-		*/
-		virtual Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-			const Plaintext ciphertext2, const LPEvalKey<Element> ek) const = 0;
-
-		/**
 		* EvalLinRegression - Computes the parameter vector for linear regression using the least squares method
 		* @param x - matrix of regressors
 		* @param y - vector of dependent variables
@@ -1647,10 +1636,9 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> EvalInnerProduct(const Ciphertext<Element> ciphertext1,
 			const Plaintext ciphertext2, usint batchSize,
-			const std::map<usint, LPEvalKey<Element>> &evalSumKeys,
-			const LPEvalKey<Element> evalMultKey) const {
+			const std::map<usint, LPEvalKey<Element>> &evalSumKeys) const {
 
-			Ciphertext<Element> result = EvalMult(ciphertext1, ciphertext2, evalMultKey);
+			Ciphertext<Element> result = EvalMult(ciphertext1, ciphertext2);
 
 			result = EvalSum(result, batchSize, evalSumKeys);
 
@@ -2254,17 +2242,6 @@ namespace lbcrypto {
 			}
 		}
 
-		Ciphertext<Element> EvalMult(const Ciphertext<Element> ciphertext1,
-			const Plaintext plaintext,
-			const LPEvalKey<Element> evalKey) const {
-
-			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalMult(ciphertext1, plaintext, evalKey);
-			else {
-				throw std::logic_error("EvalMult operation has not been enabled");
-			}
-		}
-
 		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& ciphertext, const vector<LPEvalKey<Element>> &evalKeys) const {
 
 			if (this->m_algorithmSHE){
@@ -2361,11 +2338,10 @@ namespace lbcrypto {
 
 		Ciphertext<Element> EvalInnerProduct(const Ciphertext<Element> ciphertext1,
 			const Plaintext ciphertext2, usint batchSize,
-			const std::map<usint, LPEvalKey<Element>> &evalSumKeys,
-			const LPEvalKey<Element> evalMultKey) const {
+			const std::map<usint, LPEvalKey<Element>> &evalSumKeys) const {
 
 			if (this->m_algorithmSHE)
-				return this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys, evalMultKey);
+				return this->m_algorithmSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeys);
 			else
 				throw std::logic_error("EvalInnerProduct operation has not been enabled");
 
