@@ -73,7 +73,9 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     }
     Matrix<Element> result(allocZero, rows, other.cols);
     if (rows  == 1) {
-        //#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
         for (size_t col = 0; col < result.cols; ++col) {
 		for (size_t i = 0; i < cols; ++i) {
 		        *result.data[0][col] += *data[0][i] * *other.data[i][col];
@@ -82,7 +84,9 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     }
     else
     {
-	    //#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	    for (size_t row = 0; row < result.rows; ++row) {
 		for (size_t i = 0; i < cols; ++i) {
 		for (size_t col = 0; col < result.cols; ++col) {
@@ -99,7 +103,9 @@ Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Addition operands have incompatible dimensions");
     }
-    //#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
     for (size_t j = 0; j < cols; ++j) {
 	for (size_t i = 0; i < rows; ++i) {
             *data[i][j] += *other.data[i][j];
@@ -114,7 +120,9 @@ Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
         throw invalid_argument("Subtraction operands have incompatible dimensions");
     }
-    //#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
     for (size_t j = 0; j < cols; ++j) {
         for (size_t i = 0; i < rows; ++i) {
             *data[i][j] -= *other.data[i][j];
@@ -303,7 +311,9 @@ template<class Element>
 Matrix<Element> Matrix<Element>::MultByUnityVector() const {
 	Matrix<Element> result(allocZero, rows, 1);
 
+#ifdef OMP
 #pragma omp parallel for
+#endif
 	for (size_t row = 0; row < result.rows; ++row) {
 		for (size_t col= 0; col<cols; ++col){
 				*result.data[row][0] += *data[row][col];
@@ -322,7 +332,9 @@ template<class Element>
 Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) const {
 	Matrix<Element> result(allocZero, rows, 1);
 
+#ifdef OMP
 #pragma omp parallel for
+#endif
 	for (size_t row = 0; row < result.rows; ++row) {
 		for (size_t col= 0; col<cols; ++col){
 			if (ranvec[col] == 1)

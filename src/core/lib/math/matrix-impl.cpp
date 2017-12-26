@@ -275,7 +275,9 @@ namespace lbcrypto {
     if (rows == 1)
       {
 	for (size_t row = 0; row < rows; ++row) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	  for (size_t col = 0; col < cols; ++col) {
 	    data[row][col]->SwitchFormat();
 	  }
@@ -284,7 +286,9 @@ namespace lbcrypto {
     else
       {
 	for (size_t col = 0; col < cols; ++col) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	  for (size_t row = 0; row < rows; ++row) {
 	    data[row][col]->SwitchFormat();
 	  }
@@ -298,7 +302,9 @@ namespace lbcrypto {
 	if (rows == 1)
 	{
 		for (size_t row = 0; row < rows; ++row) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 			for (size_t col = 0; col < cols; ++col) {
 				data[row][col]->SwitchFormat();
 			}
@@ -307,7 +313,9 @@ namespace lbcrypto {
 	else
 	{
 		for (size_t col = 0; col < cols; ++col) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 			for (size_t row = 0; row < rows; ++row) {
 				data[row][col]->SwitchFormat();
 			}
@@ -321,7 +329,9 @@ template<>
     if (rows == 1)
       {
 	for (size_t row = 0; row < rows; ++row) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	  for (size_t col = 0; col < cols; ++col) {
 	    data[row][col]->SwitchFormat();
 	  }
@@ -330,7 +340,9 @@ template<>
     else
       {
 	for (size_t col = 0; col < cols; ++col) {
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	  for (size_t row = 0; row < rows; ++row) {
 	    data[row][col]->SwitchFormat();
 	  }
