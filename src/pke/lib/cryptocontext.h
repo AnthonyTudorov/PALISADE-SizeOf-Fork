@@ -487,10 +487,10 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
-		const LPPublicKey<Element> pk) {
+		const LPPublicKey<Element> pk, bool makeSparse=false, bool pre=false) {
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
-		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), pk, false);
+		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), pk, makeSparse, pre);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKey, currentDateTime() - start) );
 		}

@@ -70,8 +70,8 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 
 	kp1 = cc->KeyGen();
-	kp2 = cc->MultipartyKeyGen(kp1.publicKey);
-	kp3 = cc->MultipartyKeyGen(kp1.publicKey);
+	kp2 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
+	kp3 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
 
 	ASSERT_TRUE(kp1.good()) << "Key generation failed!";
 	ASSERT_TRUE(kp2.good()) << "Key generation failed!";

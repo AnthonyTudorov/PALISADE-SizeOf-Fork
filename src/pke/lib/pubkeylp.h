@@ -1178,11 +1178,12 @@ namespace lbcrypto {
 			* @param cc cryptocontext for the keys to be generated.
 			* @param pk1 private key used for decryption to be fused.
 			* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+			* @param pre set to true if proxy re-encryption is used in multi-party protocol
 			* @return key pair including the private and public key
 			*/
 			virtual LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 				const LPPublicKey<Element> pk1,
-				bool makeSparse=false) = 0;
+				bool makeSparse=false, bool pre=false) = 0;
 
 			/**
 			* Function to generate public and private keys for multiparty homomrophic encryption server key pair in coordination with secret keys of clients.
@@ -2095,9 +2096,9 @@ namespace lbcrypto {
 		// FIXME check key ID for multiparty
 		LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 				const LPPublicKey<Element> pk1,
-				bool makeSparse) {
+				bool makeSparse, bool PRE) {
 			if(this->m_algorithmMultiparty) {
-				auto k = this->m_algorithmMultiparty->MultipartyKeyGen(cc, pk1, makeSparse);
+				auto k = this->m_algorithmMultiparty->MultipartyKeyGen(cc, pk1, makeSparse, PRE);
 				k.publicKey->SetKeyTag( k.secretKey->GetKeyTag() );
 				return k;
 			} else {
