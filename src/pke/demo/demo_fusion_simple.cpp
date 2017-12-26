@@ -122,8 +122,8 @@ int main(int argc, char *argv[]) {
 	start = currentDateTime();
 
 	kp1 = cc->KeyGen();
-	kp2 = cc->MultipartyKeyGen(kp1.publicKey);
-	kp3 = cc->MultipartyKeyGen(kp1.publicKey);
+	kp2 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
+	kp3 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
 
 	finish = currentDateTime();
 	diff = finish - start;

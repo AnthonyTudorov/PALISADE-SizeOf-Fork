@@ -70,8 +70,8 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	////////////////////////////////////////////////////////////
 
 	kp1 = cc->KeyGen();
-	kp2 = cc->MultipartyKeyGen(kp1.publicKey);
-	kp3 = cc->MultipartyKeyGen(kp1.publicKey);
+	kp2 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
+	kp3 = cc->MultipartyKeyGen(kp1.publicKey,false,true);
 
 	ASSERT_TRUE(kp1.good()) << "Key generation failed!";
 	ASSERT_TRUE(kp2.good()) << "Key generation failed!";
@@ -109,6 +109,17 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
 	Plaintext plaintext2 = cc->MakeCoefPackedPlaintext(vectorOfInts2);
 	Plaintext plaintext3 = cc->MakeCoefPackedPlaintext(vectorOfInts3);
+
+	std::vector<int64_t> vectorOfIntsSum(vectorOfInts1.size());
+
+	int64_t half(cc->GetCryptoParameters()->GetPlaintextModulus()>>1);
+
+	for (size_t i=0; i<vectorOfInts1.size(); i++){
+		int64_t value = (vectorOfInts1[i] + vectorOfInts2[i]+ vectorOfInts3[i])%cc->GetCryptoParameters()->GetPlaintextModulus();
+		if (value > half)
+			value = value - cc->GetCryptoParameters()->GetPlaintextModulus();
+		vectorOfIntsSum[i] = value;
+	}
 
 	////////////////////////////////////////////////////////////
 	// Encryption
@@ -184,7 +195,8 @@ void UnitTestMultiparty(CryptoContext<Element> cc, bool publicVersion) {
 
 	plaintextMultipartyNew->SetLength(plaintext1->GetLength());
 
-	EXPECT_EQ(plaintextAddNew->GetCoefPackedValue(), plaintextMultipartyNew->GetCoefPackedValue()) << "Multiparty integer plaintext";
+	EXPECT_EQ(vectorOfIntsSum, plaintextMultipartyNew->GetCoefPackedValue()) << "Multiparty: Does not match plaintext addition.";
+	EXPECT_EQ(plaintextAddNew->GetCoefPackedValue(), plaintextMultipartyNew->GetCoefPackedValue()) << "Multiparty: Does not match the results of direction encryption.";
 }
 
 //TEST_F(UTMultiparty, LTV_Poly_Multiparty_pub) {

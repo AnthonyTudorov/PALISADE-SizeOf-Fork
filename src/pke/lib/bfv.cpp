@@ -1115,7 +1115,6 @@ LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoCon
 	//Generate the secret key
 	Element s(elementParams, Format::EVALUATION, true);
 
-	//Done in two steps not to use a random polynomial from a pre-computed pool
 	//Supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 
 	size_t numKeys = secretKeys.size();
@@ -1144,7 +1143,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoCon
 //makeSparse is not used by this scheme
 template <class Element>
 LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoContext<Element> cc,
-		const LPPublicKey<Element> pk1, bool makeSparse)
+		const LPPublicKey<Element> pk1, bool makeSparse, bool pre)
 {
 
 	LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc) );
@@ -1184,6 +1183,9 @@ LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoCon
 	Element b(elementParams, Format::EVALUATION, true);
 	b-=e;
 	b-=(a*s);
+	// When PRE is not used, a joint key is computed
+	if (!pre)
+		b+=pk1->GetPublicElements()[0];
 
 	kp.publicKey->SetPublicElementAtIndex(0, std::move(b));
 	kp.publicKey->SetPublicElementAtIndex(1, std::move(a));

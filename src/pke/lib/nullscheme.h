@@ -336,11 +336,13 @@ public:
 		* @param cc cryptocontext for the keys to be generated.
 		* @param pk1 private key used for decryption to be fused.
 		* @param makeSparse set to true if ring reduce by a factor of 2 is to be used.
+		* @param pre set to true if proxy re-encryption is used in multi-party protocol
 		* @return key pair including the private and public key
 		*/
 	LPKeyPair<Element> MultipartyKeyGen(CryptoContext<Element> cc,
 		const LPPublicKey<Element> pk1,
-		bool makeSparse=false) {
+		bool makeSparse=false,
+		bool pre=false) {
 		LPKeyPair<Element>	kp( new LPPublicKeyImpl<Element>(cc), new LPPrivateKeyImpl<Element>(cc) );
 
 		Element a(cc->GetCryptoParameters()->GetElementParams(), Format::COEFFICIENT, true);
