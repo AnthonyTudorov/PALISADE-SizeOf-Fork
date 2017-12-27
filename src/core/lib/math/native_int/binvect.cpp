@@ -375,11 +375,8 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType 
 template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const IntegerType &b) {
 
-	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
-
 	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
+		this->m_data[i].ModMulFastEq(b,this->m_modulus);
 	}
 
 	return *this;

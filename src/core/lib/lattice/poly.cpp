@@ -654,7 +654,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 		m_values = make_unique<VecType>(m_params->GetRingDimension(), m_params->GetModulus());
 		return *this;
 	}
-	SetValues( m_values->ModMul(*element.m_values), this->m_format );
+
+	m_values->ModMulEq(*element.m_values);
+
 	return *this;
 }
 

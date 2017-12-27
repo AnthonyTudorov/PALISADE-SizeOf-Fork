@@ -695,12 +695,13 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const NativeInteger& ModMulEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( this->m_value > modulus.m_value ) this->m_value %= modulus.m_value;
+		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
-		(this->m_value *= bv) %= modulus.m_value;
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
 
 		return *this;
 	}
@@ -717,6 +718,22 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulFastEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+
+		return *this;
 	}
 
 	/**
