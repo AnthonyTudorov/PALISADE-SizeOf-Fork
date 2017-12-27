@@ -503,7 +503,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator+=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
-		this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
+		this->m_vectors[i] += rhs.m_vectors[i];
 	}
 	return *this;
 

@@ -623,7 +623,9 @@ const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecTy
 		m_values = make_unique<VecType>(*element.m_values);
 		return *this;
 	}
-	SetValues( m_values->ModAdd(*element.m_values), this->m_format );
+
+	m_values->ModAddEq(*element.m_values);
+
 	return *this;
 }
 
