@@ -973,7 +973,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 			coefficients[ri] += (BigInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 		}
 		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
-		coefficients[ri] = coefficients[ri].ModBarrett(bigModulus,mu);
+		coefficients[ri].ModBarrettInPlace(bigModulus,mu);
 	}
 
 	DEBUG("passed loops");
