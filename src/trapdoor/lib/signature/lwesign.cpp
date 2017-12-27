@@ -44,7 +44,7 @@ namespace lbcrypto {
 	void LPSignatureSchemeGPVGM<Element>::KeyGen(LPSignKeyGPVGM<Element>* signKey,
 		LPVerificationKeyGPVGM<Element>* verificationKey) {
 		//Get parameters from keys
-		shared_ptr<ILParams> params = signKey->GetSignatureParameters().GetILParams();
+		shared_ptr<typename Element::Params> params = signKey->GetSignatureParameters().GetILParams();
 		auto stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		usint base = signKey->GetSignatureParameters().GetBase();
 		//Generate trapdoor based using parameters and 
@@ -162,7 +162,7 @@ namespace lbcrypto {
 		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
-		Matrix<Element> zHat = RLWETrapdoorUtility<Poly>::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
+		Matrix<Element> zHat = RLWETrapdoorUtility<Element>::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
 		signatureText->SetElement(zHat);
 
 	}
