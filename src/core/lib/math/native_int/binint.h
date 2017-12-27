@@ -501,7 +501,8 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		modsum %= modulus.m_value;
+		if (modsum > modulus.m_value)
+			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}
 
@@ -515,7 +516,8 @@ public:
 	const NativeInteger& ModAddEq(const NativeInteger& b, const NativeInteger& modulus) {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		modsum %= modulus.m_value;
+		if (modsum > modulus.m_value)
+			modsum %= modulus.m_value;
 		this->m_value = (uint_type)modsum;
 		return *this;
 	}

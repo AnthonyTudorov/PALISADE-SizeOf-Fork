@@ -512,12 +512,10 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const Big
         throw std::logic_error("ModMul called on BigVectorImpl's with different parameters.");
 	}
 
-	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
-
 	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
+		this->m_data[i].ModMulFastEq(b.m_data[i],this->m_modulus);
 	}
+
 	return *this;
 }
 
