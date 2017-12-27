@@ -101,14 +101,14 @@ BGV primitiveTransform(usint logn, const BI modulus, const BGV& input, const BGV
 	return result;
 }
 
-BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigVector& input, const BigVector& rootOfUnityTable){
+NativeVector precomputedTransform(usint logn, const NativeInteger& modulus, const NativeVector& input, const NativeVector& rootOfUnityTable){
 	usint n = (1 << logn);
-	BigInteger mu = ComputeMu<BigInteger>(modulus);
-	BigVector element(n, modulus);
+	NativeInteger mu = ComputeMu<NativeInteger>(modulus);
+	NativeVector element(n, modulus);
 	for (usint i = 0; i<n; i++)
 	  element.at(i)= input.at(i).ModBarrettMul(rootOfUnityTable.at(i), modulus, mu);
 
-	BigVector result(n);
+	NativeVector result(n);
 	result.SetModulus(modulus);
 
 	//reverse coefficients (bit reversal)
@@ -116,10 +116,10 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 	for (usint i = 0; i < n; i++)
 	  result.at(i)= element.at(ReverseBits(i, msb));
 
-	BigInteger omegaFactor;
-	BigInteger product;
-	BigInteger butterflyPlus;
-	BigInteger butterflyMinus;
+	NativeInteger omegaFactor;
+	NativeInteger product;
+	NativeInteger butterflyPlus;
+	NativeInteger butterflyMinus;
 
 	for (usint logm = 1; logm <= logn; logm++)
 	{
@@ -130,7 +130,7 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 
 				usint x = (i << (1+logn-logm));
 
-				const BigInteger& omega = rootOfUnityTable.at(x);
+				const NativeInteger& omega = rootOfUnityTable.at(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + (1 << (logm-1));
@@ -171,21 +171,21 @@ BigVector precomputedTransform(usint logn, const BigInteger& modulus, const BigV
 	return result;
 }
 
-BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector& input, const BigInteger& rootOfUnity){
-	BigVector rootOfUnityTable(n, modulus);
-	BigInteger mu = ComputeMu<BigInteger>(modulus);
-	BigInteger t(1);
+NativeVector baselineTransform(usint n, const NativeInteger& modulus, const NativeVector& input, const NativeInteger& rootOfUnity){
+	NativeVector rootOfUnityTable(n, modulus);
+	NativeInteger mu = ComputeMu<NativeInteger>(modulus);
+	NativeInteger t(1);
 
 	for (usint i = 0; i<n; i++) {
 		rootOfUnityTable.at(i)= t;
 		t = t.ModBarrettMul(rootOfUnity, modulus, mu);
 	}
 
-	BigVector element(n, modulus);
+	NativeVector element(n, modulus);
 	for (usint i = 0; i<n; i++)
 		element.at(i)= input.at(i).ModBarrettMul(rootOfUnityTable.at(i), modulus, mu);
 
-	BigVector result(n);
+	NativeVector result(n);
 	result.SetModulus(modulus);
 
 	//reverse coefficients (bit reversal)
@@ -193,10 +193,10 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 	for (usint i = 0; i < n; i++)
 		result.at(i)= element.at(ReverseBits(i, msb));
 
-	BigInteger omegaFactor;
-	BigInteger product;
-	BigInteger butterflyPlus;
-	BigInteger butterflyMinus;
+	NativeInteger omegaFactor;
+	NativeInteger product;
+	NativeInteger butterflyPlus;
+	NativeInteger butterflyMinus;
 
 	for (usint m = 2; m <= n; m = 2 * m)
 	{
@@ -207,7 +207,7 @@ BigVector baselineTransform(usint n, const BigInteger& modulus, const BigVector&
 
 				usint x = (2 * i*n / m);
 
-				const BigInteger& omega = rootOfUnityTable.at(x);
+				const NativeInteger& omega = rootOfUnityTable.at(x);
 
 				usint indexEven = j + i;
 				usint indexOdd = j + i + m / 2;
@@ -254,56 +254,56 @@ int main() {
 	usint m = 2048;
 	usint phim = 1024;
 	PlaintextModulus p = 1964033; // we choose s.t. 2m|p-1 to leverage CRTArb
-	BigInteger modulusP(p);
+	NativeInteger modulusP(p);
 	PackedEncoding::SetParams(m, p);
 
-	BigInteger modulusQ("9223372036589678593");
-	BigInteger rootOfUnity("5356268145311420142");
-	//BigInteger delta(modulusQ.DividedBy(modulusP));
+	NativeInteger modulusQ("9223372036589678593");
+	NativeInteger rootOfUnity("5356268145311420142");
+	//NativeInteger delta(modulusQ.DividedBy(modulusP));
 
 	uint64_t nRep;
 	double start, stop;
 
-	BigVector x(phim, modulusQ);
+	NativeVector x(phim, modulusQ);
 	for(usint i=0; i<phim; i++){
-		x.at(i)= BigInteger(i);
+		x.at(i)= NativeInteger(i);
 	}
 
-	BigVector rootOfUnityTable(phim, modulusQ);
-	BigInteger t(1);
+	NativeVector rootOfUnityTable(phim, modulusQ);
+	NativeInteger t(1);
 	for (usint i = 0; i<phim; i++) {
 		rootOfUnityTable.at(i)= t;
 		t = t.ModMul(rootOfUnity, modulusQ);
 	}
 
-	BigVector X(m/2), xx(m/2);
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::InverseTransform(X, rootOfUnity, m, &xx);
+	NativeVector X(m/2), xx(m/2);
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
 	//std::cout << X << std::endl;
 	//std::cout << xx << std::endl;
 
 	nRep = 2500;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::ForwardTransform(x, rootOfUnity, m, &X);
+		ChineseRemainderTransformFTT<NativeInteger,NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
 	stop = currentDateTime();
 	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
 
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
-		BigVector InputToFFT(x);
+		NativeVector InputToFFT(x);
 		usint ringDimensionFactor = rootOfUnityTable.GetLength() / (m / 2);
-		BigInteger mu = ComputeMu<BigInteger>(x.GetModulus());
+		NativeInteger mu = ComputeMu<NativeInteger>(x.GetModulus());
 
 		for (usint i = 0; i<m / 2; i++)
 			InputToFFT.at(i)= x.at(i).ModBarrettMul(rootOfUnityTable.at(i*ringDimensionFactor), x.GetModulus(), mu);
-		NumberTheoreticTransform<BigInteger,BigVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
+		NumberTheoreticTransform<NativeInteger,NativeVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
 	}
 	stop = currentDateTime();
 	std::cout << " Forward Iterative (with local cache) Transform: " << (stop-start)/nRep << std::endl;
 
-	BigVector output;
+	NativeVector output;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		output = baselineTransform(phim, modulusQ, x, rootOfUnity);
@@ -313,7 +313,7 @@ int main() {
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
 
-	BigVector result(1<<10);
+	NativeVector result(1<<10);
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		output = precomputedTransform(10, modulusQ, x, rootOfUnityTable);
