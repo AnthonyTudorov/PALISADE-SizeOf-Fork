@@ -700,7 +700,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot multiply");
 	}
-	DCRTPolyType tmp(*this);
+	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
