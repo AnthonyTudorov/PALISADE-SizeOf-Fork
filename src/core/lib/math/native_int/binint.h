@@ -140,7 +140,7 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed v
  * @tparam BITLENGTH maximum bitdwidth supported for big integers
  */
 template<typename uint_type>
-class NativeInteger : public lbcrypto::BigIntegerInterface<NativeInteger<uint_type>>
+class NativeInteger //: public lbcrypto::BigIntegerInterface<NativeInteger<uint_type>>
 {
 
 public:
@@ -1196,6 +1196,31 @@ private:
 
 	// Duint_type has double the bits in the integral data type.
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
+
+public:
+	friend NativeInteger operator-(const NativeInteger& a, const NativeInteger& b) { return a.Minus(b); }
+	const NativeInteger& operator-=(const NativeInteger& b) { return this->MinusEq(b); }
+	friend NativeInteger operator+(const NativeInteger& a, const NativeInteger& b) { return a.Plus(b); }
+	const NativeInteger& operator+=(const NativeInteger& b) { return this->PlusEq(b); }
+	friend NativeInteger operator*(const NativeInteger& a, const NativeInteger& b) { return a.Times(b); }
+	const NativeInteger& operator*=(const NativeInteger& b) { return this->TimesEq(b); }
+	friend NativeInteger operator/(const NativeInteger& a, const NativeInteger& b) { return a.DividedBy(b); }
+	const NativeInteger& operator/=(const NativeInteger& b) { return this->DividedByEq(b); }
+	friend NativeInteger operator%(const NativeInteger& a, const NativeInteger& b) { return a.Mod(b); }
+	const NativeInteger& operator%=(const NativeInteger& b) { return this->ModEq(b); }
+	friend NativeInteger operator<<(const NativeInteger& a, usshort shift) { return a.LShift(shift); }
+	const NativeInteger& operator<<=(usshort shift) { return this->LShiftEq(shift); }
+	friend NativeInteger operator>>(const NativeInteger& a, usshort shift) { return a.RShift(shift); }
+	const NativeInteger& operator>>=(usshort shift) { return this->RShiftEq(shift); }
+
+    bool operator==(const NativeInteger& b) const {return this->Compare(b) == 0;}
+    bool operator!=(const NativeInteger& b) const {return this->Compare(b) != 0;}
+
+	bool operator> (const NativeInteger& b) const {return this->Compare(b) >  0;}
+	bool operator>=(const NativeInteger& b) const {return this->Compare(b) >= 0;}
+	bool operator< (const NativeInteger& b) const {return this->Compare(b) <  0;}
+	bool operator<=(const NativeInteger& b) const {return this->Compare(b) <= 0;}
+
 };
 
 }//namespace ends
