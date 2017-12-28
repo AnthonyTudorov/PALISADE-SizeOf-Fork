@@ -571,7 +571,7 @@ bool NativeVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
 	}
 
-	serObj->AddMember("NativeVector", bbvMap, serObj->GetAllocator());
+	serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
 
 	return true;
 }
@@ -580,7 +580,7 @@ bool NativeVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 template<class IntegerType>
 bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 
-	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("NativeVector");
+	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
 	if( mIter == serObj.MemberEnd() )
 		return false;
 
