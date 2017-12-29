@@ -40,12 +40,14 @@ struct SecureParams {
 	std::string rootOfUnity;	///< The rootOfUnity
 };
 
-void MultiThreadedRun(int index);
+void MultiThreadedRun(int index, usint base);
 
 int main() {
 
-	for (usint i = 1; i < 3; i++) {
-		MultiThreadedRun(i);
+	for (usint i = 0; i < 1; i++) {
+		for (usint j = 2; j < 1024; j = 2*j) {
+			MultiThreadedRun(i, j);
+		}
 	}
 
 	DiscreteFourierTransform::Reset();
@@ -53,7 +55,7 @@ int main() {
 	return 0;
 }
 
-void MultiThreadedRun(int index) {
+void MultiThreadedRun(int index, usint base) {
 
 	int nthreads, tid;
 
@@ -83,35 +85,36 @@ void MultiThreadedRun(int index) {
 
 	size_t counter = 20;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> dgg(SIGMA);
 
 	usint sm = SECURE_PARAMS[index].m;
-	BigInteger smodulus(SECURE_PARAMS[index].modulus);
-	BigInteger srootOfUnity(SECURE_PARAMS[index].rootOfUnity);
+	NativeInteger smodulus(SECURE_PARAMS[index].modulus);
+	NativeInteger srootOfUnity(SECURE_PARAMS[index].rootOfUnity);
 
-	ILParams ilParams(sm, smodulus, srootOfUnity);
-	shared_ptr<ILParams> silParams = std::make_shared<ILParams>(ilParams);
+	ILNativeParams ilParams(sm, smodulus, srootOfUnity);
+	shared_ptr<ILNativeParams> silParams = std::make_shared<ILNativeParams>(ilParams);
 
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
+	std::cout << "base: " << base << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-	silParams = std::make_shared<ILParams>(ilParams);
-	LPSignatureParameters<Poly> signParams(silParams, dgg);
+	silParams = std::make_shared<ILNativeParams>(ilParams);
+	LPSignatureParameters<NativePoly> signParams(silParams, dgg, base);
 	//signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;
 
 	//std::cout << "std = " << signParams.GetDiscreteGaussianGenerator().GetStd() << std::endl;
 
-	LPSignKeyGPVGM<Poly> s_k_gm(signParams);
-	LPVerificationKeyGPVGM<Poly> v_k_gm(signParams);
-	LPSignatureSchemeGPVGM<Poly> scheme_gm;
+	LPSignKeyGPVGM<NativePoly> s_k_gm(signParams);
+	LPVerificationKeyGPVGM<NativePoly> v_k_gm(signParams);
+	LPSignatureSchemeGPVGM<NativePoly> scheme_gm;
 
-	vector<Signature<Matrix<Poly>>> signature(counter);
+	vector<Signature<Matrix<NativePoly>>> signature(counter);
 
 	scheme_gm.KeyGen(&s_k_gm, &v_k_gm);
 
@@ -145,15 +148,33 @@ void MultiThreadedRun(int index) {
 		"10 Let's spice things up",
 	};
 
-	Signature<Matrix<Poly>> precompSignature;
+	Signature<Matrix<NativePoly>> precompSignature;
 
 	scheme_gm.Sign(s_k_gm, text[5], &precompSignature);
+
+	//offline perturbation sampling
+
+	std::vector<shared_ptr<Matrix<NativePoly>>> perturbationVectors;
 
 	start = currentDateTime();
 
 	for (usint i = 0; i < counter; i++) {
 
-		scheme_gm.Sign(s_k_gm, text[i % 10], &(signature[i]));
+		perturbationVectors.push_back(scheme_gm.SampleOffline(s_k_gm));
+
+	}
+
+	finish = currentDateTime();
+
+	std::cout << "Offline Perturbation Sampling : " << "\t" << (finish - start) / counter << " ms" << std::endl;
+
+	//online signing
+
+	start = currentDateTime();
+
+	for (usint i = 0; i < counter; i++) {
+
+		scheme_gm.SignOnline(s_k_gm, perturbationVectors[i], text[i % 10], &(signature[i]));
 
 	}
 		
@@ -161,7 +182,7 @@ void MultiThreadedRun(int index) {
 
 	signTime = finish - start;
 
-	std::cout << "Signing - New : " << "\t" << signTime / counter << " ms" << std::endl;
+	std::cout << "Online Signing : " << "\t" << signTime / counter << " ms" << std::endl;
 
 	start = currentDateTime();
 
@@ -179,7 +200,7 @@ void MultiThreadedRun(int index) {
 	verifyTime = finish - start;
 
 
-	std::cout << "Verifying - New : " << "\t" << verifyTime / counter << " ms" << std::endl;
+	std::cout << "Verification time : " << "\t" << verifyTime / counter << " ms" << std::endl;
 	std::cout << "Verification counter : " << "\t" << verifyCounter << "\n" << std::endl;
 
 	std::cout << "Execution completed" << std::endl;

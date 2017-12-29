@@ -37,9 +37,9 @@ namespace lbcrypto {
 	template class RLWETrapdoorUtility<Poly>;
 	template class Matrix<Poly>;
 
-//	template class LatticeGaussSampUtility<NativePoly>;
-//	template class RLWETrapdoorPair<NativePoly>;
-//	template class RLWETrapdoorUtility<NativePoly>;
-//	template class Matrix<NativePoly>;
+	template class LatticeGaussSampUtility<NativePoly>;
+	template class RLWETrapdoorPair<NativePoly>;
+	template class RLWETrapdoorUtility<NativePoly>;
+	template class Matrix<NativePoly>;
 
 }

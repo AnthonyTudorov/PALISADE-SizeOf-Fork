@@ -144,7 +144,7 @@ namespace lbcrypto {
   }
 
   NORM_FOR_TYPE(Poly)
- //TODO: note there is no NORM_FOR_TYPE(NativePoly)
+  NORM_FOR_TYPE(NativePoly)
   NORM_FOR_TYPE(DCRTPoly)
 
   //template Matrix<T>::Norm() for types that have NO norm
@@ -178,6 +178,7 @@ namespace lbcrypto {
   }
 
   SPLIT64_FOR_TYPE(Poly)
+  SPLIT64_FOR_TYPE(NativePoly)
   SPLIT64_FOR_TYPE(DCRTPoly)
 
   //  split a vector of BigInteger into a vector of ring elements with ring dimension n
@@ -197,10 +198,20 @@ namespace lbcrypto {
 }
 
   SPLIT32ALT_FOR_TYPE(Poly)
+  SPLIT32ALT_FOR_TYPE(NativePoly)
   SPLIT32ALT_FOR_TYPE(DCRTPoly)
 
   template<>
   void Matrix<Poly>::SetFormat(Format format) {
+    for (size_t row = 0; row < rows; ++row) {
+      for (size_t col = 0; col < cols; ++col) {
+	data[row][col]->SetFormat(format);
+      }
+    }
+  }
+
+  template<>
+  void Matrix<NativePoly>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
       for (size_t col = 0; col < cols; ++col) {
 	data[row][col]->SetFormat(format);
