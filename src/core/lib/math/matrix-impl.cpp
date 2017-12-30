@@ -219,6 +219,7 @@ namespace lbcrypto {
 }
 
   SPLIT64ALT_FOR_TYPE(Poly)
+  SPLIT64ALT_FOR_TYPE(NativePoly)
   SPLIT64ALT_FOR_TYPE(DCRTPoly)
 
   template<>
