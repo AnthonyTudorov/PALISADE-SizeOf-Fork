@@ -277,7 +277,7 @@ namespace exp_int{
   // Definition starts here
   //////////////////////////////////////////////////////////////////////////////////////////////////
   template<typename limb_t>
-  class ubint
+  class ubint : public lbcrypto::BigIntegerInterface<ubint<limb_t>>
   {
       
   public:
