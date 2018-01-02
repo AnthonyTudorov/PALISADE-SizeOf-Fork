@@ -140,7 +140,7 @@ const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed v
  * @tparam BITLENGTH maximum bitdwidth supported for big integers
  */
 template<typename uint_type>
-class NativeInteger //: public lbcrypto::BigIntegerInterface<NativeInteger<uint_type>>
+class NativeInteger : public lbcrypto::BigIntegerInterface<NativeInteger<uint_type>>
 {
 
 public:
@@ -1198,6 +1198,7 @@ private:
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
 
 public:
+	/*
 	friend NativeInteger operator-(const NativeInteger& a, const NativeInteger& b) { return a.Minus(b); }
 	const NativeInteger& operator-=(const NativeInteger& b) { return this->MinusEq(b); }
 	friend NativeInteger operator+(const NativeInteger& a, const NativeInteger& b) { return a.Plus(b); }
@@ -1220,6 +1221,7 @@ public:
 	bool operator>=(const NativeInteger& b) const {return this->Compare(b) >= 0;}
 	bool operator< (const NativeInteger& b) const {return this->Compare(b) <  0;}
 	bool operator<=(const NativeInteger& b) const {return this->Compare(b) <= 0;}
+	*/
 
 };
 
