@@ -36,8 +36,6 @@ namespace lbcrypto {
 	class BigIntegerInterface
 	{
 	public:
-		virtual ~BigIntegerInterface() {}
-
 		// CONSTRUCTORS
 
 		// Constructors must be implemented in the derived classes
@@ -53,7 +51,7 @@ namespace lbcrypto {
 		 *
 		 * @param str is the string representation of the value
 		 */
-		virtual void SetValue(const std::string& str) = 0;
+		void SetValue(const std::string& str);
 
 		//// ADDITION
 
@@ -63,7 +61,7 @@ namespace lbcrypto {
 		 * @param b is the value to add.
 		 * @return result of the addition
 		 */
-		virtual T Plus(const T& b) const = 0;
+		T Plus(const T& b) const;
 
 		/**
 		 * += operation.
@@ -71,7 +69,7 @@ namespace lbcrypto {
 		 * @param b is the value to add.
 		 * @return reference the result of the addition
 		 */
-		virtual const T& PlusEq(const T& b) = 0;
+		const T& PlusEq(const T& b);
 
 		/**
 		 * Scalar modulus addition.
@@ -80,7 +78,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus addition operation.
 		 */
-		virtual T ModAdd(const T& b, const T& modulus) const = 0;
+		T ModAdd(const T& b, const T& modulus) const;
 
 		/**
 		 * Scalar modulus= addition.
@@ -89,10 +87,10 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus addition operation.
 		 */
-		virtual const T& ModAddEq(const T& b, const T& modulus) = 0;
+		const T& ModAddEq(const T& b, const T& modulus);
 
-		friend T operator+(const T& a, const T& b) { return a.Plus(b); }
-		const T& operator+=(const T& b) { return this->PlusEq(b); }
+		inline friend T operator+(const T& a, const T& b) { return a.Plus(b); }
+		inline friend const T& operator+=(T& a, const T& b) { return a.PlusEq(b); }
 
 		//// SUBTRACTION
 
@@ -102,7 +100,7 @@ namespace lbcrypto {
 		 * @param b is the value to subtract.
 		 * @return is the result of the subtraction operation.
 		 */
-		virtual T Minus(const T& b) const = 0;
+		T Minus(const T& b) const;
 
 		/**
 		 * -= operation.
@@ -110,7 +108,7 @@ namespace lbcrypto {
 		 * @param b is the value to subtract.
 		 * @return is the result of the subtraction operation.
 		 */
-		virtual const T& MinusEq(const T& b) = 0;
+		const T& MinusEq(const T& b);
 
 		/**
 		 * Scalar modulus subtraction.
@@ -119,7 +117,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus subtraction operation.
 		 */
-		virtual T ModSub(const T& b, const T& modulus) const = 0;
+		T ModSub(const T& b, const T& modulus) const;
 
 		/**
 		 * Scalar modulus= subtraction.
@@ -128,10 +126,10 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus subtraction operation.
 		 */
-		virtual const T& ModSubEq(const T& b, const T& modulus) = 0;
+		const T& ModSubEq(const T& b, const T& modulus);
 
-		friend T operator-(const T& a, const T& b) { return a.Minus(b); }
-		const T& operator-=(const T& b) { return this->MinusEq(b); }
+		inline friend T operator-(const T& a, const T& b) { return a.Minus(b); }
+		inline friend const T& operator-=(T& a, const T& b) { return a.MinusEq(b); }
 
 		//// MULTIPLICATION
 
@@ -141,7 +139,7 @@ namespace lbcrypto {
 		 * @param b is the value to multiply with.
 		 * @return is the result of the multiplication operation.
 		 */
-		virtual T Times(const T& b) const = 0;
+		T Times(const T& b) const;
 
 		/**
 		 * *= operation.
@@ -149,7 +147,7 @@ namespace lbcrypto {
 		 * @param b is the value to multiply with.
 		 * @return is the result of the multiplication operation.
 		 */
-		virtual const T& TimesEq(const T& b) = 0;
+		const T& TimesEq(const T& b);
 
 		/**
 		 * Scalar modulus multiplication.
@@ -158,7 +156,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual T ModMul(const T& b, const T& modulus) const = 0;
+		T ModMul(const T& b, const T& modulus) const;
 
 		/**
 		 * Scalar modulus multiplication.
@@ -167,10 +165,10 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual const T& ModMulEq(const T& b, const T& modulus) = 0;
+		const T& ModMulEq(const T& b, const T& modulus);
 
-		friend T operator*(const T& a, const T& b) { return a.Times(b); }
-		const T& operator*=(const T& b) { return this->TimesEq(b); }
+		inline friend T operator*(const T& a, const T& b) { return a.Times(b); }
+		inline friend const T& operator*=(T& a, const T& b) { return a.TimesEq(b); }
 
 		//// DIVISION
 
@@ -180,7 +178,7 @@ namespace lbcrypto {
 		 * @param b is the value to divide by.
 		 * @return is the result of the division operation.
 		 */
-		virtual T DividedBy(const T& b) const = 0;
+		T DividedBy(const T& b) const;
 
 		/**
 		 * /= operation.
@@ -188,10 +186,10 @@ namespace lbcrypto {
 		 * @param b is the value to divide by.
 		 * @return is the result of the division operation.
 		 */
-		virtual const T& DividedByEq(const T& b) = 0;
+		const T& DividedByEq(const T& b);
 
-		friend T operator/(const T& a, const T& b) { return a.DividedBy(b); }
-		const T& operator/=(const T& b) { return this->DividedByEq(b); }
+		inline friend T operator/(const T& a, const T& b) { return a.DividedBy(b); }
+		inline friend const T& operator/=(T& a, const T& b) { return a.DividedByEq(b); }
 
 		//// MODULUS
 
@@ -201,7 +199,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual T Mod(const T& modulus) const = 0;
+		T Mod(const T& modulus) const;
 
 		/**
 		 * %= operation
@@ -209,10 +207,10 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual const T& ModEq(const T& modulus) = 0;
+		const T& ModEq(const T& modulus);
 
-		friend T operator%(const T& a, const T& b) { return a.Mod(b); }
-		const T& operator%=(const T& b) { return this->ModEq(b); }
+		inline friend T operator%(const T& a, const T& b) { return a.Mod(b); }
+		inline friend const T& operator%=(T& a, const T& b) { return a.ModEq(b); }
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -221,7 +219,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform operations with.
 		 * @return is the result of the modulus exponentiation operation.
 		 */
-		virtual T ModExp(const T& b, const T& modulus) const = 0;
+		T ModExp(const T& b, const T& modulus) const;
 			// FIXME there is no ModExpEq -- is it needed?
 
 		/**
@@ -230,7 +228,7 @@ namespace lbcrypto {
 		 * @param modulus is the modulus to perform.
 		 * @return is the result of the modulus inverse operation.
 		 */
-		virtual T ModInverse(const T& modulus) const = 0;
+		T ModInverse(const T& modulus) const;
 			// FIXME there is no ModInverseEq -- is it needed?
 
 		/**
@@ -240,7 +238,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus operation.
 		 */
-		virtual T ModBarrett(const T& modulus, const T& mu) const = 0;
+		T ModBarrett(const T& modulus, const T& mu) const;
 			// FIXME there is no ModBarrettEq -- is it needed?
 
 		/**
@@ -251,7 +249,7 @@ namespace lbcrypto {
 		 * @param mu is the Barrett value.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual T ModBarrettMul(const T& b, const T& modulus,const T& mu) const = 0;
+		T ModBarrettMul(const T& b, const T& modulus,const T& mu) const;
 			// FIXME there is no ModBarrettMulEq -- is it needed?
 
 		////bit shifting operators
@@ -262,7 +260,7 @@ namespace lbcrypto {
 		 * @param shift # of bits
 		 * @return result of the shift operation.
 		 */
-		virtual T LShift(usshort shift) const = 0;
+		T LShift(usshort shift) const;
 
 		/**
 		 * <<= operation
@@ -270,10 +268,10 @@ namespace lbcrypto {
 		 * @param shift # of bits
 		 * @return result of the shift operation.
 		 */
-		virtual const T& LShiftEq(usshort shift) = 0;
+		const T& LShiftEq(usshort shift);
 
-		friend T operator<<(const T& a, usshort shift) { return a.LShift(shift); }
-		const T& operator<<=(usshort shift) { return this->LShiftEq(shift); }
+		inline friend T operator<<(const T& a, usshort shift) { return a.LShift(shift); }
+		inline friend const T& operator<<=(T& a, usshort shift) { return a.LShiftEq(shift); }
 
 		/**
 		 * >> operation
@@ -281,7 +279,7 @@ namespace lbcrypto {
 		 * @param shift # of bits
 		 * @return result of the shift operation.
 		 */
-		virtual T RShift(usshort shift) const = 0;
+		T RShift(usshort shift) const;
 
 		/**
 		 * >>= operation
@@ -289,10 +287,10 @@ namespace lbcrypto {
 		 * @param shift # of bits
 		 * @return result of the shift operation.
 		 */
-		virtual const T& RShiftEq(usshort shift) = 0;
+		const T& RShiftEq(usshort shift);
 
-		friend T operator>>(const T& a, usshort shift) { return a.RShift(shift); }
-		const T& operator>>=(usshort shift) { return this->RShiftEq(shift); }
+		inline friend T operator>>(const T& a, usshort shift) { return a.RShift(shift); }
+		inline friend const T& operator>>=(T& a, usshort shift) { return a.RShiftEq(shift); }
 
 		// The derived classes MAY implement std::ostream& operator<< but are not required to
 
@@ -301,14 +299,14 @@ namespace lbcrypto {
 		 *
 		 * @return the value of this T as a string.
 		 */
-		virtual const std::string ToString() const = 0;
+		const std::string ToString() const;
 
 		/**
 		 * Returns the MSB location of the value.
 		 *
 		 * @return the index of the most significant bit.	  
 		 */
-		virtual usint GetMSB() const = 0;
+		usint GetMSB() const;
 
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
@@ -316,7 +314,7 @@ namespace lbcrypto {
 		 * @param base is the base with which to determine length in.
 		 * @return the length of the representation in a specific base.	  
 		 */
-		virtual usint GetLengthForBase(usint base) const = 0;
+		usint GetLengthForBase(usint base) const;
 
 		/**
 		 * Get the number of digits using a specific base - support for arbitrary base may be needed.
@@ -325,31 +323,31 @@ namespace lbcrypto {
 		 * @param base is the base with which to determine length in.
 		 * @return the length of the representation in a specific base.	  
 		 */
-		virtual usint GetDigitAtIndexForBase(usint index, usint base) const = 0;
+		usint GetDigitAtIndexForBase(usint index, usint base) const;
 
 		/**
 		 * Convert the value to an int.
 		 *
 		 * @return the int representation of the value.	  
 		 */
-		virtual uint64_t ConvertToInt() const = 0;
+		uint64_t ConvertToInt() const;
 
 		/**
-	    * Compares the current BigInteger to BigInteger a.
-	    *
-	    * @param a is the BigInteger to be compared with.
-	    * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
-	    */
-	    virtual int Compare(const T& a) const = 0;
+		 * Compares the current BigInteger to BigInteger a.
+		 *
+		 * @param a is the BigInteger to be compared with.
+		 * @return  -1 for strictly less than, 0 for equal to and 1 for strictly greater than conditons.
+		 */
+		int Compare(const T& a) const;
 
 		//// relational operators, using Compare
-	    bool operator==(const T& b) const {return this->Compare(b) == 0;}
-	    bool operator!=(const T& b) const {return this->Compare(b) != 0;}
+		inline friend bool operator==(const T& a, const T& b) {return a.Compare(b) == 0;}
+		inline friend bool operator!=(const T& a, const T& b) {return a.Compare(b) != 0;}
 
-		bool operator> (const T& b) const {return this->Compare(b) >  0;}
-		bool operator>=(const T& b) const {return this->Compare(b) >= 0;}
-		bool operator< (const T& b) const {return this->Compare(b) <  0;}
-		bool operator<=(const T& b) const {return this->Compare(b) <= 0;}
+		inline friend bool operator> (const T& a, const T& b) {return a.Compare(b) >  0;}
+		inline friend bool operator>=(const T& a, const T& b) {return a.Compare(b) >= 0;}
+		inline friend bool operator< (const T& a, const T& b) {return a.Compare(b) <  0;}
+		inline friend bool operator<=(const T& a, const T& b) {return a.Compare(b) <= 0;}
 	}; 
 
 	template<typename T, typename I>
