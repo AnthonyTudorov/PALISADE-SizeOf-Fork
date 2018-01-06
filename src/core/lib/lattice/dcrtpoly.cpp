@@ -503,7 +503,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator+=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
-		this->m_vectors.at(i) += rhs.GetElementAtIndex(i);
+		this->m_vectors[i] += rhs.m_vectors[i];
 	}
 	return *this;
 
@@ -704,8 +704,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
-		tmp.m_vectors[i].SetValues(((m_vectors[i].GetValues()).ModMul(element.m_vectors[i].GetValues())), m_format);
-
+		tmp.m_vectors[i] *= element.m_vectors[i];
 	}
 	return std::move(tmp);
 }
@@ -974,7 +973,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 			coefficients[ri] += (BigInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 		}
 		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
-		coefficients[ri] = coefficients[ri].ModBarrett(bigModulus,mu);
+		coefficients[ri].ModBarrettInPlace(bigModulus,mu);
 	}
 
 	DEBUG("passed loops");
