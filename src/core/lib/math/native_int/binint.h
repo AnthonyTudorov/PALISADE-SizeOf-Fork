@@ -501,7 +501,8 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		modsum %= modulus.m_value;
+		if (modsum > modulus.m_value)
+			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}
 
@@ -515,7 +516,8 @@ public:
 	const NativeInteger& ModAddEq(const NativeInteger& b, const NativeInteger& modulus) {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		modsum %= modulus.m_value;
+		if (modsum > modulus.m_value)
+			modsum %= modulus.m_value;
 		this->m_value = (uint_type)modsum;
 		return *this;
 	}
@@ -695,12 +697,13 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const NativeInteger& ModMulEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( this->m_value > modulus.m_value ) this->m_value %= modulus.m_value;
+		if( av > modulus.m_value ) av = av%modulus.m_value;
 		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
 
-		(this->m_value *= bv) %= modulus.m_value;
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
 
 		return *this;
 	}
@@ -717,6 +720,22 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulFastEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+
+		return *this;
 	}
 
 	/**
@@ -1179,6 +1198,33 @@ private:
 
 	// Duint_type has double the bits in the integral data type.
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
+
+public:
+	/*
+	friend NativeInteger operator-(const NativeInteger& a, const NativeInteger& b) { return a.Minus(b); }
+	const NativeInteger& operator-=(const NativeInteger& b) { return this->MinusEq(b); }
+	friend NativeInteger operator+(const NativeInteger& a, const NativeInteger& b) { return a.Plus(b); }
+	const NativeInteger& operator+=(const NativeInteger& b) { return this->PlusEq(b); }
+	friend NativeInteger operator*(const NativeInteger& a, const NativeInteger& b) { return a.Times(b); }
+	const NativeInteger& operator*=(const NativeInteger& b) { return this->TimesEq(b); }
+	friend NativeInteger operator/(const NativeInteger& a, const NativeInteger& b) { return a.DividedBy(b); }
+	const NativeInteger& operator/=(const NativeInteger& b) { return this->DividedByEq(b); }
+	friend NativeInteger operator%(const NativeInteger& a, const NativeInteger& b) { return a.Mod(b); }
+	const NativeInteger& operator%=(const NativeInteger& b) { return this->ModEq(b); }
+	friend NativeInteger operator<<(const NativeInteger& a, usshort shift) { return a.LShift(shift); }
+	const NativeInteger& operator<<=(usshort shift) { return this->LShiftEq(shift); }
+	friend NativeInteger operator>>(const NativeInteger& a, usshort shift) { return a.RShift(shift); }
+	const NativeInteger& operator>>=(usshort shift) { return this->RShiftEq(shift); }
+
+    bool operator==(const NativeInteger& b) const {return this->Compare(b) == 0;}
+    bool operator!=(const NativeInteger& b) const {return this->Compare(b) != 0;}
+
+	bool operator> (const NativeInteger& b) const {return this->Compare(b) >  0;}
+	bool operator>=(const NativeInteger& b) const {return this->Compare(b) >= 0;}
+	bool operator< (const NativeInteger& b) const {return this->Compare(b) <  0;}
+	bool operator<=(const NativeInteger& b) const {return this->Compare(b) <= 0;}
+	*/
+
 };
 
 }//namespace ends

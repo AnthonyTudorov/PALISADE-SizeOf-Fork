@@ -39,28 +39,28 @@ namespace native_int {
 
 //CTORS
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(){
+NativeVector<IntegerType>::NativeVector(){
 	this->m_length = 0;
 	//this->m_modulus;
 	m_data = NULL;
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length){
+NativeVector<IntegerType>::NativeVector(usint length){
 	this->m_length = length;
 	//this->m_modulus;
 	this->m_data = new IntegerType[m_length] ();
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modulus){
+NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus){
 	this->m_length = length;
 	this->m_modulus = modulus;
 	this->m_data = new IntegerType[m_length] ();
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
+NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
 	this->m_length = length;
 	this->m_modulus = modulus;
 	this->m_data = new IntegerType[m_length] ();
@@ -76,7 +76,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<std::string> rhs){
+NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus, std::initializer_list<std::string> rhs){
 	this->m_length = length;
 	this->m_modulus = modulus;
 	this->m_data = new IntegerType[m_length] ();
@@ -91,7 +91,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(const BigVectorImpl &bigVector){
+NativeVector<IntegerType>::NativeVector(const NativeVector &bigVector){
 
 	m_length = bigVector.m_length;
 	m_modulus = bigVector.m_modulus;
@@ -103,7 +103,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(const BigVectorImpl &bigVector){
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(BigVectorImpl &&bigVector){
+NativeVector<IntegerType>::NativeVector(NativeVector &&bigVector){
 	m_data = bigVector.m_data;
 	m_length = bigVector.m_length;
 	m_modulus = bigVector.m_modulus;
@@ -112,7 +112,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(BigVectorImpl &&bigVector){
 
 //ASSIGNMENT OPERATOR
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const BigVectorImpl &rhs){
+const NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(const NativeVector &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
 			for (usint i = 0; i < m_length; i++){
@@ -136,7 +136,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const Bi
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<uint64_t> rhs){
+const NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(std::initializer_list<uint64_t> rhs){
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
 		if(i<len) {
@@ -153,7 +153,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<std::string> rhs){
+const NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(std::initializer_list<std::string> rhs){
         bool dbg_flag = false;
 	usint len = rhs.size();
 	for(usint i=0;i<m_length;i++){ // this loops over each tower
@@ -172,7 +172,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl &&rhs){
+NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(NativeVector &&rhs){
 
 	if(this!=&rhs){
 
@@ -188,14 +188,14 @@ BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl 
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::~BigVectorImpl(){
+NativeVector<IntegerType>::~NativeVector(){
 	delete [] m_data;
 }
 
 //ACCESSORS
 
 template<class IntegerType>
-void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
+void NativeVector<IntegerType>::SetModulus(const IntegerType& value){
 	this->m_modulus = value;
 }
 
@@ -209,7 +209,7 @@ void BigVectorImpl<IntegerType>::SetModulus(const IntegerType& value){
 *  i' = i-delta
 */
 template<class IntegerType>
-void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
+void NativeVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
     bool dbg_flag = false;
     DEBUG("Switch modulus old mod :"<<this->m_modulus);
     DEBUG("Switch modulus old this :"<<*this);
@@ -248,7 +248,7 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 }
 
 template<class IntegerType>
-const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
+const IntegerType& NativeVector<IntegerType>::GetModulus() const{
 
 	return this->m_modulus;
 
@@ -256,18 +256,18 @@ const IntegerType& BigVectorImpl<IntegerType>::GetModulus() const{
 
 
 template<class IntegerType>
-usint BigVectorImpl<IntegerType>::GetLength() const{
+usint NativeVector<IntegerType>::GetLength() const{
 	return this->m_length;
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& modulus) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::Mod(const IntegerType& modulus) const{
 
 	if (modulus==2)
 		return this->ModByTwo();
 	else 
 	{
-		BigVectorImpl ans(this->GetLength(),this->GetModulus());
+		NativeVector ans(this->GetLength(),this->GetModulus());
 		IntegerType halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<ans.GetLength(); i++) {
 			if (this->at(i)>halfQ) {
@@ -283,20 +283,20 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& mo
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModAddAtIndex(usint i, const IntegerType &b) const{
 	if(i > this->GetLength()-1) {
 		std::string errMsg = "binvect::ModAddAtIndex. Index is out of range. i = " + std::to_string(i);
 		throw std::runtime_error(errMsg);
 	}
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 	ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
 	return ans;
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const IntegerType &b) const{
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
 	}
@@ -304,7 +304,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const IntegerType 
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const IntegerType &b) {
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const IntegerType &b) {
 
 	for(usint i=0;i<this->m_length;i++){
 		this->m_data[i].ModAddEq(b, this->m_modulus);
@@ -313,9 +313,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const Int
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModSub(const IntegerType &b) const{
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModSub(b,this->m_modulus);
 	}
@@ -323,7 +323,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const IntegerType 
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const IntegerType &b) {
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModSubEq(const IntegerType &b) {
 
 	for(usint i=0;i<this->m_length;i++){
 		this->m_data[i].ModSub(b,this->m_modulus);
@@ -332,9 +332,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const Int
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
+NativeVector<IntegerType> NativeVector<IntegerType>::MultiplyAndRound(const IntegerType &p, const IntegerType &q) const {
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 	IntegerType halfQ(this->m_modulus >> 1);
 	for(usint i=0;i<this->m_length;i++){
 		if (ans.m_data[i] > halfQ) {
@@ -348,8 +348,8 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultiplyAndRound(const In
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::DivideAndRound(const IntegerType &q) const {
-	BigVectorImpl ans(*this);
+NativeVector<IntegerType> NativeVector<IntegerType>::DivideAndRound(const IntegerType &q) const {
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].DivideAndRound(q);
 	}
@@ -358,9 +358,9 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::DivideAndRound(const Inte
 
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b) const{
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 
 	//Precompute the Barrett mu parameter
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
@@ -373,13 +373,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const IntegerType 
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const IntegerType &b) {
-
-	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const IntegerType &b) {
 
 	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
+		this->m_data[i].ModMulFastEq(b,this->m_modulus);
 	}
 
 	return *this;
@@ -388,8 +385,8 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const Int
 
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModExp(const IntegerType &b) const{
-	BigVectorImpl ans(*this);
+NativeVector<IntegerType> NativeVector<IntegerType>::ModExp(const IntegerType &b) const{
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModExp(b,this->m_modulus);
 	}
@@ -397,9 +394,9 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModExp(const IntegerType 
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModInverse() const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModInverse() const{
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModInverse(this->m_modulus);
 	}
@@ -408,13 +405,13 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModInverse() const{
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const BigVectorImpl &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const NativeVector &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModAdd called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModAdd called on NativeVector's with different parameters.");
 	}
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 
 	for(usint i=0;i<ans.m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i],this->m_modulus);
@@ -424,10 +421,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModAdd(const BigVectorImp
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const BigVectorImpl &b) {
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const NativeVector &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModAddEq called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModAddEq called on NativeVector's with different parameters.");
 	}
 
 	for(usint i=0;i<this->m_length;i++){
@@ -438,13 +435,13 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModAddEq(const Big
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const BigVectorImpl &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModSub(const NativeVector &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModSub called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModSub called on NativeVector's with different parameters.");
 	}
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 
 	for(usint i=0;i<ans.m_length;i++){
 		ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],this->m_modulus);
@@ -454,10 +451,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModSub(const BigVectorImp
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const BigVectorImpl &b) {
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModSubEq(const NativeVector &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModSubEq called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModSubEq called on NativeVector's with different parameters.");
 	}
 
 	for(usint i=0;i<this->m_length;i++){
@@ -468,9 +465,9 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const Big
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
+NativeVector<IntegerType> NativeVector<IntegerType>::ModByTwo() const {
 
-	BigVectorImpl ans(this->GetLength(),this->GetModulus());
+	NativeVector ans(this->GetLength(),this->GetModulus());
 	IntegerType halfQ(this->GetModulus() >> 1);
 	for (usint i = 0; i<ans.GetLength(); i++) {
 		if (this->at(i)>halfQ) {
@@ -491,13 +488,13 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImpl &b) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &b) const{
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModMul called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 
 	//Precompute the Barrett mu parameter
 	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
@@ -509,29 +506,27 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModMul(const BigVectorImp
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModMulEq(const BigVectorImpl &b) {
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const NativeVector &b) {
 
 	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-        throw std::logic_error("ModMul called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
-
-	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
 
 	for(usint i=0;i<this->m_length;i++){
-		this->m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
+		this->m_data[i].ModMulFastEq(b.m_data[i],this->m_modulus);
 	}
+
 	return *this;
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultWithOutMod(const BigVectorImpl &b) const {
+NativeVector<IntegerType> NativeVector<IntegerType>::MultWithOutMod(const NativeVector &b) const {
 
 	if ((this->m_length != b.m_length) || this->m_modulus != b.m_modulus) {
-        throw std::logic_error("ModMul called on BigVectorImpl's with different parameters.");
+        throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
-	BigVectorImpl ans(*this);
+	NativeVector ans(*this);
 
 	for (usint i = 0; i<ans.m_length; i++) {
 		ans.m_data[i] = ans.m_data[i] * b.m_data[i];
@@ -541,10 +536,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::MultWithOutMod(const BigV
 
 //Gets the ind
 template<class IntegerType>
-BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
+NativeVector<IntegerType> NativeVector<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
 	bool dbg_flag = false;
-	DEBUG("BigVectorImpl::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
-	BigVectorImpl ans(*this);
+	DEBUG("NativeVector::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
+	NativeVector ans(*this);
 	for(usint i=0;i<this->m_length;i++){
 		ans.m_data[i] = IntegerType(ans.m_data[i].GetDigitAtIndexForBase(index,base));
 		DEBUG("ans.m_data[" << i << "] = " << ans.m_data[i]);
@@ -555,7 +550,7 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetDigitAtIndexForBase(us
 
 // Serialize Operation
 template<class IntegerType>
-bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
+bool NativeVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 
         if( !serObj->IsObject() ){
 	  serObj->SetObject();
@@ -585,7 +580,7 @@ bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
   
 // Deserialize Operation
 template<class IntegerType>
-bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
+bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
 
 	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
 	if( mIter == serObj.MemberEnd() )
@@ -609,7 +604,7 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
 		return false;
 
-	BigVectorImpl<IntegerType> newVec(vectorLength, bbiModulus);
+	NativeVector<IntegerType> newVec(vectorLength, bbiModulus);
 
 	IntegerType vectorElem;
 	const char *vp = vIt->value.GetString();
@@ -626,6 +621,6 @@ bool BigVectorImpl<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj)
 	return true;
 }
 
-template class BigVectorImpl<NativeInteger<uint64_t>>;
+template class NativeVector<NativeInteger<uint64_t>>;
 
 } // namespace lbcrypto ends

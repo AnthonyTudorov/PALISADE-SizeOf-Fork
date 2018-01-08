@@ -42,7 +42,7 @@
 #include <initializer_list>
 
 typedef native_int::NativeInteger<uint64_t>			NativeInteger;
-typedef native_int::BigVectorImpl<NativeInteger>	NativeVector;
+typedef native_int::NativeVector<NativeInteger>		NativeVector;
 
 
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */

@@ -35,7 +35,7 @@
 #include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "poly.cpp"
-
+/*
 namespace lbcrypto
 {
 template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
@@ -48,7 +48,7 @@ namespace lbcrypto
 {
 template class ILParamsImpl<BigInteger>;
 template class PolyImpl<BigInteger,BigInteger,BigVector,ILParams>;
-}
+}*/
 
 namespace lbcrypto
 {
