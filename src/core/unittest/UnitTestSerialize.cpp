@@ -388,5 +388,7 @@ TEST(UTSer,serialize_matrix_bigint){
     
   DEBUG("step 9");
   EXPECT_EQ( testmat, *newmatP ) << "Mismatch after ser/deser";
+  DEBUGEXP(testmat);
+  DEBUGEXP(*newmatP);
 
 }

@@ -958,10 +958,9 @@ template<class ubint_el_t>
   bool mubintvec<ubint_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
     bool dbg_flag = false;
-    if( !serObj->IsObject() ){
-      std::cerr<<"myVecP::Serialize failed bad object"<<std::endl;
-      return false;
-    }
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
     //serialize the modulus or mark as unknown
     std::string modstring ="";
     DEBUG("in vector Serialize");

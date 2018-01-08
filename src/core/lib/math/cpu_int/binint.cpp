@@ -523,17 +523,18 @@ const char *BigInteger<uint_type, BITLENGTH>::DeserializeFromString(const char *
 template<typename uint_type, usint BITLENGTH>
 bool BigInteger<uint_type, BITLENGTH>::Serialize(lbcrypto::Serialized* serObj) const{
     
-    if( !serObj->IsObject() )
-      return false;
-    
-    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
-    
-    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
-    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
-    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
-    return true;
-    
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
   }
+  
+  lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
+  
+  bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
+  bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
+  serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
+  return true;
+    
+}
   
 template<typename uint_type, usint BITLENGTH>
 bool BigInteger<uint_type, BITLENGTH>::Deserialize(const lbcrypto::Serialized& serObj){

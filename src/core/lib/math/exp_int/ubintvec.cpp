@@ -477,8 +477,9 @@ namespace exp_int {
   template<class bin_el_t>
   bool ubintvec<bin_el_t>::Serialize(lbcrypto::Serialized* serObj) const {
 
-    if( !serObj->IsObject() )
-      return false;
+    if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
 
     lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
     // ubintvec has no modulus, mubintvec does.

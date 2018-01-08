@@ -1283,8 +1283,9 @@ double DCRTPolyImpl<ModType, IntType, VecType, ParmType>::Norm() const
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Serialize(Serialized* serObj) const
 {
-	if( !serObj->IsObject() )
-		return false;
+	if( !serObj->IsObject() ){
+		serObj->SetObject();
+	}
 
 	Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
 	if (!m_params->Serialize(&obj))

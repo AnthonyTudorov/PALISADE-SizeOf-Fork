@@ -557,8 +557,10 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::GetDigitAtIndexForBase(us
 template<class IntegerType>
 bool BigVectorImpl<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 
-	if( !serObj->IsObject() )
-		return false;
+        if( !serObj->IsObject() ){
+	  serObj->SetObject();
+	}
+
 
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 

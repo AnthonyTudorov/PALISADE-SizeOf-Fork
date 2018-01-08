@@ -2730,8 +2730,9 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   template<typename limb_t>
   bool ubint<limb_t>::Serialize(lbcrypto::Serialized* serObj) const{
     
-    if( !serObj->IsObject() )
-      return false;
+    if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
     
     lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
     
