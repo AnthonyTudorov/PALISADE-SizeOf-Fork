@@ -254,12 +254,6 @@ const IntegerType& NativeVector<IntegerType>::GetModulus() const{
 
 }
 
-
-template<class IntegerType>
-usint NativeVector<IntegerType>::GetLength() const{
-	return this->m_length;
-}
-
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::Mod(const IntegerType& modulus) const{
 

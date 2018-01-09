@@ -259,7 +259,7 @@ public:
 	 *
 	 * @return vector length.
 	 */
-	usint GetLength() const;
+	size_t GetLength() const { return this->m_length; }
 	
 	//METHODS
 

@@ -488,14 +488,14 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("203450");
     exp_int::xubint b("2034");
 
-    calculatedResult = a.Add(b);
+    calculatedResult = a.Plus(b);
     expectedResult = 205484;
 
     //DEBUG("result "<<result);
     //DEBUG("expect "<<expectedResult);
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing Add() : a > b";
+      <<"Failure testing Plus() : a > b";
 
     calculatedResult = a + b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -513,11 +513,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2034");
     exp_int::xubint b("203450");
 
-    calculatedResult = a.Add(b);
+    calculatedResult = a.Plus(b);
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing Add() : a < b";
+      <<"Failure testing Plus() : a < b";
 
     calculatedResult = a + b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -534,11 +534,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("4294967295");
     exp_int::xubint b("1");
 
-    calculatedResult = a.Add(b);
+    calculatedResult = a.Plus(b);
     expectedResult = 4294967296;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      << "Failure testing Add() : overflow to next limb";
+      << "Failure testing Plus() : overflow to next limb";
 
     calculatedResult = a + b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -557,11 +557,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("35");
     exp_int::xubint b("1015");
       
-    calculatedResult = a.Add(b);
+    calculatedResult = a.Plus(b);
     expectedResult = 1050;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      << "Failure testing Add() :no overflow in same limb";
+      << "Failure testing Plus() :no overflow in same limb";
 
     calculatedResult = a + b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -577,11 +577,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("98879665709163");
     exp_int::xubint b("39832572186149");
       
-    calculatedResult = a.Add(b);
+    calculatedResult = a.Plus(b);
     expectedResult = 138712237895312;
       
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      << "Failure testing Add() : multi limb";
+      << "Failure testing Plus() : multi limb";
       
     calculatedResult = a + b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -604,12 +604,12 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("20489");
     exp_int::xubint b("2034455");
       
-    calculatedResult = a.Sub(b);
+    calculatedResult = a.Minus(b);
     expectedResult = 0;
       
     //since exp_int::xubint is unsigned  result should be zero
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      << "Failure testing Sub() : a < b";
+      << "Failure testing Minus() : a < b";
       
     calculatedResult = a - b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -624,11 +624,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2048956567");
     exp_int::xubint b("2048956567");
       
-    calculatedResult = a.Sub(b);
+    calculatedResult = a.Minus(b);
     expectedResult = 0;
       
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      << "Failure testing Sub() : a == b";
+      << "Failure testing Minus() : a == b";
       
     calculatedResult = a - b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -643,11 +643,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2048956567");
     exp_int::xubint b("2034455");
       
-    calculatedResult = a.Sub(b);
+    calculatedResult = a.Minus(b);
     expectedResult = 2046922112;
       
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
-      << "Failure testing Sub() : a > b";
+      << "Failure testing Minus() : a > b";
       
     calculatedResult = a - b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -663,11 +663,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("196737");
     exp_int::xubint b("65406");
       
-    calculatedResult = a.Sub(b);
+    calculatedResult = a.Minus(b);
     expectedResult = 131331;
       
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
-      <<"Failure testing Sub() : borrow from next byte"; 
+      <<"Failure testing Minus() : borrow from next byte";
       
     calculatedResult = a - b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -683,11 +683,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("98879665709163");
     exp_int::xubint b("39832572186149");
 
-    calculatedResult = a.Sub(b);
+    calculatedResult = a.Minus(b);
     expectedResult = 59047093523014;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
-      <<"Failure testing Sub() : multi limb";
+      <<"Failure testing Minus() : multi limb";
 
     calculatedResult = a - b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -698,18 +698,18 @@ TEST(UTubint,basic_math){
   }
 
   // TESTING METHOD MUL FOR ALL CONDITIONS 
-  // The method "Mul" does multiplication on two ubints
+  // The method "Times" does multiplication on two ubints
   // a,b Returns a*b, which is stored in another exp_int::xubint for * or in a for *=
   {
     //single Limb
     exp_int::xubint a("1967");
     exp_int::xubint b("654");
 
-    calculatedResult = a.Mul(b);
+    calculatedResult = a.Times(b);
     expectedResult = 1286418;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
-      <<"Failure testing Mul() : single limb";
+      <<"Failure testing Times() : single limb";
     calculatedResult = a * b;
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToUint64())
       <<"Failure testing * : single limb";
@@ -722,13 +722,13 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("98879665709163");
     exp_int::xubint b("39832572186149");
 
-    calculatedResult = a.Mul(b);
+    calculatedResult = a.Times(b);
     expectedResultStr = "3938631422102517149330983287";
     // note the expected result is bigger than uint64 so we cannot use
     // that to compare. Instead we uses string values.
 
     EXPECT_EQ(expectedResultStr,calculatedResult.ToString())
-      <<"testing Mul() : multi limb";
+      <<"testing Times() : multi limb";
     calculatedResult = a * b;
     EXPECT_EQ(expectedResultStr,calculatedResult.ToString())
       <<"Failure testing * : multi limb";
@@ -752,12 +752,12 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2048");
     exp_int::xubint b("2034455");
 
-    calculatedResult = a.Div(b);
+    calculatedResult = a.DividedBy(b);
     expectedResult = 0;
 
     //RESULT SHOULD BE ZERO
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing Div() : a < b";
+      <<"Failure testing DividedBy() : a < b";
 
     calculatedResult = a/b;      
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -774,11 +774,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2048956567");
     exp_int::xubint b("2048956567");
 
-    calculatedResult = a.Div(b);
+    calculatedResult = a.DividedBy(b);
     expectedResult = 1;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"Failure testing Div() : a == b";
+      <<"Failure testing DividedBy() : a == b";
 
     calculatedResult = a/b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -793,11 +793,11 @@ TEST(UTubint,basic_math){
     exp_int::xubint a("2048956567");
     exp_int::xubint b("2034455");
 
-    calculatedResult = a.Div(b);
+    calculatedResult = a.DividedBy(b);
     expectedResult = 1007;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
-      <<"testing Div() a greater than b";
+      <<"testing DividedBy() a greater than b";
 
     calculatedResult = a/b;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -814,7 +814,7 @@ TEST(UTubint,basic_math){
     exp_int::xubint b("98879665709163");
 
 
-    calculatedResult = a.Div(b);
+    calculatedResult = a.DividedBy(b);
     expectedResult = 39832572186149;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToUint64())
@@ -837,12 +837,12 @@ TEST(UTubint,basic_math){
     bool thrown = false;
 
     try {
-      calculatedResult = a.Div(b);
+      calculatedResult = a.DividedBy(b);
     }
     catch (...){
       thrown = true;
     }
-    EXPECT_TRUE(thrown)<<"Failure testing Div() zero";
+    EXPECT_TRUE(thrown)<<"Failure testing DividedBy() zero";
     thrown = false;
 
     try {

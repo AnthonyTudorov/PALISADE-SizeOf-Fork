@@ -50,7 +50,7 @@ namespace exp_int {
    */
   //JSON FACILITY
   template <class ubint_el_t>
-    class ubintvec : public lbcrypto::Serializable
+    class ubintvec : public lbcrypto::BigVectorInterface<ubintvec<ubint_el_t>,ubint_el_t>, public lbcrypto::Serializable
     {
     public:
       /**

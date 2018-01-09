@@ -463,7 +463,7 @@ public:
 		 *
 		 * @return vector length.
 		 */
-		usint GetLength() const;
+		size_t GetLength() const;
 
 		/**
 		 * Scalar modulus addition.

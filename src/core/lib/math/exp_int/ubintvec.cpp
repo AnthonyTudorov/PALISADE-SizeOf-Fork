@@ -232,110 +232,110 @@ namespace exp_int {
 
 
 
-  // method to add scalar to vector
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{
-	ubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].Add(b);
-    }
-    return ans;
-  }
+//  // method to add scalar to vector
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{
+//	ubintvec ans(*this);
+//    for(usint i=0;i<this->m_data.size();i++){
+//      ans.m_data[i] = ans.m_data[i].Add(b);
+//    }
+//    return ans;
+//  }
+//
+//
+//  // +=  operator to add scalar to vector
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubint_el_t& b) {
+//
+//    *this = this->Add(b);
+//    return *this;
+//
+//  }
+//
+//
+//  // method to subtract scalar from vector
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{
+//    ubintvec ans(*this);
+//    for(usint i=0;i<this->m_data.size();i++){
+//      ans.m_data[i] = ans.m_data[i].Sub(b);
+//    }
+//    return ans;
+//  }
+//
+//  // -=  operator to subtract scalar from vector
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubint_el_t& b) {
+//
+//    *this = this->Sub(b);
+//    return *this;
+//
+//  }
 
-
-  // +=  operator to add scalar to vector
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubint_el_t& b) {
-
-    *this = this->Add(b);
-    return *this;
-
-  }
-
-
-  // method to subtract scalar from vector
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{
-    ubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].Sub(b);
-    }
-    return ans;
-  }
-
-  // -=  operator to subtract scalar from vector
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubint_el_t& b) {
-
-    *this = this->Sub(b);
-    return *this;
-
-  }
-
-  // method to multiply vector by scalar
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{
-    ubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].Mul(b);
-    }
-    return ans;
-  }
-
-  // *=  operator to multiply  scalar from vector
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubint_el_t& b) {
-
-    *this = this->Mul(b);
-    return *this;
-
-  }
-
-  // vector elementwise add
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubintvec &b) const{
-    
-    ubintvec ans(*this);
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec adding vectors of different lengths");
-    } else {
-      for(usint i=0;i<ans.m_data.size();i++){
-    	  ans.m_data[i] = ans.m_data[i].Add(b.m_data[i]);
-      }
-      return ans;
-    }
-  }
-
-  // vector elementwise subtract
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubintvec &b) const{
-    
-    ubintvec ans(*this);
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec subtracting vectors of different lengths");
-    } else {
-
-      for(usint i=0;i<ans.m_data.size();i++){
-    	  ans.m_data[i] = ans.m_data[i].Sub(b.m_data[i]);
-      }
-      return ans;
-    }
-  }
-
-  // vector elementwise multiply
-  template<class ubint_el_t>
-  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubintvec &b) const{
-    
-    ubintvec ans(*this);
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec multiplying vectors of different lengths");
-    } else {
-      for(usint i=0;i<ans.m_data.size();i++){
-        ans.m_data[i] = ans.m_data[i].Mul(b.m_data[i]);
-      }
-      return ans;
-    }
-  }
+//  // method to multiply vector by scalar
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{
+//    ubintvec ans(*this);
+//    for(usint i=0;i<this->m_data.size();i++){
+//      ans.m_data[i] = ans.m_data[i].Mul(b);
+//    }
+//    return ans;
+//  }
+//
+//  // *=  operator to multiply  scalar from vector
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubint_el_t& b) {
+//
+//    *this = this->Mul(b);
+//    return *this;
+//
+//  }
+//
+//  // vector elementwise add
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Add(const ubintvec &b) const{
+//
+//    ubintvec ans(*this);
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec adding vectors of different lengths");
+//    } else {
+//      for(usint i=0;i<ans.m_data.size();i++){
+//    	  ans.m_data[i] = ans.m_data[i].Add(b.m_data[i]);
+//      }
+//      return ans;
+//    }
+//  }
+//
+//  // vector elementwise subtract
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Sub(const ubintvec &b) const{
+//
+//    ubintvec ans(*this);
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec subtracting vectors of different lengths");
+//    } else {
+//
+//      for(usint i=0;i<ans.m_data.size();i++){
+//    	  ans.m_data[i] = ans.m_data[i].Sub(b.m_data[i]);
+//      }
+//      return ans;
+//    }
+//  }
+//
+//  // vector elementwise multiply
+//  template<class ubint_el_t>
+//  ubintvec<ubint_el_t> ubintvec<ubint_el_t>::Mul(const ubintvec &b) const{
+//
+//    ubintvec ans(*this);
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec multiplying vectors of different lengths");
+//    } else {
+//      for(usint i=0;i<ans.m_data.size();i++){
+//        ans.m_data[i] = ans.m_data[i].Mul(b.m_data[i]);
+//      }
+//      return ans;
+//    }
+//  }
 
   // vector scalar modulo addition
   template<class ubint_el_t>
@@ -412,51 +412,51 @@ namespace exp_int {
     }
   }
 
-  // assignment operators
-
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubintvec &b) {
-
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec += vectors of different lengths");
-    }
-
-    for(usint i=0;i<this->m_data.size();i++){
-      this->m_data[i] = this->m_data[i].Add(b.m_data[i]);
-    }
-    return *this;
-
-  }
-
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubintvec &b) {
-
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec -= vectors of different lengths");
-    }
-
-    for(usint i=0;i<this->m_data.size();i++){
-      this->m_data[i] = this->m_data[i].Sub(b.m_data[i]);
-    }
-    return *this;
-
-  }
-
-
-  template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubintvec &b) {
-
-    if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("ubintvec *= vectors of different lengths");
-    }
-
-    for(usint i=0;i<this->m_data.size();i++){
-      this->m_data[i] = this->m_data[i].Mul(b.m_data[i]);
-    }
-    return *this;
-
-  }
-
+//  // assignment operators
+//
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator+=(const ubintvec &b) {
+//
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec += vectors of different lengths");
+//    }
+//
+//    for(usint i=0;i<this->m_data.size();i++){
+//      this->m_data[i] = this->m_data[i].Add(b.m_data[i]);
+//    }
+//    return *this;
+//
+//  }
+//
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator-=(const ubintvec &b) {
+//
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec -= vectors of different lengths");
+//    }
+//
+//    for(usint i=0;i<this->m_data.size();i++){
+//      this->m_data[i] = this->m_data[i].Sub(b.m_data[i]);
+//    }
+//    return *this;
+//
+//  }
+//
+//
+//  template<class ubint_el_t>
+//  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator*=(const ubintvec &b) {
+//
+//    if(this->m_data.size()!=b.m_data.size()){
+//      throw std::logic_error("ubintvec *= vectors of different lengths");
+//    }
+//
+//    for(usint i=0;i<this->m_data.size();i++){
+//      this->m_data[i] = this->m_data[i].Mul(b.m_data[i]);
+//    }
+//    return *this;
+//
+//  }
+//
   //Gets the ind
   template<class ubint_el_t>
   ubintvec<ubint_el_t> ubintvec<ubint_el_t>::GetDigitAtIndexForBase(usint index, usint base) const{
