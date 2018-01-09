@@ -56,17 +56,19 @@ void SHETestCoeff();
 void SHETestPacked();
 void SHETestPackedInnerProduct();
 void SwitchCRT();
+void SwitchCRTSingleTests();
 void Multiply();
 void MultiplyTwo();
 void MultiplyThree();
 
 int main() {
 
-	PKE();
-	SHETestCoeff();
-	SHETestPacked();
-	SHETestPackedInnerProduct();
-	//SwitchCRT();
+	//PKE();
+	//SHETestCoeff();
+	//SHETestPacked();
+	//SHETestPackedInnerProduct();
+	SwitchCRT();
+	SwitchCRTSingleTests();
 	//Multiply();
 	//MultiplyTwo();
 	//MultiplyThree();
@@ -683,6 +685,48 @@ void SwitchCRT() {
 	std::cout << "Big Modulus S:\n" << paramsS->GetModulus() << std::endl;
 	std::cout << "before switch:\n" << resultA.at(0) << std::endl;
 	std::cout << "after switch:\n" << resultB.at(0) << std::endl;
+
+}
+
+void SwitchCRTSingleTests() {
+
+	std::cout << "\n===========TESTING CRT SWITCH===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	//double diff, start, finish;
+
+	usint ptm = 1<<31;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, 7, 0, OPTIMIZED,8);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	const shared_ptr<ILDCRTParams<BigInteger>> params = cryptoContext->GetCryptoParameters()->GetElementParams();
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cryptoContext->GetCryptoParameters());
+
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsBFVrns->GetDCRTParamsS();
+
+	typename DCRTPoly::DugType dug;
+
+	const DCRTPoly a(dug, params, Format::COEFFICIENT);
+
+	Poly resultA = a.CRTInterpolate();
+
+	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+	Poly resultB = b.CRTInterpolate();
 
 }
 

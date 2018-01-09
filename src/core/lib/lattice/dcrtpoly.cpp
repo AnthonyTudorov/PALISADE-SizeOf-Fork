@@ -1082,25 +1082,30 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
+		std::vector<typename PolyType::Integer> xInvVector(nTowers);
+		double lyam = 0.0;
+
+		// Compute lyam and vector of x_i terms
+		for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+			const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
+
+			//computes [xi (q/qi)^{-1}]_qi
+			xInvVector[vIndex] = xi.ModMulFast(qInvModqi[vIndex],qi);
+
+			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
+			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
+		}
+
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
-			double lyam = 0.0;
 			typename PolyType::Integer curValue = 0;
 
 			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
 
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
-				const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
-
-				//computes [xi (q/qi)^{-1}]_qi
-				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
-
-				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
-				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
-
-				curValue += xInv.ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
+				curValue += xInvVector[vIndex].ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
 			}
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
