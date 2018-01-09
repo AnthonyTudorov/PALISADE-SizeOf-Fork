@@ -312,11 +312,19 @@ template <class Element>
 std::string LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const {
 
 	const BigInteger &q = m_elemParams->GetModulus();
+	const BigInteger &half = m_elemParams->GetModulus() >> 1;
 	std::stringstream output;
 
-	for (size_t i = 1; i < matrix.GetCols(); i++) {
+	for (size_t i = 0; i < matrix.GetCols(); i++) {
 		Poly poly = matrix(0, i).CRTInterpolate();
-		poly = poly.DivideAndRound(q);
+
+		// Transform negative numbers so that they could be rounded correctly
+		for (usint i = 0; i < poly.GetLength(); i++) {
+			if (poly[i] > half)
+				poly[i] = q - poly[i];
+		}
+
+		poly = poly.DivideAndRound(half);
 
 		for (size_t j = 0; j < poly.GetLength(); j++) {
 			output << poly.at(j);
