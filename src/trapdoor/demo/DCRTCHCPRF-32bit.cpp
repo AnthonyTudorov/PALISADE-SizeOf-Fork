@@ -64,10 +64,14 @@ int main(int argc, char* argv[]) {
 
 	TIC(t);
 	const auto value1 = algorithm.Evaluate(           key, input1);
-	const auto value2 = algorithm.Evaluate(constrainedKey, input1);
 	const auto value3 = algorithm.Evaluate(           key, input2);
+	processingTime = TOC(t);
+	std::cout << "Evaluation (unconstrained): 2 * " << processingTime / 2 << "ms" << std::endl;
+	TIC(t);
+	const auto value2 = algorithm.Evaluate(constrainedKey, input1);
 	const auto value4 = algorithm.Evaluate(constrainedKey, input2);
 	processingTime = TOC(t);
+	std::cout << "Evaluation (constrained): 2 * " << processingTime / 2 << "ms" << std::endl;
 	//std::cout << value1 << std::endl;
 	//std::cout << value2 << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
@@ -77,5 +81,4 @@ int main(int argc, char* argv[]) {
 	//std::cout << value4 << std::endl;
 	std::cout << "input 2: " << input2 << std::endl;
 	std::cout << (value3 == value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
-	std::cout << "Evaluation: 4 * " << processingTime / 4 << "ms" << std::endl;
 }
