@@ -1085,7 +1085,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		std::vector<typename PolyType::Integer> xInvVector(nTowers);
 		double lyam = 0.0;
 
-		// Compute lyam and vector of x_i terms
+		// Compute alpha and vector of x_i terms
 		for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
@@ -1096,6 +1096,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
 		}
+
+		// alpha corresponds to the number of overflows
+		typename PolyType::Integer alpha = std::llround(lyam);
 
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
@@ -1110,9 +1113,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
 			curValue = curValue.Mod(si);
-
-			// alpha corresponds to the number of overflows
-			typename PolyType::Integer alpha = std::llround(lyam);
 
 			//second round - remove q-overflows
 			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si);
