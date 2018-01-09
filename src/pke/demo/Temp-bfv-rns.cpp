@@ -29,7 +29,7 @@ BFV RNS testing programs
 
 #include <iostream>
 #include <fstream>
-
+#include <limits>
 
 #include "palisade.h"
 
@@ -43,6 +43,7 @@ BFV RNS testing programs
 
 #include "math/nbtheory.h"
 
+typedef std::numeric_limits< double > dbl;
 
 using namespace std;
 using namespace lbcrypto;
@@ -67,7 +68,7 @@ int main() {
 	//SHETestCoeff();
 	//SHETestPacked();
 	//SHETestPackedInnerProduct();
-	SwitchCRT();
+	//SwitchCRT();
 	SwitchCRTSingleTests();
 	//Multiply();
 	//MultiplyTwo();
@@ -323,7 +324,7 @@ void SHETestPacked() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 11, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -717,16 +718,68 @@ void SwitchCRTSingleTests() {
 
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsBFVrns->GetDCRTParamsS();
 
-	typename DCRTPoly::DugType dug;
+	size_t counter = 0;
 
-	const DCRTPoly a(dug, params, Format::COEFFICIENT);
+	for(size_t k = 0; k < 3052; k++){
 
-	Poly resultA = a.CRTInterpolate();
+		typename DCRTPoly::DugType dug;
 
-	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+		const DCRTPoly a(dug, params, Format::COEFFICIENT);
 
-	Poly resultB = b.CRTInterpolate();
+		Poly resultA = a.CRTInterpolate();
+
+		const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+
+		Poly resultB = b.CRTInterpolate();
+
+		for (size_t i = 0; i < resultA.GetLength(); i++)
+		{
+			counter++;
+
+			BigInteger halfa = resultA.GetModulus()>>1;
+			BigInteger halfb = resultB.GetModulus()>>1;
+
+			BigInteger aInt, bInt;
+
+			if (resultA[i]>halfa)
+				aInt = resultA.GetModulus() - resultA[i];
+			else
+				aInt = resultA[i];
+
+			if (resultB[i]>halfb)
+				bInt = resultB.GetModulus() - resultB[i];
+			else
+				bInt = resultB[i];
+
+			if (aInt != bInt) {
+
+				double lyam = 0.0;
+
+				size_t nTowers = a.GetNumOfElements();
+
+				// Compute alpha and vector of x_i terms
+				for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+					const NativeInteger &xi = a.GetElementAtIndex(vIndex).GetValues()[i];
+					const NativeInteger &qi = a.GetElementAtIndex(vIndex).GetModulus();
+
+					//computes [xi (q/qi)^{-1}]_qi
+					NativeInteger xInv = xi.ModMulFast( cryptoParamsBFVrns->GetCRTInverseTable()[vIndex],qi);
+
+					//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
+					lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
+				}
+
+				cout.precision(dbl::max_digits10);
+				cout << "counter \t" << counter <<"; lyam: \t" << fixed << lyam << endl;
+
+			}
+
+		}
+
+		//std::cout << "counter \t" << counter << std::endl;
+
+	}
 
 }
 
