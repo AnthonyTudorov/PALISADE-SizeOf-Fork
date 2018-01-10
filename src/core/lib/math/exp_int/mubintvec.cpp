@@ -574,15 +574,15 @@ namespace exp_int {
 
   }
 
-  // %=
-  // method to vector with scalar
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
-
-    *this = this->Mod(modulus);
-    return *this;
-
-  }
+//  // %=
+//  // method to vector with scalar
+//  template<class ubint_el_t>
+//  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
+//
+//    *this = this->Mod(modulus);
+//    return *this;
+//
+//  }
 
   //method to mod by two
   template<class ubint_el_t>
@@ -631,23 +631,6 @@ namespace exp_int {
     return std::move(ans);
     }
     
-    template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const ubint_el_t &b) const{ //overload of ModAdd
-    mubintvec ans(*this);
-    ans = ans.ModAdd(b);
-    return std::move(ans);
-  }
-
-
-  // +=  operator to add scalar to vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator+=(const ubint_el_t& b) {
-
-    *this = this->ModAdd(b);
-    return *this;
-
-  }
-
   // needs to match BE 2 using signed modulus for result
   // method to subtract scalar from vector
   template<class ubint_el_t>
@@ -657,23 +640,6 @@ namespace exp_int {
       ans.m_data[i] = ans.m_data[i].ModSub(b, ans.m_modulus);
     }
     return std::move(ans);
-  }
-
-  // method to subtract scalar from vector
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const ubint_el_t &b) const{ //overload of Modsub()
-    mubintvec ans(*this);
-    ans = ans.ModSub(b);
-    return std::move(ans);
-  }
-
-  // -=  operator to subtract scalar from vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator-=(const ubint_el_t& b) {
-
-    *this = this->ModSub(b);
-    return *this;
-
   }
 
   // method to multiply vector by scalar
@@ -716,26 +682,6 @@ namespace exp_int {
 
 
 #endif
-  }
-
- // method to multiply vector by scalar
-
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const ubint_el_t &b) const{ //overload of ModMul()
-    mubintvec ans(*this);
-    ans = ans.ModMul(b);
-    return std::move(ans);
-  }
-
-
-
-  // *=  operator to multiply  scalar from vector
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator*=(const ubint_el_t& b) {
-
-    *this = this->ModMul(b);
-    return *this;
-
   }
 
 template<class ubint_el_t>
@@ -785,13 +731,6 @@ template<class ubint_el_t>
     }
   }
 
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Add(const mubintvec &b) const{ //overload of ModAdd
-    mubintvec ans(*this);
-    ans = ans.ModAdd(b);
-    return std::move(ans);
-  }
-
   // vector elementwise subtract
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const mubintvec &b) const{
@@ -809,14 +748,6 @@ template<class ubint_el_t>
       return std::move(ans);
     }
   }
-
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Sub(const mubintvec &b) const{ //overload of ModSub
-    mubintvec ans(*this);
-    ans = ans.ModSub(b);
-    return std::move(ans);
-  }
-
 
   // vector elementwise multiply
   template<class ubint_el_t>
@@ -868,14 +799,6 @@ template<class ubint_el_t>
 #endif
   }
   
-
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mul(const mubintvec &b) const{ //overload of ModMul
-    mubintvec ans(*this);
-    ans = ans.ModMul(b);
-    return std::move(ans);
-  }
-
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const {
 
@@ -900,44 +823,6 @@ template<class ubint_el_t>
 	  }
 	    return std::move(ans);
   }
-
-  // assignment operators
-
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator+=(const mubintvec &b) {
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec += vectors of different moduli");
-    }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec += vectors of different lengths");
-    }
-
-    *this = *this + b;
-    return *this;
-  }
-
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator-=(const mubintvec &b) {
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec -= vectors of different moduli");
-    }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec -= vectors of different lengths");
-    }
-    *this = *this - b;
-    return *this;
-  }
-
-
-  template<class ubint_el_t>
-  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator*=(const mubintvec &b) {
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec -= vectors of different moduli");
-    }else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec -= vectors of different lengths");
-    }
-    *this = *this * b;
-    return *this;
-  }
-
 
   //Gets the ind
   template<class ubint_el_t>
@@ -982,7 +867,7 @@ template<class ubint_el_t>
 		     serObj->GetAllocator());
 
     //determine vector length 
-    size_t pkVectorLength = this->size();
+    size_t pkVectorLength = m_data.size();
     DEBUG ("size "<<pkVectorLength);
     bbvMap.AddMember("Length", std::to_string(pkVectorLength), 
 		     serObj->GetAllocator());

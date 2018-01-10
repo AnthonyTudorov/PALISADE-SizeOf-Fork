@@ -34,7 +34,6 @@
 #include <iostream>
 #include <vector>
 
-//#include "binmat.h"
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
 #include <initializer_list>
@@ -50,7 +49,7 @@ namespace exp_int {
    */
   //JSON FACILITY
   template <class ubint_el_t>
-    class ubintvec : public lbcrypto::BigVectorInterface<ubintvec<ubint_el_t>,ubint_el_t>, public lbcrypto::Serializable
+    class ubintvec : public lbcrypto::Serializable
     {
     public:
       /**
@@ -120,7 +119,7 @@ namespace exp_int {
        * @return ubintvec object 
        */
 
-       const ubintvec& operator=(std::initializer_list<ubint_el_t> rhs);
+      const ubintvec& operator=(std::initializer_list<ubint_el_t> rhs);
 
       /**
        * Initializer list for ubintvec.
@@ -129,7 +128,7 @@ namespace exp_int {
        * @return ubintvec object 
        */
 
-      const ubintvec& operator=(std::initializer_list<usint> rhs);
+      const ubintvec& operator=(std::initializer_list<uint64_t> rhs);
 
      /**
        * Initializer list for ubintvec.

@@ -117,11 +117,12 @@ namespace exp_int {
 
     return *this;
   }
+
   //Assignment with initializer list of usints
   // does not resize the vector
   // unless lhs size is too small
   template<class ubint_el_t>
-  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<usint> rhs){
+  const ubintvec<ubint_el_t>& ubintvec<ubint_el_t>::operator=(std::initializer_list<uint64_t> rhs) {
     usint len = rhs.size();
     if (this->m_data.size()< len){
       this->m_data.resize(len);

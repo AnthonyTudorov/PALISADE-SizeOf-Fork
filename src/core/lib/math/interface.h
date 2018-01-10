@@ -406,31 +406,31 @@ public:
 		* @return true if equal and false otherwise.
 		*/
 		friend inline bool operator==(const T& a, const T& b) {
-	        if (a.GetLength() != b.GetLength())
-	            return false;
-	        if (a.GetModulus() != b.GetModulus())
-	        	return false;
-	        for (size_t i = 0; i < a.GetLength(); ++i) {
-	            if (a[i] != b[i]) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
+			if (a.GetLength() != b.GetLength())
+				return false;
+			if (a.GetModulus() != b.GetModulus())
+				return false;
+			for (size_t i = 0; i < a.GetLength(); ++i) {
+				if (a[i] != b[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
 
-	    /**
+		/**
 		* Not equal to operator
 		*
 		* @param b is vector to be compared.
 		* @return true if not equal and false otherwise.
 		*/
-	    friend inline bool operator!=(const T& a, const T& b) {
-	        return !(a == b);
-	    }
+		friend inline bool operator!=(const T& a, const T& b) {
+			return !(a == b);
+		}
 
 		//ACCESSORS
 
-	    // The derived class must implement at and operator[]
+		// The derived class must implement at and operator[]
 		I& at(size_t idx);
 		const I& at(size_t idx) const;
 		I& operator[](size_t idx);
@@ -507,10 +507,17 @@ public:
 		const T& ModAddEq(const T &b);
 
 		// inlines for overloaded operators
+<<<<<<< HEAD
 		inline friend T operator+(const T& a, const I& b) { return a.ModAdd(b); }
 		inline friend const T& operator+=(T& a, const I& b) { return a.ModAddEq(b); }
 		inline friend T operator+(const T& a, const T& b) { return a.ModAdd(b); }
 		inline friend const T& operator+=(T& a, const T& b) { return a.ModAddEq(b); }
+=======
+		inline friend T operator+(const T &a, const I &b) { return a.ModAdd(b); }
+		inline friend const T& operator+=(T &a, const I &b) { return a.ModAddEq(b); }
+		inline friend T operator+(const T &a, const T &b) { return a.ModAdd(b); }
+		inline friend const T& operator+=(T &a, const T &b) { return a.ModAddEq(b); }
+>>>>>>> closer to vec
 
 		/**
 		 * Scalar modulus addition.
@@ -518,7 +525,11 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
+<<<<<<< HEAD
 		T ModSub(const I &b) const;
+=======
+		T ModSub(const I &b);
+>>>>>>> closer to vec
 
 		/**
 		 * Scalar modulus addition.
@@ -548,10 +559,17 @@ public:
 		inline friend T operator-(const T& a) { return a.ModMul(I(-1)); }
 
 		// inlines for overloaded operators
+<<<<<<< HEAD
 		inline friend T operator-(const T& a, const I& b) { return a.ModSub(b); }
 		inline friend const T& operator-=(T& a, const I& b) { return a.ModSubEq(b); }
 		inline friend T operator-(const T& a, const T& b) { return a.ModSub(b); }
 		inline friend const T& operator-=(T& a, const T& b) { return a.ModSubEq(b); }
+=======
+		inline friend T operator-(const T &a, const I &b) { return a.ModSub(b); }
+		inline friend const T& operator-=(T &a, const I &b) { return a.ModSubEq(b); }
+		inline friend T operator-(const T &a, const T &b) { return a.ModSub(b); }
+		inline friend const T& operator-=(T &a, const T &b) { return a.ModSubEq(b); }
+>>>>>>> closer to vec
 
 		/**
 		 * Scalar modular multiplication.
@@ -586,10 +604,17 @@ public:
 		const T& ModMulEq(const T &b);
 
 		// inlines for overloaded operators
+<<<<<<< HEAD
 		inline friend T operator*(const T& a, const I& b) { return a.ModMul(b); }
 		inline friend const T& operator*=(T& a, const I& b) { return a.ModMulEq(b); }
 		inline friend T operator*(const T& a, const T& b) { return a.ModMul(b); }
 		inline friend const T& operator*=(T& a, const T& b) { return a.ModMulEq(b); }
+=======
+		inline friend T operator*(const T &a, const I &b) { return a.ModMul(b); }
+		inline friend const T& operator*=(T &a, const I &b) { return a.ModMulEq(b); }
+		inline friend T operator*(const T &a, const T &b) { return a.ModMul(b); }
+		inline friend const T& operator*=(T &a, const T &b) { return a.ModMulEq(b); }
+>>>>>>> closer to vec
 
 		/**
 		 * Vector Modulus operator.
@@ -627,6 +652,7 @@ public:
 		T ModByTwo() const;
 			// FIXME there is no ModByTwoEq -- is it needed?
 
+<<<<<<< HEAD
 		// FIXME this method does not seem to be used -- is it needed?
 		/**
 		 * Vector multiplication without applying the modulus operation.
@@ -635,6 +661,16 @@ public:
 		 * @return is the result of the multiplication operation.
 		 */
 		T MultWithOutMod(const T &b) const;
+=======
+//		// FIXME this method does not seem to be used -- is it needed?
+//		/**
+//		 * Vector multiplication without applying the modulus operation.
+//		 *
+//		 * @param &b is the vector to multiply.
+//		 * @return is the result of the multiplication operation.
+//		 */
+//		virtual T MultWithOutMod(const T &b) const = 0;
+>>>>>>> closer to vec
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.

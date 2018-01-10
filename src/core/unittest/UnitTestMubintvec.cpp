@@ -114,8 +114,8 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   usint i;
   usint j;
   
-  EXPECT_EQ(5U,m.size())<< "Failure in size()";
-  EXPECT_EQ(5U,n.size())<< "Failure in size()";
+  EXPECT_EQ(5U,m.GetLength())<< "Failure in GetLength()";
+  EXPECT_EQ(5U,n.GetLength())<< "Failure in GetLength()";
 
   // Old fashioned soon to be deprecated way of 
   // setting value of the value at different index locations
@@ -207,30 +207,30 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   //test Single()
   exp_int::xmubintvec s = exp_int::xmubintvec::Single(exp_int::xubint("3"),exp_int::xubint("5"));//value 3, mod 5
-  EXPECT_EQ(1U, s.size()) <<"Failure Single.size()";
+  EXPECT_EQ(1U, s.GetLength()) <<"Failure Single.GetLength()";
   EXPECT_EQ(exp_int::xubint(3), s[0]) <<"Failure Single() value";
 
   // test assignment of single exp_int::xubint (puts it in the 0 the position), zeros
   // out the rest
   //test that the vector is zeroed on init like this.
   exp_int::xmubintvec eqtest(10);
-  EXPECT_EQ ( 10U, eqtest.size()) << "Failure create exp_int::xmubintvec of 10 zeros";
+  EXPECT_EQ ( 10U, eqtest.GetLength()) << "Failure create exp_int::xmubintvec of 10 zeros";
 
-  for (i = 0; i< eqtest.size(); i++) {
+  for (i = 0; i< eqtest.GetLength(); i++) {
     EXPECT_EQ ( exp_int::xubint(0U), eqtest[i]) << "Failure create exp_int::xmubintvec of zeros";
   }
 
   // test assignment of single exp_int::xubint
   eqtest = exp_int::xubint(1);
   EXPECT_EQ (exp_int::xubint(1),  eqtest[0]) << "Failure assign single exp_int::xubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
+  for (i = 1; i< eqtest.GetLength(); i++) {
     EXPECT_EQ ( exp_int::xubint(0U), eqtest[i]) << "Failure assign single exp_int::xubint nonzero index";
   }
 
   // test assignment of single usint
   eqtest = 5U;
   EXPECT_EQ (exp_int::xubint(5U),  eqtest[0]) << "Failure assign single exp_int::xubint 0 index";
-  for (i = 1; i< eqtest.size(); i++) {
+  for (i = 1; i< eqtest.GetLength(); i++) {
     EXPECT_EQ ( exp_int::xubint(0U), eqtest[i]) << "Failure assign single exp_int::xubint nonzero index";
   }
 
@@ -256,7 +256,7 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_FALSE(test1)<<"Failure ==";
   EXPECT_TRUE(test2)<<"Failure !=";
 
-  for (usint i = 0; i < m.size(); i++) {
+  for (usint i = 0; i < m.GetLength(); i++) {
     m[i] = n[i]; //test both lhs and rhs []
   }
 
@@ -277,11 +277,11 @@ TEST(UTmubintvec,ctor_access_eq_neq){
   EXPECT_TRUE(u2 == u4) << "Failure ctor (ubintvec,string)";
   EXPECT_TRUE(u2 == u5) << "Failure ctor (ubintvec,usint)";
 
-  //test comparison between ubintvec and exp_int::xmubintvec
-  EXPECT_TRUE(u == u2) << "Failure exp_int::xmubintvec == ubintvec";
-  EXPECT_FALSE(u != u2) << "Failure exp_int::xmubintvec != ubintvec";
-  EXPECT_TRUE(u2 == u) << "Failure ubintvec == exp_int::xmubintvec";
-  EXPECT_FALSE(u2 != u) << "Failure ubintvec == exp_int::xmubintvec";
+//  //test comparison between ubintvec and exp_int::xmubintvec
+//  EXPECT_TRUE(u == u2) << "Failure exp_int::xmubintvec == ubintvec";
+//  EXPECT_FALSE(u != u2) << "Failure exp_int::xmubintvec != ubintvec";
+//  EXPECT_TRUE(u2 == u) << "Failure ubintvec == exp_int::xmubintvec";
+//  EXPECT_FALSE(u2 != u) << "Failure ubintvec == exp_int::xmubintvec";
 
 }
 
@@ -428,9 +428,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   DEBUG("modadd1 modulus"<<modadd1.GetModulus());
   DEBUG("c1 modulus"<<c1.GetModulus());
   DEBUG("c1 "<<c1<<" modadd "<<modadd1);
-  // test math for case 1
-  c1 = a1.Add(b1);
-  EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector Add()";
 
   c1 = a1 + b1;
   EXPECT_EQ (c1, modadd1) << "Failure 1 limb vector vector +";
@@ -443,9 +440,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
   c1 = a1.ModSub(b1);
   EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector ModSub()";   
 
-  c1 = a1.Sub(b1);
-  EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector Sub()";
-
   c1 = a1 - b1;
   EXPECT_EQ (c1, modsub1) << "Failure 1 limb vector vector -";
 
@@ -455,10 +449,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_1_limb){
 
   c1 = a1.ModMul(b1);
   EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector ModMul()";   
-
-  c1 = a1.Mul(b1);
-  EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector Mul()";
-
   c1 = a1 * b1;
   EXPECT_EQ (c1, modmul1) << "Failure 1 limb vector vector *";
 
@@ -485,38 +475,31 @@ TEST(UTmubintvec,basic_vector_scalar_mod_math_2_limb){
      "2293434116159938", "1201413067178193", };
   
   exp_int::xmubintvec a2(a2sv,q2);
-  exp_int::xmubintvec a2op1(a2.size(),q2);
-  exp_int::xmubintvec a2op1test(a2.size(),q2);
+  exp_int::xmubintvec a2op1(a2.GetLength(),q2);
+  exp_int::xmubintvec a2op1test(a2.GetLength(),q2);
   
   exp_int::xubint myone(1);
   
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.GetLength();i ++){
     a2op1[i] = a2[i]+myone;
     a2op1[i] %= q2;
   }
   a2op1test = a2.ModAdd(myone);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModAdd()"; 
-  a2op1test = a2.Add(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Add()"; 
 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.GetLength();i ++){
     a2op1[i] = a2[i]-myone;
     a2op1[i] %= q2;
   }
   a2op1test = a2.ModSub(myone);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModSub()"; 
 
-  a2op1test = a2.Sub(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Sub()"; 
-  for (usint i = 0; i < a2.size();i ++){
+  for (usint i = 0; i < a2.GetLength();i ++){
     a2op1[i] = a2[i]*myone;
     a2op1[i] %= q2;
   }
   a2op1test = a2.ModMul(myone);
   EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar ModMul()"; 
-
-  a2op1test = a2.Mul(myone);
-  EXPECT_EQ(a2op1, a2op1test)<< "Failure vector scalar Mul()"; 
 
 }
 
@@ -592,8 +575,8 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
   //now Mod operations
   c2 = a2.ModAdd(b2);
   EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector ModAdd()";    
-  c2 = a2.Add(b2);
-  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector Add()";    
+  c2 = a2.Plus(b2);
+  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector Plus()";
 
   c2 = a2 + b2;
   EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector +";
@@ -604,8 +587,8 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
   
   c2 = a2.ModSub(b2);
   EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector ModSub()";   
-  c2 = a2.Sub(b2);
-  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector Sub()";    
+  c2 = a2.Minus(b2);
+  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector Minus()";
 
   c2 = a2 - b2;
   EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector -";
@@ -705,9 +688,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   c3 = a3.ModAdd(b3);
   EXPECT_EQ (c3, modadd3) << "Failure big number vector vector ModAdd()";    
 
-  c3 = a3.Add(b3);
-  EXPECT_EQ (c3, modadd3) << "Failure big number vector vector Add()";
-
   c3 = a3 + b3;
   EXPECT_EQ (c3, modadd3) << "Failure big number vector vector +";
 
@@ -718,9 +698,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
   c3 = a3.ModSub(b3);
   EXPECT_EQ (c3, modsub3) << "Failure big number vector vector ModSub()";   
   
-  c3 = a3.Sub(b3);
-  EXPECT_EQ (c3, modsub3) << "Failure big number vector vector Sub()";
-
   c3 = a3 - b3;
   EXPECT_EQ (c3, modsub3) << "Failure big number vector vector -";
 
@@ -730,9 +707,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_big_numbers){
 
   c3 = a3.ModMul(b3);
   EXPECT_EQ (c3, modmul3) << "Failure big number vector vector ModMul()";   
-
-  c3 = a3.Mul(b3);
-  EXPECT_EQ (c3, modmul3) << "Failure big number vector vector Mul()";
 
   c3 = a3 * b3;
   EXPECT_EQ (c3, modmul3) << "Failure big number vector vector *";
