@@ -540,49 +540,46 @@ namespace exp_int {
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
 
-    // previous version
-    //mubintvec ans(*this);
-    //for(usint i=0;i<this->m_data.size();i++){
-    //  ans.m_data[i] = ans.m_data[i].Mod(modulus);
-    //}
-    //ans.m_modulus = modulus;
-    //ans. m_modulus_state = INITIALIZED;
-    //return ans;
-
 	if (modulus == 2)
 		return this->ModByTwo();
 	else
 	{
-
 		mubintvec ans(*this);
 		ubint_el_t halfQ(this->GetModulus() >> 1);
 		for (usint i = 0; i<this->m_data.size(); i++) {
-			ans.m_data[i] = ans.m_data[i].Mod(modulus);
-			if (this->at(i)>halfQ) {
+			if ((*this)[i] > halfQ) {
 				ans.m_data[i] = ans.m_data[i].ModSub(this->GetModulus(), modulus);
-				//ans.at(i)= this->at(i).ModSub(this->GetModulus(), modulus));
 			}
 			else {
 				ans.m_data[i] = ans.m_data[i].Mod(modulus);
 			}
 		}
-		//ans.m_modulus = modulus;
-		//ans.m_modulus_state = INITIALIZED;
 		return std::move(ans);
-
 	}
 
   }
 
-//  // %=
-//  // method to vector with scalar
-//  template<class ubint_el_t>
-//  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator%=(const ubint_el_t& modulus) {
-//
-//    *this = this->Mod(modulus);
-//    return *this;
-//
-//  }
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModEq(const ubint_el_t& modulus) {
+
+	if (modulus == 2)
+		return *this = this->ModByTwo();
+	else
+	{
+		ubint_el_t halfQ(this->GetModulus() >> 1);
+		for (usint i = 0; i<this->m_data.size(); i++) {
+			if ((*this)[i] > halfQ) {
+				this->m_data[i].ModSubEq(this->GetModulus(), modulus);
+			}
+			else {
+				this->m_data[i].ModEq(modulus);
+			}
+		}
+		return *this;
+	}
+
+  }
+
 
   //method to mod by two
   template<class ubint_el_t>
@@ -633,56 +630,72 @@ namespace exp_int {
     
   // needs to match BE 2 using signed modulus for result
   // method to subtract scalar from vector
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const ubint_el_t &b) const{
-    mubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].ModSub(b, ans.m_modulus);
+    template<class ubint_el_t>
+    mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const ubint_el_t &b) const{
+      mubintvec ans(*this);
+      for(usint i=0;i<this->m_data.size();i++){
+        ans.m_data[i] = ans.m_data[i].ModSub(b, ans.m_modulus);
+      }
+      return std::move(ans);
     }
-    return std::move(ans);
-  }
+
+    template<class ubint_el_t>
+    const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModSubEq(const ubint_el_t &b) {
+      for(usint i=0;i<this->m_data.size();i++){
+        this->m_data[i].ModSubEq(b, this->m_modulus);
+      }
+      return *this;
+    }
 
   // method to multiply vector by scalar
-  template<class ubint_el_t>
-  mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const ubint_el_t &b) const{
-#ifdef NO_BARRETT //non barrett way
-    mubintvec ans(*this);
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
+    template<class ubint_el_t>
+    mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const ubint_el_t &b) const{
+  #ifdef NO_BARRETT //non barrett way
+      mubintvec ans(*this);
+      for(usint i=0;i<this->m_data.size();i++){
+        ans.m_data[i] = ans.m_data[i].ModMul(b, ans.m_modulus);
+      }
+      return std::move(ans);
+  #else
+
+      mubintvec ans(*this);
+
+      //Precompute the Barrett mu parameter
+      ubint_el_t temp(ubint_el_t::ONE);
+
+      temp<<=2*this->GetModulus().GetMSB()+3;
+
+      ubint_el_t mu = temp.DividedBy(m_modulus);
+
+      //Precompute the Barrett mu values
+      /*ubint temp;
+        uschar gamma;
+        uschar modulusLength = this->GetModulus().GetMSB() ;
+        ubint mu_arr[BARRETT_LEVELS+1];
+        for(usint i=0;i<BARRETT_LEVELS+1;i++) {
+        temp = ubint::ONE;
+        gamma = modulusLength*i/BARRETT_LEVELS;
+        temp<<=modulusLength+gamma+3;
+        mu_arr[i] = temp.DividedBy(this->GetModulus());
+        }*/
+
+      for(usint i=0;i<this->m_data.size();i++){
+        ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+      }
+
+      return ans;
+
+
+  #endif
     }
-    return std::move(ans);
-#else
 
-    mubintvec ans(*this);
-
-    //Precompute the Barrett mu parameter
-    ubint_el_t temp(ubint_el_t::ONE);
-
-    temp<<=2*this->GetModulus().GetMSB()+3;
-
-    ubint_el_t mu = temp.DividedBy(m_modulus);
-
-    //Precompute the Barrett mu values
-    /*ubint temp;
-      uschar gamma;
-      uschar modulusLength = this->GetModulus().GetMSB() ;
-      ubint mu_arr[BARRETT_LEVELS+1];
-      for(usint i=0;i<BARRETT_LEVELS+1;i++) {
-      temp = ubint::ONE;
-      gamma = modulusLength*i/BARRETT_LEVELS;
-      temp<<=modulusLength+gamma+3;
-      mu_arr[i] = temp.DividedBy(this->GetModulus());
-      }*/
-
-    for(usint i=0;i<this->m_data.size();i++){
-      ans.m_data[i] = ans.m_data[i].ModBarrettMul(b,this->m_modulus,mu);
+    template<class ubint_el_t>
+    const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModMulEq(const ubint_el_t &b) {
+      for(usint i=0;i<this->m_data.size();i++){
+        this->m_data[i].ModMulEq(b, this->m_modulus);
+      }
+      return *this;
     }
-
-    return ans;
-
-
-#endif
-  }
 
 template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModExp(const ubint_el_t &b) const{
@@ -717,36 +730,67 @@ template<class ubint_el_t>
   // vector elementwise add
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAdd(const mubintvec &b) const{
-    
-    mubintvec ans(*this);
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec adding vectors of different moduli");
-    } else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec adding vectors of different lengths");
-    } else {
-      for(usint i=0;i<ans.m_data.size();i++){
-	ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i], ans.m_modulus);
-      }
-      return std::move(ans);
-    }
+
+	  mubintvec ans(*this);
+	  if(this->m_modulus!=b.m_modulus){
+		  throw std::logic_error("mubintvec adding vectors of different moduli");
+	  } else if(this->m_data.size()!=b.m_data.size()){
+		  throw std::logic_error("mubintvec adding vectors of different lengths");
+	  } else {
+		  for(usint i=0;i<ans.m_data.size();i++){
+			  ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i], ans.m_modulus);
+		  }
+		  return std::move(ans);
+	  }
+  }
+
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModAddEq(const mubintvec &b) {
+	  if(this->m_modulus!=b.m_modulus){
+		  throw std::logic_error("mubintvec adding vectors of different moduli");
+	  } else if(this->m_data.size()!=b.m_data.size()){
+		  throw std::logic_error("mubintvec adding vectors of different lengths");
+	  } else {
+		  for(usint i=0;i<this->m_data.size();i++){
+			  this->m_data[i].ModAddEq(b.m_data[i], this->m_modulus);
+		  }
+		  return *this;
+	  }
   }
 
   // vector elementwise subtract
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const mubintvec &b) const{
-    
-    mubintvec ans(*this);
-    if(this->m_modulus!=b.m_modulus){
-      throw std::logic_error("mubintvec subtracting vectors of different moduli");
-    } else if(this->m_data.size()!=b.m_data.size()){
-      throw std::logic_error("mubintvec subtracting vectors of different lengths");
-    } else {
 
-      for(usint i=0;i<ans.m_data.size();i++){
-	ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],ans.m_modulus);
-      }
-      return std::move(ans);
-    }
+	  mubintvec ans(*this);
+	  if(this->m_modulus!=b.m_modulus){
+		  throw std::logic_error("mubintvec subtracting vectors of different moduli");
+	  } else if(this->m_data.size()!=b.m_data.size()){
+		  throw std::logic_error("mubintvec subtracting vectors of different lengths");
+	  } else {
+
+		  for(usint i=0;i<ans.m_data.size();i++){
+			  ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],ans.m_modulus);
+		  }
+		  return std::move(ans);
+	  }
+  }
+
+  // vector elementwise subtract
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModSubEq(const mubintvec &b) {
+
+	  if(this->m_modulus!=b.m_modulus){
+		  throw std::logic_error("mubintvec subtracting vectors of different moduli");
+	  } else if(this->m_data.size()!=b.m_data.size()){
+		  throw std::logic_error("mubintvec subtracting vectors of different lengths");
+	  } else {
+
+		  for(usint i=0;i<this->m_data.size();i++){
+			  this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
+		  }
+		  return *this;
+	  }
   }
 
   // vector elementwise multiply
@@ -799,6 +843,20 @@ template<class ubint_el_t>
 #endif
   }
   
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModMulEq(const mubintvec &b) {
+	  if(this->m_modulus!=b.m_modulus){
+		  throw std::logic_error("mubintvec multiplying vectors of different moduli");
+	  }else if(this->m_data.size()!=b.m_data.size()){
+		  throw std::logic_error("mubintvec multiplying vectors of different lengths");
+	  } else {
+		  for(usint i=0;i<this->m_data.size();i++){
+			  this->m_data[i].ModMulEq(b.m_data[i],this->m_modulus);
+		  }
+		  return *this;
+	  }
+  }
+
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::MultiplyAndRound(const ubint_el_t &p, const ubint_el_t &q) const {
 

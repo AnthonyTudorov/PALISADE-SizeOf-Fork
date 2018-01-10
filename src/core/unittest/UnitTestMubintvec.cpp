@@ -575,8 +575,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
   //now Mod operations
   c2 = a2.ModAdd(b2);
   EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector ModAdd()";    
-  c2 = a2.Plus(b2);
-  EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector Plus()";
 
   c2 = a2 + b2;
   EXPECT_EQ (c2, modadd2) << "Failure 2 limb vector vector +";
@@ -587,8 +585,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
   
   c2 = a2.ModSub(b2);
   EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector ModSub()";   
-  c2 = a2.Minus(b2);
-  EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector Minus()";
 
   c2 = a2 - b2;
   EXPECT_EQ (c2, modsub2) << "Failure 2 limb vector vector -";
@@ -599,8 +595,6 @@ TEST(UTmubintvec,basic_vector_vector_mod_math_2_limb){
   
   c2 = a2.ModMul(b2);
   EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector ModMul()";   
-  c2 = a2.Mul(b2);
-  EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector Mul()";    
 
   c2 = a2 * b2;
   EXPECT_EQ (c2, modmul2) << "Failure 2 limb vector vector *";

@@ -1931,7 +1931,6 @@ return result;
   template<typename limb_t>
   void ubint<limb_t>::SetValue(const std::string& str){
     ubint::AssignVal(str);
-
   }
 
   //Algorithm used: optimized division algorithm
@@ -2034,10 +2033,110 @@ return result;
     result.SetMSB();
     return result;
 #endif
-
-
-
   }
+
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModEq(const ubint& modulus) {
+    bool dbg_flag = false;
+
+    //check for garbage initialisation
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("ModEq() of uninitialized bint");
+    if(modulus.m_state==GARBAGE)
+      throw std::logic_error("ModEq() using uninitialized bint as modulus");
+
+    if(modulus==0)
+      throw std::logic_error("ModEq() using zero modulus");
+
+    if(modulus.m_value.size()>1 && modulus.m_value.back()==0)
+      throw std::logic_error("ModEq() using unnormalized  modulus");
+
+    //return the same value if value is less than modulus
+    if (this->m_MSB < modulus.m_MSB){
+      return *this;
+    }
+    if ((this->m_MSB == modulus.m_MSB)&&(*this<modulus)){
+      DEBUG("this< modulus");
+      return *this;
+    }
+
+    //use simple masking operation if modulus is 2
+    if(modulus.m_MSB==2 && modulus.m_value[0]==2){
+      if(this->m_value[0]%2==0)
+		return *this = 0;
+      else
+  		return *this = 1;
+    }
+
+#ifndef UBINT_64
+
+    // FIXME do this in place!
+    // return the remainder of the divided by operation
+    ubint ans(0);
+    if (dbg_flag){
+      DEBUG("modulus ");
+      DEBUGEXP(modulus.GetInternalRepresentation());
+    }
+
+    int f;
+#ifndef OLD_DIV
+    ans.m_value.resize(modulus.m_value.size());
+#endif
+
+    f = divr_vect(ans,  *this,  modulus);
+    if (f!= 0)
+      throw std::logic_error("Mod() divr error");
+
+    ans.NormalizeLimbs();
+    ans.SetMSB();
+    ans.m_state = INITIALIZED;
+    DEBUGEXP(ans.GetInternalRepresentation());
+    return *this = ans;
+
+#else //radically slow for 64 bit version.
+    int initial_shift = 0;
+    //No of initial left shift that can be performed which will make it comparable to the current value.
+    DEBUG("in Mod this "<<*this);
+    DEBUG("in Mod thismsb "<<this->m_MSB);
+    DEBUG("in Mod mod "<<modulus);
+    DEBUG("in Mod modmsb "<<modulus.m_MSB);
+
+    if(this->m_MSB > modulus.m_MSB)
+      initial_shift=this->m_MSB - modulus.m_MSB -1;
+    DEBUG("initial_shift "<<initial_shift);
+
+    ubint j = modulus<<initial_shift;
+    ubint result(*this);
+    ubint temp;
+    while(true){
+      //exit criteria
+      if(result<modulus) break;
+      if (result.m_MSB > j.m_MSB) {
+	temp = j<<1;
+	if (result.m_MSB == j.m_MSB + 1) {
+	  if(result>temp){
+	    j=temp;
+	  }
+	}
+      }
+      //subtracting the running remainder by a multiple of modulus
+      result -= j;
+      initial_shift = j.m_MSB - result.m_MSB +1;
+      if(result.m_MSB-1>=modulus.m_MSB){
+	DEBUG("j before "<<j<< " initial_shift "<<initial_shift);
+	  j>>=initial_shift;
+      } else {
+	j = modulus;
+	DEBUG("j = "<<j);
+      }
+    }
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);
+    result.NormalizeLimbs();
+    result.SetMSB();
+    return result;
+#endif
+  }
+
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
@@ -2185,31 +2284,62 @@ return result;
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModAdd(const ubint& b, const ubint& modulus) const{
     return this->Plus(b).Mod(modulus);
-    //todo what is the order of this operation?
   }
+
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModAddEq(const ubint& b, const ubint& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+  }
+
 
   //Need to mimic        signed modulus return of BE 2
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
-    ubint* a = const_cast<ubint*>(this);
-    ubint* b_op = const_cast<ubint*>(&b);
+	  ubint a(*this);
+	  ubint b_op(b);
 
-    //reduce this to a value lower than modulus
-    if(*this>modulus){
+	  //reduce this to a value lower than modulus
+	  if(*this>modulus){
+		  a.ModEq(modulus);
+	  }
+	  //reduce b to a value lower than modulus
+	  if(b>modulus){
+		  b_op.ModEq(modulus);
+	  }
 
-      *a = std::move(this->Mod(modulus));
-    }
-    //reduce b to a value lower than modulus
-    if(b>modulus){
-      *b_op = std::move(b.Mod(modulus));
-    }
+	  if(a>=b_op){
+		  return ((a-b_op).Mod(modulus));
+	  }
+	  else{
+		  return ((a + modulus) - b_op);
+	  }
+  }
 
-    if(*a>=*b_op){
-      return ((*a-*b_op).Mod(modulus));		
-    }
-    else{
-      return ((*a + modulus) - *b_op);
-    }
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModSubEq(const ubint& b, const ubint& modulus) {
+	  ubint b_op(b);
+
+	  //reduce this to a value lower than modulus
+	  if(*this>modulus){
+		  this->ModEq(modulus);
+	  }
+	  //reduce b to a value lower than modulus
+	  if(b>modulus){
+		  b_op.ModEq(modulus);
+	  }
+
+	  if(*this >= b_op) {
+		  this->MinusEq(b_op);
+		  this->ModEq(modulus);
+	  }
+	  else {
+		  this->PlusEq(modulus);
+		  this->MinusEq(b_op);
+	  }
+
+	  return *this;
   }
 
 
@@ -2297,12 +2427,92 @@ return result;
     return ans;
   }
 
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModMulEq(const ubint& b, const ubint& modulus) {
+
+	  bool dbg_flag = false;
+	  DEBUG("ModMulEq");
+
+	  //check for garbage initialized objects
+	  if(b.m_MSB==0 || b.m_state==GARBAGE || this->m_state==GARBAGE || this->m_MSB==0){
+		  return *this = 0;
+	  }
+	  //check for trivial condtions
+	  if(b.m_MSB==1)
+		  return *this;
+
+	  if(this->m_MSB==1)
+		  return *this = b;
+
+	  //position of B in the array where the multiplication should start
+	  //limb_t ceilLimb = b.m_value.size();
+	  //Multiplication is done by getting a limb_t from b and multiplying it with *this
+	  //after multiplication the result is shifted and added to the final answer
+
+	  size_t nSize = this->m_value.size();
+	  size_t bSize = b.m_value.size();
+	  ubint tmpans;
+	  this->m_value.reserve(nSize+bSize);
+	  tmpans.m_value.reserve(nSize+bSize);
+
+	  for(size_t i= 0;i< bSize;++i){
+		  DEBUG("i "<<i);
+		  tmpans.m_value.clear(); //make sure there are no limbs to start.
+		  Dlimb_t limbb(b.m_value[i]);
+
+		  //variable to capture the overflow
+		  Dlimb_t temp=0;
+		  //overflow value
+		  limb_t ofl=0;
+
+		  DEBUG("mibl A:"<<this->ToString() );
+		  // DEBUG("mibl B:"<<limbb );
+		  DEBUG("this->size() now " <<this->m_value.size());
+		  DEBUGEXP(this->GetInternalRepresentation());
+
+		  usint ix= 0;
+		  while (ix<i){
+			  tmpans.m_value.push_back(0); //equivalent of << shift
+			  //could use insert
+			  ++ix;
+		  }
+
+		  for(auto itr: this->m_value){
+			  DEBUG("mullimb i"<<i);
+			  temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
+
+			  tmpans.m_value.push_back((limb_t)temp);
+			  ofl = temp>>this->m_limbBitLength;
+			  DEBUG("this->size() now " << this->m_value.size());
+			  DEBUGEXP(tmpans.GetInternalRepresentation());
+
+		  }
+		  //check if there is any final overflow
+		  if(ofl){
+			  DEBUG("mullimb ofl "<<ofl);
+			  tmpans.m_value.push_back(ofl);
+		  }
+
+		  //usint nSize = m_value.size();
+		  tmpans.m_state = INITIALIZED;
+		  tmpans.SetMSB();
+		  DEBUG("this->size() final " << this->m_value.size());
+		  DEBUGEXP(tmpans.GetInternalRepresentation());
+
+		  DEBUG("mibl ans "<< this->ToString());
+
+		  *this += tmpans;
+		  this->ModEq(modulus);
+		  DEBUG("ans now "<<this->ToString());
+	  }
+	  return *this;
+  }
+
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
 #ifdef NO_BARRETT
-    ubint ans(*this);  
-    return ans.ModMul(b, modulus);
+    return this->ModMul(b, modulus);
 
 #else
     ubint* a  = const_cast<ubint*>(this);

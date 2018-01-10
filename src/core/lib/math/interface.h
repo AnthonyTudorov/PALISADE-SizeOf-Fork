@@ -463,7 +463,7 @@ public:
 		 *
 		 * @return vector length.
 		 */
-		size_t GetLength() const;
+		virtual size_t GetLength() const = 0;
 
 		/**
 		 * Scalar modulus addition.
@@ -507,17 +507,10 @@ public:
 		const T& ModAddEq(const T &b);
 
 		// inlines for overloaded operators
-<<<<<<< HEAD
 		inline friend T operator+(const T& a, const I& b) { return a.ModAdd(b); }
 		inline friend const T& operator+=(T& a, const I& b) { return a.ModAddEq(b); }
 		inline friend T operator+(const T& a, const T& b) { return a.ModAdd(b); }
 		inline friend const T& operator+=(T& a, const T& b) { return a.ModAddEq(b); }
-=======
-		inline friend T operator+(const T &a, const I &b) { return a.ModAdd(b); }
-		inline friend const T& operator+=(T &a, const I &b) { return a.ModAddEq(b); }
-		inline friend T operator+(const T &a, const T &b) { return a.ModAdd(b); }
-		inline friend const T& operator+=(T &a, const T &b) { return a.ModAddEq(b); }
->>>>>>> closer to vec
 
 		/**
 		 * Scalar modulus addition.
@@ -525,11 +518,7 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-<<<<<<< HEAD
 		T ModSub(const I &b) const;
-=======
-		T ModSub(const I &b);
->>>>>>> closer to vec
 
 		/**
 		 * Scalar modulus addition.
@@ -559,17 +548,10 @@ public:
 		inline friend T operator-(const T& a) { return a.ModMul(I(-1)); }
 
 		// inlines for overloaded operators
-<<<<<<< HEAD
 		inline friend T operator-(const T& a, const I& b) { return a.ModSub(b); }
 		inline friend const T& operator-=(T& a, const I& b) { return a.ModSubEq(b); }
 		inline friend T operator-(const T& a, const T& b) { return a.ModSub(b); }
 		inline friend const T& operator-=(T& a, const T& b) { return a.ModSubEq(b); }
-=======
-		inline friend T operator-(const T &a, const I &b) { return a.ModSub(b); }
-		inline friend const T& operator-=(T &a, const I &b) { return a.ModSubEq(b); }
-		inline friend T operator-(const T &a, const T &b) { return a.ModSub(b); }
-		inline friend const T& operator-=(T &a, const T &b) { return a.ModSubEq(b); }
->>>>>>> closer to vec
 
 		/**
 		 * Scalar modular multiplication.
@@ -604,17 +586,10 @@ public:
 		const T& ModMulEq(const T &b);
 
 		// inlines for overloaded operators
-<<<<<<< HEAD
 		inline friend T operator*(const T& a, const I& b) { return a.ModMul(b); }
 		inline friend const T& operator*=(T& a, const I& b) { return a.ModMulEq(b); }
 		inline friend T operator*(const T& a, const T& b) { return a.ModMul(b); }
 		inline friend const T& operator*=(T& a, const T& b) { return a.ModMulEq(b); }
-=======
-		inline friend T operator*(const T &a, const I &b) { return a.ModMul(b); }
-		inline friend const T& operator*=(T &a, const I &b) { return a.ModMulEq(b); }
-		inline friend T operator*(const T &a, const T &b) { return a.ModMul(b); }
-		inline friend const T& operator*=(T &a, const T &b) { return a.ModMulEq(b); }
->>>>>>> closer to vec
 
 		/**
 		 * Vector Modulus operator.
@@ -651,26 +626,6 @@ public:
 		*/
 		T ModByTwo() const;
 			// FIXME there is no ModByTwoEq -- is it needed?
-
-<<<<<<< HEAD
-		// FIXME this method does not seem to be used -- is it needed?
-		/**
-		 * Vector multiplication without applying the modulus operation.
-		 *
-		 * @param &b is the vector to multiply.
-		 * @return is the result of the multiplication operation.
-		 */
-		T MultWithOutMod(const T &b) const;
-=======
-//		// FIXME this method does not seem to be used -- is it needed?
-//		/**
-//		 * Vector multiplication without applying the modulus operation.
-//		 *
-//		 * @param &b is the vector to multiply.
-//		 * @return is the result of the multiplication operation.
-//		 */
-//		virtual T MultWithOutMod(const T &b) const = 0;
->>>>>>> closer to vec
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.

@@ -322,7 +322,29 @@ public:
   
   void atMod(size_t index, const ubint_el_t &value);
   void atMod(size_t index, const std::string &valstr);
+
+  ubint_el_t& at(size_t i) {
+	  if(!this->IndexCheck(i)) {
+		  throw std::logic_error("index out of range");
+	  }
+	  return this->m_data[i];
+  }
+
+  const ubint_el_t& at(size_t i) const {
+	  if(!this->IndexCheck(i)) {
+		  throw std::logic_error("index out of range");
+	  }
+	  return this->m_data[i];
+  }
+
+  ubint_el_t& operator[](size_t i) {
+	  return this->m_data[i];
+  }
   
+  const ubint_el_t& operator[](size_t i) const {
+	  return this->m_data[i];
+  }
+
   /**
    * returns the vector modulus with respect to the input value.
    *
@@ -331,14 +353,7 @@ public:
    * side effect it resets the vector modulus to modulus
    */
   mubintvec Mod(const ubint_el_t& modulus) const;
-
-    /**
-   * vector scalar %=
-   *
-   * @param &modulus is the new modulus value
-   * @return is the result of the mod operation.
-   */
-  const mubintvec& operator%=(const ubint_el_t& modulus);
+  const mubintvec& ModEq(const ubint_el_t& modulus);
 
   /**
    * Perform a modulus by 2 operation.  Returns the least significant bit.
@@ -501,7 +516,11 @@ private:
 
   std::vector<ubint_el_t> m_data;
 
-  bool IndexCheck(usint) const;
+	bool IndexCheck(size_t length) const {
+		if(length > m_data.size())
+			return false;
+		return true;
+	}
 
 };
 
