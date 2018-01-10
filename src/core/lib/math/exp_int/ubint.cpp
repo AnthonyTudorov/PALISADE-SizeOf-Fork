@@ -2352,15 +2352,15 @@ return result;
 	
     ubint ans(0);
     //check for garbage initialized objects
-    if(b.m_MSB==0 || b.m_state==GARBAGE ||a.m_state==GARBAGE || a.m_MSB==0){
+    if(b.m_MSB==0 || b.m_state==GARBAGE || a.m_state==GARBAGE || a.m_MSB==0){
       return ans;
     }
-    //check for trivial condtions
+    //check for trivial conditions
     if(b.m_MSB==1)
       return a;
 
     if(a.m_MSB==1)
-      return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
+      return b;
 	
     //position of B in the array where the multiplication should start
     //limb_t ceilLimb = b.m_value.size();

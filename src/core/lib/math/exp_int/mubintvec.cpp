@@ -787,7 +787,7 @@ template<class ubint_el_t>
 	  } else {
 
 		  for(usint i=0;i<this->m_data.size();i++){
-			  this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
+			  this->m_data[i].ModSubEq(b.m_data[i],this->m_modulus);
 		  }
 		  return *this;
 	  }
