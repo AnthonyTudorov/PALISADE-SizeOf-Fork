@@ -896,20 +896,19 @@ namespace cpu_int{
 		static usint GetMSBDUint_type(Duint_type x);
 		
 		/**
-		* function that returns the BigInteger after multiplication by b.
+		* function that returns the BigInteger after multiplication by a uint.
 		* @param b is the number to be multiplied.
 		* @return the BigInteger after the multiplication.
 		*/
-        BigInteger MulIntegerByChar(uint_type b) const;
+        BigInteger MulByUint(const uint_type b) const;
 
 		/**
-		* function that returns the BigInteger after multiplication by b.
-		* the pointer argument is used to minimize the number of BigInteger instantiations
+		* function that returns the BigInteger after multiplication by a uint.
 		* @param b is the number to be multiplied.
-		* @param ans - where result is stored ("in-place")
+		* @return the BigInteger after the multiplication.
 		*/
-		void MulIntegerByCharInPlace(uint_type b, BigInteger *ans) const;
-		
+        void MulByUintToInt(const uint_type b, BigInteger* ans) const;
+
 		/**
 		* function that returns the decimal value from the binary array a.
 		* @param a is a pointer to the binary array.
