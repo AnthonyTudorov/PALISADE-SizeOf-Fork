@@ -41,7 +41,7 @@ namespace lbcrypto {
 		// Constructors must be implemented in the derived classes
 		// There are no base class constructors that need to be called
 
-		// The derived classes should implement constructors from integers and strings
+		// The derived classes should implement constructors from uint64_t, NativeInteger, and strings
 		// There should be copy and move constructors, as well as copy and move assignment
 
 		// ACCESSORS

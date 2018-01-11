@@ -32,10 +32,6 @@ Description:
 #include "../../utils/serializable.h"
 #include "../../utils/debug.h"
 
-#if defined(_MSC_VER)
-	#pragma intrinsic(_BitScanReverse64) 
-#endif
-
 namespace cpu_int {
 
 //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
@@ -126,14 +122,17 @@ BigInteger<uint_type,BITLENGTH>::BigInteger(const BigInteger& bigInteger){
 }
 
 template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH>::BigInteger(BigInteger&& bigInteger){
+	m_MSB = std::move(bigInteger.m_MSB);
+	for (size_t i=0; i < m_nSize; ++i) {
+		m_value[i] = std::move(bigInteger.m_value[i]);
+	}
+}
+
+template<typename uint_type,usint BITLENGTH>
 unique_ptr<BigInteger<uint_type,BITLENGTH>> BigInteger<uint_type,BITLENGTH>::Allocator() {
 	return lbcrypto::make_unique<cpu_int::BigInteger<uint_type,BITLENGTH>>();
 };
-
-template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH>::~BigInteger()
-{	
-}
 
 /*
 *Converts the BigInteger to unsigned integer or returns the first 32 bits of the BigInteger.
@@ -177,6 +176,18 @@ const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operato
 		}
 	}
 	
+	return *this;
+}
+
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator=(BigInteger &&rhs){
+
+	if(this!=&rhs){
+	    this->m_MSB = std::move(rhs.m_MSB);
+	    for( size_t i=0; i < m_nSize; i++ )
+	    		this->m_value[i] = std::move(rhs.m_value[i]);
+	}
+
 	return *this;
 }
 

@@ -494,10 +494,10 @@ namespace lbcrypto {
 	{
 		bool dbg_flag = false;
 		DEBUG("in NTL MRPT");
-		if (p < NTL::myZZ::TWO || ((p != NTL::myZZ::TWO) &&
-			(p.Mod(NTL::myZZ::TWO) == NTL::myZZ::ZERO)))
+		if (p < NTL::myZZ(2) || ((p != NTL::myZZ(2)) &&
+			(p.Mod(NTL::myZZ(2)) == NTL::myZZ(0))))
 			return false;
-		if (p == NTL::myZZ::TWO || p == NTL::myZZ::THREE || p == NTL::myZZ::FIVE)
+		if (p == NTL::myZZ(2) || p == NTL::myZZ(3) || p == NTL::myZZ(5))
 			return true;
 
 		return (bool)ProbPrime(p, niter); //TODO: check to see if niter >maxint

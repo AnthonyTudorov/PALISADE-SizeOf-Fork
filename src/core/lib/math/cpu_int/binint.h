@@ -241,15 +241,19 @@ namespace cpu_int{
     BigInteger(const BigInteger& bigInteger);
 
     /**
+    * Move constructor for copying a big binary integer
+    *
+    * @param bigInteger is the big binary integer to be copied.
+    */
+    BigInteger(BigInteger&& bigInteger);
+
+    /**
      * Construct a BigInteger from a NativeInteger
      * @param native
      */
     BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
    
-    /**
-    * Destructor.
-    */
-    ~BigInteger();
+    ~BigInteger() {}
         
     /**
     * Assignment operator
@@ -259,23 +263,39 @@ namespace cpu_int{
     */
     const BigInteger&  operator=(const BigInteger &rhs);
 
+    /**
+    * Move Assignment operator
+    *
+    * @param &rhs is the big binary integer to be assigned from.
+    * @return assigned BigInteger ref.
+    */
+    const BigInteger&  operator=(BigInteger &&rhs);
+
 	/**
     * Assignment operator from unsigned integer
     *
     * @param val is the unsigned integer value that is assigned.
     * @return the assigned BigInteger ref.
     */
-    //TODO: should this be uint_64_t?    
-    inline const BigInteger& operator=(usint val) {
-      *this = intToBigInteger(val);
+    const BigInteger& operator=(uint64_t val) {
+      *this = BigInteger(val);
       return *this;
     }
-	
-    inline const BigInteger& operator=(std::string strval) {
+
+    /**
+     * Assignment from string
+     * @param strval
+     * @return the assigned BigInteger ref.
+     */
+    const BigInteger& operator=(const std::string strval) {
       *this = BigInteger(strval);
       return *this;
     }
 
+    const BigInteger& operator=(const NativeInteger& val) {
+      *this = BigInteger(val);
+      return *this;
+    }
 	
 //Auxillary Functions
     
