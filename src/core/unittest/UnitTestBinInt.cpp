@@ -62,6 +62,31 @@ protected:
 /*	TESTING METHODS OF BININT CLASS		*/
 /************************************************/
 
+inline void identity_test(BigInteger& a) {
+	BigInteger ZERO(0);
+	BigInteger ONE(1);
+
+	EXPECT_EQ(a, a + 0) << "Failure testing a + 0";
+	EXPECT_EQ(a, a += 0) << "Failure testing a += 0";
+	EXPECT_EQ(a, a * 1) << "Failure testing a * 1";
+	EXPECT_EQ(a, a *= 1) << "Failure testing a *= 1";
+
+	EXPECT_EQ(a, ZERO + a) << "Failure testing 0 + a";
+	EXPECT_EQ(a, ZERO += a) << "Failure testing 0 += a";
+	EXPECT_EQ(a, ONE * a) << "Failure testing 1 * a";
+	EXPECT_EQ(a, ONE *= a) << "Failure testing 1 *= a";
+
+	EXPECT_EQ(a*a, ONE *= a) << "Failure on 1 *= a, twice";
+}
+
+TEST(UTBinInt,identity) {
+	BigInteger sm("3279");
+	BigInteger lg("1234567898765432");
+
+	identity_test( sm );
+	identity_test( lg );
+}
+
 /************************************************/
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/

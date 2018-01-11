@@ -803,32 +803,29 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::MinusEq(
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type, BITLENGTH>::Times(const BigInteger& b) const {
 
-	BigInteger ans;
-
 	//if one of them is zero
 	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		ans = 0;
-		return ans;
+		return 0;
 	}
 
 	//check for trivial conditions
 	if (b.m_MSB == 1) {
-		ans = *this;
-		return ans;
+		return *this;
 	}
 	if (this->m_MSB == 1) {
-		ans = b;
-		return ans;
+		return b;
 	}
 	
+	BigInteger ans;
+
 	//position of B in the array where the multiplication should start
 	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
 	//Multiplication is done by getting a uint_type from b and multiplying it with *this
 	//after multiplication the result is shifted and added to the final answer
 	BigInteger temp;
 	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
-		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
-		ans += temp<<=( m_nSize-1-i)*m_uintBitLength;
+		this->MulByUintToInt(b.m_value[i], &temp);
+		ans += temp <<= (m_nSize-1-i)*m_uintBitLength;
 	}
 
 	return ans;
@@ -839,32 +836,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type, BITLENGTH>::Times(const Bi
 */
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq(const BigInteger& b) {
-
-	//if one of them is zero
-	if (b.m_MSB == 0 || this->m_MSB == 0) {
-		*this = 0;
-		return *this;
-	}
-
-	//check for trivial conditions
-	if (b.m_MSB == 1) {
-		return *this;
-	}
-	if (this->m_MSB == 1) {
-		*this = b;
-		return *this;
-	}
-
-	//position of B in the array where the multiplication should start
-	uint_type ceilInt = ceilIntByUInt(b.m_MSB);
-	//Multiplication is done by getting a uint_type from b and multiplying it with *this
-	//after multiplication the result is shifted and added to the final answer
-	BigInteger temp;
-	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
-		this->MulIntegerByCharInPlace(b.m_value[i], &temp);
-		*this += temp<<=( m_nSize-1-i)*m_uintBitLength;
-	}
-
+	*this = this->Times(b);
 	return *this;
 }
 
@@ -873,12 +845,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq
 *  This function is used in the Multiplication of two BigInteger objects
 */
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::MulIntegerByChar(uint_type b) const{
+void BigInteger<uint_type,BITLENGTH>::MulByUintToInt(const uint_type b, BigInteger* ans) const {
 	
-	if(b==0 || this->m_MSB==0)
-		return 0;
+	if(b==0 || this->m_MSB==0) {
+		*ans = 0;
+		return;
+	}
 	
-	BigInteger ans;
 	//position in the array to start multiplication
 	usint endVal = m_nSize-ceilIntByUInt(m_MSB);
 	//variable to capture the overflow
@@ -889,55 +862,26 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::MulIntegerByCha
 
 	for(;i>=endVal ;i--){
 		temp = ((Duint_type)m_value[i]*(Duint_type)b) + ofl;
-		ans.m_value[i] = (uint_type)temp;
+		ans->m_value[i] = (uint_type)temp;
 		ofl = temp>>m_uintBitLength;
 	}
 	//check if there is any final overflow
 	if(ofl){
-		ans.m_value[i]=ofl;
+		ans->m_value[i]=ofl;
 	}
-	ans.m_MSB = (m_nSize-1-endVal)*m_uintBitLength;
-	//set the MSB after the final computation
-	ans.m_MSB += GetMSBDUint_type(temp);
+	ans->m_MSB = (m_nSize-1-endVal)*m_uintBitLength;
 
-	return ans;
-}
-
-/* Times operation: Optimized version (with reduced number of BigInteger instantiations)
-*  Algorithm used is usual school book multiplication.
-*  This function is used in the Multiplication of two BigInteger objects
-*/
-template<typename uint_type, usint BITLENGTH>
-void BigInteger<uint_type, BITLENGTH>::MulIntegerByCharInPlace(uint_type b, BigInteger *ans) const {
-
-	if (b == 0 || this->m_MSB == 0) {
-		*ans = 0;
-		return;
-	}
-
-	//BigInteger ans;
-	//position in the array to start multiplication
-	usint endVal = m_nSize - ceilIntByUInt(m_MSB);
-	//variable to capture the overflow
-	Duint_type temp = 0;
-	//overflow value
-	uint_type ofl = 0;
-	size_t i = m_nSize - 1;
-
-	for (; i >= endVal; i--) {
-		temp = ((Duint_type)m_value[i] * (Duint_type)b) + ofl;
-		ans->m_value[i] = (uint_type)temp;
-		ofl = temp >> m_uintBitLength;
-	}
-	//check if there is any final overflow
-	if (ofl) {
-		ans->m_value[i] = ofl;
-	}
-	ans->m_MSB = (m_nSize - 1 - endVal)*m_uintBitLength;
 	//set the MSB after the final computation
 	ans->m_MSB += GetMSBDUint_type(temp);
 
 	return;
+}
+
+template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::MulByUint(const uint_type b) const {
+	BigInteger ans;
+	MulByUintToInt(b, &ans);
+	return ans;
 }
 
 /* Division operation:
@@ -1008,7 +952,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const
 				else
 					maskBit= (uint_type)1<<(shifts);
 				
-				if((b.MulIntegerByChar(maskBit))>estimateFinder){
+				if((b.MulByUint(maskBit))>estimateFinder){
 					maskBit>>=1;
 					estimateFinder-= b<<(shifts-1);
 				}
@@ -1127,7 +1071,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::DividedB
 				else
 					maskBit= (uint_type)1<<(shifts);
 
-				if((b.MulIntegerByChar(maskBit))>estimateFinder){
+				if((b.MulByUint(maskBit))>estimateFinder){
 					maskBit>>=1;
 					estimateFinder-= b<<(shifts-1);
 				}
@@ -2121,7 +2065,7 @@ BigInteger<uint_type, BITLENGTH> BigInteger<uint_type, BITLENGTH>::DivideAndRoun
 				else
 					maskBit = 1 << (shifts);
 
-				if ((q.MulIntegerByChar(maskBit))>estimateFinder) {
+				if ((q.MulByUint(maskBit))>estimateFinder) {
 					maskBit >>= 1;
 					estimateFinder -= q << (shifts - 1);
 				}
