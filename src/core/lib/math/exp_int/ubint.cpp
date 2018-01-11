@@ -2060,7 +2060,7 @@ return result;
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
 #ifdef NO_BARRETT	
     ubint ans(*this);
-    ans%=modulus;
+    ans.ModEq(modulus);
     return(ans);
 #else
 	if(*this<modulus){
@@ -2360,18 +2360,20 @@ return result;
     return this->ModMul(b, modulus);
 
 #else
-    ubint* a  = const_cast<ubint*>(this);
-    ubint* bb = const_cast<ubint*>(&b);
+    ubint a(*this);
+    ubint bb(b);
     
     //if a is greater than q reduce a to its mod value
     if(*this>modulus)
-      *a = std::move(this->ModBarrett(modulus,mu));
+      a.ModBarrettInPlace(modulus,mu);
     
     //if b is greater than q reduce b to its mod value
     if(b>modulus)
-      *bb = std::move(b.ModBarrett(modulus,mu));
+      bb.ModBarrettInPlace(modulus,mu);
     
-    return (*a**bb).ModBarrett(modulus,mu);
+    a.TimesEq(bb);
+    a.ModBarrettInPlace(modulus,mu);
+    return a;
 #endif
   }
 
@@ -2380,12 +2382,11 @@ return result;
   template<typename limb_t>
   void ubint<limb_t>::ModBarrettMulInPlace(const ubint& b, const ubint& modulus,const ubint& mu) {
 #ifdef NO_BARRETT
-    *this = this->ModMul(b, modulus);
+    this->ModMulEq(b, modulus);
     return ;
 
 #else
-
-    ubint* bb = const_cast<ubint*>(&b);
+    ubint bb(b);
     
     //if this is greater than q reduce a to its mod value
     if(*this>modulus)
@@ -2393,9 +2394,9 @@ return result;
     
     //if b is greater than q reduce b to its mod value
     if(b>modulus)
-      *bb = b.ModBarrett(modulus,mu);
-    	*this = *this**bb;
+      bb.ModBarrettInPlace(modulus,mu);
 
+    	this->TimesEq(bb);
 	this->ModBarrettInPlace(modulus, mu);
 
 	return;
@@ -2411,23 +2412,20 @@ return result;
     ubint ans(*this);
     return ans.ModMul(b, modulus);
 #else
-    ubint* a  = NULL;
-    ubint* bb = NULL;
+    ubint a(*this);
+    ubint bb(b);
     
     //if a is greater than q reduce a to its mod value
     if(*this>modulus)
-      *a = std::move(this->ModBarrett(modulus,mu_arr));
-    else
-      a = const_cast<ubint*>(this);
+      a.ModBarrettInPlace(modulus,mu_arr);
     
     //if b is greater than q reduce b to its mod value
     if(b>modulus)
-      *bb = std::move(b.ModBarrett(modulus,mu_arr));
-    else
-      bb = const_cast<ubint*>(&b);
+      bb.ModBarrettInPlace(modulus,mu_arr);
     
-    //return a*b%q
-    return (*a**bb).ModBarrett(modulus,mu_arr);
+    a.TimesEq(bb);
+    a.ModBarrettInPlace(modulus,mu_arr);
+    return a;
 #endif    
   }
 
