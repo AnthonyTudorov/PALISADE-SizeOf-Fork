@@ -825,7 +825,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type, BITLENGTH>::Times(const Bi
 	BigInteger temp;
 	for(size_t i= m_nSize-1;i>= m_nSize-ceilInt;i--){
 		this->MulByUintToInt(b.m_value[i], &temp);
-		ans += temp << ((m_nSize-1-i)*m_uintBitLength);
+		ans += temp <<= (m_nSize-1-i)*m_uintBitLength;
 	}
 
 	return ans;
@@ -847,8 +847,10 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type, BITLENGTH>::TimesEq
 template<typename uint_type,usint BITLENGTH>
 void BigInteger<uint_type,BITLENGTH>::MulByUintToInt(const uint_type b, BigInteger* ans) const {
 	
-	if(b==0 || this->m_MSB==0)
+	if(b==0 || this->m_MSB==0) {
+		*ans = 0;
 		return;
+	}
 	
 	//position in the array to start multiplication
 	usint endVal = m_nSize-ceilIntByUInt(m_MSB);
