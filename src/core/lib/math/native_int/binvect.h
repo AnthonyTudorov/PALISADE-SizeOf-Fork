@@ -195,21 +195,21 @@ public:
 
 	IntegerType& at(size_t i) {
 		if(!this->IndexCheck(i)) {
-			throw std::logic_error("index out of range in NativeVector");
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
 		}
 		return this->m_data[i];
 	}
 
 	const IntegerType& at(size_t i) const {
 		if(!this->IndexCheck(i)) {
-			throw std::logic_error("index out of range in NativeVector");
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
 		}
 		return this->m_data[i];
 	}
 
 	void atMod(size_t i, const IntegerType &val) {
 		if(!this->IndexCheck(i)) {
-			throw std::logic_error("index out of range in NativeVector");
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
 		}
 		this->m_data[i]=val%m_modulus;
 		return;
@@ -217,7 +217,7 @@ public:
 
 	void atMod(size_t i, const std::string& val) const {
 		if(!this->IndexCheck(i)) {
-			throw std::logic_error("index out of range in NativeVector");
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
 		}
 		IntegerType tmp(val);
 		this->m_data[i]=tmp%m_modulus;
@@ -271,6 +271,14 @@ public:
 	 */
 	NativeVector Mod(const IntegerType& modulus) const;
 	
+	/**
+	 * Vector Modulus operator.
+	 *
+	 * @param modulus is the modulus to perform on the current vector entries.
+	 * @return a new vector after the modulus operation on current vector.
+	 */
+	const NativeVector& ModEq(const IntegerType& modulus);
+
 	//scalar operations
 
 	/**
@@ -372,6 +380,13 @@ public:
 	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 	*/
 	NativeVector ModByTwo() const;
+
+	/**
+	* Perform a modulus by 2 operation.  Returns the least significant bit.
+	*
+	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+	*/
+	const NativeVector& ModByTwoEq();
 
 	//component-wise subtraction
 

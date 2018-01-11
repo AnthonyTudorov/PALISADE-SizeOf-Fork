@@ -246,17 +246,37 @@ BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::Mod(const IntegerType& mo
 	{
 		BigVectorImpl ans(this->GetLength(),this->GetModulus());
 		IntegerType halfQ(this->GetModulus() >> 1);
-		for (usint i = 0; i<ans.GetLength(); i++) {
-			if (this->at(i)>halfQ) {
-			  ans.at(i)=this->at(i).ModSub(this->GetModulus(),modulus);
+		for (size_t i = 0; i<ans.GetLength(); i++) {
+			if (this->operator[](i)>halfQ) {
+			  ans[i] = this->operator[](i).ModSub(this->GetModulus(),modulus);
 			}
 			else {
-			  ans.at(i)=this->at(i).Mod(modulus);
+			  ans[i] = this->operator[](i).Mod(modulus);
 			}
 		}
 		return ans;
 	}
+}
 
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModEq(const IntegerType& modulus) {
+
+	if (modulus==2) {
+		return this->ModByTwoEq();
+	}
+	else
+	{
+		IntegerType halfQ(this->GetModulus() >> 1);
+		for (usint i = 0; i<this->GetLength(); i++) {
+			if (this->operator[](i)>halfQ) {
+			  this->operator[](i).ModSubEq(this->GetModulus(),modulus);
+			}
+			else {
+			  this->operator[](i).ModEq(modulus);
+			}
+		}
+		return *this;
+	}
 }
 
 template<class IntegerType>
@@ -474,54 +494,32 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModSubEq(const Big
 
 template<class IntegerType>
 BigVectorImpl<IntegerType> BigVectorImpl<IntegerType>::ModByTwo() const {
-
-	BigVectorImpl ans(this->GetLength(),this->GetModulus());
-	IntegerType halfQ(this->GetModulus() >> 1);
-	for (usint i = 0; i<ans.GetLength(); i++) {
-		if (this->at(i)>halfQ) {
-			if (this->at(i).Mod(2) == 1)
-			  ans.at(i)= IntegerType(0);
-			else
-			  ans.at(i)= 1;
-		}
-		else {
-			if (this->at(i).Mod(2) == 1)
-			  ans.at(i)= 1;
-			else
-			  ans.at(i)= IntegerType(0);
-		}
-
-	}
+	BigVectorImpl ans(*this);
+	ans.ModByTwoEq();
 	return ans;
 }
 
-//template<class IntegerType>
-//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator+=(const BigVectorImpl &b) {
-//
-//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-//        throw std::logic_error("operator+= called on BigVectorImpl's with different parameters.");
-//	}
-//
-//	for(usint i=0;i<this->m_length;i++){
-//		this->m_data[i] = this->m_data[i].ModAdd(b.m_data[i],this->m_modulus);
-//	}
-//	return *this;
-//
-//}
+template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::ModByTwoEq() {
 
-//template<class IntegerType>
-//const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator-=(const BigVectorImpl &b) {
-//
-//	if((this->m_length!=b.m_length) || this->m_modulus!=b.m_modulus ){
-//        throw std::logic_error("operator-= called on BigVectorImpl's with different parameters.");
-//	}
-//
-//	for(usint i=0;i<this->m_length;i++){
-//		this->m_data[i] = this->m_data[i].ModSub(b.m_data[i],this->m_modulus);
-//	}
-//	return *this;
-//
-//}
+	IntegerType halfQ(this->GetModulus() >> 1);
+	for (usint i = 0; i<this->GetLength(); i++) {
+		if (this->operator[](i)>halfQ) {
+			if (this->operator[](i).Mod(2) == 1)
+				this->operator[](i) = IntegerType(0);
+			else
+				this->operator[](i) = 1;
+		}
+		else {
+			if (this->operator[](i).Mod(2) == 1)
+				this->operator[](i) = 1;
+			else
+				this->operator[](i )= IntegerType(0);
+		}
+
+	}
+	return *this;
+}
 
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf

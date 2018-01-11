@@ -349,6 +349,7 @@ public:
    * @return a new vector which is the return value of the modulus by 2, also the least significant bit.
    */
   mubintvec ModByTwo() const;
+  const mubintvec& ModByTwoEq();
 
   //scalar operations
 

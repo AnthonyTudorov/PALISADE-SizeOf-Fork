@@ -130,9 +130,39 @@ public:
 
 	void clear(myVecP& x); //why isn't this inhereted?
 
+	// NOTE the underlying Vec does not have a no-bounds-checking operator[]
+	myT& at(size_t i) {
+		return this->NTL::Vec<myT>::at(i);
+	}
+
+	const myT& at(size_t i) const {
+		return this->NTL::Vec<myT>::at(i);
+	}
+
 	// the following are like writing to this->at(i) but with modulus implied.
-	void atMod(size_t index, const myT&value);
-	void atMod(size_t index, const std::string& str);
+	void atMod(size_t index, const myT&value) {
+		// must be set modulo
+		if (isModulusSet())
+			this->at(index) = value%m_modulus;
+		else //must be set directly
+			this->at(index) = value;
+	}
+
+	void atMod(size_t index, const std::string& str){
+		// must be set modulo
+		if (isModulusSet())
+			this->at(index) = myT(str)%m_modulus;
+		else //must be set directly
+			this->at(index) = myT(str);
+	}
+
+	/**
+	* operators to get a value at an index.
+	* @param idx is the index to get a value at.
+	* @return is the value at the index.
+	*/
+	myT& operator[](size_t idx) { return this->at(idx); }
+	const myT& operator[](size_t idx) const { return this->at(idx); }
 
 	/**
 	 * Returns a vector of digit at a specific index for all entries
@@ -164,9 +194,11 @@ public:
 	//arithmetic
 	//scalar modulus
 
-	myVecP Mod(const myT& b) const; //defined in cpp
+	myVecP Mod(const myT& b) const;
+	const myVecP& ModEq(const myT& b);
 
-	myVecP ModByTwo() const; //defined in cpp
+	myVecP ModByTwo() const;
+	const myVecP& ModByTwoEq();
 
 	void SwitchModulus(const myT& newModulus);
 
@@ -376,40 +408,34 @@ public:
 private:
 	//utility function to warn if modulus is no good
 	//use when argument to function is myT
-	inline void ModulusCheck(std::string msg) const {
-		if (!isModulusSet()){
-			std::cout<<msg<<" uninitialized this->modulus"<<std::endl;
-		} else {
-			//ZZ_p::init(this->m_modulus); //set global modulus to this
-		}
+	void ModulusCheck(std::string msg) const {
+		if (!isModulusSet())
+			PALISADE_THROW( lbcrypto::palisade_error, msg + " uninitialized this->modulus" );
 	}
 
 	//utility function to check argument consistency for vector vector fns
 	//use when argument to function is myVecP
-	inline void ArgCheckVector(const myVecP &b, std::string fname) const {
+	void ArgCheckVector(const myVecP &b, std::string fname) const {
 		if(this->m_modulus!=b.m_modulus) {
 			PALISADE_THROW( lbcrypto::palisade_error, fname+" modulus vector modulus vector op of different moduli");
 		}else if (!isModulusSet()) {
 			PALISADE_THROW( lbcrypto::palisade_error, fname+" modulus vector modulus vector op GARBAGE  moduli");
-		}else if(this->size()!=b.size()){
+		}else if(this->GetLength()!=b.GetLength()){
 			PALISADE_THROW( lbcrypto::palisade_error,  fname+" vectors of different lengths");
 		}
-
-		//ZZ_p::init(this->m_modulus); //set global modulus to this
-	};
+	}
 
 	//used to make sure all entries in this are <=current modulus
-	inline void Renormalize(void) {
+	void Renormalize(void) {
 		bool dbg_flag = false;
 		DEBUG("mgmpintvec Renormalize modulus"<<m_modulus);
-		DEBUG("mgmpintvec size"<< this->size());
+		DEBUG("mgmpintvec size"<< this->GetLength());
 		//loop over each entry and fail if !=
-		for (size_t i = 0; i < this->size(); ++i) {
+		for (size_t i = 0; i < this->GetLength(); ++i) {
 			(*this)[i] %=m_modulus;
 			DEBUG("this ["<<i<<"] now "<< (*this)[i]);
 		}
-	};
-
+	}
 
 	myT m_modulus;
 	//TODO: BE 2 has gotten rid of this, we may too.

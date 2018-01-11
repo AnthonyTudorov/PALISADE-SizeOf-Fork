@@ -455,28 +455,6 @@ void myVecP<myT>::SwitchModulus(const myT& newModulus)
 
 /// ARITHMETIC FUNCTIONS
 
-//Math functions
-// modulus
-
-
-//  template<class myT>
-//  myVecP<myT> myVecP<myT>::operator%( const myT& b) const
-//  {
-//    size_t n = this->GetLength();
-//    myVecP<myT> res(n);
-//    int rv = res.CopyModulus(*this);
-//    if (rv==-1) {
-//#ifdef WARN_BAD_MODULUS
-//      std::cerr<<"in operator%(myT) Bad CopyModulus"<<std::endl;
-//#endif
-//    }
-//    for (unsigned int i = 0; i < n; i++){
-//      res[i] = (*this)[i]%b;
-//    }
-//    return(res);
-//  }
-
-
 template<class myT>
 myVecP<myT> myVecP<myT>::Mod(const myT& modulus) const
 {
@@ -493,9 +471,9 @@ myVecP<myT> myVecP<myT>::Mod(const myT& modulus) const
 		for (size_t i = 0; i<this->GetLength(); i++) {
 			if ((*this)[i]>halfQ) {
 				DEBUG("negative at i="<<i);
-				ans[i]=(*this)[i].ModSub(thisMod, modulus);
+				ans[i] = (*this)[i].ModSub(thisMod, modulus);
 			} else {
-				ans[i]=(*this)[i].Mod(modulus);
+				ans[i] = (*this)[i].Mod(modulus);
 			}
 		}
 		DEBUG("ans.GetModulus() "<<ans.GetModulus());
@@ -505,86 +483,67 @@ myVecP<myT> myVecP<myT>::Mod(const myT& modulus) const
 		}
 		return ans;
 	}
-
 }
 
-// %=
-// method to vector with scalar
-// template<class myT> //was inlined in .h
-// const myVecP<myT>& myVecP<myT>::operator%=(const myT& modulus) {
+template<class myT>
+const myVecP<myT>& myVecP<myT>::ModEq(const myT& modulus)
+{
+	bool dbg_flag = false;
+	DEBUG("mgmpintvec" <<*this);
+	DEBUG("MOD("<<modulus<<")");
+	if (modulus == myT(2)) {
+		return this->ModByTwoEq();
+	} else {
+		myT thisMod(this->GetModulus());
 
-//   *this = this->Mod(modulus);
-//   return *this;
+		myT halfQ(thisMod >> 1);
+		DEBUG("halfQ = "<<halfQ);
+		for (size_t i = 0; i<this->GetLength(); i++) {
+			if (this->operator[](i) > halfQ) {
+				DEBUG("negative at i="<<i);
+				this->operator[](i).ModSubEq(thisMod, modulus);
+			} else {
+				this->operator[](i).ModEq(modulus);
+			}
+		}
+		DEBUG("ans.GetModulus() "<<this->GetModulus());
 
-// }
+		for (size_t i = 0; i<this->GetLength(); i++) {
+			DEBUG("ans ["<<i<<"] = "<<this->operator[](i));
+		}
+		return *this;
+	}
+}
 
-//method to mod by two
 template<class myT>
 myVecP<myT> myVecP<myT>::ModByTwo() const {
-
-	myVecP ans(this->GetLength(),this->GetModulus());
-	myT halfQ(this->GetModulus() >> 1);
-	for (size_t i = 0; i<ans.GetLength(); i++) {
-		if ((*this)[i] > halfQ) {
-			if ((*this)[i].Mod(myT(2)) == myT(1))
-				ans[i] = 0;
-			else
-				ans[i] = 1;
-		}
-		else {
-			if ((*this)[i].Mod(myT(2)) == myT(1))
-				ans[i] = 1;
-			else
-				ans[i] = 0;
-		}
-
-	}
+	myVecP ans(*this);
+	ans.ModByTwoEq();
 	return ans;
 }
 
-//arithmetic.
+//method to mod by two
+template<class myT>
+const myVecP<myT>& myVecP<myT>::ModByTwoEq() {
 
-//  //addition of scalar
-//  template<class myT>
-//  myVecP<myT> myVecP<myT>::operator+(myT const& b) const
-//  {
-//    unsigned int n = this->GetLength();
-//    myVecP<myT> res(n);
-//    int rv = res.CopyModulus(*this);
-//    if (rv==-1) {
-//#ifdef WARN_BAD_MODULUS
-//      std::cerr<<"in operator+(myT) Bad CopyModulus"<<std::endl;
-//#endif
-//    }
-//    size_t i;
-//    myT bmod(b%m_modulus);
-//    for (i = 0; i < n; i++)
-//      //res[i] = (*this)[i]+b%m_modulus;
-//      res[i]= (*this)[i].ModAdd(bmod, m_modulus);
-//    return(res);
-//  }
+	myT halfQ(this->GetModulus() >> 1);
+	for (size_t i = 0; i<this->GetLength(); i++) {
+		if (this->operator [](i) > halfQ) {
+			if (this->operator [](i).Mod(myT(2)) == myT(1))
+				this->operator [](i) = 0;
+			else
+				this->operator [](i) = 1;
+		}
+		else {
+			if (this->operator [](i).Mod(myT(2)) == myT(1))
+				this->operator [](i) = 1;
+			else
+				this->operator [](i) = 0;
+		}
 
-////addition of vector
-//template<class myT>
-//myVecP<myT> myVecP<myT>::operator+(myVecP<myT> const& b) const
-//{
-//	bool dbg_flag = false;
-//	DEBUG("in myVecP::operator+");
-//	ArgCheckVector(b, "myVecP operator+");
-//	myVecP<myT> res;
-//	int rv = res.CopyModulus(*this);
-//	if (rv==-1) {
-//#ifdef WARN_BAD_MODULUS
-//		std::cerr<<"in operator+(myVecP) Bad CopyModulus"<<std::endl;
-//#endif
-//	}
-//
-//	//myVecP<myT>::modadd_p(res, *this, b%m_modulus);
-//	myVecP<myT>::modadd_p(res, *this, b);
-//	//NTL_OPT_RETURN(myVecP<myT>, res);
-//	DEBUG("myVecP::operator+ returning modulus "<<res.m_modulus);
-//	return(res);
-//}
+	}
+	return *this;
+}
 
 // method to add scalar to vector element at index i
 template<class myT>
@@ -986,68 +945,6 @@ inline void  myVecP<myT>::modmul_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<
 	//todo make modulus explicit.
 }
 
-//////////////////////////////////////////////////
-// Set value at index with Mod
-template<class myT>
-
-void myVecP<myT>::atMod(size_t index, const myT& value){
-	if(!this->IndexCheck(index)){
-		PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
-	}
-	else{
-		// must be set modulo
-		if (isModulusSet())
-			this->at(index) = value%m_modulus;
-		else //must be set directly
-			this->at(index) = value;
-	}
-}
-
-// set value at index from string with Mod
-template<class myT>
-void myVecP<myT>::atMod(size_t index, const std::string& str){
-	if(!this->IndexCheck(index)){
-		PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
-	}
-	else{
-		// must be set modulo
-		if (isModulusSet())
-			this->at(index) = myT(str)%m_modulus;
-		else //must be set directly
-			this->at(index) = myT(str);
-	}
-}
-
-template<typename myT>
-myT& myVecP<myT>::operator[](size_t index) {
-	return this->operator[](index);
-}
-
-template<typename myT>
-const myT& myVecP<myT>::operator[](size_t index) const {
-	return this->operator[](index);
-}
-
-template<typename myT>
-myT& myVecP<myT>::at(size_t index) {
-	bool dbg_flag = false;
-	if(!this->IndexCheck(index)){
-		PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
-	}
-	DEBUG("in at("<<index<< ") = "<<(*this)[index]);
-	return this->operator[](index);
-}
-
-template<typename myT>
-const myT& myVecP<myT>::at(size_t index) const {
-	bool dbg_flag = false;
-	if(!this->IndexCheck(index)){
-		PALISADE_THROW(lbcrypto::palisade_error, "myVecP index out of range");
-	}
-	DEBUG("in at("<<index<< ") = "<<(*this)[index]);
-	return this->operator[](index);
-}
-
 } // namespace NTL ends
 
-template class NTL::myVecP<NTL::myT>; //instantiate template here
+template class NTL::myVecP<NTL::myZZ>;

@@ -196,12 +196,12 @@ TEST(UTBinVect,NTL_modulus_framework){
   DEBUG("qtest1 "<<qtest1);
   EXPECT_EQ(q1, qtest1)<<"Failure NTL vector.GetModulus() 1";
 
-  for (size_t i = 0; i < m.size(); i++){
-    EXPECT_EQ(m_expected_1[i],m[i]) << "Failure in NTL ["<<i<<"]";
+  for (size_t i = 0; i < m.GetLength(); i++){
+    EXPECT_EQ(m_expected_1[i],m[i].ConvertToInt()) << "Failure in NTL ["<<i<<"]";
   }
   NTL::myZZ elem = m[0]; 
 
-  EXPECT_EQ(9868U,elem) << "Failure in NTL elem 1";
+  EXPECT_EQ(9868U,elem.ConvertToInt()) << "Failure in NTL elem 1";
 
   //now switch the modulus.
   m.SetModulus(q2);
@@ -215,8 +215,8 @@ TEST(UTBinVect,NTL_modulus_framework){
   vector<usint> m_modulus_2 = {208, 14, 69, 273, 139,}; 
   EXPECT_EQ(q2, qtest2)<<"Failure NTL vector.GetModulus() 2";
 
-  for (size_t i = 0; i < m.size(); i++){
-    EXPECT_NE(m_modulus_2[i],m[i]) << "Failure in NTL ["<<i<<"]";
+  for (size_t i = 0; i < m.GetLength(); i++){
+    EXPECT_NE(m_modulus_2[i],m[i].ConvertToInt()) << "Failure in NTL ["<<i<<"]";
   }
 }
 
