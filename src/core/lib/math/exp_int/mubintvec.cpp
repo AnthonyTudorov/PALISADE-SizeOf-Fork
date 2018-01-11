@@ -419,30 +419,16 @@ namespace exp_int {
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::Mod(const ubint_el_t& modulus) const{
 
-	if (modulus == 2)
-		return this->ModByTwo();
-	else
-	{
 		mubintvec ans(*this);
-		ubint_el_t halfQ(this->GetModulus() >> 1);
-		for (usint i = 0; i<this->m_data.size(); i++) {
-			if ((*this)[i] > halfQ) {
-				ans.m_data[i] = ans.m_data[i].ModSub(this->GetModulus(), modulus);
-			}
-			else {
-				ans.m_data[i] = ans.m_data[i].Mod(modulus);
-			}
-		}
+		ans.ModEq(modulus);
 		return std::move(ans);
-	}
-
   }
 
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModEq(const ubint_el_t& modulus) {
 
 	if (modulus == 2)
-		return *this = this->ModByTwo();
+		return this->ModByTwoEq();
 	else
 	{
 		ubint_el_t halfQ(this->GetModulus() >> 1);
@@ -456,7 +442,6 @@ namespace exp_int {
 		}
 		return *this;
 	}
-
   }
 
 
@@ -464,24 +449,31 @@ namespace exp_int {
   template<class ubint_el_t>
   mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModByTwo() const {
 
-    mubintvec ans(this->GetLength(),this->GetModulus());
-    ubint_el_t halfQ(this->GetModulus() >> 1);
-    for (usint i = 0; i<ans.GetLength(); i++) {
-      if (this->at(i)>halfQ) {
-	if (this->at(i).Mod(2) == 1)
-	  ans.at(i)= ubint_el_t(0);
-	else
-	  ans.at(i)= ubint_el_t(1);
-      }
-      else {
-	if (this->at(i).Mod(2) == 1)
-	  ans.at(i)= ubint_el_t(1);
-	else
-	  ans.at(i)= ubint_el_t(0);
-      }
-      
-    }
-    return std::move(ans);
+	  mubintvec ans(*this);
+	  ans.ModByTwoEq();
+	  return std::move(ans);
+  }
+
+  template<class ubint_el_t>
+  const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModByTwoEq() {
+
+	  ubint_el_t halfQ(this->GetModulus() >> 1);
+	  for (usint i = 0; i<this->GetLength(); i++) {
+		  if (this->operator[](i)>halfQ) {
+			  if (this->operator[](i).Mod(2) == 1)
+				  this->operator[](i) = ubint_el_t(0);
+			  else
+				  this->operator[](i) = ubint_el_t(1);
+		  }
+		  else {
+			  if (this->operator[](i).Mod(2) == 1)
+				  this->operator[](i) = ubint_el_t(1);
+			  else
+				  this->operator[](i)= ubint_el_t(0);
+		  }
+
+	  }
+	  return *this;
   }
 
   // method to add scalar to vector element at index i
