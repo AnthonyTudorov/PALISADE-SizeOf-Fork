@@ -100,8 +100,6 @@ protected:
  ************************************************/
 TEST(UTmubintvec,ctor_access_eq_neq){
   bool dbg_flag = false;
-  //note this is the same code as the ubintvec, just to confirm it works
-  //as inherited
   exp_int::xubint q("1234567"); // a bigger number
   
   exp_int::xmubintvec m(5); // calling constructor to create a vector of length 5
@@ -262,27 +260,6 @@ TEST(UTmubintvec,ctor_access_eq_neq){
 
   test1 = m==n;
   EXPECT_TRUE(test1)<<"Failure [] lhs rhs";
-
-  //test more ctors
-  exp_int::xubintvec u(5);
-  u = {"9872","5888","4620","2376","4631"}; //strings
-
-  exp_int::xmubintvec u2(u);
-  u2.SetModulus(q);
-  exp_int::xmubintvec u3(u,q);
-  exp_int::xmubintvec u4(u,"1234567");
-  exp_int::xmubintvec u5(u,1234567U);
-
-  EXPECT_TRUE(u2 == u3) << "Failure ctor (ubintvec,exp_int::xubint)";
-  EXPECT_TRUE(u2 == u4) << "Failure ctor (ubintvec,string)";
-  EXPECT_TRUE(u2 == u5) << "Failure ctor (ubintvec,usint)";
-
-//  //test comparison between ubintvec and exp_int::xmubintvec
-//  EXPECT_TRUE(u == u2) << "Failure exp_int::xmubintvec == ubintvec";
-//  EXPECT_FALSE(u != u2) << "Failure exp_int::xmubintvec != ubintvec";
-//  EXPECT_TRUE(u2 == u) << "Failure ubintvec == exp_int::xmubintvec";
-//  EXPECT_FALSE(u2 != u) << "Failure ubintvec == exp_int::xmubintvec";
-
 }
 
 TEST(UTmubintvec, constructorTest){

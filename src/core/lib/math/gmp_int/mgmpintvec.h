@@ -1,5 +1,5 @@
 /**
- * @file mgmpintvec.h This file contains ubintvec, a <vector> of ubint, with associated
+ * @file mgmpintvec.h This file contains mgmpintvec, a <vector> of gmpint, with associated
  * math operators
  * @author  TPOC: palisade@njit.edu
  *
@@ -25,7 +25,7 @@
  *
  */
 /*
- * This file contains ubintvec, a <vector> of ubint, with associated
+ * This file contains mgmpintvec, a <vector> of gmpint, with associated
  * math operators.  
  * NOTE: this has been refactored so that implied modulo (ring)
  * aritmetic is in mbintvec

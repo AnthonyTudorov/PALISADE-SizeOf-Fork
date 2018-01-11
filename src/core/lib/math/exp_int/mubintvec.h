@@ -46,7 +46,7 @@
 #include "../../utils/inttypes.h"
 #include "../../utils/serializable.h"
 #include <initializer_list>
-#include "ubintvec.h"
+#include "mubintvec.h"
  #include "../cpu_int/binvect.h"
 
 
@@ -135,18 +135,6 @@ public:
   // constructor specifying the mubintvec as a vector of strings and modulus
   explicit mubintvec(const std::vector<std::string> &s, const std::string &modulus);
 
-  // constructor specifying the mubintvec as an ubintvec and undefined modulus
- explicit mubintvec(const ubintvec<ubint_el_t> &b);
-
-  // constructor specifying the mubintvec as an ubintvec and usint modulus
- explicit mubintvec(const ubintvec<ubint_el_t> &b, const usint &modulus);
-
-  // constructor specifying the mubintvec as an ubintvec and string modulus
- explicit mubintvec(const ubintvec<ubint_el_t> &b, const std::string &modulus);
-  
-  // constructor specifying the mubintvec as an ubintvec and modulus
- explicit mubintvec(const ubintvec<ubint_el_t> &s, const ubint_el_t &modulus);
-
   /**
    * Basic constructor for copying a vector
    *
@@ -201,7 +189,7 @@ public:
 
   /**
    * @param &&rhs is the usint value to assign to the zeroth entry
-   * @return resulting ubintvec
+   * @return resulting mubintvec
    * note that modulus remains untouched.
    */
   
@@ -218,7 +206,7 @@ public:
   //assignment from usint Note this is not the standard mathematical approach
   /**
    * @param &&rhs is the ubint value to assign to the zeroth entry
-   * @return resulting ubintvec
+   * @return resulting mubintvec
    */
 
   const mubintvec& operator=(const ubint_el_t &val) {
