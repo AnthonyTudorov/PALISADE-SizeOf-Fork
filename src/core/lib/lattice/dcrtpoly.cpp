@@ -1103,7 +1103,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		// alpha may get estimated incorrectly in this region; so we apply a correction procedure
 		// currently we use the multiprecision approach for simplicity but we will change it to
 		// the single-precision approach proposed by Kawamura et al. in https://doi.org/10.1007/3-540-45539-6_37
-		if ((std::fabs(std::llround(lyam*2)/(double)2 - lyam) < nTowers*(1.2e-07)) && (std::llround(lyam*2) % 2 == 1) ){
+		if ((std::fabs(std::llround(lyam*2)/(double)2 - lyam) < nTowers*(2.22e-16)) && (std::llround(lyam*2) % 2 == 1) ){
 
 			BigInteger xBig = 0;
 
