@@ -1108,92 +1108,10 @@ return result;
   /** Multiply operation:
    *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
    */
-  // FIXME This needs to be in place
   template<typename limb_t>
   const ubint<limb_t>& ubint<limb_t>::TimesEq(const ubint& b) {
-	  bool dbg_flag = false;
-	  DEBUG("TimesEq");
-
-	  ubint ans(0);
-	  //check for garbage initialized objects
-	  if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
-		  return *this;
-	  }
-	  //check for trivial conditons
-	  if(b.m_MSB==1)
-		  return *this;
-
-	  if(this->m_MSB==1)
-		  return *this = b; //todo check this? don't think standard move is what we want.
-
-	  //position of B in the array where the multiplication should start
-	  //limb_t ceilLimb = b.m_value.size();
-	  //Multiplication is done by getting a limb_t from b and multiplying it with *this
-	  //after multiplication the result is shifted and added to the final answer
-
-	  size_t nSize = this->m_value.size();
-	  size_t bSize = b.m_value.size();
-	  ubint tmpans;
-	  ans.m_value.reserve(nSize+bSize);
-	  tmpans.m_value.reserve(nSize+1);
-
-	  for(size_t i= 0;i< bSize;++i){
-		  DEBUG("i "<<i);
-		  //ubint tmp2;
-		  //////
-		  tmpans.m_value.clear(); //make sure there are no limbs to start.
-		  Dlimb_t limbb(b.m_value[i]);
-
-		  //position in the array to start multiplication
-		  //
-		  //variable to capture the overflow
-		  Dlimb_t temp=0;
-		  //overflow value
-		  limb_t ofl=0;
-
-
-		  DEBUG("mibl A:"<<this->ToString() );
-		  //DEBUG("mibl B:"<<limbb );
-		  DEBUG("ans.size() now " <<ans.m_value.size());
-		  DEBUGEXP(ans.GetInternalRepresentation());
-
-		  usint ix= 0;
-		  while (ix<i){
-			  tmpans.m_value.push_back(0); //equivalent of << shift
-			  //could use insert
-			  ++ix;
-		  }
-
-		  for(auto itr: m_value){
-			  DEBUG("mullimb i"<<i);
-			  temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
-			  //DEBUG("temp "<<temp); //todo fix when ostream<< works for 128 bit
-
-			  tmpans.m_value.push_back((limb_t)temp);
-			  ofl = temp>>m_limbBitLength;
-			  DEBUG("ans.size() now " <<ans.m_value.size());
-			  DEBUGEXP(tmpans.GetInternalRepresentation());
-		  }
-		  //check if there is any final overflow
-		  if(ofl){
-			  DEBUG("mullimb ofl "<<ofl);
-			  tmpans.m_value.push_back(ofl);
-		  }
-
-		  //usint nSize = m_value.size();
-		  tmpans.m_state = INITIALIZED;
-		  tmpans.SetMSB();
-		  DEBUG("ans.size() final " <<ans.m_value.size());
-		  DEBUGEXP(tmpans.GetInternalRepresentation());
-		  DEBUG("mibl ans "<<ans.ToString());
-		  /////
-
-		  ans += tmpans;
-
-		  DEBUG("ans now "<<ans.ToString());
-	  }
-
-	  return *this = ans;
+	  *this = this->Times(b);
+	  return *this;
   }
 
   template<typename limb_t>
@@ -2429,82 +2347,7 @@ return result;
 
   template<typename limb_t>
   const ubint<limb_t>& ubint<limb_t>::ModMulEq(const ubint& b, const ubint& modulus) {
-
-	  bool dbg_flag = false;
-	  DEBUG("ModMulEq");
-
-	  //check for garbage initialized objects
-	  if(b.m_MSB==0 || b.m_state==GARBAGE || this->m_state==GARBAGE || this->m_MSB==0){
-		  return *this = 0;
-	  }
-	  //check for trivial condtions
-	  if(b.m_MSB==1)
-		  return *this;
-
-	  if(this->m_MSB==1)
-		  return *this = b;
-
-	  //position of B in the array where the multiplication should start
-	  //limb_t ceilLimb = b.m_value.size();
-	  //Multiplication is done by getting a limb_t from b and multiplying it with *this
-	  //after multiplication the result is shifted and added to the final answer
-
-	  size_t nSize = this->m_value.size();
-	  size_t bSize = b.m_value.size();
-	  ubint tmpans;
-	  this->m_value.reserve(nSize+bSize);
-	  tmpans.m_value.reserve(nSize+bSize);
-
-	  for(size_t i= 0;i< bSize;++i){
-		  DEBUG("i "<<i);
-		  tmpans.m_value.clear(); //make sure there are no limbs to start.
-		  Dlimb_t limbb(b.m_value[i]);
-
-		  //variable to capture the overflow
-		  Dlimb_t temp=0;
-		  //overflow value
-		  limb_t ofl=0;
-
-		  DEBUG("mibl A:"<<this->ToString() );
-		  // DEBUG("mibl B:"<<limbb );
-		  DEBUG("this->size() now " <<this->m_value.size());
-		  DEBUGEXP(this->GetInternalRepresentation());
-
-		  usint ix= 0;
-		  while (ix<i){
-			  tmpans.m_value.push_back(0); //equivalent of << shift
-			  //could use insert
-			  ++ix;
-		  }
-
-		  for(auto itr: this->m_value){
-			  DEBUG("mullimb i"<<i);
-			  temp = ((Dlimb_t)itr*(Dlimb_t)limbb) + ofl;
-
-			  tmpans.m_value.push_back((limb_t)temp);
-			  ofl = temp>>this->m_limbBitLength;
-			  DEBUG("this->size() now " << this->m_value.size());
-			  DEBUGEXP(tmpans.GetInternalRepresentation());
-
-		  }
-		  //check if there is any final overflow
-		  if(ofl){
-			  DEBUG("mullimb ofl "<<ofl);
-			  tmpans.m_value.push_back(ofl);
-		  }
-
-		  //usint nSize = m_value.size();
-		  tmpans.m_state = INITIALIZED;
-		  tmpans.SetMSB();
-		  DEBUG("this->size() final " << this->m_value.size());
-		  DEBUGEXP(tmpans.GetInternalRepresentation());
-
-		  DEBUG("mibl ans "<< this->ToString());
-
-		  *this += tmpans;
-		  this->ModEq(modulus);
-		  DEBUG("ans now "<<this->ToString());
-	  }
+	  *this = this->ModMul(b, modulus);
 	  return *this;
   }
 
