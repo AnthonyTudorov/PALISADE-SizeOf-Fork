@@ -341,7 +341,6 @@ namespace exp_int{
      * @return the assigned ubint ref.
      */
     const ubint& operator=(const uint64_t val) {
-    //  *this = intTobint(val);
     	  *this = ubint(val);
       return *this;
     }

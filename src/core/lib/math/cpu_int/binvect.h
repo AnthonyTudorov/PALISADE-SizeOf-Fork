@@ -51,7 +51,7 @@ namespace cpu_int {
  */
 
 template <class IntegerType>
-class BigVectorImpl : public lbcrypto::BigVectorInterface<BigVectorImpl<IntegerType>,IntegerType>, lbcrypto::Serializable
+class BigVectorImpl : public lbcrypto::BigVectorInterface<BigVectorImpl<IntegerType>,IntegerType>, public lbcrypto::Serializable
 {
 public:
 	/**
@@ -123,7 +123,7 @@ public:
 	* @param &&rhs is the big binary vector to be moved.
 	* @return moved BigVectorImpl object  
 	*/
-	BigVectorImpl&  operator=(BigVectorImpl &&rhs);
+	const BigVectorImpl&  operator=(BigVectorImpl &&rhs);
 
 	/**
 	* Initializer list for BigVectorImpl.
@@ -147,8 +147,10 @@ public:
 	* @param val is the value to be assigned at the first entry.
 	* @return Assigned BigVectorImpl.
 	*/
-    inline const BigVectorImpl& operator=(uint64_t val) {
+    const BigVectorImpl& operator=(uint64_t val) {
         this->m_data[0] = val;
+    		if( this->m_modulus != 0 )
+    			this->m_data[0] %= this->m_modulus;
         for (size_t i = 1; i < GetLength(); ++i) {
             this->m_data[i] = 0;
         }

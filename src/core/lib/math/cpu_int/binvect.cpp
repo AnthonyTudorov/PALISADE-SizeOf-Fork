@@ -65,7 +65,6 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 			m_data[i] = 0;
 		}
 	}
-
 }
 
 template<class IntegerType>
@@ -92,7 +91,6 @@ BigVectorImpl<IntegerType>::BigVectorImpl(const BigVectorImpl &bigVector){
 	for(usint i=0;i<m_length;i++){
 		m_data[i] = bigVector.m_data[i];
 	}
-
 }
 
 template<class IntegerType>
@@ -101,6 +99,8 @@ BigVectorImpl<IntegerType>::BigVectorImpl(BigVectorImpl &&bigVector){
 	m_length = bigVector.m_length;
 	m_modulus = bigVector.m_modulus;
 	bigVector.m_data = NULL;
+	bigVector.m_length = 0;
+	bigVector.m_modulus = 0;
 }
 
 //ASSIGNMENT OPERATOR
@@ -108,7 +108,7 @@ template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const BigVectorImpl &rhs){
 	if(this!=&rhs){
 		if(this->m_length==rhs.m_length){
-			for (usint i = 0; i < m_length; i++){
+			for (size_t i = 0; i < m_length; i++){
 				this->m_data[i] = rhs.m_data[i];
 			}
 		}
@@ -118,7 +118,7 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const Bi
 			m_length = rhs.m_length;
 			m_modulus = rhs.m_modulus;
 			m_data = new IntegerType[m_length];
-			for (usint i = 0; i < m_length; i++){
+			for (size_t i = 0; i < m_length; i++){
 				m_data[i] = rhs.m_data[i];
 			}
 		}
@@ -129,9 +129,23 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(const Bi
 }
 
 template<class IntegerType>
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl &&rhs){
+
+	if(this!=&rhs){
+		delete [] m_data;
+		m_data = rhs.m_data;
+		m_length = rhs.m_length;
+		m_modulus = rhs.m_modulus;
+		rhs.m_data = NULL;
+	}
+
+	return *this;
+}
+
+template<class IntegerType>
 const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<uint64_t> rhs){
-	usint len = rhs.size();
-	for(usint i=0;i<m_length;i++){ // this loops over each tower
+	size_t len = rhs.size();
+	for(size_t i=0;i<m_length;i++){
 		if(i<len) {
 		  if (m_modulus!=0)
 			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
@@ -146,10 +160,10 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 }
 
 template<class IntegerType>
-const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<std::string> rhs){
+const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::initializer_list<std::string> rhs) {
         bool dbg_flag = false;
-	usint len = rhs.size();
-	for(usint i=0;i<m_length;i++){ // this loops over each tower
+        size_t len = rhs.size();
+	for(size_t i=0;i<m_length;i++){
 		if(i<len) {
 		  if (m_modulus!=0)
 			m_data[i] = IntegerType(*(rhs.begin()+i))%m_modulus;
@@ -162,22 +176,6 @@ const BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(std::ini
 	}
 
 	return *this;
-}
-
-template<class IntegerType>
-BigVectorImpl<IntegerType>& BigVectorImpl<IntegerType>::operator=(BigVectorImpl &&rhs){
-
-	if(this!=&rhs){
-
-		delete [] m_data;
-		m_data = rhs.m_data;
-		m_length = rhs.m_length;
-		m_modulus = rhs.m_modulus;
-		rhs.m_data = NULL;
-	}
-
-	return *this;
-
 }
 
 template<class IntegerType>
