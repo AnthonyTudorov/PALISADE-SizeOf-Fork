@@ -243,7 +243,7 @@ TEST(UTSer,ildcrtpoly_test) {
 	EXPECT_EQ( vec, newvec ) << "Mismatch after ser/deser";
 
 }
-TEST(UTSer,serialize_vector_bigint){
+TEST(UTSer, serialize_vector_bigint){
   //Serialize/DeserializeVector is a helper function to test
   //note the object has to be created outside of the function. 
   bool dbg_flag = false;
@@ -312,8 +312,8 @@ TEST(UTSer,serialize_vector_bigint){
   EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }
 
-
-TEST(UTSer,serialize_matrix_bigint){
+////////////////////////////////////////////////////////////
+TEST(UTSer, serialize_matrix_bigint){
   bool dbg_flag = false;
   //dimensions of matrix. 
   const int nrows = 4;
@@ -392,3 +392,174 @@ TEST(UTSer,serialize_matrix_bigint){
   DEBUGEXP(*newmatP);
 
 }
+////////////////////////////////////////////////////////////////////////
+
+TEST(UTSer, serialize_vector_of_p) {
+  bool dbg_flag = false;
+
+  DEBUG("step 1");
+  
+  //generate three pointers
+  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M16);
+  
+  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+  
+  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M2048);
+  
+  DEBUG("step 2");
+  //build the vector to pointers
+  vector<shared_ptr<Poly::Params>> test_v(3); 
+  DEBUG("step 2.1");
+  test_v[0]=p1;
+  test_v[1]=p2;
+  test_v[2]=p3;
+  DEBUG("step 2.2");  
+  //build the top level serial object
+  Serialized serObj;
+  DEBUG("step 2.3");  
+  serObj.SetObject();
+  DEBUG("step 2.4");  
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  DEBUG("step 3");  
+  //serialize the vector
+  SerializeVectorOfPointers<Poly::Params>("Vector", "ILParams", test_v, &obj);
+						      
+ 
+  //add it to the top level object
+  serObj.AddMember("TestVector", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+  DEBUG("step 4");  
+
+  vector<shared_ptr<Poly::Params>> new_v(3);
+
+  DEBUG("step 5");  
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVector");
+  DEBUG("step 6");
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVector";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Vector");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Vector";
+  DEBUG("step 8");
+
+  DeserializeVectorOfPointers<Poly::Params>("Vector", "ILParams", mIter, &new_v);
+    
+  DEBUG("step 9");
+
+  DEBUGEXP(new_v);
+  DEBUGEXP(new_v.size());
+  
+  for (size_t i = 0; i< test_v.size(); i++){
+    DEBUGEXP(test_v[i]);
+    DEBUGEXP(*(test_v[i]));
+    DEBUGEXP(new_v[i]);
+    DEBUGEXP(*(new_v[i]));
+    EXPECT_EQ( *(test_v[i]), *(new_v[i]) ) << "Mismatch after ser/deser index "<<i;
+  }
+}
+///////
+
+
+TEST(UTSer, serialize_map_of_p) {
+  bool dbg_flag = false;
+
+  DEBUG("step 1");
+  
+  //generate three pointers
+  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M16);
+  
+  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+  
+  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M2048);
+  
+  DEBUG("step 2");
+  
+  //build the map to pointers
+  map<string, shared_ptr<Poly::Params>> test_map;
+  vector<string> test_key = {"0", "1", "2"};
+  DEBUG("step 2.1");
+  test_map["0"]=p1;
+  test_map["1"]=p2;
+  test_map["2"]=p3;
+
+
+  DEBUG("step 2.2");  
+  //build the top level serial object
+  Serialized serObj;
+  DEBUG("step 2.3");  
+  serObj.SetObject();
+  DEBUG("step 2.4");  
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  DEBUG("step 3");  
+  //serialize the vector
+  SerializeMapOfPointers<string, Poly::Params>("Map", "ILParams", test_map, &obj);
+						      
+ 
+  //add it to the top level object
+  serObj.AddMember("TestVector", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+  DEBUG("step 4");  
+
+  map<string, shared_ptr<Poly::Params>> new_map;
+
+  DEBUG("step 5");  
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestMap");
+  DEBUG("step 6");
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestMap";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("Map");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Map";
+  DEBUG("step 8");
+
+  DeserializeMapOfPointers<string, Poly::Params>("Map", "ILParams", mIter, &new_map);
+    
+  DEBUG("step 9");
+
+  DEBUGEXP(new_map);
+  DEBUGEXP(new_map.size());
+  
+  for (size_t i = 0; i< test_map.size(); i++){
+    DEBUGEXP(test_map[test_key[i]]);
+    DEBUGEXP(*(test_map[test_key[i]]));
+    DEBUGEXP(new_map[test_key[i]]);
+    DEBUGEXP(*(new_map[test_key[i]]));
+    EXPECT_EQ( *(test_map[test_key[i]]), *(new_map[test_key[i]]) ) << "Mismatch after ser/deser index "<<i;
+  }
+}
+
+
+//need tests for
+
+// (De)SerializeMapOfPointers (used in crypto context.cpp)
+
+// (De)SerializeVectorOfPointersToMatrix [used by next one]
+// (De)SerializeVectorOfVectorOfPointersToMatrix [in lwe S compiles D not done]
+
+// (De)SerializeVectorOfMatrix [in lwe S compiles D not done]
