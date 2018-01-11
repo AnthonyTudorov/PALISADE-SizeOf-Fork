@@ -1217,7 +1217,7 @@ template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::Mod(const BigInteger& modulus) const{
 	//return the same value if value is less than modulus
 	if(*this<modulus){
-		return BigInteger(*this);
+		return *this;
 	}
 	//masking operation if modulus is 2
 	if(modulus.m_MSB==2 && modulus.m_value[m_nSize-1]==2){
@@ -1442,6 +1442,40 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(cons
 
 }
 
+/*
+ * in place version.
+ */
+template<typename uint_type,usint BITLENGTH>
+void BigInteger<uint_type,BITLENGTH>::ModBarrettInPlace(const BigInteger& modulus, const BigInteger mu_arr[BARRETT_LEVELS+1]) {
+
+	if(*this<modulus){
+		return;
+	}
+
+	BigInteger q(*this);
+
+	usint n = modulus.m_MSB;
+	//level is set to the index between 0 and BARRET_LEVELS - 1
+	usint level = (this->m_MSB-1-n)*BARRETT_LEVELS/(n+1)+1;
+	usint gamma = (n*level)/BARRETT_LEVELS;
+
+	usint alpha = gamma + 3;
+	int beta = -2;
+
+	const BigInteger& mu = mu_arr[level];
+
+	q>>=n + beta;
+	q=q*mu;
+	q>>=alpha-beta;
+	*this -= q*modulus;
+
+	if(*this >= modulus)
+		*this -= modulus;
+
+	return;
+
+}
+
 //Extended Euclid algorithm used to find the multiplicative inverse
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(const BigInteger& modulus) const{
@@ -1538,49 +1572,49 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettAdd(c
 
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSub(const BigInteger& b, const BigInteger& modulus) const{
-	BigInteger* a = const_cast<BigInteger*>(this);
-	BigInteger* b_op = const_cast<BigInteger*>(&b);
+	BigInteger a(*this);
+	BigInteger b_op(b);
 
 	//reduce this to a value lower than modulus
-	if(*this>modulus){
-
-		*a = this->Mod(modulus);
+	if(a > modulus){
+		a.ModEq(modulus);
 	}
 	//reduce b to a value lower than modulus
-	if(b>modulus){
-		*b_op = b.Mod(modulus);
+	if(b > modulus){
+		b_op.ModEq(modulus);
 	}
 
-	if(*a>=*b_op){
-		return ((*a-*b_op).Mod(modulus));		
+	if(a >= b_op){
+		a.MinusEq(b_op);
+		a.ModEq(modulus);
 	}
 	else{
-		return ((*a + modulus) - *b_op);
+		a.PlusEq(modulus);
+		a.MinusEq(b_op);
 	}
+	return a;
 }
 
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModSubEq(const BigInteger& b, const BigInteger& modulus) {
-	BigInteger* b_op = const_cast<BigInteger*>(&b);
+	BigInteger b_op(b);
 
 	//reduce this to a value lower than modulus
-	if(*this>modulus){
-
-		*this = this->Mod(modulus);
+	if(*this > modulus){
+		this->ModEq(modulus);
 	}
 	//reduce b to a value lower than modulus
-	if(b>modulus){
-		*b_op = b.Mod(modulus);
+	if(b > modulus){
+		b_op.ModEq(modulus);
 	}
 
-	if(*this >= *b_op){
-		// FIXME use modeq
-		*this = this->Mod(*b_op).Mod(modulus);
+	if(*this >= b_op){
+		this->ModEq(b_op);
+		this->ModEq(modulus);
 	}
 	else{
-		// ugh, the *Eq ops return const so we cannot chain them
 		this->PlusEq(modulus);
-		this->MinusEq(*b_op);
+		this->MinusEq(b_op);
 	}
 
 	return *this;
@@ -1590,55 +1624,54 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModSubEq
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
 
-	BigInteger* a = const_cast<BigInteger*>(this);
-	BigInteger* b_op = const_cast<BigInteger*>(&b);
+	BigInteger a(*this);
+	BigInteger b_op(b);
 
-	if(*this>modulus){
-		*a = this->ModBarrett(modulus,mu);
+	if(*this > modulus){
+		a.ModBarrettInPlace(modulus,mu);
 	}
 
 	if(b>modulus){
-		*b_op = b.ModBarrett(modulus,mu);
+		b_op.ModBarrettInPlace(modulus,mu);
 	}
 
-	if(*a >= *b_op){
-		return ((*a-*b_op).ModBarrett(modulus,mu));
-		
+	if(a >= b_op){
+		a.MinusEq(b_op);
+		a.ModBarrettInPlace(modulus,mu);
 	}
 	else{
-		return ((*a + modulus) - *b_op);
+		a.PlusEq(modulus);
+		a.MinusEq(b_op);
 	}
+
+	return a;
 }
 
 
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettSub(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
 
-	BigInteger* a = NULL;
-	BigInteger* b_op = NULL;
+	BigInteger a(*this);
+	BigInteger b_op(b);
 
-	if(*this>modulus){
-		*a = this->ModBarrett(modulus,mu_arr);
-	}
-	else{
-		a = const_cast<BigInteger*>(this);
+	if(*this > modulus){
+		a.ModBarrettInPlace(modulus,mu_arr);
 	}
 
 	if(b>modulus){
-		*b_op = b.ModBarrett(modulus,mu_arr);
-	}
-	else{
-		b_op = const_cast<BigInteger*>(&b);
+		b_op.ModBarrettInPlace(modulus,mu_arr);
 	}
 
-	if(!(*a<*b_op)){
-		return ((*a-*b_op).ModBarrett(modulus,mu_arr));
-		
+	if(a >= b_op){
+		a.MinusEq(b_op);
+		a.ModBarrettInPlace(modulus,mu_arr);
 	}
 	else{
-		return ((*a + modulus) - *b_op);
+		a.PlusEq(modulus);
+		a.MinusEq(b_op);
 	}
 
+	return a;
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -1656,9 +1689,8 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMul(const Bi
 		bb = bb.Mod(modulus);
 	}
 
-	//return a*b%q
-
-	return (a*bb).Mod(modulus);
+	a.TimesEq(bb);
+	return a.ModEq(modulus);
 }
 
 template<typename uint_type,usint BITLENGTH>
@@ -1675,8 +1707,8 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulEq
 		bb.ModEq(modulus);
 	}
 
-	*this *= bb;
-	*this %= modulus;
+	this->TimesEq(bb);
+	this->ModEq(modulus);
 
 	return *this;
 }
@@ -1707,19 +1739,19 @@ This algorithm would most like give the biggest improvement but it sets constrai
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
 
-	BigInteger* a  = const_cast<BigInteger*>(this);
-	BigInteger* bb = const_cast<BigInteger*>(&b);
+	BigInteger a(*this);
+	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
-		*a = this->ModBarrett(modulus,mu);
-
+		a.ModBarrettInPlace(modulus,mu);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
-		*bb = b.ModBarrett(modulus,mu);
+		bb.ModBarrettInPlace(modulus,mu);
 
-	return (*a**bb).ModBarrett(modulus,mu);
+	a.TimesEq(bb);
+	return a.ModBarrett(modulus,mu);
 
 }
 
@@ -1751,8 +1783,7 @@ This algorithm would most like give the biggest improvement but it sets constrai
 template<typename uint_type, usint BITLENGTH>
 void BigInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigInteger& b, const BigInteger& modulus, const BigInteger& mu) {
 
-	//BigInteger* a = const_cast<BigInteger*>(this);
-	BigInteger* bb = const_cast<BigInteger*>(&b);
+	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
 	if (*this>modulus)
@@ -1761,10 +1792,9 @@ void BigInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigInteger& b,
 
 	//if b is greater than q reduce b to its mod value
 	if (b>modulus)
-		*bb = b.ModBarrett(modulus, mu);
+		bb.ModBarrettInPlace(modulus, mu);
 
-	*this = *this**bb;
-
+	this->TimesEq(bb);
 	this->ModBarrettInPlace(modulus, mu);
 
 	return;
@@ -1774,24 +1804,19 @@ void BigInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigInteger& b,
 
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
-	BigInteger* a  = NULL;
-	BigInteger* bb = NULL;
+	BigInteger a(*this);
+	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
 	if(*this>modulus)
-		*a = this->ModBarrett(modulus,mu_arr);
-	else
-		a = const_cast<BigInteger*>(this);
+		a.ModBarrettInPlace(modulus,mu_arr);
 
 	//if b is greater than q reduce b to its mod value
 	if(b>modulus)
-		*bb = b.ModBarrett(modulus,mu_arr);
-	else
-		bb = const_cast<BigInteger*>(&b);
+		bb.ModBarrettInPlace(modulus,mu_arr);
 
-	//return a*b%q
-
-	return (*a**bb).ModBarrett(modulus,mu_arr);
+	a.TimesEq(bb);
+	return a.ModBarrett(modulus,mu_arr);
 }
 
 //Modular Multiplication using Square and Multiply Algorithm
