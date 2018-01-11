@@ -61,7 +61,7 @@ public:
 
     static inline BigVectorImpl Single(const IntegerType& val, const IntegerType& modulus) {
         BigVectorImpl vec(1, modulus);
-        vec.at(0)= val;
+        vec[0] = val;
         return vec;
     }
 
@@ -252,7 +252,7 @@ public:
 	 *
 	 * @return vector length.
 	 */
-	usint GetLength() const { return this->m_length; }
+	size_t GetLength() const { return this->m_length; }
 	
 	//METHODS
 

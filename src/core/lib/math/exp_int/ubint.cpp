@@ -42,30 +42,6 @@
 
 namespace exp_int {
 
-  //constant static member variable initialization of 0
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::ZERO = ubint(0);
-
-  //constant static member variable initialization of 1
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::ONE = ubint(1);
-
-  //constant static member variable initialization of 2
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::TWO = ubint(2);
-
-  //constant static member variable initialization of 3
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::THREE = ubint(3);
-
-  //constant static member variable initialization of 4
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::FOUR = ubint(4);
-
-  //constant static member variable initialization of 5
-  template<typename limb_t>
-  const ubint<limb_t> ubint<limb_t>::FIVE = ubint(5);
-
   //MOST REQUIRED STATIC CONSTANTS INITIALIZATION
 
   //constant static member variable initialization of m_uintBitLength which is equal to number of bits in the unit data type
@@ -384,14 +360,14 @@ return result;
     return *this;
   }
 #if 1
-  // move copy allocator
+  // move allocator
   template<typename limb_t>
-  ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
+  const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
     //std::cout<<"Ma";
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
-      this->m_value.swap(rhs.m_value);
+      this->m_value = std::move(rhs.m_value);
     }
     return *this;
   }
@@ -404,14 +380,14 @@ return result;
    *   Shifting is done by using bit shift operations and carry over prop.
    */
   template<typename limb_t>
-  ubint<limb_t>  ubint<limb_t>::operator<<(usint shift) const{
+  ubint<limb_t>  ubint<limb_t>::LShift(usshort shift) const{
     bool dbg_flag = false;
     //garbage check
     if(m_state==State::GARBAGE)
       throw std::logic_error("<< on uninitialized bint");
     //trivial case
     if(this->m_MSB==0)
-      return ubint(ZERO);
+      return ubint(0);
 
     ubint ans(*this);
 
@@ -491,7 +467,7 @@ return result;
    *   Shifting is done by using bit shift operations and carry over prop.
    */
   template<typename limb_t>
-  ubint<limb_t>&  ubint<limb_t>::operator<<=(usint const shift) {
+  const ubint<limb_t>&  ubint<limb_t>::LShiftEq(usshort shift) {
     bool dbg_flag = false;
     if(m_state==State::GARBAGE)
       throw std::logic_error("<<= on uninitialized bint");
@@ -574,7 +550,7 @@ return result;
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
   template<typename limb_t>
-  ubint<limb_t>  ubint<limb_t>::operator>>(usint shift) const{
+  ubint<limb_t>  ubint<limb_t>::RShift(usshort shift) const{
     bool dbg_flag = false;
     //garbage check
     if(m_state==State::GARBAGE)
@@ -666,7 +642,7 @@ return result;
    *   Shifting is done by using bit shift operations and carry over propagation.
    */
   template<typename limb_t>
-  ubint<limb_t>&  ubint<limb_t>::operator>>=(usint shift){
+  const ubint<limb_t>&  ubint<limb_t>::RShiftEq(usshort shift){
     bool dbg_flag = false;
 
     //garbage check
@@ -754,39 +730,6 @@ return result;
     return *this;
   }
 
-#if 0  
-
-  template<typename limb_t>
-  void ubint<limb_t>::PrintLimbsInDec() const{
-    bool dbg_flag = false;		// if true then print dbg output
-    if (m_state == GARBAGE) {
-      std::cout <<"bint uninitialised"<<std::endl;
-    } else {
-      DEBUG("PrintLimbsInDec size "<< m_value.size());
-      for (size_t i = 0; i < m_value.size(); i++){
-        std::cout<< i << ":"<< m_value[i];
-        std::cout <<std::endl;
-      }
-      std::cout<<"MSB: "<<m_MSB << std::endl;
-    }
-  }
-
-  template<typename limb_t>
-  void ubint<limb_t>::PrintLimbsInHex() const{
-    bool dbg_flag = false;   // if true then print dbg output
-    if (m_state == GARBAGE) {
-      std::cout <<"bint uninitialised"<<std::endl;
-    } else {
-      DEBUG("PrintLimbsInHex size "<< m_value.size());
-      for (size_t i = 0; i < m_value.size(); i++){
-    	  std::cout<< i << ": 0x"<< std::hex << m_value[i] << std::dec <<std::endl;
-      }
-      std::cout<<"MSB: "<<m_MSB << std::endl;
-    }
-  }
-
-#endif
-
   template<typename limb_t>
   usint ubint<limb_t>::GetMSB() const {
     return m_MSB;
@@ -816,18 +759,18 @@ return result;
    *  Algorithm used is usual school book sum and carry-over, expect for that radix is 2^m_bitLength.
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Add(const ubint& b) const{
+  ubint<limb_t> ubint<limb_t>::Plus(const ubint& b) const{
     bool dbg_flag = false;		// if true then print dbg output
     //two operands A and B for addition, A is the greater one, B is the smaller one
-    DEBUG("Add");
+    DEBUG("Plus");
     const ubint* A = NULL;
     const ubint* B = NULL;
     //check for garbage initializations
     if(this->m_state==GARBAGE){
-      throw std::logic_error("Add() to uninitialized bint");
+      throw std::logic_error("Plus() to uninitialized bint");
     }
     if(b.m_state==GARBAGE){
-      throw std::logic_error("Add() from uninitialized bint");
+      throw std::logic_error("Plus() from uninitialized bint");
     }
 
     //Assignment of pointers, A assigned the higher value and B assigned the lower value
@@ -910,18 +853,11 @@ return result;
     return result;
   }
 
-  //deprecated Add
-  template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Plus(const ubint& b) const{
-    ubint ans(*this);
-    return ans.Add(b);
-  }
-
   /** Sub operation:
    *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Sub(const ubint& b) const{
+  ubint<limb_t> ubint<limb_t>::Minus(const ubint& b) const{
     bool dbg_flag = false;
     DEBUG("Sub");
     //check for garbage initialization
@@ -934,7 +870,7 @@ return result;
     //return 0 if b is higher than *this as there is no support for negative number
     if(!(*this>b)){
       DEBUG("in Sub, b > a return zero");
-      return std::move(ubint(ZERO));
+      return std::move(ubint(0));
     }
     size_t cntr=0,current=0;
 
@@ -995,23 +931,92 @@ return result;
 
   }
 
-  //deprecated Minus
+  /** -=
+   *  Algorithm used is usual school book borrow and subtract, except for that radix is 2^m_bitLength.
+   */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Minus(const ubint& b) const{
-    ubint ans(*this);
-    return ans.Sub(b);
-  }
+  const ubint<limb_t>& ubint<limb_t>::MinusEq(const ubint& b) {
+    bool dbg_flag = false;
+    DEBUG("Sub");
+    //check for garbage initialization
+    if(this->m_state==GARBAGE){
+      throw std::logic_error("Sub() to uninitialized bint");
+    }
+    if(b.m_state==GARBAGE){
+      throw std::logic_error("Sub() to uninitialized bint");
+    }
+    //return 0 if b is higher than *this as there is no support for negative number
+    if(!(*this>b)){
+      DEBUG("in Sub, b > a return zero");
+      *this = 0;
+      return *this;
+    }
+    size_t cntr=0,current=0;
 
+    DEBUG ("result starts out");
+    DEBUGEXP(this->GetInternalRepresentation());
+
+    //array position in A to end subtraction (a is always larger than b now)
+    int endValA = ceilIntByUInt(this->m_MSB);
+    //array position in B to end subtraction
+    int endValB = ceilIntByUInt(b.m_MSB);
+
+    DEBUG("a ");
+    DEBUGEXP(this->GetInternalRepresentation());
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);
+    DEBUG("b ");
+    DEBUGEXP(b.GetInternalRepresentation());
+    DEBUGEXP(std::hex<<b.GetInternalRepresentation()<<std::dec);
+    DEBUGEXP(endValA);
+    DEBUGEXP(endValB);
+
+    for(size_t i=0; i<b.m_value.size(); ++i){
+      DEBUG ("limb  "<<i);
+      DEBUG ("a limb "<<this->m_value[i]);
+      DEBUG ("res limb "<<this->m_value[i]);
+      DEBUG ("b limb "<<b.m_value[i]);
+      if(this->m_value[i]<b.m_value[i]){ //carryover condition need to borrow from higher limbs.
+        DEBUG ("borrow at "<<i);
+        current=i;
+        cntr = current+1;
+        //find the first nonzero limb
+        if (cntr>=this->m_value.size()){
+          std::cout<<"error seek past end of result "<<std::endl;
+        }
+        while(this->m_value[cntr]==0){
+          DEBUG("FF at cntr" <<cntr);
+          this->m_value[cntr]=m_MaxLimb; //set all the zero limbs to all FFs (propagate the 1)
+          cntr++;
+        }
+        DEBUG("decrement at " << cntr);
+        this->m_value[cntr]--; // and eventually borrow 1 from the first nonzero limb we find
+        DEBUG("sub with borrow at " <<i);
+        this->m_value[i]=this->m_value[i]+(m_MaxLimb - b.m_value[i]) +1; // and add the it to the current limb
+      } else {       //usual subtraction condition
+        DEBUG("sub no borrow at " <<i);
+        this->m_value[i]=this->m_value[i]- b.m_value[i];
+      }
+      DEBUG ("res limb "<<i<<" finally "<<this->m_value[i]);
+
+    }
+    this->NormalizeLimbs();
+    this->SetMSB();
+    DEBUG("result msb now "<<this->m_MSB);
+    //return the result
+    DEBUG ("Returning");
+    return *this;
+
+  }
 
   /** Multiply operation:
    *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Mul(const ubint& b) const{
+  ubint<limb_t> ubint<limb_t>::Times(const ubint& b) const{
     bool dbg_flag = false;
-    DEBUG("Mul");
+    DEBUG("Times");
 	
-    ubint ans(ZERO);
+    ubint ans(0);
     //check for garbage initialized objects
     if(b.m_MSB==0 || b.m_state==GARBAGE ||this->m_state==GARBAGE || this->m_MSB==0){
       return ans;
@@ -1100,16 +1105,17 @@ return result;
     return ans;
   }
 
-  //deprecated Times
+  /** Multiply operation:
+   *  Algorithm used is usual school book shift and add after multiplication, except for that radix is 2^m_bitLength.
+   */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Times(const ubint& b) const{
-    ubint ans(*this);
-    return ans.Mul(b);
+  const ubint<limb_t>& ubint<limb_t>::TimesEq(const ubint& b) {
+	  *this = this->Times(b);
+	  return *this;
   }
 
-
   template<typename limb_t>
-  inline ubint<limb_t>& ubint<limb_t>::operator+=(const ubint& b){
+  const ubint<limb_t>& ubint<limb_t>::PlusEq(const ubint& b) {
     bool dbg_flag = false;		// if true then print dbg output
     DEBUG("in +=");
     //check for garbage initializations
@@ -1207,32 +1213,6 @@ return result;
     return *this;
   }
 
-
-  template<typename limb_t>
-  inline ubint<limb_t>& ubint<limb_t>::operator-=(const ubint &b){
-    *this = *this-b;
-    return *this;
-  }
-
-  template<typename limb_t>
-  inline ubint<limb_t>& ubint<limb_t>::operator*=(const ubint &b){
-    *this = *this*b;
-    return *this;
-  }
-
-  template<typename limb_t>
-  inline ubint<limb_t>& ubint<limb_t>::operator/=(const ubint &b){
-    *this = *this/b;
-    return *this;
-  }
-
-  template<typename limb_t>
-  inline ubint<limb_t>& ubint<limb_t>::operator%=(const ubint &b){
-    *this = *this%b;
-    return *this;
-  }
-
-
   /** Multiply operation helper function:
    *  Algorithm used is usual school book multiplication.
    *  This function is used in the Multiplication of two ubint objects
@@ -1245,7 +1225,7 @@ return result;
     if(this->m_state==GARBAGE)
       throw std::logic_error("MulIntegerByLimb() of uninitialized bint");
     if(b==0 || this->m_MSB==0)
-      return ubint(ZERO);
+      return ubint(0);
 
     ubint ans;
     //ans.m_value.reserve(this->m_value.size()+1);    
@@ -1681,28 +1661,28 @@ return result;
    *  Optimization done: Uses bit shift operation for logarithmic convergence.
    */
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::Div(const ubint& b) const{
+  ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const{
     //check for garbage initialization and 0 condition
     if(b.m_state==GARBAGE)
-      throw std::logic_error("Div() Divisor uninitialised");
+      throw std::logic_error("DividedBy() Divisor uninitialised");
 
-    if(b==ZERO)
-      throw std::logic_error("Div() Divisor is zero");
+    if(b==0)
+      throw std::logic_error("DividedBy() Divisor is zero");
 
     if(b.m_MSB>this->m_MSB)
-      return std::move(ubint(ZERO)); // Kurt and Yuriy want this.
+      return std::move(ubint(0)); // Kurt and Yuriy want this.
 
     if(this->m_state==GARBAGE)
-      throw std::logic_error("Div() Dividend uninitialised");
+      throw std::logic_error("DividedBy() Dividend uninitialised");
 
     else if(b==*this)
-      return std::move(ubint(ONE));
+      return std::move(ubint(1));
 
     ubint ans;
     int f;
     f = divq_vect((ans), (*this),  (b));
     if (f!= 0)
-      throw std::logic_error("Div() error");
+      throw std::logic_error("DividedBy() error");
     ans.NormalizeLimbs();
     ans.m_state = INITIALIZED;
     ans.SetMSB();
@@ -1710,12 +1690,36 @@ return result;
 
   }
 
-  //soon to be deprecated older form of Div()
+  //FIXME must be in-place
   template<typename limb_t>
-  ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const{
-    return this->Div(b);
-    //todo what is the order of this operation?
-  }  
+  const ubint<limb_t>& ubint<limb_t>::DividedByEq(const ubint& b) {
+    //check for garbage initialization and 0 condition
+    if(b.m_state==GARBAGE)
+      throw std::logic_error("DividedByEq() Divisor uninitialised");
+
+    if(b==0)
+      throw std::logic_error("DividedByEq() Divisor is zero");
+
+    if(b.m_MSB>this->m_MSB)
+      return *this = 0;
+
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("DividedByEq() Dividend uninitialised");
+
+    else if(b==*this)
+      return *this = 1;
+
+    ubint ans;
+    int f;
+    f = divq_vect((ans), (*this),  (b));
+    if (f!= 0)
+      throw std::logic_error("DividedByEq() error");
+    ans.NormalizeLimbs();
+    ans.m_state = INITIALIZED;
+    ans.SetMSB();
+    return *this = ans;
+
+  }
 
   //Initializes the vector of limbs from the string equivalent of ubint
   // also sets MSB
@@ -1845,7 +1849,6 @@ return result;
   template<typename limb_t>
   void ubint<limb_t>::SetValue(const std::string& str){
     ubint::AssignVal(str);
-
   }
 
   //Algorithm used: optimized division algorithm
@@ -1859,7 +1862,7 @@ return result;
     if(modulus.m_state==GARBAGE)
       throw std::logic_error("Mod() using uninitialized bint as modulus");
 
-    if(modulus==ZERO)
+    if(modulus==0)
       throw std::logic_error("Mod() using zero modulus");
 
     if(modulus.m_value.size()>1 && modulus.m_value.back()==0)
@@ -1877,9 +1880,9 @@ return result;
     //use simple masking operation if modulus is 2
     if(modulus.m_MSB==2 && modulus.m_value[0]==2){
       if(this->m_value[0]%2==0)
-	return ubint(ZERO);
+	return ubint(0);
       else
-	return ubint(ONE);
+	return ubint(1);
     }
 
 #ifndef UBINT_64
@@ -1948,10 +1951,110 @@ return result;
     result.SetMSB();
     return result;
 #endif
-
-
-
   }
+
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModEq(const ubint& modulus) {
+    bool dbg_flag = false;
+
+    //check for garbage initialisation
+    if(this->m_state==GARBAGE)
+      throw std::logic_error("ModEq() of uninitialized bint");
+    if(modulus.m_state==GARBAGE)
+      throw std::logic_error("ModEq() using uninitialized bint as modulus");
+
+    if(modulus==0)
+      throw std::logic_error("ModEq() using zero modulus");
+
+    if(modulus.m_value.size()>1 && modulus.m_value.back()==0)
+      throw std::logic_error("ModEq() using unnormalized  modulus");
+
+    //return the same value if value is less than modulus
+    if (this->m_MSB < modulus.m_MSB){
+      return *this;
+    }
+    if ((this->m_MSB == modulus.m_MSB)&&(*this<modulus)){
+      DEBUG("this< modulus");
+      return *this;
+    }
+
+    //use simple masking operation if modulus is 2
+    if(modulus.m_MSB==2 && modulus.m_value[0]==2){
+      if(this->m_value[0]%2==0)
+		return *this = 0;
+      else
+  		return *this = 1;
+    }
+
+#ifndef UBINT_64
+
+    // FIXME do this in place!
+    // return the remainder of the divided by operation
+    ubint ans(0);
+    if (dbg_flag){
+      DEBUG("modulus ");
+      DEBUGEXP(modulus.GetInternalRepresentation());
+    }
+
+    int f;
+#ifndef OLD_DIV
+    ans.m_value.resize(modulus.m_value.size());
+#endif
+
+    f = divr_vect(ans,  *this,  modulus);
+    if (f!= 0)
+      throw std::logic_error("Mod() divr error");
+
+    ans.NormalizeLimbs();
+    ans.SetMSB();
+    ans.m_state = INITIALIZED;
+    DEBUGEXP(ans.GetInternalRepresentation());
+    return *this = ans;
+
+#else //radically slow for 64 bit version.
+    int initial_shift = 0;
+    //No of initial left shift that can be performed which will make it comparable to the current value.
+    DEBUG("in Mod this "<<*this);
+    DEBUG("in Mod thismsb "<<this->m_MSB);
+    DEBUG("in Mod mod "<<modulus);
+    DEBUG("in Mod modmsb "<<modulus.m_MSB);
+
+    if(this->m_MSB > modulus.m_MSB)
+      initial_shift=this->m_MSB - modulus.m_MSB -1;
+    DEBUG("initial_shift "<<initial_shift);
+
+    ubint j = modulus<<initial_shift;
+    ubint result(*this);
+    ubint temp;
+    while(true){
+      //exit criteria
+      if(result<modulus) break;
+      if (result.m_MSB > j.m_MSB) {
+	temp = j<<1;
+	if (result.m_MSB == j.m_MSB + 1) {
+	  if(result>temp){
+	    j=temp;
+	  }
+	}
+      }
+      //subtracting the running remainder by a multiple of modulus
+      result -= j;
+      initial_shift = j.m_MSB - result.m_MSB +1;
+      if(result.m_MSB-1>=modulus.m_MSB){
+	DEBUG("j before "<<j<< " initial_shift "<<initial_shift);
+	  j>>=initial_shift;
+      } else {
+	j = modulus;
+	DEBUG("j = "<<j);
+      }
+    }
+    DEBUGEXP(std::hex<<this->GetInternalRepresentation()<<std::dec);
+    result.NormalizeLimbs();
+    result.SetMSB();
+    return result;
+#endif
+  }
+
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) const{
@@ -2021,15 +2124,13 @@ return result;
     ubint second(mods[1]);
     ubint result;
 
-    if(mods[1]==ONE){
-      result = ONE;
+    if(mods[1]==1){
+      result = 1;
       return result;
     }
 
-    //Error if modulus is ZERO
-    if(second==ZERO){
-      //std::cout<<"ZERO HAS NO INVERSE\n";
-      //system("pause");
+    //Error if modulus is 0
+    if(second==0){
       throw std::logic_error("ZERO HAS NO INVERSE");
     }
 
@@ -2039,26 +2140,26 @@ return result;
       //DEBUG("**north cycle");
       DEBUG("first "<<first.ToString());
       DEBUG("second "<<second.ToString());
-      if (second==ZERO) { // cannot take mod(0);
-	mods.push_back(ZERO);//FLAG bottom out
+      if (second==0) { // cannot take mod(0);
+	mods.push_back(0);//FLAG bottom out
       }else{
 	mods.push_back(first.Mod(second));
       }
       //DEBUG("Mod step passed");
-      if (second==ZERO){// cannot take mod(0);
-	quotient.push_back(ZERO);
+      if (second==0){// cannot take mod(0);
+	quotient.push_back(0);
       }else {
-	quotient.push_back(first.Div(second));
+	quotient.push_back(first.DividedBy(second));
       }
       DEBUG("Division step passed");
       DEBUG("i "<<ncycle);
       DEBUG(" modsback "<<mods.back().ToString());
 
-      if(mods.back()==ONE){
+      if(mods.back()==1){
 	//DEBUG("break");
 	break;
       }
-      if(mods.back()==ZERO){
+      if(mods.back()==0){
 	throw std::logic_error("ModInverse() inverse not found");
       }
 		
@@ -2072,8 +2173,8 @@ return result;
     }
     //DEBUG("MI ncycle "<<ncycle);
     mods.clear();
-    mods.push_back(ubint(ZERO));
-    mods.push_back(ubint(ONE));
+    mods.push_back(ubint(0));
+    mods.push_back(ubint(1));
 
     first = mods[0];
     second = mods[1];
@@ -2100,32 +2201,63 @@ return result;
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModAdd(const ubint& b, const ubint& modulus) const{
-    return this->Add(b).Mod(modulus);
-    //todo what is the order of this operation?
+    return this->Plus(b).Mod(modulus);
   }
+
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModAddEq(const ubint& b, const ubint& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+  }
+
 
   //Need to mimic        signed modulus return of BE 2
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
-    ubint* a = const_cast<ubint*>(this);
-    ubint* b_op = const_cast<ubint*>(&b);
+	  ubint a(*this);
+	  ubint b_op(b);
 
-    //reduce this to a value lower than modulus
-    if(*this>modulus){
+	  //reduce this to a value lower than modulus
+	  if(*this>modulus){
+		  a.ModEq(modulus);
+	  }
+	  //reduce b to a value lower than modulus
+	  if(b>modulus){
+		  b_op.ModEq(modulus);
+	  }
 
-      *a = std::move(this->Mod(modulus));
-    }
-    //reduce b to a value lower than modulus
-    if(b>modulus){
-      *b_op = std::move(b.Mod(modulus));
-    }
+	  if(a>=b_op){
+		  return ((a-b_op).Mod(modulus));
+	  }
+	  else{
+		  return ((a + modulus) - b_op);
+	  }
+  }
 
-    if(*a>=*b_op){
-      return ((*a-*b_op).Mod(modulus));		
-    }
-    else{
-      return ((*a + modulus) - *b_op);
-    }
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModSubEq(const ubint& b, const ubint& modulus) {
+	  ubint b_op(b);
+
+	  //reduce this to a value lower than modulus
+	  if(*this>modulus){
+		  this->ModEq(modulus);
+	  }
+	  //reduce b to a value lower than modulus
+	  if(b>modulus){
+		  b_op.ModEq(modulus);
+	  }
+
+	  if(*this >= b_op) {
+		  this->MinusEq(b_op);
+		  this->ModEq(modulus);
+	  }
+	  else {
+		  this->PlusEq(modulus);
+		  this->MinusEq(b_op);
+	  }
+
+	  return *this;
   }
 
 
@@ -2136,17 +2268,17 @@ return result;
     bool dbg_flag = false;
     DEBUG("ModMul");
 	
-    ubint ans(ZERO);
+    ubint ans(0);
     //check for garbage initialized objects
-    if(b.m_MSB==0 || b.m_state==GARBAGE ||a.m_state==GARBAGE || a.m_MSB==0){
+    if(b.m_MSB==0 || b.m_state==GARBAGE || a.m_state==GARBAGE || a.m_MSB==0){
       return ans;
     }
-    //check for trivial condtions
+    //check for trivial conditions
     if(b.m_MSB==1)
       return a;
 
     if(a.m_MSB==1)
-      return std::move(ubint(b)); //todo check this? don't think standard move is what we want.
+      return b;
 	
     //position of B in the array where the multiplication should start
     //limb_t ceilLimb = b.m_value.size();
@@ -2213,12 +2345,17 @@ return result;
     return ans;
   }
 
+  template<typename limb_t>
+  const ubint<limb_t>& ubint<limb_t>::ModMulEq(const ubint& b, const ubint& modulus) {
+	  *this = this->ModMul(b, modulus);
+	  return *this;
+  }
+
   //the following is deprecated
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
 #ifdef NO_BARRETT
-    ubint ans(*this);  
-    return ans.ModMul(b, modulus);
+    return this->ModMul(b, modulus);
 
 #else
     ubint* a  = const_cast<ubint*>(this);
@@ -2349,7 +2486,7 @@ return result;
     DEBUG("mid: "<<mid.ToString());
 
     //product calculates the running product of mod values
-    ubint product(ONE);
+    ubint product(1);
 
     //Exp is used for spliting b to bit values/ bit extraction
     ubint Exp(b);
@@ -2371,7 +2508,7 @@ return result;
       //DEBUG("product "<<product);
       //divide by 2 and check even to odd to find bit value
       Exp = Exp>>1;
-      if(Exp==ZERO)break;
+      if(Exp==0)break;
 
       //DEBUG("Exp "<<Exp);
 
@@ -2393,7 +2530,7 @@ return result;
       //DEBUG("product "<<product);
       //divide by 2 and check even to odd to find bit value
       Exp >>=1;
-      if(Exp==ZERO)break;
+      if(Exp==0)break;
 
       //DEBUG("Exp "<<Exp);
 
@@ -2526,7 +2663,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
     if(q.m_state==GARBAGE)
       throw std::logic_error("DivideAndRound() Divisor uninitialised");
 
-    if(q==ZERO)
+    if(q==0)
       throw std::logic_error("DivideAndRound() Divisor is zero");
 
     ubint halfQ(q>>1);
@@ -2534,9 +2671,9 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
     if (*this < q) {
       if (*this <= halfQ)
-	return ubint(ZERO);
+	return ubint(0);
       else
-	return ubint(ONE);
+	return ubint(1);
     }
     //=============
     ubint ans(0);
@@ -2571,68 +2708,13 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
 
     //Rounding operation from running remainder
     if (!(rv <= halfQ)) {
-      ans += ONE;
+      ans += 1;
       DEBUG("added1 ans "<<ans.ToString());
     }
     return ans;
 
   }
 
-  // == operator
-  template<typename limb_t>
-  bool ubint<limb_t>::operator==(const ubint& a) const{
-    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR == against uninitialized bint\n");
-    return(this->Compare(a)==0);
-  }
-  template<typename limb_t>
-  bool ubint<limb_t>::operator==(const usint& a) const{
-    if(this->m_state==GARBAGE)
-      throw std::logic_error("ERROR == against uninitialized bint\n");
-    return(this->Compare(a)==0);
-  }
-
-
-  template<typename limb_t>
-  bool ubint<limb_t>::operator!=(const ubint& a)const{
-    return(this->Compare(a)!=0);
-  }
-
-  template<typename limb_t>
-  bool ubint<limb_t>::operator!=(const usint& a)const{
-    return(this->Compare(a)!=0);
-  }
-
-  //greater than operator
-  template<typename limb_t>
-  bool ubint<limb_t>::operator>(const ubint& a)const{
-    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR > against uninitialized bint\n");
-    return(this->Compare(a)>0);
-
-  }
-
-  //greater than or equals operator
-  template<typename limb_t>
-  bool ubint<limb_t>::operator>=(const ubint& a) const{
-    return(this->Compare(a)>=0);
-  }
-
-  //less than operator
-  template<typename limb_t>
-  bool ubint<limb_t>::operator<(const ubint& a) const{
-    if(this->m_state==GARBAGE || a.m_state==GARBAGE)
-      throw std::logic_error("ERROR > against uninitialized bint\n");
-    return(this->Compare(a)<0);
-
-  }
-
-  //less than or equal operation
-  template<typename limb_t>
-  bool ubint<limb_t>::operator<=(const ubint& a) const{
-    return(this->Compare(a)<=0);
-  }
-  
   // helper functions convert a ubint in and out of a string of
   // characters the encoding is Base64-like: the first 6 or 11 6-bit
   // groupings are Base64 encoded
@@ -2851,7 +2933,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint &p, const ubint &q) co
   //Recursive Exponentiation function
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::Exp(usint p) const{
-    if (p == 0) return ubint(ubint::ONE);
+    if (p == 0) return 1;
     ubint x(*this);
     if (p == 1) return x;
 

@@ -277,7 +277,7 @@ namespace exp_int{
   // Definition starts here
   //////////////////////////////////////////////////////////////////////////////////////////////////
   template<typename limb_t>
-  class ubint
+  class ubint : public lbcrypto::BigIntegerInterface<ubint<limb_t>>
   {
       
   public:
@@ -299,7 +299,6 @@ namespace exp_int{
      *
      * @param init is the initial 64 bit unsigned integer.
      */
-    //explicit ubint(const uint64_t init);
     ubint(const uint64_t init);
 
     /**
@@ -341,7 +340,7 @@ namespace exp_int{
      * @param val is the unsigned integer value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(const usint val) {
+    const ubint& operator=(const uint64_t val) {
     //  *this = intTobint(val);
     	  *this = ubint(val);
       return *this;
@@ -353,7 +352,7 @@ namespace exp_int{
      * @param val is the string value that is assigned.
      * @return the assigned ubint ref.
      */
-    inline const ubint& operator=(const std::string val) {
+    const ubint& operator=(const std::string val) {
       *this = ubint(val);
       return *this;
     }
@@ -365,39 +364,39 @@ namespace exp_int{
      * @param &&rhs is the ubint to move.
      * @return object of type ubint.
      */
-    ubint&  operator=( ubint &&rhs);
+    const ubint&  operator=(ubint &&rhs);
 
     //Shift Operators
    
-    /**
-     * Left shift operator of ubint
-     * @param shift is the amount to shift of type usint.
-     * @return the object of type ubint
-     */
-    ubint  operator<<(const usint shift) const;
-
-    /**
-     * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-     *
-     * @param shift is the amount to shift of type usint.
-     * @return the object of type ubint
-     */
-    ubint&  operator<<=(usint shift);
-
-    /**
-     * Right shift operator of ubint
-     * @param shift is the amount to shift of type usint.
-     * @return the object of type ubint
-     */
-    ubint  operator>>(usint shift) const;
-
-    /**
-     * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-     *
-     * @param shift is the amount to shift of type usint.
-     * @return the object of type ubint
-     */
-    ubint&  operator>>=(usint shift);
+//    /**
+//     * Left shift operator of ubint
+//     * @param shift is the amount to shift of type usint.
+//     * @return the object of type ubint
+//     */
+//    ubint  operator<<(const usint shift) const;
+//
+//    /**
+//     * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+//     *
+//     * @param shift is the amount to shift of type usint.
+//     * @return the object of type ubint
+//     */
+//    ubint&  operator<<=(usint shift);
+//
+//    /**
+//     * Right shift operator of ubint
+//     * @param shift is the amount to shift of type usint.
+//     * @return the object of type ubint
+//     */
+//    ubint  operator>>(usint shift) const;
+//
+//    /**
+//     * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
+//     *
+//     * @param shift is the amount to shift of type usint.
+//     * @return the object of type ubint
+//     */
+//    ubint&  operator>>=(usint shift);
 
     //Auxillary Functions
 
@@ -438,8 +437,6 @@ namespace exp_int{
      * @return the size
      */
     usint GetNumberOfLimbs()const;
-
-
 
     /**
      * Converts the value to a usint.
@@ -526,71 +523,19 @@ namespace exp_int{
      * @param b is the value to add of type ubint.
      * @return result of the addition operation of type ubint.
      */
-    ubint Add(const ubint& b) const;
-    /**
-     * Deprecated Addition operation.
-     *
-     * @param b is the value to add of type ubint.
-     * @return result of the addition operation of type ubint.
-     */
     ubint Plus(const ubint& b) const;
+
+    const ubint& PlusEq(const ubint& b);
 		
-    /**
-     * Addition accumulator.
-     *
-     * @param &b is the value to add of type ubint.
-     * @return result of the addition operation of type ubint.
-     */
-    ubint& operator+=(const ubint &b);
-
-		
-    /**
-     * Subtraction accumulator.
-     *
-     * @param &b is the value to subtract of type ubint.
-     * @return result of the subtraction operation of type ubint.
-     */
-    ubint& operator-=(const ubint &b);
-
-    /**
-     * Multiplication accumulator.
-     *
-     * @param &b is the value to multiply by of type ubint.
-     * @return result of the multiplication operation of type ubint.
-     */
-    ubint& operator*=(const ubint &b);
-
-    /**
-     * Division accumulator.
-     *
-     * @param &b is the value to divide by of type ubint.
-     * @return result of the division operation of type ubint.
-     */
-    ubint& operator/=(const ubint &b);
-
-    /**
-     * Modulus accumulator.
-     *
-     * @param &b is the value to modulo by of type ubint.
-     * @return result of the modulo operation of type ubint.
-     */
-    ubint& operator%=(const ubint &b);
-
     /**
      * Subtraction operation.
      *
      * @param b is the value to subtract of type ubint.
      * @return result of the subtraction operation of type ubint.
      */
-    ubint Sub(const ubint& b) const;
-
-    /**
-     * Deprecated Subtraction operation.
-     *
-     * @param b is the value to subtract of type ubint.
-     * @return result of the subtraction operation of type ubint.
-     */
     ubint Minus(const ubint& b) const;
+
+    const ubint& MinusEq(const ubint& b);
         
     /**
      * Multiplication operation.
@@ -598,15 +543,9 @@ namespace exp_int{
      * @param b of type ubint is the value to multiply with.
      * @return result of the multiplication operation.
      */
-    ubint Mul(const ubint& b) const;
-
-    /**
-     * Deprecated Multiplication operation.
-     *
-     * @param b of type ubint is the value to multiply with.
-     * @return result of the multiplication operation.
-     */
     ubint Times(const ubint& b) const;
+
+    const ubint& TimesEq(const ubint& b);
 
     /**
      * Division operation.
@@ -615,16 +554,9 @@ namespace exp_int{
      * @return result of the division operation.
      *
      */
-    ubint Div(const ubint& b) const;
-
-    /**
-     * Division operation. (provided for backwards compatability
-     * this SHOULD be deprecated, use Div() or /
-     * @param b of type ubint is the value to divide by.
-     * @return result of the division operation.
-     *
-     */
     ubint DividedBy(const ubint& b) const;
+
+    const ubint& DividedByEq(const ubint& b);
 
     /**
      * Exponentiation of a bigInteger x. Returns x^p
@@ -643,6 +575,8 @@ namespace exp_int{
      * @return ubint that is the result of the modulus operation.
      */
     ubint Mod(const ubint& modulus) const;
+
+    const ubint& ModEq(const ubint& modulus);
 
     /**
     * returns the modulus with respect to the input value.
@@ -695,6 +629,8 @@ namespace exp_int{
      */
     ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
+    const ubint& ModAddEq(const ubint& b, const ubint& modulus);
+
     // this is wrapper for modadd
     inline ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const {
       return this->ModAdd(b, modulus);
@@ -710,6 +646,8 @@ namespace exp_int{
      */
     ubint ModSub(const ubint& b, const ubint& modulus) const;
 
+    const ubint& ModSubEq(const ubint& b, const ubint& modulus);
+
     // this is wrapper for modsub
     inline ubint ModBarrettSub(const ubint& b, const ubint& modulus,const ubint& mu) const {
       return this->ModSub(b, modulus);
@@ -724,6 +662,8 @@ namespace exp_int{
      * @return is the result of the modulus multiplication operation.
      */
     ubint ModMul(const ubint& b, const ubint& modulus) const;
+
+    const ubint& ModMulEq(const ubint& b, const ubint& modulus);
 
 
     /**
@@ -770,7 +710,39 @@ namespace exp_int{
      */
     ubint ModExp(const ubint& b, const ubint& modulus) const;
 
-    /**
+	/**
+	 * << operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+    ubint LShift(usshort shift) const;
+
+	/**
+	 * <<= operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+    const ubint& LShiftEq(usshort shift);
+
+	/**
+	 * >> operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+    ubint RShift(usshort shift) const;
+
+	/**
+	 * >>= operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+    const ubint& RShiftEq(usshort shift);
+
+	/**
      * Stores the based 10 equivalent/Decimal value of the ubint in a string object and returns it.
      *
      * @return value of this ubint in base 10 represented as a string.
@@ -859,100 +831,6 @@ namespace exp_int{
     ubint DivideAndRound(const ubint &q) const;
   
     /**
-     * Test equality of the inputs.
-     *
-     * @param a second value to test.
-     * @return true if the inputs are equal.
-     */
-    bool operator==(const ubint& a) const;
-    bool operator==(const usint& a) const;    
-
-    /**
-     * Test inequality of the inputs.
-     *
-     * @param a second value to test.
-     * @return true if the inputs are inequal.
-     */
-    bool operator!=(const ubint& a) const;
-    bool operator!=(const usint& a) const;
-
-    /**
-     * Test if first input is great than the second input.
-     *
-     * @param a second value to test.
-     * @return true if the first inputs is greater.
-     */
-    bool operator> (const ubint& a) const;
-
-    /**
-     * Test if first input is great than or equal to the second input.
-     *
-     * @param a second value to test.
-     * @return true if the first inputs is greater than or equal to the second input.
-     */
-    bool operator>=(const ubint& a) const;
-
-    /**
-     * Test if first input is less than the second input.
-     *
-     * @param a second value to test.
-     * @return true if the first inputs is lesser.
-     */
-    bool operator< (const ubint& a) const;
-
-    /**
-     * Test if first input is less than or equal to the second input.
-     *
-     * @param a second value to test.
-     * @return true if the first inputs is less than or equal to the second input.
-     */
-    bool operator<=(const ubint& a) const;
-
-    //overloaded binary operators based on integer arithmetic and comparison functions
-    /**
-     * Addition operation.
-     *
-     * @param a is the value to add.
-     * @return is the result of the addition operation.
-     */
-    inline ubint operator+(const ubint &a) const {return this->Add(a);}
-
-    /**
-     * Subtraction operation.
-     *
-     * @param a is the value to subtract.
-     * @return is the result of the subtraction operation.
-     */
-    inline ubint operator-(const ubint &a) const {return this->Sub(a);}
-
-    /**
-     * Multiplication operation.
-     *
-     * @param a is the value to multiply with.
-     * @return is the result of the multiplication operation.
-     */
-    inline ubint operator*(const ubint &a) const {return this->Mul(a);}
-
-
-
-    /**
-     * Modulo operation. Classical modular reduction algorithm is used.
-     *
-     * @param a is the value to Mod.
-     * @return is the result of the modulus operation.
-     */
-    inline ubint operator%(const ubint &a) const {return this->Mod(a);}
-
-    /**
-     * Division operation.
-     *
-     * @param a is the value to divide.
-     * @param b is the value to divide by.
-     * @return is the result of the integral part after division operation.
-     */
-    inline ubint operator/ (const ubint &a) const {return this->Div(a);}
-
-    /**
      * ostream output << operator
      *
      * @param os is the std ostream object.
@@ -1021,38 +899,6 @@ namespace exp_int{
     static const std::string IntegerTypeName() { return "UBINT_64"; }
 #endif
 
-    //constant definations
-        
-    /**
-     * Constant zero.
-     */
-    static const ubint ZERO;
-
-    /**
-     * Constant one.
-     */
-    static const ubint ONE;
-
-    /**
-     * Constant two.
-     */
-    static const ubint TWO;
-
-    /**
-     * Constant three.
-     */
-    static const ubint THREE;
-
-    /**
-     * Constant four.
-     */
-    static const ubint FOUR;
-
-    /**
-     * Constant five.
-     */
-    static const ubint FIVE;
-    
     /**
      * Compares the current ubint to ubint a.
      *
@@ -1064,17 +910,12 @@ namespace exp_int{
     /**
      *  Set this int to 1.
      */
-    inline void SetIdentity() { *this = ubint::ONE; };
+    inline void SetIdentity() { *this = 1; };
 
     /**
      * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
      */
     static unique_ptr<ubint> Allocator();
-
-    /**
-     * Gets the MSB of the ubint from the internal value.
-     */
-    //      usint GetMSB();
 
     /**
      * Gets the state of the ubint from the internal value.
@@ -1254,18 +1095,6 @@ namespace exp_int{
      */
     static void add_bitVal(uschar* a,uschar b);
   };
-
-
-  /**
-   * Division operation.
-   *
-   * @param a is the value to divide.
-   * @param b is the value to divide by.
-   * @return is the result of the division operation.
-   */
-  //todo: does this go here?
-  template<typename limb_t>
-    inline ubint<limb_t> operator/(const ubint<limb_t> &a, const ubint<limb_t> &b) {return a.Div(b);}
 
   // stream helper function for vector of objects
   template < typename limb_t >

@@ -1518,10 +1518,11 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModAdd(const Bi
 	return this->Plus(b).Mod(modulus);
 }
 
-// FIXME mod in place
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddEq(const BigInteger& b, const BigInteger& modulus) {
-	return *this = this->PlusEq(b).Mod(modulus);
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
 }
 
 //Optimized Mod Addition using ModBarrett

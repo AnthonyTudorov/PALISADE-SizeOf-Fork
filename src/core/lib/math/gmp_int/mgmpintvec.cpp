@@ -1,5 +1,5 @@
 /*
- * @file mgmpintvec.cpp This file contains ubintvec, a <vector> of ubint, with associated
+ * @file mgmpintvec.cpp This file contains mgmpintvec, a <vector> of gmpint, with associated
  * math operators
  * @author  TPOC: palisade@njit.edu
  *
@@ -26,8 +26,7 @@
  */
 /*
  *
- * This file contains the cpp implementation of  ubintvec, a <vector> of ubint, with associated math operators.
- * NOTE: this has been refactored so that implied modulo (ring)  aritmetic is in mbintvec
+ * This file contains the cpp implementation of  mgmpintvec, a <vector> of gmpint, with associated math operators.
  *
  */
 #define FASTNLOOSE

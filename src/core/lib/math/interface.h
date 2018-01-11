@@ -406,31 +406,31 @@ public:
 		* @return true if equal and false otherwise.
 		*/
 		friend inline bool operator==(const T& a, const T& b) {
-	        if (a.GetLength() != b.GetLength())
-	            return false;
-	        if (a.GetModulus() != b.GetModulus())
-	        	return false;
-	        for (size_t i = 0; i < a.GetLength(); ++i) {
-	            if (a[i] != b[i]) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
+			if (a.GetLength() != b.GetLength())
+				return false;
+			if (a.GetModulus() != b.GetModulus())
+				return false;
+			for (size_t i = 0; i < a.GetLength(); ++i) {
+				if (a[i] != b[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
 
-	    /**
+		/**
 		* Not equal to operator
 		*
 		* @param b is vector to be compared.
 		* @return true if not equal and false otherwise.
 		*/
-	    friend inline bool operator!=(const T& a, const T& b) {
-	        return !(a == b);
-	    }
+		friend inline bool operator!=(const T& a, const T& b) {
+			return !(a == b);
+		}
 
 		//ACCESSORS
 
-	    // The derived class must implement at and operator[]
+		// The derived class must implement at and operator[]
 		I& at(size_t idx);
 		const I& at(size_t idx) const;
 		I& operator[](size_t idx);
@@ -463,7 +463,7 @@ public:
 		 *
 		 * @return vector length.
 		 */
-		usint GetLength() const;
+		virtual size_t GetLength() const = 0;
 
 		/**
 		 * Scalar modulus addition.
@@ -626,15 +626,6 @@ public:
 		*/
 		T ModByTwo() const;
 			// FIXME there is no ModByTwoEq -- is it needed?
-
-		// FIXME this method does not seem to be used -- is it needed?
-		/**
-		 * Vector multiplication without applying the modulus operation.
-		 *
-		 * @param &b is the vector to multiply.
-		 * @return is the result of the multiplication operation.
-		 */
-		T MultWithOutMod(const T &b) const;
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
