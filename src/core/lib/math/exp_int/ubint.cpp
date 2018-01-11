@@ -2212,7 +2212,6 @@ return result;
   }
 
 
-  //Need to mimic        signed modulus return of BE 2
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
 	  ubint a(*this);
@@ -2228,11 +2227,15 @@ return result;
 	  }
 
 	  if(a>=b_op){
-		  return ((a-b_op).Mod(modulus));
+		  a.MinusEq(b_op);
+		  a.ModEq(modulus);
 	  }
 	  else{
-		  return ((a + modulus) - b_op);
+		  a.PlusEq(modulus);
+		  a.MinusEq(b_op);
 	  }
+
+	  return a;
   }
 
   template<typename limb_t>
@@ -2259,7 +2262,6 @@ return result;
 
 	  return *this;
   }
-
 
   template<typename limb_t>
   ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{

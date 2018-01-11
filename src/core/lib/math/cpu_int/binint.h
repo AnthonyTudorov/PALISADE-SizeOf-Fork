@@ -457,6 +457,17 @@ namespace cpu_int{
     BigInteger ModBarrett(const BigInteger& modulus, const BigInteger mu_arr[BARRETT_LEVELS+1]) const;
 
     /**
+    * returns the modulus with respect to the input value - In place version.
+	* Implements generalized Barrett modular reduction algorithm. Uses an array of precomputed values \mu.
+	* See the cpp file for details of the implementation.
+    *
+    * @param modulus is the modulus to perform operations with.
+    * @param mu_arr is an array of the Barrett values of length BARRETT_LEVELS.
+    * @return result of the modulus operation.
+    */
+    void ModBarrettInPlace(const BigInteger& modulus, const BigInteger mu_arr[BARRETT_LEVELS+1]);
+
+    /**
     * returns the modulus inverse with respect to the input value.
     *
     * @param modulus is the modulus to perform.
