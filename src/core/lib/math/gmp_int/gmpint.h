@@ -134,46 +134,53 @@ public:
 
 	//palisade arithmetic methods
 	myZZ Plus(const myZZ& b) const {
-		return *this + b;
+		return *static_cast<const ZZ*>(this) + static_cast<const ZZ&>(b);
 	}
 
 	const myZZ& PlusEq(const myZZ& b) {
-		return *this += b;
+		*static_cast<ZZ*>(this) += static_cast<const ZZ&>(b);
+		return *this;
 	}
 
 	//note that in Sub we return 0, if a<b
 	myZZ Minus(const myZZ& b) const {
-		return (*this<b) ? ZZ(0): (*this-b);
+		return (*this<b) ? ZZ(0): (*static_cast<const ZZ*>(this) - static_cast<const ZZ&>(b));
 	}
 
 	const myZZ& MinusEq(const myZZ& b) {
 		if (*this<b)
 			*this = ZZ(0);
 		else
-			*this -= b;
+			*static_cast<ZZ*>(this) -= static_cast<const ZZ&>(b);
 		return *this;
 	}
 
-	myZZ Times(const myZZ& b) const { return *this * b; }
-	const myZZ& TimesEq(const myZZ& b) { return *this *= b; }
+	myZZ Times(const myZZ& b) const { return *static_cast<const ZZ*>(this) * static_cast<const ZZ&>(b); }
+	const myZZ& TimesEq(const myZZ& b) {
+		*static_cast<ZZ*>(this) *= static_cast<const ZZ&>(b);
+		return *this;
+	}
 
-	myZZ DividedBy(const myZZ& b) const {return *this / b; }
-	const myZZ& DividedByEq(const myZZ& b) {return *this /= b; }
+	myZZ DividedBy(const myZZ& b) const {return *static_cast<const ZZ*>(this) / static_cast<const ZZ&>(b); }
+	const myZZ& DividedByEq(const myZZ& b) {
+		*static_cast<ZZ*>(this) /= static_cast<const ZZ&>(b);
+		return *this;
+	}
 
 	myZZ Exp(const usint p) const {return power(*this,p);}
 
 	//palisade modular arithmetic methods
 
-	myZZ Mod(const myZZ& modulus) const {return *this%modulus;}
+	myZZ Mod(const myZZ& modulus) const {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
 	const myZZ& ModEq(const myZZ& modulus) {
-		*this %= modulus;
+		*static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);
 		return *this;
 	}
 
-	myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;}
-	void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;}
+	myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
+	void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);}
 
-	myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *this%modulus;}
+	myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
 
 	myZZ ModInverse(const myZZ& modulus) const {
 		bool dbg_flag = false;
@@ -197,7 +204,15 @@ public:
 		return tmp;
 	}
 
-	myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {return myZZ(AddMod(*this%modulus, b%modulus, modulus));}
+	myZZ ModAdd(const myZZ& b, const myZZ& modulus) const {
+		return AddMod(this->Mod(modulus), b.Mod(modulus), modulus);
+	}
+
+	const myZZ& ModAddEq(const myZZ& b, const myZZ& modulus) {
+		AddMod(*this, this->Mod(modulus), b.Mod(modulus), modulus);
+		return *this;
+	}
+
 	//Fast version does not check for modulus bounds.
 	myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);}
 
@@ -228,8 +243,29 @@ public:
 		}
 	}
 
+	const myZZ& ModSubEq(const myZZ& b, const myZZ& modulus)
+	{
+		bool dbg_flag = false;
+		this->ModEq(modulus);
+		myZZ newb(b%modulus);
+
+		if (*this>=newb) {
+			SubMod(*this, *this, newb, modulus);  //normal mod sub
+
+			DEBUG("in modsub submod tmp "<< *this);
+			return *this;
+
+		} else {
+			this->PlusEq(modulus);
+			this->MinusEq(newb);  //signed mod
+
+			DEBUG("in modsub alt tmp "<< *this);
+			return *this;
+		}
+	}
+
 	//Fast version does not check for modulus bounds.
-	inline myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
+	myZZ ModSubFast(const myZZ& b, const myZZ& modulus) const
 	{
 		if (*this>=b) {
 			return SubMod(*this, b, modulus);  //normal mod sub
@@ -237,14 +273,21 @@ public:
 			return (*this+modulus -b) ;  //signed mod
 		}
 
-	};
+	}
 
-
-	inline myZZ ModBarrettSub(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
+	myZZ ModBarrettSub(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
 		return this->ModSub(b, modulus);
-	};
+	}
 
-	inline myZZ ModMul(const myZZ& b, const myZZ& modulus) const {return myZZ(MulMod(*this%modulus, b%modulus, modulus));};
+	myZZ ModMul(const myZZ& b, const myZZ& modulus) const {
+		return MulMod(this->Mod(modulus), b.Mod(modulus), modulus);
+	}
+
+	const myZZ& ModMulEq(const myZZ& b, const myZZ& modulus) {
+		MulMod(*this, this->Mod(modulus), b.Mod(modulus), modulus);
+		return *this;
+	}
+
 	//Fast version does not check for modulus bounds.
 	inline myZZ ModMulFast(const myZZ& b, const myZZ& modulus) const {return MulMod(*this, b, modulus);};
 
@@ -278,7 +321,7 @@ public:
 	 * @param shift # of bits
 	 * @return result of the shift operation.
 	 */
-	myZZ LShift(usshort shift) const { return (*this) << shift; }
+	myZZ LShift(usshort shift) const { return *static_cast<const ZZ*>(this) << shift; }
 
 	/**
 	 * <<= operation
@@ -287,7 +330,7 @@ public:
 	 * @return result of the shift operation.
 	 */
 	const myZZ& LShiftEq(usshort shift) {
-		(*this) <<= shift;
+		*static_cast<ZZ*>(this) <<= shift;
 		return *this;
 	}
 
@@ -297,7 +340,7 @@ public:
 	 * @param shift # of bits
 	 * @return result of the shift operation.
 	 */
-	myZZ RShift(usshort shift) const { return (*this) >> shift; }
+	myZZ RShift(usshort shift) const { return *static_cast<const ZZ*>(this) >> shift; }
 
 	/**
 	 * >>= operation
@@ -306,11 +349,9 @@ public:
 	 * @return result of the shift operation.
 	 */
 	const myZZ& RShiftEq(usshort shift) {
-		(*this) >>= shift;
+		*static_cast<ZZ*>(this) >>= shift;
 		return *this;
 	}
-
-
 
 	//big integer stream output
 	friend std::ostream& operator<<(std::ostream& os, const myZZ&ptr_obj);

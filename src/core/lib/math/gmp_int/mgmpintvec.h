@@ -221,12 +221,16 @@ public:
 
 	myVecP ModAdd(const myT& b) const {
 		ModulusCheck("Warning: myVecP::ModAdd");
-		return (*this) + b % m_modulus;
+		myVecP ans(*this);
+		ans.ModAddEq(b);
+		return ans;
 	}
 
 	const myVecP& ModAddEq(const myT& b) {
 		ModulusCheck("Warning: myVecP::ModAdd");
-		(*this) += b % m_modulus;
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModAddEq(b, this->m_modulus);
+		}
 		return *this;
 	}
 
@@ -234,42 +238,50 @@ public:
 
 	myVecP ModAddAtIndex(size_t i, const myT &b) const;
 
-//	//vector add
-//	myVecP Add(const myVecP& b) const {
-//		ArgCheckVector(b, "myVecP Add()");
-//		return (*this)+b;
-//	}
-
 	myVecP ModAdd(const myVecP& b) const {
-		return (*this) + b % m_modulus;
+		ArgCheckVector(b, "myVecP ModAdd()");
+		myVecP ans(*this);
+		ans.ModAddEq(b);
+		return ans;
 	}
 
 	const myVecP& ModAddEq(const myVecP& b) {
-		(*this) += b % m_modulus;
+		ArgCheckVector(b, "myVecP ModAddEq()");
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModAddEq(b[i], this->m_modulus);
+		}
 		return *this;
 	}
 
 	//scalar
 	myVecP ModSub(const myT& b) const {
 		ModulusCheck("Warning: myVecP::ModSub");
-		return (*this) - b % m_modulus;
+		myVecP ans(*this);
+		ans.ModSubEq(b);
+		return ans;
 	}
 
 	const myVecP& ModSubEq(const myT& b) {
-		ModulusCheck("Warning: myVecP::ModSub");
-		(*this) -= b % m_modulus;
+		ModulusCheck("Warning: myVecP::ModSubEq");
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModSubEq(b, this->m_modulus);
+		}
 		return (*this);
 	}
 
 	//vector
 	myVecP ModSub(const myVecP& b) const {
 		ArgCheckVector(b, "myVecP ModSub()");
-		return (*this) - b % m_modulus;
+		myVecP ans(*this);
+		ans.ModSubEq(b);
+		return ans;
 	}
 
 	const myVecP& ModSubEq(const myVecP& b) {
-		ArgCheckVector(b, "myVecP ModSub()");
-		(*this) -= b % m_modulus;
+		ArgCheckVector(b, "myVecP ModSubEq()");
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModSubEq(b[i], this->m_modulus);
+		}
 		return (*this);
 	}
 
@@ -279,24 +291,32 @@ public:
 	//scalar
 	myVecP ModMul(const myT& b) const {
 		ModulusCheck("Warning: myVecP::ModMul");
-		return (*this) * b % m_modulus;
+		myVecP ans(*this);
+		ans.ModMulEq(b);
+		return ans;
 	}
 
 	const myVecP& ModMulEq(const myT& b) {
 		ModulusCheck("Warning: myVecP::ModMul");
-		(*this) *= b % m_modulus;
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModMulEq(b, this->m_modulus);
+		}
 		return (*this);
 	}
 
 	//vector
 	myVecP ModMul(const myVecP& b) const {
 		ArgCheckVector(b, "myVecP Mul()");
-		return (*this) * b % m_modulus;
+		myVecP ans(*this);
+		ans.ModMulEq(b);
+		return ans;
 	}
 
 	const myVecP& ModMulEq(const myVecP& b) {
 		ArgCheckVector(b, "myVecP Mul()");
-		(*this) *= b % m_modulus;
+		for(usint i=0;i<this->GetLength();i++){
+			this->operator[](i).ModMulEq(b[i], this->m_modulus);
+		}
 		return (*this);
 	}
 
