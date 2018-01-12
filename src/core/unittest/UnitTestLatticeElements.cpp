@@ -629,10 +629,10 @@ void other_methods() {
 
 		EXPECT_EQ(2U, ilv.GetLength())<<"Failure: Decompose() length";
 
-		EXPECT_EQ(ilv.at(0), 2)
+		EXPECT_EQ(ilv.at(0), typename Element::Integer(2))
 			<< "Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
 		
-		EXPECT_EQ(ilv.at(1), 3) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
+		EXPECT_EQ(ilv.at(1), typename Element::Integer(3)) 					<< "Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
 	}
 
 	DEBUG("5");
@@ -784,7 +784,7 @@ void other_methods() {
 
 		for (usint i = 0; i < m/2; ++i)
 		{
-			EXPECT_EQ(ilvProduct1.at(i), 1)
+			EXPECT_EQ(ilvProduct1.at(i), typename Element::Integer(1))
 				<<"Failure: ilvProduct1.MultiplicativeInverse() @ index "<<i;
 		}
 	}

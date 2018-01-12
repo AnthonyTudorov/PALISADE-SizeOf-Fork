@@ -376,14 +376,6 @@ const myVecP<myT>& myVecP<myT>::operator=( myVecP<myT> &&rhs)
 	return *this;
 }
 
-
-//desctructor
-template<class myT>
-myVecP<myT>::~myVecP()
-{
-
-}
-
 template<class myT>
 void myVecP<myT>::clear(myVecP<myT>& x)
 {

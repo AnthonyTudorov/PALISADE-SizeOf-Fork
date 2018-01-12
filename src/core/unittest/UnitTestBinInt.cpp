@@ -66,10 +66,10 @@ inline void identity_test(BigInteger& a) {
 	BigInteger ZERO(0);
 	BigInteger ONE(1);
 
-	EXPECT_EQ(a, a + 0) << "Failure testing a + 0";
-	EXPECT_EQ(a, a += 0) << "Failure testing a += 0";
-	EXPECT_EQ(a, a * 1) << "Failure testing a * 1";
-	EXPECT_EQ(a, a *= 1) << "Failure testing a *= 1";
+	EXPECT_EQ(a, a + ZERO) << "Failure testing a + 0";
+	EXPECT_EQ(a, a += ZERO) << "Failure testing a += 0";
+	EXPECT_EQ(a, a * ONE) << "Failure testing a * 1";
+	EXPECT_EQ(a, a *= ONE) << "Failure testing a *= 1";
 
 	EXPECT_EQ(a, ZERO + a) << "Failure testing 0 + a";
 	EXPECT_EQ(a, ZERO += a) << "Failure testing 0 += a";
@@ -1114,7 +1114,7 @@ TEST(UTBinInt, method_GetBitAtIndex){
 
   x <<=(100); //x has one bit at 100
 
-  x += 2; //x has one bit at 2
+  x += BigInteger(2); //x has one bit at 2
 
   DEBUG("x "<<x);
   DEBUG(x.GetInternalRepresentation());
@@ -1137,7 +1137,7 @@ TEST(UTBinInt, method_GetInternalRepresentation){
   BigInteger x(1);
 
   x <<=(100); //x has one bit at 128
-  x += 2; //x has one bit at 2
+  x += BigInteger(2); //x has one bit at 2
 
   auto x_limbs = x.GetInternalRepresentation();
 

@@ -133,20 +133,42 @@ public:
 	void SetIdentity(){*this=1;}
 
 	//palisade arithmetic methods
-	myZZ Plus(const myZZ& b) const {return *this+b;};
+	myZZ Plus(const myZZ& b) const {
+		return *this + b;
+	}
+
+	const myZZ& PlusEq(const myZZ& b) {
+		return *this += b;
+	}
 
 	//note that in Sub we return 0, if a<b
-	myZZ Minus(const myZZ& b) const {return((*this<b)? ZZ(0):( *this-b));}
+	myZZ Minus(const myZZ& b) const {
+		return (*this<b) ? ZZ(0): (*this-b);
+	}
+
+	const myZZ& MinusEq(const myZZ& b) {
+		if (*this<b)
+			*this = ZZ(0);
+		else
+			*this -= b;
+		return *this;
+	}
 
 	myZZ Times(const myZZ& b) const { return *this * b; }
+	const myZZ& TimesEq(const myZZ& b) { return *this *= b; }
 
-	myZZ DividedBy(const myZZ& b) const {return *this/b;}
+	myZZ DividedBy(const myZZ& b) const {return *this / b; }
+	const myZZ& DividedByEq(const myZZ& b) {return *this /= b; }
 
 	myZZ Exp(const usint p) const {return power(*this,p);}
 
 	//palisade modular arithmetic methods
 
 	myZZ Mod(const myZZ& modulus) const {return *this%modulus;}
+	const myZZ& ModEq(const myZZ& modulus) {
+		*this %= modulus;
+		return *this;
+	}
 
 	myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *this%modulus;}
 	void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *this%=modulus;}
@@ -249,6 +271,45 @@ public:
 
 	myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;
 	myZZ DivideAndRound(const myZZ &q) const;
+
+	/**
+	 * << operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+	myZZ LShift(usshort shift) const { return (*this) << shift; }
+
+	/**
+	 * <<= operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+	const myZZ& LShiftEq(usshort shift) {
+		(*this) <<= shift;
+		return *this;
+	}
+
+	/**
+	 * >> operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+	myZZ RShift(usshort shift) const { return (*this) >> shift; }
+
+	/**
+	 * >>= operation
+	 *
+	 * @param shift # of bits
+	 * @return result of the shift operation.
+	 */
+	const myZZ& RShiftEq(usshort shift) {
+		(*this) >>= shift;
+		return *this;
+	}
+
 
 
 	//big integer stream output

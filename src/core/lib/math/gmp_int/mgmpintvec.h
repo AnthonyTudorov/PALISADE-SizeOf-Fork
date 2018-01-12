@@ -110,7 +110,24 @@ public:
 	myVecP(const myVecP<myT> &a, const uint64_t q);
 
 	//destructor
-	~myVecP();
+	~myVecP() {}
+
+	/**
+	* ostream operator to output vector values to console
+	*
+	* @param os is the std ostream object.
+	* @param &ptr_obj is the BigVectorImpl object to be printed.
+	* @return std ostream object which captures the vector values.
+	*/
+	friend std::ostream& operator<<(std::ostream& os, const myVecP<myT> &ptr_obj) {
+		auto len = ptr_obj.GetLength();
+		os<<"[";
+		for(size_t i=0; i < len; i++) {
+			os<< ptr_obj.at(i);
+			os << ((i == (len-1))?"]":" ");
+		}
+		return os;
+	}
 
 	//adapters
 	myVecP(std::vector<std::string>& s); //without modulus
@@ -202,72 +219,88 @@ public:
 
 	void SwitchModulus(const myT& newModulus);
 
-	inline myVecP Add(const myT& b) const {ModulusCheck("Warning: myVecP::Add"); return (*this)+b%m_modulus; };
-	inline myVecP ModAdd(const myT& b) const {ModulusCheck("Warning: myVecP::ModAdd"); return this->Add(b); };
+	myVecP ModAdd(const myT& b) const {
+		ModulusCheck("Warning: myVecP::ModAdd");
+		return (*this) + b % m_modulus;
+	}
+
+	const myVecP& ModAddEq(const myT& b) {
+		ModulusCheck("Warning: myVecP::ModAdd");
+		(*this) += b % m_modulus;
+		return *this;
+	}
 
 	void modadd_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural version
 
 	myVecP ModAddAtIndex(size_t i, const myT &b) const;
 
-	//vector add
-	myVecP Add(const myVecP& b) const {
-		ArgCheckVector(b, "myVecP Add()");
-		return (*this)+b;
-	};
+//	//vector add
+//	myVecP Add(const myVecP& b) const {
+//		ArgCheckVector(b, "myVecP Add()");
+//		return (*this)+b;
+//	}
+
 	myVecP ModAdd(const myVecP& b) const {
-		return (this->Add(b));
-	};
+		return (*this) + b % m_modulus;
+	}
 
-	//Subtraction
-	//vector subtraction assignment note uses DIFFERNT modsub than standard math
-	//this is a SIGNED mod sub
-	inline myVecP& operator-=(const myVecP& a) {
-		ArgCheckVector(a, "myVecP -=");
-		modsub_p(*this, *this, a);
+	const myVecP& ModAddEq(const myVecP& b) {
+		(*this) += b % m_modulus;
 		return *this;
-	};
-
-	//scalar subtraction assignment
-	inline myVecP& operator-=(const myT& a)
-    		{
-		ModulusCheck("Warning: myVecP::op-=");
-		*this = *this-a;
-		return *this;
-    		};
+	}
 
 	//scalar
-	myVecP Sub(const myT& b) const {ModulusCheck("Warning: myVecP::Sub"); return (*this)-b%m_modulus;};
-	myVecP ModSub(const myT& b) const {ModulusCheck("Warning: myVecP::ModSub"); return (*this)-b%m_modulus;};
+	myVecP ModSub(const myT& b) const {
+		ModulusCheck("Warning: myVecP::ModSub");
+		return (*this) - b % m_modulus;
+	}
+
+	const myVecP& ModSubEq(const myT& b) {
+		ModulusCheck("Warning: myVecP::ModSub");
+		(*this) -= b % m_modulus;
+		return (*this);
+	}
 
 	//vector
-	myVecP Sub(const myVecP& b) const {
-		bool dbg_flag = false;
-		DEBUG("in myVecP::Sub");
-		DEBUG(*this);
-		DEBUG(this->GetModulus());
-		DEBUG(b);
-		DEBUG(b.GetModulus());
-		ArgCheckVector(b, "myVecP Sub()");
-		return (*this)-b;
-	};
-	myVecP ModSub(const myVecP& b) const {ArgCheckVector(b, "myVecP ModSub()"); return (this->Sub(b));};
+	myVecP ModSub(const myVecP& b) const {
+		ArgCheckVector(b, "myVecP ModSub()");
+		return (*this) - b % m_modulus;
+	}
 
-	//deprecated vector
-	inline myVecP Minus(const myVecP& b) const {ArgCheckVector(b, "myVecP Minus()"); return (this->Sub(b));};
+	const myVecP& ModSubEq(const myVecP& b) {
+		ArgCheckVector(b, "myVecP ModSub()");
+		(*this) -= b % m_modulus;
+		return (*this);
+	}
 
 	//procecural
 	void modsub_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
 
 	//scalar
-	inline myVecP Mul(const myT& b) const {ModulusCheck("Warning: myVecP::Mul"); return (*this)*b%m_modulus;};
-	inline myVecP ModMul(const myT& b) const {ModulusCheck("Warning: myVecP::ModMul"); return (*this)*b%m_modulus;};
+	myVecP ModMul(const myT& b) const {
+		ModulusCheck("Warning: myVecP::ModMul");
+		return (*this) * b % m_modulus;
+	}
+
+	const myVecP& ModMulEq(const myT& b) {
+		ModulusCheck("Warning: myVecP::ModMul");
+		(*this) *= b % m_modulus;
+		return (*this);
+	}
 
 	//vector
-	inline myVecP Mul(const myVecP& b) const {ArgCheckVector(b, "myVecP Mul()"); return (*this)*b;};
-	inline myVecP ModMul(const myVecP& b) const {ArgCheckVector(b, "myVecP Mul()");return (this->Mul(b));};
+	myVecP ModMul(const myVecP& b) const {
+		ArgCheckVector(b, "myVecP Mul()");
+		return (*this) * b % m_modulus;
+	}
+
+	const myVecP& ModMulEq(const myVecP& b) {
+		ArgCheckVector(b, "myVecP Mul()");
+		(*this) *= b % m_modulus;
+		return (*this);
+	}
 
 	void modmul_p(myVecP& x, const myVecP& a, const myVecP& b) const; //define procedural
-
 
 	/**
 	 * Scalar exponentiation.
