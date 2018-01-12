@@ -197,7 +197,7 @@ void SHETestCoeff() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 6, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 11, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);

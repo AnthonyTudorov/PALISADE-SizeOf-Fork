@@ -27,6 +27,8 @@
 #include "cryptocontext.h"
 #include "bfvrns.cpp"
 
+#define PROFILE
+
 namespace lbcrypto {
 
 // Precomputation of CRT tables encryption, decryption, and homomorphic multiplication
@@ -456,6 +458,10 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 		const Ciphertext<DCRTPoly> ciphertext,
 		NativePoly *plaintext) const
 {
+	TimeVar t_total;
+
+	TIC(t_total);
+
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(privateKey->GetCryptoParameters());
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
@@ -489,6 +495,8 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable);
+
+	std::cout << "Decryption time (internal): " << TOC(t_total) << " ms" << std::endl;
 
 	return DecryptResult(plaintext->GetLength());
 
