@@ -186,7 +186,7 @@ public:
 	 * Sets/gets a value at an index.
 	 *
 	 * @param index is the index to set a value at.
- */
+	 */
 
 	IntegerType& at(size_t i) {
 	  if(!this->IndexCheck(i)) {

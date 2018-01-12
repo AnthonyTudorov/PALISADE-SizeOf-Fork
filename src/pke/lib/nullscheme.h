@@ -854,10 +854,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			for (int c1e = 0; c1e<ringdim; c1e++) {
 				typename Element::PolyType::Integer answer, c1val, c2val, prod;
 				c1val = c1.at(c1e);
-				if (c1val != 0) {
+				if (c1val != typename Element::PolyType::Integer(0)) {
 					for (int c2e = 0; c2e<ringdim; c2e++) {
 						c2val = c2.at(c2e);
-						if (c2val != 0) {
+						if (c2val != typename Element::PolyType::Integer(0)) {
 							prod = c1val * c2val;
 
 							int index = (c1e + c2e);
