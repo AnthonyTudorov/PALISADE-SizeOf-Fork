@@ -362,13 +362,16 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 		const std::vector<NativeInteger> &qDivqiInverse) const
 {
 
-	std::vector<DCRTPolyType> result;
+	std::vector<DCRTPolyType> result(m_vectors.size());
 
 	DCRTPolyType input = this->Clone();
 
 	if (input.GetFormat() == EVALUATION)
 		input.SwitchFormat();
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for( usint i=0; i<m_vectors.size(); i++ ) {
 
 		DCRTPolyType currentDCRTPoly = input.Clone();
@@ -383,7 +386,7 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 
 		currentDCRTPoly.SwitchFormat();
 
-		result.push_back( std::move(currentDCRTPoly) );
+		result[i] = std::move(currentDCRTPoly);
 	}
 
 	return std::move(result);
@@ -702,6 +705,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	}
 	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
 		tmp.m_vectors[i] *= element.m_vectors[i];
@@ -714,6 +720,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 {
 	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = tmp.m_vectors[i] * element.ConvertToInt(); // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
@@ -726,6 +735,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 {
 	DCRTPolyImpl<ModType,IntType,VecType,ParmType> tmp(*this);
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = tmp.m_vectors[i] * element[i]; // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
@@ -1018,6 +1030,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 	typename PolyType::Vector coefficients(ringDimension, p);
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		double curFloatSum = 0.0f;
 		typename PolyType::Integer curIntSum = 0;
@@ -1080,6 +1095,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	usint nTowers = m_vectors.size();
 	usint nTowersNew = ans.m_vectors.size();
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
 		std::vector<typename PolyType::Integer> xInvVector(nTowers);
@@ -1171,6 +1189,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 	m_vectors.resize(newSize);
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	// populate the towers corresponding to CRT basis S and convert them to evaluation representation
 	for (size_t i = 0; i < polyWithSwitchedCRTBasis.m_vectors.size(); i++ ) {
 		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
@@ -1184,6 +1205,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 	}
 	else
 	{ // else call NTT for the towers for Q
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for (size_t i = 0; i <size; i++ )
 			m_vectors[i].SwitchFormat();
 	}
@@ -1213,6 +1237,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		size_t size = m_vectors.size();
 		size_t newSize = ans.m_vectors.size();
 
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
 			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
@@ -1256,7 +1283,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchFormat()
 		m_format = COEFFICIENT;
 	}
 
-//#pragma omp parallel for
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].SwitchFormat();
 	}
