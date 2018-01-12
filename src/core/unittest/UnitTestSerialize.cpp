@@ -488,12 +488,12 @@ TEST(UTSer, serialize_map_of_p) {
   DEBUG("step 2");
   
   //build the map to pointers
-  map<string, shared_ptr<Poly::Params>> test_map;
-  vector<string> test_key = {"0", "1", "2"};
+  map<usint, shared_ptr<Poly::Params>> test_map;
+
   DEBUG("step 2.1");
-  test_map["0"]=p1;
-  test_map["1"]=p2;
-  test_map["2"]=p3;
+  test_map[0]=p1;
+  test_map[1]=p2;
+  test_map[2]=p3;
 
 
   DEBUG("step 2.2");  
@@ -507,11 +507,11 @@ TEST(UTSer, serialize_map_of_p) {
 
   DEBUG("step 3");  
   //serialize the vector
-  SerializeMapOfPointers<string, Poly::Params>("Map", "ILParams", test_map, &obj);
+  SerializeMapOfPointers<usint, Poly::Params>("Map", "ILParams", test_map, &obj);
 						      
  
   //add it to the top level object
-  serObj.AddMember("TestVector", obj, serObj.GetAllocator());
+  serObj.AddMember("TestMap", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
     // write the result to cout for debug
@@ -521,7 +521,7 @@ TEST(UTSer, serialize_map_of_p) {
   }
   DEBUG("step 4");  
 
-  map<string, shared_ptr<Poly::Params>> new_map;
+  map<usint, shared_ptr<Poly::Params>> new_map;
 
   DEBUG("step 5");  
   //top level iterator
@@ -538,28 +538,131 @@ TEST(UTSer, serialize_map_of_p) {
   ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find Map";
   DEBUG("step 8");
 
-  DeserializeMapOfPointers<string, Poly::Params>("Map", "ILParams", mIter, &new_map);
+  DeserializeMapOfPointers<usint, Poly::Params>("Map", "ILParams", mIter, &new_map);
     
   DEBUG("step 9");
-
-  DEBUGEXP(new_map);
+  
+  //DEBUGEXP(new_map);
   DEBUGEXP(new_map.size());
+  if (dbg_flag) {
+    for(auto elem : new_map) {
+      DEBUG( elem.first);
+      DEBUG( *(elem.second));
+    }
+  }
   
   for (size_t i = 0; i< test_map.size(); i++){
-    DEBUGEXP(test_map[test_key[i]]);
-    DEBUGEXP(*(test_map[test_key[i]]));
-    DEBUGEXP(new_map[test_key[i]]);
-    DEBUGEXP(*(new_map[test_key[i]]));
-    EXPECT_EQ( *(test_map[test_key[i]]), *(new_map[test_key[i]]) ) << "Mismatch after ser/deser index "<<i;
+    DEBUGEXP(test_map[i]);
+    DEBUGEXP(*(test_map[i]));
+    DEBUGEXP(new_map[i]);
+    DEBUGEXP(*(new_map[i]));
+    EXPECT_EQ( *(test_map[i]), *(new_map[i]) ) << "Mismatch after ser/deser index "<<i;
   }
 }
+
+//////
+
+TEST(UTSer, serialize_vector_matrix){
+  //Serialize/DeserializeVectorOfMatrix is a helper function to test
+  //note the object has to be created outside of the function.
+  
+  bool dbg_flag = false;
+  const int vecsize = 2;
+  
+  DEBUG("step 0");
+  //build test vector (note needs allocator for Matrix<>
+  vector<Matrix<BigInteger>> testvec(vecsize, Matrix<BigInteger>(BigInteger::Allocator, 0, 0));
+  
+  vector <Matrix<BigInteger>> newvec(vecsize, Matrix<BigInteger>(BigInteger::Allocator, 0, 0));
+  DEBUG("step 1");
+  //build test input matricies
+  usint nrows(2);
+  usint ncols(2);
+  //zero matricies
+  Matrix<BigInteger> zeromat(BigInteger::Allocator, 0,0);
+  Matrix<BigInteger> testmat0(BigInteger::Allocator, 0,0);
+  Matrix<BigInteger> testmat1(BigInteger::Allocator, 0,0);
+  Matrix<BigInteger> testmat2(BigInteger::Allocator, 0,0);
+  Matrix<BigInteger> testmat3(BigInteger::Allocator, 0,0);
+
+  Matrix<BigInteger> *tm_p; //pointer to a M<I>
+  DEBUG("step 3");
+ 
+  for (usint i = 0; i < vecsize; i++) {
+    switch (i) {
+    case 0:
+      tm_p = &testmat0;
+      break;
+    case 1:
+      tm_p = &testmat1;
+      break;
+    case 2:
+      tm_p = &testmat2;
+      break;
+    case 3:
+      tm_p = &testmat3;
+      break;
+
+    }
+    tm_p->SetSize(nrows+i, ncols+i); 
+    for (usint row = 0; row < nrows+i; row++) {
+      for (usint col = 0; col < ncols+i; col++){ 
+	(*tm_p)(row,col) = BigInteger(100*i + 10*row + col); //a unique value
+      }
+    }
+    testvec[i] = *tm_p;
+    newvec[i] = zeromat;
+  }
+  
+  
+  DEBUG("step 4");
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
+
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVectorOfMatrix<BigInteger>("VectorOfMatrix", "BigIntegerImpl", testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVectorOfMatrix", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+
+  DEBUG("step 5");
+
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVectorOfMatrix");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVectorOfMatrix";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("VectorOfMatrix");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find VectorOfMatrix";
+  DEBUG("step 8");
+
+  DeserializeVectorOfMatrix<BigInteger>("VectorOfMatrix", "BigIntegerImpl", mIter, &newvec);
+    
+  DEBUG("step 9");
+  EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
+}
+
 
 
 //need tests for
 
-// (De)SerializeMapOfPointers (used in crypto context.cpp)
-
 // (De)SerializeVectorOfPointersToMatrix [used by next one]
 // (De)SerializeVectorOfVectorOfPointersToMatrix [in lwe S compiles D not done]
 
-// (De)SerializeVectorOfMatrix [in lwe S compiles D not done]

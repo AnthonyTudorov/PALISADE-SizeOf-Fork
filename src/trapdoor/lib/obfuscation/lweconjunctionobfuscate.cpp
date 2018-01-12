@@ -263,7 +263,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   // m_Rl
   SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &topobj);
 
-  SerializeVectorOfMatrix("PK", Element::GetElementName(), *this->m_pk, &topobj);
+  SerializeVectorOfMatrix("Pk", Element::GetElementName(), *this->m_pk, &topobj);
 
 #if 0
   shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;

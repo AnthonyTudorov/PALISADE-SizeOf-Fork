@@ -50,6 +50,9 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <map>
+#include <iterator>
+#include <algorithm>
 
 #include "../math/backend.h"
 #include "../math/matrix.h"
@@ -248,19 +251,27 @@ namespace lbcrypto {
     ser.AddMember("Container", "MapOfPointer", serObj->GetAllocator());
     ser.AddMember("Typename", typeName, serObj->GetAllocator());
 
+    ser.AddMember("Size", std::to_string(inMap.size()), serObj->GetAllocator());
+
+      
     bool rc = false;
     Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 
     for( const auto& kv : inMap ) {
       Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
       rc = kv.second->SerializeWithoutContext(&oneEl);
+
+
+      string kvstring = to_string(kv.first);
       if (!rc) {
 	PALISADE_THROW(lbcrypto::serialize_error,
 		       "SerializeMapOfPointers<"+typeName+"> map element "
-		       +to_string(kv.first)+" SerialilzeWithoutContext failed.");
+		       //+to_string(kv.first)+" SerialilzeWithoutContext failed.");
+		       +kvstring+" SerialilzeWithoutContext failed.");
       }
 
-      SerialItem key( std::to_string( kv.first ), serObj->GetAllocator() );
+      //SerialItem key(to_string(kv.first), serObj->GetAllocator() );
+      SerialItem key(kvstring, serObj->GetAllocator() );
       serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
     }
 
@@ -573,6 +584,111 @@ namespace lbcrypto {
     return true;
   }
 
+
+    /** 
+   * Helper template Fills an STL map<K,*foo> with the contents of a 
+   *  a serialized Palisade object made with SerializeMapOfPointers
+   * foo must be a pointer to a serializable object as the function uses the 
+   * foo->SerializeWithoutContext() method to serialize.
+   * @param mapName name of map 
+   * @param typeName of element within the map
+   * @param inMap the STL map to be deserialized
+   * @param it an iterator into the serial object to be deserialised
+   * @return true if successful throws otherwise
+   */
+
+  template<typename K, typename T>
+    bool DeserializeMapOfPointers(const std::string& mapName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::map<K, shared_ptr<T>>* outMap) {
+    bool dbg_flag = false;
+
+    //typedef std::map<K, shared_ptr<T>> MyMap;
+    
+    SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
+    if( mIt == it->value.MemberEnd() ) {
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
+    }
+
+    if( mIt->value.GetString() != typeName ) {
+      PALISADE_THROW(lbcrypto::deserialize_error,
+		     "Wrong type name found: "+ string(mIt->value.GetString())
+		     + "expected :" + typeName );
+    }
+    mIt = it->value.FindMember("Size");
+    if( mIt == it->value.MemberEnd() ) {
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Size");
+    };
+    usint checkSize = std::stoi(mIt->value.GetString()); 
+
+
+    mIt = it->value.FindMember("Members");
+    if( mIt == it->value.MemberEnd() ) {
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Members");
+    };
+
+    const SerialItem& members = mIt->value;
+
+
+    //ok need to iterate over the map here. 
+    //for( size_t i=0; i<outMap->size(); i++ ) {
+    //Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
+
+    for (Serialized::ConstMemberIterator eIt = members.MemberBegin(); eIt !=members.MemberEnd(); ++eIt){
+      
+      // if( eIt == members.MemberEnd() ) {
+      //  PALISADE_THROW(lbcrypto::deserialize_error,
+      //		 "could not find Map entry "+to_string(i));
+      //  };
+      
+      auto key = eIt->name.GetString();
+      DEBUGEXP(eIt->name.GetString());
+      DEBUGEXP(string(key));
+
+      auto pMapElem = make_shared<T>();
+      
+      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+
+      if( s2 == eIt->value.MemberEnd() ) {
+	PALISADE_THROW(lbcrypto::deserialize_error,
+		       "could not find "+string(typeName)+" in map");
+      };
+
+      Serialized ser(rapidjson::kObjectType);
+      SerialItem k( typeName, ser.GetAllocator() );
+      SerialItem v( s2->value, ser.GetAllocator() );
+      ser.AddMember(k, v, ser.GetAllocator());
+
+
+      if( pMapElem->Deserialize(ser) ) {
+#if 0
+	// outMap->at().reset( new T(mapElem) );
+	std::pair<  MyMap::iterator, bool > result =
+	  outMap->insert(std::make_pair(key, pMapElem));
+	// Check if Insertion was successful
+	if (result.second == false) {
+	  // Insertion Failed
+	  DEBUG("Failed to add . duplicate key :: " << result.first->first);
+	} else {
+	  // Insertion was successful
+	  DEBUG("Successful in Adding , key :: " << result.first->first);
+	}
+#else
+	(*outMap)[atoi(key)] = pMapElem;
+
+#endif	
+      } else {
+	PALISADE_THROW(lbcrypto::deserialize_error,
+		       "could not deserialize Map entry "+string(key));
+      }
+    }
+
+    if (checkSize != outMap->size() ) {
+	PALISADE_THROW(lbcrypto::deserialize_error,
+		       "could not deserialize "+to_string(checkSize)+" Map entries, found only  "+to_string(outMap->size()));
+    }      
+    
+    return true;
+  }
+
   /** 
    * Helper template Adds the contents of a palisade Matrix<foo> to 
    *  a serialized Palisade object as a nested JSON data structure
@@ -735,7 +851,6 @@ namespace lbcrypto {
 
     return true;
   }
-  //***
   
   /** 
    * Helper template Fills an STL vector<*Matrix<foo>> with the contents of a 
@@ -840,9 +955,7 @@ namespace lbcrypto {
     return true;
   }
 
-#if 1
-  //&&&&&&
-
+  //////////////////////////////////////////////////////////////////
   template<typename T>
     bool DeserializeVectorOfVectorOfPointersToMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector) {
    
@@ -883,8 +996,6 @@ namespace lbcrypto {
 	PALISADE_THROW(lbcrypto::deserialize_error, "could not find index "+to_string(i));
       }
 
-      shared_ptr<T> pT = new T(); 
-
       SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
       if( s2 == eIt->value.MemberEnd() ){
 	PALISADE_THROW(lbcrypto::deserialize_error,
@@ -912,10 +1023,8 @@ namespace lbcrypto {
     }
     return true;
   }
-#endif
 
-
-
+  ///////////////////////////////////////////////////////////////////////////////
   template<typename T>
     bool DeserializeVectorOfMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector) {
    
@@ -938,35 +1047,39 @@ namespace lbcrypto {
     }
     //   size_t length = std::stoi(mIt->value.GetString());
     
-    outVector->clear();
-    outVector->resize( std::stoi(mIt->value.GetString()) );
+    //outVector->clear();
+    //outVector->resize( std::stoi(mIt->value.GetString()) );
    
     mIt = it->value.FindMember("Members");
     if( mIt == it->value.MemberEnd() ){
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Members");
     }
+    DEBUG("found members");
     const SerialItem& members = mIt->value;
-   
+    DEBUG("looping over members");
     //loop over entire vector
     for( size_t i=0; i<outVector->size(); i++ ) {
-      std::string keystring =std::to_string(i);
+      std::string keystring = std::to_string(i);
 
       //find this key (the index)
+      DEBUG(" Searching for "<<keystring);
       Serialized::ConstMemberIterator eIt = members.FindMember(keystring);
       if( eIt == members.MemberEnd() ) {
 	PALISADE_THROW(lbcrypto::deserialize_error, "could not find vector entry "+to_string(i));
       }
-
-      shared_ptr<T> pT = new T(); 
+      DEBUG(" found "<<keystring);
 
       //within the key's member, find the sub member with the typename
       //and point to it with s2.
-      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+      string matrix_name = "Matrix_"+to_string(i);
+      DEBUG(" Searching for "<<matrix_name);
+      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(matrix_name);
       if( s2 == eIt->value.MemberEnd() ){
 	PALISADE_THROW(lbcrypto::deserialize_error,
-		       "could not find typename "+ typeName+ "for "+to_string(i));
+		       "could not find matrix name "+ matrix_name);
       }
-
+      DEBUG("Found "<<matrix_name);
+      
       // within s2,
       Serialized ser(rapidjson::kObjectType);
       SerialItem k( typeName, ser.GetAllocator() );
@@ -981,8 +1094,12 @@ namespace lbcrypto {
       ser.AddMember(k, v, ser.GetAllocator());
 
       //now deserialize the Matrix at in s2
-      std::string matname = "Matrix";
-      bool rc = DeserializeMatrix(matname, (outVector->at(i)).GetElementName(), s2, &(outVector->at(i)));
+      std::string mat_name = "Matrix";
+      //std::string elemname = (outVector->at(i)).GetElementName(); fails for T==BitInt
+      std::string elem_name = typeName;
+      DEBUG("Calling DeserializeMaatrix");
+      bool rc = DeserializeMatrix(mat_name, elem_name, s2, &(outVector->at(i)));
+
       if(rc) {
 	DEBUG("Deserialized "<< outVector->at(i));
       } else {
