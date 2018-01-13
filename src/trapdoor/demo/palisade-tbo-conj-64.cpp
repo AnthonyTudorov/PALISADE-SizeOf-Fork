@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
 
 	double processingTime(0.0);
 
-	std::string pattern ="1?1?10??????10111?1?10??????1011";
-	std::string input1 = "10111011101110111011101110111011";
-	std::string input2 = "10111011101110101011101110111010";
+	std::string pattern ="1?1?10??????10111?1?10??????10111?1?10??????10111?1?10??????1011";
+	std::string input1 = "1011101110111011101110111011101110111011101110111011101110111011";
+	std::string input2 = "1011101110111010101110111011101010111011101110101011101110111010";
 
 	TIC(t);
-	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 20, 8, 32, 1024);
+	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 18, 8, 64, 8192);
 	processingTime = TOC(t);
 	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
 
