@@ -48,7 +48,6 @@ int main(int argc, char* argv[]){
 	if (argc < 2) { // called with no arguments
 		std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
 		std::cout << "arg 2 = num evals 1:3 [1] " << std::endl;
-		std::cout << "arg 3 = num bit range 0+ [3] " << std::endl;
 	}
 	bool dbg_flag = false; 
 
@@ -76,18 +75,6 @@ int main(int argc, char* argv[]){
 	}
 	std::cerr << "Running " << argv[0] << " with " << n_evals << " evaluations." << std::endl;
 
-
-	int n_bit_range = 3;
-
-	if (argc >= 4 ) {
-    	     n_bit_range = atoi(argv[3]);
-	     if (n_bit_range < 0) {
-		 n_bit_range = 0;
-	     }
-	}
-	std::cerr << "Running " << argv[0] << " with " << n_bit_range << " bit ranges." << std::endl;
-
-	
 	int nthreads, tid;
 
 	// Fork a team of threads giving them their own copies of variables
@@ -105,10 +92,10 @@ int main(int argc, char* argv[]){
 			std::cout << "Number of threads = " << nthreads << std::endl;
 		}
 	}
-	unsigned int limit = 1<<(10+n_bit_range);
-	for (usint n = 1<<10; n < limit; n=2*n)
+
+	for (usint n = 1<<10; n < 1<<11; n=2*n)
 	{
-		for (usint i = 1; i < 2; i++) {
+		for (usint i = 1; i < 3; i++) {
 			errorflag = CONJOBF(dbg_flag, n_evals, n);
 			if (errorflag)
 				return ((int)errorflag);
@@ -126,7 +113,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
-
 	//returns
 	//  errorflag = # of bad evaluations
 
@@ -144,18 +130,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	TIC(t_total); //start timer for total time
 
 	usint m = 2*n;
-	//54 bits
-	//BigInteger modulus("9007199254741169");
-	//BigInteger rootOfUnity("7629104920968175");
 
 	usint chunkSize = 8;
 	usint base = 1<<20;
 
-	if (n > 1<<10)
-		base = 1<<15;
+	//if (n > 1<<11)
+	//	base = 1<<18;
 
 	//Generate the test pattern
-	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";;
+	std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?";;
 	ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
 	ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
@@ -189,6 +172,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	PROFILELOG("rootOfUnity = " << rootOfUnity);
 	PROFILELOG("n = " << m / 2);
 	PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
+	PROFILELOG("\nbase = " << base);
 
 	typename DCRTPoly::DugType dug;
 	typename DCRTPoly::TugType tug;
@@ -210,15 +194,15 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	DEBUG(" \nCleartext pattern length: ");
 	DEBUG(clearPattern.GetLength());
 
-	std::string inputStr1 = "11100100111001001110010011100100";
+	std::string inputStr1 = "1110010011100100111001001110010011100100";
 	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
 
-	std::string inputStr2 = "11001101110011011100110111001111";
+	std::string inputStr2 = "1100110111001101110011011100111111001101";
 	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
 
-	std::string inputStr3 = "10101101101011011010110110101101";
+	std::string inputStr3 = "1010110110101101101011011010110110101101";
 	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
 	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 
@@ -308,6 +292,8 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	else {
 		std::cout << "SUCCESS " << std::endl;
 	}
+
+	DiscreteFourierTransform::Reset();
 
 	return (errorflag);
 }
