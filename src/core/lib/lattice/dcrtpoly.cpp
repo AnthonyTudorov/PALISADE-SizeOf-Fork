@@ -1000,7 +1000,7 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 	return this->CRTInterpolate().DecryptionCRTInterpolate(ptm);
 }
 
-//Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+//Source: Halevi S. and Polyakov Y. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
 //
 //Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS
 // vectors alpha and beta are precomputed as
@@ -1044,7 +1044,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 }
 
 /*
- * Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+ * Source: Halevi S. and Polyakov Y. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
  *
  * The goal is to switch the basis of x from Q to S
  *
@@ -1082,32 +1082,58 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
+		std::vector<typename PolyType::Integer> xInvVector(nTowers);
+		double lyam = 0.0;
+
+		// Compute alpha and vector of x_i terms
+		for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+			const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
+
+			//computes [xi (q/qi)^{-1}]_qi
+			xInvVector[vIndex] = xi.ModMulFast(qInvModqi[vIndex],qi);
+
+			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
+			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
+		}
+
+		// alpha corresponds to the number of overflows
+		typename PolyType::Integer alpha = std::llround(lyam);
+
+		// alpha may get estimated incorrectly in this region; so we apply a correction procedure
+		// currently we use the multiprecision approach for simplicity but we will change it to
+		// the single-precision approach proposed by Kawamura et al. in https://doi.org/10.1007/3-540-45539-6_37
+		if ((std::fabs(std::llround(lyam*2)/(double)2 - lyam) < nTowers*(2.22e-16)) && (std::llround(lyam*2) % 2 == 1) ){
+
+			BigInteger xBig = 0;
+
+			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+
+				BigInteger qi = m_vectors[vIndex].GetModulus();
+
+				xBig += xInvVector[vIndex]*params->GetModulus()/qi;
+
+			}
+
+			BigInteger alphaBig = xBig.DivideAndRound(params->GetModulus());
+
+			alpha = alphaBig.ConvertToInt();
+
+		}
+
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
-			double lyam = 0.0;
 			typename PolyType::Integer curValue = 0;
 
 			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
 
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
-				const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
-
-				//computes [xi (q/qi)^{-1}]_qi
-				const typename PolyType::Integer &xInv = xi.ModMulFast(qInvModqi[vIndex],qi);
-
-				//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
-				lyam += (double)xInv.ConvertToInt()/(double)qi.ConvertToInt();
-
-				curValue += xInv.ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
+				curValue += xInvVector[vIndex].ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
 			}
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
 			curValue = curValue.Mod(si);
-
-			// alpha corresponds to the number of overflows
-			typename PolyType::Integer alpha = std::llround(lyam);
 
 			//second round - remove q-overflows
 			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si);
@@ -1120,7 +1146,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 }
 
-// Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+// Source: Halevi S. and Polyakov Y. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
 //
 // @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
 // uses SwichCRTBasis as a subroutine; Outputs the resulting polynomial in EVALUATION representation
@@ -1168,7 +1194,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 }
 
-//Source: Halevi S., Polyakov Y., Shoup V. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
+//Source: Halevi S. and Polyakov Y. (in preparation, 2018) A Simpler, Faster RNS Variant of the BFV Homomorphic Encryption Scheme.
 //
 // Computes Round(p/Q*x), where x is in the CRT basis Q*S,
 // as [\sum_{i=1}^n alpha_i*x_i + Round(\sum_{i=1}^n beta_i*x_i)]_si,

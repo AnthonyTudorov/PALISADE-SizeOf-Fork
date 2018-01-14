@@ -52,8 +52,6 @@ namespace lbcrypto {
 	class LWEConjunctionCHCPRFAlgorithm {
 	public:
 
-		typedef shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> KeyType;
-
 		/**
 		 * Constructor
 		 *
@@ -81,25 +79,34 @@ namespace lbcrypto {
 		 *
 		 * @return unconstrained PRF key
 		 */
-		KeyType KeyGen();
+		shared_ptr<vector<vector<Element>>> KeyGen();
 
 		/**
 		 * Method to constrain key by conjunction pattern
 		 *
-		 * @param key unconstrained PRF key
+		 * @param s unconstrained PRF key
 		 * @param pattern conjunction pattern
 		 * @return constrained key
 		 */
-		KeyType Constrain(const KeyType key, const std::string &pattern);
+		shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> Constrain(const shared_ptr<vector<vector<Element>>> s, const std::string &pattern);
 
 		/**
-		 * Method to evaluate PRF using (un)constrained PRF key and input
+		 * Method to evaluate PRF using unconstrained PRF key and input
 		 *
-		 * @param key constrained or unconstrained PRF key
+		 * @param s unconstrained PRF key
 		 * @param input PRF input
 		 * @return PRF output
 		 */
-		std::string Evaluate(const KeyType key, const std::string &input) const;
+		std::string Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const;
+
+		/**
+		 * Method to evaluate PRF using constrained PRF key and input
+		 *
+		 * @param D constrained PRF key
+		 * @param input PRF input
+		 * @return PRF output
+		 */
+		std::string Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const;
 
 	private:
 		/**
@@ -137,6 +144,8 @@ namespace lbcrypto {
 		 * @returrn encoding of elem
 		 */
 		shared_ptr<Matrix<Element>> Encode(usint i, usint j, const Element &elem);
+
+		std::string TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const;
 
 		usint m_base;
 		usint m_chunkSize;
