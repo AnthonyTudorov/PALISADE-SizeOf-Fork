@@ -363,8 +363,6 @@ TEST(UTSer, serialize_matrix_bigint){
   }
   DEBUG("step 5");
 
-  //have to make a shared newmatP
-  ///auto newmatP = std::make_shared<Matrix<BigInteger>> (BigInteger::Allocator, 0, 0); //empty matrix
   Matrix<BigInteger> newmat(BigInteger::Allocator, 0, 0); //empty matrix
   auto newmatP = &newmat;
   
@@ -567,7 +565,7 @@ TEST(UTSer, serialize_vector_matrix){
   //note the object has to be created outside of the function.
   
   bool dbg_flag = false;
-  const int vecsize = 2;
+  const int vecsize = 4;
   
   DEBUG("step 0");
   //build test vector (note needs allocator for Matrix<>
@@ -576,8 +574,8 @@ TEST(UTSer, serialize_vector_matrix){
   vector <Matrix<BigInteger>> newvec(vecsize, Matrix<BigInteger>(BigInteger::Allocator, 0, 0));
   DEBUG("step 1");
   //build test input matricies
-  usint nrows(2);
-  usint ncols(2);
+  usint nrows(3);
+  usint ncols(5);
   //zero matricies
   Matrix<BigInteger> zeromat(BigInteger::Allocator, 0,0);
   Matrix<BigInteger> testmat0(BigInteger::Allocator, 0,0);
@@ -661,8 +659,99 @@ TEST(UTSer, serialize_vector_matrix){
 
 
 
+
+////////////////////////////////////////////////////////////////
+
+TEST(UTSer, serialize_vector_pointers_matrix){
+  //Serialize/DeserializeVectorOfPointersToMatrix is a helper function to test
+  //note the object has to be created outside of the function.
+  
+  bool dbg_flag = false;
+  const int vecsize = 4;
+  
+  DEBUG("step 0");
+  //build test vector (note needs allocator for Matrix<>
+  vector<shared_ptr<Matrix<BigInteger>>> testvec(vecsize);
+  
+  vector <shared_ptr<Matrix<BigInteger>>> newvec(vecsize);
+  DEBUG("step 1");
+  //build test input matricies
+  usint nrows(2);
+  usint ncols(2);
+
+  Matrix<BigInteger> zeromat(BigInteger::Allocator, 0,0);
+  Matrix<BigInteger> testmat3(BigInteger::Allocator, 0,0);
+
+  DEBUG("step 3");
+ 
+  for (usint i = 0; i < vecsize; i++) {
+    //point to zero matricies
+    auto tm_p = make_shared<Matrix<BigInteger>>(BigInteger::Allocator, 0,0);
+    tm_p->SetSize(nrows+i, ncols+i); 
+    for (usint row = 0; row < nrows+i; row++) {
+      for (usint col = 0; col < ncols+i; col++){ 
+	(*tm_p)(row,col) = BigInteger(100*i + 10*row + col); //a unique value
+      }
+    }
+    testvec[i]=tm_p;
+    newvec[i] = make_shared<Matrix<BigInteger>>(BigInteger::Allocator, 0,0); //zero matrix
+  }
+  
+  
+  DEBUG("step 4");
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
+
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVectorOfPointersToMatrix<BigInteger>("VectorOfPointersToMatrix", "BigIntegerImpl",
+					       testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVectorOfPointersToMatrix", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+
+  DEBUG("step 5");
+
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVectorOfPointersToMatrix");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVectorOfPointersToMatrix";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("VectorOfPointersToMatrix");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find VectorOfPointersToMatrix";
+  DEBUG("step 8");
+
+  DeserializeVectorOfPointersToMatrix<BigInteger>("VectorOfPointersToMatrix", "BigIntegerImpl", mIter, &newvec);
+    
+  DEBUG("step 9");
+  auto it1 = testvec.begin();
+  auto it2 = newvec.begin();
+  auto i = 0;
+  for (; (it1 != testvec.end())&&(it2 != newvec.end()); it1++, it2++, i++){
+    DEBUG("testing "<<i);
+    EXPECT_EQ( **it1, **it2 ) << "Mismatch after ser/deser in entry "<<i;
+  }
+}
+
+
 //need tests for
 
-// (De)SerializeVectorOfPointersToMatrix [used by next one]
+// in process (De)SerializeVectorOfPointersToMatrix [used by next one]
 // (De)SerializeVectorOfVectorOfPointersToMatrix [in lwe S compiles D not done]
 

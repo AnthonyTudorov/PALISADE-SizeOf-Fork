@@ -866,7 +866,7 @@ namespace lbcrypto {
    */
 
   template<typename T>
-    bool DeserializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<shared_ptr<T>>* outVector) {
+    bool DeserializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<shared_ptr<Matrix<T>>>* outVector) {
     bool dbg_flag = false;
 
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
@@ -923,12 +923,16 @@ namespace lbcrypto {
 
       //within the key's member, find the sub member with the typename
       //and point to it with s2.
-      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+      string matrix_name = "Matrix_"+to_string(i);
+      DEBUG(" Searching for "<<matrix_name);
+      
+      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(matrix_name);
       if( s2 == eIt->value.MemberEnd() ){
 	PALISADE_THROW(lbcrypto::deserialize_error,
-		       "could not find typename "+ typeName+ "for "+to_string(i));
+		       "could not find matrix name "+ matrix_name);
       }
-     
+      DEBUG("Found "<<matrix_name);
+      
       Serialized ser(rapidjson::kObjectType);
       SerialItem k( typeName, ser.GetAllocator() );
       SerialItem v( s2->value, ser.GetAllocator() );
@@ -940,8 +944,11 @@ namespace lbcrypto {
 	DEBUGEXP(s2->value.GetUint64());
       }
       ser.AddMember(k, v, ser.GetAllocator());
+      
+      //deserialize the matrix in s2
       std::string matname = "Matrix";
-      bool rc = DeserializeMatrix(matname, (outVector->at(i)).GetElementName(),s2, pT.get());
+      std::string elem_name = typeName;
+      bool rc = DeserializeMatrix(matname, elem_name, s2, pT.get());
       if(rc) {
 	DEBUG("Deserialized "<< outVector->at(i));
       } else {

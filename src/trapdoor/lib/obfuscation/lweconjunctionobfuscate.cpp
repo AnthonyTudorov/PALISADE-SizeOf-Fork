@@ -211,8 +211,8 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 	return this->m_S_vec->at(i).at(value);
 }
 
-
-// Serialization  
+/////////////////////////////////////////////////////////////////////////////
+// Serialization of Obfuscated pattern 
 
  template <typename Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
@@ -284,7 +284,8 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   return true;
 };
 
-// Deserialize Operation
+/////////////////////////////////////////////////////////////////////////////
+// Deerialization of Obfuscated pattern 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
