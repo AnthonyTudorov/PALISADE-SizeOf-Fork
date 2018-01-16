@@ -11,6 +11,7 @@ Copyright (c) 2017, Massachusetts Institute of Technology (MIT)
 */
 
 #include <iostream>
+#include <NTL/ZZ.h>
 #include "palisade.h"
 #include "math/nbtheory.h"
 
@@ -76,6 +77,130 @@ BGV primitiveTransform(usint logn, const BI modulus, const BGV& input, const BGV
 						omegaFactor = omega;
 					else
 						omegaFactor = mod_mul(omega, result[indexOdd], modulus, d2);
+
+					butterflyPlus = result[indexEven];
+					butterflyPlus += omegaFactor;
+					if (butterflyPlus >= modulus)
+						butterflyPlus -= modulus;
+
+					butterflyMinus = result[indexEven];
+					if (result[indexEven] < omegaFactor)
+						butterflyMinus += modulus;
+					butterflyMinus -= omegaFactor;
+
+					result[indexEven] = butterflyPlus;
+					result[indexOdd] = butterflyMinus;
+				}
+				else
+				  result[indexOdd] = result[indexEven];
+
+			}
+
+		}
+	}
+
+	return result;
+}
+
+BGV NTLprimitiveTransform(usint logn, const BI modulus, const BGV& input, const BGV& rootOfUnityTable){
+	BI n = (1<<logn);
+
+	BGV element(n);
+	for (usint i = 0; i<n; i++)
+		element[i] = NTL::MulMod(input[i], rootOfUnityTable[i], modulus);
+	BGV result(n);
+
+	//reverse coefficients (bit reversal)
+	for (usint i = 0; i < n; i++)
+		result[i] = element[ReverseBits(i, logn)];
+
+	BI omegaFactor;
+	BI butterflyPlus;
+	BI butterflyMinus;
+
+	for (usint logm = 1; logm <= logn; logm++)
+	{
+		for (usint j = 0; j<n; j = j + (1 << logm))
+		{
+			for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+			{
+
+				usint x = (i << (1+logn-logm));
+
+				const BI& omega = rootOfUnityTable[x];
+
+				usint indexEven = j + i;
+				usint indexOdd = j + i + (1 << (logm-1));
+
+				if (result[indexOdd] != 0)
+				{
+
+					if (result[indexOdd] == 1)
+						omegaFactor = omega;
+					else
+						omegaFactor = NTL::MulMod(omega, result[indexOdd], modulus);
+
+					butterflyPlus = result[indexEven];
+					butterflyPlus += omegaFactor;
+					if (butterflyPlus >= modulus)
+						butterflyPlus -= modulus;
+
+					butterflyMinus = result[indexEven];
+					if (result[indexEven] < omegaFactor)
+						butterflyMinus += modulus;
+					butterflyMinus -= omegaFactor;
+
+					result[indexEven] = butterflyPlus;
+					result[indexOdd] = butterflyMinus;
+				}
+				else
+				  result[indexOdd] = result[indexEven];
+
+			}
+
+		}
+	}
+
+	return result;
+}
+
+BGV NTLprimitiveTransformPrecon(usint logn, const BI modulus, const BGV& input, const BGV& rootOfUnityTable, const BGV& preconTable){
+	BI n = (1<<logn);
+
+	BGV element(n);
+	for (usint i = 0; i<n; i++)
+		element[i] = NTL::MulModPrecon(input[i], rootOfUnityTable[i], modulus, preconTable[i]);
+	BGV result(n);
+
+	//reverse coefficients (bit reversal)
+	for (usint i = 0; i < n; i++)
+		result[i] = element[ReverseBits(i, logn)];
+
+	BI omegaFactor;
+	BI butterflyPlus;
+	BI butterflyMinus;
+
+	for (usint logm = 1; logm <= logn; logm++)
+	{
+		for (usint j = 0; j<n; j = j + (1 << logm))
+		{
+			for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+			{
+
+				usint x = (i << (1+logn-logm));
+
+				const BI& omega = rootOfUnityTable[x];
+
+				usint indexEven = j + i;
+				usint indexOdd = j + i + (1 << (logm-1));
+
+				if (result[indexOdd] != 0)
+				{
+
+					if (result[indexOdd] == 1)
+						omegaFactor = omega;
+					else
+						omegaFactor = NTL::MulModPrecon(result[indexOdd], omega, modulus, preconTable[x]);
 
 					butterflyPlus = result[indexEven];
 					butterflyPlus += omegaFactor;
@@ -261,6 +386,19 @@ int main() {
 	NativeInteger rootOfUnity("5356268145311420142");
 	//NativeInteger delta(modulusQ.DividedBy(modulusP));
 
+	NativeInteger qSmall = 268440577;
+
+	NativeInteger a = 10210121;
+	NativeInteger b = 11212133;
+
+	//NativeInteger binv = NTL::PrepMulModPrecon(b.ConvertToInt(), qSmall.ConvertToInt());
+	//std::cout << "binv = " << binv << std::endl;
+	//long long int temp = NTL::MulModPrecon(a.ConvertToInt(),b.ConvertToInt(),qSmall.ConvertToInt(),binv.ConvertToInt());
+
+	long long int temp = NTL::MulMod(a.ConvertToInt(),b.ConvertToInt(),qSmall.ConvertToInt());
+
+	std::cout << "temp = " << temp << std::endl;
+
 	uint64_t nRep;
 	double start, stop;
 
@@ -346,6 +484,61 @@ int main() {
 	//	std::cout << outVec[i] << " " ;
 	}
 	std::cout << "]" << std::endl;
+
+	{
+
+	nRep = 10000;
+	BI q =  268440577;
+	BI z = 58838461;
+	BGV xVec(phim), zVec(phim),  outVec;
+	BI zi = 1;
+	for (usint i = 0; i<phim; i++) {
+		xVec[i] = i;
+		zVec[i] = zi;
+		zi = NTL::MulMod(zi, z, q);
+	}
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		outVec = NTLprimitiveTransform(10, q, xVec, zVec);
+	}
+	stop = currentDateTime();
+	std::cout << " NTL_Ttran_prim: " << (stop-start)/nRep << std::endl;
+	//std::cout << X << std::endl;
+	std::cout << "[";
+	for(usint i = 0; i < phim; i++){
+	//	std::cout << outVec[i] << " " ;
+	}
+	std::cout << "]" << std::endl;
+
+	}
+
+	{
+
+	nRep = 10000;
+	BI q =  268440577;
+	BI z = 58838461;
+	BGV xVec(phim), zVec(phim), pVec(phim), outVec;
+	BI zi = 1;
+	for (usint i = 0; i<phim; i++) {
+		xVec[i] = i;
+		zVec[i] = zi;
+		zi = NTL::MulMod(zi, z, q);
+		pVec[i] = NTL::PrepMulModPrecon(zi, q);
+	}
+	start = currentDateTime();
+	for(uint64_t n=0; n<nRep; n++){
+		outVec = NTLprimitiveTransformPrecon(10, q, xVec, zVec, pVec);
+	}
+	stop = currentDateTime();
+	std::cout << " NTL_Ttran_prim: " << (stop-start)/nRep << std::endl;
+	//std::cout << X << std::endl;
+	std::cout << "[";
+	for(usint i = 0; i < phim; i++){
+	//	std::cout << outVec[i] << " " ;
+	}
+	std::cout << "]" << std::endl;
+
+	}
 
 	return 0;
 }
