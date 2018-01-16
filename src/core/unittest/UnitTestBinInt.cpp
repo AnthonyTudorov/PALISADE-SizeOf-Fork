@@ -709,9 +709,6 @@ TEST(UTBinInt,mod_arithmetic){
   //      = {(m mod q) + (n mod q)}mod q
   //   ConvertToInt converts BigInteger calculatedResult to integer
 
-
-
-
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     BigInteger m("58059595");
@@ -772,11 +769,7 @@ TEST(UTBinInt,mod_arithmetic){
   //    = 0 when m=n
   //    = {(m mod q)+q-(n mod q)}mod q when m<n
 
-  //   ConvertToInt converts BigInteger calculatedResult to
-  //   integer
-
-  //MEMORY ALLOCATION ERROR IN MODSUB METHOD (due to copying value to null pointer)
-
+  //   ConvertToInt converts BigInteger calculatedResult to integer
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
@@ -822,20 +815,113 @@ TEST(UTBinInt,mod_arithmetic){
 
   // The method "Mod Mul" operates on BigIntegers m,n,q
   //   Returns:  (m*n)mod q
-  //              = {(m mod q)*(n mod q)}
+  //              = {(m mod q)*(n mod q)}mod q
   // ConvertToInt converts BigInteger calculatedResult to integer
 
+  // FIRST > MOD
   {
-    BigInteger m("39960");
-    BigInteger n("7959");
-    BigInteger q("406756");
+    BigInteger m("38");
+    BigInteger n("4");
+    BigInteger q("32");
 
     BigInteger calculatedResult = m.ModMul(n,q);
-    uint64_t expectedResult = 365204;
+    uint64_t expectedResult = 24;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing mod_mul_test";
+      << "Failure testing ModMul first > mod";
   }
+
+  // FIRST == MOD
+  {
+    BigInteger m("32");
+    BigInteger n("4");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 0;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul first == mod";
+  }
+
+  // SECOND > MOD
+  {
+    BigInteger m("3");
+    BigInteger n("37");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 15;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul second > mod";
+  }
+
+  // SECOND == MOD
+  {
+    BigInteger m("3");
+    BigInteger n("32");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 0;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul second == mod";
+  }
+
+  // BOTH > MOD
+  {
+    BigInteger m("36");
+    BigInteger n("37");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 20;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul both > mod";
+  }
+
+  // BOTH == MOD
+  {
+    BigInteger m("32");
+    BigInteger n("32");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 0;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul both == mod";
+  }
+
+  // PRODUCT > MOD
+  {
+    BigInteger m("39");
+    BigInteger n("37");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 3;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul product > mod";
+  }
+
+  // PRODUCT == MOD
+  {
+    BigInteger m("8");
+    BigInteger n("4");
+    BigInteger q("32");
+
+    BigInteger calculatedResult = m.ModMul(n,q);
+    uint64_t expectedResult = 0;
+
+    EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
+      << "Failure testing ModMul product == mod";
+  }
+
 
   /************************************************/
   /* TESTING METHOD MODEXP FOR ALL CONDITIONS     */

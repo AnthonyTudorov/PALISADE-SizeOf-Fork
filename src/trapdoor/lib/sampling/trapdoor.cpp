@@ -94,39 +94,42 @@ namespace lbcrypto {
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);
 
+		DEBUG("c " << c << " s " << s);
+
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, k + 2, 1));
-		DEBUG("t1a: "<<TOC(t1));
+//		DEBUG("t1a: "<<TOC(t1));
 		TIC(t1);
 		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
-		DEBUG("t1b: "<<TOC(t1)); //this takes the most time 61
+//		DEBUG("t1b: "<<TOC(t1)); //this takes the most time 61
 		TIC(t1);
 		// It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
-		DEBUG("t1c: "<<TOC(t1)); //takes 2
+
+//		DEBUG("t1c: "<<TOC(t1)); //takes 2
 		TIC(t1);
 		Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, n);
-		DEBUG("t1d: "<<TOC(t1)); //takes 0
-		DEBUG("t1: "<<TOC(t1_tot));//takes 64
+//		DEBUG("t1d: "<<TOC(t1)); //takes 0
+//		DEBUG("t1: "<<TOC(t1_tot));//takes 64
 		TIC(t2);
 		TIC(t2_tot);
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
-		DEBUG("t2a: "<<TOC(t2)); //takes 1
+//		DEBUG("t2a: "<<TOC(t2)); //takes 1
 		TIC(t2);
 		LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome, c, k, modulus, base, dgg, &zHatBBI);
-		DEBUG("t2b: "<<TOC(t2)); //takes 36
+//		DEBUG("t2b: "<<TOC(t2)); //takes 36
 		TIC(t2);
 		// Convert zHat from a matrix of BBI to a vector of Element ring elements
 		// zHat is in the coefficient representation
 		Matrix<Element> zHat = SplitInt32AltIntoElements<Element>(zHatBBI, n, params);
 
-		DEBUG("t2c: "<<TOC(t2)); //takes 0
+//		DEBUG("t2c: "<<TOC(t2)); //takes 0
 		// Now converting it to the evaluation representation before multiplication
 		zHat.SwitchFormat();
-		DEBUG("t2d: "<<TOC(t2)); //takes 17
-		DEBUG("t2: "<<TOC(t2_tot));
+//		DEBUG("t2d: "<<TOC(t2)); //takes 17
+//		DEBUG("t2: "<<TOC(t2_tot));
 		//TIC(t3); seems trivial 
 		Matrix<Element> zHatPrime(zero_alloc, k + 2, 1);
 

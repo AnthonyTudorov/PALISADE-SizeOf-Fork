@@ -327,12 +327,20 @@ namespace exp_int{
     ~ubint();
         
     /**
-     * Assignment operator (move copy)
+     * Assignment operator (copy)
      *
      * @param &rhs is the ubint to be assigned from.
      * @return assigned ubint ref.
      */
      const ubint&  operator=(const ubint &rhs);
+
+//     /**
+//      * Move assignment
+//      *
+//      * @param &&rhs is the ubint to move.
+//      * @return object of type ubint.
+//      */
+//     const ubint&  operator=(ubint &&rhs);
 
     /**
      * Assignment operator from unsigned integer
@@ -341,7 +349,7 @@ namespace exp_int{
      * @return the assigned ubint ref.
      */
     const ubint& operator=(const uint64_t val) {
-    	  *this = ubint(val);
+	  *this = ubint(val);
       return *this;
     }
 
@@ -355,47 +363,6 @@ namespace exp_int{
       *this = ubint(val);
       return *this;
     }
-
-
-    /**
-     * Move copy constructor
-     *
-     * @param &&rhs is the ubint to move.
-     * @return object of type ubint.
-     */
-    const ubint&  operator=(ubint &&rhs);
-
-    //Shift Operators
-   
-//    /**
-//     * Left shift operator of ubint
-//     * @param shift is the amount to shift of type usint.
-//     * @return the object of type ubint
-//     */
-//    ubint  operator<<(const usint shift) const;
-//
-//    /**
-//     * Left shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-//     *
-//     * @param shift is the amount to shift of type usint.
-//     * @return the object of type ubint
-//     */
-//    ubint&  operator<<=(usint shift);
-//
-//    /**
-//     * Right shift operator of ubint
-//     * @param shift is the amount to shift of type usint.
-//     * @return the object of type ubint
-//     */
-//    ubint  operator>>(usint shift) const;
-//
-//    /**
-//     * Right shift operator uses in-place algorithm and operates on the same variable. It is used to reduce the copy constructor call.
-//     *
-//     * @param shift is the amount to shift of type usint.
-//     * @return the object of type ubint
-//     */
-//    ubint&  operator>>=(usint shift);
 
     //Auxillary Functions
 
@@ -999,7 +966,7 @@ namespace exp_int{
     int divr_vect(ubint& r, const ubint& u, const ubint& v) const;
     int divq_vect(ubint& q, const ubint& u, const ubint& v) const;
 
-  private: //todo make private again
+  private:
     //vector storing the native integers. stored little endian
     vector<limb_t> m_value;
 
@@ -1036,9 +1003,6 @@ namespace exp_int{
     static const ubint *m_modChain;
 		
 
-		
-
-    //public: 
   private: 
     /**
      * function to return the MSB of number.

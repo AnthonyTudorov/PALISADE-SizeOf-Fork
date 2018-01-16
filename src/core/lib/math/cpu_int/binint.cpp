@@ -1587,11 +1587,11 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSub(const Bi
 	BigInteger b_op(b);
 
 	//reduce this to a value lower than modulus
-	if(a > modulus){
+	if(a >= modulus){
 		a.ModEq(modulus);
 	}
 	//reduce b to a value lower than modulus
-	if(b > modulus){
+	if(b >= modulus){
 		b_op.ModEq(modulus);
 	}
 
@@ -1611,11 +1611,11 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModSubEq
 	BigInteger b_op(b);
 
 	//reduce this to a value lower than modulus
-	if(*this > modulus){
+	if(*this >= modulus){
 		this->ModEq(modulus);
 	}
 	//reduce b to a value lower than modulus
-	if(b > modulus){
+	if(b >= modulus){
 		b_op.ModEq(modulus);
 	}
 
@@ -1691,13 +1691,13 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMul(const Bi
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if(a>modulus){
-		a = a.Mod(modulus);
+	if(a >= modulus){
+		a.ModEq(modulus);
 	}
 
 	//if b is greater than q reduce b to its mod value
-	if(b>modulus){ 
-		bb = bb.Mod(modulus);
+	if(b >= modulus){
+		bb.ModEq(modulus);
 	}
 
 	a.TimesEq(bb);
@@ -1709,12 +1709,12 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulEq
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if(*this>modulus){
+	if(*this >= modulus){
 		this->ModEq(modulus);
 	}
 
 	//if b is greater than q reduce b to its mod value
-	if(b>modulus){
+	if(b >= modulus){
 		bb.ModEq(modulus);
 	}
 
@@ -1754,11 +1754,11 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if(*this>modulus)
+	if(*this >= modulus)
 		a.ModBarrettInPlace(modulus,mu);
 
 	//if b is greater than q reduce b to its mod value
-	if(b>modulus)
+	if(b >= modulus)
 		bb.ModBarrettInPlace(modulus,mu);
 
 	a.TimesEq(bb);
@@ -1797,12 +1797,12 @@ void BigInteger<uint_type, BITLENGTH>::ModBarrettMulInPlace(const BigInteger& b,
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if (*this>modulus)
+	if (*this >= modulus)
 		this->ModBarrettInPlace(modulus, mu);
 
 
 	//if b is greater than q reduce b to its mod value
-	if (b>modulus)
+	if (b >= modulus)
 		bb.ModBarrettInPlace(modulus, mu);
 
 	this->TimesEq(bb);
@@ -1819,11 +1819,11 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if(*this>modulus)
+	if(*this >= modulus)
 		a.ModBarrettInPlace(modulus,mu_arr);
 
 	//if b is greater than q reduce b to its mod value
-	if(b>modulus)
+	if(b >= modulus)
 		bb.ModBarrettInPlace(modulus,mu_arr);
 
 	a.TimesEq(bb);

@@ -350,28 +350,25 @@ return result;
   //copy allocator
   template<typename limb_t>
   const ubint<limb_t>&  ubint<limb_t>::operator=(const ubint &rhs){
-    //std::cout<<"Ca";
-    if(this!=&rhs){
-      this->m_MSB=rhs.m_MSB;
-      this->m_state = rhs.m_state;
-      //copy vector
-      this->m_value=rhs.m_value;
-    }
-    return *this;
-  }
-#if 1
-  // move allocator
-  template<typename limb_t>
-  const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
-    //std::cout<<"Ma";
     if(this!=&rhs){
       this->m_MSB = rhs.m_MSB;
       this->m_state = rhs.m_state;
-      this->m_value = std::move(rhs.m_value);
+      this->m_value = rhs.m_value;
     }
     return *this;
   }
-#endif
+
+//  // move allocator
+//  template<typename limb_t>
+//  const ubint<limb_t>&  ubint<limb_t>::operator=(ubint &&rhs){
+//    if(this!=&rhs){
+//      this->m_MSB = rhs.m_MSB;
+//      this->m_state = rhs.m_state;
+//      this->m_value = std::move(rhs.m_value);
+//    }
+//    return *this;
+//  }
+
   /**
    *	Left Shift is done by splitting the number of shifts into
    *1. Multiple of the bit length of limb data type.
@@ -2087,7 +2084,7 @@ return result;
 
   template<typename limb_t>
   void  ubint<limb_t>::ModBarrettInPlace(const ubint& modulus, const ubint& mu) {
-	  *this %= modulus;
+	  this->ModEq( modulus );
 	  return;
   }
 
@@ -2218,11 +2215,11 @@ return result;
 	  ubint b_op(b);
 
 	  //reduce this to a value lower than modulus
-	  if(*this>modulus){
+	  if(*this >= modulus){
 		  a.ModEq(modulus);
 	  }
 	  //reduce b to a value lower than modulus
-	  if(b>modulus){
+	  if(b >= modulus){
 		  b_op.ModEq(modulus);
 	  }
 
@@ -2243,11 +2240,11 @@ return result;
 	  ubint b_op(b);
 
 	  //reduce this to a value lower than modulus
-	  if(*this>modulus){
+	  if(*this >= modulus){
 		  this->ModEq(modulus);
 	  }
 	  //reduce b to a value lower than modulus
-	  if(b>modulus){
+	  if(b >= modulus){
 		  b_op.ModEq(modulus);
 	  }
 
@@ -2347,6 +2344,7 @@ return result;
     return ans;
   }
 
+  // FIXME make this in-place!
   template<typename limb_t>
   const ubint<limb_t>& ubint<limb_t>::ModMulEq(const ubint& b, const ubint& modulus) {
 	  *this = this->ModMul(b, modulus);
@@ -2435,7 +2433,7 @@ return result;
   ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint mu_arr[BARRETT_LEVELS+1]) const{
 #ifdef NO_BARRETT
     ubint ans(*this);
-    ans%=modulus;
+    ans.ModEq(modulus);
     return(ans);
 #else
 	if(*this<modulus){

@@ -13,30 +13,26 @@ using namespace std;
 #include "utils/hashutil.h"
 using namespace lbcrypto;
 
-int main()
+int main(int argc, char *argv[])
 {
+	if( argc != 2 ) {
+		cout << "Usage is " << argv[0] << " string-to-hash" << endl;
+		return 0;
+	}
+
 	cout << std::hex << endl;
 
-	string empty = "";
-	string demo = "The quick brown fox jumps over the lazy dog";
+	string demo(argv[1]);
 
-	vector<uint8_t> digest;
-	HashUtil::Hash(empty,SHA_256,digest);
-	string sha = HashUtil::HashString(empty);
-
-	cout << "Empty string" << std::hex << endl;
-	for( size_t ii=0; ii<32; ii++ ) {
-		cout << std::setfill('0') << std::setw(2) << (int)digest[ii];
-	}
-	cout << endl << sha << std::dec << endl;
-
+	vector<int64_t> digest;
 	HashUtil::Hash(demo,SHA_256,digest);
-	sha = HashUtil::HashString(demo);
+	string sha = HashUtil::HashString(demo);
 
-	cout << "The quick brown fox jumps over the lazy dog" << std::hex << endl;
+	cout << demo << std::hex << endl;
 	for( size_t ii=0; ii<32; ii++ ) {
 		cout << std::setfill('0') << std::setw(2) << (int) digest[ii];
 	}
 	cout << endl << sha << std::dec << endl;
 
+	return 0;
 }

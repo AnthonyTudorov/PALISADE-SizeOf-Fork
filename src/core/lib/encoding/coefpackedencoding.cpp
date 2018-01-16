@@ -43,7 +43,7 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 					" at position " + std::to_string(i) +
 					" because it is out of range of plaintext modulus " + std::to_string(mod) );
 
-		uint32_t entry = value[i];
+		uint64_t entry = value[i];
 		if( value[i] < 0 ) {
 			entry += mod;
 		}
