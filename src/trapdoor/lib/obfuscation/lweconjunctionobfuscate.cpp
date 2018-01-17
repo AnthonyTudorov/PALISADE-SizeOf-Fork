@@ -418,19 +418,25 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     }
     DEBUG("done deserialize Rl");    
 
-
-    pIt= iter->value.FindMember("Pk"); //Rl
+    pIt= iter->value.FindMember("Pk"); //Pk
     if (pIt == iter->value.MemberEnd()) {
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Pk");
       return false;
     }
 
-    rc = DeserializeVectorOfMatrix("Pk", Element::GetElementName(), pIt, this->m_pk.get());
+    //rc = DeserializeVectorOfMatrix("Pk", Element::GetElementName(), pIt, this->m_pk.get(),Element::GetAllocator());
+
+    shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
+    DEBUGEXP(Pk_vector);
+    DEBUG("deserialize Pk");    
+    rc = DeserializeVectorOfMatrix("Pk", Element::GetElementName(), pIt, Pk_vector.get());
+    this->m_pk = Pk_vector;
     if (rc == false){
       std::cout << "Error in DeserializeVectorOfMatrix(Pk) "<<std::endl;
     }
-    
+    DEBUG("done deserialize Rl");    
 #if 0
+    shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
     do this shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #else
     DEBUG("cant deserialize PK or EK yet");    

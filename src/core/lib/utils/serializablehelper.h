@@ -950,7 +950,7 @@ namespace lbcrypto {
       std::string elem_name = typeName;
       bool rc = DeserializeMatrix(matname, elem_name, s2, pT.get());
       if(rc) {
-	DEBUG("Deserialized "<< outVector->at(i));
+	DEBUG("Deserialized matrix at index "<<i);
       } else {
 	PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of Matrix "+to_string(i)+" failed internally");
       }
@@ -1033,7 +1033,7 @@ namespace lbcrypto {
 
   ///////////////////////////////////////////////////////////////////////////////
   template<typename T>
-    bool DeserializeVectorOfMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector) {
+    bool DeserializeVectorOfMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
    
     bool dbg_flag = true;
 
@@ -1062,9 +1062,9 @@ namespace lbcrypto {
     }
 
     DEBUG("Found "<< std::stoi(mIt->value.GetString()));      
-    //   size_t length = std::stoi(mIt->value.GetString());
+    size_t length = std::stoi(mIt->value.GetString());
     
-    //outVector->clear();
+    outVector->clear();
     //outVector->resize( std::stoi(mIt->value.GetString()) );
    
     mIt = it->value.FindMember("Members");
@@ -1075,7 +1075,7 @@ namespace lbcrypto {
     const SerialItem& members = mIt->value;
     DEBUG("looping over members");
     //loop over entire vector
-    for( size_t i=0; i<outVector->size(); i++ ) {
+    for( size_t i=0; i<length; i++ ) {
       std::string keystring = std::to_string(i);
 
       //find this key (the index)
@@ -1115,13 +1115,16 @@ namespace lbcrypto {
       //std::string elemname = (outVector->at(i)).GetElementName(); fails for T==BitInt
       std::string elem_name = typeName;
       DEBUG("Calling DeserializeMaatrix");
-      bool rc = DeserializeMatrix(mat_name, elem_name, s2, &(outVector->at(i)));
 
-      if(rc) {
-	DEBUG("Deserialized "<< outVector->at(i));
+      //auto pT = make_shared<Matrix<T>>(alloc_function, 0,0);
+      auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
+      bool rc = DeserializeMatrix(mat_name, elem_name, s2, pT.get());
+      if (rc) {
+	DEBUG("Deserialized matrix at index "<<i);
       } else {
 	PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of Matrix "+to_string(i)+" failed internally");
-      }	
+      }
+      outVector->push_back(*pT); //store the pointer to the Matrix<T> into the vector location
     }
     return true;
   }

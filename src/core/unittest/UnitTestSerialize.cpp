@@ -651,8 +651,8 @@ TEST(UTSer, serialize_vector_matrix){
   ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find VectorOfMatrix";
   DEBUG("step 8");
 
-  DeserializeVectorOfMatrix<BigInteger>("VectorOfMatrix", "BigIntegerImpl", mIter, &newvec);
-    
+  //DeserializeVectorOfMatrix<BigInteger>("VectorOfMatrix", "BigIntegerImpl", mIter, &newvec /*, BigInteger::Allocator*/);
+    DeserializeVectorOfMatrix<BigInteger>("VectorOfMatrix", "BigIntegerImpl", mIter, &newvec);
   DEBUG("step 9");
   EXPECT_EQ( testvec, newvec ) << "Mismatch after ser/deser";
 }

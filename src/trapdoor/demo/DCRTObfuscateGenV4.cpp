@@ -230,8 +230,11 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
 
 
 
-  //note this is for debug -- will move to evaluate
+  //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
+
+
+  //currently get failure in  lbcrypto::DeserializeVectorOfMatrix< > of src/core/lib/utils/serializablehelper.h:1078 null vector. 
 
   DeserializeObfuscatedPattern(testObfuscatedPattern);
 
