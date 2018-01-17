@@ -177,19 +177,18 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	Signature<Matrix<Poly>> signature, signature2;
 	string text("We can use arbitrary sized texts");
 	string text2("Which looks cool");
-	text2 = "xxxxxxxxxxxxxxxx";
 
-//	scheme.Sign(s_k, text, &signature);
+	scheme.Sign(s_k, text, &signature);
 	scheme.Sign(s_k, text2, &signature2);
 
-//	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
-//			<<"Failed signature 1 - text 1 verification";
+	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
+			<<"Failed signature 1 - text 1 verification";
 	EXPECT_EQ(true, scheme.Verify(v_k, signature2, text2))
 			<< "Failed signature 2 - text 2 verification";
-//	EXPECT_NE(true, scheme.Verify(v_k, signature2, text))
-//			<< "Failed signature 2 - text 1 verification";
-//	EXPECT_NE(true, scheme.Verify(v_k, signature, text2))
-//			<< "Failed signature 1 - text 2 verification";
+	EXPECT_NE(true, scheme.Verify(v_k, signature2, text))
+			<< "Failed signature 2 - text 1 verification";
+	EXPECT_NE(true, scheme.Verify(v_k, signature, text2))
+			<< "Failed signature 1 - text 2 verification";
 
 //	for( int i=9; i<=64; i++ ) {
 //		string txt;

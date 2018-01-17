@@ -77,8 +77,8 @@ typedef native_int::NativeVector<NativeInteger>		NativeVector;
 //uncommented line (and breaking the documentation of the line)
 
 #ifndef MATHBACKEND
-//#define MATHBACKEND 2
-#define MATHBACKEND 4
+#define MATHBACKEND 2
+//#define MATHBACKEND 4
 //#define MATHBACKEND 6
 #endif
 

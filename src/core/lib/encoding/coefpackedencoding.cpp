@@ -33,7 +33,7 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 
 	poly.SetValuesToZero();
 
-	for( size_t i=0; i < value.size(); i++ ) {
+	for( size_t i=0; i < value.size() && i < poly.GetLength(); i++ ) {
 		if( value[i] > INT32_MAX || value[i] < INT32_MIN ) {
 			PALISADE_THROW( config_error, "Cannot encode a coefficient larger than 32 bits");
 		}

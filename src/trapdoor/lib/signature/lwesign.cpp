@@ -88,42 +88,11 @@ namespace lbcrypto {
 		vector<int64_t> digest;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
-		cout << "Parms: " << *signKey.GetSignatureParameters().GetILParams() << endl;
 		Plaintext hashedText( new CoefPackedEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
-		cout << "unencoded: " << endl;
-		cout << std::hex;
-		for( size_t ii=0; ii<digest.size(); ii++ ) {
-			cout << std::setfill('0') << std::setw(2) << (unsigned int) digest[ii];
-		}
-		cout << std::dec << endl;
-
-		cout << "char as int is " << (int)(hashedText->GetCoefPackedValue()[0]&0xff) << endl;
-
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
-		cout << std::hex;
-		for( size_t ii=0; ii<5; ii++ ) {
-			cout << u[ii] << " ";
-		}
-		cout << std::dec << endl;
-
-		cout << "Element Params: " << *u.GetParams() << endl;
-		cout << "orig: " << u[0] << endl;
 		u.SwitchFormat();
-		cout << "switched: " << u[0] << endl;
-		u.SwitchFormat();
-		cout << u[0] << endl;
-		u.SwitchFormat();
-		cout << u[0] << endl;
-		u.SwitchFormat();
-		cout << u[0] << endl;
-		u.SwitchFormat();
-		cout << u[0] << endl;
-		u.SwitchFormat();
-		cout << u[0] << endl;
-		u.SwitchFormat();
-		cout << "signing :" << plainText << " " << plainText.size() << " " << u.GetLength() << endl;
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		Matrix<Element> A = signKey.GetPrivateElement().first;
@@ -150,7 +119,6 @@ namespace lbcrypto {
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 
 		return RLWETrapdoorUtility<Element>::GaussSampOffline(n, k, T, dgg, dggLargeSigma, base);
-
 	}
 
 	//Method for signing given object
@@ -171,8 +139,6 @@ namespace lbcrypto {
 		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
-		cout << "sign online :" << plainText << " " << plainText.size() << " " << n << endl;
-
 		if( plainText.size() <= n ) {
 			for (size_t i = 0;i < n - 32;i = i + 4)
 				digest.push_back(seed[i]);
@@ -192,7 +158,6 @@ namespace lbcrypto {
 
 		Matrix<Element> zHat = RLWETrapdoorUtility<Element>::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
 		signatureText->SetElement(zHat);
-
 	}
 
 	
@@ -210,8 +175,6 @@ namespace lbcrypto {
 		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
-		cout << "verify: " << " :" << plainText << ": " << plainText.size() << " " << n << endl;
-
 		if( plainText.size() <= n ) {
 			for (size_t i = 0;i < n - 32;i = i + 4)
 				digest.push_back(seed[i]);
@@ -221,9 +184,7 @@ namespace lbcrypto {
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
-		cout << "orig: " << u[0] << endl;
 		u.SwitchFormat();
-		cout << "switched: " << u[0] << endl;
 
 		//Multiply signature with the verification key
 		Matrix<Element> A = verificationKey.GetPublicElement();
@@ -232,9 +193,6 @@ namespace lbcrypto {
 
 		//Check the verified vector is actually the encoding of the object
 		Element r = R(0, 0);
-
-		cout << "R: " << r[0] << endl;
-		cout << "U: " << u[0] << endl;
 
 		return r == u;
 	}
