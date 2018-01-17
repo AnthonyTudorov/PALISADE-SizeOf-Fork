@@ -47,6 +47,7 @@ namespace lbcrypto {
 		shared_ptr<typename Element::Params> params = signKey->GetSignatureParameters().GetILParams();
 		auto stddev = signKey->GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		usint base = signKey->GetSignatureParameters().GetBase();
+
 		//Generate trapdoor based using parameters and 
 		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> keyPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base);
 		//Format of vectors are changed to prevent complications in calculations 
@@ -57,10 +58,9 @@ namespace lbcrypto {
 		//Verification key will be set to the uniformly sampled matrix used in trapdoor
 		verificationKey->SetPublicElement(keyPair.first);
 
-
 		//Signing key will contain public key matrix of the trapdoor and the trapdoor matrices
 		signKey->SetPrivateElement(std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(keyPair));
-		size_t n = params->GetCyclotomicOrder() / 2;
+		size_t n = params->GetRingDimension();
 		if (n > 32) {
 			for (size_t i = 0;i < n - 32;i = i + 4) {
 				int rand = (PseudoRandomNumberGenerator::GetPRNG())();
@@ -82,30 +82,26 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
-		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(512)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		vector<uint8_t> digest;
+		vector<int64_t> digest;
 		HashUtil::Hash(plainText, SHA_256, digest);
-		Plaintext hashedText( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 
+		Plaintext hashedText( new CoefPackedEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
-
 		u.SwitchFormat();
 
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		Matrix<Element> A = signKey.GetPrivateElement().first;
 		RLWETrapdoorPair<Element> T = signKey.GetPrivateElement().second;
-		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
-
 
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 		Matrix<Element> zHat = RLWETrapdoorUtility<Element>::GaussSamp(n,k,A,T,u,dgg,dggLargeSigma,base);
 		signatureText->SetElement(zHat);
-
 	}
 
 	//Method for signing given object
@@ -123,7 +119,6 @@ namespace lbcrypto {
 		typename Element::DggType & dggLargeSigma = signKey.GetSignatureParameters().GetDiscreteGaussianGeneratorLargeSigma();
 
 		return RLWETrapdoorUtility<Element>::GaussSampOffline(n, k, T, dgg, dggLargeSigma, base);
-
 	}
 
 	//Method for signing given object
@@ -137,10 +132,10 @@ namespace lbcrypto {
 		size_t k = signKey.GetSignatureParameters().GetK();
 		size_t base = signKey.GetSignatureParameters().GetBase();
 
-		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(512)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		vector<uint8_t> digest;
+		vector<int64_t> digest;
 		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
@@ -149,7 +144,7 @@ namespace lbcrypto {
 				digest.push_back(seed[i]);
 		}
 
-		hashedText.reset( new StringEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
+		hashedText.reset( new CoefPackedEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
@@ -159,12 +154,10 @@ namespace lbcrypto {
 		//Getting the trapdoor, its public matrix, perturbation matrix and gaussian generator to use in sampling
 		Matrix<Element> A = signKey.GetPrivateElement().first;
 		RLWETrapdoorPair<Element> T = signKey.GetPrivateElement().second;
-		//double stddev = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator().GetStd();
 		typename Element::DggType & dgg = signKey.GetSignatureParameters().GetDiscreteGaussianGenerator();
 
 		Matrix<Element> zHat = RLWETrapdoorUtility<Element>::GaussSampOnline(n, k, A, T, u, dgg, perturbationVector, base);
 		signatureText->SetElement(zHat);
-
 	}
 
 	
@@ -175,10 +168,10 @@ namespace lbcrypto {
 		const string& plainText) {
 		size_t n = verificationKey.GetSignatureParameters().GetILParams()->GetRingDimension();
 
-		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(256)) );
+		EncodingParams ep( new EncodingParamsImpl(PlaintextModulus(512)) );
 
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
-		vector<uint8_t> digest;
+		vector<int64_t> digest;
 		Plaintext hashedText;
 		HashUtil::Hash(plainText, SHA_256, digest);
 
@@ -187,7 +180,7 @@ namespace lbcrypto {
 				digest.push_back(seed[i]);
 		}
 
-		hashedText.reset( new StringEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, digest) );
+		hashedText.reset( new CoefPackedEncoding(verificationKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
 		Element &u = hashedText->GetElement<Element>();
@@ -200,6 +193,7 @@ namespace lbcrypto {
 
 		//Check the verified vector is actually the encoding of the object
 		Element r = R(0, 0);
+
 		return r == u;
 	}
 
