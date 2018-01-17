@@ -41,7 +41,7 @@ namespace lbcrypto {
 		// Constructors must be implemented in the derived classes
 		// There are no base class constructors that need to be called
 
-		// The derived classes should implement constructors from integers and strings
+		// The derived classes should implement constructors from uint64_t, NativeInteger, and strings
 		// There should be copy and move constructors, as well as copy and move assignment
 
 		// ACCESSORS
@@ -433,6 +433,8 @@ public:
 		// The derived class must implement at and operator[]
 		I& at(size_t idx);
 		const I& at(size_t idx) const;
+		void atMod(size_t idx, const I &val);
+		void atMod(size_t idx, const std::string& val);
 		I& operator[](size_t idx);
 		const I& operator[](size_t idx) const;
 
@@ -598,7 +600,14 @@ public:
 		 * @return a new vector after the modulus operation on current vector.
 		 */
 		T Mod(const I& modulus) const;
-			// FIXME there is no ModEq -- is it needed?
+
+		/**
+		 * Vector Modulus operator.
+		 *
+		 * @param modulus is the modulus to perform on the current vector entries.
+		 * @return a new vector after the modulus operation on current vector.
+		 */
+		const T& ModEq(const I& modulus);
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -608,6 +617,10 @@ public:
 		 */
 		T ModExp(const I& b) const;
 			// FIXME there is no ModExpEq -- is it needed?
+
+		// inlines for overloaded operators
+		inline friend T operator%(const T& a, const I& b) { return a.Mod(b); }
+		inline friend const T& operator%=(T& a, const I& b) { return a.ModEq(b); }
 
 		/**
 		 * Modulus inverse.
@@ -625,7 +638,13 @@ public:
 		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 		*/
 		T ModByTwo() const;
-			// FIXME there is no ModByTwoEq -- is it needed?
+
+		/**
+		* Perform a modulus by 2 operation.  Returns the least significant bit.
+		*
+		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+		*/
+		const T& ModByTwoEq();
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.

@@ -454,7 +454,7 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		if (modsum > modulus.m_value)
+		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}
@@ -469,7 +469,7 @@ public:
 	const NativeInteger& ModAddEq(const NativeInteger& b, const NativeInteger& modulus) {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		if (modsum > modulus.m_value)
+		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		this->m_value = (uint_type)modsum;
 		return *this;
@@ -531,11 +531,11 @@ public:
 		Duint_type mod = modulus.m_value;
 
 		//reduce this to a value lower than modulus
-		if(av > mod) {
+		if(av >= mod) {
 			av %= mod;
 		}
 		//reduce b to a value lower than modulus
-		if(bv > mod){
+		if(bv >= mod){
 			bv %= mod;
 		}
 
@@ -559,11 +559,11 @@ public:
 		Duint_type mod = modulus.m_value;
 
 		//reduce this to a value lower than modulus
-		if(m_value > mod) {
+		if(m_value >= mod) {
 			m_value %= mod;
 		}
 		//reduce b to a value lower than modulus
-		if(bv > mod){
+		if(bv >= mod){
 			bv %= mod;
 		}
 
@@ -635,8 +635,8 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( av > modulus.m_value ) av = av%modulus.m_value;
-		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+		if( av >= modulus.m_value ) av = av%modulus.m_value;
+		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
 		return uint_type((av*bv)%modulus.m_value);
 	}
@@ -652,8 +652,8 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( av > modulus.m_value ) av = av%modulus.m_value;
-		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+		if( av >= modulus.m_value ) av = av%modulus.m_value;
+		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
 		this->m_value = uint_type((av*=bv)%=modulus.m_value);
 
@@ -748,7 +748,7 @@ public:
 				product = product * mid;
 
 			//running product is calculated
-			if(product>modulus){
+			if(product >= modulus){
 				product = product % modulus;
 			}
 
