@@ -681,43 +681,71 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 	usint m = this->m_params->GetCyclotomicOrder();
 	usint n = this->m_params->GetRingDimension();
 
-	if (m_params->OrderIsPowerOfTwo() == false) {
+	if (this->m_format == EVALUATION) {
 
-		//Add a test based on the inverse totient hash table
-		//if (i % 2 == 0)
-		//	throw std::runtime_error("automorphism index should be odd\n");
+		if (m_params->OrderIsPowerOfTwo() == false) {
 
-		const auto &modulus = this->m_params->GetModulus();
+			//Add a test based on the inverse totient hash table
+			//if (i % 2 == 0)
+			//	throw std::runtime_error("automorphism index should be odd\n");
 
-		// All automorphism operations are performed for k coprime to m, which are generated using GetTotientList(m)
-		std::vector<usint> totientList = GetTotientList(m);
+			const auto &modulus = this->m_params->GetModulus();
 
-		// Temporary vector of size m is introduced
-		// This step can be eliminated by using a hash table that looks up the ring index (between 0 and n - 1)
-		// based on the totient index (between 0 and m - 1)
-		VecType expanded(m, modulus);
-		for (usint i = 0; i < n; i++) {
-			expanded.operator[](totientList.operator[](i))= m_values->operator[](i);
+			// All automorphism operations are performed for k coprime to m, which are generated using GetTotientList(m)
+			std::vector<usint> totientList = GetTotientList(m);
+
+			// Temporary vector of size m is introduced
+			// This step can be eliminated by using a hash table that looks up the ring index (between 0 and n - 1)
+			// based on the totient index (between 0 and m - 1)
+			VecType expanded(m, modulus);
+			for (usint i = 0; i < n; i++) {
+				expanded.operator[](totientList.operator[](i))= m_values->operator[](i);
+			}
+
+			for (usint i = 0; i < n; i++) {
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = totientList.operator[](i)*k % m;
+
+				result.m_values->operator[](i)= expanded.operator[](idx);
+
+			}
+		} else { // power of two cyclotomics
+			if (k % 2 == 0)
+				throw std::runtime_error("automorphism index should be odd\n");
+
+			for (usint j = 1; j < m; j = j + 2) {
+
+				//determines which power of primitive root unity we should switch to
+				usint idx = (j*k) % m;
+				result.m_values->operator[]((j + 1) / 2 - 1)= GetValues().operator[]((idx + 1) / 2 - 1);
+
+			}
+
 		}
+	}
+	else // automorphism in coefficient representation
+	{
+		if (m_params->OrderIsPowerOfTwo() == false) {
 
-		for (usint i = 0; i < n; i++) {
-
-			//determines which power of primitive root unity we should switch to
-			usint idx = totientList.operator[](i)*k % m;
-
-			result.m_values->operator[](i)= expanded.operator[](idx);
+			PALISADE_THROW( lbcrypto::math_error, "Automorphism in coefficient representation is not currently supported for non-power-of-two polynomials");
 
 		}
-	} else {
-		if (k % 2 == 0)
-			throw std::runtime_error("automorphism index should be odd\n");
+		else { // power of two cyclotomics
+			if (k % 2 == 0)
+				throw std::runtime_error("automorphism index should be odd\n");
 
-		for (usint j = 1; j < m; j = j + 2) {
+			for (usint j = 1; j < n; j++) {
 
-			//determines which power of primitive root unity we should switch to
-			usint idx = (j*k) % m;
-			result.m_values->operator[]((j + 1) / 2 - 1)= GetValues().operator[]((idx + 1) / 2 - 1);
+				usint temp = j*k;
+				usint newIndex = temp % n;
 
+				if ((temp/n) % 2 == 1)
+					result.m_values->operator[](newIndex) = m_params->GetModulus() - m_values->operator[](j);
+				else
+					result.m_values->operator[](newIndex) = m_values->operator[](j);
+
+			}
 		}
 
 	}
