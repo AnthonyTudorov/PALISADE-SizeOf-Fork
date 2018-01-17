@@ -1035,23 +1035,33 @@ namespace lbcrypto {
   template<typename T>
     bool DeserializeVectorOfMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector) {
    
-    bool dbg_flag = false;
+    bool dbg_flag = true;
+
+    
     //std::string fname = "DeserializeVectorOfMatrix<"+T::typeName+" ";
+    DEBUG("Searching for Typename");
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
     }
-   
+
+    DEBUG("Searching for "<<typeName);   
     if( mIt->value.GetString() != typeName ) {
       PALISADE_THROW(lbcrypto::deserialize_error,
 		     "Wrong type name found: "+ string(mIt->value.GetString())
 		     + "expected :" +typeName );
     }
-   
+    DEBUG("Found "<<typeName);      
+
+    DEBUG("Searching for Length");   
     mIt = it->value.FindMember("Length");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Length");
+        
+    
     }
+
+    DEBUG("Found "<< std::stoi(mIt->value.GetString()));      
     //   size_t length = std::stoi(mIt->value.GetString());
     
     //outVector->clear();

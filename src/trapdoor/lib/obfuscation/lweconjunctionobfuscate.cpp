@@ -290,6 +290,7 @@ template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= true;
 
+
     //find the top object in the input object
     Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
     if (iter == serObj.MemberEnd()) {
@@ -386,17 +387,9 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Sl");
       return false;
     }
- 
-	  
+    
+ 	  
     auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
-
-    //empty matrix
-
-    //Matrix<Element> Sl(zero_alloc, 0, 0);
-    //Matrix<Element> Rl(zero_alloc, 0, 0);
-
-    //shared_ptr<Matrix<Element>> Slp= std::make_shared<Matrix<Element>>(Sl);
-    //shared_ptr<Matrix<Element>> Rlp= std::make_shared<Matrix<Element>>(Rl);
 
     shared_ptr<Matrix<Element>> Slp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
     shared_ptr<Matrix<Element>> Rlp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
@@ -405,12 +398,12 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 
     bool rc(false);
 
-    //rc = DeserializeMatrix("Sl", Element::GetElementName(), pIt, &Sl);
+    DEBUG("deserialize Sl");
     rc = DeserializeMatrix("Sl", Element::GetElementName(), pIt, Slp.get());
     if (rc == false){
       std::cout << "Error in DeserializeMatrix(Sl) "<<std::endl;
     }
-
+    DEBUG("done deserialize Sl");
     pIt= iter->value.FindMember("Rl"); //Rl
     if (pIt == iter->value.MemberEnd()) {
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Rl");
@@ -418,19 +411,33 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     }
     
     //rc = DeserializeMatrix("Rl", Element::GetElementName(), pIt, &Rl );
+    DEBUG("deserialize Rl");
     rc = DeserializeMatrix("Rl", Element::GetElementName(), pIt, Rlp.get() );
     if (rc == false){
       std::cout << "Error in DeserializeMatrix(Rl) "<<std::endl;
     }
+    DEBUG("done deserialize Rl");    
 
+
+    pIt= iter->value.FindMember("Pk"); //Rl
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Pk");
+      return false;
+    }
+
+    rc = DeserializeVectorOfMatrix("Pk", Element::GetElementName(), pIt, this->m_pk.get());
+    if (rc == false){
+      std::cout << "Error in DeserializeVectorOfMatrix(Pk) "<<std::endl;
+    }
+    
 #if 0
-    DeserializeVectorOfMatrix("PK", Element::GetElementName(), pIt, &(this->m_pk));
-
-    and do this shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+    do this shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #else
     DEBUG("cant deserialize PK or EK yet");    
 #endif
     return true;
+
+
 };
   
   
@@ -467,11 +474,38 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     fail ^=false;
   }
 
+  #if 0 
   
   // shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
-  std::cout<< "can't test S_Vec yet"<<std::endl;  
+  auto it1 = this->m_S_vec.begin();
+  auto it2 = b.m_S_vec.begin();
+  auto i = 0;
+  for (; (it1 != this->m_S_vec.end())&&(it2 != b.m_S_vec.end()); it1++, it2++, i++){
+    DEBUG("testing "<<i);
+    if( **it1!= **it2 ){
+      std::cout << "m_S_vec["<<i<<"] mismatch"<<std::endl;
+      fail ^=false;
+    }
+  }
+
   // shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
-  std::cout<< "can't test R_Vec yet"<<std::endl;  
+  auto it1 = this->m_S_vec.begin();
+  auto it2 = b.m_S_vec.begin();
+  auto i = 0;
+  for (; (it1 != this->m_S_vec.end())&&(it2 != b.m_S_vec.end()); it1++, it2++, i++){
+    DEBUG("testing "<<i);
+    if( **it1!= **it2 ){
+      std::cout << "m_S_vec["<<i<<"] mismatch"<<std::endl;
+      fail ^=false;
+    }
+  }
+#else
+
+
+  std::cout << "Can't test m_S_vec"<<std::endl;  
+  std::cout << "Can't test m_R_vec"<<std::endl;  
+#endif
+  
   // shared_ptr<Matrix<Element>> m_Sl;
   if (*m_Sl != *(b.m_Sl)){
     std::cout<< "m_Sl mismatch"<<std::endl;
@@ -488,7 +522,13 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
   }
   
   // shared_ptr<std::vector<Matrix<Element>>> m_pk;
-  std::cout<< "can't test PK yet"<<std::endl;
+  if (*m_pk != *(b.m_pk)){
+    std::cout<< "m_pk mismatch"<<std::endl;
+    //DEBUGEXP(*m_pk);
+    DEBUGEXP(*(b.m_pk));
+    fail ^=false;
+  }
+  
   // shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
   std::cout<< "can't test EK yet"<<std::endl;  
   return fail;

@@ -752,6 +752,5 @@ TEST(UTSer, serialize_vector_pointers_matrix){
 
 //need tests for
 
-// in process (De)SerializeVectorOfPointersToMatrix [used by next one]
 // (De)SerializeVectorOfVectorOfPointersToMatrix [in lwe S compiles D not done]
 
