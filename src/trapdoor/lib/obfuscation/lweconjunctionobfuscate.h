@@ -353,28 +353,27 @@ namespace lbcrypto {
 			friend inline std::ostream& operator<<(std::ostream& os, const ObfuscatedLWEConjunctionPattern & pat) {
 
 			  //length of the pattern
-			  os << "Length: "<<pat.GetLength() <<";";
-			  os << "elemParams: "<< *(pat.GetParameters()) <<";";
+			  os << "Length: "<<pat.GetLength() <<"; ";
+			  os << "elemParams: "<< *(pat.GetParameters()) <<"; ";
+
+			  //lattice security parameter
+			  os << "rootHermiteFactor: "<< pat.GetRootHermiteFactor() <<"; ";
+
+			  //number of bits encoded by one matrix
+			  os << "chunkSize: "<< pat.GetChunkSize() <<"; ";
+
+			  //base for G-sampling
+			  os << "base: "<<  pat.GetBase() <<"; ";
+			  
 #if 0
-			shared_ptr<typename Element::Params> m_elemParams;
+			  // TODO: should any of these be added to the output stream?
+			  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
+			  shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
+			  shared_ptr<Matrix<Element>> m_Sl;
+			  shared_ptr<Matrix<Element>> m_Rl;
 
-			//lattice security parameter
-			double m_rootHermiteFactor;
-
-			//number of bits encoded by one matrix
-			usint m_chunkSize;
-
-			//base for G-sampling
-			usint m_base;
-
-			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
-			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
-			shared_ptr<Matrix<Element>> m_Sl;
-			shared_ptr<Matrix<Element>> m_Rl;
-
-			shared_ptr<std::vector<Matrix<Element>>> m_pk;
-			shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
-
+			  shared_ptr<std::vector<Matrix<Element>>> m_pk;
+			  shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 #endif
 			  return os;
 			}

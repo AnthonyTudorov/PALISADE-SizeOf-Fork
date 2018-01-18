@@ -149,9 +149,10 @@ namespace lbcrypto {
    * @param &inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
-  //TODO: make inVector reference
+
   template<typename T>
     void SerializeVector(const std::string& vectorName, const std::string& typeName,
 			 const std::vector<T> &inVector, Serialized* serObj) {
@@ -183,17 +184,19 @@ namespace lbcrypto {
     serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), ser, serObj->GetAllocator());
   }
 
+
   /** 
-   * Helper template Adds the contents of an STL vector<*foo> to 
+   * Helper template Adds the contents of an STL vector<shared_ptr<foo>> to 
    *  a serialized Palisade object as a nested JSON data structure
-   * foo must be a pointer to a serializable object as the function uses the 
-   * foo->SerializeWithoutContext() method to serialize.
+   * foo must be a serializable object as the function uses the 
+   * foo.Serialize() method to serialize.
    * @param vectorName 
    * @param typeName of element within the vector
-   * @param inVector the STL vector to be serialized
+   * @param &inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
  
   template<typename T>
@@ -228,7 +231,7 @@ namespace lbcrypto {
   }
 
   /** 
-   * Helper template Adds the contents of an STL map<k,*foo> to 
+   * Helper template Adds the contents of an STL map<k,shared_ptr<foo>> to 
    *  a serialized Palisade object as a nested JSON data structure
    * foo must be a pointer to a serializable object as the function uses the 
    * foo->SerializeWithoutContext() method to serialize.
@@ -240,6 +243,20 @@ namespace lbcrypto {
    * @return void  TODO: add error code
    */
 
+
+  /** 
+   * Helper template Adds the contents of an STL map<bar, shared_ptr<foo>> to 
+   *  a serialized Palisade object as a nested JSON data structure
+   * foo must be a serializable object as the function uses the 
+   * foo.Serialize() method to serialize.
+   * @param mapName of map to be serialized
+   * @param typeName of element within the map
+   * @param &inMap the STL vector to be serialized
+   * @param *serObj the serial object to be modfied, if not a serial object
+   * then it is made a serial object
+   * throws a Palisade serialize_error on error
+   * @return void  
+   */
   template<typename K, typename T>
     void SerializeMapOfPointers(const std::string& mapName, const std::string& typeName, const std::map<K,shared_ptr<T>> inMap, Serialized* serObj) {
 
@@ -282,18 +299,18 @@ namespace lbcrypto {
 
 
   /** 
-   * Helper template Adds the contents of an STL vector<vector<*Matrix<foo>>>
+   * Helper template Adds the contents of an STL vector<vector<shared_ptr<Matrix<foo>>>>
    * to a serialized Palisade object as a nested JSON data structure
    * foo must be a serializable object as the function uses the 
    * foo.Serialize method to serialize.
    * @param vectorName 
-   * @param typeName of element within the vector
+   * @param typeName of element within the vector of vectors
    * @param inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
-  //&&&&&
  
   template<typename T>
     void SerializeVectorOfVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<vector<shared_ptr<Matrix<T>>>> &inVector, Serialized* serObj) {
@@ -337,7 +354,7 @@ namespace lbcrypto {
 
 
   /** 
-   * Helper template Adds the contents of an STL vector<*Matrix<foo>>
+   * Helper template Adds the contents of an STL vector<shared_ptr<Matrix<foo>>>
    * to a serialized Palisade object as a nested JSON data structure
    * foo must be a serializable object as the function uses the 
    * foo.Serialize method to serialize.
@@ -346,9 +363,9 @@ namespace lbcrypto {
    * @param inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
- 
   template<typename T>
     void SerializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<Matrix<T>>> &inVector, Serialized* serObj) {
 
@@ -396,9 +413,10 @@ namespace lbcrypto {
    * @param inVector the STL vector to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
- 
+  
   template<typename T>
     void SerializeVectorOfMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<Matrix<T>> &inVector, Serialized* serObj) {
 
@@ -445,9 +463,12 @@ namespace lbcrypto {
    * @param typeName of element within the vector
    * @param *outVector pointer to the STD vector to be deserialized
    * @param it an iterator into the serial object to be deserialisesd
-   * @return true if successful false otherwise
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
    */
 
+  //todo: should be made a void return
+  
   template<typename T>
     bool DeserializeVector(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<T>* outVector) {
     bool dbg_flag = false;
@@ -455,18 +476,15 @@ namespace lbcrypto {
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
-      return false;
     }
 
     if( mIt->value.GetString() != typeName ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "Wrong type name found: "+ string(mIt->value.GetString())
 	    + "expected :" +typeName );
-      return false;
     }
     mIt = it->value.FindMember("Length");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Length");
-      return false;
     }
 
     outVector->clear();
@@ -513,7 +531,7 @@ namespace lbcrypto {
   
   
   /** 
-   * Helper template Fills an STL vector<*foo> with the contents of a 
+   * Helper template Fills an STL vector<shared_ptr<foo>> with the contents of a 
    *  a serialized Palisade object made with SerializeVectorOfPointers
    * foo must be a pointer to a serializable object as the function uses the 
    * foo->SerializeWithoutContext() method to serialize.
@@ -521,9 +539,11 @@ namespace lbcrypto {
    * @param typeName of element within the vector
    * @param inMap the STL map to be deserialized
    * @param it an iterator into the serial object to be deserialised
-   * @return true if successful false otherwise
-   * @return void  TODO: add error code
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
    */
+
+  //todo: should be made a void return
 
   template<typename T>
     bool DeserializeVectorOfPointers(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<shared_ptr<T>>* outVector) {
@@ -586,7 +606,7 @@ namespace lbcrypto {
 
 
     /** 
-   * Helper template Fills an STL map<K,*foo> with the contents of a 
+   * Helper template Fills an STL map<K,shared_ptr<foo>> with the contents of a 
    *  a serialized Palisade object made with SerializeMapOfPointers
    * foo must be a pointer to a serializable object as the function uses the 
    * foo->SerializeWithoutContext() method to serialize.
@@ -594,15 +614,16 @@ namespace lbcrypto {
    * @param typeName of element within the map
    * @param inMap the STL map to be deserialized
    * @param it an iterator into the serial object to be deserialised
-   * @return true if successful throws otherwise
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
    */
+
+  //todo: should be made a void return
 
   template<typename K, typename T>
     bool DeserializeMapOfPointers(const std::string& mapName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::map<K, shared_ptr<T>>* outMap) {
     bool dbg_flag = false;
 
-    //typedef std::map<K, shared_ptr<T>> MyMap;
-    
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
@@ -627,18 +648,8 @@ namespace lbcrypto {
 
     const SerialItem& members = mIt->value;
 
-
-    //ok need to iterate over the map here. 
-    //for( size_t i=0; i<outMap->size(); i++ ) {
-    //Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(i) );
-
+    // need to iterate over the map 
     for (Serialized::ConstMemberIterator eIt = members.MemberBegin(); eIt !=members.MemberEnd(); ++eIt){
-      
-      // if( eIt == members.MemberEnd() ) {
-      //  PALISADE_THROW(lbcrypto::deserialize_error,
-      //		 "could not find Map entry "+to_string(i));
-      //  };
-      
       auto key = eIt->name.GetString();
       DEBUGEXP(eIt->name.GetString());
       DEBUGEXP(string(key));
@@ -659,22 +670,7 @@ namespace lbcrypto {
 
 
       if( pMapElem->Deserialize(ser) ) {
-#if 0
-	// outMap->at().reset( new T(mapElem) );
-	std::pair<  MyMap::iterator, bool > result =
-	  outMap->insert(std::make_pair(key, pMapElem));
-	// Check if Insertion was successful
-	if (result.second == false) {
-	  // Insertion Failed
-	  DEBUG("Failed to add . duplicate key :: " << result.first->first);
-	} else {
-	  // Insertion was successful
-	  DEBUG("Successful in Adding , key :: " << result.first->first);
-	}
-#else
 	(*outMap)[atoi(key)] = pMapElem;
-
-#endif	
       } else {
 	PALISADE_THROW(lbcrypto::deserialize_error,
 		       "could not deserialize Map entry "+string(key));
@@ -696,12 +692,13 @@ namespace lbcrypto {
    * foo.Serialize() method to serialize.
    * @param matrixName 
    * @param typeName of element within the matrix
-   * @param inVector the Palisade matrix to be serialized
+   * @param inMatrix the Palisade matrix to be serialized
    * @param *serObj the serial object to be modfied, if not a serial object
    * then it is made a serial object
-   * @return void  TODO: add error code
+   * throws a Palisade serialize_error on error
+   * @return void  
    */
- 
+
  
   template<typename T>
     void SerializeMatrix(const std::string &matrixName, const std::string &typeName, const Matrix<T> &inMatrix, Serialized* serObj) {
@@ -731,10 +728,9 @@ namespace lbcrypto {
 	Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
 	rc = ((inMatrix.GetData())[i][j])->Serialize(&oneEl);
 	if (!rc) {
-	  std::cout<<"Serialize Failure Matrix type "
-		   << typeName
-		   << " ["<<i<<"]["<<j<<"]"<<std::endl;
-	  return;
+	  PALISADE_THROW(lbcrypto::serialize_error,
+			 "SerializeMatrix<"+typeName+"> element "
+			 +to_string(i)+", "+to_string(j)+" serialilzation failed.");
 	}
 	std::string keystring =std::to_string(i)
 	  + "," + std::to_string(j);
@@ -757,10 +753,13 @@ namespace lbcrypto {
    * @param MatrixName input matrix name 
    * @param typeName of element within the matrix<
    * @param inMatrix the palisade matrix to be deserialized
-   * @param *serObj the serial object to be deserialisedt
-   * @return true if successful, false otherwise
+   * @param *serObj the serial object to be deserialised
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
    */
 
+  //todo: should be made a void return
+  
   template<typename T>
     bool DeserializeMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, Matrix<T>* outMatrix) {
     bool dbg_flag = false;
@@ -825,15 +824,7 @@ namespace lbcrypto {
 	Serialized ser(rapidjson::kObjectType);
 	SerialItem k( typeName, ser.GetAllocator() );
 	SerialItem v( s2->value, ser.GetAllocator() );
-#if 0
-	DEBUGEXP(i);
-	if (s2->value.IsString()) {
-	  DEBUGEXP(s2->value.GetString());
-	}
-	if (s2->value.IsUint64()){ 
-	  DEBUGEXP(s2->value.GetUint64());
-	}
-#endif
+
 	ser.AddMember(k, v, ser.GetAllocator());
 	if( matrixElem.Deserialize(ser) ) {
 	  //DEBUG("Deserialized "<< matrixElem);
@@ -853,18 +844,20 @@ namespace lbcrypto {
   }
   
   /** 
-   * Helper template Fills an STL vector<*Matrix<foo>> with the contents of a 
+   * Helper template Fills an STL vector<shared_ptr<matrix<foo>>> with the contents of a 
    *  a serialized Palisade object made with SerializeVectorOfPointers
    * foo must be a serializable object as the function uses the 
    * foo.DeSerialize method to serialize.
    * @param vectorName 
    * @param typeName of element within the vector
-   * @param inMap the STL map to be deserialized
+   * @param outVector the STL vector to contain the result
    * @param it an iterator into the serial object to be deserialised
-   * @return true if successful false otherwise
-   * @return void  TODO: add error code
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
    */
 
+  //todo: should be made a void return
+  
   template<typename T>
     bool DeserializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, std::vector<shared_ptr<Matrix<T>>>* outVector) {
     bool dbg_flag = false;
@@ -946,11 +939,26 @@ namespace lbcrypto {
     return true;
   }
 
-  //////////////////////////////////////////////////////////////////
+
+  /** 
+   * Helper template Fills an STL vector<vector<shared_ptr<matrix<foo>>>> with the contents of a 
+   *  a serialized Palisade object made with SerializeVectorOfVectorOfPointersToMatrix()
+   * foo must be a serializable object as the function uses the 
+   * foo.DeSerialize method to serialize.
+   * @param vectorName 
+   * @param typeName of element within the vector
+   * @param outVector the STL  Vector to contain the result 
+   * @param it an iterator into the serial object to be deserialised
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
+   */
+
+  //todo: should be made a void return
+
   template<typename T>
     bool DeserializeVectorOfVectorOfPointersToMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<vector<shared_ptr<Matrix<T>>>>*outVector) {
    
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     //std::string fname = "DeserializeVectorOfMatrix<"+T::typeName+" ";
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
@@ -1017,14 +1025,26 @@ namespace lbcrypto {
     return true;
   }
 
-  ///////////////////////////////////////////////////////////////////////////////
-  template<typename T>
-    bool DeserializeVectorOfMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
-   
-    bool dbg_flag = true;
+  /** 
+   * Helper template Fills an STL vector<<matrix<foo>> with the contents of a 
+   *  a serialized Palisade object made with SerializeVectorOfMatrix()
+   * foo must be a serializable object as the function uses the 
+   * foo.DeSerialize method to serialize.
+   * @param vectorName name of vector
+   * @param typeName of element within the matrix
+   * @param outVector the STL  Vector to contain the result 
+   * @param it an iterator into the serial object to be deserialised
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
+   */
 
+  //todo: should be made a void return
+
+  template<typename T>
+    bool DeserializeVectorOfMatrix(const std::string& VectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
+   
+    bool dbg_flag = false;
     
-    //std::string fname = "DeserializeVectorOfMatrix<"+T::typeName+" ";
     DEBUG("Searching for Typename");
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {

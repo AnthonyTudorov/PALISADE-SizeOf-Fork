@@ -138,7 +138,6 @@ TEST(UTSer,vector_of_bigint){
 	// mod = "9223372036854775808";
 	// DEBUGEXP(mod.GetInternalRepresentation());	
 	
-
 	DEBUG("step 1");
 	BigVector	testvec(vecsize, mod);
 	DEBUG("step 2");
@@ -754,3 +753,102 @@ TEST(UTSer, serialize_vector_pointers_matrix){
 
 // (De)SerializeVectorOfVectorOfPointersToMatrix [in lwe S compiles D not done]
 
+////////////////////////////////////////////////////////////////
+
+TEST(UTSer, serialize_vector_vector_pointers_matrix){
+  // Serialize/DeserializeVectorOfVectorOfPointersToMatrix
+  // is a helper function to test
+  
+  bool dbg_flag = false;
+  const int vec1_size = 3;
+  const int vec2_size = 4;
+  
+  DEBUG("step 0");
+  //build test vector (note needs allocator for Matrix<>
+  vector<vector<shared_ptr<Matrix<BigInteger>>>> testvec(vec1_size);
+  
+  vector<vector <shared_ptr<Matrix<BigInteger>>>> newvec(vec2_size);
+  DEBUG("step 1");
+  //build test input matricies
+  usint nrows(2);
+  usint ncols(3);
+
+  DEBUG("step 3");
+ 
+  for (usint i = 0; i < vec1_size; i++) {
+    for (usint j = 0; j < vec2_size; j++) {
+      //point to zero matricies
+      auto tm_p = make_shared<Matrix<BigInteger>>(BigInteger::Allocator, 0,0);
+      tm_p->SetSize(nrows+i, ncols+i); 
+      for (usint row = 0; row < nrows+i; row++) {
+	for (usint col = 0; col < ncols+i; col++){
+	  //write a unique value
+	  (*tm_p)(row,col) = BigInteger(1000*i+100*j + 10*row + col); 
+	}
+      }
+      testvec[i].push_back(tm_p);
+      newvec[i].push_back( make_shared<Matrix<BigInteger>>(BigInteger::Allocator, 0,0)); //zero matrix
+    }
+  }
+  
+  DEBUG("step 4");
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
+
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVectorOfVectorOfPointersToMatrix<BigInteger>("VectorOfVectorOfPointersToMatrix", "BigIntegerImpl",
+					       testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVectorOfVectorOfPointersToMatrix", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+
+  DEBUG("step 5");
+
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVectorOfVectorOfPointersToMatrix");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVectorOfVectorOfPointersToMatrix";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("VectorOfVectorOfPointersToMatrix");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find VectorOfVectorOfPointersToMatrix";
+  DEBUG("step 8");
+
+  DeserializeVectorOfVectorOfPointersToMatrix<BigInteger>("VectorOfVectorOfPointersToMatrix", "BigIntegerImpl", mIter, &newvec);
+    
+  DEBUG("step 9");
+  //double loop over vector of vector, and dereference matrix and compare
+  auto it_1_1 = testvec.begin();
+  auto it_1_2 = newvec.begin();
+  auto i = 0;
+  for (; (it_1_1 != testvec.end())&&(it_1_2 != newvec.end());
+       it_1_1++, it_1_2++, i++) {
+
+    auto it_2_1 = it_1_1->begin();
+    auto it_2_2 = it_1_2->begin();
+    auto j = 0;
+    for (; (it_2_1 != it_1_1->end())&&(it_2_2 != it_1_2->end());
+	 it_2_1++, it_2_2++, j++) {
+      
+      //compare dereferenced matricies
+      EXPECT_EQ( **it_2_1, **it_2_2 )
+	<< "Mismatch after ser/deser in entry "<<i<<", "<<j;
+    }
+  }
+}
