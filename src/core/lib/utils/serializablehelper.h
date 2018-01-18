@@ -904,22 +904,8 @@ namespace lbcrypto {
 			 "could not find Vector entry "+to_string(i));
       };
 
-#if 0
-      
-      T vectorElem;
-      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
-
-      Serialized ser(rapidjson::kObjectType);
-      SerialItem k( typeName, ser.GetAllocator() );
-      SerialItem v( s2->value, ser.GetAllocator() );
-      ser.AddMember(k, v, ser.GetAllocator());
-
-      if( vectorElem.Deserialize(ser) ) {
-	outVector->at(i).reset( new T(vectorElem) );
-      }
-#else
       //make a shart pointer to an empty Matrix<T>
-      auto pT = make_shared<Matrix<T>>(T::Allocator, 0,0); 
+      auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
 
       //within the key's member, find the sub member with the typename
       //and point to it with s2.
@@ -955,8 +941,6 @@ namespace lbcrypto {
 	PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of Matrix "+to_string(i)+" failed internally");
       }
       outVector->at(i)=pT; //store the pointer to the Matrix<T> into the vector location
-
-#endif
     }
 
     return true;
@@ -964,9 +948,9 @@ namespace lbcrypto {
 
   //////////////////////////////////////////////////////////////////
   template<typename T>
-    bool DeserializeVectorOfVectorOfPointersToMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<Matrix<T>>* outVector) {
+    bool DeserializeVectorOfVectorOfPointersToMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<vector<shared_ptr<Matrix<T>>>>*outVector) {
    
-    bool dbg_flag = false;
+    bool dbg_flag = true;
     //std::string fname = "DeserializeVectorOfMatrix<"+T::typeName+" ";
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
@@ -983,30 +967,31 @@ namespace lbcrypto {
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Length");
     }
-    //   size_t length = std::stoi(mIt->value.GetString());
+    size_t length = std::stoi(mIt->value.GetString());
     
     outVector->clear();
-    outVector->resize( std::stoi(mIt->value.GetString()) );
+    outVector->resize(length);
    
     mIt = it->value.FindMember("Members");
     if( mIt == it->value.MemberEnd() ){
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Members");
     }
     const SerialItem& members = mIt->value;
-   
+    DEBUG("looping over vector");
     //loop over entire vector
     for( size_t i=0; i<outVector->size(); i++ ) {
       std::string keystring =std::to_string(i);
      
       Serialized::ConstMemberIterator eIt = members.FindMember(keystring);
       if( eIt == members.MemberEnd() ) {
-	PALISADE_THROW(lbcrypto::deserialize_error, "could not find index "+to_string(i));
+	PALISADE_THROW(lbcrypto::deserialize_error, "could not find Vector entry "+to_string(i));
       }
 
-      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(typeName);
+      string el_name = MatrixName+"_"+to_string(i);
+      SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(el_name);
       if( s2 == eIt->value.MemberEnd() ){
 	PALISADE_THROW(lbcrypto::deserialize_error,
-		       "could not find typename "+ typeName+ "for "+to_string(i));
+		       "could not find element name "+ el_name);
       }
      
       Serialized ser(rapidjson::kObjectType);
@@ -1021,11 +1006,12 @@ namespace lbcrypto {
       }
       ser.AddMember(k, v, ser.GetAllocator());
       std::string matname = "Matrix";
-      bool rc = DeserializeMatrix(matname, (outVector->at(i)).GetElementName(),s2, &(outVector->at(i)));
+      std::string elem_name = typeName;
+      bool rc = DeserializeVectorOfPointersToMatrix(matname, elem_name, s2, &(outVector->at(i)));
       if(rc) {
-	DEBUG("Deserialized "<< outVector->at(i));
+	DEBUG("Deserialized VectorOfPointersToMatrix at element"<<i );
       } else {
-	PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of Matrix "+to_string(i)+" failed internally");
+	PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of VectorOfPointersToMatrix "+to_string(i)+" failed internally");
       }	
     }
     return true;
