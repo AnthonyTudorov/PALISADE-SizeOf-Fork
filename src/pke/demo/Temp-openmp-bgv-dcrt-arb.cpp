@@ -102,8 +102,8 @@ int main() {
 	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 	ArbBGVAutomorphismPackedArray(3);
 
-	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
-	ArbNullAutomorphismPackedArray(3);
+	//std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	//ArbNullAutomorphismPackedArray(3);
 
 	std::cout << "\n===========BGV TESTS (EVALINNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 	ArbBGVInnerProductPackedArray();
