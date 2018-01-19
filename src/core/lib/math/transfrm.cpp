@@ -264,15 +264,16 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 
 	//Fermat Theoretic Transform (FTT)
 	if (typeid(IntType) == typeid(NativeInteger)) {
+		const VecType &preconTable = m_rootOfUnityPreconTableByModulus[element.GetModulus()];
 		int64_t modulus64 = element.GetModulus().ConvertToInt();
 		if (ringDimensionFactor == 1)
 			for (usint i = 0; i<CycloOrder / 2; i++)
 				InputToFFT[i]=NTL::MulModPrecon(element[i].ConvertToInt(),(*rootOfUnityTable)[i].ConvertToInt(),
-					  modulus64,m_rootOfUnityPreconTableByModulus[element.GetModulus()][i].ConvertToInt());
+					  modulus64,preconTable[i].ConvertToInt());
 		else
 			for (usint i = 0; i<CycloOrder / 2; i++)
 				InputToFFT[i]=NTL::MulModPrecon(element[i].ConvertToInt(),(*rootOfUnityTable)[i*ringDimensionFactor].ConvertToInt(),
-					  modulus64,m_rootOfUnityPreconTableByModulus[element.GetModulus()][i*ringDimensionFactor].ConvertToInt());
+					  modulus64,preconTable[i*ringDimensionFactor].ConvertToInt());
 	} else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT[i]= element[i].ModBarrettMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus(), mu);
