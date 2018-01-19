@@ -808,7 +808,7 @@ void other_methods() {
 		usint index = 3;
 		Element ilvAuto(ilv.AutomorphismTransform(index));
 		VecType expected(4, primeModulus);
-		expected = {"1","56","2","37"};
+		expected = {"56","2","36","1"};
 		EXPECT_EQ(expected, ilvAuto.GetValues())
 			<<"Failure: AutomorphismTransform()";
 	}
