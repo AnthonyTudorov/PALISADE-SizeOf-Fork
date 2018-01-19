@@ -402,10 +402,9 @@ int main() {
 	uint64_t nRep;
 	double start, stop;
 
-	NativeVector x(phim, modulusQ);
-	for(usint i=0; i<phim; i++){
-		x.at(i)= NativeInteger(i);
-	}
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	dug.SetModulus(modulusQ);
+	NativeVector x = dug.GenerateVector(phim);
 
 	NativeVector rootOfUnityTable(phim, modulusQ);
 	NativeInteger t(1);
@@ -468,7 +467,7 @@ int main() {
 	BI zi = 1;
 	BI d2 = q*(-2);
 	for (usint i = 0; i<phim; i++) {
-		xVec[i] = i;
+		xVec[i] = x[i].ConvertToInt();
 		zVec[i] = zi;
 		zi = mod_mul(zi, z, q, d2);
 	}
@@ -493,7 +492,7 @@ int main() {
 	BGV xVec(phim), zVec(phim),  outVec;
 	BI zi = 1;
 	for (usint i = 0; i<phim; i++) {
-		xVec[i] = i;
+		xVec[i] = x[i].ConvertToInt();
 		zVec[i] = zi;
 		zi = NTL::MulMod(zi, z, q);
 	}
@@ -520,7 +519,7 @@ int main() {
 	BGV xVec(phim), zVec(phim), pVec(phim), outVec;
 	BI zi = 1;
 	for (usint i = 0; i<phim; i++) {
-		xVec[i] = i;
+		xVec[i] = x[i].ConvertToInt();
 		zVec[i] = zi;
 		zi = NTL::MulMod(zi, z, q);
 		pVec[i] = NTL::PrepMulModPrecon(zi, q);
