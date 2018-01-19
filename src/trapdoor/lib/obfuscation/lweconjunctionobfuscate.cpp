@@ -436,11 +436,13 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     }
     DEBUG("done deserialize Rl");    
 
-
     DEBUG("deserialize Ek");    
     //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
     shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
+    DEBUGEXP(Ek_vector->size());    
+
     rc = DeserializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), pIt, Ek_vector.get());
+    DEBUGEXP(Ek_vector->size());    
     this->m_ek = Ek_vector;
     if (rc == false){
       std::cout << "Error in DeserializeVectorOfMatrix(Ek) "<<std::endl;

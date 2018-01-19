@@ -858,9 +858,9 @@ TEST(UTSer, serialize_vector_RLWETrapdoorPair) {
   //Serialize/DeserializeVectorOfRLWETrapdoorPair is a helper function to test
   //note the object has to be created outside of the function.
   
-  bool dbg_flag = false;
-  //  const int vecsize = 4;
-  const int vecsize = 2;
+  bool dbg_flag = true;
+  const int vecsize = 4;
+
   DEBUG("step 0");
   //build test vector (note needs allocator for Matrix<>
 
@@ -873,11 +873,9 @@ TEST(UTSer, serialize_vector_RLWETrapdoorPair) {
 
   DEBUG("step 1");
   //build test input matricies
-  //usint nrows(3);
-  //usint ncols(5);
+  usint nrows(3);
+  usint ncols(5);
 
-  const usint nrows(1);
-  const usint ncols(2);
 
 
   DEBUG("step 2");
@@ -957,7 +955,7 @@ TEST(UTSer, serialize_vector_RLWETrapdoorPair) {
   auto i = 0;
   for (; (it_1 != testvec.end())&&(it_2 != newvec.end());
        it_1++, it_2++, i++) {
-
+    DEBUG("testing iteration "<<i);
     //compare dereferenced matricies
     EXPECT_EQ( it_1->m_r, it_2->m_r )
       << "Mismatch after ser/deser in entry "<<i<<" m_r ";

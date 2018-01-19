@@ -1211,7 +1211,7 @@ namespace lbcrypto {
   template<typename T>
     bool DeserializeVectorOfRLWETrapdoorPair(const std::string& VectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<RLWETrapdoorPair<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
    
-    bool dbg_flag = false;
+    bool dbg_flag = true;
     
     DEBUG("Searching for Typename");
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
@@ -1299,9 +1299,7 @@ namespace lbcrypto {
 	std::string mat_name = "Matrix";
 	//std::string elemname = (outVector->at(i)).GetElementName(); fails for T==BitInt
 	std::string elem_name = typeName;
-	DEBUG("Calling DeserializeMatrix");
-	
-	//auto pT = make_shared<Matrix<T>>(alloc_function, 0,0);
+	DEBUG("Calling DeserializeMatrix of pair_ix "<<pair_ix);
 	
 	auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
 	bool rc = DeserializeMatrix(mat_name, elem_name, s2, pT.get());
