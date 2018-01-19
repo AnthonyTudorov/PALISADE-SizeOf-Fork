@@ -233,11 +233,11 @@ public:
 	 * @return result of the addition operation of type BigInteger.
 	 */
 	const NativeInteger& PlusEq(const NativeInteger& b) {
-		uint_type oldv = m_value;
+		//uint_type oldv = m_value;
 		m_value += b.m_value;
-		if( m_value < oldv ) {
-			PALISADE_THROW( lbcrypto::math_error, "Overflow");
-		}
+		//if( m_value < oldv ) {
+		//	PALISADE_THROW( lbcrypto::math_error, "Overflow");
+		//}
 		return *this;
 	}
 

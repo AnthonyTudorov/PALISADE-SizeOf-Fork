@@ -178,23 +178,25 @@ namespace lbcrypto {
 			bool dbg_flag = false;
 			usint n = cycloOrder;
 
-			IntType modulus = element.GetModulus();
+			NativeInteger modulus = element.GetModulus().ConvertToInt();
 			uint64_t modulus64 = element.GetModulus().ConvertToInt();
 
 			if( result->GetLength() != n )
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
+			std::vector<NativeInteger> resultVec(n);
+
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
 			for (size_t i = 0; i < n; i++)
-			  (*result)[i]= element[ReverseBits(i, msb)];
+			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
 			//int64_t signedOmegaFactor;
-			IntType omegaFactor;
-			IntType product;
-			IntType butterflyPlus;
-			IntType butterflyMinus;
+			NativeInteger omegaFactor;
+			NativeInteger product;
+			NativeInteger butterflyPlus;
+			NativeInteger butterflyMinus;
 
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
@@ -219,13 +221,13 @@ namespace lbcrypto {
 				{
 					for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
 					{
-						const IntType& omega = rootOfUnityTable[indexes[i]];
-						const IntType& preconOmega = preconRootOfUnityTable[indexes[i]];
+						const NativeInteger& omega = rootOfUnityTable[indexes[i]].ConvertToInt();
+						const NativeInteger& preconOmega = preconRootOfUnityTable[indexes[i]].ConvertToInt();
 
 						usint indexEven = j + i;
 						usint indexOdd = indexEven + (1 << (logm-1));
-						IntType oddVal = (*result)[indexOdd];
-						IntType oddMSB = oddVal.GetMSB();
+						NativeInteger oddVal = resultVec[indexOdd];
+						NativeInteger oddMSB = oddVal.GetMSB();
 
 						if (oddMSB > 0)
 						{
@@ -234,25 +236,28 @@ namespace lbcrypto {
 							else
 								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus64,preconOmega.ConvertToInt());
 
-							butterflyPlus = (*result)[indexEven];
+							butterflyPlus = resultVec[indexEven];
 							butterflyPlus += omegaFactor;
 							if (butterflyPlus >= modulus)
 								butterflyPlus -= modulus;
 
-							butterflyMinus = (*result)[indexEven];
-							if ((*result)[indexEven] < omegaFactor)
+							butterflyMinus = resultVec[indexEven];
+							if (resultVec[indexEven] < omegaFactor)
 								butterflyMinus += modulus;
 							butterflyMinus -= omegaFactor;
 
-							(*result)[indexEven]= butterflyPlus;
-							(*result)[indexOdd]= butterflyMinus;
+							resultVec[indexEven]= butterflyPlus;
+							resultVec[indexOdd]= butterflyMinus;
 
 						}
 						else
-						  (*result)[indexOdd] = (*result)[indexEven];
+							resultVec[indexOdd] = resultVec[indexEven];
 					}
 				}
 			}
+
+			for (size_t i = 0; i < n; i++)
+			  (*result)[i]=resultVec[i];
 
 		}
 		else
