@@ -212,22 +212,24 @@ namespace lbcrypto {
 			for (usint logm = 1; logm <= logn; logm++)
 			{
 				// calculate the i indexes into the root table one time per loop
-				vector<usint> indexes(1 << (logm-1));
+				/*vector<usint> indexes(1 << (logm-1));
 				for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
 					indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
-				}
+				}*/
 
 				for (usint j = 0; j<n; j = j + (1 << logm))
 				{
 					for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
 					{
-						const NativeInteger& omega = rootOfUnityTable[indexes[i]].ConvertToInt();
-						const NativeInteger& preconOmega = preconRootOfUnityTable[indexes[i]].ConvertToInt();
+						usint x = (i << (1+logn-logm));
+
+						const NativeInteger& omega = rootOfUnityTable[x].ConvertToInt();
+						const NativeInteger& preconOmega = preconRootOfUnityTable[x].ConvertToInt();
 
 						usint indexEven = j + i;
 						usint indexOdd = indexEven + (1 << (logm-1));
-						NativeInteger oddVal = resultVec[indexOdd];
-						NativeInteger oddMSB = oddVal.GetMSB();
+						const NativeInteger &oddVal = resultVec[indexOdd];
+						usint oddMSB = oddVal.GetMSB();
 
 						if (oddMSB > 0)
 						{
