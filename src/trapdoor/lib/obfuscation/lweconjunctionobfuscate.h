@@ -100,7 +100,7 @@ namespace lbcrypto {
 		
 		/**
 		 * @brief Serialize the object into a Serialized
-		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @param serObj is used to store the serialized result. It should be a rapidjson Object (SetObject()) but will be set to one if needed;
 		 * @return true if successfully serialized
 		 */
 		bool Serialize(Serialized* serObj) const;

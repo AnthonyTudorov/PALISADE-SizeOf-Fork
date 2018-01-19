@@ -1211,7 +1211,7 @@ namespace lbcrypto {
   template<typename T>
     bool DeserializeVectorOfRLWETrapdoorPair(const std::string& VectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<RLWETrapdoorPair<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
    
-    bool dbg_flag = true;
+    bool dbg_flag = false;
     
     DEBUG("Searching for Typename");
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");

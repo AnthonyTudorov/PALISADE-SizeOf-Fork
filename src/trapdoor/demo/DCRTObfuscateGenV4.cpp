@@ -43,10 +43,13 @@ using namespace lbcrypto;
 
 //forward definitions to be defined later
 bool GenerateConjObfs(bool dbg_flag, int  n); 
-void  SerializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> clearPattern);
-void  DeserializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
-void  SerializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern);
-void  DeserializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern);
+void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern,
+				  const string clearFileName);
+void  DeserializeClearPatternFromFile(const string clearFileName,
+				      ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
+void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern,
+				       const string obfFileName);
+void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern);
 bool CompareObfuscatedPatterns(ObfuscatedLWEConjunctionPattern<DCRTPoly> &a,
 			       ObfuscatedLWEConjunctionPattern<DCRTPoly> &b);
 
@@ -124,7 +127,8 @@ int main(int argc, char* argv[]){
 
 //////////////////////////////////////////////////////////////////////
 bool GenerateConjObfs(bool dbg_flag, int n) {
-
+  //TODO, supply input pattern by file.
+  
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use
 
@@ -154,12 +158,13 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
 
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-  SerializeClearPattern(clearPattern);
+  string clearFileName = "cp"+to_string(n);
+  SerializeClearPatternToFile(clearPattern, clearFileName);
 
   //note this is for debug -- will move to evaluate
   ClearLWEConjunctionPattern<DCRTPoly> testClearPattern("");
 
-  DeserializeClearPattern(testClearPattern);
+  DeserializeClearPatternFromFile(clearFileName, testClearPattern);
 
   DEBUG("clear pattern:           "<<clearPattern.GetPatternString());
   DEBUG("recovered clear pattern: "<<testClearPattern.GetPatternString());  
@@ -223,30 +228,26 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   algorithm.Obfuscate(clearPattern, dgg, tug, &obfuscatedPattern);
   timeObf = TOC(t1);
   PROFILELOG("Obfuscation time: " << "\t" << timeObf << " ms");
+  //get the total program run time.
+  timeTotal = TOC(t_total);
+
 
   DEBUG("Serializing Obfuscation" );
-
-  SerializeObfuscatedPattern(obfuscatedPattern);
-
-
+  string obfFileName = "op"+to_string(n);
+  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
 
   //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
-
-  //currently get failure in  lbcrypto::DeserializeVectorOfMatrix< > of src/core/lib/utils/serializablehelper.h:1078 null vector. 
-
-  DeserializeObfuscatedPattern(testObfuscatedPattern);
+  DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
 
   if (!CompareObfuscatedPatterns(obfuscatedPattern, testObfuscatedPattern)) {
     std::cout<<"Serialization did not work"<<std::endl;
   }else{
-    std::cout<<"Serialization worked"<<std::endl;
+    std::cout<<"Serialization worked correctly"<<std::endl;
   }
   
   DEBUG("Done" );
-  //get the total program run time.
-  timeTotal = TOC(t_total);
 
   //print output timing results
   //note one could use PROFILELOG for these lines
@@ -258,33 +259,9 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
 
   return (errorflag);
 }
-//////////////////////////////////////////////////////////////
-void  DeserializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> &clearPattern){
 
-  bool dbg_flag = false;
-
-  DEBUG("in DeserializeClearPattern");
-
-  Serialized serObj;
-  serObj.SetObject();
-
-  //clear the pattern string
-  clearPattern.SetPatternString("");
-  DEBUG("before deserialize:");
-  DEBUGEXP(clearPattern.GetPatternString());  
-  if (!SerializableHelper::ReadSerializationFromFile("cp.json", &serObj))
-    throw std::runtime_error ("Can't read the JSON string from the file!");
-  
-  if (!clearPattern.Deserialize(serObj)){
-    throw std::runtime_error ("Can't deserialize the JSON string!");
-  };
-
-  DEBUGEXP(clearPattern.GetPatternString());  
-  
-  DEBUG("done in DeserializeClearPattern");
-};
 //////////////////////////////////////////////////
-void  SerializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> clearPattern){
+void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern, const string clearFileName){
 
   bool dbg_flag = false;
 
@@ -293,21 +270,67 @@ void  SerializeClearPattern(ClearLWEConjunctionPattern<DCRTPoly> clearPattern){
   Serialized serObj;
   serObj.SetObject();
 
-
   clearPattern.Serialize(&serObj);
 
-  if (!SerializableHelper::WriteSerializationToFile(serObj, "cp.json"))
-    throw std::runtime_error ("Can't write the clear pattern to the file!");
+  if (!SerializableHelper::WriteSerializationToFile(serObj, clearFileName+".json"))
+    throw std::runtime_error ("Can't write the clear pattern to file: " +clearFileName+".json");
 
-  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, "cppretty.json"))
-    throw std::runtime_error ("Can't write the clear pattern to the pretty file!");
+  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
+    throw std::runtime_error ("Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
 
   DEBUG("done in SerializeClearPattern");
 };
-//////////////////////////////////////////////////
-void  DeserializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern){
 
-  bool dbg_flag = true;
+//////////////////////////////////////////////////////////////
+void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjunctionPattern<DCRTPoly> &clearPattern){
+
+  bool dbg_flag = false;
+  DEBUG("in DeserializeClearPatternFromFile");
+
+  Serialized serObj;
+  serObj.SetObject();
+
+  //clear the pattern string
+  clearPattern.SetPatternString("");
+  DEBUG("before deserialize:");
+  DEBUGEXP(clearPattern.GetPatternString());  
+  if (!SerializableHelper::ReadSerializationFromFile(clearFileName+".json", &serObj))
+    throw std::runtime_error ("Can't read the clear JSON string from file: "+clearFileName+".json");
+  
+  if (!clearPattern.Deserialize(serObj)){
+    throw std::runtime_error ("Can't deserialize the clear JSON string!");
+  };
+
+  DEBUGEXP(clearPattern.GetPatternString());  
+  
+  DEBUG("done in DeserializeClearPattern");
+};
+
+////////////////////////////////////////////////////////
+void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern, const string obfFileName){
+  bool dbg_flag = false;
+
+  DEBUG("in SerializeObfuscatedPattern");
+  DEBUGEXP(*obfuscatedPattern.GetParameters());
+
+  Serialized serObj;
+  serObj.SetObject();
+  
+  obfuscatedPattern.Serialize(&serObj);
+  
+  if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
+    throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
+
+  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
+    throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
+  
+  DEBUG("done in SerializeObfuscatedPattern");
+
+};
+//////////////////////////////////////////////////
+void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern){
+
+  bool dbg_flag = false;
 
   DEBUG("in DeserializeObfuscatedPattern");
 
@@ -315,41 +338,18 @@ void  DeserializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> &ob
   serObj.SetObject();
 
   //clear the pattern string
-  if (!SerializableHelper::ReadSerializationFromFile("op.json", &serObj))
-    throw std::runtime_error ("Can't read the JSON string from the file!");
+  if (!SerializableHelper::ReadSerializationFromFile(obfFileName+".json", &serObj))
+    throw std::runtime_error ("Can't read the obfuscated JSON string from the file:"+obfFileName+".json");
 
   if (!obsPattern.Deserialize(serObj)){
-    throw std::runtime_error ("Can't Deserialize the JSON string");
+    throw std::runtime_error ("Can't Deserialize the obfuscated JSON string");
   };
   
   DEBUG("done in DeserializeObfuscatedPattern");
 };
 
-////////////////////////////////////////////////////////
 
-void  SerializeObfuscatedPattern(ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern){
-  bool dbg_flag = true;
-
-  DEBUG("in SerializeObfuscatedPattern");
-  DEBUGEXP(*obfuscatedPattern.GetParameters());
-  //DEBUGEXP(*obfuscatedPattern.GetRl());
-
-  Serialized serObj;
-  serObj.SetObject();
-  
-  obfuscatedPattern.Serialize(&serObj);
-  
-  if (!SerializableHelper::WriteSerializationToFile(serObj, "op.json"))
-    throw std::runtime_error ("Can't write the JSON string to the file!");
-
-  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, "oppretty.json"))
-    throw std::runtime_error ("Can't write the JSON string to the pretty file!");
-  
-  
-  DEBUG("done in SerializeObfuscatedPattern");
-
-};
-
+////////////////////////////////////////////////
 bool CompareObfuscatedPatterns(ObfuscatedLWEConjunctionPattern<DCRTPoly> &a, ObfuscatedLWEConjunctionPattern<DCRTPoly> &b){
   bool dbg_flag = true;
   DEBUG("in CompareObfuscatedPattern");

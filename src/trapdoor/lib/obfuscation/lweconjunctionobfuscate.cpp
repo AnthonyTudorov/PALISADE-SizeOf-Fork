@@ -216,7 +216,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 
  template <typename Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   DEBUG("in ObfuscatedLWEConjunctionPattern::Serialize");
   if( !serObj->IsObject() ){
     serObj->SetObject();
@@ -279,7 +279,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 // Deerialization of Obfuscated pattern 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
-    bool dbg_flag= true;
+    bool dbg_flag= false;
 
     //find the top object in the input object
     Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
@@ -434,7 +434,13 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
     if (rc == false){
       std::cout << "Error in DeserializeVectorOfMatrix(Pk) "<<std::endl;
     }
-    DEBUG("done deserialize Rl");    
+    DEBUG("done deserialize Rl");    \
+    
+    pIt= iter->value.FindMember("Ek"); //Pk
+    if (pIt == iter->value.MemberEnd()) {
+      DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find Pk");
+      return false;
+    }
 
     DEBUG("deserialize Ek");    
     //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
@@ -456,17 +462,17 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 // Compare Operation
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjunctionPattern<Element>& b){
-    bool dbg_flag= true;
-    bool fail = false;
+    bool dbg_flag= false;
+    bool success = true;
     DEBUG("in ObfuscatedLWEConjunctionPattern<Element>Compare()");
   if( m_length != b.m_length) {
     std::cout<< "m_length mismatch"<<std::endl;
-    fail ^=false;
+    success ^=false;
   }    
 
   if (*m_elemParams != *(b.m_elemParams)) {
     std::cout<< "m_elemParams mismatch"<<std::endl;
-    fail ^=false;
+    success ^=false;
   }    
 
   if (m_rootHermiteFactor != b.m_rootHermiteFactor) {
@@ -474,16 +480,16 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "this->m_rootHermiteFactor: "<<m_rootHermiteFactor<<std::endl;
     std::cout<< "delta is "<< this->m_rootHermiteFactor-b.m_rootHermiteFactor<<std::endl;    
 
-    fail ^=false;
+    success ^=false;
   }    
 
   if (m_chunkSize != b.m_chunkSize){
     std::cout<< "m_chunkSize mismatch"<<std::endl;
-    fail ^=false;
+    success ^=false;
   }
   if (m_base != b.m_base){
     std::cout<< "m_base mismatch"<<std::endl;
-    fail ^=false;
+    success ^=false;
   }
 
   // shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
@@ -500,7 +506,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
 	//DEBUG("testing "<<i<<", "<<j);
 	if( **it_2_1!= **it_2_2 ){ //compare dereferenced matricies
 	  std::cout << "m_S_vec["<<i<<", "<<j<<"] mismatch"<<std::endl;
-	  fail ^=false;
+	  success ^=false;
 	}
       }
     }
@@ -520,7 +526,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
 	//DEBUG("testing "<<i<<", "<<j);
 	if( **it_2_1!= **it_2_2 ){ //compare dereferenced matricies
 	  std::cout << "m_R_vec["<<i<<", "<<j<<"] mismatch"<<std::endl;
-	  fail ^=false;
+	  success ^=false;
 	}
       }
     }
@@ -531,14 +537,14 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "m_Sl mismatch"<<std::endl;
     //DEBUGEXP(*m_Sl);
     DEBUGEXP(*(b.m_Sl));
-    fail ^=false;
+    success ^=false;
   }
   // shared_ptr<Matrix<Element>> m_Rl;
   if (*m_Rl != *(b.m_Rl)){
     std::cout<< "m_Rl mismatch"<<std::endl;
     //DEBUGEXP(*m_Rl);
     DEBUGEXP(*(b.m_Rl));
-    fail ^=false;
+    success ^=false;
   }
   
   // shared_ptr<std::vector<Matrix<Element>>> m_pk;
@@ -546,7 +552,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "m_pk mismatch"<<std::endl;
     //DEBUGEXP(*m_pk);
     DEBUGEXP(*(b.m_pk));
-    fail ^=false;
+    success ^=false;
   }
   
   // shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
@@ -561,12 +567,12 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     if ( it_1->m_r != it_2->m_r ){
       std::cout<< "m_ek["<<i<<"].m_r mismatch"<<std::endl;
       DEBUGEXP(it_2->m_r);
-      fail ^=false;
+      success ^=false;
     }
     if ( it_1->m_e != it_2->m_e ){
       std::cout<< "m_ek["<<i<<"].m_e mismatch"<<std::endl;
       DEBUGEXP(it_2->m_e);
-      fail ^=false;
+      success ^=false;
     }
 
 
@@ -574,7 +580,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
 
 
   
-  return fail;
+  return success;
 };
   
   
