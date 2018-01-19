@@ -262,6 +262,8 @@ namespace lbcrypto {
 	//private:
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
+		static std::map<IntType, NativeVector> m_rootOfUnityPreconTableByModulus;
+		static std::map<IntType, NativeVector> m_rootOfUnityInversePreconTableByModulus;
 	};
 
 	/**

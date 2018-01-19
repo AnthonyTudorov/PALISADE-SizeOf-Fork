@@ -43,6 +43,7 @@
 #include <stdexcept>
 #include <functional>
 #include <cstdlib>
+#include <NTL/ZZ.h>
 #include <memory>
 #include "../interface.h"
 #include "../../utils/inttypes.h"
@@ -51,6 +52,7 @@
 #include "../../utils/palisadebase64.h"
 #include "../../utils/exception.h"
 #include "../nbtheory.h"
+
 
 namespace native_int {
 
@@ -701,6 +703,7 @@ public:
 	 */
 	NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
 		return this->ModMul(b,modulus);
+		//return (uint_type)NTL::MulMod(m_value,b.m_value,modulus.m_value);
 	}
 
 	/**

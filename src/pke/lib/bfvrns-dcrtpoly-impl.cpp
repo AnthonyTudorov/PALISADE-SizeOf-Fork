@@ -49,7 +49,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// computes the auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
 
-	size_t sizeS = size + 1;
+	size_t sizeS = size + 2;
 
 	vector<NativeInteger> moduliS(sizeS);
 	vector<NativeInteger> rootsS(sizeS);
@@ -257,7 +257,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 
 	//bits per prime modulus
-	size_t dcrtBits = 45;
+	size_t dcrtBits = 27;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);

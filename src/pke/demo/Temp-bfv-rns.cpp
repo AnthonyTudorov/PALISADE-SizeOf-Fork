@@ -65,7 +65,7 @@ void MultiplyThree();
 int main() {
 
 	//PKE();
-	SHETestCoeff();
+	//SHETestCoeff();
 	SHETestPacked();
 	//SHETestPackedInnerProduct();
 	//SwitchCRT();
