@@ -178,7 +178,7 @@ public:
 	*/
 	template<class IntegerType_c>
 	friend std::ostream& operator<<(std::ostream& os, const NativeVector<IntegerType_c> &ptr_obj) {
-		auto len = ptr_obj.m_length;
+		auto len = ptr_obj.m_data.size();
 		os<<"[";
 		for(usint i=0;i<len;i++){
 			os<< ptr_obj.m_data[i];
@@ -259,7 +259,7 @@ public:
 	 *
 	 * @return vector length.
 	 */
-	size_t GetLength() const { return this->m_length; }
+	size_t GetLength() const { return this->m_data.size(); }
 	
 	//METHODS
 
@@ -479,15 +479,14 @@ public:
 
 private:
 	//m_data is a pointer to the vector
-	IntegerType *m_data;
-	//m_length stores the length of the vector
-	usint m_length;
+	std::vector<IntegerType> m_data;
+
 	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus = 0;
 
 	//function to check if the index is a valid index.
 	bool IndexCheck(size_t length) const {
-		if(length>this->m_length)
+		if(length>this->m_data.size())
 			return false;
 		return true;
 	}
