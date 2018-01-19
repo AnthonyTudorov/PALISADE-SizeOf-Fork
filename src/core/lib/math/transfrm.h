@@ -158,7 +158,109 @@ namespace lbcrypto {
 
 		return;
 
-	}
+		}
+
+		/**
+		* Forward transform for the NativeInteger case (based on NTL's modular multiplication).
+		*
+		* @param element is the element to perform the transform on.
+		* @param rootOfUnityTable the root of unity table.
+		* @param preconRootOfUnityTable NTL-specific precomputations for the root of unity table.
+		* @param cycloOrder is the cyclotomic order.
+		* @return is the output result of the transform.
+		*/
+		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const VecType &preconRootOfUnityTable,
+				const usint cycloOrder, VecType* result) {
+
+		if (typeid(IntType) == typeid(NativeInteger))
+		{
+
+			bool dbg_flag = false;
+			usint n = cycloOrder;
+
+			IntType modulus = element.GetModulus();
+			uint64_t modulus64 = element.GetModulus().ConvertToInt();
+
+			if( result->GetLength() != n )
+				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
+			result->SetModulus(modulus);
+
+			//reverse coefficients (bit reversal)
+			usint msb = GetMSB64(n - 1);
+			for (size_t i = 0; i < n; i++)
+			  (*result)[i]= element[ReverseBits(i, msb)];
+
+			//int64_t signedOmegaFactor;
+			IntType omegaFactor;
+			IntType product;
+			IntType butterflyPlus;
+			IntType butterflyMinus;
+
+			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
+				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
+				  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
+			float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
+			DEBUG("rootOfUnityTable.GetLength() " << rootOfUnityTable.GetLength());
+			DEBUG("cycloOrder " << cycloOrder);
+			DEBUG("ringDimensionFactor " << ringDimensionFactor);
+			DEBUG("n " << n);
+
+			usint logn = log2(n);
+
+			for (usint logm = 1; logm <= logn; logm++)
+			{
+				// calculate the i indexes into the root table one time per loop
+				vector<usint> indexes(1 << (logm-1));
+				for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+					indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
+				}
+
+				for (usint j = 0; j<n; j = j + (1 << logm))
+				{
+					for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+					{
+						const IntType& omega = rootOfUnityTable[indexes[i]];
+						const IntType& preconOmega = preconRootOfUnityTable[indexes[i]];
+
+						usint indexEven = j + i;
+						usint indexOdd = indexEven + (1 << (logm-1));
+						IntType oddVal = (*result)[indexOdd];
+						IntType oddMSB = oddVal.GetMSB();
+
+						if (oddMSB > 0)
+						{
+							if (oddMSB == 1)
+								omegaFactor = omega;
+							else
+								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus64,preconOmega.ConvertToInt());
+
+							butterflyPlus = (*result)[indexEven];
+							butterflyPlus += omegaFactor;
+							if (butterflyPlus >= modulus)
+								butterflyPlus -= modulus;
+
+							butterflyMinus = (*result)[indexEven];
+							if ((*result)[indexEven] < omegaFactor)
+								butterflyMinus += modulus;
+							butterflyMinus -= omegaFactor;
+
+							(*result)[indexEven]= butterflyPlus;
+							(*result)[indexOdd]= butterflyMinus;
+
+						}
+						else
+						  (*result)[indexOdd] = (*result)[indexEven];
+					}
+				}
+			}
+
+		}
+		else
+			PALISADE_THROW(math_error, "This NTT method only works with NativeInteger");
+
+		return;
+
+		}
 
 
 		/**
@@ -170,6 +272,19 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
+
+		/**
+		* Inverse transform for the case of NativeInteger (based on NTL's modular multiplication).
+		*
+		* @param element is the element to perform the transform on.
+		* @param rootOfUnityInverseTable the root of unity table.
+		* @param preconRootOfUnityInverseTable NTL-specific the root of unity table precomputations.
+		* @param cycloOrder is the cyclotomic order.
+		* @return is the output result of the transform.
+		*/
+		static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable,
+				const VecType& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
+
 	};
 
 	/**
@@ -262,8 +377,8 @@ namespace lbcrypto {
 	//private:
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
-		static std::map<IntType, NativeVector> m_rootOfUnityPreconTableByModulus;
-		static std::map<IntType, NativeVector> m_rootOfUnityInversePreconTableByModulus;
+		static std::map<IntType, VecType> m_rootOfUnityPreconTableByModulus;
+		static std::map<IntType, VecType> m_rootOfUnityInversePreconTableByModulus;
 	};
 
 	/**
