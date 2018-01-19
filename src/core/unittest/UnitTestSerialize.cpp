@@ -44,6 +44,7 @@
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
 #include "utils/serializablehelper.h"
+#include "../../trapdoor/lib/sampling/trapdoor.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -852,3 +853,117 @@ TEST(UTSer, serialize_vector_vector_pointers_matrix){
     }
   }
 }
+
+TEST(UTSer, serialize_vector_RLWETrapdoorPair) {
+  //Serialize/DeserializeVectorOfRLWETrapdoorPair is a helper function to test
+  //note the object has to be created outside of the function.
+  
+  bool dbg_flag = false;
+  //  const int vecsize = 4;
+  const int vecsize = 2;
+  DEBUG("step 0");
+  //build test vector (note needs allocator for Matrix<>
+
+  vector<RLWETrapdoorPair<BigInteger>> testvec(vecsize, RLWETrapdoorPair<BigInteger>());
+  vector<RLWETrapdoorPair<BigInteger>> newvec(vecsize, RLWETrapdoorPair<BigInteger>());
+  
+  //zero matricies
+  Matrix<BigInteger> zeromat(BigInteger::Allocator, 0,0);
+  //Matrix<BigInteger> *tm_p; //pointer to a M<I>
+
+  DEBUG("step 1");
+  //build test input matricies
+  //usint nrows(3);
+  //usint ncols(5);
+
+  const usint nrows(1);
+  const usint ncols(2);
+
+
+  DEBUG("step 2");
+
+  DEBUG("step 3");
+ 
+  for (usint i = 0; i < vecsize; i++) {
+    
+    //point to zero matricies
+    auto tm_p = make_shared<Matrix<BigInteger>>(BigInteger::Allocator, 0,0);
+    tm_p->SetSize(nrows+i, ncols+i); 
+    for (usint row = 0; row < nrows+i; row++) {
+      for (usint col = 0; col < ncols+i; col++){
+	//write a unique value
+	(*tm_p)(row,col) = BigInteger(100*i + 10*row + col); 
+      }
+    }
+    testvec[i].m_r = *tm_p;
+    
+    for (usint row = 0; row < nrows+i; row++) {
+      for (usint col = 0; col < ncols+i; col++){
+	//write a unique value
+	(*tm_p)(row,col) = BigInteger(1000*i + 10*row + col); 
+      }
+    }
+    testvec[i].m_e = *tm_p;
+    
+    newvec[i].m_r = zeromat;
+    newvec[i].m_e = zeromat;
+  }
+  
+  
+  DEBUG("step 4");
+  //build the top level serial object
+  Serialized	serObj;
+  serObj.SetObject();
+
+  //build the object to hold the vector
+  Serialized obj(rapidjson::kObjectType, &serObj.GetAllocator());
+
+  //serialize the vector
+  SerializeVectorOfRLWETrapdoorPair<BigInteger>("VectorOfRLWETrapdoorPair", "BigIntegerImpl", testvec, &obj);
+
+  //add it to the top level object
+  serObj.AddMember("TestVectorOfRLWETrapdoorPair", obj, serObj.GetAllocator());
+  
+  if (dbg_flag) {
+    // write the result to cout for debug
+    std::string jsonstring;
+    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
+    std::cout<<jsonstring<<std::endl;
+  }
+
+  DEBUG("step 5");
+
+  //top level iterator
+  SerialItem::ConstMemberIterator topIter = serObj.FindMember("TestVectorOfRLWETrapdoorPair");
+  DEBUG("step 6");
+
+  
+  ASSERT_FALSE (topIter == serObj.MemberEnd()) << "Cant find TestVectorOfRLWETrapdoorPair";
+
+  //iterate over next level
+  SerialItem::ConstMemberIterator mIter=topIter->value.FindMember("VectorOfRLWETrapdoorPair");
+
+  DEBUG("step 7");
+
+  ASSERT_FALSE (mIter == topIter->value.MemberEnd() )<< "Cant find VectorOfRLWETrapdoorPair";
+  DEBUG("step 8");
+
+    DeserializeVectorOfRLWETrapdoorPair<BigInteger>("VectorOfRLWETrapdoorPair", "BigIntegerImpl", mIter, &newvec);
+  DEBUG("step 9");
+
+  // loop over vector  and dereference matricies and compare
+  auto it_1 = testvec.begin();
+  auto it_2 = newvec.begin();
+  auto i = 0;
+  for (; (it_1 != testvec.end())&&(it_2 != newvec.end());
+       it_1++, it_2++, i++) {
+
+    //compare dereferenced matricies
+    EXPECT_EQ( it_1->m_r, it_2->m_r )
+      << "Mismatch after ser/deser in entry "<<i<<" m_r ";
+
+    EXPECT_EQ( it_1->m_e, it_2->m_e )
+      << "Mismatch after ser/deser in entry "<<i<<" m_e ";
+  }
+}
+

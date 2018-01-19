@@ -58,6 +58,7 @@
 #include "../math/matrix.h"
 #include "../lattice/poly.h"
 #include "../lattice/dcrtpoly.h"
+#include "../../trapdoor/lib/sampling/trapdoor.h" //should this move to trapdoor? 
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 
@@ -959,7 +960,7 @@ namespace lbcrypto {
     bool DeserializeVectorOfVectorOfPointersToMatrix(const std::string& MatrixName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<vector<shared_ptr<Matrix<T>>>>*outVector) {
    
     bool dbg_flag = false;
-    //std::string fname = "DeserializeVectorOfMatrix<"+T::typeName+" ";
+
     SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
     if( mIt == it->value.MemberEnd() ) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
@@ -1134,6 +1135,193 @@ namespace lbcrypto {
     }
     return true;
   }
+
+
+
+
+  /** 
+   * Helper template Adds the contents of an STL vector<RLWETrapdoorPair<foo>>
+   * to a serialized Palisade object as a nested JSON data structure
+   * foo must be a pointer to a serializable object as the function uses the 
+   * foo->Serialize method to serialize.
+   * @param vectorName 
+   * @param typeName of element within the vector
+   * @param inVector the STL vector to be serialized
+   * @param *serObj the serial object to be modfied, if not a serial object
+   * then it is made a serial object
+   * throws a Palisade serialize_error on error
+   * @return void  
+   */
+  
+  template<typename T>
+    void SerializeVectorOfRLWETrapdoorPair(const std::string& vectorName, const std::string& typeName, const std::vector<RLWETrapdoorPair<T>> &inVector, Serialized* serObj) {
+
+    //make sure the input is a rapidjson object
+    if( ! serObj->IsObject() )
+      serObj->SetObject();
+    
+    //make top level member
+    Serialized topser(rapidjson::kObjectType, &serObj->GetAllocator());
+    //add top member components
+    topser.AddMember("Container", "VectorOfRLWETrapdoorPair", serObj->GetAllocator());
+    topser.AddMember("Typename", typeName, serObj->GetAllocator());
+    topser.AddMember("Length", std::to_string(inVector.size()), serObj->GetAllocator());
+
+    // make member container for all elements
+    Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
+
+    for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      //serialize the ith element
+      Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
+      
+
+      std::string elName  = "R_Matrix_"+std::to_string(i);
+      SerializeMatrix(elName, typeName, inVector[i].m_r, &oneEl);
+
+      elName  = "E_Matrix_"+std::to_string(i);
+      SerializeMatrix(elName, typeName, inVector[i].m_e, &oneEl);
+
+      //add it with the index as a key to the member container
+      SerialItem key( std::to_string(i), serObj->GetAllocator() );
+      serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+    }
+
+    //add the member container to the top level
+    topser.AddMember("Members", serElements.Move(), serObj->GetAllocator());
+
+    //add the top level to the inpupt serial item
+    serObj->AddMember(SerialItem(vectorName, serObj->GetAllocator()), topser, serObj->GetAllocator());
+  }
+
+  /** 
+   * Helper template Fills an STL vector<<matrix<foo>> with the contents of a 
+   *  a serialized Palisade object made with SerializeVectorOfMatrix()
+   * foo must be a serializable object as the function uses the 
+   * foo.DeSerialize method to serialize.
+   * @param vectorName name of vector
+   * @param typeName of element within the matrix
+   * @param outVector the STL  Vector to contain the result 
+   * @param it an iterator into the serial object to be deserialised
+   * throws a Palisade deserialize_error on error
+   * @return true if successful 
+   */
+
+  //todo: should be made a void return
+
+  template<typename T>
+    bool DeserializeVectorOfRLWETrapdoorPair(const std::string& VectorName, const std::string& typeName, const SerialItem::ConstMemberIterator& it, vector<RLWETrapdoorPair<T>>* outVector /*, std::function<unique_ptr<T>(void)> alloc_function */) {
+   
+    bool dbg_flag = false;
+    
+    DEBUG("Searching for Typename");
+    SerialItem::ConstMemberIterator mIt = it->value.FindMember("Typename");
+    if( mIt == it->value.MemberEnd() ) {
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Typename  ");
+    }
+
+    DEBUG("Searching for "<<typeName);   
+    if( mIt->value.GetString() != typeName ) {
+      PALISADE_THROW(lbcrypto::deserialize_error,
+		     "Wrong type name found: "+ string(mIt->value.GetString())
+		     + "expected :" +typeName );
+    }
+    DEBUG("Found "<<typeName);      
+
+    DEBUG("Searching for Length");   
+    mIt = it->value.FindMember("Length");
+    if( mIt == it->value.MemberEnd() ) {
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Length");
+        
+    
+    }
+
+    DEBUG("Found "<< std::stoi(mIt->value.GetString()));      
+    size_t length = std::stoi(mIt->value.GetString());
+    
+    outVector->clear();
+    //outVector->resize( std::stoi(mIt->value.GetString()) );
+   
+    mIt = it->value.FindMember("Members");
+    if( mIt == it->value.MemberEnd() ){
+      PALISADE_THROW(lbcrypto::deserialize_error, "could not find Members");
+    }
+    DEBUG("found members");
+    const SerialItem& members = mIt->value;
+    DEBUG("looping over members");
+    //loop over entire vector
+    for( size_t i=0; i<length; i++ ) {
+      std::string keystring = std::to_string(i);
+
+      //find this key (the index)
+      DEBUG(" Searching for "<<keystring);
+      Serialized::ConstMemberIterator eIt = members.FindMember(keystring);
+      if( eIt == members.MemberEnd() ) {
+	PALISADE_THROW(lbcrypto::deserialize_error, "could not find vector entry "+to_string(i));
+      }
+      DEBUG(" found "<<keystring);
+      
+      RLWETrapdoorPair<T> tpair(Matrix<T>([](){ return make_unique<T>(); }, 0,0),
+				Matrix<T>([](){ return make_unique<T>(); }, 0,0));
+      
+      for (usint pair_ix = 0; pair_ix < 2; pair_ix++) {
+      //within the key's member, find the sub member with the typename
+      //and point to it with s2.
+	string matrix_name("");
+	
+	if (pair_ix == 0) {
+	  matrix_name = "R_Matrix_"+to_string(i);
+	}else{
+	  matrix_name = "E_Matrix_"+to_string(i);
+	}
+	
+	DEBUG(" Searching for "<<matrix_name);
+	SerialItem::ConstMemberIterator s2 = eIt->value.FindMember(matrix_name);
+	if( s2 == eIt->value.MemberEnd() ){
+	  PALISADE_THROW(lbcrypto::deserialize_error,
+			 "could not find matrix name "+ matrix_name);
+	}
+	DEBUG("Found "<<matrix_name);
+	
+	// within s2,
+	Serialized ser(rapidjson::kObjectType);
+	SerialItem k( typeName, ser.GetAllocator() );
+	SerialItem v( s2->value, ser.GetAllocator() );
+	DEBUGEXP(i);
+	if (s2->value.IsString()) {
+	  DEBUGEXP(s2->value.GetString());
+	}
+	if (s2->value.IsUint64()){ 
+	  DEBUGEXP(s2->value.GetUint64());
+	}
+	ser.AddMember(k, v, ser.GetAllocator());
+	
+	//now deserialize the Matrix at in s2
+	std::string mat_name = "Matrix";
+	//std::string elemname = (outVector->at(i)).GetElementName(); fails for T==BitInt
+	std::string elem_name = typeName;
+	DEBUG("Calling DeserializeMatrix");
+	
+	//auto pT = make_shared<Matrix<T>>(alloc_function, 0,0);
+	
+	auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
+	bool rc = DeserializeMatrix(mat_name, elem_name, s2, pT.get());
+	if (rc) {
+	  DEBUG("Deserialized matrix at index "<<i);
+	} else {
+	  PALISADE_THROW(lbcrypto::deserialize_error, "Deserialization of Matrix "+to_string(i)+" failed internally");
+	}
+	if (pair_ix == 0) {
+	  tpair.m_r = *pT;
+	}else{
+	  tpair.m_e = *pT;
+	}
+      }
+      outVector->push_back(tpair); //store the pointer to the Matrix<T> into the vector location
+    }
+    return true;
+  }
+
+  
   
   // TODO: These functions appear to be used only in
   // benchmark/src/diffSnapshot.cpp they should be documented and

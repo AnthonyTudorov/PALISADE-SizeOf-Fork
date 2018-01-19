@@ -31,9 +31,9 @@
 #include "trapdoor.h"
 
 namespace lbcrypto {
-
 	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf
 
+  
 	template <class Element>
 	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int32_t base, bool bal)
 	{

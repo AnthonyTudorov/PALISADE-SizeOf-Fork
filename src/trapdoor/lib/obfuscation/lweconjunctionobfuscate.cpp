@@ -265,18 +265,9 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 
   SerializeVectorOfMatrix("Pk", Element::GetElementName(), *this->m_pk, &topobj);
 
-#if 0
-  shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
 
-  loop over vector
-           Serialize RLWETrapdoorPair<Element>
-  (*m_ek)[i].m_r; is a matrix of element
-    (*m_ek)[i].m_e; is a matrix of element
-
-    should we RLWETrapdoorPair<Element>.Serialize this? maybe!!! 
-    }
-
-#endif
+  //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+  SerializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), *this->m_ek, &topobj);
 
   // add them all to the input serObj
   serObj->AddMember("ObfuscatedLWEConjunctionPattern", topobj, serObj->GetAllocator());
@@ -362,8 +353,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not find S_Vec");
       return false;
     }
-
-    
     
     //deserialize S_vec
     shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
@@ -395,8 +384,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       DEBUG("ObfuscatedLWEConjunctionPattern::Deserialize could not deserialize R_Vec");
       return false;
     }	
-
-
     this->m_R_vec = R_vec;
 
     pIt= iter->value.FindMember("Sl"); //Sl
@@ -405,7 +392,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       return false;
     }
     
- 	  
     auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
 
     shared_ptr<Matrix<Element>> Slp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
@@ -449,15 +435,19 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
       std::cout << "Error in DeserializeVectorOfMatrix(Pk) "<<std::endl;
     }
     DEBUG("done deserialize Rl");    
-#if 0
+
+
+    DEBUG("deserialize Ek");    
+    //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
     shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
-    do this shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
-#else
-    DEBUG("cant deserialize EK yet");    
-#endif
+    rc = DeserializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), pIt, Ek_vector.get());
+    this->m_ek = Ek_vector;
+    if (rc == false){
+      std::cout << "Error in DeserializeVectorOfMatrix(Ek) "<<std::endl;
+    }
+    DEBUG("done deserialize Rl");    
+
     return true;
-
-
 };
   
   
@@ -558,7 +548,30 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
   }
   
   // shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
-  std::cout<< "can't test EK yet"<<std::endl;  
+  // loop over vector  and dereference matricies and compare
+  auto it_1 = m_ek->begin();
+  auto it_2 = b.m_ek->begin();
+  auto i = 0;
+  for (; (it_1 != m_ek->end())&&(it_2 != b.m_ek->end());
+       it_1++, it_2++, i++) {
+
+    //compare dereferenced matricies
+    if ( it_1->m_r != it_2->m_r ){
+      std::cout<< "m_ek["<<i<<"].m_r mismatch"<<std::endl;
+      DEBUGEXP(it_2->m_r);
+      fail ^=false;
+    }
+    if ( it_1->m_e != it_2->m_e ){
+      std::cout<< "m_ek["<<i<<"].m_e mismatch"<<std::endl;
+      DEBUGEXP(it_2->m_e);
+      fail ^=false;
+    }
+
+
+  }
+
+
+  
   return fail;
 };
   
