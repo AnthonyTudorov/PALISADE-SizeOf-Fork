@@ -258,7 +258,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 		rootOfUnityTable = &mapSearch->second;
 	}
 
-	VecType InputToFFT(element);
+	VecType InputToFFT(element.GetLength(),element.GetModulus());
 
 	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
 

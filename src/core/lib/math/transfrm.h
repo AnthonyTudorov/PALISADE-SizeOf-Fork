@@ -199,10 +199,10 @@ namespace lbcrypto {
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 				  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
-			float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
+			//float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
 			DEBUG("rootOfUnityTable.GetLength() " << rootOfUnityTable.GetLength());
 			DEBUG("cycloOrder " << cycloOrder);
-			DEBUG("ringDimensionFactor " << ringDimensionFactor);
+			//DEBUG("ringDimensionFactor " << ringDimensionFactor);
 			DEBUG("n " << n);
 
 			usint logn = log2(n);
