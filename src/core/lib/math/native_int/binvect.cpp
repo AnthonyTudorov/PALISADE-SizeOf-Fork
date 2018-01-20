@@ -345,14 +345,22 @@ NativeVector<IntegerType> NativeVector<IntegerType>::DivideAndRound(const Intege
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b) const{
 
-	NativeVector ans(*this);
+	NativeVector ans(this->m_data.size(),this->m_modulus);
+
+	int64_t modulus = this->m_modulus.ConvertToInt();
+	int64_t b64 = b.ConvertToInt();
+	//NativeVector ans(*this);
 
 	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
+	//IntegerType mu = lbcrypto::ComputeMu<IntegerType>(m_modulus);
 
 	for(usint i=0;i<this->m_data.size();i++){
-		ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
+		ans.m_data[i] = NTL::MulMod(m_data[i].ConvertToInt(),b64,modulus);
 	}
+
+	//for(usint i=0;i<this->m_data.size();i++){
+	//	ans.m_data[i].ModBarrettMulInPlace(b,this->m_modulus,mu);
+	//	}
 
 	return ans;
 }
@@ -396,10 +404,12 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const NativeVector &
         throw std::logic_error("ModAdd called on NativeVector's with different parameters.");
 	}
 
-	NativeVector ans(*this);
+	NativeVector ans(this->m_data.size(),this->m_modulus);
+
+	int64_t modulus = this->m_modulus.ConvertToInt();
 
 	for(usint i=0;i<ans.m_data.size();i++){
-		ans.m_data[i] = ans.m_data[i].ModAdd(b.m_data[i],this->m_modulus);
+		ans.m_data[i] = NTL::AddMod(m_data[i].ConvertToInt(),b.m_data[i].ConvertToInt(),modulus);
 	}
 	return ans;
 
@@ -412,8 +422,10 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const Nativ
         throw std::logic_error("ModAddEq called on NativeVector's with different parameters.");
 	}
 
+	int64_t modulus = this->m_modulus.ConvertToInt();
+
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModAddEq(b.m_data[i],this->m_modulus);
+		m_data[i] = NTL::AddMod(m_data[i].ConvertToInt(),b.m_data[i].ConvertToInt(),modulus);
 	}
 	return *this;
 
@@ -486,15 +498,16 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
         throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
-	NativeVector ans(*this);
+	NativeVector ans(this->m_data.size(),this->m_modulus);
 
-	//Precompute the Barrett mu parameter
-	IntegerType mu = lbcrypto::ComputeMu<IntegerType>(this->GetModulus());
+	int64_t modulus = this->m_modulus.ConvertToInt();
 
-	for(usint i=0;i<ans.m_data.size();i++){
-		ans.m_data[i].ModBarrettMulInPlace(b.m_data[i],this->m_modulus,mu);
+	for(usint i=0;i<this->m_data.size();i++){
+		ans.m_data[i] = NTL::MulMod(m_data[i].ConvertToInt(),b.m_data[i].ConvertToInt(),modulus);
 	}
+
 	return ans;
+
 }
 
 template<class IntegerType>
@@ -504,8 +517,10 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Nativ
         throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
+	int64_t modulus = this->m_modulus.ConvertToInt();
+
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModMulFastEq(b.m_data[i],this->m_modulus);
+		this->m_data[i] = NTL::MulMod(m_data[i].ConvertToInt(),b.m_data[i].ConvertToInt(),modulus);
 	}
 
 	return *this;

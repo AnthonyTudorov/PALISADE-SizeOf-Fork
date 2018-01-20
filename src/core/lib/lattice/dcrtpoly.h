@@ -697,10 +697,11 @@ public:
 	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
 	* @param &alpha a vector of precomputed integer factors mod p - for each q_i
 	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i
+	* @param &alphaPrecon an NTL-specific vector of precomputed integer factors mod p - for each q_i	*
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta) const;
+			const std::vector<double> &beta, const std::vector<uint64_t> &alphaPrecon) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn

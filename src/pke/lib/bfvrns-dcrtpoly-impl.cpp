@@ -100,14 +100,17 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
 
 	std::vector<NativeInteger> qDecryptionInt(size);
+	std::vector<uint64_t> qDecryptionIntPrecon(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
 		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(GetPlaintextModulus())/qi;
 		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
+		qDecryptionIntPrecon[vi] = NTL::PrepMulModPrecon(qDecryptionInt[vi].ConvertToInt(),GetPlaintextModulus());
 	}
 
 	m_CRTDecryptionIntTable = qDecryptionInt;
+	m_CRTDecryptionIntPreconTable = qDecryptionIntPrecon;
 
 	//compute the CRT delta table floor(Q/p) mod qi - used for encryption
 
@@ -492,9 +495,10 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
+	const std::vector<uint64_t> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable);
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);
 
 	std::cout << "Decryption time (internal): " << TOC(t_total) << " ms" << std::endl;
 
@@ -841,9 +845,10 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
+	const std::vector<uint64_t> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable);
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;
 
 	return DecryptResult(plaintext->GetLength());
 

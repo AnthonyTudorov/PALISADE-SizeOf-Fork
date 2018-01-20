@@ -1023,7 +1023,8 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
-		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta) const {
+		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
+		const std::vector<uint64_t> &alphaPrecon) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
@@ -1041,7 +1042,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 			// We assume that that the value of p is smaller than 64 bits (like 58)
 			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
-			curIntSum += xi.ModMul(alpha[vi],p);
+			//curIntSum += xi.ModMul(alpha[vi],p);
+			curIntSum += NTL::MulModPrecon(xi.ConvertToInt(),alpha[vi].ConvertToInt(),p.ConvertToInt(),alphaPrecon[vi]);
 
 			curFloatSum += xi.ConvertToInt()*beta[vi];
 		}
