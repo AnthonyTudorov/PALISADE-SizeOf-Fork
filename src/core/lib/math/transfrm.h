@@ -178,14 +178,13 @@ namespace lbcrypto {
 			bool dbg_flag = false;
 			usint n = cycloOrder;
 
-			NativeInteger modulus = element.GetModulus().ConvertToInt();
-			uint64_t modulus64 = element.GetModulus().ConvertToInt();
+			uint64_t modulus = element.GetModulus().ConvertToInt();
 
 			if( result->GetLength() != n )
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
-			std::vector<NativeInteger> resultVec(n);
+			std::vector<uint64_t> resultVec(n);
 
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
@@ -193,10 +192,9 @@ namespace lbcrypto {
 			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
 			//int64_t signedOmegaFactor;
-			NativeInteger omegaFactor;
-			NativeInteger product;
-			NativeInteger butterflyPlus;
-			NativeInteger butterflyMinus;
+			uint64_t omegaFactor;
+			uint64_t butterflyPlus;
+			uint64_t butterflyMinus;
 
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
@@ -223,20 +221,19 @@ namespace lbcrypto {
 					{
 						usint x = (i << (1+logn-logm));
 
-						const NativeInteger& omega = rootOfUnityTable[x].ConvertToInt();
-						const NativeInteger& preconOmega = preconRootOfUnityTable[x].ConvertToInt();
+						uint64_t omega = rootOfUnityTable[x].ConvertToInt();
+						uint64_t preconOmega = preconRootOfUnityTable[x].ConvertToInt();
 
 						usint indexEven = j + i;
 						usint indexOdd = indexEven + (1 << (logm-1));
-						const NativeInteger &oddVal = resultVec[indexOdd];
-						usint oddMSB = oddVal.GetMSB();
+						uint64_t oddVal = resultVec[indexOdd];
 
-						if (oddMSB > 0)
+						if (oddVal != 0)
 						{
-							if (oddMSB == 1)
+							if (oddVal == 1)
 								omegaFactor = omega;
 							else
-								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus64,preconOmega.ConvertToInt());
+								omegaFactor = NTL::MulModPrecon(oddVal,omega,modulus,preconOmega);
 
 							butterflyPlus = resultVec[indexEven];
 							butterflyPlus += omegaFactor;
