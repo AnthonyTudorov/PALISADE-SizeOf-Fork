@@ -169,7 +169,7 @@ namespace lbcrypto {
 		* @param cycloOrder is the cyclotomic order.
 		* @return is the output result of the transform.
 		*/
-		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const VecType &preconRootOfUnityTable,
+		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const std::vector<uint64_t> &preconRootOfUnityTable,
 				const usint cycloOrder, VecType* result) {
 
 		if (typeid(IntType) == typeid(NativeInteger))
@@ -222,7 +222,7 @@ namespace lbcrypto {
 						usint x = (i << (1+logn-logm));
 
 						uint64_t omega = rootOfUnityTable[x].ConvertToInt();
-						uint64_t preconOmega = preconRootOfUnityTable[x].ConvertToInt();
+						uint64_t preconOmega = preconRootOfUnityTable[x];
 
 						usint indexEven = j + i;
 						usint indexOdd = indexEven + (1 << (logm-1));
@@ -287,7 +287,7 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable,
-				const VecType& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
+				const std::vector<uint64_t>& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
 
 	};
 
@@ -381,8 +381,8 @@ namespace lbcrypto {
 	//private:
 		static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
 		static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
-		static std::map<IntType, VecType> m_rootOfUnityPreconTableByModulus;
-		static std::map<IntType, VecType> m_rootOfUnityInversePreconTableByModulus;
+		static std::map<IntType, std::vector<uint64_t>> m_rootOfUnityPreconTableByModulus;
+		static std::map<IntType, std::vector<uint64_t>> m_rootOfUnityInversePreconTableByModulus;
 	};
 
 	/**
