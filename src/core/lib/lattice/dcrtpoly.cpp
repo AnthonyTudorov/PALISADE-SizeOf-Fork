@@ -1236,7 +1236,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-		const std::vector<double> &beta) const {
+		const std::vector<double> &beta, const std::vector<std::vector<uint64_t>> &alphaPrecon) const {
 
 		DCRTPolyType ans(params,m_format,true);
 
@@ -1255,11 +1255,13 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				typename PolyType::Integer curValue = 0;
 
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
+				int64_t si64 = si.ConvertToInt();
 
 				for( usint vIndex = 0; vIndex < size; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
-					curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
+					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
+					curValue += NTL::MulModPrecon(xi.ConvertToInt(),alpha[vIndex][newvIndex].ConvertToInt(),si64,alphaPrecon[vIndex][newvIndex]);
 
 					curFloat += beta[vIndex]*xi.ConvertToInt();
 

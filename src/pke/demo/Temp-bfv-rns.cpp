@@ -897,7 +897,8 @@ void Multiply() {
 	else
 		std::cout << "result C: " << resultC.at(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
+			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -1089,7 +1090,8 @@ void MultiplyTwo() {
 	else
 		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
+			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -1282,7 +1284,8 @@ void MultiplyThree() {
 	else
 		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
+			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 

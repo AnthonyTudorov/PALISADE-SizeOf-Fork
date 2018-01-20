@@ -237,6 +237,13 @@ namespace lbcrypto {
 			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
 
 			/**
+			* Gets an NTL precomputation of the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<std::vector<uint64_t>>& GetCRTMultIntPreconTable() const { return m_CRTMultIntPreconTable; }
+
+			/**
 			* Gets the precomputed table of (S/si)^{-1} mod si
 			*
 			* @return the precomputed table
@@ -312,6 +319,9 @@ namespace lbcrypto {
 
 			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
 			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
+
+			// Stores an NTL precomputation of precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
+			std::vector<std::vector<uint64_t>> m_CRTMultIntPreconTable;
 
 			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_CRTMultFloatTable;

@@ -195,6 +195,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> multInt(size+sizeS);
+	std::vector<std::vector<uint64_t>> multIntPrecon(size+sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size+sizeS; vIndex++ ) {
@@ -202,10 +203,12 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
 			BigInteger divBy = num / qi;
 			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
+			multIntPrecon[vIndex].push_back(NTL::PrepMulModPrecon(multInt[vIndex][newvIndex].ConvertToInt(),si.ConvertToInt()));
 		}
 	}
 
 	m_CRTMultIntTable = multInt;
+	m_CRTMultIntPreconTable = multIntPrecon;
 
 	// compute the (S/si)^{-1} mod si table - used for homomorphic multiplication
 
@@ -674,7 +677,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 		//converts to coefficient representation before rounding
 		c[i].SwitchFormat();
 		// Performs the scaling by p/q followed by rounding; the result is in the CRT basis S
-		c[i] = c[i].ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+		c[i] = c[i].ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
+				cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 		// Converts from the CRT basis S to Q
 		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
 					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),
