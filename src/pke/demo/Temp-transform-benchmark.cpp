@@ -419,7 +419,7 @@ int main() {
 	//std::cout << X << std::endl;
 	//std::cout << xx << std::endl;
 
-	nRep = 2500;
+	nRep = 10000;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
 		ChineseRemainderTransformFTT<NativeInteger,NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
