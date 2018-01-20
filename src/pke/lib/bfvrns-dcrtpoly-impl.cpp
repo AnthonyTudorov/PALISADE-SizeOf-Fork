@@ -151,16 +151,19 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> qDivqiModsi(sizeS);
+	std::vector<std::vector<uint64_t>> qDivqiModsiPrecon(sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
 			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
 			BigInteger divBy = modulusQ / qi;
 			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
+			qDivqiModsiPrecon[newvIndex].push_back(NTL::PrepMulModPrecon(qDivqiModsi[newvIndex][vIndex].ConvertToInt(),si.ConvertToInt()));
 		}
 	}
 
 	m_CRTqDivqiModsiTable = qDivqiModsi;
+	m_CRTqDivqiModsiPreconTable = qDivqiModsiPrecon;
 
 	// compute the Q mod si table - used for homomorphic multiplication
 
@@ -218,16 +221,19 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute (S/si) mod qi table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> sDivsiModqi(size);
+	std::vector<std::vector<uint64_t>> sDivsiModqiPrecon(size);
 	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
 		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
 			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
 			BigInteger divBy = modulusS / si;
 			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
+			sDivsiModqiPrecon[newvIndex].push_back(NTL::PrepMulModPrecon(sDivsiModqi[newvIndex][vIndex].ConvertToInt(),qi.ConvertToInt()));
 		}
 	}
 
 	m_CRTsDivsiModqiTable = sDivsiModqi;
+	m_CRTsDivsiModqiPreconTable = sDivsiModqiPrecon;
 
 	// compute S mod qi table - used for homomorphic multiplication
 
@@ -636,11 +642,13 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
+				cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
+				cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	// Performs the multiplication itself
 
@@ -669,7 +677,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 		c[i] = c[i].ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
 		// Converts from the CRT basis S to Q
 		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
-					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
+					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),
+					cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
 	}
 
 	newCiphertext->SetElements(c);

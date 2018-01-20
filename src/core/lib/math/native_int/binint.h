@@ -485,12 +485,7 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
-		Duint_type modsum = (Duint_type)m_value;
-		modsum += b.m_value;
-		modsum %= modulus.m_value;
-		if( modsum > m_uintMax )
-			PALISADE_THROW( lbcrypto::math_error, "Overflow");
-		return (uint_type)modsum;
+		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
 	}
 
 
@@ -671,9 +666,7 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
-		Duint_type av = m_value;
-		Duint_type bv = b.m_value;
-		return (uint_type)((av*bv)%modulus.m_value);
+		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 	}
 
 	/**

@@ -710,10 +710,12 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @return the polynomial in the CRT basis S
 	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
+			const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -724,9 +726,12 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	*/
-	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi);
+	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
+			const std::vector<typename PolyType::Integer> &qInvModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
+			const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon);
 
 	/**
 	* @brief Computes Round(p/Q*x), where x is in the CRT basis Q*S,
