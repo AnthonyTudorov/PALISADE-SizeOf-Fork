@@ -310,45 +310,39 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 
 	IntType rootofUnityInverse;
 
+	auto mSearch = m_rootOfUnityInverseTableByModulus.find(element.GetModulus());
+
+	try {
+		rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
+	}
+	catch (std::exception& e) {
+		throw std::logic_error(std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse");
+	}
+
 	// check to see if the modulus is in the table
+	if( mSearch == m_rootOfUnityInverseTableByModulus.end() || mSearch->second.GetLength() == 0 || mSearch->second[1] != rootofUnityInverse ) {
 #pragma omp critical
-	{
+			{
 
-		try {
-			rootofUnityInverse = rootOfUnity.ModInverse(element.GetModulus());
-		}
-		catch (std::exception& e) {
-			throw std::logic_error(std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse");
-		}
+				VecType TableI(CycloOrder / 2);
+				VecType preconTableI(CycloOrder / 2);
 
-		bool recompute = false;
-		auto mSearch = m_rootOfUnityInverseTableByModulus.find(element.GetModulus());
+				IntType x(1);
 
-		if( mSearch != m_rootOfUnityInverseTableByModulus.end() ) {
-			// i found it... make sure it's kosher
-			if( mSearch->second.GetLength() == 0 || mSearch->second[1] != rootofUnityInverse ) {
-				recompute = true;
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+					TableI[i]= x;
+					if (typeid(IntType) == typeid(NativeInteger))
+						preconTableI[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),element.GetModulus().ConvertToInt());
+					x.ModBarrettMulInPlace(rootofUnityInverse, element.GetModulus(), mu);
+				}
+
+				rootOfUnityITable = &(m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI));
+				m_rootOfUnityInversePreconTableByModulus[element.GetModulus()] = std::move(preconTableI);
 			}
-			else
-				rootOfUnityITable = &mSearch->second;
 		}
 
-		if( mSearch == m_rootOfUnityInverseTableByModulus.end() || recompute ) {
-			VecType TableI(CycloOrder / 2);
-			VecType preconTableI(CycloOrder / 2);
-
-			IntType x(1);
-
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				TableI[i]= x;
-				if (typeid(IntType) == typeid(NativeInteger))
-					preconTableI[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),element.GetModulus().ConvertToInt());
-				x.ModBarrettMulInPlace(rootofUnityInverse, element.GetModulus(), mu);
-			}
-
-			rootOfUnityITable = &(m_rootOfUnityInverseTableByModulus[element.GetModulus()] = std::move(TableI));
-			m_rootOfUnityInversePreconTableByModulus[element.GetModulus()] = std::move(preconTableI);
-		}
+	else {
+		rootOfUnityITable = &mSearch->second;
 	}
 
 	if (typeid(IntType) == typeid(NativeInteger))
@@ -359,21 +353,21 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 
 	usint ringDimensionFactor = rootOfUnityITable->GetLength() / (CycloOrder / 2);
 
-	VecType rInvTable(*rootOfUnityITable);
 	if (typeid(IntType) == typeid(NativeInteger)) {
+		const VecType &preconTable = m_rootOfUnityInversePreconTableByModulus[element.GetModulus()];
 		int64_t modulus64 = element.GetModulus().ConvertToInt();
 		if (ringDimensionFactor == 1)
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),rInvTable[i].ConvertToInt(),
-						modulus64, m_rootOfUnityInversePreconTableByModulus[element.GetModulus()][i].ConvertToInt());
+				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),(*rootOfUnityITable)[i].ConvertToInt(),
+						modulus64, preconTable[i].ConvertToInt());
 		else
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),rInvTable[i*ringDimensionFactor].ConvertToInt(),
-						modulus64, m_rootOfUnityInversePreconTableByModulus[element.GetModulus()][i*ringDimensionFactor].ConvertToInt());
+				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),(*rootOfUnityITable)[i*ringDimensionFactor].ConvertToInt(),
+						modulus64, preconTable[i*ringDimensionFactor].ConvertToInt());
 	}
 	else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
-			(*OpIFFT)[i].ModBarrettMulInPlace(rInvTable[i*ringDimensionFactor], element.GetModulus(), mu);
+			(*OpIFFT)[i].ModBarrettMulInPlace((*rootOfUnityITable)[i*ringDimensionFactor], element.GetModulus(), mu);
 	}
 	return;
 }
