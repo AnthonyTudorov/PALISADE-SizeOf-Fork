@@ -509,7 +509,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);
 
-	std::cout << "Decryption time (internal): " << TOC(t_total) << " ms" << std::endl;
+	std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
 	return DecryptResult(plaintext->GetLength());
 

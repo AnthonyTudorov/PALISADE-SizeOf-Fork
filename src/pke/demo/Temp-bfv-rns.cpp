@@ -318,13 +318,13 @@ void SHETestPacked() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	usint ptm = 536903681;
+	usint ptm = 65537;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 11, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 15, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -409,6 +409,10 @@ void SHETestPacked() {
 	//Decryption of Ciphertext
 	////////////////////////////////////////////////////////////
 
+	Plaintext plaintextDecSub;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSub, &plaintextDecSub);
+	plaintextDecSub->SetLength(plaintext1->GetLength());
+
 	Plaintext plaintextDec;
 
 	start = currentDateTime();
@@ -422,10 +426,6 @@ void SHETestPacked() {
 	//std::cin.get();
 
 	plaintextDec->SetLength(plaintext1->GetLength());
-
-	Plaintext plaintextDecSub;
-	cryptoContext->Decrypt(keyPair.secretKey, ciphertextSub, &plaintextDecSub);
-	plaintextDecSub->SetLength(plaintext1->GetLength());
 
 	Plaintext plaintextDecNeg;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextNeg, &plaintextDecNeg);
