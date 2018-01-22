@@ -52,8 +52,8 @@ using namespace lbcrypto;
 // add
 static void add_BigVec(benchmark::State& state) {
 	state.PauseTiming();
-	BigVector a = makeVector(parmArray[state.range(0)]);
-	BigVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector<Poly>(parmArray[state.range(0)]);
+	BigVector b = makeVector<Poly>(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a = a+b;
@@ -71,8 +71,8 @@ DO_PARM_BENCHMARK(BM_BigVec_Addition)
 // +=
 static void addeq_BigVec(benchmark::State& state) {
 	state.PauseTiming();
-	BigVector a = makeVector(parmArray[state.range(0)]);
-	BigVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector<Poly>(parmArray[state.range(0)]);
+	BigVector b = makeVector<Poly>(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a += b;
@@ -90,8 +90,8 @@ DO_PARM_BENCHMARK(BM_BigVec_Addeq)
 // mult
 static void mult_BigVec(benchmark::State& state) {	// function
 	state.PauseTiming();
-	BigVector a = makeVector(parmArray[state.range(0)]);
-	BigVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector<Poly>(parmArray[state.range(0)]);
+	BigVector b = makeVector<Poly>(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a = a*b;
@@ -109,8 +109,8 @@ DO_PARM_BENCHMARK(BM_BigVec_Multiplication)
 // mult
 static void multeq_BigVec(benchmark::State& state) {	// function
 	state.PauseTiming();
-	BigVector a = makeVector(parmArray[state.range(0)]);
-	BigVector b = makeVector(parmArray[state.range(0)]);
+	BigVector a = makeVector<Poly>(parmArray[state.range(0)]);
+	BigVector b = makeVector<Poly>(parmArray[state.range(0)]);
 	state.ResumeTiming();
 
 	a *= b;

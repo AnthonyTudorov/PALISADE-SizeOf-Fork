@@ -61,29 +61,38 @@ void BM_keygen(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(PRE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(PRE);
+		} catch( ... ) {
+			state.SkipWithError("Unable to make context");
+			return;
+		}
 
 		try {
-		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
+			ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {}
-
-		try {
-			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
 		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		LPKeyPair<Poly> kp = cc->KeyGen();
+		//try {
+			LPKeyPair<Poly> kp = cc->KeyGen();
+		//} catch( ... ) {}
 	}
 }
 
 BENCHMARK_PARMS(BM_keygen)
+
+static void fillrandint(vector<int64_t>& vec, PlaintextModulus mod) {
+	mod /= 2;
+	for( int ii=0; ii < vec.size(); ii++ )
+		vec[ii] = rand() % mod;
+};
 
 void BM_encrypt(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
@@ -91,30 +100,21 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 	Ciphertext<Poly> ciphertext;
 	Plaintext plaintext;
 
-	auto randchar = []() -> char {
-		const char charset[] =
-				"0123456789"
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz";
-		const size_t max_index = (sizeof(charset) - 1);
-		return charset[ rand() % max_index ];
-	};
-
-
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(PRE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(PRE);
+		} catch( ... ) {
+			state.ResumeTiming();
+			return;
+		}
 
 		try {
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {}
-
-		try {
-			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
 		size_t strSize = cc->GetRingDimension();
@@ -123,9 +123,9 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 			state.SkipWithError( "Chunk size is 0" );
 		}
 
-		string shortStr(strSize,0);
-		std::generate_n(shortStr.begin(), strSize, randchar);
-		plaintext = cc->MakeStringPlaintext(shortStr);
+		vector<int64_t> input(strSize,0);
+		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
+		plaintext = cc->MakeCoefPackedPlaintext(input);
 
 		state.ResumeTiming();
 	}
@@ -148,30 +148,21 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 
-	auto randchar = []() -> char {
-		const char charset[] =
-				"0123456789"
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz";
-		const size_t max_index = (sizeof(charset) - 1);
-		return charset[ rand() % max_index ];
-	};
-
-
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(PRE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(PRE);
+		} catch( ... ) {
+			state.ResumeTiming();
+			return;
+		}
 
 		try {
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {}
-
-		try {
-			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
 		size_t strSize = cc->GetRingDimension();
@@ -180,9 +171,9 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 			state.SkipWithError( "Chunk size is 0" );
 		}
 
-		string shortStr(strSize,0);
-		std::generate_n(shortStr.begin(), strSize, randchar);
-		plaintext = cc->MakeStringPlaintext(shortStr);
+		vector<int64_t> input(strSize,0);
+		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
+		plaintext = cc->MakeCoefPackedPlaintext(input);
 
 		state.ResumeTiming();
 	}
@@ -205,20 +196,20 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(PRE);
-		cc->Enable(SHE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(PRE);
+			cc->Enable(SHE);
+		} catch( ... ) {
+			state.ResumeTiming();
+			return;
+		}
 
 		try {
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {
-		}
-
-		try {
-			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {
 		}
 
@@ -251,30 +242,21 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 	Plaintext plaintext;
 	Plaintext plaintextNew;
 
-	auto randchar = []() -> char {
-		const char charset[] =
-				"0123456789"
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz";
-		const size_t max_index = (sizeof(charset) - 1);
-		return charset[ rand() % max_index ];
-	};
-
-
 	if( state.thread_index == 0 ) {
 		state.PauseTiming();
-		cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
-		cc->Enable(ENCRYPTION);
-		cc->Enable(PRE);
+		try {
+			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
+			cc->Enable(ENCRYPTION);
+			cc->Enable(PRE);
+		} catch( ... ) {
+			state.ResumeTiming();
+			return;
+		}
 
 		try {
 		ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
 				cc->GetCyclotomicOrder(),
 				cc->GetModulus());
-		} catch( ... ) {}
-
-		try {
-			typename Poly::DggType dgg = Poly::DggType(4);			// Create the noise generator
 		} catch( ... ) {}
 
 		size_t strSize = cc->GetRingDimension();
@@ -283,9 +265,9 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 			state.SkipWithError( "Chunk size is 0" );
 		}
 
-		string shortStr(strSize,0);
-		std::generate_n(shortStr.begin(), strSize, randchar);
-		plaintext = cc->MakeStringPlaintext(shortStr);
+		vector<int64_t> input(strSize,0);
+		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
+		plaintext = cc->MakeCoefPackedPlaintext(input);
 
 		state.ResumeTiming();
 	}

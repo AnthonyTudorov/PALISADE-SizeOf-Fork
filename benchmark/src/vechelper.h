@@ -32,9 +32,9 @@
 #include "math/backend.h"
 using namespace lbcrypto;
 
-template<typename T>
-inline BigVector makeVector(shared_ptr<T> p) {
-	Poly::DugType dug;
+template<typename P>
+inline typename P::Vector makeVector(shared_ptr<typename P::Params> p) {
+	typename P::DugType dug;
 	dug.SetModulus(p->GetModulus());
 
 	return dug.GenerateVector(p->GetCyclotomicOrder()/2);

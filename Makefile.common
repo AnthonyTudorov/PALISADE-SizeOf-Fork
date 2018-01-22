@@ -113,7 +113,7 @@ PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 all:
 	$(MAKE) gmp_all
 	$(MAKE) ntl_all
-	$(MAKE) allcore allpke alltrapdoor allcircuit utall
+	$(MAKE) allcore allpke alltrapdoor allcircuit utall benchmark
 
 docs: apidocs
 
