@@ -90,7 +90,7 @@ BENCHMARK_PARMS(BM_keygen)
 
 static void fillrandint(vector<int64_t>& vec, PlaintextModulus mod) {
 	mod /= 2;
-	for( int ii=0; ii < vec.size(); ii++ )
+	for( size_t ii=0; ii < vec.size(); ii++ )
 		vec[ii] = rand() % mod;
 };
 
