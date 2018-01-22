@@ -53,7 +53,7 @@ GenCryptoContextNull(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits,
 
 template<typename Element>
 inline CryptoContext<Element>
-GenCryptoContextLTV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
+GenCryptoContextLTV(usint ORDER, PlaintextModulus ptm, usint bits=55, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
 
 	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);

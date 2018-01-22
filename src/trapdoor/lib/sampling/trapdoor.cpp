@@ -94,6 +94,8 @@ namespace lbcrypto {
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);
 
+		DEBUG("c " << c << " s " << s);
+
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, k + 2, 1));
 		DEBUG("t1a: "<<TOC(t1));
@@ -104,7 +106,8 @@ namespace lbcrypto {
 		// It is assumed that A has dimension 1 x (k + 2) and pHat has the dimension of (k + 2) x 1
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
-		DEBUG("t1c: "<<TOC(t1)); //takes 2
+
+//		DEBUG("t1c: "<<TOC(t1)); //takes 2
 		TIC(t1);
 		Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, n);
 		DEBUG("t1d: "<<TOC(t1)); //takes 0

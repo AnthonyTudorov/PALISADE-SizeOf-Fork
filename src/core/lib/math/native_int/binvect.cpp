@@ -254,12 +254,6 @@ const IntegerType& NativeVector<IntegerType>::GetModulus() const{
 
 }
 
-
-template<class IntegerType>
-usint NativeVector<IntegerType>::GetLength() const{
-	return this->m_length;
-}
-
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::Mod(const IntegerType& modulus) const{
 
@@ -269,17 +263,36 @@ NativeVector<IntegerType> NativeVector<IntegerType>::Mod(const IntegerType& modu
 	{
 		NativeVector ans(this->GetLength(),this->GetModulus());
 		IntegerType halfQ(this->GetModulus() >> 1);
-		for (usint i = 0; i<ans.GetLength(); i++) {
-			if (this->at(i)>halfQ) {
-				ans.at(i) = this->at(i).ModSub(this->GetModulus(),modulus);
+		for (size_t i = 0; i<ans.GetLength(); i++) {
+			if (this->operator[](i)>halfQ) {
+				ans[i] = this->operator[](i).ModSub(this->GetModulus(),modulus);
 			}
 			else {
-				ans.at(i) = this->at(i).Mod(modulus);
+				ans[i] = this->operator[](i).Mod(modulus);
 			}
 		}
 		return ans;
 	}
+}
 
+template<class IntegerType>
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModEq(const IntegerType& modulus) {
+
+	if (modulus==2)
+		return this->ModByTwoEq();
+	else
+	{
+		IntegerType halfQ(this->GetModulus() >> 1);
+		for (size_t i = 0; i<this->GetLength(); i++) {
+			if (this->operator[](i)>halfQ) {
+				this->operator[](i).ModSubEq(this->GetModulus(),modulus);
+			}
+			else {
+				this->operator[](i).ModEq(modulus);
+			}
+		}
+		return *this;
+	}
 }
 
 template<class IntegerType>
@@ -467,24 +480,31 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModSubEq(const Nativ
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::ModByTwo() const {
 
-	NativeVector ans(this->GetLength(),this->GetModulus());
+	NativeVector ans(*this);
+	ans.ModByTwoEq();
+	return ans;
+}
+
+template<class IntegerType>
+const NativeVector<IntegerType>& NativeVector<IntegerType>::ModByTwoEq() {
+
 	IntegerType halfQ(this->GetModulus() >> 1);
-	for (usint i = 0; i<ans.GetLength(); i++) {
-		if (this->at(i)>halfQ) {
-			if (this->at(i).Mod(2) == 1)
-				ans.at(i) =IntegerType(0);
+	for (size_t i = 0; i<this->GetLength(); i++) {
+		if (this->operator[](i)>halfQ) {
+			if (this->operator[](i).Mod(2) == 1)
+				this->operator[](i) = IntegerType(0);
 			else
-				ans.at(i) =1;
+				this->operator[](i) = 1;
 		}
 		else {
-			if (this->at(i).Mod(2) == 1)
-				ans.at(i) =1;
+			if (this->operator[](i).Mod(2) == 1)
+				this->operator[](i) = 1;
 			else
-				ans.at(i) =IntegerType(0);
+				this->operator[](i) = IntegerType(0);
 		}
 
 	}
-	return ans;
+	return *this;
 }
 
 template<class IntegerType>

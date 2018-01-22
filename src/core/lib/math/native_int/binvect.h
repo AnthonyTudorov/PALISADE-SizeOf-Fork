@@ -62,7 +62,7 @@ public:
 
     static inline NativeVector Single(const IntegerType& val, const IntegerType& modulus) {
         NativeVector vec(1, modulus);
-        vec.at(0) = val;
+        vec[0] = val;
         return vec;
     }
 
@@ -191,37 +191,37 @@ public:
 	 * Sets/gets a value at an index.
 	 *
 	 * @param index is the index to set a value at.
- */
+	 */
 
 	IntegerType& at(size_t i) {
-	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in NativeVector");
-	  }
-	  return this->m_data[i];
-	  }
+		if(!this->IndexCheck(i)) {
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
+		}
+		return this->m_data[i];
+	}
 
 	const IntegerType& at(size_t i) const {
- 	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in NativeVector");
-	  }
-	  return this->m_data[i];
+		if(!this->IndexCheck(i)) {
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
+		}
+		return this->m_data[i];
 	}
 
 	void atMod(size_t i, const IntegerType &val) {
-	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in NativeVector");
-	  }
-	  this->m_data[i]=val%m_modulus;
-	  return;
+		if(!this->IndexCheck(i)) {
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
+		}
+		this->m_data[i]=val%m_modulus;
+		return;
 	}
 
 	void atMod(size_t i, const std::string& val) const {
- 	  if(!this->IndexCheck(i)) {
-	    throw std::logic_error("index out of range in NativeVector");
-	  }
-	  IntegerType tmp(val);
-	  this->m_data[i]=tmp%m_modulus;
-	  return;
+		if(!this->IndexCheck(i)) {
+			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
+		}
+		IntegerType tmp(val);
+		this->m_data[i]=tmp%m_modulus;
+		return;
 	}
 
 	/**
@@ -229,8 +229,8 @@ public:
 	 * @param idx is the index to get a value at.
 	 * @return is the value at the index. return NULL if invalid index.
 	 */
-	inline IntegerType& operator[](size_t idx) { return (this->m_data[idx]); }
-	inline const IntegerType& operator[](size_t idx) const { return (this->m_data[idx]); }
+	IntegerType& operator[](size_t idx) { return (this->m_data[idx]); }
+	const IntegerType& operator[](size_t idx) const { return (this->m_data[idx]); }
 
 	/**
 	 * Sets the vector modulus.
@@ -259,7 +259,7 @@ public:
 	 *
 	 * @return vector length.
 	 */
-	usint GetLength() const;
+	size_t GetLength() const { return this->m_length; }
 	
 	//METHODS
 
@@ -271,6 +271,14 @@ public:
 	 */
 	NativeVector Mod(const IntegerType& modulus) const;
 	
+	/**
+	 * Vector Modulus operator.
+	 *
+	 * @param modulus is the modulus to perform on the current vector entries.
+	 * @return a new vector after the modulus operation on current vector.
+	 */
+	const NativeVector& ModEq(const IntegerType& modulus);
+
 	//scalar operations
 
 	/**
@@ -372,6 +380,13 @@ public:
 	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 	*/
 	NativeVector ModByTwo() const;
+
+	/**
+	* Perform a modulus by 2 operation.  Returns the least significant bit.
+	*
+	* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+	*/
+	const NativeVector& ModByTwoEq();
 
 	//component-wise subtraction
 
@@ -477,71 +492,6 @@ private:
 		return true;
 	}
 };
-
-//template<typename IntegerType>
-//inline NativeVector<IntegerType> operator-(const NativeVector<IntegerType> &a) { return NativeVector<IntegerType>(0) - a; }
-
-//BINARY OPERATORS
-
-///**
-// * Modulus scalar addition.
-// *
-// * @param &a is the input vector to add.
-// * @param &i is the input integer to add at all entries.
-// * @return a new vector which is the result of the modulus addition operation.
-// */
-//template<class IntegerType>
-//inline NativeVector<IntegerType> operator+(const NativeVector<IntegerType> &a, const IntegerType &i) {return a.ModAdd(i);}
-
-///**
-//* Modulus scalar substraction.
-//*
-//* @param &a is the input vector to substract from.
-//* @param &i is the input integer to substract at all entries.
-//* @return a new vector which is the result of the modulus substraction operation.
-//*/
-//template<class IntegerType>
-//inline NativeVector<IntegerType> operator-(const NativeVector<IntegerType> &a, const IntegerType &i) {return a.ModSub(i);}
-
-///**
-// * Modulus scalar multiplication.
-// *
-// * @param &a is the input vector to multiply.
-// * @param &i is the input integer to multiply at all entries.
-// * @return a new vector which is the result of the modulus multiplication operation.
-// */
-//template<class IntegerType>
-//inline NativeVector<IntegerType> operator*(const NativeVector<IntegerType> &a, const IntegerType &i) {return a.ModMul(i);}
-
-///**
-// * Modulus vector addition.
-// *
-// * @param &a is the first input vector to add.
-// * @param &b is the second input vector to add.
-// * @return is the result of the modulus addition operation.
-// */
-//template<class IntegerType>
-//inline NativeVector<IntegerType> operator+(const NativeVector<IntegerType> &a, const NativeVector<IntegerType> &b) {return a.ModAdd(b);}
-//
-//
-///**
-// * Modulus vector substraction.
-// *
-// * @param &a is the first input vector.
-// * @param &b is the second input vector.
-// * @return is the result of the modulus substraction operation.
-// */
-// template<class IntegerType>
-// inline NativeVector<IntegerType> operator-(const NativeVector<IntegerType> &a, const NativeVector<IntegerType> &b) {return a.ModSub(b);}
- 
-// /**
-//  * Modulus vector multiplication.
-//  *
-//  * @param &a is the first input vector to multiply.
-//  */
-// template<class IntegerType>
-// inline NativeVector<IntegerType> operator*(const NativeVector<IntegerType> &a, const NativeVector<IntegerType> &b) {return a.ModMul(b);}
-
 
 } // namespace lbcrypto ends
 

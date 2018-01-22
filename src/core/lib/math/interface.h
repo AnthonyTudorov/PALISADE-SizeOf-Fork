@@ -41,7 +41,7 @@ namespace lbcrypto {
 		// Constructors must be implemented in the derived classes
 		// There are no base class constructors that need to be called
 
-		// The derived classes should implement constructors from integers and strings
+		// The derived classes should implement constructors from uint64_t, NativeInteger, and strings
 		// There should be copy and move constructors, as well as copy and move assignment
 
 		// ACCESSORS
@@ -353,8 +353,6 @@ namespace lbcrypto {
 	template<typename T, typename I>
 	class BigVectorInterface{
 public:
-		virtual ~BigVectorInterface() {}
-
 		// CONSTRUCTORS
 
 		// Constructors should be implemented in the derived classes
@@ -368,7 +366,7 @@ public:
 		* @param &rhs is the vector to be assigned from.
 		* @return this
 		*/
-		virtual const T& operator=(const T& rhs) = 0;
+		const T& operator=(const T& rhs);
 
 		/**
 		* Move assignment operator from Vector
@@ -376,7 +374,7 @@ public:
 		* @param &&rhs is the native vector to be moved.
 		* @return this
 		*/
-		virtual const T& operator=(T &&rhs) = 0;
+		const T& operator=(T &&rhs);
 
 		/**
 		* Assignment from initializer list of unsigned integers
@@ -384,7 +382,7 @@ public:
 		* @param &&rhs is the list of integers
 		* @return this
 		*/
-		virtual const T& operator=(std::initializer_list<uint64_t> rhs) = 0;
+		const T& operator=(std::initializer_list<uint64_t> rhs);
 
 		/**
 		* Assignment from initializer list of strings
@@ -392,14 +390,14 @@ public:
 		* @param &&rhs is the list of strings
 		* @return this
 		*/
-		virtual const T& operator=(std::initializer_list<std::string> rhs) = 0;
+		const T& operator=(std::initializer_list<std::string> rhs);
 
 		/**
 		 * Assignment to assign value val to first entry, 0 for the rest of entries.
 		 * @param val
 		 * @return this
 		 */
-		virtual const T& operator=(uint64_t val) = 0;
+		const T& operator=(uint64_t val);
 
 		/**
 		* Equals to operator
@@ -407,36 +405,38 @@ public:
 		* @param b is vector to be compared.
 		* @return true if equal and false otherwise.
 		*/
-		bool operator==(const T &b) const {
-	        if (this->GetLength() != b.GetLength())
-	            return false;
-	        if (this->GetModulus() != b.GetModulus())
-	        	return false;
-	        for (size_t i = 0; i < this->GetLength(); ++i) {
-	            if ((*this)[i] != b[i]) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
+		friend inline bool operator==(const T& a, const T& b) {
+			if (a.GetLength() != b.GetLength())
+				return false;
+			if (a.GetModulus() != b.GetModulus())
+				return false;
+			for (size_t i = 0; i < a.GetLength(); ++i) {
+				if (a[i] != b[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
 
-	    /**
+		/**
 		* Not equal to operator
 		*
 		* @param b is vector to be compared.
 		* @return true if not equal and false otherwise.
 		*/
-	    bool operator!=(const T &b) const {
-	        return !(*this == b);
-	    }
+		friend inline bool operator!=(const T& a, const T& b) {
+			return !(a == b);
+		}
 
 		//ACCESSORS
 
-	    // The derived class must implement at and operator[]
-		virtual I& at(size_t idx) = 0;
-		virtual const I& at(size_t idx) const = 0;
-		virtual I& operator[](size_t idx) = 0;
-		virtual const I& operator[](size_t idx) const = 0;
+		// The derived class must implement at and operator[]
+		I& at(size_t idx);
+		const I& at(size_t idx) const;
+		void atMod(size_t idx, const I &val);
+		void atMod(size_t idx, const std::string& val);
+		I& operator[](size_t idx);
+		const I& operator[](size_t idx) const;
 
 		/**
 		 * Sets the vector modulus.
@@ -444,28 +444,28 @@ public:
 		 * @param value is the value to set.
 		 * @param value is the modulus value to set.
 		 */
-		virtual void SetModulus(const I& value) = 0;
+		void SetModulus(const I& value);
 
 		/**
 		 * Sets the vector modulus and changes the values to match the new modulus.
 		 *
 		 * @param value is the value to set.
 		 */
-		virtual void SwitchModulus(const I& value) = 0;
+		void SwitchModulus(const I& value);
 
 		/**
 		 * Gets the vector modulus.
 		 *
 		 * @return the vector modulus.
 		 */
-		virtual const I& GetModulus() const = 0;
+		const I& GetModulus() const;
 
 		/**
 		 * Gets the vector length.
 		 *
 		 * @return vector length.
 		 */
-		virtual usint GetLength() const = 0;
+		virtual size_t GetLength() const = 0;
 
 		/**
 		 * Scalar modulus addition.
@@ -473,7 +473,7 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual T ModAdd(const I &b) const = 0;
+		T ModAdd(const I &b) const;
 
 		/**
 		 * Scalar modulus addition.
@@ -481,7 +481,7 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual const T& ModAddEq(const I &b) = 0;
+		const T& ModAddEq(const I &b);
 
 		/**
 		 * Scalar modulus addition at a particular index.
@@ -490,7 +490,7 @@ public:
 		 * @param i is the index of the entry to add.
 		 * @return is the result of the modulus addition operation.
 		 */
-		virtual T ModAddAtIndex(usint i, const I &b) const = 0;
+		T ModAddAtIndex(usint i, const I &b) const;
 
 		/**
 		 * vector modulus addition.
@@ -498,7 +498,7 @@ public:
 		 * @param &b is the vector to add at all locations.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual T ModAdd(const T &b) const = 0;
+		T ModAdd(const T &b) const;
 
 		/**
 		 * vector modulus addition.
@@ -506,13 +506,13 @@ public:
 		 * @param &b is the vector to add at all locations.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual const T& ModAddEq(const T &b) = 0;
+		const T& ModAddEq(const T &b);
 
 		// inlines for overloaded operators
-		T operator+(const I &b) const { return this->ModAdd(b); }
-		const T& operator+=(const I &b) { return this->ModAddEq(b); }
-		T operator+(const T &b) const { return this->ModAdd(b); }
-		const T& operator+=(const T &b) { return this->ModAddEq(b); }
+		inline friend T operator+(const T& a, const I& b) { return a.ModAdd(b); }
+		inline friend const T& operator+=(T& a, const I& b) { return a.ModAddEq(b); }
+		inline friend T operator+(const T& a, const T& b) { return a.ModAdd(b); }
+		inline friend const T& operator+=(T& a, const T& b) { return a.ModAddEq(b); }
 
 		/**
 		 * Scalar modulus addition.
@@ -520,7 +520,7 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual T ModSub(const I &b) const = 0;
+		T ModSub(const I &b) const;
 
 		/**
 		 * Scalar modulus addition.
@@ -528,7 +528,7 @@ public:
 		 * After addition modulus operation is performed with the current vector modulus.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual const T& ModSubEq(const I &b) = 0;
+		const T& ModSubEq(const I &b);
 
 		/**
 		 * vector modulus addition.
@@ -536,7 +536,7 @@ public:
 		 * @param &b is the vector to add at all locations.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual T ModSub(const T &b) const = 0;
+		T ModSub(const T &b) const;
 
 		/**
 		 * vector modulus addition.
@@ -544,16 +544,16 @@ public:
 		 * @param &b is the vector to add at all locations.
 		 * @return a new vector which is the result of the modulus addition operation.
 		 */
-		virtual const T& ModSubEq(const T &b) = 0;
+		const T& ModSubEq(const T &b);
 
 		// inlines for overloaded operator unary minus
-		T operator-() const { return this->ModMul(I(-1)); }
+		inline friend T operator-(const T& a) { return a.ModMul(I(-1)); }
 
 		// inlines for overloaded operators
-		T operator-(const I &b) const { return this->ModSub(b); }
-		const T& operator-=(const I &b) { return this->ModSubEq(b); }
-		T operator-(const T &b) const { return this->ModSub(b); }
-		const T& operator-=(const T &b) { return this->ModSubEq(b); }
+		inline friend T operator-(const T& a, const I& b) { return a.ModSub(b); }
+		inline friend const T& operator-=(T& a, const I& b) { return a.ModSubEq(b); }
+		inline friend T operator-(const T& a, const T& b) { return a.ModSub(b); }
+		inline friend const T& operator-=(T& a, const T& b) { return a.ModSubEq(b); }
 
 		/**
 		 * Scalar modular multiplication.
@@ -561,7 +561,7 @@ public:
 		 * @param &b is the scalar to multiply at all locations.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual T ModMul(const I &b) const = 0;
+		T ModMul(const I &b) const;
 
 		/**
 		 * Scalar modular multiplication.
@@ -569,7 +569,7 @@ public:
 		 * @param &b is the scalar to multiply at all locations.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual const T& ModMulEq(const I &b) = 0;
+		const T& ModMulEq(const I &b);
 
 		/**
 		 * Vector modulus multiplication.
@@ -577,7 +577,7 @@ public:
 		 * @param &b is the vector to multiply.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual T ModMul(const T &b) const = 0;
+		T ModMul(const T &b) const;
 
 		/**
 		 * Vector modulus multiplication.
@@ -585,13 +585,13 @@ public:
 		 * @param &b is the vector to multiply.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		virtual const T& ModMulEq(const T &b) = 0;
+		const T& ModMulEq(const T &b);
 
 		// inlines for overloaded operators
-		T operator*(const I &b) const { return this->ModMul(b); }
-		const T& operator*=(const I &b) { return this->ModMulEq(b); }
-		T operator*(const T &b) const { return this->ModMul(b); }
-		const T& operator*=(const T &b) { return this->ModMulEq(b); }
+		inline friend T operator*(const T& a, const I& b) { return a.ModMul(b); }
+		inline friend const T& operator*=(T& a, const I& b) { return a.ModMulEq(b); }
+		inline friend T operator*(const T& a, const T& b) { return a.ModMul(b); }
+		inline friend const T& operator*=(T& a, const T& b) { return a.ModMulEq(b); }
 
 		/**
 		 * Vector Modulus operator.
@@ -599,8 +599,15 @@ public:
 		 * @param modulus is the modulus to perform on the current vector entries.
 		 * @return a new vector after the modulus operation on current vector.
 		 */
-		virtual T Mod(const I& modulus) const = 0;
-			// FIXME there is no ModEq -- is it needed?
+		T Mod(const I& modulus) const;
+
+		/**
+		 * Vector Modulus operator.
+		 *
+		 * @param modulus is the modulus to perform on the current vector entries.
+		 * @return a new vector after the modulus operation on current vector.
+		 */
+		const T& ModEq(const I& modulus);
 
 		/**
 		 * Scalar modulus exponentiation.
@@ -608,15 +615,19 @@ public:
 		 * @param &b is the scalar to exponentiate at all locations.
 		 * @return a new vector which is the result of the modulus exponentiation operation.
 		 */
-		virtual T ModExp(const I& b) const = 0;
+		T ModExp(const I& b) const;
 			// FIXME there is no ModExpEq -- is it needed?
+
+		// inlines for overloaded operators
+		inline friend T operator%(const T& a, const I& b) { return a.Mod(b); }
+		inline friend const T& operator%=(T& a, const I& b) { return a.ModEq(b); }
 
 		/**
 		 * Modulus inverse.
 		 *
 		 * @return a new vector which is the result of the modulus inverse operation.
 		 */
-		virtual T ModInverse() const = 0;
+		T ModInverse() const;
 			// FIXME there is no ModInverseEq -- is it needed?
 
 		//Vector Operations
@@ -626,17 +637,14 @@ public:
 		*
 		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
 		*/
-		virtual T ModByTwo() const = 0;
-			// FIXME there is no ModByTwoEq -- is it needed?
+		T ModByTwo() const;
 
-		// FIXME this method does not seem to be used -- is it needed?
 		/**
-		 * Vector multiplication without applying the modulus operation.
-		 *
-		 * @param &b is the vector to multiply.
-		 * @return is the result of the multiplication operation.
-		 */
-		virtual T MultWithOutMod(const T &b) const = 0;
+		* Perform a modulus by 2 operation.  Returns the least significant bit.
+		*
+		* @return a new vector which is the return value of the modulus by 2, also the least significant bit.
+		*/
+		const T& ModByTwoEq();
 
 		/**
 		* Multiply and Rounding operation on a BigInteger x. Returns [x*p/q] where [] is the rounding operation.
@@ -645,7 +653,7 @@ public:
 		* @param q is the denominator to be divided.
 		* @return the result of multiply and round.
 		*/
-		virtual T MultiplyAndRound(const I& p, const I& q) const = 0;
+		T MultiplyAndRound(const I& p, const I& q) const;
 
 		/**
 		* Divide and Rounding operation on a BigInteger x. Returns [x/q] where [] is the rounding operation.
@@ -653,7 +661,7 @@ public:
 		* @param q is the denominator to be divided.
 		* @return the result of divide and round.
 		*/
-		virtual T DivideAndRound(const I& q) const = 0;
+		T DivideAndRound(const I& q) const;
 
 		/**
 		 * Returns a vector of digits at a specific index for all entries for a given number base.
@@ -662,7 +670,7 @@ public:
 		 * @param base is the base to use for the operation.
 		 * @return is the resulting vector.
 		 */
-		virtual T GetDigitAtIndexForBase(usint index, usint base) const = 0;
+		T GetDigitAtIndexForBase(usint index, usint base) const;
 	};
 
 	// TODO
