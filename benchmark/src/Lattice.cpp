@@ -232,26 +232,26 @@ static shared_ptr<ILDCRTParams<I>> generate_DCRT_parms(int s) {
 }
 
 // statically construct 'em
-vector<shared_ptr<ILParams>> vparms = { generate_IL_parms<ILParams,BigInteger>(0), generate_IL_parms<ILParams,BigInteger>(1) };
-vector<shared_ptr<ILDCRTParams<BigInteger>>> vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
-vector<shared_ptr<BE2ILParams>> BE2vparms = { generate_IL_parms<BE2ILParams,BE2Integer>(0), generate_IL_parms<BE2ILParams,BE2Integer>(1) };
-vector<shared_ptr<ILDCRTParams<BE2Integer>>> BE2vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
-vector<shared_ptr<BE4ILParams>> BE4vparms = { generate_IL_parms<BE4ILParams,BE4Integer>(0), generate_IL_parms<BE4ILParams,BE4Integer>(1) };
-vector<shared_ptr<ILDCRTParams<BigInteger>>> BE4vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
-vector<shared_ptr<BE6ILParams>> BE6vparms = { generate_IL_parms<BE6ILParams,BE6Integer>(0), generate_IL_parms<BE6ILParams,BE6Integer>(1) };
-vector<shared_ptr<ILDCRTParams<BigInteger>>> BE6vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
+//vector<shared_ptr<ILParams>> vparms = { generate_IL_parms<ILParams,BigInteger>(0), generate_IL_parms<ILParams,BigInteger>(1) };
+//vector<shared_ptr<ILDCRTParams<BigInteger>>> vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
+//vector<shared_ptr<BE2ILParams>> BE2vparms = { generate_IL_parms<BE2ILParams,BE2Integer>(0), generate_IL_parms<BE2ILParams,BE2Integer>(1) };
+//vector<shared_ptr<ILDCRTParams<BE2Integer>>> BE2vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
+//vector<shared_ptr<BE4ILParams>> BE4vparms = { generate_IL_parms<BE4ILParams,BE4Integer>(0), generate_IL_parms<BE4ILParams,BE4Integer>(1) };
+//vector<shared_ptr<ILDCRTParams<BigInteger>>> BE4vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
+//vector<shared_ptr<BE6ILParams>> BE6vparms = { generate_IL_parms<BE6ILParams,BE6Integer>(0), generate_IL_parms<BE6ILParams,BE6Integer>(1) };
+//vector<shared_ptr<ILDCRTParams<BigInteger>>> BE6vaparms = { generate_DCRT_parms<BigInteger>(0), generate_DCRT_parms<BigInteger>(1) };
 
-template <typename P>
-shared_ptr<P> GetTestParms(int i);
-
-template<>
-shared_ptr<BE2ILParams> GetTestParms(int i) { return BE2vparms[i]; }
-
-template<>
-shared_ptr<BE4ILParams> GetTestParms(int i) { return BE4vparms[i]; }
-
-template<>
-shared_ptr<BE6ILParams> GetTestParms(int i) { return BE6vparms[i]; }
+//template <typename P>
+//shared_ptr<P> GetTestParms(int i);
+//
+//template<>
+//shared_ptr<BE2ILParams> GetTestParms(int i) { return BE2vparms[i]; }
+//
+//template<>
+//shared_ptr<BE4ILParams> GetTestParms(int i) { return BE4vparms[i]; }
+//
+//template<>
+//shared_ptr<BE6ILParams> GetTestParms(int i) { return BE6vparms[i]; }
 
 
 template <typename E>
@@ -287,7 +287,7 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE4DCRTPoly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE6DCRTPoly)
 
 template <typename E>
-static E makeElement(shared_ptr<ILParamsImpl<typename E::Integer>> params) {
+static E makeElement(shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> params) {
 	typename E::Vector	vec = makeVector<E>(params);
 	E					elem(params);
 
@@ -296,7 +296,7 @@ static E makeElement(shared_ptr<ILParamsImpl<typename E::Integer>> params) {
 }
 
 template <typename E>
-static E makeElement(shared_ptr<ILDCRTParams<typename E::Integer>> p) {
+static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) {
 	shared_ptr<ILParamsImpl<typename E::Integer>>	params( new ILParamsImpl<typename E::Integer>( p->GetCyclotomicOrder(), p->GetModulus(), 1) );
 	typename E::Vector								vec = makeVector<E>(params);
 
@@ -326,7 +326,7 @@ void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE6Poly)
-//DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE2DCRTPoly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE2DCRTPoly)
 //DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE4DCRTPoly)
 //DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE6DCRTPoly)
 
