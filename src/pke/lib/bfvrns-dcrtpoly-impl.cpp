@@ -269,7 +269,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 
 	//bits per prime modulus
-	size_t dcrtBits = 45;
+	size_t dcrtBits = 47;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);

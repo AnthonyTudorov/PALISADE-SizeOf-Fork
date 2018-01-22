@@ -67,8 +67,9 @@ int main() {
 
 	//PKE();
 	//SHETestCoeff();
-	SHETestPacked();
-	//SHETestCoefAll();
+	//SHETestPacked();
+	for (size_t i = 0; i < 10; i++)
+		SHETestCoefAll();
 	//SHETestPackedInnerProduct();
 	//SwitchCRT();
 	//SwitchCRTSingleTests();
@@ -326,7 +327,7 @@ void SHETestPacked() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 15, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 31, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -523,11 +524,11 @@ void SHETestCoefAll() {
 
 	usint ptm = 2;
 	double sigma = 3.2;
-	double rootHermiteFactor = 1.006;
+	double rootHermiteFactor = 1.004;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 60, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 50, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -670,6 +671,16 @@ void SHETestCoefAll() {
 	finish = currentDateTime();
 	diff = finish - start;
 	cout << "EvalMult key generation time: " << "\t" << diff << " ms" << endl;
+
+
+	start = currentDateTime();
+
+	auto ciphertextNoRelin = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Homomorphic multiplication time - without relinearization: " << "\t" << diff << " ms" << endl;
+
 
 	start = currentDateTime();
 
