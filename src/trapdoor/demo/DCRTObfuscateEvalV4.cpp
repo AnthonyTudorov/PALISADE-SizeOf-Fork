@@ -38,7 +38,7 @@
 
 using namespace lbcrypto;
 
-bool EvaluateConjObfs(bool dbg_flag, int  n); //defined later
+bool EvaluateConjObfs(bool dbg_flag, int  n, usint pattern_size, usint num_evals); //defined later
 
 void  DeserializeClearPatternFromFile(const string clearFileName,
 				      ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
@@ -51,8 +51,18 @@ int main(int argc, char* argv[]){
   
   if (argc < 2) { // called with no arguments
     std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-    std::cout << "arg 2 = num bits [8] >7 <14 " << std::endl;
+    std::cout << "arg 2 = num bits [10] " << std::endl;
+    //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
+    //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
   }
+  //should become arguments
+  usint pattern_size = 32;
+  //usint pattern_size = 40;
+  //usint pattern_size = 64;
+  //TODO, num evals should generate test patterns
+
+  usint n_evals = 3; //number of evaluations to run
+
   bool dbg_flag = false; 
 
   if (argc >= 2 ) {
@@ -61,11 +71,11 @@ int main(int argc, char* argv[]){
       std::cout << "setting dbg_flag true" << std::endl;
     }
   }
-  int n_bits = 8;
+  int n_bits = 10;
 
   if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 8) {
-      n_bits = 8;
+    if (atoi(argv[2]) < 10) {
+      n_bits = 10;
     } else if (atoi(argv[2]) >= 13) {
       n_bits = 13;
     } else {
@@ -111,14 +121,14 @@ int main(int argc, char* argv[]){
     
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
-  errorflag = EvaluateConjObfs(dbg_flag, n);
+  errorflag = EvaluateConjObfs(dbg_flag, n, pattern_size, n_evals);
   return ((int)errorflag);
 
 }
 
 
 //////////////////////////////////////////////////////////////////////
-bool EvaluateConjObfs(bool dbg_flag, int n) {
+bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals) {
 
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use
@@ -131,12 +141,6 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
   float timeRead(0.0);
 
   usint m = 2*n;
-
-  //usint chunkSize = 8;
-  //  usint base = 1<<20;
-
-  //if (n > 1<<10)
-  //base = 1<<15;
 
   //Read the test pattern from the file
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern("");
@@ -188,18 +192,44 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
   DEBUG(" \nCleartext pattern length: ");
   DEBUG(clearPattern.GetLength());
 
-  //std::string inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
-  std::string inputStr1 = "11100100";
+  std::string inputStr1("");
+  std::string inputStr2("");
+  std::string inputStr3("");
+  switch (pattern_size) {
+  case 32:  //32 bit test
+    inputStr1 = "11100100111001001110010011100100";
+    inputStr2 = "11001101110011011100110111001111";
+    inputStr3 = "10101101101011011010110110101101";
+    break;
+    
+  case 40:  //40 bit test
+    inputStr1 = "1110010011100100111001001110010011100100"; 
+    inputStr2 = "1100110111001101110011011100111111001101"; 
+    inputStr3 = "1010110110101101101011011010110110101101"; 
+    break;
+    
+  case 64:  // 64 bit test
+    inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
+    inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
+    inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
+    break;
+
+  default:
+    std::cout<< "bad input pattern length selected (must be 32, 40 or 64). "<<std::endl;
+    exit(-1);
+  }
+      
+  //std::string inputStr1 = "11100100"; //8 bit test
+  //std::string inputStr2 = "11001101"; //8 bit test
+  //std::string inputStr3 = "10101101"; //8 bit test
+
+
   bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
   DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
   
-  //std::string inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
-  std::string inputStr2 = "11001101";
   bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
   DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
   
-  //std::string inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
-  std::string inputStr3 = "10101101";
   bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
   DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 	
@@ -224,8 +254,6 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
   DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
   PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
 
-  usint n_evals = 3;
-  
   bool errorflag = false;
   if (result1 != out1) {
     std::cout << "ERROR EVALUATING 1 "<<" got "<<result1<<" wanted "<<out1<< std::endl;

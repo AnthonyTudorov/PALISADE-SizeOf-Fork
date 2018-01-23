@@ -42,7 +42,8 @@
 using namespace lbcrypto;
 
 //forward definitions to be defined later
-bool GenerateConjObfs(bool dbg_flag, int  n); 
+bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals = 3);
+
 void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern,
 				  const string clearFileName);
 void  DeserializeClearPatternFromFile(const string clearFileName,
@@ -59,8 +60,22 @@ int main(int argc, char* argv[]){
   
   if (argc < 2) { // called with no arguments
     std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-    std::cout << "arg 2 = num bits [8] >7 <14 " << std::endl;
+    std::cout << "arg 2 = num bits [10] " << std::endl;    
+    //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
+    //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
   }
+
+  //should become arguments
+  usint pattern_size = 32;
+  //usint pattern_size = 40;
+  //usint pattern_size = 64;
+  //TODO, supply input pattern by file.
+  //TODO, num evals should generate test patterns
+
+  bool eval_flag = true; //if true, also run evaluation to verify correct generation.
+  usint n_evals = 3; //number of evaluations to run
+
+  
   bool dbg_flag = false; 
 
   if (argc >= 2 ) {
@@ -69,11 +84,11 @@ int main(int argc, char* argv[]){
       std::cout << "setting dbg_flag true" << std::endl;
     }
   }
-  int n_bits = 8;
+  int n_bits = 10;
 
   if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 8) {
-      n_bits = 8;
+    if (atoi(argv[2]) < 10) {
+      n_bits = 10;
     } else if (atoi(argv[2]) >= 13) {
       n_bits = 13;
     } else {
@@ -116,22 +131,29 @@ int main(int argc, char* argv[]){
 	std::cout << nthreads << std::endl;
       }
   }
+  
+  //32 bit test would run n_bits = 10 .. < 10+bit range no max, default 3
+// 48 bit test runs 10.. 12  
+//64 bit test ran from 1..13
     
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
-  errorflag = GenerateConjObfs(dbg_flag, n);
+
+  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals);
+
   return ((int)errorflag);
 
 }
 
 
 //////////////////////////////////////////////////////////////////////
-bool GenerateConjObfs(bool dbg_flag, int n) {
-  //TODO, supply input pattern by file.
+bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals) {
   
   //if dbg_flag == true; print debug outputs
-  // n = size of vectors to use
-
+  // n = size of vectors to use (power of 2)
+  // pattern_size = size of patterns (32, 40, 64)
+  // n_evals number of evals to run 0..3
+  
   //returns
   //  errorflag = 1 if fail
 
@@ -140,22 +162,35 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   TIC(t_total); //start timer for total time
 
   usint m = 2*n;
-  //54 bits
-  //BigInteger modulus("9007199254741169");
-  //BigInteger rootOfUnity("7629104920968175");
 
   usint chunkSize = 8;
   usint base = 1<<20;
 
-  if (n > 1<<10)
-    base = 1<<15;
-
-  //Generate the test pattern
-  //std::string inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?";
-  //std::string inputPattern = "1?10?10?1?10?10?";
-  std::string inputPattern = "1?10?10?";
-
-
+  //set inputPattern and adjust base for input pattern size
+  std::string inputPattern("");
+  switch (pattern_size) {
+  case 32:
+    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?"; //32 bit test
+    if (n > 1<<10)   //adjust for 32 bit test
+      base = 1<<15;
+    break;
+    
+  case 40:
+    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?"; // 40 bit test
+    break;
+    
+  case 64:
+    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?"; //64 bit test
+    
+    if (n > 1<<11)   // adjust for 64 bit test
+      base = 1<<18;
+    break;
+  default:
+    std::cout<< "bad input pattern length selected (must be 32, 40 or 64). "<<std::endl;
+    exit(-1);
+  }
+  
+  
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n);
@@ -199,6 +234,7 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   PROFILELOG("rootOfUnity = " << rootOfUnity);
   PROFILELOG("n = " << m / 2);
   PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
+  PROFILELOG("\nbase = " << base);
 
   typename DCRTPoly::DugType dug;
   typename DCRTPoly::TugType tug;
@@ -236,15 +272,15 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   string obfFileName = "op"+to_string(n);
   SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
 
-  //note this is for debug -- will move to evaluate program once it all works
+
   ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
   DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
 
   if (!CompareObfuscatedPatterns(obfuscatedPattern, testObfuscatedPattern)) {
-    std::cout<<"Serialization did not work"<<std::endl;
+    std::cout<<"Serialization did verify"<<std::endl;
   }else{
-    std::cout<<"Serialization worked correctly"<<std::endl;
+    std::cout<<"Serialization verified"<<std::endl;
   }
   
   DEBUG("Done" );
@@ -258,107 +294,134 @@ bool GenerateConjObfs(bool dbg_flag, int n) {
   std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
 
-  ////////////////////////////////////////////////////////////
-  //Test the cleartext pattern
-  ////////////////////////////////////////////////////////////
 
-  DEBUG(" \nCleartext pattern: ");
-  DEBUG(clearPattern.GetPatternString());
+  if (eval_flag) {
+      
+    ////////////////////////////////////////////////////////////
+    //Test the cleartext pattern
+    ////////////////////////////////////////////////////////////
 
-  DEBUG(" \nCleartext pattern length: ");
-  DEBUG(clearPattern.GetLength());
+    DEBUG(" \nCleartext pattern: ");
+    DEBUG(clearPattern.GetPatternString());
 
-  //std::string inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
-  std::string inputStr1 = "11100100";
-  bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
-  DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
+    DEBUG(" \nCleartext pattern length: ");
+    DEBUG(clearPattern.GetLength());
+
+    std::string inputStr1("");
+    std::string inputStr2("");
+    std::string inputStr3("");
+    switch (pattern_size) {
+    case 32:  //32 bit test
+      inputStr1 = "11100100111001001110010011100100";
+      inputStr2 = "11001101110011011100110111001111";
+      inputStr3 = "10101101101011011010110110101101";
+      break;
+    
+    case 40:  //40 bit test
+      inputStr1 = "1110010011100100111001001110010011100100"; 
+      inputStr2 = "1100110111001101110011011100111111001101"; 
+      inputStr3 = "1010110110101101101011011010110110101101"; 
+      break;
+    
+    case 64:  // 64 bit test
+      inputStr1 = "1110010011100100111001001110010011100100111001001110010011100100";
+      inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
+      inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
+      break;
+
+    default:
+      std::cout<< "bad input pattern length selected (must be 32, 40 or 64). "<<std::endl;
+      exit(-1);
+    }
+      
+    //std::string inputStr1 = "11100100"; //8 bit test
+    //std::string inputStr2 = "11001101"; //8 bit test
+    //std::string inputStr3 = "10101101"; //8 bit test
+
+    bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
+    DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
+
+    bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
+    DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
   
-  //std::string inputStr2 = "1100110111001101110011011100111111001101110011011100110111001111";
-  std::string inputStr2 = "11001101";
-  bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
-  DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
-  
-  //std::string inputStr3 = "1010110110101101101011011010110110101101101011011010110110101101";
-  std::string inputStr3 = "10101101";
-  bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
-  DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
+    bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
+    DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
 	
-  ////////////////////////////////////////////////////////////
-  //Generate and test the obfuscated pattern
-  ////////////////////////////////////////////////////////////
-  double timeEval1(0.0),  timeEval2(0.0),  timeEval3(0.0);
+    ////////////////////////////////////////////////////////////
+    //Generate and test the obfuscated pattern
+    ////////////////////////////////////////////////////////////
+    double timeEval1(0.0),  timeEval2(0.0),  timeEval3(0.0);
 
-  //todo make this a loop
-  bool result1 = false;
-  bool result2 = false;
-  bool result3 = false;
-  std::cout << " \nCleartext pattern: " << std::endl;
-  std::cout << clearPattern.GetPatternString() << std::endl;
+    //todo make this a loop
+    bool result1 = false;
+    bool result2 = false;
+    bool result3 = false;
+    std::cout << " \nCleartext pattern: " << std::endl;
+    std::cout << clearPattern.GetPatternString() << std::endl;
 
-  PROFILELOG("Evaluation started");
-  DEBUG("====== just before eval ");  
-  DEBUGEXP(*(obfuscatedPattern.GetParameters()));
+    PROFILELOG("Evaluation started");
+    DEBUG("====== just before eval ");  
+    DEBUGEXP(*(obfuscatedPattern.GetParameters()));
 
-  DEBUG("====== ");  
-  TIC(t1);
-  result1 = algorithm.Evaluate(obfuscatedPattern, inputStr1);
-  timeEval1 = TOC(t1);
-  DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
-  PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
+    DEBUG("====== ");  
+    TIC(t1);
+    result1 = algorithm.Evaluate(obfuscatedPattern, inputStr1);
+    timeEval1 = TOC(t1);
+    DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
+    PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
 
-  usint n_evals = 3;
+    errorflag = false;
+    if (result1 != out1) {
+      std::cout << "ERROR EVALUATING 1 "<<" got "<<result1<<" wanted "<<out1<< std::endl;
+      errorflag |= true;
+    }
+    if (n_evals > 1) {
+      PROFILELOG("Evaluation 2 started");
+      TIC(t1);
+      result2 = algorithm.Evaluate(obfuscatedPattern, inputStr2);
+      timeEval2 = TOC(t1);
+      DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
+      PROFILELOG("Evaluation 2 execution time: " << "\t" << timeEval2 << " ms");
+
+      if (result2 != out2) {
+	std::cout << "ERROR EVALUATING 2"<<" got "<<result2<<" wanted "<<out2 << std::endl;
+	errorflag |= true;
+      }
+    }
+
+    if (n_evals > 2) {
+      PROFILELOG("Evaluation 3 started");
+      TIC(t1);
+      result3 = algorithm.Evaluate(obfuscatedPattern, inputStr3);
+      timeEval3 = TOC(t1);
+      DEBUG("\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
+      PROFILELOG("Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
+      if (result3 != out3) {
+	std::cout << "ERROR EVALUATING 3" <<" got "<<result3<<" wanted "<<out3 << std::endl;
+	errorflag |= true;
+      }
+    }
+
+    //get the total program run time.
+    timeTotal = TOC(t_total);
+
+    //print output timing results
+    //note one could use PROFILELOG for these lines
+    std::cout << "Timing Summary for n = " << m / 2 << std::endl;
+    std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
+    std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
+    std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
+    std::cout << "T: Average evaluation execution time:  " << "\t" << (timeEval1+timeEval2+timeEval3)/3 << " ms" << std::endl;
+    std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
+
+    if (errorflag) {
+      std::cout << "FAIL " << std::endl;
+    }
+    else {
+      std::cout << "SUCCESS " << std::endl;
+    }
+  }
   
-  errorflag = false;
-  if (result1 != out1) {
-    std::cout << "ERROR EVALUATING 1 "<<" got "<<result1<<" wanted "<<out1<< std::endl;
-    errorflag |= true;
-  }
-  if (n_evals > 1) {
-    PROFILELOG("Evaluation 2 started");
-    TIC(t1);
-    result2 = algorithm.Evaluate(obfuscatedPattern, inputStr2);
-    timeEval2 = TOC(t1);
-    DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
-    PROFILELOG("Evaluation 2 execution time: " << "\t" << timeEval2 << " ms");
-
-    if (result2 != out2) {
-      std::cout << "ERROR EVALUATING 2"<<" got "<<result2<<" wanted "<<out2 << std::endl;
-      errorflag |= true;
-    }
-  }
-
-  if (n_evals > 2) {
-    PROFILELOG("Evaluation 3 started");
-    TIC(t1);
-    result3 = algorithm.Evaluate(obfuscatedPattern, inputStr3);
-    timeEval3 = TOC(t1);
-    DEBUG("\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
-    PROFILELOG("Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
-    if (result3 != out3) {
-      std::cout << "ERROR EVALUATING 3" <<" got "<<result3<<" wanted "<<out3 << std::endl;
-      errorflag |= true;
-    }
-  }
-
-  //get the total program run time.
-  timeTotal = TOC(t_total);
-
-  //print output timing results
-  //note one could use PROFILELOG for these lines
-  std::cout << "Timing Summary for n = " << m / 2 << std::endl;
-  std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
-  std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
-  std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
-  std::cout << "T: Average evaluation execution time:  " << "\t" << (timeEval1+timeEval2+timeEval3)/3 << " ms" << std::endl;
-  std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
-
-  if (errorflag) {
-    std::cout << "FAIL " << std::endl;
-  }
-  else {
-    std::cout << "SUCCESS " << std::endl;
-  }
-
   DiscreteFourierTransform::Reset();
   
   return (errorflag);
