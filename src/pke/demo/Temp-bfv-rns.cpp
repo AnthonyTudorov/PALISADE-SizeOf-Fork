@@ -62,14 +62,16 @@ void SwitchCRTSingleTests();
 void Multiply();
 void MultiplyTwo();
 void MultiplyThree();
+void SHERunMultiplication();
 
 int main() {
 
 	//PKE();
 	//SHETestCoeff();
 	//SHETestPacked();
-	for (size_t i = 0; i < 10; i++)
-		SHETestCoefAll();
+	SHERunMultiplication();
+	//for (size_t i = 0; i < 10; i++)
+	//HETestCoefAll();
 	//SHETestPackedInnerProduct();
 	//SwitchCRT();
 	//SwitchCRTSingleTests();
@@ -721,6 +723,108 @@ void SHETestCoefAll() {
 	cout << plaintextDecRotated << endl;
 
 }
+
+
+void SHERunMultiplication() {
+
+	std::cout << "\n===========TESTS MULTIPLICATION UP TO THE FULL DEPTH - COEFFICIENT ENCODING===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	usint ptm = 2;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.004;
+
+	size_t count = 10;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, count, 0, OPTIMIZED,7);
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	//std::vector<int64_t> vectorOfInts1 = {1,1,1,1,1,1,1,1,1,1,1,1};
+	std::vector<int64_t> vectorOfInts1 = {1,0,0,0,0,0,0,0,0,0,0,0};
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	start = currentDateTime();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "EvalMult key generation time: " << "\t" << diff << " ms" << endl;
+
+	start = currentDateTime();
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+
+	auto ciphertextNew = cryptoContext->EvalMult(ciphertext1,ciphertext1);
+
+	for(size_t i=1; i < count; i++){
+
+		ciphertextNew = cryptoContext->EvalMult(ciphertextNew,ciphertext1);
+
+		std::cout << "iteration: " << to_string(i) << std::endl;
+
+	}
+
+	Plaintext plaintextDecMul;
+
+	start = currentDateTime();
+
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextNew, &plaintextDecMul);
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+	plaintextDecMul->SetLength(plaintext1->GetLength());
+
+	cout << "\n Resulting Decryption of the Multiplication: \n";
+	cout << plaintextDecMul << endl;
+
+}
+
 
 void SHETestPackedInnerProduct() {
 
