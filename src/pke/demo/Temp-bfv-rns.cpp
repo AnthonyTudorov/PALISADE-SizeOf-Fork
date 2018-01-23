@@ -69,9 +69,9 @@ int main() {
 	//PKE();
 	//SHETestCoeff();
 	//SHETestPacked();
-	SHERunMultiplication();
+	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
-	//HETestCoefAll();
+	SHETestCoefAll();
 	//SHETestPackedInnerProduct();
 	//SwitchCRT();
 	//SwitchCRTSingleTests();
