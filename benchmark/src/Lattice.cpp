@@ -357,10 +357,8 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	E b;
 
 	if( state.thread_index == 0 ) {
-//		state.PauseTiming();
 		a = TestParameters.GetPoly<E>(state.range(0),0);
 		b = TestParameters.GetPoly<E>(state.range(0),1);
-//		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -388,15 +386,11 @@ static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
 	E b;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		b = TestParameters.GetPoly<E>(state.range(0),1);
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		state.PauseTiming();
 		a = TestParameters.GetPoly<E>(state.range(0),0);
-		state.ResumeTiming();
 		addeq_LATTICE<E>(a,b);
 	}
 }
@@ -420,10 +414,8 @@ static void BM_mult_LATTICE(benchmark::State& state) {
 	E a,b;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		a = TestParameters.GetPoly<E>(state.range(0),0);
 		b = TestParameters.GetPoly<E>(state.range(0),1);
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -439,23 +431,22 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_mult_LATTICE,BE4DCRTPoly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_mult_LATTICE,BE6DCRTPoly)
 
 template <class E>
-static void multeq_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {	// function
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	E			b = makeElement<E>(params);
-	state.ResumeTiming();
+static void multeq_LATTICE(E& a, const E& b) {	// function
 
-	a *= b;
+	benchmark::DoNotOptimize(a *= b);
 }
 
 template <class E>
 static void BM_multeq_LATTICE(benchmark::State& state) { // benchmark
+	E a,b;
+
 	if( state.thread_index == 0 ) {
-		;
+		b = TestParameters.GetPoly<E>(state.range(0),1);
 	}
 
 	while (state.KeepRunning()) {
-		multeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
+		a = TestParameters.GetPoly<E>(state.range(0),0);
+		multeq_LATTICE<E>(a, b);
 	}
 }
 
