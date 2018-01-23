@@ -87,7 +87,7 @@ bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
 // Deserialize Operation
 template<class  Element>
 bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
-    bool dbg_flag= true;
+    bool dbg_flag= false;
     Serialized::ConstMemberIterator iMap
       = serObj.FindMember("ClearLWEConjunctionPattern");
 
@@ -213,7 +213,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 
 /////////////////////////////////////////////////////////////////////////////
 // Serialization of Obfuscated pattern 
-
+// todo: add palisade serialization error throw
  template <typename Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   bool dbg_flag = false;
@@ -249,19 +249,41 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   //number of bits encoded by one matrix
   topobj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), topobj.GetAllocator());
   DEBUGEXP(this->GetChunkSize());
+
   //base for G-sampling
   topobj.AddMember("Base", std::to_string(this->GetBase()), topobj.GetAllocator());
   DEBUGEXP(this->GetBase());  
 
-  
+  DEBUG("S_Vec(0,0).(0,0)" );
+  auto m = *((this->m_S_vec)->at(0).at(0));
+  DEBUGEXP(m(0,0));
+
   SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &topobj);
-  
+
+  m = *((this->m_R_vec)->at(0).at(0));
+  DEBUG("R_Vec(0,0).(0,0)" );
+  DEBUGEXP(m(0,0));
+
   SerializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), *(this->m_R_vec), &topobj);
   
   // m_Sl;
+  DEBUG("Sl(0,0)" );
+  auto m1 = *this->GetSl();
+  DEBUGEXP(m1(0,0));
+
   SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &topobj);
+
   // m_Rl
+  m1 = *this->GetRl();
+  DEBUG("Rl(0,0)" );
+  DEBUGEXP(m1(0,0));
+
   SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &topobj);
+
+
+  DEBUG("Pk(0),(0,0)" );
+  auto m2 = (*(this->m_pk)).at(0);
+  DEBUGEXP(m2(0,0));
 
   SerializeVectorOfMatrix("Pk", Element::GetElementName(), *this->m_pk, &topobj);
 
@@ -277,6 +299,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
 
 /////////////////////////////////////////////////////////////////////////////
 // Deerialization of Obfuscated pattern 
+// todo: add palisade deserialization error throw
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
     bool dbg_flag= false;
@@ -1091,6 +1114,15 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	usint chunkSize = obfuscatedPattern.GetChunkSize();
 	usint adjustedLength = l/chunkSize;
 	double constraint = obfuscatedPattern.GetConstraint();
+
+	DEBUG("in Evaluate");
+	DEBUGEXP(l);
+	DEBUGEXP(k);
+	DEBUGEXP(base);
+	DEBUGEXP(m);	
+	DEBUGEXP(chunkSize);
+	DEBUGEXP(adjustedLength);
+	DEBUGEXP(constraint);
 
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern.GetPublicKeys();
 

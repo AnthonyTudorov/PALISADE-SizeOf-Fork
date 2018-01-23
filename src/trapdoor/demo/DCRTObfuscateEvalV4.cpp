@@ -42,8 +42,9 @@ bool EvaluateConjObfs(bool dbg_flag, int  n); //defined later
 
 void  DeserializeClearPatternFromFile(const string clearFileName,
 				      ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
-void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern);
-
+void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern, bool checkflag = false);
+void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern,
+				       const string obfFileName);
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
   
@@ -127,7 +128,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
 
 
   TimeVar t1, t_total; //for TIC TOC
-  TIC(t_total); //start timer for total time
+  float timeRead(0.0);
 
   usint m = 2*n;
 
@@ -141,75 +142,41 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern("");
   string clearFileName = "cp"+to_string(n);
   DEBUG("reading clearPattern from file: "<<clearFileName<<".json");
+  TIC(t1);
   DeserializeClearPatternFromFile(clearFileName, clearPattern);
-
-  LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
-    
-#if 0  
-
-  ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
-  obfuscatedPattern.SetChunkSize(chunkSize);
-  obfuscatedPattern.SetBase(base);
-  obfuscatedPattern.SetLength(clearPattern.GetLength());
-  obfuscatedPattern.SetRootHermiteFactor(1.006);
-
-
-  //Variables for timing
-  double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0),
-    timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
-
-  double stdDev = SIGMA;
-  DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
-
-  //Finds q using the correctness constraint for the given value of n
-  algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
-
-  //this code finds the values of q and n corresponding to the root Hermite factor in obfuscatedPattern
-  //algorithm.ParamsGen(dgg, &obfuscatedPattern);
-
-  const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
-
-  const BigInteger &modulus = ilParams->GetModulus();
-  const BigInteger &rootOfUnity = ilParams->GetRootOfUnity();
-
-  PROFILELOG("\nq = " << modulus);
-  PROFILELOG("rootOfUnity = " << rootOfUnity);
-  PROFILELOG("n = " << m / 2);
-  PROFILELOG(printf("delta=%lf", obfuscatedPattern.GetRootHermiteFactor()));
-  PROFILELOG("\nbase = " << base);
-
-  typename DCRTPoly::DugType dug;
-  typename DCRTPoly::TugType tug;
-
-  PROFILELOG("\nCryptosystem initialization: Performing precomputations...");
-
-  //This code is run only when performing execution time measurements
-#endif
-
-
-  //Variables for timing
-  //todo make eval an array
-  double timeEval1(0.0), timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
+  timeRead = TOC(t1);
+  PROFILELOG("Read time: " << "\t" << timeRead << " ms");
 
 
   string obfFileName = "op"+to_string(n);
   //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 
+  std::cout<<"Deserializing Obfuscated Pattern from file "+obfFileName+".json"<<std::endl;
+  TIC(t1);
   DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
+  timeRead = TOC(t1);
+  PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
+
+
+  TIC(t_total); //start timer for total time
+
+  LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
+    
+  //Variables for timing
+  //todo make eval an array
+  double timeEval1(0.0), timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
+
 
   const shared_ptr<typename DCRTPoly::Params> ilParams = obfuscatedPattern.GetParameters();
+
   m = ilParams->GetCyclotomicOrder();
   
   double stdDev = SIGMA;
   DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
 
-  //Finds q using the correctness constraint for the given value of n
-  algorithm.ParamsGen(dgg, &obfuscatedPattern, m / 2);
-  
   //Precomputations for FTT
   DiscreteFourierTransform::PreComputeTable(m);
-
 
   ////////////////////////////////////////////////////////////
   //Test the cleartext pattern
@@ -244,13 +211,16 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
   bool result1 = false;
   bool result2 = false;
   bool result3 = false;
-  std::cout << " \nCleartext pattern: " << std::endl;
-  std::cout << clearPattern.GetPatternString() << std::endl;
 
   PROFILELOG("Evaluation started");
+  //DEBUG("====== just before eval ");  
+  //DEBUGEXP(*(obfuscatedPattern.GetParameters()));
+
+  //DEBUG("====== ");  
   TIC(t1);
   result1 = algorithm.Evaluate(obfuscatedPattern, inputStr1);
   timeEval1 = TOC(t1);
+
   DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
   PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
 
@@ -266,6 +236,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
     TIC(t1);
     result2 = algorithm.Evaluate(obfuscatedPattern, inputStr2);
     timeEval2 = TOC(t1);
+
     DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
     PROFILELOG("Evaluation 2 execution time: " << "\t" << timeEval2 << " ms");
 
@@ -280,6 +251,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n) {
     TIC(t1);
     result3 = algorithm.Evaluate(obfuscatedPattern, inputStr3);
     timeEval3 = TOC(t1);
+
     DEBUG("\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
     PROFILELOG("Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
     if (result3 != out3) {
@@ -339,7 +311,7 @@ void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjun
 };
 
 //////////////////////////////////////////////////
-void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern){
+void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern, bool checkflag){
 
   bool dbg_flag = false;
 
@@ -355,7 +327,33 @@ void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedL
   if (!obsPattern.Deserialize(serObj)){
     throw std::runtime_error ("Can't Deserialize the obfuscated JSON string");
   };
-  
+
+  if (checkflag) {
+    SerializeObfuscatedPatternToFile(obsPattern, obfFileName+"check");
+  }
+
   DEBUG("done in DeserializeObfuscatedPattern");
+
 };
 
+////////////////////////////////////////////////////////
+void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern, const string obfFileName){
+  bool dbg_flag = false;
+
+  DEBUG("in SerializeObfuscatedPattern");
+  DEBUGEXP(*obfuscatedPattern.GetParameters());
+
+  Serialized serObj;
+  serObj.SetObject();
+  
+  obfuscatedPattern.Serialize(&serObj);
+  
+  if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
+    throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
+
+  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
+    throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
+  
+  DEBUG("done in SerializeObfuscatedPattern");
+
+};

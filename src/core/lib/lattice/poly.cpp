@@ -615,9 +615,13 @@ PolyImpl<ModType,IntType,VecType,ParmType> PolyImpl<ModType,IntType,VecType,Parm
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const PolyImpl<ModType,IntType,VecType,ParmType>& PolyImpl<ModType,IntType,VecType,ParmType>::operator+=(const PolyImpl &element)
 {
-	if (!(*this->m_params == *element.m_params))
+	bool dbg_flag = true;
+	if (!(*this->m_params == *element.m_params)){
+		DEBUGEXP(*this->m_params);
+		DEBUGEXP(*element.m_params);
 		throw std::logic_error("operator+= called on PolyImpl's with different params.");
-
+	}
+  
 	if (m_values == nullptr) {
 		// act as tho this is 0
 		m_values = make_unique<VecType>(*element.m_values);
