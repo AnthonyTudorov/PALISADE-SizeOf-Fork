@@ -63,13 +63,23 @@
 using namespace std;
 using namespace lbcrypto;
 
-static vector<ElementOrder> o( { M16, M1024, M2048, M4096, M8192, M16384, M32768 } );
+static vector<usint> o( { 16, 1024, 2048, 4096, 8192, 16384, 32768 } );
 
 template<typename P, typename I>
-static void GenerateParms(map<ElementOrder,shared_ptr<P>>& parmArray) {
+static void GenerateParms(map<usint,shared_ptr<P>>& parmArray) {
 
-	for(ElementOrder v : o ) {
+	for(usint v : o ) {
 		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v);
+	}
+
+	return;
+}
+
+template<typename P, typename I>
+static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
+
+	for(usint v : o ) {
+		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v, 28, 5);
 	}
 
 	return;
@@ -142,45 +152,45 @@ PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>::DecryptionCRTInterpola
 }
 
 
-map<ElementOrder,shared_ptr<BE2ILParams>> BE2parms;
-map<ElementOrder,shared_ptr<BE2ILDCRTParams>> BE2dcrtparms;
-map<ElementOrder,shared_ptr<BE4ILParams>> BE4parms;
-map<ElementOrder,shared_ptr<BE4ILDCRTParams>> BE4dcrtparms;
-map<ElementOrder,shared_ptr<BE6ILParams>> BE6parms;
-map<ElementOrder,shared_ptr<BE6ILDCRTParams>> BE6dcrtparms;
+map<usint,shared_ptr<BE2ILParams>> BE2parms;
+map<usint,shared_ptr<BE2ILDCRTParams>> BE2dcrtparms;
+map<usint,shared_ptr<BE4ILParams>> BE4parms;
+map<usint,shared_ptr<BE4ILDCRTParams>> BE4dcrtparms;
+map<usint,shared_ptr<BE6ILParams>> BE6parms;
+map<usint,shared_ptr<BE6ILDCRTParams>> BE6dcrtparms;
 
 class Setup {
 public:
 	Setup() {
 		GenerateParms<BE2ILParams,BE2Integer>( BE2parms );
-		GenerateParms<BE2ILDCRTParams,BE2Integer>( BE2dcrtparms );
+		GenerateDCRTParms<BE2ILDCRTParams,BE2Integer>( BE2dcrtparms );
 		GenerateParms<BE4ILParams,BE4Integer>( BE4parms );
-		GenerateParms<BE4ILDCRTParams,BE4Integer>( BE4dcrtparms );
+		GenerateDCRTParms<BE4ILDCRTParams,BE4Integer>( BE4dcrtparms );
 		GenerateParms<BE6ILParams,BE6Integer>( BE6parms );
-		GenerateParms<BE6ILDCRTParams,BE6Integer>( BE6dcrtparms );
+		GenerateDCRTParms<BE6ILDCRTParams,BE6Integer>( BE6dcrtparms );
 	}
 
 	template<typename P>
-	shared_ptr<P> GetParm(ElementOrder o);
+	shared_ptr<P> GetParm(usint o);
 } TestParameters;
 
 template<>
-shared_ptr<BE2ILParams> Setup::GetParm(ElementOrder o) { return BE2parms[o]; }
+shared_ptr<BE2ILParams> Setup::GetParm(usint o) { return BE2parms[o]; }
 
 template<>
-shared_ptr<BE2ILDCRTParams> Setup::GetParm(ElementOrder o) { return BE2dcrtparms[o]; }
+shared_ptr<BE2ILDCRTParams> Setup::GetParm(usint o) { return BE2dcrtparms[o]; }
 
 template<>
-shared_ptr<BE4ILParams> Setup::GetParm(ElementOrder o) { return BE4parms[o]; }
+shared_ptr<BE4ILParams> Setup::GetParm(usint o) { return BE4parms[o]; }
 
 template<>
-shared_ptr<BE4ILDCRTParams> Setup::GetParm(ElementOrder o) { return BE4dcrtparms[o]; }
+shared_ptr<BE4ILDCRTParams> Setup::GetParm(usint o) { return BE4dcrtparms[o]; }
 
 template<>
-shared_ptr<BE6ILParams> Setup::GetParm(ElementOrder o) { return BE6parms[o]; }
+shared_ptr<BE6ILParams> Setup::GetParm(usint o) { return BE6parms[o]; }
 
 template<>
-shared_ptr<BE6ILDCRTParams> Setup::GetParm(ElementOrder o) { return BE6dcrtparms[o]; }
+shared_ptr<BE6ILDCRTParams> Setup::GetParm(usint o) { return BE6dcrtparms[o]; }
 
 // test scenarios
 struct Scenario {
@@ -243,18 +253,18 @@ void BM_LATTICE_empty(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		make_LATTICE_empty<E>(TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		make_LATTICE_empty<E>(TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
 #define DO_POLY_BENCHMARK_TEMPLATE(X,Y) \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(M16); \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(M1024); \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(M2048); \
-		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_4096")->Arg(M4096);*/ \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_8192")->Arg(M8192); \
-		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16384")->Arg(M16384);*/ \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_32768")->Arg(M32768);
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(16); \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(1024); \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(2048); \
+		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_4096")->Arg(4096);*/ \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_8192")->Arg(8192); \
+		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16384")->Arg(16384);*/ \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_32768")->Arg(32768);
 
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE4Poly)
@@ -296,7 +306,7 @@ void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		make_LATTICE_vector<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		make_LATTICE_vector<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -325,7 +335,7 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		add_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		add_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -354,7 +364,7 @@ static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		addeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		addeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -382,7 +392,7 @@ static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		mult_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		mult_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -410,7 +420,7 @@ static void BM_multeq_LATTICE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		multeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		multeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -437,7 +447,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 	}
 
 	while (state.KeepRunning()) {
-		switchformat_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		switchformat_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
@@ -465,7 +475,7 @@ static void BM_doubleswitchformat_LATTICE(benchmark::State& state) { // benchmar
 	}
 
 	while (state.KeepRunning()) {
-		doubleswitchformat_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>((ElementOrder)state.range(0)));
+		doubleswitchformat_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
 
