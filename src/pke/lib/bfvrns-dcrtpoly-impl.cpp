@@ -470,9 +470,9 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 		const Ciphertext<DCRTPoly> ciphertext,
 		NativePoly *plaintext) const
 {
-	TimeVar t_total;
+	//TimeVar t_total;
 
-	TIC(t_total);
+	//TIC(t_total);
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(privateKey->GetCryptoParameters());
@@ -509,7 +509,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);
 
-	std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
+	//std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
 	return DecryptResult(plaintext->GetLength());
 
