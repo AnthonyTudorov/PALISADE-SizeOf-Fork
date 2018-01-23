@@ -63,6 +63,27 @@
 using namespace std;
 using namespace lbcrypto;
 
+template <typename E>
+static E makeElement(shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> params) {
+	typename E::Vector	vec = makeVector<E>(params);
+	E					elem(params);
+
+	elem.SetValues(vec, elem.GetFormat());
+	return std::move(elem);
+}
+
+template <typename E>
+static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) {
+	shared_ptr<ILParamsImpl<typename E::Integer>>	params( new ILParamsImpl<typename E::Integer>( p->GetCyclotomicOrder(), p->GetModulus(), 1) );
+	typename E::Vector								vec = makeVector<typename E::PolyLargeType>(params);
+
+	typename E::PolyLargeType	bigE(params);
+	bigE.SetValues(vec, bigE.GetFormat());
+
+	E			elem(bigE, p);
+	return std::move(elem);
+}
+
 static vector<usint> o( { 16, 1024, 2048, 4096, 8192, 16384, 32768 } );
 
 template<typename P, typename I>
@@ -71,8 +92,6 @@ static void GenerateParms(map<usint,shared_ptr<P>>& parmArray) {
 	for(usint v : o ) {
 		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v);
 	}
-
-	return;
 }
 
 template<typename P, typename I>
@@ -81,8 +100,14 @@ static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
 	for(usint v : o ) {
 		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v, 28, 5);
 	}
+}
 
-	return;
+template<typename P, typename E>
+static void GeneratePolys(map<usint,shared_ptr<P>>& parmArray, map<usint,vector<E>>& polyArray) {
+	for( usint v : o ) {
+		for( int i=0; i<2; i++ )
+			polyArray[v].push_back( makeElement<E>(parmArray[v]) );
+	}
 }
 
 using BE2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
@@ -158,6 +183,12 @@ map<usint,shared_ptr<BE4ILParams>> BE4parms;
 map<usint,shared_ptr<BE4ILDCRTParams>> BE4dcrtparms;
 map<usint,shared_ptr<BE6ILParams>> BE6parms;
 map<usint,shared_ptr<BE6ILDCRTParams>> BE6dcrtparms;
+map<usint,vector<BE2Poly>> BE2polys;
+map<usint,vector<BE2DCRTPoly>> BE2DCRTpolys;
+map<usint,vector<BE4Poly>> BE4polys;
+map<usint,vector<BE4DCRTPoly>> BE4DCRTpolys;
+map<usint,vector<BE6Poly>> BE6polys;
+map<usint,vector<BE6DCRTPoly>> BE6DCRTpolys;
 
 class Setup {
 public:
@@ -168,10 +199,19 @@ public:
 		GenerateDCRTParms<BE4ILDCRTParams,BE4Integer>( BE4dcrtparms );
 		GenerateParms<BE6ILParams,BE6Integer>( BE6parms );
 		GenerateDCRTParms<BE6ILDCRTParams,BE6Integer>( BE6dcrtparms );
+		GeneratePolys<BE2ILParams,BE2Poly>(BE2parms, BE2polys);
+		GeneratePolys<BE4ILParams,BE4Poly>(BE4parms, BE4polys);
+		GeneratePolys<BE6ILParams,BE6Poly>(BE6parms, BE6polys);
+		GeneratePolys<BE2ILDCRTParams,BE2DCRTPoly>(BE2dcrtparms, BE2DCRTpolys);
+		GeneratePolys<BE4ILDCRTParams,BE4DCRTPoly>(BE4dcrtparms, BE4DCRTpolys);
+		GeneratePolys<BE6ILDCRTParams,BE6DCRTPoly>(BE6dcrtparms, BE6DCRTpolys);
 	}
 
 	template<typename P>
 	shared_ptr<P> GetParm(usint o);
+
+	template<typename E>
+	const E& GetPoly(usint o, int p);
 } TestParameters;
 
 template<>
@@ -192,54 +232,61 @@ shared_ptr<BE6ILParams> Setup::GetParm(usint o) { return BE6parms[o]; }
 template<>
 shared_ptr<BE6ILDCRTParams> Setup::GetParm(usint o) { return BE6dcrtparms[o]; }
 
-// test scenarios
-struct Scenario {
-	usint bits;
-	usint m;
-	string modulus;
-	string rootOfUnity;
-} Scenarios[] = {
-		{
-				503,
-				2048,
-				"13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601",
-				"12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094"
-		},
-		{
-				132,
-				8192,
-				"2722258935367507707706996859454146142209",
-				"1426115470453457649704739287701063827541"
-		},
-};
+template<> const BE2Poly& Setup::GetPoly(usint o, int p) { return BE2polys[o][p]; }
+template<> const BE4Poly& Setup::GetPoly(usint o, int p) { return BE4polys[o][p]; }
+template<> const BE6Poly& Setup::GetPoly(usint o, int p) { return BE6polys[o][p]; }
+template<> const BE2DCRTPoly& Setup::GetPoly(usint o, int p) { return BE2DCRTpolys[o][p]; }
+template<> const BE4DCRTPoly& Setup::GetPoly(usint o, int p) { return BE4DCRTpolys[o][p]; }
+template<> const BE6DCRTPoly& Setup::GetPoly(usint o, int p) { return BE6DCRTpolys[o][p]; }
 
-template<typename P,typename I>
-static shared_ptr<P> generate_IL_parms(int s) {
-	return shared_ptr<P>( new P(Scenarios[s].m, I(Scenarios[s].modulus), I(Scenarios[s].rootOfUnity)) );
-}
-
-static const usint smbits = 28;
-
-template<typename I>
-static shared_ptr<ILDCRTParams<I>> generate_DCRT_parms(int s) {
-	usint nTowers = Scenarios[s].bits/smbits;
-
-	vector<NativeInteger> moduli(nTowers);
-	vector<NativeInteger> rootsOfUnity(nTowers);
-
-	NativeInteger q = FirstPrime<NativeInteger>(smbits, Scenarios[s].m);
-	NativeInteger temp;
-	I modulus(1);
-
-	for(usint i=0; i < nTowers; i++){
-		moduli[i] = q;
-		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
-		modulus = modulus * I(moduli[i]);
-		q = NextPrime(q, Scenarios[s].m);
-	}
-
-	return shared_ptr<ILDCRTParams<I>>( new ILDCRTParams<I>(Scenarios[s].m, moduli, rootsOfUnity) );
-}
+//// test scenarios
+//struct Scenario {
+//	usint bits;
+//	usint m;
+//	string modulus;
+//	string rootOfUnity;
+//} Scenarios[] = {
+//		{
+//				503,
+//				2048,
+//				"13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601",
+//				"12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094"
+//		},
+//		{
+//				132,
+//				8192,
+//				"2722258935367507707706996859454146142209",
+//				"1426115470453457649704739287701063827541"
+//		},
+//};
+//
+//template<typename P,typename I>
+//static shared_ptr<P> generate_IL_parms(int s) {
+//	return shared_ptr<P>( new P(Scenarios[s].m, I(Scenarios[s].modulus), I(Scenarios[s].rootOfUnity)) );
+//}
+//
+//static const usint smbits = 28;
+//
+//template<typename I>
+//static shared_ptr<ILDCRTParams<I>> generate_DCRT_parms(int s) {
+//	usint nTowers = Scenarios[s].bits/smbits;
+//
+//	vector<NativeInteger> moduli(nTowers);
+//	vector<NativeInteger> rootsOfUnity(nTowers);
+//
+//	NativeInteger q = FirstPrime<NativeInteger>(smbits, Scenarios[s].m);
+//	NativeInteger temp;
+//	I modulus(1);
+//
+//	for(usint i=0; i < nTowers; i++){
+//		moduli[i] = q;
+//		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
+//		modulus = modulus * I(moduli[i]);
+//		q = NextPrime(q, Scenarios[s].m);
+//	}
+//
+//	return shared_ptr<ILDCRTParams<I>>( new ILDCRTParams<I>(Scenarios[s].m, moduli, rootsOfUnity) );
+//}
 
 template <typename E>
 static void make_LATTICE_empty(shared_ptr<typename E::Params> params) {
@@ -274,33 +321,12 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE4DCRTPoly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE6DCRTPoly)
 
 template <typename E>
-static E makeElement(shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> params) {
-	typename E::Vector	vec = makeVector<E>(params);
-	E					elem(params);
-
-	elem.SetValues(vec, elem.GetFormat());
-	return std::move(elem);
-}
-
-template <typename E>
-static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) {
-	shared_ptr<ILParamsImpl<typename E::Integer>>	params( new ILParamsImpl<typename E::Integer>( p->GetCyclotomicOrder(), p->GetModulus(), 1) );
-	typename E::Vector								vec = makeVector<typename E::PolyLargeType>(params);
-
-	typename E::PolyLargeType	bigE(params);
-	bigE.SetValues(vec, bigE.GetFormat());
-
-	E			elem(bigE, p);
-	return std::move(elem);
-}
-
-template <typename E>
 static void make_LATTICE_vector (benchmark::State& state, shared_ptr<typename E::Params> params) {	// function
 	E	elem = makeElement<E>(params);
 }
 
 template <typename E>
-void BM_LATTICE_vector(benchmark::State& state) { // benchmark
+void BM_LATTICE_makevector(benchmark::State& state) { // benchmark
 	if( state.thread_index == 0 ) {
 		;
 	}
@@ -310,32 +336,35 @@ void BM_LATTICE_vector(benchmark::State& state) { // benchmark
 	}
 }
 
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE2Poly)
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE4Poly)
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE6Poly)
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE2DCRTPoly)
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE4DCRTPoly)
-DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_vector,BE6DCRTPoly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE2Poly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE4Poly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE6Poly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE2DCRTPoly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE4DCRTPoly)
+DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE6DCRTPoly)
 
 // plus
 template <typename E>
-static void add_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	E			b = makeElement<E>(params);
-	state.ResumeTiming();
+static void add_LATTICE(const E& a, const E& b) {
 
-	E c1 = a+b;
+	E c1;
+	benchmark::DoNotOptimize(c1 = a+b);
 }
 
 template <typename E>
 static void BM_add_LATTICE(benchmark::State& state) { // benchmark
+	E a;
+	E b;
+
 	if( state.thread_index == 0 ) {
-		;
+//		state.PauseTiming();
+		a = TestParameters.GetPoly<E>(state.range(0),0);
+		b = TestParameters.GetPoly<E>(state.range(0),1);
+//		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		add_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
+		add_LATTICE<E>(a, b);
 	}
 }
 
@@ -348,23 +377,27 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_add_LATTICE,BE6DCRTPoly)
 
 // plus=
 template <typename E>
-static void addeq_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	E			b = makeElement<E>(params);
-	state.ResumeTiming();
+static void addeq_LATTICE(E& a, const E& b) {
 
-	a += b;
+	benchmark::DoNotOptimize(a += b);
 }
 
 template <typename E>
 static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
+	E a;
+	E b;
+
 	if( state.thread_index == 0 ) {
-		;
+		state.PauseTiming();
+		b = TestParameters.GetPoly<E>(state.range(0),1);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		addeq_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
+		state.PauseTiming();
+		a = TestParameters.GetPoly<E>(state.range(0),0);
+		state.ResumeTiming();
+		addeq_LATTICE<E>(a,b);
 	}
 }
 
@@ -376,23 +409,25 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,BE4DCRTPoly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,BE6DCRTPoly)
 
 template <class E>
-static void mult_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {	// function
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	E			b = makeElement<E>(params);
-	state.ResumeTiming();
+static void mult_LATTICE(const E& a, const E& b) {	// function
 
-	E c1 = a*b;
+	E c1;
+	benchmark::DoNotOptimize(c1 = a*b);
 }
 
 template <class E>
-static void BM_mult_LATTICE(benchmark::State& state) { // benchmark
+static void BM_mult_LATTICE(benchmark::State& state) {
+	E a,b;
+
 	if( state.thread_index == 0 ) {
-		;
+		state.PauseTiming();
+		a = TestParameters.GetPoly<E>(state.range(0),0);
+		b = TestParameters.GetPoly<E>(state.range(0),1);
+		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		mult_LATTICE<E>(state, TestParameters.GetParm<typename E::Params>(state.range(0)));
+		mult_LATTICE<E>(a, b);
 	}
 }
 
