@@ -66,7 +66,7 @@ inline shared_ptr<ILDCRTParams<I>> GenerateDCRTParams(usint m, usint numOfTower,
 	for(;;) {
 		moduli[j] = q;
 		rootsOfUnity[j] = RootOfUnity(m, q);
-		modulus = modulus * BigInteger(q.ConvertToInt());
+		modulus = modulus * I(q.ConvertToInt());
 		if( ++j == numOfTower )
 			break;
 

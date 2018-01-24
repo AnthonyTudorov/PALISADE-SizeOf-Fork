@@ -50,7 +50,7 @@ void BM_encoding_Scalar(benchmark::State& state) {
 		usint	m = 1024;
 		PlaintextModulus	ptm = 128;
 
-		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
 		plaintext.reset( new ScalarEncoding(lp, ep, value) );
 		state.ResumeTiming();
@@ -75,7 +75,7 @@ void BM_encoding_Integer(benchmark::State& state) { // benchmark
 		PlaintextModulus	ptm = 128;
 		int64_t mv = 58;
 
-		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
 		plaintext.reset( new IntegerEncoding(lp, ep, mv) );
 		state.ResumeTiming();
@@ -98,7 +98,7 @@ void BM_encoding_CoefPacked(benchmark::State& state) {
 		PlaintextModulus	ptm = 128;
 		PlaintextModulus half = ptm / 2;
 
-		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
 
 		vector<int64_t> intvec;
@@ -203,7 +203,7 @@ void BM_Encoding_String(benchmark::State& state) { // benchmark
 		usint	m = 1024;
 		PlaintextModulus	ptm = 256;
 
-		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams,BigInteger>(m);
+		shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParams>(m);
 		EncodingParams ep( new EncodingParamsImpl(ptm) );
 
 		auto randchar = []() -> char {

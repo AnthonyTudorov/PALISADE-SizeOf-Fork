@@ -86,19 +86,19 @@ static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) 
 
 static vector<usint> o( { 16, 1024, 2048, 4096, 8192, 16384, 32768 } );
 
-template<typename P, typename I>
+template<typename P>
 static void GenerateParms(map<usint,shared_ptr<P>>& parmArray) {
 
 	for(usint v : o ) {
-		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v);
+		parmArray[v] = ElemParamFactory::GenElemParams<P>(v);
 	}
 }
 
-template<typename P, typename I>
+template<typename P>
 static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
 
 	for(usint v : o ) {
-		parmArray[v] = ElemParamFactory::GenElemParams<P,I>(v, 28, 5);
+		parmArray[v] = ElemParamFactory::GenElemParams<P>(v, 28, 5);
 	}
 }
 
@@ -131,20 +131,40 @@ using BE6Vector = NTL::myVecP<NTL::myZZ>;
 using BE6Poly = PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>;
 using BE6DCRTPoly = DCRTPolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILDCRTParams>;
 
-//template<>
-//inline NativePoly
-//PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-//	PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams> smaller = this->Mod(ptm);
-//	NativePoly interp(
-//			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-//															this->GetFormat(), true);
-//
-//	for (usint i = 0; i<smaller.GetLength(); i++) {
-//		interp[i] = smaller[i].ConvertToInt();
-//	}
-//
-//	return std::move( interp );
-//}
+// the ifdefs below are a hack to make sure this compiles in all backends
+// when backend is == 2, BigInteger is the same as BE2Integer... and so these methods
+// will have duplicate instantiations... which is bad
+// FIXME later
+
+#if MATHBACKEND != 2
+template<>
+inline shared_ptr<ILDCRTParams<BE2Integer>>
+ElemParamFactory::GenElemParams<ILDCRTParams<BE2Integer>>(usint m, usint bits, usint towersize) {
+	return GenerateDCRTParams<BE2Integer>(m, towersize, bits);
+}
+
+template<>
+inline NativePoly
+PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+	PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams> smaller = this->Mod(ptm);
+	NativePoly interp(
+			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
+															this->GetFormat(), true);
+
+	for (usint i = 0; i<smaller.GetLength(); i++) {
+		interp[i] = smaller[i].ConvertToInt();
+	}
+
+	return std::move( interp );
+}
+#endif
+
+#if MATHBACKEND != 4
+template<>
+inline shared_ptr<ILDCRTParams<BE4Integer>>
+ElemParamFactory::GenElemParams<ILDCRTParams<BE4Integer>>(usint m, usint bits, usint towersize) {
+	return GenerateDCRTParams<BE4Integer>(m, towersize, bits);
+}
 
 template<>
 inline NativePoly
@@ -159,6 +179,14 @@ PolyImpl<BE4Integer, BE4Integer, BE4Vector, BE4ILParams>::DecryptionCRTInterpola
 	}
 
 	return std::move( interp );
+}
+#endif
+
+#if MATHBACKEND != 6
+template<>
+inline shared_ptr<ILDCRTParams<BE6Integer>>
+ElemParamFactory::GenElemParams<ILDCRTParams<BE6Integer>>(usint m, usint bits, usint towersize) {
+	return GenerateDCRTParams<BE6Integer>(m, towersize, bits);
 }
 
 template<>
@@ -175,7 +203,7 @@ PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>::DecryptionCRTInterpola
 
 	return std::move( interp );
 }
-
+#endif
 
 map<usint,shared_ptr<BE2ILParams>> BE2parms;
 map<usint,shared_ptr<BE2ILDCRTParams>> BE2dcrtparms;
@@ -193,23 +221,18 @@ map<usint,vector<BE6DCRTPoly>> BE6DCRTpolys;
 class Setup {
 public:
 	Setup() {
-		GenerateParms<BE2ILParams,BE2Integer>( BE2parms );
-		GenerateDCRTParms<BE2ILDCRTParams,BE2Integer>( BE2dcrtparms );
-		GenerateParms<BE4ILParams,BE4Integer>( BE4parms );
-		GenerateDCRTParms<BE4ILDCRTParams,BE4Integer>( BE4dcrtparms );
-		GenerateParms<BE6ILParams,BE6Integer>( BE6parms );
-		GenerateDCRTParms<BE6ILDCRTParams,BE6Integer>( BE6dcrtparms );
+		GenerateParms<BE2ILParams>( BE2parms );
+		GenerateDCRTParms<BE2ILDCRTParams>( BE2dcrtparms );
+		GenerateParms<BE4ILParams>( BE4parms );
+		GenerateDCRTParms<BE4ILDCRTParams>( BE4dcrtparms );
+		GenerateParms<BE6ILParams>( BE6parms );
+		GenerateDCRTParms<BE6ILDCRTParams>( BE6dcrtparms );
 		GeneratePolys<BE2ILParams,BE2Poly>(BE2parms, BE2polys);
 		GeneratePolys<BE4ILParams,BE4Poly>(BE4parms, BE4polys);
 		GeneratePolys<BE6ILParams,BE6Poly>(BE6parms, BE6polys);
 		GeneratePolys<BE2ILDCRTParams,BE2DCRTPoly>(BE2dcrtparms, BE2DCRTpolys);
 		GeneratePolys<BE4ILDCRTParams,BE4DCRTPoly>(BE4dcrtparms, BE4DCRTpolys);
 		GeneratePolys<BE6ILDCRTParams,BE6DCRTPoly>(BE6dcrtparms, BE6DCRTpolys);
-
-		cout << *BE2dcrtparms[16] << endl;
-		cout << *BE4dcrtparms[16] << endl;
-		cout << *BE6dcrtparms[16] << endl;
-		cout << BE6DCRTpolys[16][0] << endl;
 	}
 
 	template<typename P>
@@ -244,55 +267,16 @@ template<> const BE2DCRTPoly& Setup::GetPoly(usint o, int p) { return BE2DCRTpol
 template<> const BE4DCRTPoly& Setup::GetPoly(usint o, int p) { return BE4DCRTpolys[o][p]; }
 template<> const BE6DCRTPoly& Setup::GetPoly(usint o, int p) { return BE6DCRTpolys[o][p]; }
 
-//// test scenarios
-//struct Scenario {
-//	usint bits;
-//	usint m;
-//	string modulus;
-//	string rootOfUnity;
-//} Scenarios[] = {
-//		{
-//				503,
-//				2048,
-//				"13093562431584567480052758787310396608866568184172259157933165472384535185618698219533080369303616628603546736510240284036869026183541572213314110873601",
-//				"12023848463855649466660377440069556144464267030949365165993725942220441412632799311989973938254823071405336623315668961501139592673000297887682895033094"
-//		},
-//		{
-//				132,
-//				8192,
-//				"2722258935367507707706996859454146142209",
-//				"1426115470453457649704739287701063827541"
-//		},
-//};
-//
-//template<typename P,typename I>
-//static shared_ptr<P> generate_IL_parms(int s) {
-//	return shared_ptr<P>( new P(Scenarios[s].m, I(Scenarios[s].modulus), I(Scenarios[s].rootOfUnity)) );
-//}
-//
-//static const usint smbits = 28;
-//
-//template<typename I>
-//static shared_ptr<ILDCRTParams<I>> generate_DCRT_parms(int s) {
-//	usint nTowers = Scenarios[s].bits/smbits;
-//
-//	vector<NativeInteger> moduli(nTowers);
-//	vector<NativeInteger> rootsOfUnity(nTowers);
-//
-//	NativeInteger q = FirstPrime<NativeInteger>(smbits, Scenarios[s].m);
-//	NativeInteger temp;
-//	I modulus(1);
-//
-//	for(usint i=0; i < nTowers; i++){
-//		moduli[i] = q;
-//		rootsOfUnity[i] = RootOfUnity(Scenarios[s].m,moduli[i]);
-//		modulus = modulus * I(moduli[i]);
-//		q = NextPrime(q, Scenarios[s].m);
-//	}
-//
-//	return shared_ptr<ILDCRTParams<I>>( new ILDCRTParams<I>(Scenarios[s].m, moduli, rootsOfUnity) );
-//}
+#define DO_POLY_BENCHMARK_TEMPLATE(X,Y) \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(16); \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(1024); \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(2048); \
+		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_4096")->Arg(4096);*/ \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_8192")->Arg(8192); \
+		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16384")->Arg(16384);*/ \
+		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_32768")->Arg(32768);
 
+// benchmark just a declaration of an empty
 template <typename E>
 static void make_LATTICE_empty(shared_ptr<typename E::Params> params) {
 	E v1(params);
@@ -308,15 +292,6 @@ void BM_LATTICE_empty(benchmark::State& state) { // benchmark
 		make_LATTICE_empty<E>(TestParameters.GetParm<typename E::Params>(state.range(0)));
 	}
 }
-
-#define DO_POLY_BENCHMARK_TEMPLATE(X,Y) \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(16); \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(1024); \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(2048); \
-		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_4096")->Arg(4096);*/ \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_8192")->Arg(8192); \
-		/*BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16384")->Arg(16384);*/ \
-		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_32768")->Arg(32768);
 
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE4Poly)
@@ -464,10 +439,7 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_multeq_LATTICE,BE6DCRTPoly)
 
 template <class E>
 static void switchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	state.ResumeTiming();
-
+	E a = TestParameters.GetPoly<E>(state.range(0),0);
 	a.SwitchFormat();
 }
 
@@ -491,9 +463,7 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BE6DCRTPoly)
 
 template <class E>
 static void doubleswitchformat_LATTICE(benchmark::State& state, shared_ptr<typename E::Params> params) {
-	state.PauseTiming();
-	E			a = makeElement<E>(params);
-	state.ResumeTiming();
+	E a = TestParameters.GetPoly<E>(state.range(0),0);
 
 	a.SwitchFormat();
 	a.SwitchFormat();
