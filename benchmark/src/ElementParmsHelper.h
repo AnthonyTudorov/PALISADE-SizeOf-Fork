@@ -25,13 +25,13 @@
 
 #include "lattice/elemparamfactory.h"
 
-shared_ptr<ILParams> parm_16 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M16);
-shared_ptr<ILParams> parm_1024 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M1024);
-shared_ptr<ILParams> parm_2048 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M2048);
-shared_ptr<ILParams> parm_4096 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M4096);
-shared_ptr<ILParams> parm_8192 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M8192);
-shared_ptr<ILParams> parm_16384 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M16384);
-shared_ptr<ILParams> parm_32768 = ElemParamFactory::GenElemParams<ILParams,BigInteger>(M32768);
+shared_ptr<ILParams> parm_16 = ElemParamFactory::GenElemParams<ILParams>(M16);
+shared_ptr<ILParams> parm_1024 = ElemParamFactory::GenElemParams<ILParams>(M1024);
+shared_ptr<ILParams> parm_2048 = ElemParamFactory::GenElemParams<ILParams>(M2048);
+shared_ptr<ILParams> parm_4096 = ElemParamFactory::GenElemParams<ILParams>(M4096);
+shared_ptr<ILParams> parm_8192 = ElemParamFactory::GenElemParams<ILParams>(M8192);
+shared_ptr<ILParams> parm_16384 = ElemParamFactory::GenElemParams<ILParams>(M16384);
+shared_ptr<ILParams> parm_32768 = ElemParamFactory::GenElemParams<ILParams>(M32768);
 
 shared_ptr<ILParams> parmArray[] = {
 parm_16,
@@ -43,10 +43,10 @@ parm_16384,
 parm_32768,
 };
 
-shared_ptr<ILNativeParams> nparm_16 = ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(M16);
-shared_ptr<ILNativeParams> nparm_1024 = ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(M1024);
-shared_ptr<ILNativeParams> nparm_2048 = ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(M2048);
-shared_ptr<ILNativeParams> nparm_4096 = ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(M4096);
+shared_ptr<ILNativeParams> nparm_16 = ElemParamFactory::GenElemParams<ILNativeParams>(M16);
+shared_ptr<ILNativeParams> nparm_1024 = ElemParamFactory::GenElemParams<ILNativeParams>(M1024);
+shared_ptr<ILNativeParams> nparm_2048 = ElemParamFactory::GenElemParams<ILNativeParams>(M2048);
+shared_ptr<ILNativeParams> nparm_4096 = ElemParamFactory::GenElemParams<ILNativeParams>(M4096);
 
 shared_ptr<ILNativeParams> nparmArray[] = {
 nparm_16,

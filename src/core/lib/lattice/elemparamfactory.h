@@ -68,9 +68,9 @@ public:
 	 * @param o - the order (an ElementOrder)
 	 * @return new params
 	 */
-	template<typename P, typename I>
+	template<typename P>
 	static shared_ptr<P> GenElemParams(ElementOrder o) {
-		return shared_ptr<P>( new P(DefaultSet[o].m, I(DefaultSet[o].q), I(DefaultSet[o].ru)) );
+		return shared_ptr<P>( new P(DefaultSet[o].m, typename P::Integer(DefaultSet[o].q), typename P::Integer(DefaultSet[o].ru)) );
 	}
 
 	/**

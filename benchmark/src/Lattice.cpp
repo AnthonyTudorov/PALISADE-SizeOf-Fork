@@ -88,15 +88,17 @@ static vector<usint> o( { 16, 1024, 2048, 4096, 8192, 16384, 32768 } );
 
 template<typename P>
 static void GenerateParms(map<usint,shared_ptr<P>>& parmArray) {
-
 	for(usint v : o ) {
-		parmArray[v] = ElemParamFactory::GenElemParams<P>(v);
+		try {
+			parmArray[v] = ElemParamFactory::GenElemParams<P>(v);
+		} catch( ... ) {
+			break;
+		}
 	}
 }
 
 template<typename P>
 static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
-
 	for(usint v : o ) {
 		parmArray[v] = ElemParamFactory::GenElemParams<P>(v, 28, 5);
 	}
@@ -104,9 +106,9 @@ static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
 
 template<typename P, typename E>
 static void GeneratePolys(map<usint,shared_ptr<P>>& parmArray, map<usint,vector<E>>& polyArray) {
-	for( usint v : o ) {
+	for( auto& pair : parmArray ) {
 		for( int i=0; i<2; i++ )
-			polyArray[v].push_back( makeElement<E>(parmArray[v]) );
+			polyArray[pair.first].push_back( makeElement<E>(parmArray[pair.first]) );
 	}
 }
 
@@ -205,12 +207,14 @@ PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>::DecryptionCRTInterpola
 }
 #endif
 
+map<usint,shared_ptr<ILNativeParams>> Nativeparms;
 map<usint,shared_ptr<BE2ILParams>> BE2parms;
 map<usint,shared_ptr<BE2ILDCRTParams>> BE2dcrtparms;
 map<usint,shared_ptr<BE4ILParams>> BE4parms;
 map<usint,shared_ptr<BE4ILDCRTParams>> BE4dcrtparms;
 map<usint,shared_ptr<BE6ILParams>> BE6parms;
 map<usint,shared_ptr<BE6ILDCRTParams>> BE6dcrtparms;
+map<usint,vector<NativePoly>> Nativepolys;
 map<usint,vector<BE2Poly>> BE2polys;
 map<usint,vector<BE2DCRTPoly>> BE2DCRTpolys;
 map<usint,vector<BE4Poly>> BE4polys;
@@ -221,12 +225,14 @@ map<usint,vector<BE6DCRTPoly>> BE6DCRTpolys;
 class Setup {
 public:
 	Setup() {
+		GenerateParms<ILNativeParams>( Nativeparms );
 		GenerateParms<BE2ILParams>( BE2parms );
 		GenerateDCRTParms<BE2ILDCRTParams>( BE2dcrtparms );
 		GenerateParms<BE4ILParams>( BE4parms );
 		GenerateDCRTParms<BE4ILDCRTParams>( BE4dcrtparms );
 		GenerateParms<BE6ILParams>( BE6parms );
 		GenerateDCRTParms<BE6ILDCRTParams>( BE6dcrtparms );
+		GeneratePolys<ILNativeParams,NativePoly>(Nativeparms, Nativepolys);
 		GeneratePolys<BE2ILParams,BE2Poly>(BE2parms, BE2polys);
 		GeneratePolys<BE4ILParams,BE4Poly>(BE4parms, BE4polys);
 		GeneratePolys<BE6ILParams,BE6Poly>(BE6parms, BE6polys);
@@ -241,6 +247,9 @@ public:
 	template<typename E>
 	const E& GetPoly(usint o, int p);
 } TestParameters;
+
+template<>
+shared_ptr<ILNativeParams> Setup::GetParm(usint o) { return Nativeparms[o]; }
 
 template<>
 shared_ptr<BE2ILParams> Setup::GetParm(usint o) { return BE2parms[o]; }
@@ -260,12 +269,18 @@ shared_ptr<BE6ILParams> Setup::GetParm(usint o) { return BE6parms[o]; }
 template<>
 shared_ptr<BE6ILDCRTParams> Setup::GetParm(usint o) { return BE6dcrtparms[o]; }
 
+template<> const NativePoly& Setup::GetPoly(usint o, int p) { return Nativepolys[o][p]; }
 template<> const BE2Poly& Setup::GetPoly(usint o, int p) { return BE2polys[o][p]; }
 template<> const BE4Poly& Setup::GetPoly(usint o, int p) { return BE4polys[o][p]; }
 template<> const BE6Poly& Setup::GetPoly(usint o, int p) { return BE6polys[o][p]; }
 template<> const BE2DCRTPoly& Setup::GetPoly(usint o, int p) { return BE2DCRTpolys[o][p]; }
 template<> const BE4DCRTPoly& Setup::GetPoly(usint o, int p) { return BE4DCRTpolys[o][p]; }
 template<> const BE6DCRTPoly& Setup::GetPoly(usint o, int p) { return BE6DCRTpolys[o][p]; }
+
+#define DO_NATIVEPOLY_BENCHMARK(X) \
+		BENCHMARK_TEMPLATE(X,NativePoly)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(16); \
+		BENCHMARK_TEMPLATE(X,NativePoly)->Unit(benchmark::kMicrosecond)->ArgName("parm_1024")->Arg(1024); \
+		BENCHMARK_TEMPLATE(X,NativePoly)->Unit(benchmark::kMicrosecond)->ArgName("parm_2048")->Arg(2048);
 
 #define DO_POLY_BENCHMARK_TEMPLATE(X,Y) \
 		BENCHMARK_TEMPLATE(X,Y)->Unit(benchmark::kMicrosecond)->ArgName("parm_16")->Arg(16); \
@@ -293,6 +308,7 @@ void BM_LATTICE_empty(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_LATTICE_empty)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_empty,BE6Poly)
@@ -316,6 +332,7 @@ void BM_LATTICE_makevector(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_LATTICE_makevector)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_LATTICE_makevector,BE6Poly)
@@ -346,6 +363,7 @@ static void BM_add_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_add_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_add_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_add_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_add_LATTICE,BE6Poly)
@@ -375,6 +393,7 @@ static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_addeq_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_addeq_LATTICE,BE6Poly)
@@ -403,6 +422,7 @@ static void BM_mult_LATTICE(benchmark::State& state) {
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_mult_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_mult_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_mult_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_mult_LATTICE,BE6Poly)
@@ -430,6 +450,7 @@ static void BM_multeq_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_multeq_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_multeq_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_multeq_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_multeq_LATTICE,BE6Poly)
@@ -454,6 +475,7 @@ static void BM_switchformat_LATTICE(benchmark::State& state) { // benchmark
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_switchformat_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_switchformat_LATTICE,BE6Poly)
@@ -480,6 +502,7 @@ static void BM_doubleswitchformat_LATTICE(benchmark::State& state) { // benchmar
 	}
 }
 
+DO_NATIVEPOLY_BENCHMARK(BM_doubleswitchformat_LATTICE)
 DO_POLY_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,BE2Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,BE4Poly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,BE6Poly)

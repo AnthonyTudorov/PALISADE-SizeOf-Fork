@@ -188,7 +188,7 @@ TEST(UTSer,vector_of_native_int){
 }
 
 TEST(UTSer,ilparams_test) {
-	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(M1024);
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
@@ -213,7 +213,7 @@ TEST(UTSer,ildcrtparams_test) {
 }
 
 TEST(UTSer,ilvector_test) {
-	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(M1024);
 	Poly::DugType dug;
 	Poly vec(dug, p);
 

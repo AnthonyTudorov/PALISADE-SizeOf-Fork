@@ -60,29 +60,24 @@ void BM_keygen(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		try {
 			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 			cc->Enable(ENCRYPTION);
 			cc->Enable(PRE);
-		} catch( ... ) {
-			state.SkipWithError("Unable to make context");
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			return;
 		}
 
 		try {
 			ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(cc->GetRootOfUnity(),
-				cc->GetCyclotomicOrder(),
-				cc->GetModulus());
+					cc->GetCyclotomicOrder(),
+					cc->GetModulus());
 		} catch( ... ) {}
-
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
-		//try {
-			LPKeyPair<Poly> kp = cc->KeyGen();
-		//} catch( ... ) {}
+		LPKeyPair<Poly> kp = cc->KeyGen();
 	}
 }
 
@@ -101,13 +96,12 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 	Plaintext plaintext;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		try {
 			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 			cc->Enable(ENCRYPTION);
 			cc->Enable(PRE);
-		} catch( ... ) {
-			state.ResumeTiming();
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			return;
 		}
 
@@ -117,17 +111,9 @@ void BM_encrypt(benchmark::State& state) { // benchmark
 				cc->GetModulus());
 		} catch( ... ) {}
 
-		size_t strSize = cc->GetRingDimension();
-
-		if( strSize == 0 ) {
-			state.SkipWithError( "Chunk size is 0" );
-		}
-
-		vector<int64_t> input(strSize,0);
+		vector<int64_t> input(cc->GetRingDimension(),0);
 		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
 		plaintext = cc->MakeCoefPackedPlaintext(input);
-
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -149,13 +135,12 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 	Plaintext plaintextNew;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		try {
 			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 			cc->Enable(ENCRYPTION);
 			cc->Enable(PRE);
-		} catch( ... ) {
-			state.ResumeTiming();
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			return;
 		}
 
@@ -165,17 +150,9 @@ void BM_decrypt(benchmark::State& state) { // benchmark
 				cc->GetModulus());
 		} catch( ... ) {}
 
-		size_t strSize = cc->GetRingDimension();
-
-		if( strSize == 0 ) {
-			state.SkipWithError( "Chunk size is 0" );
-		}
-
-		vector<int64_t> input(strSize,0);
+		vector<int64_t> input(cc->GetRingDimension(),0);
 		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
 		plaintext = cc->MakeCoefPackedPlaintext(input);
-
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -195,14 +172,13 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 	LPKeyPair<Poly> kp;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		try {
 			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 			cc->Enable(ENCRYPTION);
 			cc->Enable(PRE);
 			cc->Enable(SHE);
-		} catch( ... ) {
-			state.ResumeTiming();
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			return;
 		}
 
@@ -212,8 +188,6 @@ void BM_rekeygen(benchmark::State& state) { // benchmark
 				cc->GetModulus());
 		} catch( ... ) {
 		}
-
-		state.ResumeTiming();
 	}
 
 	while (state.KeepRunning()) {
@@ -243,13 +217,12 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 	Plaintext plaintextNew;
 
 	if( state.thread_index == 0 ) {
-		state.PauseTiming();
 		try {
 			cc = CryptoContextHelper::getNewContext(parms[state.range(0)]);
 			cc->Enable(ENCRYPTION);
 			cc->Enable(PRE);
-		} catch( ... ) {
-			state.ResumeTiming();
+		} catch( std::exception& e ) {
+			state.SkipWithError( e.what() );
 			return;
 		}
 
@@ -259,17 +232,9 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 				cc->GetModulus());
 		} catch( ... ) {}
 
-		size_t strSize = cc->GetRingDimension();
-
-		if( strSize == 0 ) {
-			state.SkipWithError( "Chunk size is 0" );
-		}
-
-		vector<int64_t> input(strSize,0);
+		vector<int64_t> input(cc->GetRingDimension(),0);
 		fillrandint(input, cc->GetEncodingParams()->GetPlaintextModulus());
 		plaintext = cc->MakeCoefPackedPlaintext(input);
-
-		state.ResumeTiming();
 	}
 
 	LPEvalKey<Poly> evalKey;
