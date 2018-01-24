@@ -53,6 +53,7 @@ template<typename IntType>
 class ILDCRTParams : public ElemParams<IntType>
 {
 public:
+	typedef IntType Integer;
 
 	/**
 	 * @brief Constructor with basic parameter set.

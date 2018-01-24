@@ -205,6 +205,11 @@ public:
 		GeneratePolys<BE2ILDCRTParams,BE2DCRTPoly>(BE2dcrtparms, BE2DCRTpolys);
 		GeneratePolys<BE4ILDCRTParams,BE4DCRTPoly>(BE4dcrtparms, BE4DCRTpolys);
 		GeneratePolys<BE6ILDCRTParams,BE6DCRTPoly>(BE6dcrtparms, BE6DCRTpolys);
+
+		cout << *BE2dcrtparms[16] << endl;
+		cout << *BE4dcrtparms[16] << endl;
+		cout << *BE6dcrtparms[16] << endl;
+		cout << BE6DCRTpolys[16][0] << endl;
 	}
 
 	template<typename P>
