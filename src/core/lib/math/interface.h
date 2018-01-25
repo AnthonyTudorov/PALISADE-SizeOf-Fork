@@ -81,6 +81,15 @@ namespace lbcrypto {
 		T ModAdd(const T& b, const T& modulus) const;
 
 		/**
+		 * Scalar modulus addition where operands are < modulus
+		 *
+		 * @param &b is the scalar to add.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus addition operation.
+		 */
+		T ModAddFast(const T& b, const T& modulus) const;
+
+		/**
 		 * Scalar modulus= addition.
 		 *
 		 * @param &b is the scalar to add.
@@ -120,6 +129,15 @@ namespace lbcrypto {
 		T ModSub(const T& b, const T& modulus) const;
 
 		/**
+		 * Scalar modulus subtraction where operands are < modulus
+		 *
+		 * @param &b is the scalar to subtract.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus subtraction operation.
+		 */
+		T ModSubFast(const T& b, const T& modulus) const;
+
+		/**
 		 * Scalar modulus= subtraction.
 		 *
 		 * @param &b is the scalar to subtract.
@@ -157,6 +175,15 @@ namespace lbcrypto {
 		 * @return is the result of the modulus multiplication operation.
 		 */
 		T ModMul(const T& b, const T& modulus) const;
+
+		/**
+		 * Scalar modulus multiplication that assumes the operands are < modulus
+		 *
+		 * @param &b is the scalar to multiply.
+		 * @param modulus is the modulus to perform operations with.
+		 * @return is the result of the modulus multiplication operation.
+		 */
+		T ModMulFast(const T& b, const T& modulus) const;
 
 		/**
 		 * Scalar modulus multiplication.

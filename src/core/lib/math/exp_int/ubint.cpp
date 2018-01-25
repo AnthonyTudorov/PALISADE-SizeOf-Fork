@@ -2187,6 +2187,24 @@ ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const{
 
 template<typename limb_t>
 ubint<limb_t> ubint<limb_t>::ModAdd(const ubint& b, const ubint& modulus) const{
+	ubint a(*this);
+	ubint b_op(b);
+
+	//reduce this to a value lower than modulus
+	if(*this >= modulus){
+		a.ModEq(modulus);
+	}
+	//reduce b to a value lower than modulus
+	if(b >= modulus){
+		b_op.ModEq(modulus);
+	}
+
+	a.PlusEq(b_op);
+	return a.ModEq(modulus);
+}
+
+template<typename limb_t>
+ubint<limb_t> ubint<limb_t>::ModAddFast(const ubint& b, const ubint& modulus) const{
 	return this->Plus(b).Mod(modulus);
 }
 
@@ -2219,6 +2237,22 @@ ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{
 	else{
 		a.PlusEq(modulus);
 		a.MinusEq(b_op);
+	}
+
+	return a;
+}
+
+template<typename limb_t>
+ubint<limb_t> ubint<limb_t>::ModSubFast(const ubint& b, const ubint& modulus) const{
+	ubint a(*this);
+
+	if(a>=b){
+		a.MinusEq(b);
+		a.ModEq(modulus);
+	}
+	else{
+		a.PlusEq(modulus);
+		a.MinusEq(b);
 	}
 
 	return a;
@@ -2331,6 +2365,12 @@ ubint<limb_t> ubint<limb_t>::ModMul(const ubint& b, const ubint& modulus) const{
 		DEBUG("ans now "<<ans.ToString());
 	}
 	return ans;
+}
+
+// FIXME make this skip the mod
+template<typename limb_t>
+ubint<limb_t> ubint<limb_t>::ModMulFast(const ubint& b, const ubint& modulus) const{
+	return this->ModMul(b, modulus);
 }
 
 // FIXME make this in-place!

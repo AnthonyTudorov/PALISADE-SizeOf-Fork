@@ -587,6 +587,8 @@ public:
 	 */
 	ubint ModAdd(const ubint& b, const ubint& modulus) const;
 
+	ubint ModAddFast(const ubint& b, const ubint& modulus) const;
+
 	const ubint& ModAddEq(const ubint& b, const ubint& modulus);
 
 	// this is wrapper for modadd
@@ -604,6 +606,8 @@ public:
 	 */
 	ubint ModSub(const ubint& b, const ubint& modulus) const;
 
+	ubint ModSubFast(const ubint& b, const ubint& modulus) const;
+
 	const ubint& ModSubEq(const ubint& b, const ubint& modulus);
 
 	// this is wrapper for modsub
@@ -620,6 +624,8 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	ubint ModMul(const ubint& b, const ubint& modulus) const;
+
+	ubint ModMulFast(const ubint& b, const ubint& modulus) const;
 
 	const ubint& ModMulEq(const ubint& b, const ubint& modulus);
 

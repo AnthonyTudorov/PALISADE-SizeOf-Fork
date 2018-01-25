@@ -1560,6 +1560,17 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModInverse(cons
 
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModAdd(const BigInteger& b, const BigInteger& modulus) const{
+	BigInteger a(*this);
+	BigInteger bb(b);
+
+	if( a >= modulus ) a.ModEq(modulus);
+	if( bb >= modulus ) bb.ModEq(modulus);
+	a.PlusEq(bb);
+	return a.ModEq(modulus);
+}
+
+template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModAddFast(const BigInteger& b, const BigInteger& modulus) const{
 	return this->Plus(b).Mod(modulus);
 }
 
@@ -1602,6 +1613,21 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSub(const Bi
 	else{
 		a.PlusEq(modulus);
 		a.MinusEq(b_op);
+	}
+	return a;
+}
+
+template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModSubFast(const BigInteger& b, const BigInteger& modulus) const{
+	BigInteger a(*this);
+
+	if(a >= b){
+		a.MinusEq(b);
+		a.ModEq(modulus);
+	}
+	else{
+		a.PlusEq(modulus);
+		a.MinusEq(b);
 	}
 	return a;
 }
@@ -1701,6 +1727,14 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMul(const Bi
 	}
 
 	a.TimesEq(bb);
+	return a.ModEq(modulus);
+}
+
+template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModMulFast(const BigInteger& b, const BigInteger& modulus) const{
+	BigInteger a(*this);
+
+	a.TimesEq(b);
 	return a.ModEq(modulus);
 }
 

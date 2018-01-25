@@ -30,21 +30,9 @@
 
 #include "benchmark/benchmark_api.h"
 
-#include <iostream>
-#define _USE_MATH_DEFINES
-#include "math/backend.h"
-#include "utils/inttypes.h"
-#include "math/nbtheory.h"
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-#include "math/distrgen.h"
-#include "lattice/poly.h"
-#include "../../src/core/lib/lattice/dcrtpoly.h"
-#include "utils/utilities.h"
+#include "AllBackends.h"
 
+#include <iostream>
 #include <vector>
 
 #include "vechelper.h"
@@ -85,22 +73,31 @@ static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) 
 }
 
 static vector<usint> o( { 16, 1024, 2048, 4096, 8192, 16384, 32768 } );
+static const usint DCRTBITS = 28;
 
 template<typename P>
 static void GenerateParms(map<usint,shared_ptr<P>>& parmArray) {
 	for(usint v : o ) {
+		shared_ptr<P> value;
 		try {
-			parmArray[v] = ElemParamFactory::GenElemParams<P>(v);
+			value = ElemParamFactory::GenElemParams<P>(v);
 		} catch( ... ) {
 			break;
 		}
+		parmArray[v] = value;
 	}
 }
 
 template<typename P>
 static void GenerateDCRTParms(map<usint,shared_ptr<P>>& parmArray) {
 	for(usint v : o ) {
-		parmArray[v] = ElemParamFactory::GenElemParams<P>(v, 28, 5);
+		size_t idx = ElemParamFactory::GetNearestIndex(v);
+		BE2Integer primeq( ElemParamFactory::DefaultSet[idx].q);
+
+		usint bits = primeq.GetMSB();
+		usint ntowers = bits/DCRTBITS + 1;
+
+		parmArray[v] = ElemParamFactory::GenElemParams<P>(v, 28, ntowers);
 	}
 }
 
@@ -111,27 +108,6 @@ static void GeneratePolys(map<usint,shared_ptr<P>>& parmArray, map<usint,vector<
 			polyArray[pair.first].push_back( makeElement<E>(parmArray[pair.first]) );
 	}
 }
-
-using BE2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
-using BE2ILParams = ILParamsImpl<BE2Integer>;
-using BE2ILDCRTParams = ILDCRTParams<BE2Integer>;
-using BE2Vector = cpu_int::BigVectorImpl<BE2Integer>;
-using BE2Poly = PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams>;
-using BE2DCRTPoly = DCRTPolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILDCRTParams>;
-
-using BE4Integer = exp_int::xubint;
-using BE4ILParams = ILParamsImpl<BE4Integer>;
-using BE4ILDCRTParams = ILDCRTParams<BE4Integer>;
-using BE4Vector = exp_int::xmubintvec;
-using BE4Poly = PolyImpl<BE4Integer, BE4Integer, BE4Vector, BE4ILParams>;
-using BE4DCRTPoly = DCRTPolyImpl<BE4Integer, BE4Integer, BE4Vector, BE4ILDCRTParams>;
-
-using BE6Integer = NTL::myZZ;
-using BE6ILParams = ILParamsImpl<BE6Integer>;
-using BE6ILDCRTParams = ILDCRTParams<BE6Integer>;
-using BE6Vector = NTL::myVecP<NTL::myZZ>;
-using BE6Poly = PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>;
-using BE6DCRTPoly = DCRTPolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILDCRTParams>;
 
 // the ifdefs below are a hack to make sure this compiles in all backends
 // when backend is == 2, BigInteger is the same as BE2Integer... and so these methods

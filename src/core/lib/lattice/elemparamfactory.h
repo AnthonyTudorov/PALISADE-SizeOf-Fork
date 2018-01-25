@@ -62,6 +62,20 @@ public:
 		string				ru;	// root of unity
 	} DefaultSet[];
 
+	static size_t GetNearestIndex(usint m) {
+		size_t sIdx = 0;
+		if( DefaultSet[0].m < m ) {
+			for( sIdx = 1; DefaultSet[sIdx].m != 0; sIdx++ ) {
+				if( m <= DefaultSet[sIdx].m )
+					break;
+			}
+		}
+		if( DefaultSet[sIdx].m == 0 )
+			sIdx--;
+
+		return sIdx;
+	}
+
 	/**
 	 * GenElemParams for a particular predefined cyclotomic order
 	 *
@@ -81,15 +95,7 @@ public:
 	 */
 	template<typename P>
 	static shared_ptr<P> GenElemParams(usint m) {
-		size_t sIdx = 0;
-		if( DefaultSet[0].m < m ) {
-			for( sIdx = 1; DefaultSet[sIdx].m != 0; sIdx++ ) {
-				if( m <= DefaultSet[sIdx].m )
-					break;
-			}
-		}
-		if( DefaultSet[sIdx].m == 0 )
-			sIdx--;
+		size_t sIdx = GetNearestIndex(m);
 
 		return shared_ptr<P>( new P(DefaultSet[sIdx].m, typename P::Integer(DefaultSet[sIdx].q), typename P::Integer(DefaultSet[sIdx].ru)) );
 	}
