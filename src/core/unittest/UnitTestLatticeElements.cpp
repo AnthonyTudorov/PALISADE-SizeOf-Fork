@@ -160,7 +160,7 @@ TEST(UTPoly, ops_tests) {
 	Poly::Integer primitiveRootOfUnity("22");
 
 	operators_tests<BigInteger, BigVector, ILParams, Poly>(
-			ElemParamFactory::GenElemParams<ILParams,BigInteger>(m) );
+			ElemParamFactory::GenElemParams<ILParamsImpl<BigInteger>>(m) );
 }
 
 TEST(UTNativePoly, ops_tests) {
@@ -169,12 +169,12 @@ TEST(UTNativePoly, ops_tests) {
 	NativeInteger primitiveRootOfUnity("22");
 
 	operators_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>(
-			ElemParamFactory::GenElemParams<ILNativeParams,NativeInteger>(m) );
+			ElemParamFactory::GenElemParams<ILParamsImpl<NativeInteger>>(m) );
 }
 
 TEST(UTDCRTPoly, ops_tests) {
 	operators_tests<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>(
-			GenerateDCRTParams(8, 3, 20) );
+			GenerateDCRTParams<BigInteger>(8, 3, 20) );
 }
 
 // template for rounding_operations tests
@@ -1479,7 +1479,7 @@ TEST(UTDCRTPoly, decompose_test) {
 	float stdDev = 4;
 	DCRTPoly::DggType dgg(stdDev);
 
-	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams(order, towersize, nBits);
+	shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams<BigInteger>(order, towersize, nBits);
 	DCRTPoly DCRTPolyFirst(dgg, params, Format::COEFFICIENT);
 
 	DCRTPoly DCRTPolyOriginal(DCRTPolyFirst);
@@ -1554,7 +1554,7 @@ TEST(UTDCRTPoly, ensures_mod_operation_during_ops_on_two_DCRTPolys){
 	usint nBits = 24;
 	usint towersize = 3;
 
-	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams = GenerateDCRTParams(order, towersize, nBits);
+	shared_ptr<ILDCRTParams<BigInteger>> ildcrtparams = GenerateDCRTParams<BigInteger>(order, towersize, nBits);
 
 	DCRTPoly::DugType dug;
 

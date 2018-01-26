@@ -505,6 +505,15 @@ namespace cpu_int{
     BigInteger ModAdd(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modular addition with operands < modulus
+    *
+    * @param &b is the scalar to add.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus addition operation.
+    */
+    BigInteger ModAddFast(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
     * Scalar modular addition.
     *
     * @param &b is the scalar to add.
@@ -543,6 +552,15 @@ namespace cpu_int{
     BigInteger ModSub(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modular subtraction with operands < modulus
+    *
+    * @param &b is the scalar to subtract.
+    * @param modulus is the modulus to perform operations with.
+    * @return result of the modulus subtraction operation.
+    */
+    BigInteger ModSubFast(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
     * Scalar modular subtraction.
     *
     * @param &b is the scalar to subtract.
@@ -579,6 +597,15 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigInteger ModMul(const BigInteger& b, const BigInteger& modulus) const;
+
+    /**
+    * Scalar modulus multiplication that assumes operands are < modulus
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
+    BigInteger ModMulFast(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
     * Scalar modulus multiplication.
