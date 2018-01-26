@@ -1250,22 +1250,30 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 #endif
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
+			double curFloat = 0.0;
+
+			for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
+
+				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+
+				curFloat += beta[vIndex]*xi.ConvertToInt();
+
+			}
+
+			typename PolyType::Integer rounded = std::llround(curFloat);
+
 			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
 
-				double curFloat = 0.0;
 				typename PolyType::Integer curValue = 0;
 
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
 				int64_t si64 = si.ConvertToInt();
-
 
 				for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
 					curValue += NTL::MulModPrecon(xi.ConvertToInt(),alpha[vIndex][newvIndex].ConvertToInt(),si64,alphaPrecon[vIndex][newvIndex]);
-
-					curFloat += beta[vIndex]*xi.ConvertToInt();
 
 				}
 
@@ -1276,9 +1284,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);
 
-				typename PolyType::Integer rounded = std::llround(curFloat);
+				//ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded.Mod(si),si);
 
-				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded.Mod(si),si);
+				ans.m_vectors[newvIndex].at(rIndex) = NTL::AddMod(curValue.ConvertToInt(),rounded.ConvertToInt(),si64);
 
 			}
 
