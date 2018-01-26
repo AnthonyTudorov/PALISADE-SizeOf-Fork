@@ -68,10 +68,10 @@ int main() {
 
 	//PKE();
 	//SHETestCoeff();
-	//SHETestPacked();
+	SHETestPacked();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
-	SHETestCoefAll();
+	//SHETestCoefAll();
 	//SHETestPackedInnerProduct();
 	//SwitchCRT();
 	//SwitchCRTSingleTests();
@@ -329,7 +329,7 @@ void SHETestPacked() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 31, 0, OPTIMIZED,7);
+			ptm, rootHermiteFactor, sigma, 0, 10, 0, OPTIMIZED,7);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);

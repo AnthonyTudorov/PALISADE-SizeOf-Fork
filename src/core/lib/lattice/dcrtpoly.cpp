@@ -1243,6 +1243,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		usint ringDimension = GetRingDimension();
 		size_t size = m_vectors.size();
 		size_t newSize = ans.m_vectors.size();
+		size_t sizeQ = size - newSize;
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1257,7 +1258,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
 				int64_t si64 = si.ConvertToInt();
 
-				for( usint vIndex = 0; vIndex < size; vIndex++ ) {
+
+				for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
@@ -1266,6 +1268,10 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 					curFloat += beta[vIndex]*xi.ConvertToInt();
 
 				}
+
+				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
+
+				curValue += NTL::MulModPrecon(xi.ConvertToInt(),alpha[sizeQ][newvIndex].ConvertToInt(),si64,alphaPrecon[sizeQ][newvIndex]);
 
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);

@@ -177,14 +177,14 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the [p*S*(Q*S/vi)^{-1}]_vi / vi table - used for homomorphic multiplication
 
-	std::vector<double> precomputedDCRTMultFloatTable(size + sizeS);
+	std::vector<double> precomputedDCRTMultFloatTable(size);
 
 	const BigInteger modulusS = m_paramsS->GetModulus();
 	const BigInteger modulusQS = m_paramsQS->GetModulus();
 
 	const BigInteger modulusP( GetPlaintextModulus() );
 
-	for (size_t i = 0; i < size + sizeS; i++){
+	for (size_t i = 0; i < size; i++){
 		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
 		precomputedDCRTMultFloatTable[i] =
 				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
@@ -194,17 +194,22 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
-	std::vector<std::vector<NativeInteger>> multInt(size+sizeS);
-	std::vector<std::vector<uint64_t>> multIntPrecon(size+sizeS);
+	std::vector<std::vector<NativeInteger>> multInt(size+1);
+	std::vector<std::vector<uint64_t>> multIntPrecon(size+1);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
-		for( usint vIndex = 0 ; vIndex < size+sizeS; vIndex++ ) {
+		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
 			BigInteger qi = BigInteger(moduliExpanded[vIndex].ConvertToInt());
 			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
 			BigInteger divBy = num / qi;
 			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
 			multIntPrecon[vIndex].push_back(NTL::PrepMulModPrecon(multInt[vIndex][newvIndex].ConvertToInt(),si.ConvertToInt()));
 		}
+
+		BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(si)).ModInverse(si));
+		BigInteger divBy = num / si;
+		multInt[size].push_back(divBy.Mod(si).ConvertToInt());
+		multIntPrecon[size].push_back(NTL::PrepMulModPrecon(multInt[size][newvIndex].ConvertToInt(),si.ConvertToInt()));
 	}
 
 	m_CRTMultIntTable = multInt;
