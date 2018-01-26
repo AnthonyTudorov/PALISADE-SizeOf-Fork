@@ -379,7 +379,9 @@ namespace lbcrypto {
 
 	template<typename T, typename I>
 	class BigVectorInterface{
-public:
+	public:
+		typedef I Integer;
+
 		// CONSTRUCTORS
 
 		// Constructors should be implemented in the derived classes

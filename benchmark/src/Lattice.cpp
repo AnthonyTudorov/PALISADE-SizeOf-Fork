@@ -36,7 +36,6 @@
 #include <vector>
 
 #include "vechelper.h"
-#include "ElementParmsHelper.h"
 
 #include "lattice/elemparams.cpp"
 #include "lattice/ilparams.cpp"
@@ -47,13 +46,14 @@
 #include "math/transfrm.cpp"
 #include "math/discreteuniformgenerator.cpp"
 #include "math/discretegaussiangenerator.cpp"
+#include "lattice/elemparamfactory.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 template <typename E>
 static E makeElement(shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> params) {
-	typename E::Vector	vec = makeVector<E>(params);
+	typename E::Vector	vec = makeVector<typename E::Vector>(params->GetRingDimension(), params->GetModulus());
 	E					elem(params);
 
 	elem.SetValues(vec, elem.GetFormat());
@@ -63,7 +63,7 @@ static E makeElement(shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> par
 template <typename E>
 static E makeElement(shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> p) {
 	shared_ptr<ILParamsImpl<typename E::Integer>>	params( new ILParamsImpl<typename E::Integer>( p->GetCyclotomicOrder(), p->GetModulus(), 1) );
-	typename E::Vector								vec = makeVector<typename E::PolyLargeType>(params);
+	typename E::Vector	vec = makeVector<typename E::Vector>(params->GetRingDimension(), params->GetModulus());
 
 	typename E::PolyLargeType	bigE(params);
 	bigE.SetValues(vec, bigE.GetFormat());

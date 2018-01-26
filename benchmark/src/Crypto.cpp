@@ -53,8 +53,8 @@ using namespace std;
 using namespace lbcrypto;
 
 #include "vechelper.h"
-#include "ElementParmsHelper.h"
 #include "EncryptHelper.h"
+#include "lattice/elemparamfactory.h"
 
 void BM_keygen(benchmark::State& state) { // benchmark
 	CryptoContext<Poly> cc;
