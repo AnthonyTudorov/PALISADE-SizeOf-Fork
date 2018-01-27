@@ -63,12 +63,15 @@ void Multiply();
 void MultiplyTwo();
 void MultiplyThree();
 void SHERunMultiplication();
+void ScaleAndRound();
+
+size_t COUNTER = 0;
 
 int main() {
 
 	//PKE();
 	//SHETestCoeff();
-	SHETestPacked();
+	//SHETestPacked();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
@@ -78,6 +81,10 @@ int main() {
 	//Multiply();
 	//MultiplyTwo();
 	//MultiplyThree();
+	for (size_t i = 0; i < 1000; i++)
+		ScaleAndRound();
+
+	std::cout << "total number of errors: " << COUNTER << std::endl;
 
 	//std::cout << "Please press any key to continue..." << std::endl;
 
@@ -1448,7 +1455,7 @@ void MultiplyThree() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
+			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	//cryptoContext->Enable(ENCRYPTION);
@@ -1621,6 +1628,223 @@ void MultiplyThree() {
 		std::cout << "result: " << resultRoundedQ.GetModulus() - resultRoundedQ.at(0) << std::endl;
 	else
 		std::cout << "result: " << resultRoundedQ.at(0) << std::endl;
+
+
+}
+
+void ScaleAndRound() {
+
+	std::cout << "\n===========TESTING POLYNOMIAL MULTIPLICATION - TWO UNFORM RANDOM POLYNOMIALS===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	//double diff, start, finish;
+
+	usint ptm = 1<<15;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
+
+	// enable features that you wish to use
+	//cryptoContext->Enable(ENCRYPTION);
+	//cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+
+	const shared_ptr<ILDCRTParams<BigInteger>> params = cryptoContext->GetCryptoParameters()->GetElementParams();
+
+	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cryptoContext->GetCryptoParameters());
+
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsS = cryptoParamsBFVrns->GetDCRTParamsS();
+
+	const shared_ptr<ILDCRTParams<BigInteger>> paramsQS = cryptoParamsBFVrns->GetDCRTParamsQS();
+
+	typename DCRTPoly::DugType dug;
+
+	//tested dgg up to 4000000 - worked correctly
+	//typename DCRTPoly::DggType dgg(400000);
+
+	//typename DCRTPoly::TugType tug;
+
+	//DCRTPoly a(params, Format::COEFFICIENT,true);
+
+	//Generate uninform element
+	//DCRTPoly a(dgg, params, Format::COEFFICIENT);
+	DCRTPoly a(dug, params, Format::COEFFICIENT);
+	//Generate uninform element
+	DCRTPoly b(dug, params, Format::COEFFICIENT);
+	//DCRTPoly b(dug, params, Format::COEFFICIENT);
+	//DCRTPoly b(dug, params, Format::COEFFICIENT);
+
+	//DCRTPoly b(params, Format::COEFFICIENT,true);
+
+	//b = b + 1675879;
+
+	Poly result = a.CRTInterpolate();
+
+	//std::cout << "\n=====STEP 1: Expanding polynomials from Q to Q*S CRT basis=======\n" << std::endl;
+
+	Poly aPoly = a.CRTInterpolate();
+
+	Poly bPoly = b.CRTInterpolate();
+
+	//std::cout << "Starting CRT Expansion" << std::endl;
+
+	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+
+	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+
+	a.SwitchFormat();
+
+	b.SwitchFormat();
+
+	//std::cout << "Ended CRT Expansion" << std::endl;
+
+	Poly resultExpanded = a.CRTInterpolate();
+
+	Poly resultExpandedB = b.CRTInterpolate();
+
+	BigInteger modulusQS = a.GetParams()->GetModulus();
+
+	/*
+
+	std::cout << "Big Modulus Q:\n" << params->GetModulus() << std::endl;
+	std::cout << "Big Modulus Q*S:\n" << a.GetParams()->GetModulus() << std::endl;
+
+
+	if (result.at(0) > result.GetModulus()>>1)
+		std::cout << "a before expansion: -" << result.GetModulus() - result.at(0) << std::endl;
+	else
+		std::cout << "a before expansion: " << result.at(0) << std::endl;
+
+	if (resultExpanded.at(0) > resultExpanded.GetModulus()>>1)
+		std::cout << "a after expansion: -" << resultExpanded.GetModulus() - resultExpanded.at(0) << std::endl;
+	else
+		std::cout << "a after expansion: " << resultExpanded.at(0) << std::endl;
+
+	if (bPoly.at(0) > bPoly.GetModulus()>>1)
+		std::cout << "b before expansion: -" << bPoly.GetModulus() - bPoly.at(0) << std::endl;
+	else
+		std::cout << "b before expansion: " << bPoly.at(0) << std::endl;
+
+	if (resultExpandedB.at(0) > resultExpandedB.GetModulus()>>1)
+		std::cout << "b after expansion: -" << resultExpandedB.GetModulus() - resultExpandedB.at(0) << std::endl;
+	else
+		std::cout << "b after expansion: " << resultExpandedB.at(0) << std::endl;
+
+	 */
+
+	//std::cout << "\n=====STEP 2: Polynomial multiplication=======\n" << std::endl;
+
+	//std::cout << "Starting multiplication" << std::endl;
+
+	// Convert from coefficient polynomial representation to evaluation one
+
+	//std::cout << " a format = " <<  a.GetFormat()  << std::endl;
+	//std::cout << " b format = " <<  b.GetFormat()  << std::endl;
+	a.SwitchFormat();
+	b.SwitchFormat();
+	//std::cout << " a format = " <<  a.GetFormat()  << std::endl;
+	//std::cout << " b format = " <<  b.GetFormat()  << std::endl;
+
+	// Polynomial multiplication in Q*S CRT basis
+	DCRTPoly c = a*b;
+
+	//std::cout << " c format = " <<  c.GetFormat()  << std::endl;
+
+	// Put it back in coefficient representation
+	c.SwitchFormat();
+
+	//std::cout << "Ended multiplication" << std::endl;
+
+	//std::cout << "Starting multiprecision polynomial multiplication" << std::endl;
+
+	BigInteger modulus("1725436586697640946858688965569256363112777243042596638790631055998977");
+	BigInteger root("297203965992569234508248505785931972048120132348748440730990327237693");
+	usint m = 8192;
+
+	shared_ptr<ILParams> paramsPoly(new ILParams(m, modulus, root));
+
+	//std::cout << "modulus = " << aPoly.GetModulus() << std::endl;
+
+	aPoly.SwitchModulus(modulus,root);
+
+	//std::cout << "modulus after = " << aPoly.GetModulus() << std::endl;
+
+	bPoly.SwitchModulus(modulus,root);
+
+	// Convert from coefficient polynomial representation to evaluation one
+	aPoly.SwitchFormat();
+	bPoly.SwitchFormat();
+
+	// Polynomial multiplication in Q*S CRT basis
+	Poly cPoly = aPoly*bPoly;
+
+	// Put it back in coefficient representation
+	cPoly.SwitchFormat();
+
+	//std::cout << "Ended multiprecision multiplication" << std::endl;
+
+
+	Poly resultC = c.CRTInterpolate();
+
+	if (resultC.at(0) > resultC.GetModulus()>>1)
+		std::cout << "result of multiplication - RNS: -" << resultC.GetModulus() - resultC.at(0) << std::endl;
+	else
+		std::cout << "result of multiplication - RNS: " << resultC.at(0) << std::endl;
+
+	if (cPoly.at(0) > cPoly.GetModulus()>>1)
+		std::cout << "result of multiplication - MP: -" << cPoly.GetModulus()-cPoly.at(0) << std::endl;
+	else
+		std::cout << "result of multiplication - MP: " << cPoly.at(0) << std::endl;
+
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
+			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+
+	Poly resultRounded = rounded.CRTInterpolate();
+
+	if (resultRounded.at(0) > resultRounded.GetModulus()>>1)
+		std::cout << "result of rounding - RNS: -" << resultRounded.GetModulus() - resultRounded.at(0) << std::endl;
+	else
+		std::cout << "result of rounding - RNS: " << resultRounded.at(0) << std::endl;
+
+	Poly mpRounded = cPoly.MultiplyAndRound(ptm,params->GetModulus());
+
+	if (mpRounded.at(0) > mpRounded.GetModulus()>>1)
+		std::cout << "result of rounding - MP: -" << mpRounded.GetModulus() - mpRounded.at(0) << std::endl;
+	else
+		std::cout << "result of rounding - MP : " << mpRounded.at(0) << std::endl;
+
+	size_t counter = 0;
+
+	for(size_t i = 0; i < mpRounded.GetRingDimension(); i++) {
+		BigInteger rns, mp;
+		if (resultRounded.at(i) > resultRounded.GetModulus()>>1)
+			rns = resultRounded.GetModulus() - resultRounded.at(i);
+		else
+			rns = resultRounded.at(i);
+		if (mpRounded.at(i) > mpRounded.GetModulus()>>1)
+			mp = mpRounded.GetModulus() - mpRounded.at(i);
+		else
+			mp = mpRounded.at(i);
+		if (mp != rns)
+			counter++;
+
+	}
+
+	COUNTER+=counter;
+
+	std::cout << "\nNUMBER OF ERRORS: " << counter << "\n\n" << std::endl;
 
 
 }
