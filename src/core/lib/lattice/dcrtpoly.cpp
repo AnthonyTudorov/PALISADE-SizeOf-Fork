@@ -67,7 +67,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl 
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 const DCRTPolyImpl<ModType,IntType,VecType,ParmType>&
-DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const Poly &element)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const PolyLargeType &element)
 {
 
 	if( element.GetModulus() > m_params->GetModulus() ) {
@@ -104,7 +104,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator=(const Poly &element)
 
 /* Construct from a single Poly. The format is derived from the passed in Poly.*/
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const Poly &element, const shared_ptr<ParmType> params)
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<ParmType> params)
 {
 	Format format;
 	try {
@@ -278,8 +278,8 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 	// create an Element to pull from
 	// create a dummy parm to use in the Poly world
-	shared_ptr<ILParams> parm( new ILParams(m_params->GetCyclotomicOrder(), m_params->GetModulus(), 1) );
-	Poly element( parm );
+	shared_ptr<ILParamsImpl<IntType>> parm( new ILParamsImpl<IntType>(m_params->GetCyclotomicOrder(), m_params->GetModulus(), 1) );
+	PolyLargeType element( parm );
 	element.SetValues( randVec, m_format );
 
 	res = element;
@@ -328,11 +328,11 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 	DEBUG("...::BaseDecompose" );
 	DEBUG("baseBits=" << baseBits );
 
-	Poly v( CRTInterpolate() );
+	PolyLargeType v( CRTInterpolate() );
 
 	DEBUG("<v>" << std::endl << v << "</v>" );
 
-	std::vector<Poly> bdV = v.BaseDecompose(baseBits, false);
+	std::vector<PolyLargeType> bdV = v.BaseDecompose(baseBits, false);
 
 	DEBUG("<bdV>" );
 	for( auto i : bdV )
@@ -914,7 +914,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ModReduce(const IntType &pl
 * for parameter selection of the Poly.
 */
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
+typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PolyLargeType DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 {
 	bool dbg_flag = false;
 
@@ -926,21 +926,21 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	for( usint vi = 0; vi < nTowers; vi++ )
 		DEBUG("tower " << vi << " is " << m_vectors[vi]);
 
-	BigInteger bigModulus(GetModulus()); // qT
+	ModType bigModulus(GetModulus()); // qT
 
 	DEBUG("bigModulus " << bigModulus);
 
 	// this is the resulting vector of coefficients
-	BigVector coefficients(ringDimension, bigModulus);
+	VecType coefficients(ringDimension, bigModulus);
 
 	// this will finally be  V[j]= {Sigma(i = 0 --> t-1) ValueOf M(r,i) * qt/qj *[ (qt/qj)^(-1) mod qj ]}modqt
 
 	// first, precompute qt/qj factors
-	vector<BigInteger> multiplier(nTowers);
+	vector<IntType> multiplier(nTowers);
 	for( usint vi = 0 ; vi < nTowers; vi++ ) {
-		BigInteger qj(m_vectors[vi].GetModulus().ConvertToInt());
-		BigInteger divBy = bigModulus / qj;
-		BigInteger modInv = divBy.ModInverse(qj).Mod(qj);
+		IntType qj(m_vectors[vi].GetModulus().ConvertToInt());
+		IntType divBy = bigModulus / qj;
+		IntType modInv = divBy.ModInverse(qj).Mod(qj);
 		multiplier[vi] = divBy * modInv;
 
 		DEBUG("multiplier " << vi << " " << qj << " " << multiplier[vi]);
@@ -963,14 +963,14 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 		DEBUG("tower " << vi << " is " << (*vecs)[vi]);
 
 	//Precompute the Barrett mu parameter
-	BigInteger mu = ComputeMu<BigInteger>(bigModulus);
+	IntType mu = ComputeMu<IntType>(bigModulus);
 
 	// now, compute the values for the vector
 #pragma omp parallel for
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
-			coefficients[ri] += (BigInteger((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
+			coefficients[ri] += (IntType((*vecs)[vi].GetValues()[ri].ConvertToInt()) * multiplier[vi]);
 		}
 		DEBUG( (*vecs)[0].GetValues()[ri] << " * " << multiplier[0] << " == " << coefficients[ri] );
 		coefficients[ri].ModBarrettInPlace(bigModulus,mu);
@@ -986,7 +986,7 @@ Poly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTInterpolate() const
 	DEBUG("modulus "<< bigModulus);
 
 	// Setting the root of unity to ONE as the calculation is expensive and not required.
-	Poly polynomialReconstructed( shared_ptr<ILParams>( new ILParams(GetCyclotomicOrder(), bigModulus, 1) ) );
+	typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PolyLargeType polynomialReconstructed( shared_ptr<ILParamsImpl<IntType>>( new ILParamsImpl<IntType>(GetCyclotomicOrder(), bigModulus, 1) ) );
 	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 	DEBUG("answer: " << polynomialReconstructed);
@@ -1301,7 +1301,7 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::InverseExists() const
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 double DCRTPolyImpl<ModType, IntType, VecType, ParmType>::Norm() const
 {
-	Poly poly(CRTInterpolate());
+	PolyLargeType poly(CRTInterpolate());
 	return poly.Norm();
 }
 
