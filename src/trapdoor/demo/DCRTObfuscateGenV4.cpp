@@ -63,10 +63,11 @@ int main(int argc, char* argv[]){
     std::cout << "arg 2 = num bits [10] " << std::endl;    
     //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
     //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
+    std::cout << "arg 3 = pattern size [8] 8, 16, 32, 40, 64 " << std::endl;        
   }
 
   //should become arguments
-  usint pattern_size = 32;
+  usint pattern_size(8);
   //usint pattern_size = 40;
   //usint pattern_size = 64;
   //TODO, supply input pattern by file.
@@ -84,11 +85,11 @@ int main(int argc, char* argv[]){
       std::cout << "setting dbg_flag true" << std::endl;
     }
   }
-  int n_bits = 10;
+  int n_bits = 8;
 
   if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 10) {
-      n_bits = 10;
+    if (atoi(argv[2]) < 8) {
+      n_bits = 8;
     } else if (atoi(argv[2]) >= 13) {
       n_bits = 13;
     } else {
@@ -96,8 +97,26 @@ int main(int argc, char* argv[]){
     }
   }
   
+  if (argc >= 4 ) { 
+    int inarg = atoi(argv[3]);
+    if (inarg < 8) {
+      pattern_size = 8;
+    } else if (inarg >= 64) {
+      pattern_size = 64;
+    } else {
+      pattern_size = inarg;
+    }
+  }
 
-  
+  if ((pattern_size != 8) &&
+      (pattern_size != 16) &&
+      (pattern_size != 32) &&
+      (pattern_size != 40) &&
+      (pattern_size != 64)) {
+    std::cout << "bad pattern size: "<< pattern_size << std::endl;
+    exit (-1);
+  }
+      
   DEBUG("DEBUG IS TRUE");
   PROFILELOG("PROFILELOG IS TRUE");
 #ifdef PROFILE
@@ -108,9 +127,8 @@ int main(int argc, char* argv[]){
 #endif
   
   std::cerr << "Running " << argv[0] << " with "
-	    << n_bits << " bits." << std::endl;
-  
-  
+  	    << n_bits << " bits. Pattern length "<< pattern_size << std::endl;
+
   //determine #processors and # threads for run
   int nthreads, tid;
   std::cerr  <<"Running " << argv[0] <<" with "
@@ -151,7 +169,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use (power of 2)
-  // pattern_size = size of patterns (32, 40, 64)
+  // pattern_size = size of patterns (8, 32, 40, 64)
   // n_evals number of evals to run 0..3
   
   //returns
@@ -169,6 +187,18 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   //set inputPattern and adjust base for input pattern size
   std::string inputPattern("");
   switch (pattern_size) {
+  case 8:
+    inputPattern = "1?10?10?"; //8 bit test
+    if (n > 1<<10)   //adjust for 8 bit test (use 32 bit test values)
+      base = 1<<15;
+    break;
+
+  case 16:
+    inputPattern = "1?10?10?1?10?10?"; //16 bit test
+    if (n > 1<<10)   //adjust for 16 bit test( use 32 bit test values)
+      base = 1<<15;
+    break;
+
   case 32:
     inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?"; //32 bit test
     if (n > 1<<10)   //adjust for 32 bit test
@@ -186,14 +216,14 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
       base = 1<<18;
     break;
   default:
-    std::cout<< "bad input pattern length selected (must be 32, 40 or 64). "<<std::endl;
+    std::cout<< "bad input pattern length selected (must be 8, 16, 32, 40 or 64). "<<std::endl;
     exit(-1);
   }
   
   
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-  string clearFileName = "cp"+to_string(n);
+  string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
   SerializeClearPatternToFile(clearPattern, clearFileName);
 
   //note this is for debug -- will move to evaluate
@@ -201,8 +231,14 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
   DeserializeClearPatternFromFile(clearFileName, testClearPattern);
 
-  DEBUG("clear pattern:           "<<clearPattern.GetPatternString());
-  DEBUG("recovered clear pattern: "<<testClearPattern.GetPatternString());  
+  if (clearPattern.GetPatternString() == testClearPattern.GetPatternString()) {
+    std::cout<< "Clear Pattern Serialization succeed"<<std::endl;
+  } else {
+    std::cout<< "Clear Pattern Serialization FAILED"<<std::endl;
+    std::cout<< "    clear pattern:           "<<clearPattern.GetPatternString() <<std::endl;
+    std::cout<< "    recovered clear pattern: "<<testClearPattern.GetPatternString()<<std::endl;
+  }
+  
   
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
   obfuscatedPattern.SetChunkSize(chunkSize);
@@ -269,7 +305,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
 
   DEBUG("Serializing Obfuscation" );
-  string obfFileName = "op"+to_string(n);
+  string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
   SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
 
 
@@ -311,6 +347,18 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
     std::string inputStr2("");
     std::string inputStr3("");
     switch (pattern_size) {
+    case 8:  //8 bit test
+      inputStr1 = "11100100";
+      inputStr2 = "11001101";
+      inputStr3 = "10101101";
+      break;
+
+    case 16:
+      inputStr1 = "1110010011100100";
+      inputStr2 = "1100110111001101";
+      inputStr3 = "1010110110101101";
+      break;
+
     case 32:  //32 bit test
       inputStr1 = "11100100111001001110010011100100";
       inputStr2 = "11001101110011011100110111001111";

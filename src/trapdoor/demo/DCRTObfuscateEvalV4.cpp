@@ -52,11 +52,13 @@ int main(int argc, char* argv[]){
   if (argc < 2) { // called with no arguments
     std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
     std::cout << "arg 2 = num bits [10] " << std::endl;
+    std::cout << "arg 3 = pattern size [8] 8, 16, 32, 40, 64 " << std::endl;        
+
     //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
     //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
   }
   //should become arguments
-  usint pattern_size = 32;
+  usint pattern_size (8);
   //usint pattern_size = 40;
   //usint pattern_size = 64;
   //TODO, num evals should generate test patterns
@@ -71,11 +73,11 @@ int main(int argc, char* argv[]){
       std::cout << "setting dbg_flag true" << std::endl;
     }
   }
-  int n_bits = 10;
+  int n_bits = 8;
 
   if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 10) {
-      n_bits = 10;
+    if (atoi(argv[2]) < 8) {
+      n_bits = 8;
     } else if (atoi(argv[2]) >= 13) {
       n_bits = 13;
     } else {
@@ -83,7 +85,27 @@ int main(int argc, char* argv[]){
     }
   }
   
+  
+  if (argc >= 4 ) { 
+    int inarg = atoi(argv[3]);
+    if (inarg < 8) {
+      pattern_size = 8;
+    } else if (inarg >= 64) {
+      pattern_size = 64;
+    } else {
+      pattern_size = inarg;
+    }
+  }
 
+  if ((pattern_size != 8) &&
+      (pattern_size != 16) &&
+      (pattern_size != 32) &&
+      (pattern_size != 40) &&
+      (pattern_size != 64)) {
+    std::cout << "bad pattern size: "<< pattern_size << std::endl;
+    exit (-1);
+  }
+      
   
   DEBUG("DEBUG IS TRUE");
   PROFILELOG("PROFILELOG IS TRUE");
@@ -94,8 +116,8 @@ int main(int argc, char* argv[]){
   std::cout << "NDEBUG is defined" << std::endl;
 #endif
   
-  std::cerr << "Running " << argv[0] << " with "
-	    << n_bits << " bits." << std::endl;
+  std::cerr << "Running " << argv[0] << " with " 
+	    << n_bits << " bits. Pattern length "<< pattern_size << std::endl;
   
   
   //determine #processors and # threads for run
@@ -144,15 +166,15 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals) {
 
   //Read the test pattern from the file
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern("");
-  string clearFileName = "cp"+to_string(n);
+  string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
+
   DEBUG("reading clearPattern from file: "<<clearFileName<<".json");
   TIC(t1);
   DeserializeClearPatternFromFile(clearFileName, clearPattern);
   timeRead = TOC(t1);
   PROFILELOG("Read time: " << "\t" << timeRead << " ms");
 
-
-  string obfFileName = "op"+to_string(n);
+  string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
   //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 
@@ -196,6 +218,19 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals) {
   std::string inputStr2("");
   std::string inputStr3("");
   switch (pattern_size) {
+  
+  case 8:
+    inputStr1 = "11100100";
+    inputStr2 = "11001101";
+    inputStr3 = "10101101";
+    break;
+    
+  case 16:
+    inputStr1 = "1110010011100100";
+    inputStr2 = "1100110111001101";
+    inputStr3 = "1010110110101101";
+    break;
+  
   case 32:  //32 bit test
     inputStr1 = "11100100111001001110010011100100";
     inputStr2 = "11001101110011011100110111001111";
@@ -215,7 +250,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals) {
     break;
 
   default:
-    std::cout<< "bad input pattern length selected (must be 32, 40 or 64). "<<std::endl;
+    std::cout<< "bad input pattern length selected (must be 8, 16, 32, 40 or 64). "<<std::endl;
     exit(-1);
   }
       
