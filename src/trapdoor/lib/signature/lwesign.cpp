@@ -87,7 +87,10 @@ namespace lbcrypto {
 		//Encode the text into a vector so it can be used in signing process. TODO: Adding some kind of digestion algorithm
 		vector<int64_t> digest;
 		HashUtil::Hash(plainText, SHA_256, digest);
-
+		if( plainText.size() <= n ) {
+			for(size_t i = 0;i < n - 32;i = i + 4)
+				digest.push_back(seed[i]);
+		}
 		Plaintext hashedText( new CoefPackedEncoding(signKey.GetSignatureParameters().GetILParams(), ep, digest) );
 		hashedText->Encode();
 
