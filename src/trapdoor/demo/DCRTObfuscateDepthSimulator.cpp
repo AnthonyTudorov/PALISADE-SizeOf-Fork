@@ -30,14 +30,8 @@
 #include <iostream>
 #include <fstream>
 #include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
-
-
 #include "utils/debug.h"
 
-#include <omp.h> //open MP header
-
-//using namespace std;
 using namespace lbcrypto;
 
 bool CONJOBF(bool dbg_flag, int n_evals, int n, size_t depth); //defined later

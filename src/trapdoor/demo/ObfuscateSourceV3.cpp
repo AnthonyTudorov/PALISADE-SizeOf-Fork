@@ -28,12 +28,8 @@
 #include <fstream>
 
 #include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
-#include "time.h"
-#include <chrono>
 #include "utils/debug.h"
 
-//using namespace std;
 using namespace lbcrypto;
 
 void Run();

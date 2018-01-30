@@ -33,11 +33,7 @@
 #include <iostream>
 #include <fstream>
 #include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
-
 #include "utils/debug.h"
-
-#include <omp.h> //open MP header TODO DELETE
 
 using namespace lbcrypto;
 
