@@ -31,28 +31,33 @@
 // Note must must be before all headers
 
 #include <iostream>
+#include <getopt.h>
 #include <fstream>
+//#include <stdio.h> //for getopt
+//#include <ctype.h> //for getopt
+//#include <stdlib.h> //for getopt
 #include "obfuscation/lweconjunctionobfuscate.h"
 #include "utils/debug.h"
 
 using namespace lbcrypto;
 
 //forward definitions to be defined later
-bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals = 3);
+bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals, bool rand_evals, bool pretty_flag, bool verify_flag);
 
 void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern,
-				  const string clearFileName);
+				  const string clearFileName, bool pretty_flag);
 void  DeserializeClearPatternFromFile(const string clearFileName,
 				      ClearLWEConjunctionPattern<DCRTPoly> &clearPattern);
 void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern,
-				       const string obfFileName);
+				       const string obfFileName, bool pretty_flag);
 void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<DCRTPoly> &obsPattern);
 bool CompareObfuscatedPatterns(ObfuscatedLWEConjunctionPattern<DCRTPoly> &a,
 			       ObfuscatedLWEConjunctionPattern<DCRTPoly> &b);
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
-  
+
+#if 0
   
   if (argc < 2) { // called with no arguments
     std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
@@ -103,15 +108,77 @@ int main(int argc, char* argv[]){
       pattern_size = inarg;
     }
   }
-
-  if ((pattern_size != 8) &&
-      (pattern_size != 16) &&
-      (pattern_size != 32) &&
-      (pattern_size != 40) &&
-      (pattern_size != 64)) {
-    std::cout << "bad pattern size: "<< pattern_size << std::endl;
-    exit (-1);
+#else
+   
+  int opt; //used in getting options
+  bool dbg_flag = false; //if true print debugging info
+  usint pattern_size(8); //size of the cleartext pattern
+  bool eval_flag = true; //if true, also run evaluation to verify correct generation.
+  int n_bits = 8;	 // number of bits in underlying vector length
+  usint n_evals = 0; //number of evaluations to run
+  bool rand_evals = false;
+  bool pretty_flag = false;
+  bool verify_flag = false;
+  while ((opt = getopt(argc, argv, "de:n:b:p")) != -1) {
+    switch (opt) {
+    case 'd':
+      dbg_flag = true;
+      std::cout << "setting dbg_flag true" << std::endl;
+      break;
+    case 'p':
+      pretty_flag = true;
+      std::cout << "setting prettyprint_flag true" << std::endl;
+      break;
+    case 'v':
+      verify_flag = true;
+      std::cout << "setting verify_flag true" << std::endl;
+      break;
+    case 'e':
+      n_evals = atoi(optarg);
+      if (n_evals<0)
+	n_evals = 0;
+      if (n_evals >3) {
+	rand_evals = true;
+      }
+      break;
+    case 'n':
+      n_bits = atoi(optarg);
+      if (n_bits < 8) {
+	n_bits = 8;
+	std::cout << "setting n_bits to minimum size of 8" << std::endl;	
+      } else if (n_bits >= 13) {
+	n_bits = 13;
+	std::cout << "setting n_bits to maximum size of 13" << std::endl;
+      }
+      break;
+    case 'b':
+      pattern_size = atoi(optarg);
+      if ((pattern_size != 8) &&
+	  (pattern_size != 16) &&
+	  (pattern_size != 32) &&
+	  (pattern_size != 40) &&
+	  (pattern_size != 64)) {
+	std::cout << "bad pattern size: "<< pattern_size << std::endl;
+	exit (EXIT_FAILURE);
+      }
+      break;
+    case 'h':
+    default: /* '?' */
+      std::cerr<< "Usage: "<<argv[0]<<" <arguments> " <<std::endl
+	       << "required arguments:" <<std::endl
+	       << "  -n  vector bitsize [8:13] (10)"  <<std::endl
+	       << "  -b  pattern_bitsize [8 16 32 40 64] (8)"  <<std::endl	
+	       << "optional arguments:"<<std::endl
+	       << "  -d  (false) sets debug flag true " <<std::endl
+	       << "  -e num_evals (0) {If >3, then all evaluations will be random}"  <<std::endl
+	       << "  -p  (false) enable prettyprint json output" <<std::endl
+	       << "  -v  (false) enable verification of serialization" <<std::endl
+	       << "  -h  prints this message" <<std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
+  
+#endif
       
   DEBUG("DEBUG IS TRUE");
   PROFILELOG("PROFILELOG IS TRUE");
@@ -147,26 +214,26 @@ int main(int argc, char* argv[]){
   }
   
   //32 bit test would run n_bits = 10 .. < 10+bit range no max, default 3
-// 48 bit test runs 10.. 12  
-//64 bit test ran from 1..13
-    
+  // 48 bit test runs 10.. 12  
+  //64 bit test ran from 1..13
+  
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
-
-  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals);
-
+  
+  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals, rand_evals, pretty_flag, verify_flag);
+  
   return ((int)errorflag);
-
+  
 }
 
 
 //////////////////////////////////////////////////////////////////////
-bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals) {
-  
+bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals,
+		      bool rand_evals, bool pretty_flag, bool verify_flag) {
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use (power of 2)
   // pattern_size = size of patterns (8, 32, 40, 64)
-  // n_evals number of evals to run 0..3
+  // n_evals number of evals to run if 0..3 use preloaded, if > 3 use random. 
   
   //returns
   //  errorflag = 1 if fail
@@ -220,21 +287,22 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
-  SerializeClearPatternToFile(clearPattern, clearFileName);
+  SerializeClearPatternToFile(clearPattern, clearFileName, pretty_flag);
 
-  //note this is for debug -- will move to evaluate
-  ClearLWEConjunctionPattern<DCRTPoly> testClearPattern("");
+  if (verify_flag) { //verify the serialization
 
-  DeserializeClearPatternFromFile(clearFileName, testClearPattern);
-
-  if (clearPattern.GetPatternString() == testClearPattern.GetPatternString()) {
-    std::cout<< "Clear Pattern Serialization succeed"<<std::endl;
-  } else {
-    std::cout<< "Clear Pattern Serialization FAILED"<<std::endl;
-    std::cout<< "    clear pattern:           "<<clearPattern.GetPatternString() <<std::endl;
-    std::cout<< "    recovered clear pattern: "<<testClearPattern.GetPatternString()<<std::endl;
-  }
+    ClearLWEConjunctionPattern<DCRTPoly> testClearPattern("");
   
+    DeserializeClearPatternFromFile(clearFileName, testClearPattern);
+
+    if (clearPattern.GetPatternString() == testClearPattern.GetPatternString()) {
+      std::cout<< "Clear Pattern Serialization succeed"<<std::endl;
+    } else {
+      std::cout<< "Clear Pattern Serialization FAILED"<<std::endl;
+      std::cout<< "    clear pattern:           "<<clearPattern.GetPatternString() <<std::endl;
+      std::cout<< "    recovered clear pattern: "<<testClearPattern.GetPatternString()<<std::endl;
+    }
+  }
   
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
   obfuscatedPattern.SetChunkSize(chunkSize);
@@ -245,7 +313,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
   //Variables for timing
-  double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeTotal(0.0);
+  double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeSerial(0.0), timeTotal(0.0);
 
   double stdDev = SIGMA;
   DCRTPoly::DggType dgg(stdDev); // Create the noise generator
@@ -302,20 +370,27 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
   DEBUG("Serializing Obfuscation" );
   string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
-  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
+  TIC(t1);
+  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName, pretty_flag);
+  timeSerial = TOC(t1);
+  PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
 
-  ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
-
-  DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
-
-  if (!CompareObfuscatedPatterns(obfuscatedPattern, testObfuscatedPattern)) {
-    std::cout<<"Serialization did verify"<<std::endl;
-  }else{
-    std::cout<<"Serialization verified"<<std::endl;
-  }
   
-  DEBUG("Done" );
+  if (verify_flag) {// verify the serialization 
+    std::cout<<"Verifying Serialization"<<std::endl;
+    ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
+    
+    DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
+    
+    if (!CompareObfuscatedPatterns(obfuscatedPattern, testObfuscatedPattern)) {
+      std::cout<<"Serialization did verify"<<std::endl;
+    }else{
+      std::cout<<"Serialization verified"<<std::endl;
+    }
+    
+    DEBUG("Done" );
+  }
 
   //print output timing results
   //note one could use PROFILELOG for these lines
@@ -324,15 +399,19 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
   std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
   std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
-
-
+  std::cout << "T: Serialization execution time: " << "\t" << timeSerial << " ms" << std::endl;
 
   if (eval_flag) {
-      
     ////////////////////////////////////////////////////////////
-    //Test the cleartext pattern
+    //Test the cleartext and obfuscated pattern
     ////////////////////////////////////////////////////////////
 
+    std::cout<<"Random evaluation not implemented yet";
+
+    if (n_evals >3) {
+      n_evals = 3;
+      std::cout<<" limiting num_evals to "<<n_evals<<std::endl;
+    }
     DEBUG(" \nCleartext pattern: ");
     DEBUG(clearPattern.GetPatternString());
 
@@ -464,7 +543,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
     else {
       std::cout << "SUCCESS " << std::endl;
     }
-  }
+  } //if eval_flag
   
   DiscreteFourierTransform::Reset();
   
@@ -472,7 +551,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 }
 
 //////////////////////////////////////////////////
-void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern, const string clearFileName){
+void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> clearPattern, const string clearFileName, bool pretty_flag){
 
   bool dbg_flag = false;
 
@@ -486,9 +565,10 @@ void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<DCRTPoly> cle
   if (!SerializableHelper::WriteSerializationToFile(serObj, clearFileName+".json"))
     throw std::runtime_error ("Can't write the clear pattern to file: " +clearFileName+".json");
 
-  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
-    throw std::runtime_error ("Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
-
+  if (pretty_flag){
+    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
+      throw std::runtime_error ("Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
+  }
   DEBUG("done in SerializeClearPattern");
 };
 
@@ -518,7 +598,7 @@ void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjun
 };
 
 ////////////////////////////////////////////////////////
-void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern, const string obfFileName){
+void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern, const string obfFileName, bool pretty_flag){
   bool dbg_flag = false;
 
   DEBUG("in SerializeObfuscatedPattern");
@@ -532,9 +612,10 @@ void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<DCR
   if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
     throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
 
-  if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
+  if (pretty_flag){
+    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
     throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
-  
+  }
   DEBUG("done in SerializeObfuscatedPattern");
 
 };

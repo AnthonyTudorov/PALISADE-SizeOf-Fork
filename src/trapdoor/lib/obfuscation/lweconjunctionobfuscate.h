@@ -41,6 +41,7 @@
 
 #include "utils/serializable.h"
 #include "utils/serializablehelper.h"
+#include "../utils/tdserializeablehelper.h"
 
 /**
  * @namespace lbcrypto
