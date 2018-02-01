@@ -68,81 +68,8 @@ namespace lbcrypto {
   class TDSerializableHelper {
 
   public:
-#if 0    
-    /**
-     * Generates a std::string for a serialized Palisade object (a
-     * rapidjson Document)
-     * @param serObj the serialized Palisade object
-     * @param jsonString - string with the JSON data structure of the
-     * serialized Palisade object.
-     * @return success or failure
-     */
-    static bool SerializationToString(const Serialized& serObj, std::string& jsonString);
-
-    /**
-     * Generates a Pretty std::string for a serialized Palisade object (a 
-     * rapidjson Document)
-     * @param serObj the serialized Palisade object
-     * @param jsonString - string with the JSON data structure of the 
-     * serialized Palisade object.
-     * @return success or failure
-     */
-    static bool SerializationToPrettyString(const Serialized& serObj, std::string& jsonString);
-
-    /**
-     * Writes serialization to a file
-     * @param serObj - the serialized Palisade object
-     * @param out - destination stream for writing the serialization
-     * @return success or failure
-     */
-    static bool SerializationToStream(const Serialized& serObj, std::ostream& out);
-
-    /**
-     * Generates a serialized Palisade object from an input JSON string
-     * @param jsonString reflecting the nested JSON data structure of the 
-     * serialized Palisade object.
-     * @param serObj stores the serialized Palisade object's attributes.
-     * @return success or failure
-     */
-    static bool StringToSerialization(const std::string& jsonString, Serialized* serObj);
-
-    /**
-     * Generate a serialized Palisade object from a JSON string read 
-     * from an input stream
-     * @param in - stream to read
-     * @param serObj stores the serialized Palisade object's attributes.
-     * @return success or failure
-     */
-    static bool StreamToSerialization(std::istream& in, Serialized* serObj);
-
-    /**
-     * Saves a serialized Palisade object's JSON string to file
-     * @param serObj is the serialized object
-     * @param outputFileName is the name of the file to save JSON data string to.
-     * @return success or failure
-     */
-    static bool WriteSerializationToFile(const Serialized& serObj, std::string outputFileName);
-
-    /**
-     * Saves a pretty serialized Palisade object's JSON string to file
-     * @param serObj is the serialized object
-     * @param outputFileName is the name of the file to save JSON data string to.
-     * @return success or failure
-     */
-    static bool WriteSerializationToPrettyFile(const Serialized& serObj, std::string outputFileName);
-
-    /**
-     * Read a serialized Palisade object from a JSON file
-     * @param jsonFileName is the file to read in for the Palisade object's 
-     * nested serialized JSON data structure.
-     * @param map containing the serialized object read from the file
-     * @return success or failure
-     */
-    static bool ReadSerializationFromFile(const std::string jsonFileName, Serialized* map);
-#endif
+    // class method declarations go here, right now there are only templates
   };
-
-  
 
   /** 
    * Helper template Adds the contents of an STL vector<RLWETrapdoorPair<foo>>

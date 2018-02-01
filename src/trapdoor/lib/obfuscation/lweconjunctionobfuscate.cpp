@@ -297,7 +297,178 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
   return true;
 };
 
+
+
 /////////////////////////////////////////////////////////////////////////////
+// Serialization of pices of Obfuscated pattern (more memory efficient) 
+// todo: add palisade serialization error throw
+ template <typename Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::SerializeHeader(Serialized* serObj) const {
+  bool dbg_flag = false;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::SerializeHeader");
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
+  
+  if (!m_elemParams->Serialize(&topobj)){
+    std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::Serialize failed to serialize m_elemParams"<< std::endl;
+    return false;
+  };
+  DEBUGEXP(m_elemParams);
+
+  //length of the pattern
+  topobj.AddMember("Length", std::to_string(this->GetLength()), topobj.GetAllocator());
+
+  DEBUGEXP(this->GetLength());
+  //lattice security parameter
+  //note to_string() rounds off answer
+  stringstream s;
+  s.clear();
+  s.str(""); //reset the internal state of stringstream
+  s << std::setprecision(std::numeric_limits<double>::digits) << this->GetRootHermiteFactor(); //write ALL digits
+  
+  topobj.AddMember("RootHermiteFactor", s.str(), topobj.GetAllocator());
+
+  DEBUGEXP(this->GetRootHermiteFactor());
+
+  //number of bits encoded by one matrix
+  topobj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), topobj.GetAllocator());
+  DEBUGEXP(this->GetChunkSize());
+
+  //base for G-sampling
+  topobj.AddMember("Base", std::to_string(this->GetBase()), topobj.GetAllocator());
+  DEBUGEXP(this->GetBase());  
+
+  // add them all to the input serObj
+  serObj->AddMember("ObfuscatedLWEConjunctionPatternHeader", topobj, serObj->GetAllocator());
+  
+  return true;
+};
+
+
+template <typename Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::SerializeSRV(std::string name, Serialized* serObj) const {
+  bool dbg_flag = false;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::SerializeSRV");
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
+  
+  if (name == "S") {
+    DEBUG("S_Vec(0,0).(0,0)" );
+    auto m = *((this->m_S_vec)->at(0).at(0));
+    DEBUGEXP(m(0,0));
+    
+    SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &topobj);
+    // add them all to the input serObj
+  
+    serObj->AddMember("ObfuscatedLWEConjunctionPatternSRVS", topobj, serObj->GetAllocator());
+
+  } else if (name == "R") {
+    auto  m = *((this->m_R_vec)->at(0).at(0));
+    DEBUG("R_Vec(0,0).(0,0)" );
+    DEBUGEXP(m(0,0));
+    
+    SerializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), *(this->m_R_vec), &topobj);
+    // add them all to the input serObj
+  
+    serObj->AddMember("ObfuscatedLWEConjunctionPatternSRVR", topobj, serObj->GetAllocator());
+  } else {
+    std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::SerializeSRV bad name: "<< name << std::endl;
+  }
+  return true;
+};
+
+template <typename Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::SerializeSRM(std::string name, Serialized* serObj) const {
+  bool dbg_flag = false;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::SerializeSRM");
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
+
+  if (name == "Sl") {
+    // m_Sl;
+    DEBUG("Sl(0,0)" );
+    auto m1 = *this->GetSl();
+    DEBUGEXP(m1(0,0));
+
+    SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &topobj);
+    // add them all to the input serObj
+    serObj->AddMember("ObfuscatedLWEConjunctionPatternSRMSl", topobj, serObj->GetAllocator());
+  } else if (name == "Rl") {
+    // m_Rl
+    auto m1 = *this->GetRl();
+    DEBUG("Rl(0,0)" );
+    DEBUGEXP(m1(0,0));
+
+    SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &topobj);
+    // add them all to the input serObj
+    serObj->AddMember("ObfuscatedLWEConjunctionPatternSRMRl", topobj, serObj->GetAllocator());
+  } else {
+    std::cout<<"ObfuscatedLWEConjunctionPattern<Element>::SerializeSRM bad name: "<< name << std::endl;
+  }
+  
+  return true;
+};
+  
+
+
+  
+template <typename Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::SerializePK(Serialized* serObj) const {
+  bool dbg_flag = false;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::SerializePK");
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
+
+
+  DEBUG("Pk(0),(0,0)" );
+  auto m2 = (*(this->m_pk)).at(0);
+  DEBUGEXP(m2(0,0));
+
+  SerializeVectorOfMatrix("Pk", Element::GetElementName(), *this->m_pk, &topobj);
+  // add them all to the input serObj
+  serObj->AddMember("ObfuscatedLWEConjunctionPatternPk", topobj, serObj->GetAllocator());
+  
+  return true;
+};
+
+  
+template <typename Element>
+bool ObfuscatedLWEConjunctionPattern<Element>::SerializeEK(Serialized* serObj) const {
+  bool dbg_flag = false;
+  DEBUG("in ObfuscatedLWEConjunctionPattern::SerializePK");
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  //build serialization top object to append to
+  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
+
+  //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
+  SerializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), *this->m_ek, &topobj);
+
+  // add them all to the input serObj
+  serObj->AddMember("ObfuscatedLWEConjunctionPatternEk", topobj, serObj->GetAllocator());
+  
+  return true;
+};
+
+  /////////////////////////////////////////////////////////////////////////////
 // Deerialization of Obfuscated pattern 
 // todo: add palisade deserialization error throw
 template<typename  Element>

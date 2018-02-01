@@ -106,6 +106,7 @@ namespace lbcrypto {
 		 */
 		bool Serialize(Serialized* serObj) const;
 
+		
 		/**
 		 * @brief Populate the object from the deserialization of the Setialized
 		 * @param serObj contains the serialized object
@@ -326,10 +327,21 @@ namespace lbcrypto {
 		
 			/**
 			 * @brief Serialize the object into a Serialized
-			 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+			 * @param serObj is used to store the serialized result. 
 			 * @return true if successfully serialized
 			 */
 			bool Serialize(Serialized* serObj) const;
+
+			/**
+			 * @brief Serialize the header info into a Serialized
+			 * @param serObj is used to store the serialized result. 
+			 * @return true if successfully serialized
+			 */
+			bool SerializeHeader(Serialized* serObj) const;
+			bool SerializeSRV(std::string name, Serialized* serObj) const;
+			bool SerializeSRM(std::string name, Serialized* serObj) const;
+			bool SerializePK(Serialized* serObj) const;
+			bool SerializeEK(Serialized* serObj) const;	  	  
 
 			/**
 			 * @brief Populate the object from the deserialization of the Setialized
@@ -509,5 +521,170 @@ namespace lbcrypto {
 	template <>
 	shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const;
 
+	//////////////////////////////////////////////////
+	// helper templates for (de)serialiation  of Conj. Patterns to(from) files
+	template<typename T>
+	  void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<T> clearPattern,
+					    const string clearFileName, bool pretty_flag){
+	  
+	  bool dbg_flag = false;
+	  
+	  DEBUG("in SerializeClearPattern");
+	  
+	  Serialized serObj;
+	  serObj.SetObject();
+	  
+	  clearPattern.Serialize(&serObj);
+	  
+	  if (!SerializableHelper::WriteSerializationToFile(serObj, clearFileName+".json"))
+	    throw std::runtime_error ("Can't write the clear pattern to file: " +clearFileName+".json");
+	  
+	  if (pretty_flag){
+	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
+	      throw std::runtime_error ("Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
+	  }
+	  DEBUG("done in SerializeClearPattern");
+	};
+	
+	//////////////////////////////////////////////////////////////
+	template<typename T>
+	  void  DeserializeClearPatternFromFile(const string clearFileName,
+						ClearLWEConjunctionPattern<T> &clearPattern){
+	  
+	  bool dbg_flag = false;
+	  DEBUG("in DeserializeClearPatternFromFile");
+	  
+	  Serialized serObj;
+	  serObj.SetObject();
+	  
+	  //clear the pattern string
+	  clearPattern.SetPatternString("");
+	  DEBUG("before deserialize:");
+	  DEBUGEXP(clearPattern.GetPatternString());  
+	  if (!SerializableHelper::ReadSerializationFromFile(clearFileName+".json", &serObj))
+	    throw std::runtime_error ("Can't read the clear JSON string from file: "+clearFileName+".json");
+	  
+	  if (!clearPattern.Deserialize(serObj)){
+	    throw std::runtime_error ("Can't deserialize the clear JSON string!");
+	  };
+	  
+	  DEBUGEXP(clearPattern.GetPatternString());  
+	  
+	  DEBUG("done in DeserializeClearPattern");
+	};
+	
+	////////////////////////////////////////////////////////
+	
+
+	template<typename T>
+	  void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
+						 const string obfFileName, bool pretty_flag){
+	  bool dbg_flag = false;
+
+	  DEBUG("in SerializeObfuscatedPattern");
+	  DEBUGEXP(*obfuscatedPattern.GetParameters());
+
+	  Serialized serObj;
+	  serObj.SetObject();
+  
+	  obfuscatedPattern.Serialize(&serObj);
+  
+	  if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
+	    throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
+
+	  if (pretty_flag){
+	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
+	      throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
+	  }
+	  DEBUG("done in SerializeObfuscatedPattern");
+
+	};
+	//////////////////////////////////////////////////
+	template<typename T>
+	  void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern){
+
+	  bool dbg_flag = false;
+
+	  DEBUG("in DeserializeObfuscatedPattern");
+
+	  Serialized serObj;
+	  serObj.SetObject();
+
+	  //clear the pattern string
+	  if (!SerializableHelper::ReadSerializationFromFile(obfFileName+".json", &serObj))
+	    throw std::runtime_error ("Can't read the obfuscated JSON string from the file:"+obfFileName+".json");
+
+	  if (!obsPattern.Deserialize(serObj)){
+	    throw std::runtime_error ("Can't Deserialize the obfuscated JSON string");
+	  };
+  
+	  DEBUG("done in DeserializeObfuscatedPattern");
+	};
+
+
+	//a more memory efficient way to serialize
+	template<typename T>
+	  void  SerializeObfuscatedPatternToFileSet(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
+						    const string obfFileName, bool pretty_flag){
+	  bool dbg_flag = true;
+
+	  DEBUG("in SerializeObfuscatedPatternToFileSet");
+	  DEBUGEXP(*obfuscatedPattern.GetParameters());
+
+	  string subname("");
+	  for (auto step = 0; step < 8; step++){
+	    {
+	      Serialized serObj;
+	      serObj.SetObject();
+	      DEBUGEXP(step);
+	      switch (step) {
+	      case(1):
+		subname = "head";
+		obfuscatedPattern.SerializeHeader(&serObj);
+		break;
+	      case(2):
+		subname = "S";		
+		obfuscatedPattern.SerializeSRV("S",&serObj);
+		break;
+	      case(3):
+		subname = "R";		
+		obfuscatedPattern.SerializeSRV("R",&serObj);
+		break;
+	      case(4):
+		subname = "Sl";		
+		obfuscatedPattern.SerializeSRM("Sl",&serObj);
+		break;
+	      case(5):
+		subname = "Rl";		
+		obfuscatedPattern.SerializeSRM("Rl",&serObj);
+		break;
+	      case(6):
+		subname = "PK";		
+		obfuscatedPattern.SerializePK(&serObj);
+		break;
+	      case(7):
+		subname = "EK";		
+		obfuscatedPattern.SerializeEK(&serObj);	  	  
+		break;
+	      }		  
+
+	      string outfname = obfFileName+subname+".json";
+	      if (!SerializableHelper::WriteSerializationToFile(serObj, outfname ))
+		throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+outfname );
+	      
+	      if (pretty_flag){
+		outfname = obfFileName+subname+subname+"pretty.json";
+		if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, outfname))
+		  throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+outfname );
+	      }
+	      DEBUG("done");
+	    }
+	  }
+
+	      
+	  DEBUG("done in SerializeObfuscatedPattern");
+	      
+	};
+ 
 } // namespace lbcrypto ends
 #endif
