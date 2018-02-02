@@ -71,7 +71,7 @@ int main() {
 
 	//PKE();
 	//SHETestCoeff();
-	//SHETestPacked();
+	SHETestPacked();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
@@ -81,8 +81,8 @@ int main() {
 	//Multiply();
 	//MultiplyTwo();
 	//MultiplyThree();
-	for (size_t i = 0; i < 1000; i++)
-		ScaleAndRound();
+	//for (size_t i = 0; i < 1000; i++)
+	//	ScaleAndRound();
 
 	std::cout << "total number of errors: " << COUNTER << std::endl;
 
