@@ -191,6 +191,10 @@ namespace lbcrypto {
 			for (size_t i = 0; i < n; i++)
 			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
+			NativeVector localRootOfUnityTable(n);
+			for (size_t i = 0; i < n; i++)
+				localRootOfUnityTable[i] = rootOfUnityTable[i].ConvertToInt();
+
 			//int64_t signedOmegaFactor;
 			NativeInteger omegaFactor;
 			NativeInteger butterflyPlus;
@@ -221,7 +225,7 @@ namespace lbcrypto {
 					{
 						usint x = (i << (1+logn-logm));
 
-						NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
+						NativeInteger omega = localRootOfUnityTable[x];
 						uint64_t preconOmega = preconRootOfUnityTable[x];
 
 						usint indexEven = j + i;
