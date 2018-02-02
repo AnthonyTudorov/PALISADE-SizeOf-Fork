@@ -382,8 +382,8 @@ int main() {
 	NativeInteger modulusP(p);
 	PackedEncoding::SetParams(m, p);
 
-	NativeInteger modulusQ("9223372036589678593");
-	NativeInteger rootOfUnity("5356268145311420142");
+	NativeInteger modulusQ("288230376151748609");
+	NativeInteger rootOfUnity("64073710037604316");
 	//NativeInteger delta(modulusQ.DividedBy(modulusP));
 
 	NativeInteger qSmall = 268440577;
@@ -487,8 +487,8 @@ int main() {
 	{
 
 	nRep = 10000;
-	BI q =  268440577;
-	BI z = 58838461;
+	BI q =  modulusQ.ConvertToInt();
+	BI z = rootOfUnity.ConvertToInt();
 	BGV xVec(phim), zVec(phim),  outVec;
 	BI zi = 1;
 	for (usint i = 0; i<phim; i++) {
@@ -514,8 +514,8 @@ int main() {
 	{
 
 	nRep = 10000;
-	BI q =  268440577;
-	BI z = 58838461;
+	BI q =  modulusQ.ConvertToInt();
+	BI z = rootOfUnity.ConvertToInt();
 	BGV xVec(phim), zVec(phim), pVec(phim), outVec;
 	BI zi = 1;
 	for (usint i = 0; i<phim; i++) {
