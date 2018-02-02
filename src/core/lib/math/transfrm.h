@@ -184,7 +184,7 @@ namespace lbcrypto {
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
-			std::vector<NativeInteger> resultVec(n);
+			NativeVector resultVec(n);
 
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
