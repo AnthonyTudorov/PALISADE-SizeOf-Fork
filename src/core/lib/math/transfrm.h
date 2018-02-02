@@ -184,12 +184,12 @@ namespace lbcrypto {
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
-			//std::vector<uint64_t> (*result)(n);
+			std::vector<NativeInteger> resultVec(n);
 
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
 			for (size_t i = 0; i < n; i++)
-			  (*result)[i]= element[ReverseBits(i, msb)].ConvertToInt();
+			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
 			//int64_t signedOmegaFactor;
 			NativeInteger omegaFactor;
@@ -222,41 +222,41 @@ namespace lbcrypto {
 						usint x = (i << (1+logn-logm));
 
 						NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
-						NativeInteger preconOmega = preconRootOfUnityTable[x];
+						uint64_t preconOmega = preconRootOfUnityTable[x];
 
 						usint indexEven = j + i;
 						usint indexOdd = indexEven + (1 << (logm-1));
-						NativeInteger oddVal = (*result)[indexOdd].ConvertToInt();
+						NativeInteger oddVal = resultVec[indexOdd];
 
 						if (oddVal != 0)
 						{
 							if (oddVal == 1)
 								omegaFactor = omega;
 							else
-								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus.ConvertToInt(),preconOmega.ConvertToInt());
+								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus.ConvertToInt(),preconOmega);
 
-							butterflyPlus = (*result)[indexEven].ConvertToInt();
+							butterflyPlus = resultVec[indexEven];
 							butterflyPlus += omegaFactor;
 							if (butterflyPlus >= modulus)
 								butterflyPlus -= modulus;
 
-							butterflyMinus = (*result)[indexEven].ConvertToInt();
-							if ((*result)[indexEven].ConvertToInt() < omegaFactor)
+							butterflyMinus = resultVec[indexEven];
+							if (resultVec[indexEven] < omegaFactor)
 								butterflyMinus += modulus;
 							butterflyMinus -= omegaFactor;
 
-							(*result)[indexEven]= butterflyPlus.ConvertToInt();
-							(*result)[indexOdd]= butterflyMinus.ConvertToInt();
+							resultVec[indexEven]= butterflyPlus;
+							resultVec[indexOdd]= butterflyMinus;
 
 						}
 						else
-							(*result)[indexOdd] = (*result)[indexEven].ConvertToInt();
+							resultVec[indexOdd] = resultVec[indexEven];
 					}
 				}
 			}
 
-			//for (size_t i = 0; i < n; i++)
-			//  (*result)[i]=(*result)[i];
+			for (size_t i = 0; i < n; i++)
+			  (*result)[i]=resultVec[i];
 
 		}
 		else
