@@ -144,13 +144,14 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 		{
 			VecType rTable(CycloOrder / 2);
 			IntType modulus(element.GetModulus());
+			NativeInteger nativeModulus = modulus.ConvertToInt();
 			IntType x(1);
 			NativeVector preconTable(CycloOrder/2,modulus.ConvertToInt());
 
 			for (usint i = 0; i<CycloOrder / 2; i++) {
  			    rTable[i]= x;
 				if (typeid(IntType) == typeid(NativeInteger))
-					preconTable[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),modulus.ConvertToInt());
+					preconTable[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 				x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
 			}
 
@@ -169,15 +170,14 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 	//Fermat Theoretic Transform (FTT)
 	if (typeid(IntType) == typeid(NativeInteger)) {
 		const NativeVector &preconTable = m_rootOfUnityPreconTableByModulus[element.GetModulus()];
-		int64_t modulus64 = element.GetModulus().ConvertToInt();
+		NativeInteger modulus = element.GetModulus().ConvertToInt();
 		if (ringDimensionFactor == 1)
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				InputToFFT[i]=NTL::MulModPrecon(element[i].ConvertToInt(),(*rootOfUnityTable)[i].ConvertToInt(),
-					  modulus64,preconTable[i].ConvertToInt());
+				InputToFFT[i]=element[i].ModMulPrecon((*rootOfUnityTable)[i],modulus,preconTable[i]);
 		else
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				InputToFFT[i]=NTL::MulModPrecon(element[i].ConvertToInt(),(*rootOfUnityTable)[i*ringDimensionFactor].ConvertToInt(),
-					  modulus64,preconTable[i*ringDimensionFactor].ConvertToInt());
+				InputToFFT[i]=element[i].ModMulPrecon((*rootOfUnityTable)[i*ringDimensionFactor],
+						modulus,preconTable[i*ringDimensionFactor]);
 	} else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT[i]= element[i].ModBarrettMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus(), mu);
@@ -231,12 +231,14 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 				VecType TableI(CycloOrder / 2);
 				NativeVector preconTableI(CycloOrder / 2, element.GetModulus().ConvertToInt());
 
+				NativeInteger nativeModulus = element.GetModulus().ConvertToInt();
+
 				IntType x(1);
 
 				for (usint i = 0; i<CycloOrder / 2; i++) {
 					TableI[i]= x;
 					if (typeid(IntType) == typeid(NativeInteger))
-						preconTableI[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),element.GetModulus().ConvertToInt());
+						preconTableI[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 					x.ModBarrettMulInPlace(rootofUnityInverse, element.GetModulus(), mu);
 				}
 
@@ -259,15 +261,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 
 	if (typeid(IntType) == typeid(NativeInteger)) {
 		const NativeVector &preconTable = m_rootOfUnityInversePreconTableByModulus[element.GetModulus()];
-		int64_t modulus64 = element.GetModulus().ConvertToInt();
+		NativeInteger nativeModulus = element.GetModulus().ConvertToInt();
 		if (ringDimensionFactor == 1)
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),(*rootOfUnityITable)[i].ConvertToInt(),
-						modulus64, preconTable[i].ConvertToInt());
+				(*OpIFFT)[i].ModMulPreconEq((*rootOfUnityITable)[i],nativeModulus,preconTable[i]);
 		else
 			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i] =  NTL::MulModPrecon((*OpIFFT)[i].ConvertToInt(),(*rootOfUnityITable)[i*ringDimensionFactor].ConvertToInt(),
-						modulus64, preconTable[i*ringDimensionFactor].ConvertToInt());
+				(*OpIFFT)[i].ModMulPreconEq((*rootOfUnityITable)[i*ringDimensionFactor],nativeModulus,preconTable[i*ringDimensionFactor]);
 	}
 	else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
@@ -291,12 +291,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 	//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
 	if (rootOfUnityTableCheck->GetLength() == 0) {
 		VecType Table(CycloOrder / 2);
-		NativeVector preconTable(CycloOrder/2,modulus.ConvertToInt());
+		NativeInteger nativeModulus = modulus.ConvertToInt();
+		NativeVector preconTable(CycloOrder/2,nativeModulus);
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			Table[i]= x;
 			if (typeid(IntType) == typeid(NativeInteger))
-				preconTable[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),modulus.ConvertToInt());
+				preconTable[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 			x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
 		}
 
@@ -308,7 +309,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 	VecType  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus];
 	if (rootOfUnityInverseTableCheck->GetLength() == 0) {
 		VecType TableI(CycloOrder / 2);
-		NativeVector preconTableI(CycloOrder/2, modulus.ConvertToInt());
+		NativeInteger nativeModulus = modulus.ConvertToInt();
+		NativeVector preconTableI(CycloOrder/2,nativeModulus);
 		IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
 
 		x = 1;
@@ -316,7 +318,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			TableI[i]= x;
 			if (typeid(IntType) == typeid(NativeInteger))
-				preconTableI[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),modulus.ConvertToInt());
+				preconTableI[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 			x.ModBarrettMulInPlace(rootOfUnityInverse, modulus, mu);
 		}
 
@@ -355,12 +357,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 
 		//computation of root of unity table
 		VecType rTable(CycloOrder / 2);
-		NativeVector preconTable(CycloOrder/2,currentMod.ConvertToInt());
+		NativeInteger nativeModulus = currentMod.ConvertToInt();
+		NativeVector preconTable(CycloOrder/2,nativeModulus);
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 		  rTable[i]= x;
 		  if (typeid(x) == typeid(NativeInteger))
-			  preconTable[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),currentMod.ConvertToInt());
+			  preconTable[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 		  x.ModBarrettMulInPlace(currentRoot, currentMod, mu);
 		}
 
@@ -373,12 +376,12 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		IntType rootOfUnityInverse = currentRoot.ModInverse(currentMod);
 
 		VecType rTableI(CycloOrder / 2);
-		NativeVector preconTableI(CycloOrder/2);
+		NativeVector preconTableI(CycloOrder/2,nativeModulus);
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
 			rTableI[i]= x;
 			if (typeid(x) == typeid(NativeInteger))
-				preconTableI[i] = NTL::PrepMulModPrecon(x.ConvertToInt(),currentMod.ConvertToInt());
+				preconTableI[i] = NativeInteger(x.ConvertToInt()).PrepModMulPrecon(nativeModulus);
 			x.ModBarrettMulInPlace(rootOfUnityInverse, currentMod, mu);
 		}
 

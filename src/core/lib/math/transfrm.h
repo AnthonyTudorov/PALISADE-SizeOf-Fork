@@ -281,7 +281,7 @@ namespace lbcrypto {
 								if (oddVal == 1)
 									omegaFactor = omega;
 								else
-									omegaFactor = oddVal.ModMul(omega,modulus);
+									omegaFactor = oddVal.ModMulFast(omega,modulus);
 
 								butterflyPlus = resultVec[indexEven];
 								butterflyPlus += omegaFactor;

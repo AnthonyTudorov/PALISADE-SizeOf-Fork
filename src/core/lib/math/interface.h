@@ -279,6 +279,14 @@ namespace lbcrypto {
 		T ModBarrettMul(const T& b, const T& modulus,const T& mu) const;
 			// FIXME there is no ModBarrettMulEq -- is it needed?
 
+
+		T ModMulPrecon(const T& b, const T& modulus, const T& bInv) const;
+
+		const T& ModMulPreconEq(const T& b, const T& modulus, const T& bInv);
+
+		const T PrepModMulPrecon(const T& modulus) const;
+
+
 		////bit shifting operators
 
 		/**
@@ -494,7 +502,7 @@ namespace lbcrypto {
 		 *
 		 * @return vector length.
 		 */
-		virtual size_t GetLength() const = 0;
+		size_t GetLength() const;
 
 		/**
 		 * Scalar modulus addition.

@@ -629,14 +629,14 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMul(const NativeInteger& b, const NativeInteger& modulus) const {
-		/*Duint_type av = m_value;
+		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
 		if( av >= modulus.m_value ) av = av%modulus.m_value;
 		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
-		return uint_type((av*bv)%modulus.m_value);*/
-		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+		return uint_type((av*bv)%modulus.m_value);
+		//return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 	}
 
 	/**
@@ -695,7 +695,14 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulPrecon(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
+#if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		return uint_type((av*bv)%modulus.m_value);
+#endif
 	}
 
 	/**
@@ -707,11 +714,31 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const NativeInteger& ModMulPreconEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
-
+#if NTL_BITS_PER_LONG==64
 		this->m_value = (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
 
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+#endif
 		return *this;
 	}
+
+	/**
+	 * NTL precomputations for a multiplicand
+	 *
+	 * @param modulus is the modulus to perform operations with.
+	 * @return the precomputed factor
+	 */
+	const NativeInteger PrepModMulPrecon(const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
+		return (uint_type)NTL::PrepMulModPrecon(this->m_value,modulus.m_value);
+#else
+		return 0;
+#endif
+	}
+
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
