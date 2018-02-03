@@ -215,7 +215,7 @@ public:
 		return;
 	}
 
-	void atMod(size_t i, const std::string& val) const {
+	void atMod(size_t i, const std::string& val) {
 		if(!this->IndexCheck(i)) {
 			PALISADE_THROW(lbcrypto::palisade_error, "NativeVector index out of range");
 		}
