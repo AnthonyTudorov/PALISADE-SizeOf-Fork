@@ -212,50 +212,94 @@ namespace lbcrypto {
 
 			usint logn = log2(n);
 
-			for (usint logm = 1; logm <= logn; logm++)
+			if (modulus.GetMSB() < PRECON_MAX)
 			{
-				// calculate the i indexes into the root table one time per loop
-				/*vector<usint> indexes(1 << (logm-1));
-				for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
-					indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
-				}*/
-
-				for (usint j = 0; j<n; j = j + (1 << logm))
+				for (usint logm = 1; logm <= logn; logm++)
 				{
-					for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+
+					for (usint j = 0; j<n; j = j + (1 << logm))
 					{
-						usint x = (i << (1+logn-logm));
-
-						NativeInteger omega = localRootOfUnityTable[x];
-						NativeInteger preconOmega = preconRootOfUnityTable[x];
-
-						usint indexEven = j + i;
-						usint indexOdd = indexEven + (1 << (logm-1));
-						NativeInteger oddVal = resultVec[indexOdd];
-
-						if (oddVal != 0)
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
 						{
-							if (oddVal == 1)
-								omegaFactor = omega;
+							usint x = (i << (1+logn-logm));
+
+							NativeInteger omega = localRootOfUnityTable[x];
+							NativeInteger preconOmega = preconRootOfUnityTable[x];
+
+							usint indexEven = j + i;
+							usint indexOdd = indexEven + (1 << (logm-1));
+							NativeInteger oddVal = resultVec[indexOdd];
+
+							if (oddVal != 0)
+							{
+								if (oddVal == 1)
+									omegaFactor = omega;
+								else
+									omegaFactor = oddVal.ModMulPrecon(omega,modulus,preconOmega);
+
+								butterflyPlus = resultVec[indexEven];
+								butterflyPlus += omegaFactor;
+								if (butterflyPlus >= modulus)
+									butterflyPlus -= modulus;
+
+								butterflyMinus = resultVec[indexEven];
+								if (resultVec[indexEven] < omegaFactor)
+									butterflyMinus += modulus;
+								butterflyMinus -= omegaFactor;
+
+								resultVec[indexEven]= butterflyPlus;
+								resultVec[indexOdd]= butterflyMinus;
+
+							}
 							else
-								omegaFactor = NTL::MulModPrecon(oddVal.ConvertToInt(),omega.ConvertToInt(),modulus.ConvertToInt(),preconOmega.ConvertToInt());
-
-							butterflyPlus = resultVec[indexEven];
-							butterflyPlus += omegaFactor;
-							if (butterflyPlus >= modulus)
-								butterflyPlus -= modulus;
-
-							butterflyMinus = resultVec[indexEven];
-							if (resultVec[indexEven] < omegaFactor)
-								butterflyMinus += modulus;
-							butterflyMinus -= omegaFactor;
-
-							resultVec[indexEven]= butterflyPlus;
-							resultVec[indexOdd]= butterflyMinus;
-
+								resultVec[indexOdd] = resultVec[indexEven];
 						}
-						else
-							resultVec[indexOdd] = resultVec[indexEven];
+					}
+				}
+
+			}
+			else
+			{
+				for (usint logm = 1; logm <= logn; logm++)
+				{
+
+					for (usint j = 0; j<n; j = j + (1 << logm))
+					{
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++)
+						{
+							usint x = (i << (1+logn-logm));
+
+							NativeInteger omega = localRootOfUnityTable[x];
+							NativeInteger preconOmega = preconRootOfUnityTable[x];
+
+							usint indexEven = j + i;
+							usint indexOdd = indexEven + (1 << (logm-1));
+							NativeInteger oddVal = resultVec[indexOdd];
+
+							if (oddVal != 0)
+							{
+								if (oddVal == 1)
+									omegaFactor = omega;
+								else
+									omegaFactor = oddVal.ModMul(omega,modulus);
+
+								butterflyPlus = resultVec[indexEven];
+								butterflyPlus += omegaFactor;
+								if (butterflyPlus >= modulus)
+									butterflyPlus -= modulus;
+
+								butterflyMinus = resultVec[indexEven];
+								if (resultVec[indexEven] < omegaFactor)
+									butterflyMinus += modulus;
+								butterflyMinus -= omegaFactor;
+
+								resultVec[indexEven]= butterflyPlus;
+								resultVec[indexOdd]= butterflyMinus;
+
+							}
+							else
+								resultVec[indexOdd] = resultVec[indexEven];
+						}
 					}
 				}
 			}

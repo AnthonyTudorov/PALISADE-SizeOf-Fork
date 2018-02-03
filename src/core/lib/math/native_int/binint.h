@@ -629,13 +629,14 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMul(const NativeInteger& b, const NativeInteger& modulus) const {
-		Duint_type av = m_value;
+		/*Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
 		if( av >= modulus.m_value ) av = av%modulus.m_value;
 		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
-		return uint_type((av*bv)%modulus.m_value);
+		return uint_type((av*bv)%modulus.m_value);*/
+		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 	}
 
 	/**
@@ -681,6 +682,33 @@ public:
 		Duint_type bv = b.m_value;
 
 		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+
+		return *this;
+	}
+
+	/**
+	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulPrecon(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
+		return (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulPreconEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
+
+		this->m_value = (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 
 		return *this;
 	}
