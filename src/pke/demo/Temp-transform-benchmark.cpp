@@ -380,7 +380,8 @@ int main() {
 	usint phim = 1024;
 	PlaintextModulus p = 1964033; // we choose s.t. 2m|p-1 to leverage CRTArb
 	NativeInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
+	EncodingParams encodingParams( new EncodingParamsImpl(p) );
+	PackedEncoding::SetParams(m, encodingParams);
 
 	NativeInteger modulusQ("288230376151748609");
 	NativeInteger rootOfUnity("64073710037604316");

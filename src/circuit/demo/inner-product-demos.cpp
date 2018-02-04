@@ -258,11 +258,11 @@ main(int argc, char *argv[])
 		BigInteger bigModulus("10889035741470030830827987437816582848513");
 		BigInteger bigRootUnity("5879632101734955395039618227388702592012");
 
-		PackedEncoding::SetParams(m, ptm);
-
 		shared_ptr<ILParams> params( new ILParams(m, modulus, rootUnity, bigModulus, bigRootUnity) );
 
 		EncodingParams encodingParams(new EncodingParamsImpl(ptm,batchSize));
+
+		PackedEncoding::SetParams(m, encodingParams);
 
 		shared_ptr<LPCryptoParametersBGV<Poly>> cparams( new LPCryptoParametersBGV<Poly>(
 				params,
