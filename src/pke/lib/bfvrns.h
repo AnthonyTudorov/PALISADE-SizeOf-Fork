@@ -178,7 +178,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<uint64_t>& GetCRTDecryptionIntPreconTable() const { return m_CRTDecryptionIntPreconTable; }
+			const std::vector<NativeInteger>& GetCRTDecryptionIntPreconTable() const { return m_CRTDecryptionIntPreconTable; }
 
 			/**
 			* Gets the precomputed table of floor(Q/p) mod qi
@@ -213,7 +213,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<uint64_t>>& GetCRTqDivqiModsiPreconTable() const { return m_CRTqDivqiModsiPreconTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiPreconTable() const { return m_CRTqDivqiModsiPreconTable; }
 
 			/**
 			* Gets the precomputed table of Q mod si
@@ -241,7 +241,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<uint64_t>>& GetCRTMultIntPreconTable() const { return m_CRTMultIntPreconTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntPreconTable() const { return m_CRTMultIntPreconTable; }
 
 			/**
 			* Gets the precomputed table of (S/si)^{-1} mod si
@@ -262,7 +262,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<std::vector<uint64_t>>& GetCRTsDivsiModqiPreconTable() const { return m_CRTsDivsiModqiPreconTable; }
+			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiPreconTable() const { return m_CRTsDivsiModqiPreconTable; }
 
 			/**
 			* Gets the precomputed table of S mod qi table
@@ -321,7 +321,7 @@ namespace lbcrypto {
 			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
 
 			// Stores an NTL precomputation of precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<uint64_t>> m_CRTMultIntPreconTable;
+			std::vector<std::vector<NativeInteger>> m_CRTMultIntPreconTable;
 
 			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_CRTMultFloatTable;
@@ -336,13 +336,13 @@ namespace lbcrypto {
 			std::vector<NativeInteger> m_CRTsModqiTable;
 
 			// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			std::vector<uint64_t> m_CRTDecryptionIntPreconTable;
+			std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
 
 			// Stores an NTL approximation for a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<uint64_t>> m_CRTqDivqiModsiPreconTable;
+			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiPreconTable;
 
 			// Stores an NTL approximation for a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<uint64_t>> m_CRTsDivsiModqiPreconTable;
+			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiPreconTable;
 
 	};
 

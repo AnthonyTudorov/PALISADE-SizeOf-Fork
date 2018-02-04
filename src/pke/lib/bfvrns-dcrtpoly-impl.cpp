@@ -100,13 +100,13 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
 
 	std::vector<NativeInteger> qDecryptionInt(size);
-	std::vector<uint64_t> qDecryptionIntPrecon(size);
+	std::vector<NativeInteger> qDecryptionIntPrecon(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
 		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(GetPlaintextModulus())/qi;
 		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
-		qDecryptionIntPrecon[vi] = NTL::PrepMulModPrecon(qDecryptionInt[vi].ConvertToInt(),GetPlaintextModulus());
+		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPrecon(GetPlaintextModulus());
 	}
 
 	m_CRTDecryptionIntTable = qDecryptionInt;
@@ -151,14 +151,14 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> qDivqiModsi(sizeS);
-	std::vector<std::vector<uint64_t>> qDivqiModsiPrecon(sizeS);
+	std::vector<std::vector<NativeInteger>> qDivqiModsiPrecon(sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
 			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
 			BigInteger divBy = modulusQ / qi;
 			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
-			qDivqiModsiPrecon[newvIndex].push_back(NTL::PrepMulModPrecon(qDivqiModsi[newvIndex][vIndex].ConvertToInt(),si.ConvertToInt()));
+			qDivqiModsiPrecon[newvIndex].push_back(qDivqiModsi[newvIndex][vIndex].PrepModMulPrecon(si.ConvertToInt()));
 		}
 	}
 
@@ -195,7 +195,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> multInt(size+1);
-	std::vector<std::vector<uint64_t>> multIntPrecon(size+1);
+	std::vector<std::vector<NativeInteger>> multIntPrecon(size+1);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
@@ -203,13 +203,13 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
 			BigInteger divBy = num / qi;
 			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
-			multIntPrecon[vIndex].push_back(NTL::PrepMulModPrecon(multInt[vIndex][newvIndex].ConvertToInt(),si.ConvertToInt()));
+			multIntPrecon[vIndex].push_back(multInt[vIndex][newvIndex].PrepModMulPrecon(si.ConvertToInt()));
 		}
 
 		BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(si)).ModInverse(si));
 		BigInteger divBy = num / si;
 		multInt[size].push_back(divBy.Mod(si).ConvertToInt());
-		multIntPrecon[size].push_back(NTL::PrepMulModPrecon(multInt[size][newvIndex].ConvertToInt(),si.ConvertToInt()));
+		multIntPrecon[size].push_back(multInt[size][newvIndex].PrepModMulPrecon(si.ConvertToInt()));
 	}
 
 	m_CRTMultIntTable = multInt;
@@ -229,14 +229,14 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute (S/si) mod qi table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> sDivsiModqi(size);
-	std::vector<std::vector<uint64_t>> sDivsiModqiPrecon(size);
+	std::vector<std::vector<NativeInteger>> sDivsiModqiPrecon(size);
 	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
 		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
 			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
 			BigInteger divBy = modulusS / si;
 			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
-			sDivsiModqiPrecon[newvIndex].push_back(NTL::PrepMulModPrecon(sDivsiModqi[newvIndex][vIndex].ConvertToInt(),qi.ConvertToInt()));
+			sDivsiModqiPrecon[newvIndex].push_back(sDivsiModqi[newvIndex][vIndex].PrepModMulPrecon(qi.ConvertToInt()));
 		}
 	}
 
@@ -509,7 +509,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
-	const std::vector<uint64_t> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
+	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);
@@ -863,7 +863,7 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
-	const std::vector<uint64_t> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
+	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;

@@ -701,7 +701,7 @@ public:
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta, const std::vector<uint64_t> &alphaPrecon) const;
+			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
@@ -715,7 +715,7 @@ public:
 	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon) const;
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -731,7 +731,7 @@ public:
 	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
 			const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon);
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon);
 
 	/**
 	* @brief Computes Round(p/Q*x), where x is in the CRT basis Q*S,
@@ -746,7 +746,7 @@ public:
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-			const std::vector<double> &beta, const std::vector<std::vector<uint64_t>> &alphaPrecon) const;
+			const std::vector<double> &beta, const std::vector<std::vector<typename PolyType::Integer>> &alphaPrecon) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

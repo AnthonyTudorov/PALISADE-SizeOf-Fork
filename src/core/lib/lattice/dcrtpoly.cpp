@@ -1024,7 +1024,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
 		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
-		const std::vector<uint64_t> &alphaPrecon) const {
+		const std::vector<typename PolyType::Integer> &alphaPrecon) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
@@ -1043,7 +1043,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			// We assume that that the value of p is smaller than 64 bits (like 58)
 			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 			//curIntSum += xi.ModMul(alpha[vi],p);
-			curIntSum += NTL::MulModPrecon(xi.ConvertToInt(),alpha[vi].ConvertToInt(),p.ConvertToInt(),alphaPrecon[vi]);
+			curIntSum += xi.ModMulPrecon(alpha[vi],p,alphaPrecon[vi]);
 
 			curFloatSum += xi.ConvertToInt()*beta[vi];
 		}
@@ -1090,7 +1090,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon) const{
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) const{
 
 	DCRTPolyType ans(params,m_format,true);
 
@@ -1147,13 +1147,10 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			typename PolyType::Integer curValue = 0;
 
 			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
-			int64_t si64 = si.ConvertToInt();
 
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-				//curValue += xInvVector[vIndex].ModMulFast(qDivqiModsi[newvIndex][vIndex],si);
-				curValue += NTL::MulModPrecon(xInvVector[vIndex].ConvertToInt(),qDivqiModsi[newvIndex][vIndex].ConvertToInt(),
-						si64,qDivqiModsiPrecon[newvIndex][vIndex]);
+				curValue += xInvVector[vIndex].ModMulPrecon(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
 			}
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
@@ -1179,7 +1176,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<std::vector<uint64_t>> &qDivqiModsiPrecon) {
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) {
 
 	std::vector<PolyType> polyInNTT;
 
@@ -1236,7 +1233,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-		const std::vector<double> &beta, const std::vector<std::vector<uint64_t>> &alphaPrecon) const {
+		const std::vector<double> &beta, const std::vector<std::vector<typename PolyType::Integer>> &alphaPrecon) const {
 
 		DCRTPolyType ans(params,m_format,true);
 
@@ -1267,26 +1264,23 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				typename PolyType::Integer curValue = 0;
 
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
-				int64_t si64 = si.ConvertToInt();
 
 				for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
-					curValue += NTL::MulModPrecon(xi.ConvertToInt(),alpha[vIndex][newvIndex].ConvertToInt(),si64,alphaPrecon[vIndex][newvIndex]);
+					curValue += xi.ModMulPrecon(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
 
 				}
 
 				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
 
-				curValue += NTL::MulModPrecon(xi.ConvertToInt(),alpha[sizeQ][newvIndex].ConvertToInt(),si64,alphaPrecon[sizeQ][newvIndex]);
+				curValue += xi.ModMulPrecon(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
 
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);
 
-				//ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded.Mod(si),si);
-
-				ans.m_vectors[newvIndex].at(rIndex) = NTL::AddMod(curValue.ConvertToInt(),rounded.ConvertToInt(),si64);
+				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded,si);
 
 			}
 

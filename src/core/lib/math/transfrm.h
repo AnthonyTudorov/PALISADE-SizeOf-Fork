@@ -185,6 +185,7 @@ namespace lbcrypto {
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
+			// works with a local copy to take advantage of caching
 			NativeVector resultVec(n);
 
 			//reverse coefficients (bit reversal)
@@ -192,6 +193,7 @@ namespace lbcrypto {
 			for (size_t i = 0; i < n; i++)
 			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
+			// works with a local copy to take advantage of caching
 			NativeVector localRootOfUnityTable(n);
 			for (size_t i = 0; i < n; i++)
 				localRootOfUnityTable[i] = rootOfUnityTable[i].ConvertToInt();
