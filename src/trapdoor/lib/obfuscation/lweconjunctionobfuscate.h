@@ -102,7 +102,7 @@ namespace lbcrypto {
 		/**
 		 * @brief Serialize the object into a Serialized
 		 * @param serObj is used to store the serialized result. It should be a rapidjson Object (SetObject()) but will be set to one if needed;
-		 * @return true if successfully serialized
+		 * @return true if successfully serialized will throw on error
 		 */
 		bool Serialize(Serialized* serObj) const;
 
@@ -110,7 +110,7 @@ namespace lbcrypto {
 		/**
 		 * @brief Populate the object from the deserialization of the Setialized
 		 * @param serObj contains the serialized object
-		 * @return true on success
+		 * @return true on success  will throw on error
 		 */
 		bool Deserialize(const Serialized& serObj);
 
@@ -548,11 +548,11 @@ namespace lbcrypto {
 	  clearPattern.Serialize(&serObj);
 	  
 	  if (!SerializableHelper::WriteSerializationToFile(serObj, clearFileName+".json"))
-	    throw std::runtime_error ("Can't write the clear pattern to file: " +clearFileName+".json");
+	       PALISADE_THROW(lbcrypto::serialize_error, "Can't write the clear pattern to file: " +clearFileName+".json");
 	  
 	  if (pretty_flag){
 	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
-	      throw std::runtime_error ("Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
+	       PALISADE_THROW(lbcrypto::serialize_error, "Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
 	  }
 	  DEBUG("done in SerializeClearPattern");
 	};
@@ -573,10 +573,10 @@ namespace lbcrypto {
 	  DEBUG("before deserialize:");
 	  DEBUGEXP(clearPattern.GetPatternString());  
 	  if (!SerializableHelper::ReadSerializationFromFile(clearFileName+".json", &serObj))
-	    throw std::runtime_error ("Can't read the clear JSON string from file: "+clearFileName+".json");
+	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't read the clear JSON string from file: "+clearFileName+".json");
 	  
 	  if (!clearPattern.Deserialize(serObj)){
-	    throw std::runtime_error ("Can't deserialize the clear JSON string!");
+	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't deserialize the clear JSON string!");
 	  };
 	  
 	  DEBUGEXP(clearPattern.GetPatternString());  
@@ -601,11 +601,13 @@ namespace lbcrypto {
 	  obfuscatedPattern.Serialize(&serObj);
   
 	  if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
-	    throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
+	    PALISADE_THROW(lbcrypto::serialize_error,
+			   "Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
 
 	  if (pretty_flag){
 	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
-	      throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
+	      PALISADE_THROW(lbcrypto::serialize_error,
+			     "Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
 	  }
 	  DEBUG("done in SerializeObfuscatedPattern");
 
@@ -623,12 +625,13 @@ namespace lbcrypto {
 
 	  //clear the pattern string
 	  if (!SerializableHelper::ReadSerializationFromFile(obfFileName+".json", &serObj))
-	    throw std::runtime_error ("Can't read the obfuscated JSON string from the file:"+obfFileName+".json");
+	      PALISADE_THROW(lbcrypto::deserialize_error,
+			     "Can't read the obfuscated JSON string from the file:"+obfFileName+".json");
 
 	  if (!obsPattern.Deserialize(serObj)){
-	    throw std::runtime_error ("Can't Deserialize the obfuscated JSON string");
+	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't Deserialize the obfuscated JSON string");
 	  };
-  
+	  
 	  DEBUG("done in DeserializeObfuscatedPattern");
 	};
 
@@ -637,14 +640,14 @@ namespace lbcrypto {
 	template<typename T>
 	  void  SerializeObfuscatedPatternToFileSet(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
 						    const string obfFileName, bool pretty_flag){
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 	  TimeVar t1; //for TIC TOC
 	  double serTime(0.0);
 	  DEBUG("in SerializeObfuscatedPatternToFileSet");
 	  DEBUGEXP(*obfuscatedPattern.GetParameters());
 
 	  string subname("");
-	  for (auto step = 0; step < 6; step++){
+	  for (auto step = 0; step < 7; step++){
 	    {
 	      TIC(t1); //start timer 
 
@@ -684,12 +687,14 @@ namespace lbcrypto {
 
 	      string outfname = obfFileName+subname+".json";
 	      if (!SerializableHelper::WriteSerializationToFile(serObj, outfname ))
-		throw std::runtime_error ("Can't write the obfuscated JSON string to the file: "+outfname );
+		PALISADE_THROW(lbcrypto::serialize_error,
+			       "Can't write the obfuscated JSON string to the file: "+outfname );
 	      
 	      if (pretty_flag){
-		outfname = obfFileName+subname+subname+"pretty.json";
+		outfname = obfFileName+subname+"pretty.json";
 		if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, outfname))
-		  throw std::runtime_error ("Can't write the obfuscated JSON string to the pretty file: "+outfname );
+		  PALISADE_THROW(lbcrypto::serialize_error,
+				 "Can't write the obfuscated JSON string to the pretty file: "+outfname );
 	      }
 	      serTime = TOC(t1);
 	      DEBUG("done, timing "<<serTime<<" ms");
@@ -702,13 +707,13 @@ namespace lbcrypto {
 	//a more memory efficient way to serialize, breaks up the deserialization into pieces
 	template<typename T>
 	  void  DeserializeObfuscatedPatternFromFileSet(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern){
-	  bool dbg_flag = true;
+	  bool dbg_flag = false;
 	  DEBUG("in DeserializeObfuscatedPatternFromFileSet");
 	  TimeVar t1; //for TIC TOC
 	  double serTime(0.0);
 
 	  vector<string> subname = {"head", "S", "R", "Sl", "Rl", "PK", "EK"};		
-	  for (auto step = 0; step < 6; step++){
+	  for (auto step = 0; step < 7; step++){
 	    {
 	      TIC(t1); //start timer 
 
@@ -717,7 +722,8 @@ namespace lbcrypto {
 	      DEBUGEXP(step);
 	      string infname = obfFileName+subname[step]+".json";
 	      if (!SerializableHelper::ReadSerializationFromFile(infname, &serObj))
-		throw std::runtime_error ("Can't read the obfuscated JSON string from the file:"+infname);
+		    PALISADE_THROW(lbcrypto::deserialize_error,
+				   "Can't read the obfuscated JSON string from the file:"+infname);
 	      
 	      bool result(false);
 	      switch (step) {
