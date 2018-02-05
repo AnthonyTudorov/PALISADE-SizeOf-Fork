@@ -69,7 +69,7 @@ size_t COUNTER = 0;
 
 int main() {
 
-	//PKE();
+	PKE();
 	//SHETestCoeff();
 	SHETestPacked();
 	//SHERunMultiplication();

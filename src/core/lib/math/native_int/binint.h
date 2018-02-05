@@ -485,7 +485,15 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		return (uint_type)modsum;
+#endif
 	}
 
 
@@ -636,7 +644,6 @@ public:
 		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
 		return uint_type((av*bv)%modulus.m_value);
-		//return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 	}
 
 	/**
@@ -667,7 +674,15 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		return (uint_type)((av*bv)%modulus.m_value);
+#endif
+
 	}
 
 	/**
@@ -701,7 +716,7 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		return uint_type((av*bv)%modulus.m_value);
+		return (uint_type)((av*bv)%modulus.m_value);
 #endif
 	}
 
@@ -751,7 +766,6 @@ public:
 	 */
 	NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
 		return this->ModMul(b,modulus);
-		//return (uint_type)NTL::MulMod(m_value,b.m_value,modulus.m_value);
 	}
 
 	/**

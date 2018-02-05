@@ -74,7 +74,7 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_SwitchCRTBasis) {
 	Poly resultA = a.CRTInterpolate();
 
 	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	Poly resultB = b.CRTInterpolate();
 	
@@ -126,10 +126,10 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Constant) {
 	Poly bPoly = b.CRTInterpolate();
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	Poly resultExpandedB = b.CRTInterpolate();
 
@@ -190,10 +190,11 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Constant) {
 
 	EXPECT_EQ(A0,B0) << "Results of multiprecision and CRT multiplication do not match";
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),
+			cryptoParamsBFVrns->GetCRTMultFloatTable(),cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -248,10 +249,10 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Gaussian) {
 	Poly bPoly = b.CRTInterpolate();
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
 	Poly resultExpandedB = b.CRTInterpolate();
 
@@ -312,10 +313,11 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Gaussian) {
 
 	EXPECT_EQ(A0,B0) << "Results of multiprecision and CRT multiplication do not match";
 
-	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable());
+	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),
+			cryptoParamsBFVrns->GetCRTMultFloatTable(),cryptoParamsBFVrns->GetCRTMultIntPreconTable());
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
