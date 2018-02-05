@@ -1112,7 +1112,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
 
 			//computes [xi (q/qi)^{-1}]_qi
-			xInvVector[vIndex] = xi.ModMulFast(qInvModqi[vIndex],qi);
+			xInvVector[vIndex] = xi.ModMulFastNTL(qInvModqi[vIndex],qi);
 
 			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
@@ -1157,7 +1157,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			curValue = curValue.Mod(si);
 
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFast(qModsi[newvIndex],si),si);
+			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFastNTL(qModsi[newvIndex],si),si);
 
 		}
 
@@ -1280,7 +1280,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);
 
-				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFast(rounded,si);
+				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFastNTL(rounded,si);
 
 			}
 

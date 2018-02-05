@@ -485,6 +485,21 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		return (uint_type)modsum;
+	}
+
+	/**
+	 * Fast scalar modular addition. NTL-optimized version.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	inline NativeInteger ModAddFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -495,7 +510,6 @@ public:
 		return (uint_type)modsum;
 #endif
 	}
-
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
@@ -674,6 +688,20 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication. Optimized NTL version.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 #else

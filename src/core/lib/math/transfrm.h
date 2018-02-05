@@ -216,7 +216,7 @@ namespace lbcrypto {
 
 			usint logn = log2(n);
 
-			if (modulus.GetMSB() < PRECON_MAX)
+			if (modulus.GetMSB() < NTL_SP_NBITS)
 			{
 				for (usint logm = 1; logm <= logn; logm++)
 				{

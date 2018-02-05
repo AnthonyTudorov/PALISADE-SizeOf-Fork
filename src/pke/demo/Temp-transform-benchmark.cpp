@@ -387,6 +387,7 @@ int main() {
 	//NativeInteger delta(modulusQ.DividedBy(modulusP));
 
 	NativeInteger qSmall = 268440577;
+	qSmall = 288230376151748609;
 
 	NativeInteger a = 10210121;
 	NativeInteger b = 11212133;

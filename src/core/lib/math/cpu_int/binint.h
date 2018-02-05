@@ -609,6 +609,17 @@ namespace cpu_int{
     BigInteger ModMulFast(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
+    * Scalar modulus multiplication - NTL SP optimizations
+    *
+    * @param &b is the scalar to multiply.
+    * @param modulus is the modulus to perform operations with.
+    * @return is the result of the modulus multiplication operation.
+    */
+    BigInteger ModMulFastNTL(const BigInteger& b, const BigInteger& modulus) const{
+    	PALISADE_THROW( lbcrypto::math_error, "ModMulFastNTL is not implemented for backend 2");
+    }
+
+    /**
     * Scalar modulus multiplication.
     *
     * @param &b is the scalar to multiply.
