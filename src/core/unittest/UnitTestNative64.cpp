@@ -148,13 +148,14 @@ TEST(UTNativeInteger,basic_math){
       << "Falure testing plus_equals_a_less_than_b";
   }
   // TEST CASE WITH OVERFLOW
-  {
+  //Removed because it significantly slows down the += operator
+  /*{
     NativeInteger a(((uint64_t)1)<<63);
     NativeInteger b(a);
 
     EXPECT_THROW((a+=b), lbcrypto::math_error)
       << "Falure testing plus_equals_overflow";
-  }
+  }*/
 
   /************************************************/
   /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
