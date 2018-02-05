@@ -736,6 +736,7 @@ public:
 		Duint_type bv = b.m_value;
 
 		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+		//this->m_value = (uint_type)((av*bv)%modulus.m_value);
 #endif
 		return *this;
 	}
