@@ -227,9 +227,9 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
   //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 
-  std::cout<<"Deserializing Obfuscated Pattern from file "+obfFileName+".json"<<std::endl;
+  std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
   TIC(t1);
-  DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
+  DeserializeObfuscatedPatternFromFileSet(obfFileName, obfuscatedPattern);
   timeRead = TOC(t1);
   PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
 

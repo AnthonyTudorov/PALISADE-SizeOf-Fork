@@ -43,59 +43,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
-
-#if 0
-  
-  if (argc < 2) { // called with no arguments
-    std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-    std::cout << "arg 2 = num bits [10] " << std::endl;    
-    //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
-    //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
-    std::cout << "arg 3 = pattern size [8] 8, 16, 32, 40, 64 " << std::endl;        
-  }
-
-  //should become arguments
-  usint pattern_size(8);
-  //usint pattern_size = 40;
-  //usint pattern_size = 64;
-  //TODO, supply input pattern by file.
-  //TODO, num evals should generate test patterns
-
-  bool eval_flag = true; //if true, also run evaluation to verify correct generation.
-  usint n_evals = 3; //number of evaluations to run
-
-  
-  bool dbg_flag = false; 
-
-  if (argc >= 2 ) {
-    if (atoi(argv[1]) != 0) {
-      dbg_flag = true;
-      std::cout << "setting dbg_flag true" << std::endl;
-    }
-  }
-  int n_bits = 8;
-
-  if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 8) {
-      n_bits = 8;
-    } else if (atoi(argv[2]) >= 13) {
-      n_bits = 13;
-    } else {
-      n_bits = atoi(argv[2]);
-    }
-  }
-  
-  if (argc >= 4 ) { 
-    int inarg = atoi(argv[3]);
-    if (inarg < 8) {
-      pattern_size = 8;
-    } else if (inarg >= 64) {
-      pattern_size = 64;
-    } else {
-      pattern_size = inarg;
-    }
-  }
-#else
+  //todo: allow pattern as input
    
   int opt; //used in getting options
   bool dbg_flag = false; //if true print debugging info
@@ -166,8 +114,6 @@ int main(int argc, char* argv[]){
     }
   }
   
-#endif
-      
   DEBUG("DEBUG IS TRUE");
   PROFILELOG("PROFILELOG IS TRUE");
 #ifdef PROFILE
@@ -369,7 +315,12 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
     std::cout<<"Verifying Serialization"<<std::endl;
     ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
     
-    DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
+    DeserializeObfuscatedPatternFromFileSet(obfFileName, testObfuscatedPattern);
+
+
+    
+
+
     
     if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
       std::cout<<"Serialization did verify"<<std::endl;
