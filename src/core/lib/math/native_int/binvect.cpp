@@ -348,9 +348,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 	NativeVector ans(this->m_data.size(),this->m_modulus);
 
 	IntegerType modulus = this->m_modulus;
+	IntegerType bLocal = b;
 
 	for(usint i=0;i<this->m_data.size();i++){
-		ans.m_data[i] = m_data[i].ModMulFast(b,modulus);
+		ans.m_data[i] = m_data[i].ModMulFast(bLocal,modulus);
 	}
 
 	return ans;
@@ -360,9 +361,10 @@ template<class IntegerType>
 const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const IntegerType &b) {
 
 	IntegerType modulus = this->m_modulus;
+	IntegerType bLocal = b;
 
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModMulFastEq(b,modulus);
+		this->m_data[i].ModMulFastEq(bLocal,modulus);
 	}
 
 	return *this;
