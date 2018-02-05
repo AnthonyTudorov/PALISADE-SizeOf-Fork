@@ -194,8 +194,9 @@ namespace lbcrypto {
 			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
 			// works with a local copy to take advantage of caching
-			NativeVector localRootOfUnityTable(rootOfUnityTable.GetLength());
-			for (size_t i = 0; i < rootOfUnityTable.GetLength(); i++)
+			usint ruLength = rootOfUnityTable.GetLength();
+			NativeVector localRootOfUnityTable(ruLength);
+			for (size_t i = 0; i <  ruLength; i++)
 				localRootOfUnityTable[i] = rootOfUnityTable[i].ConvertToInt();
 
 			//int64_t signedOmegaFactor;
@@ -206,7 +207,7 @@ namespace lbcrypto {
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
 				  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
-			float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
+			usint ringDimensionFactor = std::round((float)rootOfUnityTable.GetLength() / (float)cycloOrder);
 
 			DEBUG("rootOfUnityTable.GetLength() " << rootOfUnityTable.GetLength());
 			DEBUG("cycloOrder " << cycloOrder);
@@ -222,8 +223,17 @@ namespace lbcrypto {
 
 					// calculate the i indexes into the root table one time per loop
 					vector<usint> indexes(1 << (logm-1));
-					for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
-						indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
+					if (ringDimensionFactor == 1) 
+					{
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+							indexes[i] = (i << (1+logn-logm));
+						}
+					}
+					else
+					{
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+							indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
+						}
 					}
 
 					for (usint j = 0; j<n; j = j + (1 << logm))
@@ -274,8 +284,17 @@ namespace lbcrypto {
 
 					// calculate the i indexes into the root table one time per loop
 					vector<usint> indexes(1 << (logm-1));
-					for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
-						indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
+					if (ringDimensionFactor == 1) 
+					{
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+							indexes[i] = (i << (1+logn-logm));
+						}
+					}
+					else
+					{
+						for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
+							indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
+						}
 					}
 
 					for (usint j = 0; j<n; j = j + (1 << logm))
