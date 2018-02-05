@@ -44,10 +44,6 @@
 typedef native_int::NativeInteger<uint64_t>			NativeInteger;
 typedef native_int::NativeVector<NativeInteger>		NativeVector;
 
-//maximum number of bits for which NTL::MulModPrecon is used (fast modular multiplication in NTT)
-const size_t PRECON_MAX = 60;
-
-
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
 // Each math backend is defined in its own namespace, and can be used at any time by referencing
