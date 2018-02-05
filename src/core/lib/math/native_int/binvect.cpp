@@ -347,8 +347,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 
 	NativeVector ans(this->m_data.size(),this->m_modulus);
 
+	IntegerType modulus = this->m_modulus;
+
 	for(usint i=0;i<this->m_data.size();i++){
-		ans.m_data[i] = m_data[i].ModMulFast(b,this->m_modulus);
+		ans.m_data[i] = m_data[i].ModMulFast(b,modulus);
 	}
 
 	return ans;
@@ -357,8 +359,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 template<class IntegerType>
 const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const IntegerType &b) {
 
+	IntegerType modulus = this->m_modulus;
+
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModMulFastEq(b,this->m_modulus);
+		this->m_data[i].ModMulFastEq(b,modulus);
 	}
 
 	return *this;
@@ -395,8 +399,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const NativeVector &
 
 	NativeVector ans(this->m_data.size(),this->m_modulus);
 
+	IntegerType modulus = this->m_modulus;
+
 	for(usint i=0;i<ans.m_data.size();i++){
-		ans.m_data[i] = m_data[i].ModAddFast(b[i],this->m_modulus);
+		ans.m_data[i] = m_data[i].ModAddFast(b[i],modulus);
 	}
 
 	return ans;
@@ -410,8 +416,10 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const Nativ
         throw std::logic_error("ModAddEq called on NativeVector's with different parameters.");
 	}
 
+	IntegerType modulus = this->m_modulus;
+
 	for(usint i=0;i<this->m_data.size();i++){
-		m_data[i] = m_data[i].ModAddFast(b[i],this->m_modulus);
+		m_data[i] = m_data[i].ModAddFast(b[i],modulus);
 	}
 	return *this;
 
@@ -485,9 +493,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
 	}
 
 	NativeVector ans(this->m_data.size(),this->m_modulus);
+	IntegerType modulus = this->m_modulus;
 
 	for(usint i=0;i<this->m_data.size();i++){
-		ans.m_data[i] = m_data[i].ModMulFast(b[i],this->m_modulus);
+		ans.m_data[i] = m_data[i].ModMulFast(b[i],modulus);
 	}
 
 	return ans;
@@ -501,8 +510,10 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Nativ
         throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
+	IntegerType modulus = this->m_modulus;
+
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i] = m_data[i].ModMulFast(b[i],this->m_modulus);
+		this->m_data[i] = m_data[i].ModMulFast(b[i],modulus);
 	}
 
 	return *this;
