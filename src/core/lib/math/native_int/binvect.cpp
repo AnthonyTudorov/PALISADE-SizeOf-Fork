@@ -599,11 +599,20 @@ bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) 
 	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
 		return false;
 
-	m_modulus = bbiModulus;
+ 	NativeVector<IntegerType> newVec;
+ 	newVec.SetModulus(bbiModulus);
 
-	bool ret = lbcrypto::DeserializeVector<IntegerType>("VectorValues", "BigIntegerImpl", vIt, &this->m_data);
+	IntegerType vectorElem;
+	const char *vp = vIt->value.GetString();
+	while( *vp != '\0' ) {
+		vp = vectorElem.DeserializeFromString(vp, bbiModulus);
+		newVec.m_data.push_back(vectorElem);
+	}
 
-	return ret;
+	*this = std::move(newVec);
+
+	return true;
+
 }
 
 template class NativeVector<NativeInteger<uint64_t>>;
