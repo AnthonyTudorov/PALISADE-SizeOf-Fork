@@ -231,20 +231,6 @@ namespace lbcrypto {
   }
 
   /** 
-   * Helper template Adds the contents of an STL map<k,shared_ptr<foo>> to 
-   *  a serialized Palisade object as a nested JSON data structure
-   * foo must be a pointer to a serializable object as the function uses the 
-   * foo->SerializeWithoutContext() method to serialize.
-   * @param vectorName 
-   * @param typeName of element within the vector
-   * @param inMap the STL map to be serialized
-   * @param *serObj the serial object to be modfied, if not a serial object
-   * then it is made a serial object
-   * @return void  TODO: add error code
-   */
-
-
-  /** 
    * Helper template Adds the contents of an STL map<bar, shared_ptr<foo>> to 
    *  a serialized Palisade object as a nested JSON data structure
    * foo must be a serializable object as the function uses the 
