@@ -186,15 +186,6 @@ namespace lbcrypto {
 		T ModMulFast(const T& b, const T& modulus) const;
 
 		/**
-		 * Scalar modulus multiplication - use NTL SP optimizations
-		 *
-		 * @param &b is the scalar to multiply.
-		 * @param modulus is the modulus to perform operations with.
-		 * @return is the result of the modulus multiplication operation.
-		 */
-		T ModMulFastNTL(const T& b, const T& modulus) const;
-
-		/**
 		 * Scalar modulus multiplication.
 		 *
 		 * @param &b is the scalar to multiply.
@@ -307,14 +298,6 @@ namespace lbcrypto {
 		 * @return is the result of the modulus multiplication operation.
 		 */
 		const T& ModMulPreconEq(const T& b, const T& modulus, const T& bInv);
-
-		/**
-		 * NTL precomputations for a multiplicand
-		 *
-		 * @param modulus is the modulus to perform operations with.
-		 * @return the precomputed factor
-		 */
-		const T PrepModMulPrecon(const T& modulus) const;
 
 		////bit shifting operators
 

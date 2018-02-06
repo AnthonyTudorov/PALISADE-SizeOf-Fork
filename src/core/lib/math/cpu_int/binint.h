@@ -609,17 +609,6 @@ namespace cpu_int{
     BigInteger ModMulFast(const BigInteger& b, const BigInteger& modulus) const;
 
     /**
-    * Scalar modulus multiplication - NTL SP optimizations
-    *
-    * @param &b is the scalar to multiply.
-    * @param modulus is the modulus to perform operations with.
-    * @return is the result of the modulus multiplication operation.
-    */
-    BigInteger ModMulFastNTL(const BigInteger& b, const BigInteger& modulus) const{
-    	PALISADE_THROW( lbcrypto::math_error, "ModMulFastNTL is not implemented for backend 2");
-    }
-
-    /**
     * Scalar modulus multiplication.
     *
     * @param &b is the scalar to multiply.
@@ -684,16 +673,6 @@ namespace cpu_int{
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const BigInteger& ModMulPreconEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 2");
-	}
-
-	/**
-	 * NTL precomputations for a multiplicand
-	 *
-	 * @param modulus is the modulus to perform operations with.
-	 * @return the precomputed factor
-	 */
-	const BigInteger PrepModMulPrecon(const BigInteger& modulus) const {
 		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 2");
 	}
 
