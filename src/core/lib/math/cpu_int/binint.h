@@ -660,8 +660,8 @@ namespace cpu_int{
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-    BigInteger ModMulPrecon(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) const {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 2");
+    BigInteger ModMulPreconNTL(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 2");
 	}
 
 	/**
@@ -672,8 +672,8 @@ namespace cpu_int{
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const BigInteger& ModMulPreconEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 2");
+	const BigInteger& ModMulPreconNTLEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 2");
 	}
 
     /**

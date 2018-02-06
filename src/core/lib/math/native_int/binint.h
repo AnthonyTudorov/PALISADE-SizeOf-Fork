@@ -493,13 +493,29 @@ public:
 	}
 
 	/**
+	 * In-place Fast scalar modular addition. Minimizes the number of modulo reduction operations.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	const NativeInteger& ModAddFastEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		this->m_value = (uint_type)modsum;
+		return *this;
+	}
+
+	/**
 	 * Fast scalar modular addition. NTL-optimized version.
 	 *
 	 * @param &b is the scalar to add.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
-	inline NativeInteger ModAddFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
+	NativeInteger ModAddFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -509,6 +525,26 @@ public:
 			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 #endif
+	}
+
+	/**
+	 * In-place fast scalar modular addition. NTL-optimized version.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	const NativeInteger& ModAddFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+#if NTL_BITS_PER_LONG==64
+		this->m_value = (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		this->m_value = (uint_type)modsum;
+#endif
+		return *this;
 	}
 
 	/**
@@ -730,6 +766,25 @@ public:
 	}
 
 	/**
+	 * In-place scalar modulus multiplication. Optimized NTL version.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+#if NTL_BITS_PER_LONG==64
+		this->m_value = (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+#endif
+		return *this;
+	}
+
+	/**
 	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
 	 *
 	 * @param &b is the scalar to multiply.
@@ -737,7 +792,7 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	NativeInteger ModMulPrecon(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
+	NativeInteger ModMulPreconNTL(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
@@ -756,7 +811,7 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const NativeInteger& ModMulPreconEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
+	const NativeInteger& ModMulPreconNTLEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
 #if NTL_BITS_PER_LONG==64
 		this->m_value = (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
@@ -775,7 +830,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return the precomputed factor
 	 */
-	const NativeInteger PrepModMulPrecon(const NativeInteger& modulus) const {
+	const NativeInteger PrepModMulPreconNTL(const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::PrepMulModPrecon(this->m_value,modulus.m_value);
 #else

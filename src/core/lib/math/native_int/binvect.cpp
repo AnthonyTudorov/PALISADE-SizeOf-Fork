@@ -282,17 +282,33 @@ template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const IntegerType &b) const{
 
 	NativeVector ans(*this);
-	for(usint i=0;i<this->m_data.size();i++){
-		ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+	if (this->m_modulus < NTL_SP_NBITS + 1)
+	{
+		for(usint i=0;i<this->m_data.size();i++){
+			ans.m_data[i] = ans.m_data[i].ModAddFastNTL(b, this->m_modulus);
+		}
 	}
+	else
+		for(usint i=0;i<this->m_data.size();i++){
+			ans.m_data[i] = ans.m_data[i].ModAdd(b, this->m_modulus);
+		}
 	return ans;
 }
 
 template<class IntegerType>
 const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const IntegerType &b) {
 
-	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModAddEq(b, this->m_modulus);
+	if (this->m_modulus < NTL_SP_NBITS + 1)
+	{
+		for(usint i=0;i<this->m_data.size();i++){
+			this->m_data[i].ModAddFastNTLEq(b, this->m_modulus);
+		}
+	}
+	else
+	{
+		for(usint i=0;i<this->m_data.size();i++){
+			this->m_data[i].ModAddEq(b, this->m_modulus);
+		}
 	}
 	return *this;
 }
@@ -369,8 +385,17 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Integ
 	IntegerType modulus = this->m_modulus;
 	IntegerType bLocal = b;
 
-	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModMulFastEq(bLocal,modulus);
+	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
+	{
+		for(usint i=0;i<this->m_data.size();i++){
+			this->m_data[i].ModMulFastNTLEq(bLocal,modulus);
+		}
+	}
+	else
+	{
+		for(usint i=0;i<this->m_data.size();i++){
+			this->m_data[i].ModMulFastEq(bLocal,modulus);
+		}
 	}
 
 	return *this;
@@ -436,12 +461,12 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const Nativ
 	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			m_data[i] = m_data[i].ModAddFastNTL(b[i],modulus);
+			this->m_data[i].ModAddFastNTLEq(b[i],modulus);
 	}
 	else
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			m_data[i] = m_data[i].ModAddFast(b[i],modulus);
+			this->m_data[i].ModAddFastEq(b[i],modulus);
 	}
 
 	return *this;
@@ -545,12 +570,12 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Nativ
 	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			this->m_data[i] = m_data[i].ModMulFastNTL(b[i],modulus);
+			this->m_data[i].ModMulFastNTLEq(b[i],modulus);
 	}
 	else
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			this->m_data[i] = m_data[i].ModMulFast(b[i],modulus);
+			this->m_data[i].ModMulFastEq(b[i],modulus);
 	}
 
 	return *this;

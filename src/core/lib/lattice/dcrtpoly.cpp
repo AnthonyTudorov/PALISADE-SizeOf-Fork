@@ -1043,7 +1043,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			// We assume that that the value of p is smaller than 64 bits (like 58)
 			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 			//curIntSum += xi.ModMul(alpha[vi],p);
-			curIntSum += xi.ModMulPrecon(alpha[vi],p,alphaPrecon[vi]);
+			curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
 
 			curFloatSum += xi.ConvertToInt()*beta[vi];
 		}
@@ -1150,7 +1150,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-				curValue += xInvVector[vIndex].ModMulPrecon(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
+				curValue += xInvVector[vIndex].ModMulPreconNTL(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
 			}
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
@@ -1269,13 +1269,13 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
-					curValue += xi.ModMulPrecon(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
+					curValue += xi.ModMulPreconNTL(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
 
 				}
 
 				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
 
-				curValue += xi.ModMulPrecon(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
+				curValue += xi.ModMulPreconNTL(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
 
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);

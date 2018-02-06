@@ -287,7 +287,7 @@ namespace lbcrypto {
 		 * @param &bInv NTL precomputation for b.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		T ModMulPrecon(const T& b, const T& modulus, const T& bInv) const;
+		T ModMulPreconNTL(const T& b, const T& modulus, const T& bInv) const;
 
 		/**
 		 * Scalar modulus multiplication.
@@ -297,7 +297,7 @@ namespace lbcrypto {
 		 * @param &bInv NTL precomputation for b.
 		 * @return is the result of the modulus multiplication operation.
 		 */
-		const T& ModMulPreconEq(const T& b, const T& modulus, const T& bInv);
+		const T& ModMulPreconNTLEq(const T& b, const T& modulus, const T& bInv);
 
 		////bit shifting operators
 
