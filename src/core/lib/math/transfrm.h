@@ -304,7 +304,6 @@ namespace lbcrypto {
 							usint x = indexes[i];
 
 							NativeInteger omega = localRootOfUnityTable[x];
-							NativeInteger preconOmega = preconRootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
