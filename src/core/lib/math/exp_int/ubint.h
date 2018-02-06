@@ -666,6 +666,30 @@ public:
 	ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint mu_arr[BARRETT_LEVELS]) const;
 
 	/**
+	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+    ubint ModMulPrecon(const ubint& b, const ubint& modulus, const ubint& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 4");
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const ubint& ModMulPreconEq(const ubint& b, const ubint& modulus, const ubint& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPrecon is not implemented for backend 4");
+	}
+
+	/**
 	 * Scalar modular exponentiation. Square-and-multiply algorithm is used.
 	 *
 	 * @param &b is the scalar to exponentiate.
