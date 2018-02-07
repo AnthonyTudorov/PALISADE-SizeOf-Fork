@@ -53,7 +53,7 @@ shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::Gene
 template <>
 shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const {
 
-	size_t dcrtBits = 60;
+	size_t dcrtBits = 59;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
 	vector<NativeInteger> moduli(size);

@@ -50,6 +50,7 @@
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 #include "../../utils/serializable.h"
+#include "../../utils/exception.h"
 //#include "../native_int/binint.h"
 
 /**
@@ -650,6 +651,30 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigInteger ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const;
+
+	/**
+	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+    BigInteger ModMulPreconNTL(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 2");
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const BigInteger& ModMulPreconNTLEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 2");
+	}
 
     /**
      * Scalar modular exponentiation. Square-and-multiply algorithm is used.

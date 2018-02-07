@@ -102,7 +102,7 @@ GenCryptoContextBFV(usint ORDER, PlaintextModulus ptm, usint bits, usint towers,
 
 	shared_ptr<typename Poly::Params> p = ElemParamFactory::GenElemParams<typename Poly::Params>(ORDER, bits, towers);
 
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(ptm, 1.006, 1, 4, 0, 2, 0, mode);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(ptm, 1.006, 1, 4, 0, 1, 0, mode);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);

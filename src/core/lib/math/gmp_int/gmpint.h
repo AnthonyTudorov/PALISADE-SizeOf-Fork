@@ -312,6 +312,30 @@ public:
 		return res;
 	}; //(this^b)%modulus
 
+	/**
+	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	myZZ ModMulPreconNTL(const myZZ& b, const myZZ& modulus, const myZZ& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 6");
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const myZZ& ModMulPreconNTLEq(const myZZ& b, const myZZ& modulus, const myZZ& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 6");
+	}
+
 	myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;
 	myZZ DivideAndRound(const myZZ &q) const;
 
