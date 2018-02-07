@@ -978,7 +978,9 @@ typename DCRTPolyImpl<ModType,IntType,VecType,ParmType>::PolyLargeType DCRTPolyI
 	IntType mu = ComputeMu<IntType>(bigModulus);
 
 	// now, compute the values for the vector
+#ifdef OMP
 #pragma omp parallel for
+#endif
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {

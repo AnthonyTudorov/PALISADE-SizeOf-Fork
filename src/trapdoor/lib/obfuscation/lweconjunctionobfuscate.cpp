@@ -601,7 +601,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 		//private copies of our vectors
 		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
 		shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<Element>>());
+#ifdef OMP
 #pragma omp for nowait schedule(static)
+#endif
 		for(size_t i=0; i<=adjustedLength+1; i++) {
 			//build private copies in parallel
 			TIC(tp);
@@ -613,10 +615,14 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 			Ek_vector_pvt->push_back(trapPair.second);
 
 		}
+#ifdef OMP
         #pragma omp for schedule(static) ordered
+#endif
 		// now stitch them back together sequentially to preserve order of i
 		for (int i=0; i<omp_get_num_threads(); i++) {
+#ifdef OMP
 			#pragma omp ordered
+#endif
 			 Pk_vector->insert(Pk_vector->end(), Pk_vector_pvt->begin(), Pk_vector_pvt->end());
 			 Ek_vector->insert(Ek_vector->end(), Ek_vector_pvt->begin(), Ek_vector_pvt->end());
 		}
@@ -658,7 +664,9 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC all the following have insignificant timing
 	Matrix<Element> ej(zero_alloc, 1, m);
 
+#ifdef OMP
 	#pragma omp parallel for
+#endif
 	for(size_t i=0; i<m; i++) {
 		ej(0,i) = Element(dggEncoding, elemS.GetParams(), COEFFICIENT);
 		//ej(0,i).SetValues(dggEncoding.GenerateVector(n,modulus),COEFFICIENT);
@@ -676,7 +684,9 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
 	DEBUG("calling "<<m<<" gaussj");
+#ifdef OMP
 	#pragma omp parallel for schedule(dynamic)
+#endif
 	for(size_t i=0; i<m; i++) {
 
 	  // the following takes approx 250 msec
