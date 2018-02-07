@@ -251,7 +251,9 @@ namespace lbcrypto {
 				lenW++;
 
 		RingMat err(Poly::MakeDiscreteGaussianCoefficientAllocator(ilParams, COEFFICIENT, SIGMA), m_m, 2*m_ell+2-lenW);
+#ifdef OMP
 #pragma omp parallel for num_threads(4)
+#endif
 		for(usint i=0; i < m_m;i++){
 			for(usint j = 0; j < 2*m_ell+2-lenW;j++)
 				err(i,j).SwitchFormat();

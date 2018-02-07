@@ -74,7 +74,9 @@ namespace lbcrypto {
 		for (size_t i = 1; i < k; i++)
 			c(i, 0) = (c(i - 1, 0) + (int64_t)(modulus.GetDigitAtIndexForBase(i + 1, base))) / base;
 
+#ifdef OMP
 #pragma omp parallel for
+#endif
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
 			typename Element::Integer v(u.at(j));
@@ -150,7 +152,9 @@ namespace lbcrypto {
 		for (size_t i = 1; i < k; i++)
 			c(i, 0) = (c(i - 1, 0) + (int64_t)(modulus.GetDigitAtIndexForBase(i + 1, base))) / base;
 
+#ifdef OMP
 #pragma omp parallel for
+#endif
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
 			typename Element::Integer v(u.at(j));
