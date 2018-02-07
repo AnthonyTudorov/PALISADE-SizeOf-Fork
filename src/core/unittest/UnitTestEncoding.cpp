@@ -117,10 +117,10 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-	PackedEncoding::SetParams(m, p);
-
 	shared_ptr<ILParams> lp(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 	EncodingParams ep(new EncodingParamsImpl(p,8));
+
+	PackedEncoding::SetParams(m, ep);
 
 	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(lp, ep, vectorOfInts1);

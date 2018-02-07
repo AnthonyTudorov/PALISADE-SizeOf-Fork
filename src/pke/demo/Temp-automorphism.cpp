@@ -540,11 +540,11 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	usint batchSize = 8;
 
-	PackedEncoding::SetParams(m, p);
-
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, encodingParams);
 
@@ -596,11 +596,11 @@ void ArbNullAutomorphismCoeffArray(usint i) {
 
 	usint batchSize = 8;
 
-	PackedEncoding::SetParams(m, p);
-
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, encodingParams);
 
@@ -639,10 +639,11 @@ void ArbBFVAutomorphismPackedArray2n(usint i) {
 	//usint phim = 1024;
 	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -694,10 +695,11 @@ void ArbNullAutomorphismPackedArray2n(usint i) {
 	//usint phim = 1024;
 	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -745,7 +747,6 @@ void ArbBFVAutomorphismCoeffArray2n(usint i) {
 	//usint phim = 1024;
 	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	//usint batchSize = 16;
 	//EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
@@ -767,6 +768,8 @@ void ArbBFVAutomorphismCoeffArray2n(usint i) {
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
+
+	PackedEncoding::SetParams(m, cc->GetEncodingParams());
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();
@@ -800,7 +803,6 @@ void ArbNullAutomorphismCoeffArray2n(usint i) {
 	//usint phim = 1024;
 	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	//usint batchSize = 16;
 	//EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
@@ -819,6 +821,8 @@ void ArbNullAutomorphismCoeffArray2n(usint i) {
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
+
+	PackedEncoding::SetParams(m, cc->GetEncodingParams());
 
 	// Initialize the public key containers.
 	LPKeyPair<Poly> kp = cc->KeyGen();

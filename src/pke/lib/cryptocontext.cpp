@@ -854,6 +854,10 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 		cc->Enable(schemeBits);
 	}
 
+	if( cc->GetEncodingParams()->GetPlaintextRootOfUnity() != 0 ) {
+		PackedEncoding::SetParams(cc->GetCyclotomicOrder(), cc->GetEncodingParams());
+	}
+
 	return cc;
 }
 

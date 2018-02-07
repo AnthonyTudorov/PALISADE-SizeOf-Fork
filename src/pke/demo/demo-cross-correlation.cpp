@@ -51,7 +51,6 @@ void KeyGen();
 void Encrypt();
 void Compute();
 void Decrypt();
-CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
 NativeInteger CRTInterpolate(const std::vector<Plaintext> &crtVector);
 template<typename T> ostream& operator<<(ostream& output, const vector<T>& vector);
 
@@ -349,10 +348,6 @@ void Encrypt() {
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-		
-		usint m = elementParams->GetCyclotomicOrder();
-
-		PackedEncoding::SetParams(m, encodingParams);
 
 		//std::cout << "plaintext modulus = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 
@@ -488,10 +483,6 @@ void Compute() {
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
-		
-		usint m = elementParams->GetCyclotomicOrder();
-
-		PackedEncoding::SetParams(m, encodingParams);
 
 		usint batchSize = encodingParams->GetBatchSize();
 
@@ -622,10 +613,6 @@ void Decrypt() {
 		const auto encodingParams = cryptoParams->GetEncodingParams();
 		const shared_ptr<ILDCRTParams<BigInteger>> elementParams = cryptoParams->GetElementParams();
 		
-		usint m = elementParams->GetCyclotomicOrder();
-
-		PackedEncoding::SetParams(m, encodingParams);
-
 		// Deserialize the private key
 
 		std::cout << "Deserializing the private key...";
@@ -693,44 +680,6 @@ void Decrypt() {
 
 	std::cout << "Ciphertext result: " << result << std::endl;
 
-}
-
-CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName, const string& emFileName, const string& esFileName)
-{
-
-	std::cout << "Deserializing the crypto context...";
-
-	Serialized	ccSer, emSer, esSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
-		cerr << "Could not read the cryptocontext file" << endl;
-		return 0;
-	}
-
-	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
-		cerr << "Could not read the eval mult key file " << endl;
-		return 0;
-	}
-
-	if (SerializableHelper::ReadSerializationFromFile(esFileName, &esSer) == false) {
-		cerr << "Could not read the eval sum key file" << endl;
-		return 0;
-	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-
-	if( cc->DeserializeEvalMultKey(emSer) == false ) {
-		cerr << "Could not deserialize the eval mult key file" << endl;
-		return 0;
-	}
-
-	if( cc->DeserializeEvalSumKey(esSer) == false ) {
-		cerr << "Could not deserialize the eval sum key file" << endl;
-		return 0;
-	}
-
-	std::cout << "Completed" << std::endl;
-
-	return cc;
 }
 
 NativeInteger CRTInterpolate(const std::vector<Plaintext> &crtVector) {

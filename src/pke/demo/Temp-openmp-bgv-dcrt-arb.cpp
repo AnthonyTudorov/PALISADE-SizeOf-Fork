@@ -456,9 +456,9 @@ void ArbBGVInnerProductPackedArray() {
 
 	BigInteger modulusP(p);
 
-	PackedEncoding::SetParams(m, p);
-
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 8, stdDev);
 
