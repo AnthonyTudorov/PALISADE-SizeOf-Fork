@@ -2343,6 +2343,19 @@ namespace lbcrypto {
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
 		}
 
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAtIndexKeyGen(const LPPublicKey<Element> publicKey,
+			const LPPrivateKey<Element> origPrivateKey,
+			const std::vector<usint> &indexList) const {
+
+			if (this->m_algorithmSHE) {
+				auto km = this->m_algorithmSHE->EvalAtIndexKeyGen(publicKey,origPrivateKey,indexList);
+				for( auto& k : *km )
+					k.second->SetKeyTag( publicKey->GetKeyTag() );
+				return km;
+			} else
+				throw std::logic_error("EvalAtIndexKeyGen operation has not been enabled");
+		}
+
 		Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
 			const std::map<usint, LPEvalKey<Element>> &evalKeys) const {
 
@@ -2351,6 +2364,17 @@ namespace lbcrypto {
 				return ct;
 			} else
 				throw std::logic_error("EvalAutomorphism operation has not been enabled");
+		}
+
+
+		Ciphertext<Element> EvalAtIndex(const Ciphertext<Element> ciphertext, usint i,
+			const std::map<usint, LPEvalKey<Element>> &evalKeys) const {
+
+			if (this->m_algorithmSHE) {
+				auto ct = this->m_algorithmSHE->EvalAtIndex(ciphertext, i, evalKeys);
+				return ct;
+			} else
+				throw std::logic_error("EvalAtIndex operation has not been enabled");
 		}
 
 		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
