@@ -69,7 +69,9 @@ public:
 
 	// this class contains an array of these:
 	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyType;
-	typedef PolyImpl<ModType,IntType,VecType,ILParams> PolyLargeType;
+
+	// the composed polynomial type
+	typedef PolyImpl<ModType,IntType,VecType,ILParamsImpl<IntType>> PolyLargeType;
 
 	static const std::string GetElementName() {
 		return "DCRTPolyImpl";
@@ -91,7 +93,7 @@ public:
 	*/
 	DCRTPolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-	const DCRTPolyType& operator=(const Poly& element);
+	const DCRTPolyType& operator=(const PolyLargeType& element);
 
 	/**
 	* @brief Constructor based on discrete Gaussian generator.
@@ -137,7 +139,7 @@ public:
 	* @param &element Poly to build other towers from.
 	* @param params parameter set required for DCRTPoly.
 	*/
-	DCRTPolyImpl(const Poly &element, const shared_ptr<ParmType> params);
+	DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<ParmType> params);
 
 	/**
 	* @brief Construct using an tower of ILVectro2ns. The params and format for the DCRTPoly will be derived from the towers.
@@ -684,11 +686,7 @@ public:
 	*
 	* @return the interpolated ring element as a Poly object.
 	*/
-	Poly CRTInterpolate() const;
-
-//	NativePoly CRTInterpolate() {
-//		PALISADE_THROW(config_error, "DCRT interpolate to NativePoly is not supported");
-//	}
+	PolyLargeType CRTInterpolate() const;
 
 	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
@@ -699,10 +697,11 @@ public:
 	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
 	* @param &alpha a vector of precomputed integer factors mod p - for each q_i
 	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i
+	* @param &alphaPrecon an NTL-specific vector of precomputed integer factors mod p - for each q_i	*
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta) const;
+			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
@@ -711,10 +710,12 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @return the polynomial in the CRT basis S
 	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi) const;
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -725,9 +726,12 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
+	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	*/
-	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi);
+	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
+			const std::vector<typename PolyType::Integer> &qInvModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon);
 
 	/**
 	* @brief Computes Round(p/Q*x), where x is in the CRT basis Q*S,
@@ -737,11 +741,12 @@ public:
 	* @param &params parameters for the CRT basis Q
 	* @param &alpha a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
 	* @param &beta a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
+	* @param &alphaPrecon an NTL precomputation for the matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
 	* @return the result of computation as a polynomial in the CRT basis Q
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-			const std::vector<double> &beta) const;
+			const std::vector<double> &beta, const std::vector<std::vector<typename PolyType::Integer>> &alphaPrecon) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.

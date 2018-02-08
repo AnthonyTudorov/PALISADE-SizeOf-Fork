@@ -43,6 +43,7 @@
 #include <stdexcept>
 #include <functional>
 #include <cstdlib>
+#include <NTL/ZZ.h>
 #include <memory>
 #include "../interface.h"
 #include "../../utils/inttypes.h"
@@ -52,54 +53,8 @@
 #include "../../utils/exception.h"
 #include "../nbtheory.h"
 
+
 namespace native_int {
-
-/**The following structs are needed for initialization of NativeInteger at the preprocessing stage.
- *The structs compute certain values using template metaprogramming approach and mostly follow recursion to calculate value(s).
- */
-
-/**
- * @brief  Struct to find log value of N.
- *Needed in the preprocessing step of NativeInteger to determine bitwidth.
- *
- * @tparam N bitwidth.
- */
-template <usint N>
-struct Log2 {
-	const static usint value = 1 + Log2<N/2>::value;
-};
-
-/**
- * @brief Struct to find log value of N.
- *Base case for recursion.
- *Needed in the preprocessing step of NativeInteger to determine bitwidth.
- */
-template<>
-struct Log2<2> {
-	const static usint value = 1;
-};
-
-/**
- * @brief Struct to find log value of U where U is a primitive datatype.
- *Needed in the preprocessing step of NativeInteger to determine bitwidth.
- *
- * @tparam U primitive data type.
- */
-template <typename U>
-struct LogDtype {
-	const static usint value = Log2<8*sizeof(U)>::value;
-};
-
-/**
- * @brief Struct for calculating bit width from data type.
- * Sets value to the bitwidth of uint_type
- *
- * @tparam uint_type native integer data type.
- */
-template <typename uint_type>
-struct UIntBitWidth {
-	const static int value = 8*sizeof(uint_type);
-};
 
 /**
  * @brief Struct to determine a datatype that is twice as big(bitwise) as utype.
@@ -278,11 +233,11 @@ public:
 	 * @return result of the addition operation of type BigInteger.
 	 */
 	const NativeInteger& PlusEq(const NativeInteger& b) {
-		uint_type oldv = m_value;
+		//uint_type oldv = m_value;
 		m_value += b.m_value;
-		if( m_value < oldv ) {
-			PALISADE_THROW( lbcrypto::math_error, "Overflow");
-		}
+		//if( m_value < oldv ) {
+		//	PALISADE_THROW( lbcrypto::math_error, "Overflow");
+		//}
 		return *this;
 	}
 
@@ -501,7 +456,7 @@ public:
 	NativeInteger ModAdd(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		if (modsum > modulus.m_value)
+		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}
@@ -516,7 +471,7 @@ public:
 	const NativeInteger& ModAddEq(const NativeInteger& b, const NativeInteger& modulus) {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		if (modsum > modulus.m_value)
+		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		this->m_value = (uint_type)modsum;
 		return *this;
@@ -532,12 +487,65 @@ public:
 	inline NativeInteger ModAddFast(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
-		modsum %= modulus.m_value;
-		if( modsum > m_uintMax )
-			PALISADE_THROW( lbcrypto::math_error, "Overflow");
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
 		return (uint_type)modsum;
 	}
 
+	/**
+	 * In-place Fast scalar modular addition. Minimizes the number of modulo reduction operations.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	const NativeInteger& ModAddFastEq(const NativeInteger& b, const NativeInteger& modulus) {
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		this->m_value = (uint_type)modsum;
+		return *this;
+	}
+
+	/**
+	 * Fast scalar modular addition. NTL-optimized version.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	NativeInteger ModAddFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
+		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		return (uint_type)modsum;
+#endif
+	}
+
+	/**
+	 * In-place fast scalar modular addition. NTL-optimized version.
+	 *
+	 * @param &b is the scalar to add.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus addition operation.
+	 */
+	const NativeInteger& ModAddFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+#if NTL_BITS_PER_LONG==64
+		this->m_value = (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type modsum = (Duint_type)m_value;
+		modsum += b.m_value;
+		if (modsum >= modulus.m_value)
+			modsum %= modulus.m_value;
+		this->m_value = (uint_type)modsum;
+#endif
+		return *this;
+	}
 
 	/**
 	 * Modular addition where Barrett modulo reduction is used.
@@ -573,24 +581,24 @@ public:
 	 * @return result of the modulus subtraction operation.
 	 */
 	NativeInteger ModSub(const NativeInteger& b, const NativeInteger& modulus) const {
-		uint_type av = m_value;
-		uint_type bv = b.m_value;
-		uint_type mod = modulus.m_value;
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+		Duint_type mod = modulus.m_value;
 
 		//reduce this to a value lower than modulus
-		if(av > mod) {
+		if(av >= mod) {
 			av %= mod;
 		}
 		//reduce b to a value lower than modulus
-		if(bv > mod){
+		if(bv >= mod){
 			bv %= mod;
 		}
 
 		if(av >= bv){
-			return (av - bv) % mod;
+			return uint_type((av - bv) % mod);
 		}
 		else{
-			return (av + mod) - bv;
+			return uint_type((av + mod) - bv);
 		}
 	}
 
@@ -602,23 +610,23 @@ public:
 	 * @return result of the modulus subtraction operation.
 	 */
 	const NativeInteger& ModSubEq(const NativeInteger& b, const NativeInteger& modulus) {
-		uint_type bv = b.m_value;
-		uint_type mod = modulus.m_value;
+		Duint_type bv = b.m_value;
+		Duint_type mod = modulus.m_value;
 
 		//reduce this to a value lower than modulus
-		if(m_value > mod) {
+		if(m_value >= mod) {
 			m_value %= mod;
 		}
 		//reduce b to a value lower than modulus
-		if(bv > mod){
+		if(bv >= mod){
 			bv %= mod;
 		}
 
 		if(m_value >= bv){
-			m_value = (m_value - bv) % mod;
+			m_value = uint_type((m_value - bv) % mod);
 		}
 		else{
-			m_value = (m_value + mod) - bv;
+			m_value = uint_type((m_value + mod) - bv);
 		}
 
 		return *this;
@@ -632,16 +640,15 @@ public:
 	 * @return result of the modulus subtraction operation.
 	 */
 	inline NativeInteger ModSubFast(const NativeInteger& b, const NativeInteger& modulus) const {
-		uint_type av = m_value;
-		uint_type bv = b.m_value;
-		uint_type mod = modulus.m_value;
-
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+		Duint_type mod = modulus.m_value;
 	
 		if(av >= bv){
-			return (av-bv)%mod;
+			return uint_type((av - bv) % mod);
 		}
 		else{
-			return (av + mod) - bv;
+			return uint_type((av + mod) - bv);
 		}
 	}
 
@@ -683,10 +690,10 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( av > modulus.m_value ) av = av%modulus.m_value;
-		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+		if( av >= modulus.m_value ) av = av%modulus.m_value;
+		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
-		return (uint_type)((av*bv)%modulus.m_value);
+		return uint_type((av*bv)%modulus.m_value);
 	}
 
 	/**
@@ -700,10 +707,10 @@ public:
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
 
-		if( av > modulus.m_value ) av = av%modulus.m_value;
-		if( bv > modulus.m_value ) bv = bv%modulus.m_value;
+		if( av >= modulus.m_value ) av = av%modulus.m_value;
+		if( bv >= modulus.m_value ) bv = bv%modulus.m_value;
 
-		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+		this->m_value = uint_type((av*=bv)%=modulus.m_value);
 
 		return *this;
 	}
@@ -719,7 +726,27 @@ public:
 	NativeInteger ModMulFast(const NativeInteger& b, const NativeInteger& modulus) const {
 		Duint_type av = m_value;
 		Duint_type bv = b.m_value;
+
 		return (uint_type)((av*bv)%modulus.m_value);
+	}
+
+	/**
+	 * Scalar modulus multiplication. Optimized NTL version.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
+		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		return (uint_type)((av*bv)%modulus.m_value);
+#endif
+
 	}
 
 	/**
@@ -737,6 +764,80 @@ public:
 
 		return *this;
 	}
+
+	/**
+	 * In-place scalar modulus multiplication. Optimized NTL version.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+#if NTL_BITS_PER_LONG==64
+		this->m_value = (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+#endif
+		return *this;
+	}
+
+	/**
+	 * NTL-optimized modular multiplication using a precomputation for the multiplicand
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	NativeInteger ModMulPreconNTL(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
+#if NTL_BITS_PER_LONG==64
+		return (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		return (uint_type)((av*bv)%modulus.m_value);
+#endif
+	}
+
+	/**
+	 * Scalar modulus multiplication.
+	 *
+	 * @param &b is the scalar to multiply.
+	 * @param modulus is the modulus to perform operations with.
+	 * @param &bInv NTL precomputation for b.
+	 * @return is the result of the modulus multiplication operation.
+	 */
+	const NativeInteger& ModMulPreconNTLEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
+#if NTL_BITS_PER_LONG==64
+		this->m_value = (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+#else
+		Duint_type av = m_value;
+		Duint_type bv = b.m_value;
+
+		this->m_value = (uint_type)((av*=bv)%=modulus.m_value);
+		//this->m_value = (uint_type)((av*bv)%modulus.m_value);
+#endif
+		return *this;
+	}
+
+	/**
+	 * NTL precomputations for a multiplicand
+	 *
+	 * @param modulus is the modulus to perform operations with.
+	 * @return the precomputed factor
+	 */
+	const NativeInteger PrepModMulPreconNTL(const NativeInteger& modulus) const {
+#if NTL_BITS_PER_LONG==64
+		return (uint_type)NTL::PrepMulModPrecon(this->m_value,modulus.m_value);
+#else
+		return 0;
+#endif
+	}
+
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
@@ -796,7 +897,7 @@ public:
 				product = product * mid;
 
 			//running product is calculated
-			if(product>modulus){
+			if(product >= modulus){
 				product = product % modulus;
 			}
 
@@ -1104,8 +1205,7 @@ public:
 	 * @param ptr_obj is NativeInteger to be printed.
 	 * @return is the ostream object.
 	 */
-	template<typename uint_type_c>
-	friend std::ostream& operator<<(std::ostream& os, const NativeInteger<uint_type_c> &ptr_obj) {
+	friend std::ostream& operator<<(std::ostream& os, const NativeInteger &ptr_obj) {
 		os << ptr_obj.m_value;
 		return os;
 	}
@@ -1152,7 +1252,7 @@ public:
 	 *  Set this int to 1.
 	 *  Note some compilers don't like using the ONE constant, above :(
 	 */
-	inline void SetIdentity() { this->m_value = 1; };
+	void SetIdentity() { this->m_value = 1; };
 
 	/**
 	 * A zero allocator that is called by the Matrix class.
@@ -1198,33 +1298,6 @@ private:
 
 	// Duint_type has double the bits in the integral data type.
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
-
-public:
-	/*
-	friend NativeInteger operator-(const NativeInteger& a, const NativeInteger& b) { return a.Minus(b); }
-	const NativeInteger& operator-=(const NativeInteger& b) { return this->MinusEq(b); }
-	friend NativeInteger operator+(const NativeInteger& a, const NativeInteger& b) { return a.Plus(b); }
-	const NativeInteger& operator+=(const NativeInteger& b) { return this->PlusEq(b); }
-	friend NativeInteger operator*(const NativeInteger& a, const NativeInteger& b) { return a.Times(b); }
-	const NativeInteger& operator*=(const NativeInteger& b) { return this->TimesEq(b); }
-	friend NativeInteger operator/(const NativeInteger& a, const NativeInteger& b) { return a.DividedBy(b); }
-	const NativeInteger& operator/=(const NativeInteger& b) { return this->DividedByEq(b); }
-	friend NativeInteger operator%(const NativeInteger& a, const NativeInteger& b) { return a.Mod(b); }
-	const NativeInteger& operator%=(const NativeInteger& b) { return this->ModEq(b); }
-	friend NativeInteger operator<<(const NativeInteger& a, usshort shift) { return a.LShift(shift); }
-	const NativeInteger& operator<<=(usshort shift) { return this->LShiftEq(shift); }
-	friend NativeInteger operator>>(const NativeInteger& a, usshort shift) { return a.RShift(shift); }
-	const NativeInteger& operator>>=(usshort shift) { return this->RShiftEq(shift); }
-
-    bool operator==(const NativeInteger& b) const {return this->Compare(b) == 0;}
-    bool operator!=(const NativeInteger& b) const {return this->Compare(b) != 0;}
-
-	bool operator> (const NativeInteger& b) const {return this->Compare(b) >  0;}
-	bool operator>=(const NativeInteger& b) const {return this->Compare(b) >= 0;}
-	bool operator< (const NativeInteger& b) const {return this->Compare(b) <  0;}
-	bool operator<=(const NativeInteger& b) const {return this->Compare(b) <= 0;}
-	*/
-
 };
 
 }//namespace ends

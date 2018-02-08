@@ -294,7 +294,7 @@ void LTVEvalMultPlain() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	PackedEncoding::SetParams(m, p);
+	PackedEncoding::SetParams(m, encodingParams);
 
 	//Create the context
 
@@ -354,7 +354,7 @@ void BGVEvalMultPlain() {
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-	PackedEncoding::SetParams(m, p);
+	PackedEncoding::SetParams(m, encodingParams);
 
 	//Create the context
 
@@ -417,11 +417,11 @@ void BFVEvalMultPlain() {
 	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
-	PackedEncoding::SetParams(m, p);
-
 	usint batchSize = 8;
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	BigInteger delta(modulusQ.DividedBy(modulusP));
 

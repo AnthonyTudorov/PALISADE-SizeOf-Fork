@@ -69,8 +69,13 @@ void BGVAutomorphismPackedArray(usint i);
 void ArbBGVAutomorphismPackedArray(usint i);
 void BFVAutomorphismPackedArray(usint i);
 void ArbBFVAutomorphismPackedArray(usint i);
+void ArbBFVAutomorphismCoeffArray(usint i);
 void ArbBFVAutomorphismPackedArray2n(usint i);
+void ArbBFVAutomorphismCoeffArray2n(usint i);
 void ArbNullAutomorphismPackedArray(usint i);
+void ArbNullAutomorphismCoeffArray2n(usint i);
+void ArbNullAutomorphismCoeffArray(usint i);
+void ArbNullAutomorphismPackedArray2n(usint i);
 
 int main() {
 
@@ -127,16 +132,48 @@ int main() {
 		ArbBFVAutomorphismPackedArray2n(totientList2n[index]);
 	}
 
+	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-POWER-OF-TWO)===============: " << std::endl;
+
+	for (usint index = 1; index < 16; index++) {
+		ArbNullAutomorphismPackedArray2n(totientList2n[index]);
+	}
+
+	std::cout << "\n===========BFV TESTS (EVALAUTOMORPHISM-POWER-OF-TWO-COEFF-ENCODING)===============: " << std::endl;
+
+	PackedEncoding::Destroy();
+	for (usint index = 1; index < 10; index++) {
+		ArbBFVAutomorphismCoeffArray2n(totientList[index]);
+	}
+
+	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-POWER-OF-TWO-COEFF-ENCODING)===============: " << std::endl;
+
+	PackedEncoding::Destroy();
+	for (usint index = 1; index < 10; index++) {
+		ArbNullAutomorphismCoeffArray2n(totientList[index]);
+	}
+
+	std::cout << "\n===========BFV TESTS (EVALAUTOMORPHISM-ARB-COEFF-ENCODING)===============: " << std::endl;
+
+	PackedEncoding::Destroy();
+	for (usint index = 1; index < 10; index++) {
+		ArbBFVAutomorphismCoeffArray(totientList[index]);
+	}
+
+	/*std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARB-COEFF-ENCODING)===============: " << std::endl;
+
+	PackedEncoding::Destroy();
+	for (usint index = 1; index < 10; index++) {
+		ArbNullAutomorphismCoeffArray(totientList[index]);
+	}
+
 	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 
 	PackedEncoding::Destroy();
 	for (usint index = 1; index < 10; index++) {
 		ArbNullAutomorphismPackedArray(totientList[index]);
 	}
-
-	std::cout << "Please press any key to continue..." << std::endl;
-
-	cin.get();
+	*/
+	//cin.get();
 	return 0;
 }
 
@@ -426,6 +463,62 @@ void ArbBFVAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
+void ArbBFVAutomorphismCoeffArray(usint i) {
+
+	usint m = 22;
+	usint p = 2333;
+	BigInteger modulusP(p);
+
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
+
+	//usint n = GetTotient(m);
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
+
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+
+	float stdDev = 4;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	BigInteger delta(modulusQ.DividedBy(modulusP));
+
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
+		params, p,
+		8, stdDev, delta.ToString());
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10};
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << *intArray << std::endl;
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
+}
+
 
 void ArbNullAutomorphismPackedArray(usint i) {
 
@@ -447,11 +540,11 @@ void ArbNullAutomorphismPackedArray(usint i) {
 
 	usint batchSize = 8;
 
-	PackedEncoding::SetParams(m, p);
-
 	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, encodingParams);
 
@@ -483,6 +576,62 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
 }
 
+void ArbNullAutomorphismCoeffArray(usint i) {
+
+	usint m = 22;
+	PlaintextModulus p = 89;
+	BigInteger modulusP(p);
+	/*BigInteger modulusQ("577325471560727734926295560417311036005875689");
+	BigInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
+	BigInteger modulusQ("955263939794561");
+	BigInteger squareRootOfRoot("941018665059848");
+	//BigInteger squareRootOfRoot = RootOfUnity(2*m,modulusQ);
+	//std::cout << squareRootOfRoot << std::endl;
+	BigInteger bigmodulus("80899135611688102162227204937217");
+	BigInteger bigroot("77936753846653065954043047918387");
+	//std::cout << bigroot << std::endl;
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	usint batchSize = 8;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
+
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, encodingParams);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << *intArray << std::endl;
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey,  permutedCiphertext, &intArrayNew);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
+}
+
 void ArbBFVAutomorphismPackedArray2n(usint i) {
 
 
@@ -490,10 +639,11 @@ void ArbBFVAutomorphismPackedArray2n(usint i) {
 	//usint phim = 1024;
 	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 16;
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("1512511313188104877");
@@ -518,6 +668,167 @@ void ArbBFVAutomorphismPackedArray2n(usint i) {
 
 	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
 	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << *intArray << std::endl;
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
+}
+
+void ArbNullAutomorphismPackedArray2n(usint i) {
+
+
+	usint m = 32;
+	//usint phim = 1024;
+	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigInteger modulusP(p);
+
+	usint batchSize = 16;
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
+
+	BigInteger modulusQ("4809848800078200833");
+	BigInteger rootOfUnity("1512511313188104877");
+	BigInteger delta(modulusQ.DividedBy(modulusP));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
+
+	BigInteger EvalMultModulus("1182196001696382977");
+	BigInteger EvalMultRootOfUnity("105268544709215333");
+
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, p);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
+	Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << *intArray << std::endl;
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
+}
+
+
+void ArbBFVAutomorphismCoeffArray2n(usint i) {
+
+
+	usint m = 32;
+	//usint phim = 1024;
+	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigInteger modulusP(p);
+
+	//usint batchSize = 16;
+	//EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	BigInteger modulusQ("4809848800078200833");
+	BigInteger rootOfUnity("1512511313188104877");
+	BigInteger delta(modulusQ.DividedBy(modulusP));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
+
+	BigInteger EvalMultModulus("1182196001696382977");
+	BigInteger EvalMultRootOfUnity("105268544709215333");
+
+	usint relinWindow = 1;
+	float stdDev = 4;
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
+			params, p, relinWindow, stdDev, delta.ToString(), OPTIMIZED,
+			EvalMultModulus.ToString(), EvalMultRootOfUnity.ToString(), 0, 9, 1.006
+		);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	PackedEncoding::SetParams(m, cc->GetEncodingParams());
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
+
+	if (i == 3)
+		std::cout << "Input array\n\t" << *intArray << std::endl;
+
+	auto ciphertext = cc->Encrypt(kp.publicKey, intArray);
+
+	std::vector<usint> indexList = GetTotientList(m);
+	indexList.erase(indexList.begin());
+
+	auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, indexList);
+
+	auto permutedCiphertext = cc->EvalAutomorphism(ciphertext, i, *evalKeys);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey, permutedCiphertext, &intArrayNew);
+
+	std::cout << "Automorphed array - at index " << i << " (using only odd coefficients)\n\t" << *intArrayNew << std::endl;
+}
+
+void ArbNullAutomorphismCoeffArray2n(usint i) {
+
+
+	usint m = 32;
+	//usint phim = 1024;
+	PlaintextModulus p = 193; // we choose s.t. 2m|p-1 to leverage CRTArb
+	BigInteger modulusP(p);
+
+	//usint batchSize = 16;
+	//EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	BigInteger modulusQ("4809848800078200833");
+	BigInteger rootOfUnity("1512511313188104877");
+	BigInteger delta(modulusQ.DividedBy(modulusP));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, rootOfUnity));
+
+	BigInteger EvalMultModulus("1182196001696382977");
+	BigInteger EvalMultRootOfUnity("105268544709215333");
+
+	//usint relinWindow = 1;
+	//float stdDev = 4;
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, p);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	PackedEncoding::SetParams(m, cc->GetEncodingParams());
+
+	// Initialize the public key containers.
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+	std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8, 9, 10, 11, 12, 13, 14, 15, 16};
+	Plaintext intArray = cc->MakeCoefPackedPlaintext(vectorOfInts);
 
 	if (i == 3)
 		std::cout << "Input array\n\t" << *intArray << std::endl;

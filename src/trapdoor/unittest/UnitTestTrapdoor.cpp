@@ -213,7 +213,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	uint32_t base = 2;
+	uint64_t base = 2;
 	double sigma = (base+1)*SIGMA;
 
 	Poly::DggType dgg(sigma);
@@ -229,7 +229,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);
 
-	Matrix<int32_t> zHatBBI([](){ return make_unique<int32_t>(); },  k, m/2);
+	Matrix<int64_t> zHatBBI([](){ return make_unique<int64_t>(); },  k, m/2);
 
   DEBUG("3");
   DEBUG("u "<<u);
@@ -244,7 +244,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	EXPECT_EQ(u.GetLength(),zHatBBI.GetCols())
 		<< "Failure testing number of colums";
   DEBUG("4");
-    Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
+    Matrix<Poly> z = SplitInt64AltIntoElements<Poly>(zHatBBI, n, params);
 	z.SwitchFormat();
 
 	Poly uEst;
@@ -270,7 +270,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
 
-	uint32_t base = 1<<10;
+	uint64_t base = 1<<10;
 	double sigma = (base + 1)*SIGMA;
 
 	Poly::DggType dgg(SIGMA);
@@ -290,7 +290,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//double logTwo = log(val - 1.0) / log(2) + 1.0;
 	//usint k = (usint)floor(logTwo);
 
-	Matrix<int32_t> zHatBBI([]() { return make_unique<int32_t>(); }, k, m / 2);
+	Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, m / 2);
 
 	DEBUG("3");
 	DEBUG("u " << u);
@@ -316,7 +316,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//
 	//std::cout << maxValue << std::endl;
 
-	Matrix<Poly> z = SplitInt32AltIntoElements<Poly>(zHatBBI, n, params);
+	Matrix<Poly> z = SplitInt64AltIntoElements<Poly>(zHatBBI, n, params);
 	DEBUG("4.5");
 
 	z.SwitchFormat();

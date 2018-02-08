@@ -1730,16 +1730,18 @@ namespace lbcrypto {
 			Ciphertext<Element> y0 = (*y)(indexStart, 0).GetNumerator();
 
 			result = EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey);
-
+#ifdef OMP
 			#pragma omp parallel for ordered schedule(dynamic)
+#endif
 			for (usint i = indexStart + 1; i < indexStart + length; i++)
 			{
 				Ciphertext<Element> xi = (*x)(i, 0).GetNumerator();
 				Ciphertext<Element> yi = (*y)(i, 0).GetNumerator();
 
 				auto product = EvalInnerProduct(xi, yi, batchSize, evalSumKeys, evalMultKey);
-				
+#ifdef OMP
 				#pragma omp ordered
+#endif
 				{
 					result = EvalAdd(result,product);
 				}

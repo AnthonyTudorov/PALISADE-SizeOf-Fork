@@ -87,7 +87,7 @@ namespace lbcrypto {
 
 		/**
 		* Gets character at a specific location
-		* @param index the index into the pattern 
+		* @param index the index into the pattern
 		* @return the character at an index
 		*/
 		char GetIndex(usint index) const;
@@ -98,7 +98,7 @@ namespace lbcrypto {
 		*/
 		usint GetLength() const;
 
-		
+
 		/**
 		 * @brief Serialize the object into a Serialized
 		 * @param serObj is used to store the serialized result. It should be a rapidjson Object (SetObject()) but will be set to one if needed;
@@ -124,13 +124,13 @@ namespace lbcrypto {
 		  os << pat.GetPatternString();
 		  return os;
 		}
-		
+
 	private:
 		// stores the local instance of the pattern string
 		std::string m_patternString;
 	};
-	
-	
+
+
 	/**
 	 * @brief Class for obfuscated patterns
 	 * @tparam Element a ring element.
@@ -142,12 +142,12 @@ namespace lbcrypto {
 			/**
 			 * Constructor
 			 */
-			explicit ObfuscatedLWEConjunctionPattern(); 
+			explicit ObfuscatedLWEConjunctionPattern();
 
 			/**
 			 * Destructor
 			 */
-			~ObfuscatedLWEConjunctionPattern(); 
+			~ObfuscatedLWEConjunctionPattern();
 
 			/**
 			 * Method to define conjunction pattern.
@@ -314,17 +314,17 @@ namespace lbcrypto {
 			* Gets the base for G-sampling
 			* @return the base
 			*/
-			usint GetBase() const { return m_base; }
+			uint64_t GetBase() const { return m_base; }
 
 			/**
 			* Sets the base for G-sampling
 			* @param base to be set;
 			*/
-			void SetBase(usint base) { m_base = base; }
+			void SetBase(uint64_t base) { m_base = base; }
 
 
 
-		
+
 			/**
 			 * @brief Serialize the object into a Serialized
 			 * @param serObj is used to store the serialized result. 
@@ -415,7 +415,7 @@ namespace lbcrypto {
 			usint m_chunkSize;
 
 			//base for G-sampling
-			usint m_base;
+			uint64_t m_base;
 
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_S_vec;
 			shared_ptr<vector< vector<shared_ptr<Matrix<Element>>> >> m_R_vec;
@@ -501,7 +501,7 @@ namespace lbcrypto {
 				typename Element::DggType &dgg,
 				typename Element::DggType &dggLargeSigma,
 				typename Element::DggType &EdggEncoding,
-				uint32_t base = 2) const;
+				uint64_t base = 2) const;
 
 			/**
 			* Method for evaluating the pattern as described in Algorithm 8 of https://eprint.iacr.org/2017/844.pdf

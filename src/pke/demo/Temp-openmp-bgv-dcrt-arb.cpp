@@ -102,8 +102,8 @@ int main() {
 	std::cout << "\n===========BGV TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
 	ArbBGVAutomorphismPackedArray(3);
 
-	std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
-	ArbNullAutomorphismPackedArray(3);
+	//std::cout << "\n===========NULL TESTS (EVALAUTOMORPHISM-ARBITRARY)===============: " << std::endl;
+	//ArbNullAutomorphismPackedArray(3);
 
 	std::cout << "\n===========BGV TESTS (EVALINNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 	ArbBGVInnerProductPackedArray();
@@ -456,9 +456,9 @@ void ArbBGVInnerProductPackedArray() {
 
 	BigInteger modulusP(p);
 
-	PackedEncoding::SetParams(m, p);
-
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(paramsDCRT, encodingParams, 8, stdDev);
 

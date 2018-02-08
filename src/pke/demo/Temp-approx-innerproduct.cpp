@@ -43,10 +43,11 @@ int main() {
 	usint phim = 1024;
 	PlaintextModulus p = 1093633; // we choose s.t. 2m|p-1 to leverage CRTArb
 	BigInteger modulusP(p);
-	PackedEncoding::SetParams(m, p);
 
 	usint batchSize = 1024;
 	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
 
 	BigInteger modulusQ("4809848800078200833");
 	BigInteger rootOfUnity("2595390732297411718");

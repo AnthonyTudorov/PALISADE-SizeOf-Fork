@@ -39,6 +39,25 @@ typedef typename LWETBOLinearSecret::NativeMatrixPtr NativeMatrixPtr;
 typedef typename LWETBOLinearSecret::NativeMatrix NativeMatrix;
 
 int main(int argc, char* argv[]) {
+
+	int nthreads, tid;
+
+	// Fork a team of threads giving them their own copies of variables
+	//so we can see how many threads we have to work with
+#pragma omp parallel private(nthreads, tid)
+	{
+
+		/* Obtain thread number */
+		tid = omp_get_thread_num();
+
+		/* Only master thread does this */
+		if (tid == 0)
+		{
+			nthreads = omp_get_num_threads();
+			std::cout << "Number of threads = " << nthreads << std::endl;
+		}
+	}
+
 	TimeVar t;
 
 	double processingTime(0.0);
