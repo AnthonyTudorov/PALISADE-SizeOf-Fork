@@ -40,11 +40,11 @@ using namespace lbcrypto;
 
 //forward definitions to be defined later
 bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals,
-		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag);
+		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag, string inputFileName);
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
-  //todo: allow pattern as input
+  //todo: allow clear pattern as input
    
   int opt; //used in getting options
   bool dbg_flag = false; //if true print debugging info
@@ -56,7 +56,8 @@ int main(int argc, char* argv[]){
   bool pretty_flag = false;
   bool verify_flag = false;
   bool single_flag = false;
-  while ((opt = getopt(argc, argv, "dpve:n:b:sh")) != -1) {
+  string inputFileName("");
+  while ((opt = getopt(argc, argv, "dpve:i:n:b:sh")) != -1) {
     switch (opt) {
     case 'd':
       dbg_flag = true;
@@ -78,6 +79,10 @@ int main(int argc, char* argv[]){
 	rand_evals = true;
       }
       eval_flag = true;
+      break;
+    case 'i':
+      inputFileName = optarg;
+      std::cout << "reading input from file "<<inputFileName << std::endl;
       break;
     case 'n':
       n_bits = atoi(optarg);
@@ -113,6 +118,7 @@ int main(int argc, char* argv[]){
 	       << "optional arguments:"<<std::endl
 	       << "  -d  (false) sets debug flag true " <<std::endl
 	       << "  -e num_evals (0) {If >3, then all evaluations will be random}"  <<std::endl
+	       << "  -i input_file  reads  pattern from inut file (concatenated or zeropadded to -b}"  <<std::endl
 	       << "  -p  (false) enable prettyprint json output" <<std::endl
 	       << "  -v  (false) enable verification of serialization" <<std::endl
 	       << "  -h  prints this message" <<std::endl;
@@ -160,7 +166,8 @@ int main(int argc, char* argv[]){
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
   
-  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals, rand_evals, pretty_flag, verify_flag, single_flag);
+  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals, rand_evals,
+			       pretty_flag, verify_flag, single_flag, inputFileName);
   
   return ((int)errorflag);
   
@@ -169,7 +176,7 @@ int main(int argc, char* argv[]){
 
 //////////////////////////////////////////////////////////////////////
 bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals,
-		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag, string inFname) {
+		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag, string inputFileName) {
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use (power of 2)
   // pattern_size = size of patterns (8, 32, 40, 64)
@@ -189,32 +196,77 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
   //set inputPattern and adjust base for input pattern size
   std::string inputPattern("");
+  if (inputFileName == "") {
+    //set to historical input pattern
+    switch (pattern_size) {
+    case 8:
+      inputPattern = "1?10?10?"; //8 bit test
+      break;
+      
+    case 16:
+      inputPattern = "1?10?10?1?10?10?"; //16 bit test
+      break;
+      
+    case 32:
+      inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?"; //32 bit test
+      break;
+      
+    case 40:
+      inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?"; // 40 bit test
+      break;
+      
+    case 64:
+      inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?"; //64 bit test
+      break;
+    default:
+      std::cout<< "bad input pattern length selected (must be 8, 16, 32, 40 or 64). "<<std::endl;
+      exit(-1);
+    }
+
+  } else {
+    //read the input pattern from a file 
+
+    ifstream inFile;
+    inFile.open(inputFileName);
+    if (inFile.is_open())
+      getline (inFile,inputPattern);
+
+    inFile.close();
+    cout<<"Read input pattern: "<< inputPattern <<endl;
+
+    //and adjust to pattern_size
+    if (inputPattern.length() > pattern_size){
+      inputPattern = inputPattern.substr(0, pattern_size); //lop off last characters
+      cout<<"Shortening input pattern to "<<pattern_size<< "bits: "<<inputPattern<<endl;
+    }
+    size_t l =  inputPattern.length();
+    if (l < pattern_size){
+      size_t n_needed = pattern_size - l;
+      inputPattern.append(n_needed, '0'); //zero fill lop off last characters
+      cout<<"zero filling input pattern to "<<pattern_size<< "bits: "<<inputPattern<<endl;
+    }
+  }
+  //now adjust base based in input size. 
   switch (pattern_size) {
   case 8:
-    inputPattern = "1?10?10?"; //8 bit test
     if (n > 1<<10)   //adjust for 8 bit test (use 32 bit test values)
       base = 1<<15;
     break;
-
+    
   case 16:
-    inputPattern = "1?10?10?1?10?10?"; //16 bit test
     if (n > 1<<10)   //adjust for 16 bit test( use 32 bit test values)
       base = 1<<15;
     break;
-
+    
   case 32:
-    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?"; //32 bit test
     if (n > 1<<10)   //adjust for 32 bit test
       base = 1<<15;
     break;
     
   case 40:
-    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?"; // 40 bit test
     break;
     
   case 64:
-    inputPattern = "1?10?10?1?10?10?1?10?10?1?10??0?1?10?10?1?10?10?1?10?10?1?10??0?"; //64 bit test
-    
     if (n > 1<<11)   // adjust for 64 bit test
       base = 1<<18;
     break;
@@ -222,8 +274,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
     std::cout<< "bad input pattern length selected (must be 8, 16, 32, 40 or 64). "<<std::endl;
     exit(-1);
   }
-  
-  
+  DEBUG("clear pattern "<<inputPattern);    
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
@@ -497,4 +548,3 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   
   return (errorflag);
 }
-string Range
