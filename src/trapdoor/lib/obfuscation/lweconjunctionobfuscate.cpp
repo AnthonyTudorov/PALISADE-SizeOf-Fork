@@ -585,8 +585,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, 
     if (iter == serObj.MemberEnd()) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find ObfuscatedLWEConjunctionPatternSRMSl");
     }
-    this->m_elemParams = deserialized_params;
-    DEBUGEXP("this->m_elemParams");
     
     //deserialize the top level members in the opt object
     SerialItem::ConstMemberIterator pIt;
@@ -595,8 +593,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, 
     if (pIt == iter->value.MemberEnd()) {
       PALISADE_THROW(lbcrypto::deserialize_error, "could not find Sl");
     }
-    this->m_length = std::stoul(pIt->value.GetString()); //set length
-    DEBUGEXP(this->m_length);
     
     this->m_Sl = mp;
     
@@ -636,9 +632,6 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, 
 };
   
 
-#if 0
-    //deserialize S_vec
-    shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
 
 /////////////////////////////////////////////////////////////////////////////
 // Incremental Deserialization of Obfuscated pattern (memory efficient) 

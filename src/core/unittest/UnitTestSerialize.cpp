@@ -187,7 +187,7 @@ TEST(UTSer,vector_of_native_int){
 }
 
 TEST(UTSer,ilparams_test) {
-	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(M1024);
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(1024);
 	Serialized ser;
 	ser.SetObject();
 	ASSERT_TRUE( p->Serialize(&ser) ) << "Serialization failed";
@@ -212,7 +212,7 @@ TEST(UTSer,ildcrtparams_test) {
 }
 
 TEST(UTSer,ilvector_test) {
-	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(M1024);
+	shared_ptr<Poly::Params> p = ElemParamFactory::GenElemParams<Poly::Params>(1024);
 	Poly::DugType dug;
 	Poly vec(dug, p);
 
@@ -397,11 +397,11 @@ TEST(UTSer, serialize_vector_of_p) {
   DEBUG("step 1");
   
   //generate three pointers
-  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M16);
+  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params>(512);
   
-  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params>(1024);
   
-  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M2048);
+  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params>(2048);
   
   DEBUG("step 2");
   //build the vector to pointers
@@ -476,11 +476,11 @@ TEST(UTSer, serialize_map_of_p) {
   DEBUG("step 1");
   
   //generate three pointers
-  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M16);
+  shared_ptr<Poly::Params> p1 = ElemParamFactory::GenElemParams<Poly::Params>(16);
   
-  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M1024);
+  shared_ptr<Poly::Params> p2 = ElemParamFactory::GenElemParams<Poly::Params>(1024);
   
-  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params,Poly::Integer>(M2048);
+  shared_ptr<Poly::Params> p3 = ElemParamFactory::GenElemParams<Poly::Params>(2048);
   
   DEBUG("step 2");
   

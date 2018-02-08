@@ -2861,19 +2861,11 @@ bool ubint<limb_t>::Deserialize(const lbcrypto::Serialized& serObj){
 
 	lbcrypto::SerialItem::ConstMemberIterator vIt; //interator within name
 
-  template<typename limb_t>
-  bool ubint<limb_t>::Serialize(lbcrypto::Serialized* serObj) const{
-    
-    if( !serObj->IsObject() )
+    //is this the correct integer type?
+    if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
       return false;
-    
-    lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
-    
-    bbiMap.AddMember("IntegerType", IntegerTypeName(), serObj->GetAllocator());
-    bbiMap.AddMember("Value", this->ToString(), serObj->GetAllocator());
-    serObj->AddMember("BigIntegerImpl", bbiMap, serObj->GetAllocator());
-    return true;
-  }
+    if( IntegerTypeName() != vIt->value.GetString() )
+      return false;
 
 	//find the value
 	if( (vIt = mIter->value.FindMember("Value")) == mIter->value.MemberEnd() )
