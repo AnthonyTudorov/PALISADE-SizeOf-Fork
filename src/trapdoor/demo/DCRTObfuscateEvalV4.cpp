@@ -35,77 +35,20 @@
 
 using namespace lbcrypto;
 
-bool EvaluateConjObfs(bool dbg_flag, int  n, usint pattern_size, usint num_evals, bool rand_evals); //defined later
+bool EvaluateConjObfs(bool dbg_flag, int  n, usint pattern_size, usint num_evals,
+		      bool rand_evals, bool single_flag); //defined later
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
   
-#if 0  
-  if (argc < 2) { // called with no arguments
-    std::cout << "arg 1 = debugflag 0:1 [0] " << std::endl;
-    std::cout << "arg 2 = num bits [10] " << std::endl;
-    std::cout << "arg 3 = pattern size [8] 8, 16, 32, 40, 64 " << std::endl;        
-
-    //std::cout << "arg 2 = num bit range 0..3 [3] " << std::endl;
-    //std::cout << "arg 3 = num evals 1..3 [1] " << std::endl;    
-  }
-  //should become arguments
-  usint pattern_size (8);
-  //usint pattern_size = 40;
-  //usint pattern_size = 64;
-  //TODO, num evals should generate test patterns
-
-  usint n_evals = 3; //number of evaluations to run
-
-  bool dbg_flag = false; 
-
-  if (argc >= 2 ) {
-    if (atoi(argv[1]) != 0) {
-      dbg_flag = true;
-      std::cout << "setting dbg_flag true" << std::endl;
-    }
-  }
-  int n_bits = 8;
-
-  if (argc >= 3 ) { 
-    if (atoi(argv[2]) < 8) {
-      n_bits = 8;
-    } else if (atoi(argv[2]) >= 13) {
-      n_bits = 13;
-    } else {
-      n_bits = atoi(argv[2]);
-    }
-  }
-  
-  
-  if (argc >= 4 ) { 
-    int inarg = atoi(argv[3]);
-    if (inarg < 8) {
-      pattern_size = 8;
-    } else if (inarg >= 64) {
-      pattern_size = 64;
-    } else {
-      pattern_size = inarg;
-    }
-  }
-
-  if ((pattern_size != 8) &&
-      (pattern_size != 16) &&
-      (pattern_size != 32) &&
-      (pattern_size != 40) &&
-      (pattern_size != 64)) {
-    std::cout << "bad pattern size: "<< pattern_size << std::endl;
-    exit (-1);
-  }
-#else
-   
   int opt; //used in getting options
   bool dbg_flag = false; //if true print debugging info
   usint pattern_size(8); //size of the cleartext pattern
   int n_bits = 8;	 // number of bits in underlying vector length
   usint n_evals = 3; //number of evaluations to run
   bool rand_evals = false;
-  while ((opt = getopt(argc, argv, "de:n:b:h")) != -1) {
+  bool single_flag = false;
+  while ((opt = getopt(argc, argv, "de:n:b:hs")) != -1) {
     switch (opt) {
     case 'd':
       dbg_flag = true;
@@ -140,6 +83,10 @@ int main(int argc, char* argv[]){
 	exit (EXIT_FAILURE);
       }
       break;
+    case 's':
+      single_flag = true;
+      std::cout << "reading from single file" << std::endl;
+      break;
     case 'h':
     default: /* '?' */
       std::cerr<< "Usage: "<<argv[0]<<" <arguments> " <<std::endl
@@ -149,12 +96,11 @@ int main(int argc, char* argv[]){
 	       << "  -e num_evals (3) {If >3, then all evaluations will be random}"  <<std::endl
 	       << "optional arguments:"<<std::endl
 	       << "  -d  (false) sets debug flag true " <<std::endl
+	       << "  -s  (false) use single input file" <<std::endl
 	       << "  -h  prints this message" <<std::endl;
       exit(EXIT_FAILURE);
     }
   }
-#endif
-
   
   DEBUG("DEBUG IS TRUE");
   PROFILELOG("PROFILELOG IS TRUE");
@@ -192,14 +138,14 @@ int main(int argc, char* argv[]){
     
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
-  errorflag = EvaluateConjObfs(dbg_flag, n, pattern_size, n_evals, rand_evals);
+  errorflag = EvaluateConjObfs(dbg_flag, n, pattern_size, n_evals, rand_evals, single_flag);
   return ((int)errorflag);
 
 }
 
 
 //////////////////////////////////////////////////////////////////////
-bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, bool rand_evals) {
+bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, bool rand_evals, bool single_flag) {
 
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use
@@ -227,9 +173,17 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
   //note this is for debug -- will move to evaluate program once it all works
   ObfuscatedLWEConjunctionPattern<DCRTPoly> obfuscatedPattern;
 
-  std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
+  if (single_flag) {
+    std::cout<<"Deserializing Obfuscated Pattern from file "<<obfFileName<<std::endl;
+  } else {
+    std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
+  }
   TIC(t1);
-  DeserializeObfuscatedPatternFromFileSet(obfFileName, obfuscatedPattern);
+  if (single_flag) {
+    DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
+  } else {    
+    DeserializeObfuscatedPatternFromFileSet(obfFileName, obfuscatedPattern);
+  }
   timeRead = TOC(t1);
   PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
 

@@ -207,7 +207,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 
 /////////////////////////////////////////////////////////////////////////////
 // Serialization of Obfuscated pattern 
- template <typename Element>
+template <typename Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
   bool dbg_flag = false;
   DEBUG("in ObfuscatedLWEConjunctionPattern::Serialize");
@@ -215,83 +215,17 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) con
     serObj->SetObject();
   }
 
-  //build serialization top object to append to
-  Serialized topobj(rapidjson::kObjectType, &serObj->GetAllocator());
-  
-  if (!m_elemParams->Serialize(&topobj)){
-    PALISADE_THROW(lbcrypto::serialize_error,
-		   "failed to serialize m_elemParams");
-  };
-  DEBUGEXP(m_elemParams);
-
-  //length of the pattern
-  topobj.AddMember("Length", std::to_string(this->GetLength()), topobj.GetAllocator());
-
-  DEBUGEXP(this->GetLength());
-  //lattice security parameter
-  //note to_string() rounds off answer
-  stringstream s;
-  s.clear();
-  s.str(""); //reset the internal state of stringstream
-  s << std::setprecision(std::numeric_limits<double>::digits) << this->GetRootHermiteFactor(); //write ALL digits
-  
-  topobj.AddMember("RootHermiteFactor", s.str(), topobj.GetAllocator());
-
-  DEBUGEXP(this->GetRootHermiteFactor());
-
-  //number of bits encoded by one matrix
-  topobj.AddMember("ChunkSize", std::to_string(this->GetChunkSize()), topobj.GetAllocator());
-  DEBUGEXP(this->GetChunkSize());
-
-  //base for G-sampling
-  topobj.AddMember("Base", std::to_string(this->GetBase()), topobj.GetAllocator());
-  DEBUGEXP(this->GetBase());  
-
-  DEBUG("S_Vec(0,0).(0,0)" );
-  auto m = *((this->m_S_vec)->at(0).at(0));
-  DEBUGEXP(m(0,0));
-
-  SerializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), *(this->m_S_vec), &topobj);
-
-  m = *((this->m_R_vec)->at(0).at(0));
-  DEBUG("R_Vec(0,0).(0,0)" );
-  DEBUGEXP(m(0,0));
-
-  SerializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), *(this->m_R_vec), &topobj);
-  
-  // m_Sl;
-  if (dbg_flag) {
-    DEBUG("Sl(0,0)" );
-    auto m1 = *this->GetSl();
-    DEBUGEXP(m1(0,0));
-  }
-  
-  SerializeMatrix("Sl", Element::GetElementName(), *this->GetSl(), &topobj);
-
-  // m_Rl
-  if (dbg_flag) {
-    auto m1 = *this->GetRl();
-    DEBUG("Rl(0,0)" );
-    DEBUGEXP(m1(0,0));
-  }
-  SerializeMatrix("Rl", Element::GetElementName(), *this->GetRl(), &topobj);
-
-  if (dbg_flag) {
-    DEBUG("Pk(0),(0,0)" );
-    auto m2 = (*(this->m_pk)).at(0);
-    DEBUGEXP(m2(0,0));
-  }
-  SerializeVectorOfMatrix("Pk", Element::GetElementName(), *this->m_pk, &topobj);
-
-  //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
-  SerializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), *this->m_ek, &topobj);
-
-  // add them all to the input serObj
-  serObj->AddMember("ObfuscatedLWEConjunctionPattern", topobj, serObj->GetAllocator());
+  SerializeHeader(serObj);
+  SerializeSRV("S",serObj);
+  SerializeSRV("R",serObj);
+  SerializeSRM("Sl",serObj);
+  SerializeSRM("Rl",serObj);
+  SerializePK(serObj);
+  SerializeEK(serObj);	 
   
   return true;
 };
-
+  
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -472,165 +406,21 @@ bool ObfuscatedLWEConjunctionPattern<Element>::SerializeEK(Serialized* serObj) c
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
   bool dbg_flag= false;
+  bool result;
+  DEBUG("in Deserialize");
 
-  //find the top object in the input object
-  Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPattern");
-  if (iter == serObj.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find ObfuscatedLWEConjunctionPattern<Element>");
-  }
+  result = DeserializeHeader(serObj);
+  result &= DeserializeSRV("S",serObj);
+  result &= DeserializeSRV("R",serObj);
+  result &= DeserializeSRM("Sl",serObj);
+  result &= DeserializeSRM("Rl",serObj);
+  result &= DeserializePK(serObj);
+  result &= DeserializeEK(serObj);
 
-  //deserialize the top level members in the opt object
-  SerialItem::ConstMemberIterator pIt;
-
-
-  //deserialize parameters
-  //find them
-  pIt = iter->value.FindMember("ILDCRTParams");
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, " could not find ILDCRTParams");
+  if (!result) {
+    PALISADE_THROW(lbcrypto::deserialize_error, "uncaught error in Deserialze");
   }
-    
-  //make a small serial item of just the parameters
-  Serialized parm(rapidjson::kObjectType); 
-  parm.AddMember(SerialItem(pIt->name, parm.GetAllocator()), SerialItem(pIt->value, parm.GetAllocator()), parm.GetAllocator());
-    
-  //build a pointer to the parameters
-  shared_ptr<typename Element::Params> deserialized_params(new typename Element::Params);
-  if (!deserialized_params->Deserialize(parm)){
-    PALISADE_THROW(lbcrypto::deserialize_error, " could not deserialize ILDCRTParams");
-  }
-  this->m_elemParams = deserialized_params;
-  DEBUGEXP("this->m_elemParams");
-    
-  pIt= iter->value.FindMember("Length"); //find length of the pattern
-    
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Length");
-  }
-  this->m_length = std::stoul(pIt->value.GetString()); //set length
-  DEBUGEXP(this->m_length);
-    
-  pIt= iter->value.FindMember("RootHermiteFactor"); //RootHermiteFactor
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find RootHermiteFactor");
-  }
-    
-  this->m_rootHermiteFactor = std::stod(pIt->value.GetString()); //set it
-  DEBUGEXP(this->m_rootHermiteFactor);
-    
-  pIt= iter->value.FindMember("ChunkSize"); //ChunkSize
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find ChunkSize");
-  }
-    
-  this->m_chunkSize = std::stoul(pIt->value.GetString()); //set it
-  DEBUGEXP(this->m_chunkSize);
-
-  pIt= iter->value.FindMember("Base"); //Base	for G-sampling
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Base");
-  }
-  this->m_base = std::stoul(pIt->value.GetString()); //set it
-  DEBUGEXP(this->m_base);
-
-  pIt= iter->value.FindMember("S_Vec"); //S_Vec
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find S_Vec");
-  }
-    
-  //deserialize S_vec
-  shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> S_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
-  bool rc;
-  DEBUG("Deserialize S_Vec");
-  rc = DeserializeVectorOfVectorOfPointersToMatrix("S_Vec", Element::GetElementName(), pIt, S_vec.get());
-  if(rc) {
-    DEBUG("Deserialized S_vec" );
-  } else {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not deserialize S_Vec");
-  }	
-
-  this->m_S_vec = S_vec;
-    
-  pIt= iter->value.FindMember("R_Vec"); //R_Vec
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find R_Vec");
-  }
-
-  //deserialize R_vec
-  shared_ptr<std::vector<std::vector<shared_ptr<Matrix<Element>>>>> R_vec (new std::vector<std::vector<shared_ptr<Matrix<Element>>>>());
-  DEBUG("Deserialize R_Vec");
-  rc = DeserializeVectorOfVectorOfPointersToMatrix("R_Vec", Element::GetElementName(), pIt, R_vec.get());
-  if(rc) {
-    DEBUG("Deserialized R_vec" );
-  } else {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not deserialize R_Vec");
-  }	
-  this->m_R_vec = R_vec;
-
-  pIt= iter->value.FindMember("Sl"); //Sl
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Sl");
-  }
-    
-  auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
-
-  shared_ptr<Matrix<Element>> Slp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
-  shared_ptr<Matrix<Element>> Rlp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
-  this->m_Sl = Slp;
-  this->m_Rl = Rlp;
-
-  DEBUG("deserialize Sl");
-  rc = DeserializeMatrix("Sl", Element::GetElementName(), pIt, Slp.get());
-  if (rc == false){
-    PALISADE_THROW(lbcrypto::deserialize_error, "Error in DeserializeMatrix(Sl)");
-  }
-  DEBUG("done deserialize Sl");
-
-  pIt= iter->value.FindMember("Rl"); //Rl
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Rl");
-  }
-    
-  DEBUG("deserialize Rl");
-  rc = DeserializeMatrix("Rl", Element::GetElementName(), pIt, Rlp.get() );
-  if (rc == false){
-    PALISADE_THROW(lbcrypto::deserialize_error, "Error in DeserializeMatrix(Rl)");
-  }
-  DEBUG("done deserialize Rl");    
-
-  pIt= iter->value.FindMember("Pk"); //Pk
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Pk");
-  }
-
-  shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
-  DEBUGEXP(Pk_vector);
-  DEBUG("deserialize Pk");    
-  rc = DeserializeVectorOfMatrix("Pk", Element::GetElementName(), pIt, Pk_vector.get());
-  this->m_pk = Pk_vector;
-  if (rc == false){
-    PALISADE_THROW(lbcrypto::deserialize_error, "Error in DeserializeVectorOfMatrix(Pk) ");
-  }
-  DEBUG("done deserialize Rl");    \
-    
-  pIt= iter->value.FindMember("Ek"); //Ek
-  if (pIt == iter->value.MemberEnd()) {
-    PALISADE_THROW(lbcrypto::deserialize_error, "could not find Ek");
-  }
-
-  DEBUG("deserialize Ek");    
-  //shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   m_ek;
-  shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
-  DEBUGEXP(Ek_vector->size());    
-
-  rc = DeserializeVectorOfRLWETrapdoorPair("Ek", Element::GetElementName(), pIt, Ek_vector.get());
-  DEBUGEXP(Ek_vector->size());    
-  this->m_ek = Ek_vector;
-  if (rc == false){
-    PALISADE_THROW(lbcrypto::deserialize_error, "Error in DeserializeVectorOfRLWETrapdoorPair(Ek)");
-  }
-  DEBUG("done deserialize Ek");    
-
+  DEBUG("Done");
   return true;
 };
 
@@ -639,7 +429,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Deserialize(const Serialized& ser
 // Incremental Deserialization of Obfuscated pattern (memory efficient) 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeHeader(const Serialized& serObj){
-  bool dbg_flag= true;
+  bool dbg_flag = false;
     
   //find the top object in the input object
   Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPatternHeader");
@@ -709,7 +499,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeHeader(const Serialize
 // Incremental Deserialization of Obfuscated pattern (memory efficient) 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRV(std::string name, const Serialized& serObj){
-  bool dbg_flag= true;
+  bool dbg_flag= false;
   bool rc;
 
   if (name == "S") {
@@ -782,7 +572,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRV(std::string name, 
 // Incremental Deserialization of Obfuscated pattern (memory efficient) 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, const Serialized& serObj){
-  bool dbg_flag= true;
+  bool dbg_flag= false;
   bool rc;
   auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
   shared_ptr<Matrix<Element>> mp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
@@ -846,7 +636,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, 
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializePK(const Serialized& serObj){
   bool rc;
-  bool dbg_flag= true;
+  bool dbg_flag= false;
 
   //find the top object in the input object
   Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPatternPk");
@@ -880,7 +670,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::DeserializePK(const Serialized& s
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeEK(const Serialized& serObj){
   bool rc;
-  bool dbg_flag= true;
+  bool dbg_flag= false;
 
   //find the top object in the input object
   Serialized::ConstMemberIterator iter = serObj.FindMember("ObfuscatedLWEConjunctionPatternEk");
@@ -922,13 +712,13 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
   DEBUG("comparing length");
   if( m_length != b.m_length) {
     std::cout<< "m_length mismatch"<<std::endl;
-    success ^=false;
+    success &=false;
   }    
 
   DEBUG("comparing params");
   if (*m_elemParams != *(b.m_elemParams)) {
     std::cout<< "m_elemParams mismatch"<<std::endl;
-    success ^=false;
+    success &=false;
   }    
 
   DEBUG("comparing rhf");
@@ -937,19 +727,19 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "this->m_rootHermiteFactor: "<<m_rootHermiteFactor<<std::endl;
     std::cout<< "delta is "<< this->m_rootHermiteFactor-b.m_rootHermiteFactor<<std::endl;    
 
-    success ^=false;
+    success &=false;
   }    
 
   DEBUG("comparing chunksize");
   if (m_chunkSize != b.m_chunkSize){
     std::cout<< "m_chunkSize mismatch"<<std::endl;
-    success ^=false;
+    success &=false;
   }
 
   DEBUG("comparing base");
   if (m_base != b.m_base){
     std::cout<< "m_base mismatch"<<std::endl;
-    success ^=false;
+    success &=false;
   }
 
   DEBUG("comparing S_vec");
@@ -967,7 +757,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
 	//DEBUG("testing "<<i<<", "<<j);
 	if( **it_2_1!= **it_2_2 ){ //compare dereferenced matricies
 	  std::cout << "m_S_vec["<<i<<", "<<j<<"] mismatch"<<std::endl;
-	  success ^=false;
+	  success &=false;
 	}
       }
     }
@@ -988,7 +778,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
 	//DEBUG("testing "<<i<<", "<<j);
 	if( **it_2_1!= **it_2_2 ){ //compare dereferenced matricies
 	  std::cout << "m_R_vec["<<i<<", "<<j<<"] mismatch"<<std::endl;
-	  success ^=false;
+	  success &=false;
 	}
       }
     }
@@ -1000,7 +790,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "m_Sl mismatch"<<std::endl;
     //DEBUGEXP(*m_Sl);
     DEBUGEXP(*(b.m_Sl));
-    success ^=false;
+    success &=false;
   }
 
   DEBUG("comparing Rl");
@@ -1009,7 +799,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "m_Rl mismatch"<<std::endl;
     //DEBUGEXP(*m_Rl);
     DEBUGEXP(*(b.m_Rl));
-    success ^=false;
+    success &=false;
   }
   
   DEBUG("comparing pk");
@@ -1018,7 +808,7 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     std::cout<< "m_pk mismatch"<<std::endl;
     //DEBUGEXP(*m_pk);
     DEBUGEXP(*(b.m_pk));
-    success ^=false;
+    success &=false;
   }
   
   DEBUG("comparing ek");
@@ -1037,12 +827,12 @@ bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjun
     if ( it_1->m_r != it_2->m_r ){
       std::cout<< "m_ek["<<i<<"].m_r mismatch"<<std::endl;
       DEBUGEXP(it_2->m_r);
-      success ^=false;
+      success &=false;
     }
     if ( it_1->m_e != it_2->m_e ){
       std::cout<< "m_ek["<<i<<"].m_e mismatch"<<std::endl;
       DEBUGEXP(it_2->m_e);
-      success ^=false;
+      success &=false;
     }
 
 

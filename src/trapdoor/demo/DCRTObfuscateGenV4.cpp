@@ -39,7 +39,8 @@
 using namespace lbcrypto;
 
 //forward definitions to be defined later
-bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals, bool rand_evals, bool pretty_flag, bool verify_flag);
+bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals,
+		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag);
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
@@ -54,7 +55,8 @@ int main(int argc, char* argv[]){
   bool rand_evals = false;
   bool pretty_flag = false;
   bool verify_flag = false;
-  while ((opt = getopt(argc, argv, "dpve:n:b:h")) != -1) {
+  bool single_flag = false;
+  while ((opt = getopt(argc, argv, "dpve:n:b:sh")) != -1) {
     switch (opt) {
     case 'd':
       dbg_flag = true;
@@ -97,6 +99,10 @@ int main(int argc, char* argv[]){
 	std::cout << "bad pattern size: "<< pattern_size << std::endl;
 	exit (EXIT_FAILURE);
       }
+      break;
+    case 's':
+      single_flag = true;
+      std::cout << "writing to single file" << std::endl;
       break;
     case 'h':
     default: /* '?' */
@@ -154,7 +160,7 @@ int main(int argc, char* argv[]){
   bool errorflag = false;
   unsigned int n = 1<<n_bits;
   
-  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals, rand_evals, pretty_flag, verify_flag);
+  errorflag = GenerateConjObfs(dbg_flag, n, pattern_size, eval_flag, n_evals, rand_evals, pretty_flag, verify_flag, single_flag);
   
   return ((int)errorflag);
   
@@ -163,7 +169,7 @@ int main(int argc, char* argv[]){
 
 //////////////////////////////////////////////////////////////////////
 bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, usint n_evals,
-		      bool rand_evals, bool pretty_flag, bool verify_flag) {
+		      bool rand_evals, bool pretty_flag, bool verify_flag, bool single_flag, string inFname) {
   //if dbg_flag == true; print debug outputs
   // n = size of vectors to use (power of 2)
   // pattern_size = size of patterns (8, 32, 40, 64)
@@ -305,7 +311,11 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   DEBUG("Serializing Obfuscation" );
   string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
   TIC(t1);
-  SerializeObfuscatedPatternToFileSet(obfuscatedPattern, obfFileName, pretty_flag);
+  if (single_flag) {
+    SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName, pretty_flag);
+  }else{
+    SerializeObfuscatedPatternToFileSet(obfuscatedPattern, obfFileName, pretty_flag);
+  }
   timeSerial = TOC(t1);
   PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
@@ -314,13 +324,12 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   if (verify_flag) {// verify the serialization 
     std::cout<<"Verifying Serialization"<<std::endl;
     ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
-    
-    DeserializeObfuscatedPatternFromFileSet(obfFileName, testObfuscatedPattern);
 
-
-    
-
-
+    if (single_flag) {
+      DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
+    } else {
+      DeserializeObfuscatedPatternFromFileSet(obfFileName, testObfuscatedPattern);
+    }
     
     if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
       std::cout<<"Serialization did verify"<<std::endl;
@@ -488,3 +497,4 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   
   return (errorflag);
 }
+string Range
