@@ -956,4 +956,59 @@ namespace lbcrypto {
 #endif
 	}
 
+	uint32_t FindAutomorphismIndex2n(int32_t i, uint32_t m) {
+
+		int32_t i_signed = i % (m/2);
+		if (i_signed < 0)
+			i_signed += m/2;
+
+		uint32_t i_unsigned = (uint32_t)i_signed;
+
+		uint32_t g0 = 5;
+		uint32_t g;
+
+		if (i_unsigned > 0) {
+
+			if (i_unsigned < m/4)
+			{
+				g = 5;
+				for (size_t i = 2; i < i_unsigned; i++)
+					g = (g * g0) % m;
+			}
+			else
+			{
+				g = 3;
+				for (size_t i = m/4+1; i < i_unsigned; i++)
+					g = (g * g0) % m;
+			}
+
+		}
+		else
+			PALISADE_THROW( lbcrypto::math_error, "FindAutomorphismIndex2n: index cannot be zero");
+
+		return g;
+
+	}
+
+	uint32_t FindAutomorphismIndexCyclic(int32_t i, uint32_t m, uint32_t g){
+
+		int32_t i_signed = i % (m/2);
+		if (i_signed < 0)
+			i_signed += m/2;
+
+		uint32_t i_unsigned = (uint32_t)i_signed;
+
+		uint32_t k = g;
+
+		if (i_unsigned > 0) {
+			for (size_t i = 2; i < i_unsigned; i++)
+				k = (k * g) % m;
+		}
+		else
+			PALISADE_THROW( lbcrypto::math_error, "FindAutomorphismIndexCyclic: index cannot be zero");
+
+		return k;
+
+	}
+
 }
