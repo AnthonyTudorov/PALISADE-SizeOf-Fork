@@ -237,13 +237,13 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
     //and adjust to pattern_size
     if (inputPattern.length() > pattern_size){
       inputPattern = inputPattern.substr(0, pattern_size); //lop off last characters
-      cout<<"Shortening input pattern to "<<pattern_size<< "bits: "<<inputPattern<<endl;
+      cout<<"Shortening input pattern to "<<pattern_size<< " bits: "<<inputPattern<<endl;
     }
     size_t l =  inputPattern.length();
     if (l < pattern_size){
       size_t n_needed = pattern_size - l;
       inputPattern.append(n_needed, '0'); //zero fill lop off last characters
-      cout<<"zero filling input pattern to "<<pattern_size<< "bits: "<<inputPattern<<endl;
+      cout<<"zero filling input pattern to "<<pattern_size<< " bits: "<<inputPattern<<endl;
     }
   }
   //now adjust base based in input size. 
