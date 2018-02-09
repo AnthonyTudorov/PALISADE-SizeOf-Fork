@@ -860,11 +860,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 
 	//assurance measure
 	//double alpha = 3; YSP this can be used for DARPA artifacts
-	double alpha = 36;
+	double alpha = 144;
 
 	//empirical parameter
 	//double beta = 1.5; YSP this can be used for DARPA artifacts
-	double beta = 2;
+	double beta = 1.5;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
@@ -940,6 +940,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 
 		}
 	}
+
+	std::cout << "q (param gen)= " << log2(q) << " bits" <<std::endl;
 
 	//Prepare for parameters.
 	auto params = GenerateElemParams(q, n);
@@ -1446,7 +1448,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	//std::cout << " Norm: " << norm << std::endl;
+	std::cout << " Norm (bits): " << log2(norm) << std::endl;
 
 	return (norm <= constraint);
 

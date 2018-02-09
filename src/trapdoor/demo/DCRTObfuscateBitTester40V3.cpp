@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 1<<10; n < 1<<11; n = 2 * n)
+	for (usint n = 1<<9; n < 1<<11; n = 2 * n)
 	{
 		errorflag = CONJOBF(dbg_flag, n_evals, n);
 		if (errorflag)
