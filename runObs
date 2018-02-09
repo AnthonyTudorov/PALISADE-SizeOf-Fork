@@ -18,3 +18,6 @@ bin/demo/trapdoor/DCRTObfuscateGenV4 -d -n 12 -b 32
 
 # note, to evaluate just use the same parameters
 # i.e. bin/demo/trapdoor/DCRTObfuscateEvalV4 -d -n 10 -b 8
+# note input pattern file should not have any spaces, be one line, and end in a carrage return
+# just the input string (no quotes). Like this:
+# ?101??1101
