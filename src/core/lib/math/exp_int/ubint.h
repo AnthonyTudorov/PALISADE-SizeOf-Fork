@@ -364,9 +364,15 @@ public:
 	 * Used primarily for debugging
 	 * @return STL vector of uint_type
 	 */
-	vector<limb_t> GetInternalRepresentation(void) const {
-		vector<limb_t> ret = m_value;
-		return ret;
+	std::string GetInternalRepresentation(void) const {
+	  std::string ret("");
+	  for (size_t i = 0; i<m_value.size(); i++){
+	    ret += std::to_string(m_value[i]);
+	    if (i < (m_value.size()-1))
+	      ret +=" ";
+	    
+	  }
+	  return ret;
 	}
 
 	/**
