@@ -46,6 +46,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../../utils/serializable.h"
 #include "../nbtheory.h"
 
 #ifdef UBINT_64
@@ -1081,6 +1082,7 @@ private:
 	static void add_bitVal(uschar* a,uschar b);
 };
 
+ #if 0
 // stream helper function for vector of objects
 template < typename limb_t >
 inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v) {
@@ -1091,7 +1093,7 @@ inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v
 	os << " ]";
 	return os;
 };
-
+#endif
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_EXPINT_UBINT_H
