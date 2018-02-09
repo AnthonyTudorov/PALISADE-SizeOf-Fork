@@ -860,11 +860,11 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 
 	//assurance measure
 	//double alpha = 3; YSP this can be used for DARPA artifacts
-	double alpha = 144;
+	double alpha = 36;
 
 	//empirical parameter
 	//double beta = 1.5; YSP this can be used for DARPA artifacts
-	double beta = 1.5;
+	double beta = 1.3;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
