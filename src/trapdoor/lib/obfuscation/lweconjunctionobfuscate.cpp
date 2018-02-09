@@ -982,7 +982,9 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	DEBUG("l = "<<l);
 
 	TIC(t1);
-//#pragma omp parallel // this is executed in parallel
+#ifdef OMP
+#pragma omp parallel // this is executed in parallel
+#endif
 	{
 		TimeVar tp; // for TIC TOC
 		//private copies of our vectors
