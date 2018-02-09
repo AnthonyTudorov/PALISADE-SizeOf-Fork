@@ -66,6 +66,7 @@ private:
 
 	static std::map<string,std::vector<LPEvalKey<Element>>>					evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
 	static std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
+	static std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	evalAutomorphismKeyMap;	/*!< cached evalautomorphism keys, by secret key UID */
 
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
@@ -399,6 +400,68 @@ public:
 	 * @param mapToInsert
 	 */
 	static void InsertEvalSumKey(const shared_ptr<std::map<usint,LPEvalKey<Element>>> mapToInsert);
+
+	/**
+	 * SerializeEvalAutomorphismKey for all EvalAutomorphism keys
+	 * method will serialize each CryptoContextImpl only once
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj);
+
+	/**
+	 * SerializeEvalAutomorphismKey for a single EvalAutomorphism key
+	 * method will serialize entire key AND cryptocontext
+	 *
+	 * @param serObj - serialization
+	 * @param id for key to serialize
+	 * @return true on success (false on failure or key id not found)
+	 */
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const string& id);
+
+	/**
+	 * SerializeEvalAutomorphismKey for all EvalAutomorphismKeys made in a given context
+	 * method will serialize the context only once
+	 *
+	 * @param serObj - serialization
+	 * @param cc whose keys should be serialized
+	 * @return true on success (false on failure or no keys found)
+	 */
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const CryptoContext<Element> cc);
+
+	/**
+	 * DeserializeEvalAutomorphismKey deserialize all keys in the serialization
+	 * deserialized keys silently replace any existing matching keys
+	 * deserialization will create CryptoContextImpl if necessary
+	 *
+	 * @param serObj - serialization
+	 * @return true on success
+	 */
+	static bool DeserializeEvalAutomorphismKey(const Serialized& serObj);
+
+	/**
+	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache
+	 */
+	static void ClearEvalAutomorphismKeys();
+
+	/**
+	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache for a given id
+	 * @param id
+	 */
+	static void ClearEvalAutomorphismKeys(const string& id);
+
+	/**
+	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache for a given context
+	 * @param cc
+	 */
+	static void ClearEvalAutomorphismKeys(const CryptoContext<Element> cc);
+
+	/**
+	 * InsertEvalAutomorphismKey - add the given map of keys to the map, replacing the existing map if there
+	 * @param mapToInsert
+	 */
+	static void InsertEvalAutomorphismKey(const shared_ptr<std::map<usint,LPEvalKey<Element>>> mapToInsert);
 
 
 	// TURN FEATURES ON
@@ -1168,7 +1231,9 @@ public:
 
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
+#ifdef OMP
 #pragma omp parallel for
+#endif
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
 				if (row + col > 0)
@@ -1738,6 +1803,34 @@ public:
 	* @return resulting ciphertext
 	*/
 	Ciphertext<Element> EvalSum(const Ciphertext<Element> ciphertext, usint batchSize) const;
+
+	/**
+	* EvalSumKeyGen Generates the key map to be used by evalsum
+	*
+	* @param privateKey private key.
+	* @param indexList list of indices.
+	* @param publicKey public key (used in NTRU schemes).
+	*/
+	void EvalAtIndexKeyGen(const LPPrivateKey<Element> privateKey,
+		const std::vector<int32_t> &indexList, const LPPublicKey<Element> publicKey = nullptr);
+
+	/**
+	 * GetEvalAutomorphismKey  returns the map
+	 *
+	 * @return the EvalAutomorphism key map
+	 */
+	static const std::map<usint, LPEvalKey<Element>>& GetEvalAutomorphismKeyMap(const string& id);
+
+	static const std::map<string,shared_ptr<std::map<usint, LPEvalKey<Element>>>>& GetAllEvalAutomorphismKeys();
+
+	/**
+	* Moves i-th slot to slot 0
+	*
+	* @param ciphertext.
+	* @param i the index.
+	* @return resulting ciphertext
+	*/
+	Ciphertext<Element> EvalAtIndex(const Ciphertext<Element> ciphertext, int32_t index) const;
 
 	/**
 	* Evaluates inner product in batched encoding

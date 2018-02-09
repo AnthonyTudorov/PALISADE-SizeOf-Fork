@@ -958,9 +958,11 @@ namespace lbcrypto {
 
 	uint32_t FindAutomorphismIndex2n(int32_t i, uint32_t m) {
 
-		int32_t i_signed = i % (m/2);
+		uint32_t n = GetTotient(m);
+
+		int32_t i_signed = i % n;
 		if (i_signed < 0)
-			i_signed += m/2;
+			i_signed += n;
 
 		uint32_t i_unsigned = (uint32_t)i_signed;
 
@@ -969,7 +971,7 @@ namespace lbcrypto {
 
 		if (i_unsigned > 0) {
 
-			if (i_unsigned < m/4)
+			if (i_unsigned < n/2)
 			{
 				g = 5;
 				for (size_t i = 2; i < i_unsigned; i++)
@@ -978,7 +980,7 @@ namespace lbcrypto {
 			else
 			{
 				g = 3;
-				for (size_t i = m/4+1; i < i_unsigned; i++)
+				for (size_t i = n/2+1; i < i_unsigned; i++)
 					g = (g * g0) % m;
 			}
 
@@ -992,9 +994,11 @@ namespace lbcrypto {
 
 	uint32_t FindAutomorphismIndexCyclic(int32_t i, uint32_t m, uint32_t g){
 
-		int32_t i_signed = i % (m/2);
+		int32_t n = GetTotient(m);
+
+		int32_t i_signed = i % n;
 		if (i_signed < 0)
-			i_signed += m/2;
+			i_signed += n;
 
 		uint32_t i_unsigned = (uint32_t)i_signed;
 

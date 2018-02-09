@@ -37,6 +37,9 @@ template <typename Element>
 std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	CryptoContextImpl<Element>::evalSumKeyMap;
 
 template <typename Element>
+std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	CryptoContextImpl<Element>::evalAutomorphismKeyMap;
+
+template <typename Element>
 void CryptoContextImpl<Element>::EvalMultKeyGen(const LPPrivateKey<Element> key) {
 
 	if( key == NULL || Mismatched(key->GetCryptoContext()) )
@@ -194,6 +197,81 @@ void CryptoContextImpl<Element>::InsertEvalSumKey(const shared_ptr<std::map<usin
 	auto onekey = mapToInsert->begin();
 	evalSumKeyMap[ onekey->second->GetKeyTag() ] = mapToInsert;
 }
+
+template <typename Element>
+void CryptoContextImpl<Element>::EvalAtIndexKeyGen(const LPPrivateKey<Element> privateKey,
+				const std::vector<int32_t> &indexList, const LPPublicKey<Element> publicKey) {
+
+	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
+		throw std::logic_error("Private key passed to EvalAtIndexKeyGen were not generated with this crypto context");
+	}
+
+	if( publicKey != NULL && privateKey->GetKeyTag() != publicKey->GetKeyTag() ) {
+		throw std::logic_error("Public key passed to EvalAtIndexKeyGen does not match private key");
+	}
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto evalKeys = GetEncryptionAlgorithm()->EvalAtIndexKeyGen(publicKey,privateKey,indexList);
+
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalAtIndexKeyGen, currentDateTime() - start) );
+	}
+
+	evalAutomorphismKeyMap[privateKey->GetKeyTag()] = evalKeys;
+}
+
+template <typename Element>
+const std::map<usint, LPEvalKey<Element>>& CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(const string& keyID) {
+	auto ekv = evalAutomorphismKeyMap.find(keyID);
+	if( ekv == evalAutomorphismKeyMap.end() )
+		throw std::logic_error("You need to use EvalAutomorphismKeyGen so that you have EvalAutomorphismKeys available for this ID");
+	return *ekv->second;
+}
+
+template <typename Element>
+const std::map<string,shared_ptr<std::map<usint, LPEvalKey<Element>>>>& CryptoContextImpl<Element>::GetAllEvalAutomorphismKeys() {
+	return evalAutomorphismKeyMap;
+}
+
+template <typename Element>
+void CryptoContextImpl<Element>::ClearEvalAutomorphismKeys() {
+	evalAutomorphismKeyMap.clear();
+}
+
+/**
+ * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache for a given id
+ * @param id
+ */
+template <typename Element>
+void CryptoContextImpl<Element>::ClearEvalAutomorphismKeys(const string& id) {
+	auto kd = evalAutomorphismKeyMap.find(id);
+	if( kd != evalAutomorphismKeyMap.end() )
+		evalAutomorphismKeyMap.erase(kd);
+}
+
+/**
+ * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache for a given context
+ * @param cc
+ */
+template <typename Element>
+void CryptoContextImpl<Element>::ClearEvalAutomorphismKeys(const CryptoContext<Element> cc) {
+	for( auto it = evalAutomorphismKeyMap.begin(); it != evalAutomorphismKeyMap.end(); ) {
+		if( it->second->begin()->second->GetCryptoContext() == cc ) {
+			it = evalAutomorphismKeyMap.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+template <typename Element>
+void CryptoContextImpl<Element>::InsertEvalAutomorphismKey(const shared_ptr<std::map<usint,LPEvalKey<Element>>> mapToInsert) {
+	// find the tag
+	auto onekey = mapToInsert->begin();
+	evalAutomorphismKeyMap[ onekey->second->GetKeyTag() ] = mapToInsert;
+}
+
 
 /**
  * SerializeEvalMultKey for all EvalMult keys
@@ -556,6 +634,192 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(const Ciphertext<Element
 	auto rv = GetEncryptionAlgorithm()->EvalSum(ciphertext, batchSize, evalSumKeys);
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalSum, currentDateTime() - start) );
+	}
+	return rv;
+}
+
+/**
+ * SerializeEvalAutomorphismKey for all EvalAutomorphism keys
+ * method will serialize each CryptoContext only once
+ */
+template <typename Element>
+bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(Serialized* serObj) {
+	serObj->SetObject();
+	serObj->AddMember("Object", "EvalAutomorphismKeys", serObj->GetAllocator());
+	serObj->AddMember("Count", std::to_string(CryptoContextFactory<Element>::GetContextCount()), serObj->GetAllocator());
+
+	int sCount = 0;
+
+	for( auto& cc : CryptoContextFactory<Element>::GetAllContexts() ) {
+		Serialized cSer(rapidjson::kObjectType, &serObj->GetAllocator());
+		if( CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(&cSer, cc) ) {
+			serObj->AddMember(SerialItem(std::to_string(sCount), serObj->GetAllocator()), cSer.Move(), serObj->GetAllocator());
+		}
+		++sCount;
+	}
+	return true;
+}
+
+/**
+ * SerializeEvalAutomorphismKey for a single EvalAutomorphism key
+ * method will serialize entire key AND cryptocontext
+ */
+template <typename Element>
+bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(Serialized* serObj, const string& id) {
+	auto k = evalAutomorphismKeyMap.find(id);
+
+	if( k == evalAutomorphismKeyMap.end() )
+		return false; // no such id
+
+	serObj->SetObject();
+	k->second->begin()->second->GetCryptoContext()->Serialize(serObj);
+	serObj->AddMember("Object", "EvalAutomorphismKey", serObj->GetAllocator());
+	SerializeMapOfPointers("EvalAutomorphismKeys", "LPEvalKey", *k->second, serObj);
+	return true;
+}
+
+/**
+ * SerializeEvalAutomorphismKey for all EvalAutomorphismKeys made in a given context
+ * method will serialize the context only once
+ */
+template <typename Element>
+bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(Serialized* serObj, const CryptoContext<Element> cc) {
+
+	serObj->SetObject();
+	cc->Serialize(serObj);
+	serObj->AddMember("Object", "EvalAutomorphismKeyOneContext", serObj->GetAllocator());
+	for( const auto& k : evalAutomorphismKeyMap ) {
+		if( k.second->begin()->second->GetCryptoContext() == cc ) {
+			SerializeMapOfPointers("EvalAutomorphismKeys", "LPEvalKey", *k.second, serObj);
+		}
+	}
+	return true;
+}
+
+template <typename Element>
+bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(const Serialized& ser) {
+	Serialized serObj;
+	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
+
+	Serialized::MemberIterator cIter = serObj.FindMember("Object");
+	if( cIter == serObj.MemberEnd() )
+		return false;
+
+	// something different for EvalAutomorphismKey, EvalAutomorphismKeyOneContext, and EvalAutomorphismKeys
+
+	// figure out how many key sets there are
+	int cCount = 1;
+	bool singleton = true;
+	if( cIter->value.GetString() == string("EvalAutomorphismKeys") ) {
+		Serialized::ConstMemberIterator cntIter = serObj.FindMember("Count");
+		if( cntIter == serObj.MemberEnd() )
+			return false;
+
+		cCount = std::stoi(cntIter->value.GetString());
+		singleton = false;
+	}
+
+	if( singleton &&
+			cIter->value.GetString() != string("EvalAutomorphismKey") &&
+					cIter->value.GetString() != string("EvalAutomorphismKeyOneContext") ) {
+		throw std::logic_error("DeserializeEvalMultKey passed an unknown object type " + string(cIter->value.GetString()));
+	}
+
+	for( int keysets = 0; keysets < cCount; keysets++ ) {
+
+		// get the crypto context for this keyset
+		CryptoContext<Element> cc;
+		Serialized *serPtr;
+		Serialized oneSer;
+		if( singleton ) {
+			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
+			serPtr = &serObj;
+		}
+		else {
+			Serialized::MemberIterator ksIter = serObj.FindMember(std::to_string(keysets));
+			if( ksIter == serObj.MemberEnd() )
+				return false;
+
+			oneSer.SetObject();
+			for( Serialized::MemberIterator i = ksIter->value.MemberBegin(); i != ksIter->value.MemberEnd(); i++ ) {
+				oneSer.AddMember( SerialItem(i->name,serObj.GetAllocator()),
+						SerialItem(i->value,serObj.GetAllocator()),
+						serObj.GetAllocator() );
+			}
+
+			serPtr = &oneSer;
+			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(oneSer);
+		}
+
+		Serialized::MemberIterator kIter;
+
+		// now, find and deserialize all keys
+		for( kIter = serPtr->MemberBegin(); kIter != serPtr->MemberEnd(); ) {
+			if( kIter->name.GetString() != string("EvalAutomorphismKeys") ) {
+				kIter = serPtr->RemoveMember(kIter);
+				continue;
+			}
+
+			shared_ptr<map<usint,LPEvalKey<Element>>> EvalAutomorphismKeys( new map<usint,LPEvalKey<Element>>() );
+			string keyTag = "";
+
+			Serialized kser;
+			kser.SetObject();
+			kser.AddMember(SerialItem(kIter->name, kser.GetAllocator()), SerialItem(kIter->value, kser.GetAllocator()), kser.GetAllocator());
+
+			Serialized ktemp;
+			ktemp.SetObject();
+			auto keyValue = SerialItem(kIter->value, ktemp.GetAllocator());
+
+			Serialized::ConstMemberIterator t = keyValue.FindMember("Members");
+			if( t == keyValue.MemberEnd() )
+				throw std::logic_error("Unable to find eval automorphism keys in serialization");
+			const SerialItem& members = t->value;
+
+            for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
+
+				LPEvalKey<Element> kp;
+
+                usint k = std::stoi( mI->name.GetString() );
+
+                Serialized kser(rapidjson::kObjectType);
+                auto keyMember = SerialItem(mI->value, kser.GetAllocator());
+
+                Serialized::ConstMemberIterator t = keyMember.MemberBegin();
+				while( t != keyMember.MemberEnd() ) {
+                    kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
+                    t++;
+				}
+
+				kp = cc->deserializeEvalKeyInContext(kser,cc);
+
+				if( keyTag == "" )
+					keyTag = kp->GetKeyTag();
+
+				(*EvalAutomorphismKeys)[k] = kp;
+			}
+
+			kIter = serPtr->EraseMember(kIter);
+
+			evalAutomorphismKeyMap[keyTag] = EvalAutomorphismKeys;
+		}
+	}
+
+	return true;
+}
+
+template <typename Element>
+Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(const Ciphertext<Element> ciphertext, int32_t index) const {
+
+	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
+		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+
+	auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertext->GetKeyTag());
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalAtIndex(ciphertext, index, evalAutomorphismKeys);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalAtIndex, currentDateTime() - start) );
 	}
 	return rv;
 }

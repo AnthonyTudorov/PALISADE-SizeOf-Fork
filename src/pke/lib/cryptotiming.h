@@ -61,6 +61,7 @@ enum OpType {
 	OpLinRegression, OpKeySwitch,
 	OpModReduce, OpModReduceRational, OpModReduceMatrix, OpLevelReduce, OpRingReduce, OpComposedEvalMult,
 	OpEvalSumKeyGen, OpEvalSum, OpEvalInnerProduct, OpEvalCrossCorrelation, OpEvalLinRegressionBatched,
+	OpEvalAtIndexKeyGen,OpEvalAtIndex,
 };
 
 class TimingInfo {

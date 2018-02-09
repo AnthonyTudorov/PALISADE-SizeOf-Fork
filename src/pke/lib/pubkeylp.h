@@ -1496,9 +1496,10 @@ namespace lbcrypto {
 		 */
 		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAtIndexKeyGen(const LPPublicKey<Element> publicKey,
 			const LPPrivateKey<Element> origPrivateKey,
-			const std::vector<usint> &indexList) const
+			const std::vector<int32_t> &indexList) const
 		{
-			const auto cryptoParams = publicKey->GetCryptoParameters();
+
+			const auto cryptoParams = origPrivateKey->GetCryptoParameters();
 			const auto encodingParams = cryptoParams->GetEncodingParams();
 			const auto elementParams = cryptoParams->GetElementParams();
 			uint32_t m = elementParams->GetCyclotomicOrder();
@@ -1536,7 +1537,7 @@ namespace lbcrypto {
 			const std::map<usint, LPEvalKey<Element>> &evalKeys) const = 0;
 
 		/**
-		* Moves i-th slot to slot 0, modulo the cyclotomic order m
+		* Moves i-th slot to slot 0
 		*
 		* @param ciphertext.
 		* @param i the index.
@@ -2337,7 +2338,7 @@ namespace lbcrypto {
 			if (this->m_algorithmSHE) {
 				auto km = this->m_algorithmSHE->EvalAutomorphismKeyGen(publicKey,origPrivateKey,indexList);
 				for( auto& k : *km )
-					k.second->SetKeyTag( publicKey->GetKeyTag() );
+					k.second->SetKeyTag( origPrivateKey->GetKeyTag() );
 				return km;
 			} else
 				throw std::logic_error("EvalAutomorphismKeyGen operation has not been enabled");
@@ -2345,12 +2346,12 @@ namespace lbcrypto {
 
 		shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAtIndexKeyGen(const LPPublicKey<Element> publicKey,
 			const LPPrivateKey<Element> origPrivateKey,
-			const std::vector<usint> &indexList) const {
+			const std::vector<int32_t> &indexList) const {
 
 			if (this->m_algorithmSHE) {
 				auto km = this->m_algorithmSHE->EvalAtIndexKeyGen(publicKey,origPrivateKey,indexList);
 				for( auto& k : *km )
-					k.second->SetKeyTag( publicKey->GetKeyTag() );
+					k.second->SetKeyTag( origPrivateKey->GetKeyTag() );
 				return km;
 			} else
 				throw std::logic_error("EvalAtIndexKeyGen operation has not been enabled");
