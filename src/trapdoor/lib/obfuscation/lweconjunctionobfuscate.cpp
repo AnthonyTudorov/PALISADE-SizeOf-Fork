@@ -864,7 +864,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 
 	//empirical parameter
 	//double beta = 1.5; YSP this can be used for DARPA artifacts
-	double beta = 2;
+	double beta = 1.3;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
@@ -941,6 +941,8 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
+	std::cout << "q (param gen)= " << log2(q) << " bits" <<std::endl;
+
 	//Prepare for parameters.
 	auto params = GenerateElemParams(q, n);
 
@@ -976,45 +978,34 @@ void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggTy
 	 //parallelized method
 	// Initialize the Pk and Ek matrices.
 	shared_ptr<std::vector<Matrix<Element>>> Pk_vector (new std::vector<Matrix<Element>>());
-	shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector (new std::vector<RLWETrapdoorPair<Element>>());
+	shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector(new std::vector<RLWETrapdoorPair<Element>>());
 
 	DEBUG("keygen1: "<<TOC(t1) <<" ms");
 	DEBUG("l = "<<l);
 
 	TIC(t1);
-//#pragma omp parallel // this is executed in parallel
-	{
-		TimeVar tp; // for TIC TOC
-		//private copies of our vectors
-		shared_ptr<std::vector<Matrix<Element>>> Pk_vector_pvt (new std::vector<Matrix<Element>>());
-		shared_ptr<std::vector<RLWETrapdoorPair<Element>>>   Ek_vector_pvt (new std::vector<RLWETrapdoorPair<Element>>());
-#ifdef OMP
-#pragma omp for nowait schedule(static)
-#endif
-		for(size_t i=0; i<=adjustedLength+1; i++) {
-			//build private copies in parallel
-			TIC(tp);
-			std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base); //TODO remove stddev
-			DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
+	TimeVar tp; // for TIC TOC
 
-			TIC(tp);
-			Pk_vector_pvt->push_back(trapPair.first);
-			Ek_vector_pvt->push_back(trapPair.second);
+#ifdef OMP
+#pragma omp for nowait schedule(static) ordered
+#endif
+	for(size_t i=0; i<=adjustedLength+1; i++) {
+		//build private copies in parallel
+		TIC(tp);
+		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base); //TODO remove stddev
+		DEBUG("keygen2.0:#"<< i << ": "<<TOC(tp) <<" ms");
 
-		}
+		TIC(tp);
 #ifdef OMP
-        #pragma omp for schedule(static) ordered
+#pragma omp ordered
 #endif
-		// now stitch them back together sequentially to preserve order of i
-		for (int i=0; i<omp_get_num_threads(); i++) {
-#ifdef OMP
-			#pragma omp ordered
-#endif
-			 Pk_vector->insert(Pk_vector->end(), Pk_vector_pvt->begin(), Pk_vector_pvt->end());
-			 Ek_vector->insert(Ek_vector->end(), Ek_vector_pvt->begin(), Ek_vector_pvt->end());
+		{
+			Pk_vector->push_back(trapPair.first);
+			Ek_vector->push_back(trapPair.second);
 		}
 
 	}
+
 	DEBUG("keygen3: " <<TOC(t1) <<" ms");
 	TIC(t1);
 	obfuscatedPattern->SetKeys(Pk_vector,Ek_vector);
@@ -1457,7 +1448,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	//std::cout << " Norm: " << norm << std::endl;
+	std::cout << " Norm (bits): " << log2(norm) << std::endl;
 
 	return (norm <= constraint);
 

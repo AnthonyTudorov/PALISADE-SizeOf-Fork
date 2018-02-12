@@ -353,7 +353,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
 	}
 
-	for (usint i = numOfRootU; i<numOfRootU; ++i) {
+	for (usint i = 0; i<numOfRootU; ++i) {
 
 		IntType currentRoot(rootOfUnity[i]);
 		IntType currentMod(moduliiChain[i]);

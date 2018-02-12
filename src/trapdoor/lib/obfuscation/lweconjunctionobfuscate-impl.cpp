@@ -53,27 +53,27 @@ shared_ptr<typename Poly::Params> LWEConjunctionObfuscationAlgorithm<Poly>::Gene
 template <>
 shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const {
 
-	size_t dcrtBits = 59;
+	size_t dcrtBits = 60;
 	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
 
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	moduli[0] = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
 	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 
-	for (size_t i = 1; i < size - 1; i++)
+	for (size_t i = 1; i < size; i++)
 	{
 		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
 		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
 	}
 
-	if (size > 1) {
-		moduli[size-1] = FirstPrime<NativeInteger>(dcrtBits-1, 2 * n);
-		roots[size-1] = RootOfUnity<NativeInteger>(2 * n, moduli[size-1]);
-	}
-
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
+
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
 
 	return params;
 
