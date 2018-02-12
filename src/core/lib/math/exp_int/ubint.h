@@ -46,6 +46,7 @@
 #include <memory>
 #include "../../utils/inttypes.h"
 #include "../../utils/memory.h"
+#include "../../utils/serializable.h"
 #include "../nbtheory.h"
 
 #ifdef UBINT_64
@@ -363,9 +364,15 @@ public:
 	 * Used primarily for debugging
 	 * @return STL vector of uint_type
 	 */
-	vector<limb_t> GetInternalRepresentation(void) const {
-		vector<limb_t> ret = m_value;
-		return ret;
+	std::string GetInternalRepresentation(void) const {
+	  std::string ret("");
+	  for (size_t i = 0; i<m_value.size(); i++){
+	    ret += std::to_string(m_value[i]);
+	    if (i < (m_value.size()-1))
+	      ret +=" ";
+	    
+	  }
+	  return ret;
 	}
 
 	/**
@@ -1081,6 +1088,7 @@ private:
 	static void add_bitVal(uschar* a,uschar b);
 };
 
+ #if 0
 // stream helper function for vector of objects
 template < typename limb_t >
 inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v) {
@@ -1091,7 +1099,7 @@ inline std::ostream& operator << (std::ostream& os, const std::vector<limb_t>& v
 	os << " ]";
 	return os;
 };
-
+#endif
 }//namespace ends
 
 #endif //LBCRYPTO_MATH_EXPINT_UBINT_H

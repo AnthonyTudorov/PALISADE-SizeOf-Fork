@@ -633,21 +633,29 @@ MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const
 */
 template<class Element>
 bool MatrixStrassen<Element>::Serialize(Serialized* serObj) const {
-	serObj->SetObject();
-std::cout << "SERIALIZING " << rows << ":" << cols << std::endl;
-std::cout << data.size() << std::endl;
-std::cout << data[0].size() << std::endl;
+  bool dbg_flag = false;
+  if( !serObj->IsObject() ){
+    serObj->SetObject();
+  }
+
+  DEBUG("SERIALIZING MatrixStrassen " << rows << ":" << cols);
+  DEBUGEXP(data.size());
+  DEBUGEXP(data[0].size());
 	//SerializeVectorOfVector("MatrixStrassen", elementName<Element>(), this->data, serObj);
 
-	std::cout << typeid(Element).name() << std::endl;
+  DEBUGEXP(typeid(Element).name());
 
-	for( int r=0; r<rows; r++ ) {
-		for( int c=0; c<cols; c++ ) {
-			data[r][c]->Serialize(serObj);
-		}
-	}
-
-	return true;
+  bool rc = false;
+  for( int r=0; r<rows; r++ ) {
+    for( int c=0; c<cols; c++ ) {
+      rc = data[r][c]->Serialize(serObj);
+      if (!rc) {
+	PALISADE_THROW(lbcrypto::serialize_error ,"serialization failure in MatrixStrassen "
+		       +to_string(r)+", "+to_string(c));
+    }
+  }
+  
+  return true;
 }
 
 /**
@@ -658,9 +666,11 @@ std::cout << data[0].size() << std::endl;
 template<class Element>
 bool MatrixStrassen<Element>::Deserialize(const Serialized& serObj) {
 	Serialized::ConstMemberIterator mIter = serObj.FindMember("MatrixStrassen");
-	if( mIter == serObj.MemberEnd() )
+	std::cout<<"Deserialize MatrixStrassen not written"<<cout::endl;
+	
+	if( mIter == serObj.MemberEnd() ){
 		return false;
-
+	}
 	//return DeserializeVectorOfVector<Element>("MatrixStrassen", elementName<Element>(), mIter, &this->data);
 	return true;
 }

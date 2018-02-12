@@ -478,16 +478,18 @@ public:
 	 * Gets a copy of the  internal limb storage
 	 * Used primarily for debugging
 	 */
-	vector <ZZ_limb_t> GetInternalRepresentation(void) const {
-		vector<ZZ_limb_t> ret;
-		const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
-
-		for (size_t i = 0; i < (size_t)this->size(); i ++){
-			ret.push_back(zlp[i]);
-		}
-		return ret;
+	std::string GetInternalRepresentation(void) const {
+	  std::string ret("");
+	  const ZZ_limb_t *zlp = ZZ_limbs_get(*this);
+	  
+	  for (size_t i = 0; i < (size_t)this->size(); i ++){
+	    ret += std::to_string(zlp[i]);
+	    if (i < ((size_t)this->size()-1))
+	      ret +=" ";
+	  }
+	  return ret;
 	}
-
+	
 private:
 	//adapter kits
 	void SetMSB();

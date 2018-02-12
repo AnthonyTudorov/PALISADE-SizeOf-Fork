@@ -305,11 +305,14 @@ namespace cpu_int{
     * Used primarily for debugging
     * @return STL vector of uint_type    
     */
-    vector<uint_type> GetInternalRepresentation(void) const {
-      vector<uint_type> ret;
+    std::string GetInternalRepresentation(void) const {
+      std::string ret("");
       size_t ceilInt = ceilIntByUInt(this->m_MSB); //max limb used
-      for(size_t i=m_nSize-1;i>=(size_t)(m_nSize-ceilInt);i--){
-	ret.push_back(m_value[i]);
+
+      for(size_t i=m_nSize-1; i>=(size_t)(m_nSize-ceilInt);i--){
+	ret += std::to_string(m_value[i]);
+	if (i!=(size_t)(m_nSize-ceilInt))
+	  ret +=" ";
       }
       return ret;
     }

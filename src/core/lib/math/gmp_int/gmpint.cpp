@@ -484,8 +484,10 @@ namespace NTL {
 
   bool myZZ::Serialize(lbcrypto::Serialized* serObj) const{
     bool dbg_flag = false;
-    if( !serObj->IsObject() )
-      return false;
+ 
+    if( !serObj->IsObject() ){
+      serObj->SetObject();
+    }
     
     lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
 

@@ -614,8 +614,10 @@ NativeVector<IntegerType> NativeVector<IntegerType>::GetDigitAtIndexForBase(usin
 template<class IntegerType>
 bool NativeVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
 
-	if( !serObj->IsObject() )
-		return false;
+        if( !serObj->IsObject() ){
+	  serObj->SetObject();
+	}
+
 
 	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
 

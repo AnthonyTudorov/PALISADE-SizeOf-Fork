@@ -1020,8 +1020,10 @@ public:
 	*/
 	bool Serialize(lbcrypto::Serialized* serObj) const{
 
-	  if( !serObj->IsObject() )
-	    return false;
+	  if( !serObj->IsObject() ){
+	    serObj->SetObject();
+	  }
+
 	  
 	  lbcrypto::SerialItem bbiMap(rapidjson::kObjectType);
 	  
