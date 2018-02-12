@@ -184,7 +184,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	double alpha = 36;
 
 	//empirical parameter
-	double beta = 2;
+	double beta = 1.3;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
@@ -227,21 +227,21 @@ shared_ptr<typename DCRTPoly::Params> LWEConjunctionCHCPRFAlgorithm<DCRTPoly>::G
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	moduli[0] = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
 	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 
-	for (size_t i = 1; i < size - 1; i++)
+	for (size_t i = 1; i < size; i++)
 	{
 		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
 		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
 	}
 
-	if (size > 1) {
-		moduli[size-1] = FirstPrime<NativeInteger>(dcrtBits-1, 2 * n);
-		roots[size-1] = RootOfUnity<NativeInteger>(2 * n, moduli[size-1]);
-	}
-
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
+
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
 
 	return params;
 
