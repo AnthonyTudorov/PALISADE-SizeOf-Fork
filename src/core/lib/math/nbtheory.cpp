@@ -526,15 +526,10 @@ namespace lbcrypto {
 		IntType mu = ComputeMu<IntType>(n);
 
 		do {
-#if MATHBACKEND == 6
-			x = (x*x + c).ModBarrett(n,mu);
-			xx = (xx*xx + c).ModBarrett(n,mu);
-			xx = (xx*xx + c).ModBarrett(n,mu);
-#else		
 			x = x.ModBarrettMul(x, n, mu).ModBarrettAdd(c, n, mu);
 			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
 			xx = xx.ModBarrettMul(xx, n, mu).ModBarrettAdd(c, n, mu);
-#endif
+
 			divisor = GreatestCommonDivisor(((x - xx) > IntType(0)) ? x - xx : xx - x, n);
 			DEBUG("PRF divisor " << divisor.ToString());
 
