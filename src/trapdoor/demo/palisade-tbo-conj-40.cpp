@@ -28,6 +28,7 @@
 // Note must be before all headers
 
 #include <iostream>
+#include <random>
 #include "obfuscation/lweconjunctionchcprf.h"
 #include "obfuscation/lweconjunctionchcprf.cpp"
 
@@ -35,9 +36,13 @@
 
 using namespace lbcrypto;
 
+string RandomBooleanString(usint length);
+
 int main(int argc, char* argv[]) {
 
 	int nthreads, tid;
+
+	TimeVar t1; //for TIC TOC
 
 	// Fork a team of threads giving them their own copies of variables
 	//so we can see how many threads we have to work with
@@ -57,11 +62,13 @@ int main(int argc, char* argv[]) {
 
 	TimeVar t;
 
-	double processingTime(0.0);
+	double processingTime(0.0), MSKeyGenTime(0.0), conKeyGenTime(0.0);
 
 	std::string pattern ="1?1?10??????10111?1?10??????10111?1?10??";
 	std::string input1 = "1011101110111011101110111011101110111011";
 	std::string input2 = "1011101110111010101110111011101010111011";
+
+	size_t len = pattern.length();
 
 	TIC(t);
 	LWEConjunctionCHCPRFAlgorithm<DCRTPoly> algorithm(1 << 20, 8, 40, 1024);
@@ -73,13 +80,13 @@ int main(int argc, char* argv[]) {
 
 	TIC(t);
 	auto key = algorithm.KeyGen();
-	processingTime = TOC(t);
-	std::cout << "Master Secret (Unconstrained) Key Generation: " << processingTime << "ms" << std::endl;
+	MSKeyGenTime = TOC(t);
+	std::cout << "Master Secret (Unconstrained) Key Generation: " << MSKeyGenTime << "ms" << std::endl;
 
 	TIC(t);
 	auto constrainedKey = algorithm.Constrain(key,  pattern);
-	processingTime = TOC(t);
-	std::cout << "Contstrained Key Generation: " << processingTime << "ms" << std::endl;
+	conKeyGenTime = TOC(t);
+	std::cout << "Contstrained Key Generation: " << conKeyGenTime << "ms" << std::endl;
 
 	TIC(t);
 	const auto value1 = algorithm.Evaluate(           key, input1);
@@ -100,4 +107,66 @@ int main(int argc, char* argv[]) {
 	//std::cout << value4 << std::endl;
 	std::cout << "input 2: " << input2 << std::endl;
 	std::cout << (value3 == value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
+
+	size_t n_evals = 100;
+
+	vector<string> inputStr(n_evals);
+
+    for (usint i= 0; i < n_evals; i++){
+      inputStr[i] = RandomBooleanString(len);
+    }
+
+	//Variables for timing
+	vector<double> timeTokenEval(n_evals);;
+	vector<double> timeEval(n_evals);;
+
+	////////////////////////////////////////////////////////////
+	// test the obfuscated pattern
+	////////////////////////////////////////////////////////////
+	PROFILELOG("\nEvaluation started");
+	for (usint i = 0; i < n_evals; i++) {
+
+		TIC(t1);
+		const auto uresult = algorithm.Evaluate(key, inputStr[i]);
+		timeTokenEval[i] = TOC_US(t1);
+
+		TIC(t1);
+		const auto cresult = algorithm.Evaluate(constrainedKey, inputStr[i]);
+		timeEval[i] = TOC_US(t1);
+
+	} // end eval loop
+
+	//print output timing results
+	//note one could use PROFILELOG for these lines
+	float aveTokenTime = 0.0;
+	float aveTime = 0.0;
+	for (usint i = 0; i < n_evals; i++){
+		aveTokenTime += timeTokenEval[i];
+		std::cout << "T: Token Eval "<<i<<" execution time:  " << "\t" << timeTokenEval[i]/1000 << " ms" << std::endl;
+		aveTime += timeEval[i];
+		std::cout << "T: Eval "<<i<<" execution time:  " << "\t" << timeEval[i]/1000 << " ms" << std::endl;
+	}
+	aveTime /= float(n_evals);
+	aveTokenTime /= float(n_evals);
+
+	//print output timing results
+	//note one could use PROFILELOG for these lines
+	std::cout << "T: MSK generation time:        " << "\t" << MSKeyGenTime << " ms" << std::endl;
+	std::cout << "T: Obfuscation execution time: " << "\t" << conKeyGenTime << " ms" << std::endl;
+	std::cout << "T: Average token evaluation time:  " << "\t" << aveTokenTime/1000 << " ms" << std::endl;
+	std::cout << "T: Average evaluation time:  " << "\t" << aveTime/1000 << " ms" << std::endl;
+	std::cout << "T: Average total evaluation time:       " << "\t" << aveTokenTime/1000 + aveTime/1000 << " ms" << std::endl;
+
+}
+
+string RandomBooleanString(usint length) {
+  static std::default_random_engine         e{};
+  static std::uniform_int_distribution<int> d{0, 1};
+
+  string str("");
+  for (usint i=0; i<length; i++){
+    str+= to_string(d(e));
+  }
+
+  return str;
 }
