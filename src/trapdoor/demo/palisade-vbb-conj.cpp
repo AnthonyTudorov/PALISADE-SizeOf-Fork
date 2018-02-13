@@ -328,7 +328,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
   //Variables for timing
-  double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeSerial(0.0), timeTotal(0.0);
+  double timeKeyGen(0.0), timeObf(0.0), timeSerial(0.0), timeTotal(0.0);
 
   double stdDev = SIGMA;
   DCRTPoly::DggType dgg(stdDev); // Create the noise generator
@@ -418,7 +418,6 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   //print output timing results
   //note one could use PROFILELOG for these lines
   std::cout << "Timing Summary for n = " << m / 2 << std::endl;
-  std::cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << std::endl;
   std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
   std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
   std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
@@ -564,7 +563,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
 
     TIC(t1);
     result[i] = algorithm.Evaluate(obfuscatedPattern, inputStr[i]);
-    timeEval[i] = TOC(t1);
+    timeEval[i] = TOC_US(t1);
 
     DEBUG(" \nObfuscated pattern evaluation of: " << inputStr[i] << " is " << result[i] << ".");
     //PROFILELOG("Evaluation "<<i<<" execution time: " << "\t" << timeEval[i] << " ms");
@@ -583,11 +582,11 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
   float aveTime = 0.0;
   for (usint i = 0; i < n_evals; i++){
     aveTime += timeEval[i];
-    std::cout << "T: Eval "<<i<<" execution time:  " << "\t" << timeEval[i] << " ms" << std::endl;
+    std::cout << "T: Eval "<<i<<" execution time:  " << "\t" << timeEval[i]/1000 << " ms" << std::endl;
   }
   aveTime /= float(n_evals);
 
-  std::cout << "T: Average evaluation execution time:  " << "\t" << aveTime << " ms" << std::endl;
+  std::cout << "T: Average evaluation execution time:  " << "\t" << aveTime/1000 << " ms" << std::endl;
   std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
 
   if (errorflag) {
