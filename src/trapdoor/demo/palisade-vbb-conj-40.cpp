@@ -209,6 +209,8 @@ bool CONJOBF(bool dbg_flag, size_t n_evals, int n) {
 
 	double timeTotal(0.0);
 
+	size_t counter = 0;
+
 	// run one evaluation before starting the benchmarking
 	algorithm.Evaluate(obfuscatedPattern, RandomBooleanString(clearPattern.GetLength()));
 
@@ -219,6 +221,9 @@ bool CONJOBF(bool dbg_flag, size_t n_evals, int n) {
 	for (usint i = 0; i < n_evals; i++) {
 		out[i] = algorithm.Evaluate(clearPattern, inputStr[i]);
 		DEBUG(" \nCleartext pattern evaluation of: " << inputStr[i] << " is " << out[i]);
+
+		if (out[i])
+			counter++;
 
 		TIC(t1);
 		result[i] = algorithm.Evaluate(obfuscatedPattern, inputStr[i]);
