@@ -29,12 +29,15 @@
 
 #include <iostream>
 #include <fstream>
+#include <random>
 #include "obfuscation/lweconjunctionobfuscate.h"
 #include "utils/debug.h"
 
 using namespace lbcrypto;
 
-bool CONJOBF(bool dbg_flag, int n_evals, int  n); //defined later
+bool CONJOBF(bool dbg_flag, size_t n_evals, int  n); //defined later
+
+string RandomBooleanString(usint length);
 
 //main()   need this for Kurts makefile to ignore this.
 int main(int argc, char* argv[]){
@@ -57,13 +60,11 @@ int main(int argc, char* argv[]){
 
 	std::cerr  <<"Running " << argv[0] <<" with "<< omp_get_num_procs() << " processors." << std::endl;
 
-	int n_evals = 1;
+	size_t n_evals = 1;
 
 	if (argc >= 3 ) {
 		if (atoi(argv[2]) < 0) {
 			n_evals = 1;
-		} else if (atoi(argv[2]) >= 3) {
-			n_evals = 3;
 		} else {
 			n_evals = atoi(argv[2]);
 		}
@@ -88,13 +89,11 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for (usint n = 1<<10; n < 1<<11; n=2*n)
+	for (usint n = 1<<9; n < 1<<10; n=2*n)
 	{
-		for (usint i = 1; i < 3; i++) {
-			errorflag = CONJOBF(dbg_flag, n_evals, n);
-			if (errorflag)
-				return ((int)errorflag);
-		}
+		errorflag = CONJOBF(dbg_flag, n_evals, n);
+		if (errorflag)
+			return ((int)errorflag);
 	}
 
 	return ((int)errorflag);
@@ -104,7 +103,7 @@ int main(int argc, char* argv[]){
 
 
 //////////////////////////////////////////////////////////////////////
-bool CONJOBF(bool dbg_flag, int n_evals, int n) {
+bool CONJOBF(bool dbg_flag, size_t n_evals, int n) {
 
 	//if dbg_flag == true; print debug outputs
 	// n_evals = 1,2,3 number of evaluations to perform
@@ -145,8 +144,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	LWEConjunctionObfuscationAlgorithm<DCRTPoly> algorithm;
 
 	//Variables for timing
-	double timeDGGSetup(0.0), timeKeyGen(0.0), timeObf(0.0), timeEval1(0.0),
-		timeEval2(0.0), timeEval3(0.0), timeTotal(0.0);
+	double timeKeyGen(0.0), timeObf(0.0);
 
 	double stdDev = SIGMA;
 	DCRTPoly::DggType dgg(stdDev);			// Create the noise generator
@@ -179,36 +177,6 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//Precomputations for FTT
 	DiscreteFourierTransform::PreComputeTable(m);
 
-	////////////////////////////////////////////////////////////
-	//Test the cleartext pattern
-	////////////////////////////////////////////////////////////
-
-	DEBUG(" \nCleartext pattern: ");
-	DEBUG(clearPattern.GetPatternString());
-
-	DEBUG(" \nCleartext pattern length: ");
-	DEBUG(clearPattern.GetLength());
-
-	std::string inputStr1 = "1110010011100100111001001110010011100100";
-	bool out1 = algorithm.Evaluate(clearPattern, inputStr1);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << out1);
-
-	std::string inputStr2 = "1100110111001101110011011100111111001101";
-	bool out2 = algorithm.Evaluate(clearPattern, inputStr2);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << out2);
-
-	std::string inputStr3 = "1010110110101101101011011010110110101101";
-	bool out3 = algorithm.Evaluate(clearPattern, inputStr3);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr3 << " is " << out3);
-
-	////////////////////////////////////////////////////////////
-	//Generate and test the obfuscated pattern
-	////////////////////////////////////////////////////////////
-
-	bool result1 = false;
-	bool result2 = false;
-	bool result3 = false;
-
 	std::cout << " \nCleartext pattern: " << std::endl;
 	std::cout << clearPattern.GetPatternString() << std::endl;
 
@@ -226,60 +194,56 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	timeObf = TOC(t1);
 	PROFILELOG("Obfuscation time: " << "\t" << timeObf << " ms");
 
-	PROFILELOG("Evaluation 1 started");
-	TIC(t1);
-	result1 = algorithm.Evaluate(obfuscatedPattern, inputStr1);
-	timeEval1 = TOC(t1);
-	DEBUG(" \nCleartext pattern evaluation of: " << inputStr1 << " is " << result1 << ".");
-	PROFILELOG("Evaluation 1 execution time: " << "\t" << timeEval1 << " ms");
+	vector<string> inputStr(n_evals);
 
+    for (usint i= 0; i < n_evals; i++){
+      inputStr[i] = RandomBooleanString(clearPattern.GetLength());
+    }
+
+    vector<bool> out(n_evals);
+    vector<bool> result(n_evals);
 	bool errorflag = false;
-	if (result1 != out1) {
-		std::cout << "ERROR EVALUATING 1" << std::endl;
-		errorflag |= true;
-	}
 
-	if (n_evals > 1) {
-		PROFILELOG("Evaluation 2 started");
+	//Variables for timing
+	vector<double> timeEval(n_evals);;
+
+	double timeTotal(0.0);
+
+	// run one evaluation before starting the benchmarking
+	algorithm.Evaluate(obfuscatedPattern, RandomBooleanString(clearPattern.GetLength()));
+
+	////////////////////////////////////////////////////////////
+	// test the obfuscated pattern
+	////////////////////////////////////////////////////////////
+	PROFILELOG("\nEvaluation started");
+	for (usint i = 0; i < n_evals; i++) {
+		out[i] = algorithm.Evaluate(clearPattern, inputStr[i]);
+		DEBUG(" \nCleartext pattern evaluation of: " << inputStr[i] << " is " << out[i]);
+
 		TIC(t1);
-		result2 = algorithm.Evaluate(obfuscatedPattern, inputStr2);
-		timeEval2 = TOC(t1);
-		DEBUG(" \nCleartext pattern evaluation of: " << inputStr2 << " is " << result2 << ".");
-		PROFILELOG("Evaluation 2 execution time: " << "\t" << timeEval2 << " ms");
+		result[i] = algorithm.Evaluate(obfuscatedPattern, inputStr[i]);
+		timeEval[i] = TOC_US(t1);
 
-		if (result2 != out2) {
-			std::cout << "ERROR EVALUATING 2" << std::endl;
-			errorflag |= true;
+		DEBUG(" \nObfuscated pattern evaluation of: " << inputStr[i] << " is " << result[i] << ".");
+		//PROFILELOG("Evaluation "<<i<<" execution time: " << "\t" << timeEval[i] << " ms");
+
+		if (result[i] != out[i]) {
+		  std::cout << "ERROR EVALUATING "<<i<<" got "<<result[i]<<" wanted "<<out[i]<< std::endl;
+		  errorflag |= true;
 		}
-	}
-
-	if (n_evals > 2) {
-		PROFILELOG("Evaluation 3 started");
-		TIC(t1);
-		result3 = algorithm.Evaluate(obfuscatedPattern, inputStr3);
-		timeEval3 = TOC(t1);
-		DEBUG("\nCleartext pattern evaluation of: " << inputStr3 << " is " << result3 << ".");
-		PROFILELOG("Evaluation 3 execution time: " << "\t" << timeEval3 << " ms");
-		if (result3 != out3) {
-			std::cout << "ERROR EVALUATING 3" << std::endl;
-			errorflag |= true;
-		}
-	}
-
+	} // end eval loop
 	//get the total program run time.
 	timeTotal = TOC(t_total);
 
 	//print output timing results
 	//note one could use PROFILELOG for these lines
 	std::cout << "Timing Summary for n = " << m / 2 << std::endl;
-	std::cout << "T: DGG setup time:        " << "\t" << timeDGGSetup << " ms" << std::endl;
-	std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
-	std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
-	std::cout << "T: Eval 1 execution time:  " << "\t" << timeEval1 << " ms" << std::endl;
-	std::cout << "T: Eval 2 execution time:  " << "\t" << timeEval2 << " ms" << std::endl;
-	std::cout << "T: Eval 3 execution time:  " << "\t" << timeEval3 << " ms" << std::endl;
-	std::cout << "T: Average evaluation execution time:  " << "\t" << (timeEval1+timeEval2+timeEval3)/3 << " ms" << std::endl;
-	std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
+	float aveTime = 0.0;
+	for (usint i = 0; i < n_evals; i++){
+		aveTime += timeEval[i];
+		std::cout << "T: Eval "<<i<<" execution time:  " << "\t" << timeEval[i]/1000 << " ms" << std::endl;
+	}
+	aveTime /= float(n_evals);
 
 	if (errorflag) {
 		std::cout << "FAIL " << std::endl;
@@ -288,9 +252,28 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 		std::cout << "SUCCESS " << std::endl;
 	}
 
+
+	//print output timing results
+	//note one could use PROFILELOG for these lines
+	std::cout << "\nTiming Summary for n = " << m / 2 << std::endl;
+	std::cout << "T: Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
+	std::cout << "T: Obfuscation execution time: " << "\t" << timeObf << " ms" << std::endl;
+	std::cout << "T: Average evaluation execution time:  " << "\t" << aveTime/1000 << " ms" << std::endl;
+	std::cout << "T: Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
+
 	DiscreteFourierTransform::Reset();
 
 	return (errorflag);
 }
 
+string RandomBooleanString(usint length) {
+  static std::default_random_engine         e{};
+  static std::uniform_int_distribution<int> d{0, 1};
 
+  string str("");
+  for (usint i=0; i<length; i++){
+    str+= to_string(d(e));
+  }
+
+  return str;
+}
