@@ -51,7 +51,7 @@ ifdef COVERAGE
 	LIBSUFFIX=.a
 	LIBCMD=$(AR) crv
 else
-	CPPFLAGS += -O3 -fopenmp $(COMPTHREADFLAG) ##optimize and threads
+	CPPFLAGS += -Ofast -fopenmp $(COMPTHREADFLAG) ##optimize and threads
 endif
 
 ## set backend if user set it on the command line
