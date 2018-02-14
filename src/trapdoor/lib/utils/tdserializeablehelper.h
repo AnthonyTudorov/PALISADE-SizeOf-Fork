@@ -194,8 +194,8 @@ namespace lbcrypto {
       }
       DEBUG(" found "<<keystring);
       
-      RLWETrapdoorPair<T> tpair(Matrix<T>([](){ return make_unique<T>(); }, 0,0),
-				Matrix<T>([](){ return make_unique<T>(); }, 0,0));
+      RLWETrapdoorPair<T> tpair(Matrix<T>([](){ return T(); }, 0,0),
+				Matrix<T>([](){ return T(); }, 0,0));
       
       for (usint pair_ix = 0; pair_ix < 2; pair_ix++) {
       //within the key's member, find the sub member with the typename
@@ -235,7 +235,7 @@ namespace lbcrypto {
 	std::string elem_name = typeName;
 	DEBUG("Calling DeserializeMatrix of pair_ix "<<pair_ix);
 	
-	auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
+	auto pT = make_shared<Matrix<T>>([](){ return T(); }, 0,0);
 	bool rc = DeserializeMatrix(mat_name, elem_name, s2, pT.get());
 	if (rc) {
 	  DEBUG("Deserialized matrix at index "<<i);

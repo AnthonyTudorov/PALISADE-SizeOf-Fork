@@ -229,7 +229,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	double logTwo = log(val-1.0)/log(2)+1.0;
 	usint k = (usint) floor(logTwo);
 
-	Matrix<int64_t> zHatBBI([](){ return make_unique<int64_t>(); },  k, m/2);
+	Matrix<int64_t> zHatBBI([](){ return 0; }, k, m/2);
 
   DEBUG("3");
   DEBUG("u "<<u);
@@ -290,7 +290,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//double logTwo = log(val - 1.0) / log(2) + 1.0;
 	//usint k = (usint)floor(logTwo);
 
-	Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, m / 2);
+	Matrix<int64_t> zHatBBI([]() { return 0; }, k, m / 2);
 
 	DEBUG("3");
 	DEBUG("u " << u);
@@ -469,17 +469,17 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	//Do perturbation sampling
 	shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
 
-	Matrix<int32_t> p([]() { return make_unique<int32_t>(); }, (2 + k)*n, 1);
+	Matrix<int32_t> p([]() { return 0; }, (2 + k)*n, 1);
 
-	Matrix<int32_t> pCovarianceMatrix([]()  { return make_unique<int32_t>(); }, 2*n, 2*n);;
+	Matrix<int32_t> pCovarianceMatrix([]()  { return 0; }, 2*n, 2*n);;
 
 	//std::vector<Matrix<int32_t>> pTrapdoors;
 
-	Matrix<int32_t> pTrapdoor([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<int32_t> pTrapdoor([]() { return 0; }, 2 * n, 1);
 
 	Matrix<BigInteger> bbiTrapdoor(BigInteger::Allocator, 2*n, 1);
 
-	Matrix<int32_t> pTrapdoorAverage([]() { return make_unique<int32_t>(); }, 2 * n, 1);
+	Matrix<int32_t> pTrapdoorAverage([]() { return 0; }, 2 * n, 1);
 
 	size_t count = 100;
 

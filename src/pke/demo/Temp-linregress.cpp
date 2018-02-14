@@ -130,7 +130,7 @@ void ArbBGVLinearRegressionPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 
@@ -236,7 +236,7 @@ void ArbBFVInnerProductPackedArray() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
 

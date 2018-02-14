@@ -342,14 +342,14 @@ void MatrixStrassen<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) con
         data[row].clear();
         //Now add the padded columns for each row
         for (int i = 0; i < colpad; i++){
-        		lineardataPtr->push_back(0); //Should point to 0
+        		lineardataPtr->push_back(zeroUniquePtr); //Should point to 0
         }
     }
     //Now add the padded rows
     int numelem = rowpad * (cols + colpad);
 
     for (int i = 0; i < numelem; i++){
-    		lineardataPtr->push_back(0); //Should point to 0
+    		lineardataPtr->push_back(zeroUniquePtr); //Should point to 0
     }
 }
 
@@ -871,36 +871,25 @@ void MatrixStrassen<Element>::subMatricesCAPS( int numEntries, it_lineardata_t C
 }
 
 template<class Element>
-void MatrixStrassen<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const{
-	if (*ptr == 0) {
-
-		*ptr = Element(val);
-	} else {
-
-		**ptr = val;
-	}
-}
-
-template<class Element>
 void MatrixStrassen<Element>::smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
-	if (*A != 0 && *B != 0){
+	if (*A != zeroUniquePtr && *B != zeroUniquePtr){
 		temp = *A - *B;
 		numSub++;
 	}
-	else if (*A == 0 && *B != 0){
-		temp = *zeroUniquePtr - *B;
+	else if (*A == zeroUniquePtr && *B != zeroUniquePtr){
+		temp = zeroUniquePtr - *B;
 		numSub++;
 	}
-	else if (*A != 0 && *B == 0){
+	else if (*A != zeroUniquePtr && *B == zeroUniquePtr){
 		temp = *A;
 	}
 	else{
 		temp = zeroUniquePtr;
 	}
 
-    accessUniquePtrCAPS(result, temp);
+    *result = temp;
 	return;
 }
 
@@ -908,21 +897,21 @@ template<class Element>
 void MatrixStrassen<Element>::smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const{
 	Element temp;
 
-	if (*A != 0 && *B != 0){
+	if (*A != zeroUniquePtr && *B != zeroUniquePtr){
 		temp = *A + *B;
 		numAdd++;
 	}
-	else if (*A == 0 && *B != 0){
+	else if (*A == zeroUniquePtr && *B != zeroUniquePtr){
 		temp = *B;
 	}
-	else if (*A != 0 && *B == 0){
+	else if (*A != zeroUniquePtr && *B == zeroUniquePtr){
 		temp = *A;
 	}
 	else{
 		temp = zeroUniquePtr;
 	}
 
-    accessUniquePtrCAPS(result, temp);
+    *result = temp;
 	return;
 }
 // useful to improve cache behavior if there is some overlap.  It is safe for T_i to be the same as S_j* as long as i<j.  That is, operations will happen in the order specified
@@ -1096,16 +1085,16 @@ void MatrixStrassen<Element>::block_multiplyCAPS(it_lineardata_t A,
 				it_lineardata_t Aelem = A + row + i * d.lda;
 				it_lineardata_t Belem = B + i + d.lda * col;
 
-				if (*Aelem == 0){
+				if (*Aelem == zeroUniquePtr){
 
 					continue;
 				}
-				if (*Belem == 0 ){
+				if (*Belem == zeroUniquePtr ){
 
 					continue;
 				}
-				Aval = **(A+row + i * d.lda);  // **(A + d.lda * row + i);
-				Bval = **(B + i + d.lda * col); //  **(B + i * d.lda + col);
+				Aval = *(A+row + i * d.lda);  // **(A + d.lda * row + i);
+				Bval = *(B + i + d.lda * col); //  **(B + i * d.lda + col);
 				numMult++;
 				if (uninitializedTemp == 1){
 					uninitializedTemp = 0;
@@ -1118,11 +1107,11 @@ void MatrixStrassen<Element>::block_multiplyCAPS(it_lineardata_t A,
 			}
 
 			if (uninitializedTemp == 1){ //Because of nulls, temp never got value.
-				**(C+row+d.lda*col) = 0;
+				*(C+row+d.lda*col) = 0;
 			}
 			else {
 
-				**(C+row+d.lda*col) = temp;
+				*(C+row+d.lda*col) = temp;
 			}
 
 		}

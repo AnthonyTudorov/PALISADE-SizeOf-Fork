@@ -1218,7 +1218,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 		std::cout << "Number of regressors: " << regressors << std::endl;
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+		auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 		Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, regressors);
 		Plaintext yP;
@@ -1470,7 +1470,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xA(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -1516,7 +1516,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 			return;
 		}
 
-		//auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		//auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xB(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -1745,7 +1745,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -1760,7 +1760,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Decrypting matrix X^T X...";
 
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+		auto zeroPackingAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 
 		shared_ptr<Matrix<Plaintext>> numeratorXTX;
@@ -1830,16 +1830,14 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 	}
 
-	auto zeroAllocNative = [=]() { return lbcrypto::make_unique<NativeInteger>(); };
-
 	// Convert back to large plaintext modulus
 
 	std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
 	std::cout << "CRT Interpolation to transform to large plainext modulus...";
 
-	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(zeroAllocNative));
-	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(zeroAllocNative));
+	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(NativeInteger::Allocator));
+	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(NativeInteger::Allocator));
 
 	CRTInterpolate(xTxCRT, *XTX);
 	CRTInterpolate(xTyCRT, *XTY);
@@ -1984,7 +1982,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -2138,7 +2136,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -2301,7 +2299,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx1(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
@@ -2385,7 +2383,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		std::cout << "Fusion of partial decryptions of X^T X and X^T y...";
 
-		auto zeroAllocPlain = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+		auto zeroAllocPlain = [=]() { return cc->MakePackedPlaintext({0}); };
 
 		shared_ptr<Matrix<Plaintext>> xtxPlain(new Matrix<Plaintext>(zeroAllocPlain, xtx1->GetRows(),xtx1->GetCols()));
 		shared_ptr<Matrix<Plaintext>> xtyPlain(new Matrix<Plaintext>(zeroAllocPlain, xty1->GetRows(),xty1->GetCols()));
@@ -2454,7 +2452,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 	std::cout << "\nMatrix inversion (in cleartext)...";
 
-	auto zeroAllocDouble = [=]() { return lbcrypto::make_unique<double>(0.0); };
+	auto zeroAllocDouble = [=]() { return 0.0; };
 
 	shared_ptr<Matrix<double>> XTXInverse(new Matrix<double>(zeroAllocDouble));
 

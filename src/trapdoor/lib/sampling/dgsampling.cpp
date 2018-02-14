@@ -53,8 +53,8 @@ namespace lbcrypto {
 		//upper diagonal of matrix L
 		std::vector<double> h(k);
 
-		//Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
-		Matrix<double> c([]() { return make_unique<double>(); }, k, 1);
+		//Matrix<double> a([]() { return 0.0; }, k, 1);
+		Matrix<double> c([]() { return 0.0; }, k, 1);
 
 		//  set the values of matrix L
 		// (double) is added to avoid integer division
@@ -85,7 +85,7 @@ namespace lbcrypto {
 
 			LatticeGaussSampUtility<Element>::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
-			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
+			Matrix<double> a([]() { return 0.0; }, k, 1);
 
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
@@ -131,8 +131,8 @@ namespace lbcrypto {
 		//upper diagonal of matrix L
 		std::vector<double> h(k);
 
-		//Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
-		Matrix<double> c([]() { return make_unique<double>(); }, k, 1);
+		//Matrix<double> a([]() { return 0.0; }, k, 1);
+		Matrix<double> c([]() { return 0.0; }, k, 1);
 
 		//  set the values of matrix L
 		// (double) is added to avoid integer division
@@ -163,7 +163,7 @@ namespace lbcrypto {
 
 			LatticeGaussSampUtility<Element>::PerturbFloat(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
-			Matrix<double> a([]() { return make_unique<double>(); }, k, 1);
+			Matrix<double> a([]() { return 0.0; }, k, 1);
 
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
@@ -315,7 +315,7 @@ namespace lbcrypto {
 
 		if (f.Size() == 1)
 		{
-			shared_ptr<Matrix<int64_t>> p(new Matrix<int64_t>([]() { return make_unique<int64_t>(); }, 1, 1));
+			shared_ptr<Matrix<int64_t>> p(new Matrix<int64_t>([]() { return 0; }, 1, 1));
 			//std::cout << "sigma = " << sqrt(f[0].real()) << "; c = " << c[0].real() << std::endl;
 			(*p)(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
 			//p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()),n);
@@ -332,9 +332,9 @@ namespace lbcrypto {
 
 			usint n = f0.Size();
 
-			shared_ptr<Matrix<int64_t>> qZVector(new Matrix<int64_t>([]() { return make_unique<int64_t>(); },  n * 2, 1));
+			shared_ptr<Matrix<int64_t>> qZVector(new Matrix<int64_t>([]() { return 0; },  n * 2, 1));
 
-			Matrix<Field2n> cPermuted([]() { return make_unique<Field2n>(); }, 2, 1);
+			Matrix<Field2n> cPermuted([]() { return Field2n(); }, 2, 1);
 
 			cPermuted(0, 0) = c.ExtractEven();
 			cPermuted(1, 0) = c.ExtractOdd();
@@ -355,7 +355,7 @@ namespace lbcrypto {
 	Matrix<int32_t> LatticeGaussSampUtility<Element>::Permute(Matrix<int32_t> * p) {
 		int evenPtr = 0;
 		int oddPtr = p->GetRows() / 2;
-		Matrix<int32_t> permuted([]() { return make_unique<int32_t>(); }, p->GetRows(), 1);
+		Matrix<int32_t> permuted([]() { return 0; }, p->GetRows(), 1);
 		for (usint i = 0;i < p->GetRows();i++) {
 			if (i % 2 == 0) {
 				permuted(evenPtr,0) = (*p)(i,0);

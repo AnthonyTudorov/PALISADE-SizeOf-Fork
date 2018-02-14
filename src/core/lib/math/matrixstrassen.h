@@ -523,7 +523,6 @@ namespace lbcrypto {
             void deepCopyData(data_t const& src);
             void getData(const data_t &Adata, const data_t &Bdata, const data_t &Cdata, int row, int inner, int col) const;
 
-            void accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const;
             void smartSubtractionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
             void smartAdditionCAPS(it_lineardata_t result, it_lineardata_t A, it_lineardata_t B) const;
             void addMatricesCAPS( int numEntries, it_lineardata_t C, it_lineardata_t A, it_lineardata_t B ) const;
