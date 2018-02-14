@@ -55,6 +55,7 @@ using namespace lbcrypto;
 void BFVrnsEvalAtIndex2n();
 void NullEvalAtIndex2n();
 void BFVEvalAtIndexCyclic();
+void BFVrnsEvalMerge2n();
 
 int main() {
 
@@ -69,6 +70,10 @@ int main() {
 	std::cout << "\n========== BFV.EvalAtIndex - Cyclic group ===========" << std::endl;
 
 	BFVEvalAtIndexCyclic();
+
+	std::cout << "\n========== BFVrns.EvalMerge - Power-of-Two Cyclotomics ===========" << std::endl;
+
+	BFVrnsEvalMerge2n();
 
 	return 0;
 }
@@ -230,3 +235,58 @@ void BFVEvalAtIndexCyclic() {
 	}
 
 }
+
+void BFVrnsEvalMerge2n() {
+
+	uint64_t p = 65537;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.006;
+
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			p, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,3);
+
+	// enable features that you wish to use
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	// Initialize the public key containers.
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+
+	vector<int32_t> indexList = {-1,-2,-3,-4,-5};
+
+	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
+
+	std::vector<Ciphertext<DCRTPoly>> ciphertexts;
+
+	std::vector<uint64_t> vectorOfInts1 = { 32,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray1));
+
+	std::vector<uint64_t> vectorOfInts2 = { 2,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray2));
+
+	std::vector<uint64_t> vectorOfInts3 = { 4,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray3 = cc->MakePackedPlaintext(vectorOfInts3);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray3));
+
+	std::vector<uint64_t> vectorOfInts4 = { 8,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray4 = cc->MakePackedPlaintext(vectorOfInts4);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray4));
+
+	std::vector<uint64_t> vectorOfInts5 = { 16,2,3,4,5,6,7,8, 9, 10 };
+	Plaintext intArray5 = cc->MakePackedPlaintext(vectorOfInts5);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray5));
+
+	auto mergedCiphertext = cc->EvalMerge(ciphertexts);
+
+	Plaintext intArrayNew;
+
+	cc->Decrypt(kp.secretKey,  mergedCiphertext, &intArrayNew);
+
+	intArrayNew->SetLength(10);
+
+	std::cout << "Merged ciphertext " << *intArrayNew << std::endl;
+
+}
+

@@ -825,6 +825,22 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(const Ciphertext<Ele
 }
 
 template <typename Element>
+Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<Ciphertext<Element>> &ciphertextVector) const {
+
+	if( ciphertextVector[0] == NULL || Mismatched(ciphertextVector[0]->GetCryptoContext()) )
+		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+
+	auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertextVector[0]->GetKeyTag());
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalMerge(ciphertextVector, evalAutomorphismKeys);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalMerge, currentDateTime() - start) );
+	}
+	return rv;
+}
+
+template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || ct1->GetKeyTag() != ct2->GetKeyTag() ||
