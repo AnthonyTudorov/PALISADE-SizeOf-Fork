@@ -49,10 +49,10 @@ int main(int argc, char* argv[]) {
 	bool errorflag = false;
 
 	int opt; //used in getting options
-	int n_evals = 100;
+	size_t n_evals = 100;
 	int n_bits = 10;
 
-	while ((opt = getopt(argc, argv, "e:k")) != -1) {
+	while ((opt = getopt(argc, argv, "e:k:")) != -1) {
 	    switch (opt) {
 	    case 'e':
 	      n_evals = atoi(optarg);

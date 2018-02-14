@@ -296,6 +296,8 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 	rootOfUnityTableCheck = &m_rootOfUnityTableByModulus[modulus];
 	//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
 	if (rootOfUnityTableCheck->GetLength() == 0) {
+#pragma omp critical
+{
 		VecType Table(CycloOrder / 2, modulus);
 
 		for (usint i = 0; i<CycloOrder / 2; i++) {
@@ -312,13 +314,15 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 			}
 			m_rootOfUnityPreconTableByModulus[modulus] = std::move(preconTable);
 		}
-
+}
 
 	}
 
 	//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
 	VecType  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseTableByModulus[modulus];
 	if (rootOfUnityInverseTableCheck->GetLength() == 0) {
+#pragma omp critical
+{
 		VecType TableI(CycloOrder / 2, modulus);
 		IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
 
@@ -338,6 +342,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 			}
 			m_rootOfUnityInversePreconTableByModulus[modulus] = std::move(preconTableI);
 		}
+}
 
 	}
 
@@ -353,6 +358,7 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
 	}
 
+#pragma omp critical
 	for (usint i = 0; i<numOfRootU; ++i) {
 
 		IntType currentRoot(rootOfUnity[i]);
