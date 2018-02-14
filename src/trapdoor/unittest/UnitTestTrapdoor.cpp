@@ -111,7 +111,7 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
@@ -151,7 +151,7 @@ TEST(UTTrapdoor,GadgetTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-        auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+        auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
         RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
 
@@ -173,7 +173,7 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
@@ -211,7 +211,7 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
 	//BigInteger modulus("1048609");
 	//BigInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
-    auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	uint64_t base = 2;
 	double sigma = (base+1)*SIGMA;
@@ -268,7 +268,7 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	//BigInteger modulus("1048609");
 	//BigInteger rootOfUnity("389832");
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	uint64_t base = 1<<10;
 	double sigma = (base + 1)*SIGMA;
@@ -354,7 +354,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	DEBUG("root = "<<rootOfUnity);
 
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
-	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+	//auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
@@ -464,7 +464,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
-	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	//Do perturbation sampling
 	shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
@@ -569,7 +569,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	double norm = 0;
 //
 //	shared_ptr<ILParams> params( new ILParams(m_cyclo, modulus, rootOfUnity) );
-//    	//auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+//    	//auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 //
 //	DiscreteGaussianGenerator dgg(4);
 //
@@ -589,7 +589,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //
 //	double constraint = obfuscatedPattern.GetConstraint();
 //
-//	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+//	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 //
 //	Poly	s1(dgg,params,EVALUATION);
 //
@@ -638,7 +638,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //	double norm = 0;
 //
 //	shared_ptr<ILParams> params( new ILParams(m_cyclo, modulus, rootOfUnity) );
-//    //auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+//    //auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 //
 //	ObfuscatedLWEConjunctionPatternV2<Poly> obfuscatedPattern(params,chunkSize);
 //	obfuscatedPattern.SetLength(1);
@@ -658,7 +658,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 //
 //	double constraint = obfuscatedPattern.GetConstraint();
 //
-//	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+//	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 //
 //	Poly	s1(dgg,params,EVALUATION);
 //	Poly	s2(dgg,params,EVALUATION);

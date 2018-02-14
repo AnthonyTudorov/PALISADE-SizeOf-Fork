@@ -57,7 +57,7 @@ void RunUniform() {
 	ILParams ilParams(m, modulus, rootOfUnity);
 	shared_ptr<ILParams> params = std::make_shared<ILParams>(ilParams);
 
-	auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 	auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, SIGMA);
 	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, COEFFICIENT);
 

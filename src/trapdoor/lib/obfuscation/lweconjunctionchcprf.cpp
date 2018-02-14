@@ -275,7 +275,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
 	size_t n = elem.GetRingDimension();
-	auto zero_alloc = Element::MakeAllocator(elem.GetParams(), EVALUATION);
+	auto zero_alloc = Element::Allocator(elem.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance

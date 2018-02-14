@@ -183,7 +183,7 @@ template <class Element, class Element2>
 		Matrix<Element> *evalPubElemBf
 	)
 	{
-		auto zero_alloc = Poly::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
 
@@ -276,7 +276,7 @@ template <class Element, class Element2>
 		const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
 
@@ -289,7 +289,7 @@ template <class Element, class Element2>
 
 
 		//Added for dcrt
-		auto zero_alloc_poly = Poly::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+		auto zero_alloc_poly = Poly::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
@@ -426,7 +426,7 @@ void KPABE<Element, Element2>::EvalCT(
 		for (usint i = 0; i < m_m; i++)
 			(*evalCT)(0, i) = origCT(0, i);
 
-		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+		auto zero_alloc = Poly::Allocator(ilParams, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
 		Matrix<Element> psi(zero_alloc, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
@@ -561,7 +561,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 		for (usint i = 0; i < m_m; i++)
 			(*evalCT)(0, i) = origCT(0, i);
 
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
 		Matrix<Element> psi(zero_alloc, m_m, m_m);
@@ -577,7 +577,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 		// Input level of the circuit
 		usint t = m_ell >> 1;  // the number of the gates in the first level (the number of input gates)
 
-		auto zero_alloc_poly = Poly::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+		auto zero_alloc_poly = Poly::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
@@ -755,7 +755,7 @@ template <class Element, class Element2>
 
 		// ***
 		// Compute Cin
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		Matrix<Element> g = Matrix<Element>(zero_alloc, 1, m_k).GadgetVector(m_base);
 
 		Matrix<Element> errA(Element::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, SIGMA), 1, m_m);
@@ -818,7 +818,7 @@ template <class Element, class Element2>
 
 		typename Element::DggType dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 
-		Matrix<Element> skA(Element::MakeAllocator(params, EVALUATION), m_m, 1);
+		Matrix<Element> skA(Element::Allocator(params, EVALUATION), m_m, 1);
 		skA = RLWETrapdoorUtility<Element>::GaussSamp(m_N, m_k, pubElemA, secElemTA, newChallenge, dgg, dggLargeSigma, m_base);
 
 		for(usint i=0; i<m_m; i++)
@@ -894,7 +894,7 @@ void KPABE<Element, Element2>::NANDGateEvalCT(
 	RingMat *evalCT
 )
 {
-	auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+	auto zero_alloc = Poly::Allocator(ilParams, EVALUATION);
 
 	RingMat psi(zero_alloc, m_m, m_m);
 
@@ -943,7 +943,7 @@ void KPABE<Element, Element2>::NANDGateEvalPK(
 			RingMat *evalPubElem
 		)
 		{
-			auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+			auto zero_alloc = Poly::Allocator(ilParams, EVALUATION);
 
 			RingMat psi(zero_alloc, m_m, m_m);
 
@@ -980,13 +980,13 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 		const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	)
 	{
-			auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+			auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 			Matrix<Element> psi(zero_alloc, m_m, m_m);
 
 			Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 
-			auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+			auto zero_alloc_poly = Element2::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 			Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
@@ -1041,13 +1041,13 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 		const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		Matrix<Element> psi(zero_alloc, m_m, m_m);
 
 		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 
-		auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+		auto zero_alloc_poly = Element2::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
@@ -1107,7 +1107,7 @@ void KPABE<Element, Element2>::ANDGateEvalPK(
 		RingMat *evalPubElemBf
 	)
 	{
-		auto zero_alloc = Poly::MakeAllocator(ilParams, EVALUATION);
+		auto zero_alloc = Poly::Allocator(ilParams, EVALUATION);
 		RingMat psi(zero_alloc, m_m, m_m);
 		RingMat negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 
@@ -1140,7 +1140,7 @@ void KPABE<Element, Element2>::ANDGateEvalCT(
 		RingMat *evalCT
 	)
 	{
-		auto zero_alloc = Element::MakeAllocator(ilParams, EVALUATION);
+		auto zero_alloc = Element::Allocator(ilParams, EVALUATION);
 		Matrix<Element> psi(zero_alloc, m_m, m_m);
 		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 		(*evalAttribute) = x[0]*x[1];  // Boolean output
@@ -1177,12 +1177,12 @@ void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
 		const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		Matrix<Element> psi(zero_alloc, m_m, m_m);
 		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 
 
-		auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+		auto zero_alloc_poly = Element2::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 
@@ -1233,13 +1233,13 @@ void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
 		const shared_ptr<typename Element2::Params> ilParamsConsolidated
 	)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		Matrix<Element> psi(zero_alloc, m_m, m_m);
 		Matrix<Element> negB(zero_alloc, 1, m_m);  			// EVALUATE (NTT domain)
 		(*evalAttribute) = x[0]*x[1];  // Boolean output
 
 
-		auto zero_alloc_poly = Element2::MakeAllocator(ilParamsConsolidated, COEFFICIENT);
+		auto zero_alloc_poly = Element2::Allocator(ilParamsConsolidated, COEFFICIENT);
 
 		Matrix<Element2> psiPoly(zero_alloc_poly, m_m, m_m); // Needed for Bit Decomposition (BD) matrices
 

@@ -282,7 +282,7 @@ void Encrypt() {
 
 	size_t batchSize = 1024;
 
-	auto singleAlloc = [=]() { return lbcrypto::make_unique<uint64_t>(); };
+	auto singleAlloc = [=]() { return 0; };
 
 	Matrix<uint64_t> x(singleAlloc, VECTORS, batchSize);
 	Matrix<uint64_t> y(singleAlloc, VECTORS, batchSize);

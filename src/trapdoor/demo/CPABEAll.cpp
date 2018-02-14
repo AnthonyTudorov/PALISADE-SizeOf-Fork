@@ -77,7 +77,7 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -176,9 +176,9 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 		TestKeyGenCP(ilParams, m, ell, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, sk);
 
 
-		RingMat ctW(Poly::MakeAllocator(ilParams, EVALUATION), lenW+1, m);
-		RingMat ctCPos(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
-		RingMat nC(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
+		RingMat ctW(Poly::Allocator(ilParams, EVALUATION), lenW+1, m);
+		RingMat ctCPos(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
+		RingMat nC(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
 
 		// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 		ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);

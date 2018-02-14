@@ -35,10 +35,10 @@ namespace lbcrypto {
 		template<class Element>
         class MatrixStrassen : public Serializable {
         public:
-            typedef vector<vector<unique_ptr<Element>>> data_t;
-            typedef vector<unique_ptr<Element>> lineardata_t;
-            typedef typename vector<unique_ptr<Element>>::iterator it_lineardata_t;
-            typedef std::function<unique_ptr<Element>(void)> alloc_func;
+            typedef vector<vector<Element>> data_t;
+            typedef vector<Element> lineardata_t;
+            typedef typename vector<Element>::iterator it_lineardata_t;
+            typedef std::function<Element(void)> alloc_func;
         
 			/**
 			 * Constructor that initializes matrix values using a zero allocator
@@ -198,7 +198,7 @@ namespace lbcrypto {
 
                 for (size_t i = 0; i < rows; ++i) {
                     for (size_t j = 0; j < cols; ++j) {
-                        if (*data[i][j] != *other.data[i][j]) {
+                        if (data[i][j] != other.data[i][j]) {
                             return false;
                         }
                     }
@@ -400,7 +400,7 @@ namespace lbcrypto {
 			 * @return the element at the index
              */ 
             inline Element& operator()(size_t row, size_t col) {
-                return *data[row][col];
+                return data[row][col];
             }
 
             /**
@@ -411,7 +411,7 @@ namespace lbcrypto {
 			 * @return the element at the index
              */ 
             inline Element const& operator()(size_t row, size_t col) const {
-                return *data[row][col];
+                return data[row][col];
             }
 
 			/**
@@ -502,7 +502,7 @@ namespace lbcrypto {
             mutable int numMult = 0;
             mutable int numSub = 0;
             mutable MatDescriptor desc;
-            mutable unique_ptr<Element> zeroUniquePtr = allocZero();
+            mutable Element zeroUniquePtr = allocZero();
             mutable int NUM_THREADS = 1;
 
 

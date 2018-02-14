@@ -37,7 +37,7 @@ namespace lbcrypto {
 	template <class Element>
 	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base, bool bal)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
 
@@ -85,7 +85,7 @@ namespace lbcrypto {
 		TIC(t1);
 		TIC(t1_tot);
 		const shared_ptr<typename Element::Params> params = u.GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 
@@ -194,7 +194,7 @@ namespace lbcrypto {
 		typename Element::DggType &dgg, const shared_ptr<Matrix<Element>> pHat, int64_t base) {
 
 		const shared_ptr<typename Element::Params> params = u.GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 
@@ -237,7 +237,7 @@ namespace lbcrypto {
 		int64_t base) {
 
 		const shared_ptr<typename Element::Params> params = T.m_e(0, 0).GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 

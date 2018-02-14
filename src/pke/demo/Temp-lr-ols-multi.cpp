@@ -1859,7 +1859,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 	std::cout << "\nMatrix inversion (in cleartext)...";
 
-	auto zeroAllocDouble = [=]() { return lbcrypto::make_unique<double>(0.0); };
+	auto zeroAllocDouble = [=]() { return 0.0; };
 
 	shared_ptr<Matrix<double>> XTXInverse(new Matrix<double>(zeroAllocDouble));
 
@@ -2427,16 +2427,14 @@ void FuseDecode(const string &paramDir, const string &contextID,
 		
 	}
 
-	auto zeroAllocNative = [=]() { return lbcrypto::make_unique<NativeInteger>(); };
-
 	// Convert back to large plaintext modulus
 
 	std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
 	std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
-	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(zeroAllocNative));
-	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(zeroAllocNative));
+	shared_ptr<Matrix<NativeInteger>> XTX(new Matrix<NativeInteger>(NativeInteger::Allocator));
+	shared_ptr<Matrix<NativeInteger>> XTY(new Matrix<NativeInteger>(NativeInteger::Allocator));
 
 	CRTInterpolate(xTxCRT, *XTX);
 	CRTInterpolate(xTyCRT, *XTY);

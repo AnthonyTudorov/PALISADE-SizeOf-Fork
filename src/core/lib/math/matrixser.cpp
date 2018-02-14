@@ -135,7 +135,7 @@ bool Matrix<Poly>::Serialize(Serialized* serObj) const {
   bool rc = false;
     for( size_t r=0; r<rows; r++ ) {
       for( size_t c=0; c<cols; c++ ) {
-	rc = data[r][c]->Serialize(serObj);
+	rc = data[r][c].Serialize(serObj);
 	if (!rc) {
 	  PALISADE_THROW(lbcrypto::serialize_error ,"serialization failure in Matrix<Poly> "
 			 +to_string(r)+", "+to_string(c));
@@ -160,7 +160,7 @@ bool Matrix<NativePoly>::Serialize(Serialized* serObj) const {
   bool rc = false;
   for( size_t r=0; r<rows; r++ ) {
     for( size_t c=0; c<cols; c++ ) {
-      data[r][c]->Serialize(serObj);
+      data[r][c].Serialize(serObj);
       if (!rc) {
 	PALISADE_THROW(lbcrypto::serialize_error ,"serialization failure in Matrix<NativePoly> "
 		       +to_string(r)+", "+to_string(c));
@@ -185,7 +185,7 @@ bool Matrix<DCRTPoly>::Serialize(Serialized* serObj) const {
   bool rc = false;
   for( size_t r=0; r<rows; r++ ) {
     for( size_t c=0; c<cols; c++ ) {
-      rc = data[r][c]->Serialize(serObj); //call the serialization for this matrix
+      rc = data[r][c].Serialize(serObj); //call the serialization for this matrix
       if( !rc ) {
 	PALISADE_THROW(lbcrypto::serialize_error,
 		       "Matrix<DCRTPoly>::Serialize error element "

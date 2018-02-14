@@ -712,7 +712,7 @@ namespace lbcrypto {
       for( size_t j=0; j<cols; j++ ) {
 	bool rc = 0;
 	Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
-	rc = ((inMatrix.GetData())[i][j])->Serialize(&oneEl);
+	rc = ((inMatrix.GetData())[i][j]).Serialize(&oneEl);
 	if (!rc) {
 	  PALISADE_THROW(lbcrypto::serialize_error,
 			 "SerializeMatrix<"+typeName+"> element "
@@ -884,7 +884,7 @@ namespace lbcrypto {
       };
 
       //make a shart pointer to an empty Matrix<T>
-      auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
+      auto pT = make_shared<Matrix<T>>([](){ return T(); }, 0,0);
 
       //within the key's member, find the sub member with the typename
       //and point to it with s2.
@@ -1109,7 +1109,7 @@ namespace lbcrypto {
       DEBUG("Calling DeserializeMaatrix");
 
       //auto pT = make_shared<Matrix<T>>(alloc_function, 0,0);
-      auto pT = make_shared<Matrix<T>>([](){ return make_unique<T>(); }, 0,0); 
+      auto pT = make_shared<Matrix<T>>([](){ return T(); }, 0,0);
       bool rc = DeserializeMatrix(mat_name, elem_name, s2, pT.get());
       if (rc) {
 	DEBUG("Deserialized matrix at index "<<i);

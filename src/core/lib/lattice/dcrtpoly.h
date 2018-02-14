@@ -153,9 +153,9 @@ public:
 	* @param params the params to use.
 	* @param format - EVALUATION or COEFFICIENT
 	*/
-	inline static function<unique_ptr<DCRTPolyType>()> MakeAllocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<DCRTPolyType()> Allocator(const shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			return lbcrypto::make_unique<DCRTPolyType>(params, format, true);
+			return DCRTPolyType(params, format, true);
 		};
 	}
 
@@ -167,11 +167,11 @@ public:
 	* @param stddev standard deviation for the discrete gaussian generator.
 	* @return the resulting vector.
 	*/
-	inline static function<unique_ptr<DCRTPolyType>()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<DCRTPolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DggType dgg(stddev);
-			auto ilvec = lbcrypto::make_unique<DCRTPolyType>(dgg, params, COEFFICIENT);
-			ilvec->SetFormat(resultFormat);
+			DCRTPolyType ilvec(dgg, params, COEFFICIENT);
+			ilvec.SetFormat(resultFormat);
 			return ilvec;
 		};
 	}
@@ -183,10 +183,10 @@ public:
 	* @param format format for the polynomials generated.
 	* @return the resulting vector.
 	*/
-	inline static function<unique_ptr<DCRTPolyType>()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<DCRTPolyType()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
 			DugType dug;
-			return lbcrypto::make_unique<DCRTPolyType>(dug, params, format);
+			return DCRTPolyType(dug, params, format);
 		};
 	}
 

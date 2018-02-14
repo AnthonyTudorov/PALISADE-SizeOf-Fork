@@ -75,7 +75,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -163,9 +163,9 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	EXPECT_EQ(t1,u);  //test key generation
 
 
-	RingMat ctW(Poly::MakeAllocator(ilParams, EVALUATION), lenW+1, m);
-	RingMat ctCPos(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
-	RingMat nC(Poly::MakeAllocator(ilParams, EVALUATION), ell-lenW, m);
+	RingMat ctW(Poly::Allocator(ilParams, EVALUATION), lenW+1, m);
+	RingMat ctCPos(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
+	RingMat nC(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
 
 	// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 	ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
@@ -200,7 +200,7 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -233,9 +233,9 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat evalBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMat evalCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m); // CA
+	RingMat evalBf(Poly::Allocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMat evalCf(Poly::Allocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m); // CA
 
 	// secret key corresponding to the circuit output
 	RingMat sk(zero_alloc, 2, m);
@@ -286,7 +286,7 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -312,7 +312,7 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	Poly dtext(ilParams, EVALUATION, true);
 
 	// ciphertext first and second parts
-	RingMat ctC0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	RingMat ctC0(Poly::Allocator(ilParams, EVALUATION), 1, m);
 	Poly ctC1(dug, ilParams, EVALUATION);
 
 	Poly u(dug, ilParams, EVALUATION);
@@ -348,7 +348,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -383,9 +383,9 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat pubElemBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	RingMat pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	RingMat ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, 2, m);
@@ -429,7 +429,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -463,9 +463,9 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat pubElemBf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCf(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCA(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	RingMat pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	RingMat ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
 
 	// Secret key for the output of the circuit
 	RingMat sk(zero_alloc, 2, m);
@@ -531,9 +531,9 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
 	shared_ptr<ILParams> ilParams(new ILParams(n, bigModulus, bigRootOfUnity));
 
-	auto zero_alloc_poly = Poly::MakeAllocator(ilParams, COEFFICIENT);
-	auto zero_alloc = DCRTPoly::MakeAllocator(params, COEFFICIENT);
-	auto zero_alloc_eval = DCRTPoly::MakeAllocator(params, EVALUATION);
+	auto zero_alloc_poly = Poly::Allocator(ilParams, COEFFICIENT);
+	auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
+	auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
 
 	RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
 
@@ -627,7 +627,7 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 
 	shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
 
-	auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
+	auto zero_alloc = DCRTPoly::Allocator(ilDCRTParams, COEFFICIENT);
 
 	DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
@@ -659,9 +659,9 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 	DCRTPoly ptext(ptext1, ilDCRTParams);
 
 	// circuit outputs
-	RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
+	RingMatDCRT pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMatDCRT ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMatDCRT ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
 																   // secret key corresponding to the circuit output
 	RingMatDCRT sk(zero_alloc, 2, m);
@@ -737,7 +737,7 @@ void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 
 	shared_ptr<ILParams> ilParamsConsolidated(new ILParams(n, bigModulus, bigRootOfUnity));
 
-	auto zero_alloc = DCRTPoly::MakeAllocator(ilDCRTParams, COEFFICIENT);
+	auto zero_alloc = DCRTPoly::Allocator(ilDCRTParams, COEFFICIENT);
 
 	DCRTPoly::DggType dgg = DCRTPoly::DggType(SIGMA);
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
@@ -768,9 +768,9 @@ void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 	DCRTPoly ptext(ptext1, ilDCRTParams);
 
 	// circuit outputs
-	RingMatDCRT pubElemBf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMatDCRT ctCf(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMatDCRT ctCA(DCRTPoly::MakeAllocator(ilDCRTParams, EVALUATION), 1, m); // CA
+	RingMatDCRT pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+	RingMatDCRT ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+	RingMatDCRT ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
 																   // secret key corresponding to the circuit output
 	RingMatDCRT sk(zero_alloc, 2, m);

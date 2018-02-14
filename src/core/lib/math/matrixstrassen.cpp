@@ -76,9 +76,9 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::Identity() {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
             if (row == col) {
-                *data[row][col] = 1;
+                data[row][col] = 1;
             } else {
-                *data[row][col] = 0;
+                data[row][col] = 0;
             }
         }
     }
@@ -121,7 +121,7 @@ template<class Element>
 void MatrixStrassen<Element>::SetFormat(Format format) {
     for (size_t row = 0; row < rows; ++row) {
         for (size_t col = 0; col < cols; ++col) {
-            data[row][col]->SetFormat(format);
+            data[row][col].SetFormat(format);
         }
     }
 }
@@ -136,7 +136,7 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Elem
 #endif
     for (size_t j = 0; j < cols; ++j) {
       for (size_t i = 0; i < rows; ++i) {
-	data[i][j] += *other.data[i][j];
+    	  	  data[i][j] += other.data[i][j];
       }
     }
     return *this;
@@ -152,7 +152,7 @@ inline MatrixStrassen<Element>& MatrixStrassen<Element>::operator-=(MatrixStrass
 #endif
     for (size_t j = 0; j < cols; ++j) {
         for (size_t i = 0; i < rows; ++i) {
-            *data[i][j] -= *other.data[i][j];
+            data[i][j] -= other.data[i][j];
         }
     }
 
@@ -268,15 +268,15 @@ MatrixStrassen<Element> MatrixStrassen<Element>::CofactorMatrixStrassen() const 
 			}
 
 			/* Calculate the determinant */
-			auto determinant = *allocZero();
+			auto determinant = allocZero();
 			c.Determinant(&determinant);
 			//auto determinant = c.Determinant();
 
 			/* Fill in the elements of the cofactor */
 			if ((i + j) % 2 == 0)
-				*result.data[i][j] = determinant;
+				result.data[i][j] = determinant;
 			else
-				*result.data[i][j] = -determinant;
+				result.data[i][j] = -determinant;
 		}
 	}
 
@@ -293,7 +293,7 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::VStack(MatrixStrassen<Element>
     for (size_t row = 0; row < other.rows; ++row) {
         vector<unique_ptr<Element>> rowElems;
         for (auto elem = other.data[row].begin(); elem != other.data[row].end(); ++elem) {
-            rowElems.push_back(make_unique<Element>(**elem));
+            rowElems.push_back(Element(*elem));
         }
         data.push_back(std::move(rowElems));
     }
@@ -310,7 +310,7 @@ inline MatrixStrassen<Element>& MatrixStrassen<Element>::HStack(MatrixStrassen<E
     for (size_t row = 0; row < rows; ++row) {
         vector<unique_ptr<Element>> rowElems;
         for (auto elem = other.data[row].begin(); elem != other.data[row].end(); ++elem) {
-            rowElems.push_back(make_unique<Element>(**elem));
+            rowElems.push_back(Element(*elem));
         }
         MoveAppend(data[row], rowElems);
     }
@@ -324,7 +324,7 @@ void MatrixStrassen<Element>::SwitchFormat() {
 
     	for (size_t row = 0; row < rows; ++row) {
     		for (size_t col = 0; col < cols; ++col) {
-    			data[row][col]->SwitchFormat();
+    			data[row][col].SwitchFormat();
     		}
     	}
 
@@ -342,14 +342,14 @@ void MatrixStrassen<Element>::LinearizeDataCAPS(lineardata_t *lineardataPtr) con
         data[row].clear();
         //Now add the padded columns for each row
         for (int i = 0; i < colpad; i++){
-        	lineardataPtr->push_back(0); //Should point to 0
+        		lineardataPtr->push_back(0); //Should point to 0
         }
     }
     //Now add the padded rows
     int numelem = rowpad * (cols + colpad);
 
     for (int i = 0; i < numelem; i++){
-    	lineardataPtr->push_back(0); //Should point to 0
+    		lineardataPtr->push_back(0); //Should point to 0
     }
 }
 
@@ -394,7 +394,7 @@ void MatrixStrassen<Element>::deepCopyData(data_t const& src) {
     data.resize(src.size());
     for (size_t row = 0; row < src.size(); ++row) {
         for (auto elem = src[row].begin(); elem != src[row].end(); ++elem) {
-            data[row].push_back(make_unique<Element>(**elem));
+            data[row].push_back(Element(*elem));
         }
     }
 }
@@ -439,7 +439,7 @@ MatrixStrassen<BigVector> RotateVecResult(MatrixStrassen<Poly> const& inMat) {
     BigVector zero(1, modulus);
     size_t rows = mat.GetRows() * n;
     size_t cols = mat.GetCols() * n;
-    auto singleElemBinVecAlloc = [=](){ return make_unique<BigVector>(1, modulus); };
+    auto singleElemBinVecAlloc = [=](){ return BigVector(1, modulus); };
     MatrixStrassen<BigVector> result(singleElemBinVecAlloc, rows, cols);
     for (size_t row = 0; row < mat.GetRows(); ++row) {
         for (size_t col = 0; col < mat.GetCols(); ++col) {
@@ -468,7 +468,7 @@ inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>&
     for (size_t row = 0; row < m.GetRows(); ++row) {
         os << "[ ";
         for (size_t col = 0; col < m.GetCols(); ++col) {
-            os << *m.GetData()[row][col] << " ";
+            os << m(row,col) << " ";
         }
         os << "]\n";
     }
@@ -487,7 +487,7 @@ MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t> &input) {
         throw invalid_argument("not square");
     }
     size_t rows = input.GetRows();
-    MatrixStrassen<double> result([](){ return make_unique<double>(); }, rows, rows);
+    MatrixStrassen<double> result([](){ return 0; }, rows, rows);
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < rows; ++j) {
@@ -523,7 +523,7 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigInteger> &input, 
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
     BigInteger negativeThreshold(modulus / BigInteger(2));
-    MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+    MatrixStrassen<int32_t> result([](){ return 0; }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             if (input(i,j) > negativeThreshold) {
@@ -540,7 +540,7 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, c
     size_t rows = input.GetRows();
     size_t cols = input.GetCols();
     BigInteger negativeThreshold(modulus / BigInteger(2));
-    MatrixStrassen<int32_t> result([](){ return make_unique<int32_t>(); }, rows, cols);
+    MatrixStrassen<int32_t> result([](){ return 0; }, rows, cols);
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < cols; ++j) {
             const BigInteger& elem = input(i,j).at(0);
@@ -557,7 +557,7 @@ MatrixStrassen<int32_t> ConvertToInt32(const MatrixStrassen<BigVector> &input, c
 //  split a vector of int32_t into a vector of ring elements with ring dimension n
 MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows()/n;
 
@@ -591,7 +591,7 @@ MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> const& o
 //  split a vector of BBI into a vector of ring elements with ring dimension n
 MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n, const shared_ptr<ILParams> params) {
 			
-	auto zero_alloc = Poly::MakeAllocator(params, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 
 	size_t rows = other.GetRows();
 
@@ -874,7 +874,7 @@ template<class Element>
 void MatrixStrassen<Element>::accessUniquePtrCAPS(it_lineardata_t ptr, Element val) const{
 	if (*ptr == 0) {
 
-		*ptr = make_unique<Element>(val);
+		*ptr = Element(val);
 	} else {
 
 		**ptr = val;
@@ -886,18 +886,18 @@ void MatrixStrassen<Element>::smartSubtractionCAPS(it_lineardata_t result, it_li
 	Element temp;
 
 	if (*A != 0 && *B != 0){
-		temp = **A - **B;
+		temp = *A - *B;
 		numSub++;
 	}
 	else if (*A == 0 && *B != 0){
-		temp = *zeroUniquePtr - **B;
+		temp = *zeroUniquePtr - *B;
 		numSub++;
 	}
 	else if (*A != 0 && *B == 0){
-		temp = **A;
+		temp = *A;
 	}
 	else{
-		temp = *zeroUniquePtr;
+		temp = zeroUniquePtr;
 	}
 
     accessUniquePtrCAPS(result, temp);
@@ -909,17 +909,17 @@ void MatrixStrassen<Element>::smartAdditionCAPS(it_lineardata_t result, it_linea
 	Element temp;
 
 	if (*A != 0 && *B != 0){
-		temp = **A + **B;
+		temp = *A + *B;
 		numAdd++;
 	}
 	else if (*A == 0 && *B != 0){
-		temp = **B;
+		temp = *B;
 	}
 	else if (*A != 0 && *B == 0){
-		temp = **A;
+		temp = *A;
 	}
 	else{
-		temp = *zeroUniquePtr;
+		temp = zeroUniquePtr;
 	}
 
     accessUniquePtrCAPS(result, temp);
