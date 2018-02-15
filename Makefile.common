@@ -42,7 +42,7 @@ TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(GMPLIB) -lgomp
 ##parallel best performance operation with debug
 ##warn everything
 ##no threading or optimization when doing coverage testing
-CPPFLAGS += -g -Wall -Werror
+CPPFLAGS += -Wall -Werror
 
 ## handle coverage test options if user set COVERAGE to any value on the command line
 ifdef COVERAGE

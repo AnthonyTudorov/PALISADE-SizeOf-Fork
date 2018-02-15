@@ -83,6 +83,8 @@ int main(int argc, char* argv[]){
 	    }
 	  }
 
+	  std::cerr << "\n\nStarting the demo\n" <<std::endl;
+
 	  DEBUG("DEBUG IS TRUE");
 	  PROFILELOG("PROFILELOG IS TRUE");
 	#ifdef PROFILE
