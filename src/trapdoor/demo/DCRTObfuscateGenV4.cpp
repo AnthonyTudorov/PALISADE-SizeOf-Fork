@@ -73,10 +73,8 @@ int main(int argc, char* argv[]){
       break;
     case 'e':
       n_evals = atoi(optarg);
-      if (n_evals<0)
-	n_evals = 0;
       if (n_evals >3) {
-	rand_evals = true;
+    	  	  rand_evals = true;
       }
       eval_flag = true;
       break;
