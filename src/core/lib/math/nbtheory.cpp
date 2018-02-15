@@ -960,33 +960,36 @@ namespace lbcrypto {
 
 		uint32_t n = GetTotient(m);
 
-		int32_t i_signed = i % n;
-		if (i_signed < 0)
-			i_signed += n;
+		uint32_t f1, f2;
 
-		uint32_t i_unsigned = (uint32_t)i_signed;
-
-		uint32_t g0 = 5;
-		uint32_t g;
-
-		if (i_unsigned > 0) {
-
-			if (i_unsigned < n/2)
-			{
-				g = 5;
-				for (size_t i = 2; i < i_unsigned; i++)
-					g = (g * g0) % m;
-			}
-			else
-			{
-				g = 3;
-				for (size_t i = n/2+1; i < i_unsigned; i++)
-					g = (g * g0) % m;
-			}
-
+		if (i < 0)
+		{
+			f1 = NativeInteger(5).ModInverse(m).ConvertToInt();
+			f2 = NativeInteger(3).ModInverse(m).ConvertToInt();
 		}
 		else
-			PALISADE_THROW( lbcrypto::math_error, "FindAutomorphismIndex2n: index cannot be zero");
+		{
+			f1 = 5;
+			f2 = 3;
+		}
+
+		uint32_t i_unsigned = (uint32_t)std::abs(i);
+
+		uint32_t g0 = f1;
+		uint32_t g;
+
+		if (i_unsigned < n/2)
+		{
+			g = f1;
+			for (size_t j = 1; j < i_unsigned; j++)
+				g = (g * g0) % m;
+		}
+		else
+		{
+			g = f2;
+			for (size_t j = n/2; j < i_unsigned; j++)
+				g = (g * g0) % m;
+		}
 
 		return g;
 
@@ -997,19 +1000,15 @@ namespace lbcrypto {
 		int32_t n = GetTotient(m);
 
 		int32_t i_signed = i % n;
-		if (i_signed < 0)
+		if (i_signed <= 0)
 			i_signed += n;
 
 		uint32_t i_unsigned = (uint32_t)i_signed;
 
 		uint32_t k = g;
 
-		if (i_unsigned > 0) {
-			for (size_t i = 2; i < i_unsigned; i++)
-				k = (k * g) % m;
-		}
-		else
-			PALISADE_THROW( lbcrypto::math_error, "FindAutomorphismIndexCyclic: index cannot be zero");
+		for (size_t i = 2; i < i_unsigned; i++)
+			k = (k * g) % m;
 
 		return k;
 
