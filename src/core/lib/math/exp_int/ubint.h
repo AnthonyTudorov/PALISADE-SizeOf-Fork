@@ -910,7 +910,7 @@ public:
 	/**
 	 * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of ubint objects.
 	 */
-	static unique_ptr<ubint> Allocator();
+	static ubint Allocator() { return 0; }
 
 	/**
 	 * Gets the state of the ubint from the internal value.

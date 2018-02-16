@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 	dugWeights.SetModulus(algorithm.GetWeightNorm());
 
 	NativeMatrixPtr weights(new  NativeMatrix([&]() {
-		return make_unique<NativeInteger>(dugWeights.GenerateInteger()); }, algorithm.GetDimension(),1));
+		return dugWeights.GenerateInteger(); }, algorithm.GetDimension(),1));
 
 	TIC(t);
 	NativeMatrixPtr ciphertext = algorithm.Obfuscate(keys,weights);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 	dug.SetModulus(16);
 
 	NativeMatrixPtr input(new  NativeMatrix([&]() {
-		return make_unique<NativeInteger>(dug.GenerateInteger()); }, algorithm.GetDimension(),1));
+		return dug.GenerateInteger(); }, algorithm.GetDimension(),1));
 
 	TIC(t);
 	NativeMatrixPtr token = algorithm.TokenGen(keys.m_secretKey,input);

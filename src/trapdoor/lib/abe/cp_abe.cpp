@@ -135,7 +135,7 @@ namespace lbcrypto {
 
 		dggLargeSigma = dgg;
 
-		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
+		RingMat skA(Poly::Allocator(ilParams, EVALUATION), m_m, 1);
 
 		skA = RLWETrapdoorUtility<Poly>::GaussSamp(m_N, m_k, pubTA, secTA, y, dgg, dggLargeSigma, m_base);
 
@@ -198,7 +198,7 @@ namespace lbcrypto {
 
 		y = pubElemD - y;
 
-		RingMat skA(Poly::MakeAllocator(ilParams, EVALUATION), m_m, 1);
+		RingMat skA(Poly::Allocator(ilParams, EVALUATION), m_m, 1);
 
 		skA = RLWETrapdoorUtility<Poly>::GaussSampOnline(m_N, m_k, pubTA, secTA, y, dgg, perturbationVector, m_base);
 

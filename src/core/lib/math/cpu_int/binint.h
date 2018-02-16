@@ -907,7 +907,7 @@ namespace cpu_int{
 	/**
 	* A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of BigInteger objects.
 	*/
-	static unique_ptr<BigInteger> Allocator();
+	static BigInteger Allocator() { return 0; }
 
     protected:
     

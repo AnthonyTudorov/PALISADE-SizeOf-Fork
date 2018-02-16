@@ -68,7 +68,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 
 	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::MakeAllocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	Poly::DugType dug = Poly::DugType();
@@ -96,7 +96,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 	// text after the decryption
 	Poly dtext(ilParams, EVALUATION, true);
 	// ciphertext first and second parts
-	RingMat ctC0(Poly::MakeAllocator(ilParams, EVALUATION), 1, m);
+	RingMat ctC0(Poly::Allocator(ilParams, EVALUATION), 1, m);
 	Poly ctC1(dug, ilParams, EVALUATION);
 	int failure = 0;
 	avg_keygen_online = avg_keygen_offline = avg_enc = avg_dec = 0.0;

@@ -122,14 +122,14 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct matrix for first vector
-		Matrix<Plaintext> scalarMatrix1([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)}));},
+		Matrix<Plaintext> scalarMatrix1([cc](){return cc->MakeCoefPackedPlaintext({int64_t(0)});},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			scalarMatrix1(0,c) = cc->MakeCoefPackedPlaintext({ vectorOfInts[c] });
 		}
 
 		// construct matrix for second vector
-		Matrix<Plaintext> scalarMatrix2([cc](){return make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)}));},
+		Matrix<Plaintext> scalarMatrix2([cc](){return cc->MakeCoefPackedPlaintext({int64_t(0)});},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			scalarMatrix2(r,0) = cc->MakeCoefPackedPlaintext({ vectorOfInts[r] });
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 		PalisadeCircuit<Poly>	cir(cc, driver.graph);
 
 		// construct bit matrix for first vector
-		Matrix<Plaintext> bitMatrix1([cc](){return make_unique<Plaintext>(cc->MakeIntegerPlaintext(0));},
+		Matrix<Plaintext> bitMatrix1([cc](){return cc->MakeIntegerPlaintext(0);},
 				1,vectorOfInts.size());
 		for( size_t c=0; c<vectorOfInts.size(); c++ ) {
 			bitMatrix1(0,c) = cc->MakeIntegerPlaintext(vectorOfInts[c]);
@@ -209,7 +209,7 @@ main(int argc, char *argv[])
 		}
 
 		// construct bit matrix for second vector
-		Matrix<Plaintext> bitMatrix2([cc](){return make_unique<Plaintext>(cc->MakeIntegerPlaintext(0));},
+		Matrix<Plaintext> bitMatrix2([cc](){return cc->MakeIntegerPlaintext(0);},
 				vectorOfInts.size(), 1);
 		for( size_t r=0; r<vectorOfInts.size(); r++ ) {
 			bitMatrix2(r,0) = cc->MakeIntegerPlaintext(vectorOfInts[r]);

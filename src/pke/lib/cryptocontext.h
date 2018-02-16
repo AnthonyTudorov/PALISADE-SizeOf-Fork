@@ -823,7 +823,7 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		auto zeroAlloc = [=]() { return make_unique<RationalCiphertext<Element>>(publicKey->GetCryptoContext(), true); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<Element>(publicKey->GetCryptoContext(), true); };
 
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
@@ -1072,7 +1072,7 @@ public:
 
 		// need to build matrices for the result
 		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(ptx); };
+		auto zeroPackingAlloc = [=]() { return Plaintext(ptx); };
 		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 		*denominator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
@@ -1155,7 +1155,7 @@ public:
 
 		// need to build a numerator matrix for the result
 		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(ptx); };
+		auto zeroPackingAlloc = [=]() { return Plaintext(ptx); };
 		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
 		Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());

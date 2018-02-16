@@ -282,7 +282,7 @@ void Encrypt() {
 
 	size_t batchSize = 1024;
 
-	auto singleAlloc = [=]() { return lbcrypto::make_unique<uint64_t>(); };
+	auto singleAlloc = [=]() { return 0; };
 
 	Matrix<uint64_t> x(singleAlloc, VECTORS, batchSize);
 	Matrix<uint64_t> y(singleAlloc, VECTORS, batchSize);
@@ -372,7 +372,7 @@ void Encrypt() {
 
 		std::cout << "Encoding the data...";
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+		auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 		Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, VECTORS, 1);
 		Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, VECTORS, 1);
@@ -498,7 +498,7 @@ void Compute() {
 			return;
 		}
 
-		auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly>>(cc); };
+		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> x(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 

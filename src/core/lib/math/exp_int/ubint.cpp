@@ -187,12 +187,6 @@ ubint<limb_t>::ubint(ubint &&rhs){
 	m_state = rhs.m_state;
 }
 
-//this is the zero allocator for the palisade matrix class
-template<typename limb_t>
-unique_ptr<ubint<limb_t>> ubint<limb_t>::Allocator() {
-	return lbcrypto::make_unique<exp_int::ubint<limb_t>>();
-};
-
 template<typename limb_t>
 ubint<limb_t>::~ubint()
 {

@@ -576,7 +576,7 @@ template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::DeserializeSRM(std::string name, const Serialized& serObj){
   bool dbg_flag= false;
   bool rc;
-  auto zero_alloc = Element::MakeAllocator(this->GetParameters(), EVALUATION);
+  auto zero_alloc = Element::Allocator(this->GetParameters(), EVALUATION);
   shared_ptr<Matrix<Element>> mp= std::make_shared<Matrix<Element>>(zero_alloc, 0, 0);
   if (name == "Sl") {
     
@@ -1035,7 +1035,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 	size_t k = m - 2;
 	size_t n = elemS.GetRingDimension();
 	//const typename Element::Integer &modulus = elemS.GetParams()->GetModulus();
-	auto zero_alloc = Element::MakeAllocator(elemS.GetParams(), EVALUATION);
+	auto zero_alloc = Element::Allocator(elemS.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
@@ -1137,7 +1137,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 	const std::vector<Matrix<Element>> &Pk_vector = obfuscatedPattern->GetPublicKeys();
 	const std::vector<RLWETrapdoorPair<Element>>   &Ek_vector = obfuscatedPattern->GetEncodingKeys();
 
-	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 	std::cout << "" << std::endl;
 	std::cout << "Pattern length \t l : " << l << std::endl;
@@ -1370,7 +1370,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	const shared_ptr<typename Element::Params> params = obfuscatedPattern.GetParameters();
 
-	auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+	auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 	//std::cout << "" << std::endl;
 	//std::cout << "Pattern length \t l : " << l << std::endl;

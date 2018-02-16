@@ -72,9 +72,9 @@ LWETBOKeys LWETBOLinearSecret::KeyGen() const
 	dug.SetModulus(m_modulus);
 
 	// discrete uniform generator is used to generate the secret keys
-	NativeMatrixPtr secretKey(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(dug.GenerateInteger()); }, m_n,m_N));
+	NativeMatrixPtr secretKey(new Matrix<NativeInteger>([&]() { return dug.GenerateInteger(); }, m_n,m_N));
 
-	NativeMatrixPtr publicRandomVector(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(dug.GenerateInteger()); }, 1,m_n));
+	NativeMatrixPtr publicRandomVector(new Matrix<NativeInteger>([&]() { return dug.GenerateInteger(); }, 1,m_n));
 
 	LWETBOKeys keys;
 	keys.m_secretKey = secretKey;
@@ -87,7 +87,7 @@ LWETBOKeys LWETBOLinearSecret::KeyGen() const
 shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const
 {
 
-	NativeMatrixPtr token(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(); }, m_n,1));
+	NativeMatrixPtr token(new Matrix<NativeInteger>(NativeInteger::Allocator, m_n, 1));
 
 	for (size_t ni = 0; ni < keys->GetRows(); ni++)
 		for (size_t Ni = 0; Ni < keys->GetCols(); Ni++)
@@ -100,7 +100,7 @@ shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::TokenGen(const NativeMatri
 shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const
 {
 
-	NativeMatrixPtr ciphertext(new Matrix<NativeInteger>([&]() { return make_unique<NativeInteger>(); }, m_N,1));
+	NativeMatrixPtr ciphertext(new Matrix<NativeInteger>(NativeInteger::Allocator, m_N, 1));
 
 	for (size_t Ni = 0; Ni < keyPair.m_secretKey->GetCols(); Ni++)
 	{

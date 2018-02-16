@@ -114,7 +114,7 @@ public:
 	/**
 	 * A zero allocator that is called by the Matrix class. It is used to initialize a Matrix of myZZ objects.
 	 */
-	static unique_ptr<myZZ> Allocator();
+	static myZZ Allocator() { return 0; }
 
 	//adapter kit that wraps ZZ with BACKEND 2 functionality
 

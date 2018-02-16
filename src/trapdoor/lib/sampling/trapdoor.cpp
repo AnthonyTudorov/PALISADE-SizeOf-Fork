@@ -37,7 +37,7 @@ namespace lbcrypto {
 	template <class Element>
 	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base, bool bal)
 	{
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
 		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
 
@@ -63,10 +63,10 @@ namespace lbcrypto {
 
 		Matrix<Element> A(zero_alloc, 1, k+2);
 		A(0,0) = 1;
-		A(0,1) = *a;
+		A(0,1) = a;
 
 		for (size_t i = 0; i < k; ++i) {
-			A(0, i+2) = g(0, i) - (*a*r(0, i) + e(0, i));
+			A(0, i+2) = g(0, i) - (a*r(0, i) + e(0, i));
 		}
 
 		return std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(A, RLWETrapdoorPair<Element>(r, e));
@@ -85,7 +85,7 @@ namespace lbcrypto {
 		TIC(t1);
 		TIC(t1_tot);
 		const shared_ptr<typename Element::Params> params = u.GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 
@@ -109,7 +109,7 @@ namespace lbcrypto {
 
 //		DEBUG("t1c: "<<TOC(t1)); //takes 2
 		TIC(t1);
-		Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, n);
+		Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
 		DEBUG("t1d: "<<TOC(t1)); //takes 0
 		DEBUG("t1: "<<TOC(t1_tot));//takes 64
 		TIC(t2);
@@ -194,7 +194,7 @@ namespace lbcrypto {
 		typename Element::DggType &dgg, const shared_ptr<Matrix<Element>> pHat, int64_t base) {
 
 		const shared_ptr<typename Element::Params> params = u.GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 
@@ -204,7 +204,7 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		Element perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-		Matrix<int64_t> zHatBBI([]() { return make_unique<int64_t>(); }, k, n);
+		Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
 
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
@@ -237,7 +237,7 @@ namespace lbcrypto {
 		int64_t base) {
 
 		const shared_ptr<typename Element::Params> params = T.m_e(0, 0).GetParams();
-		auto zero_alloc = Element::MakeAllocator(params, EVALUATION);
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
 
 		double c = (base + 1) * SIGMA;
 
@@ -315,7 +315,7 @@ namespace lbcrypto {
 		DEBUG("z1e: "<<TOC(t1)); //0
 		TIC(t1);
 
-		Matrix<int64_t> p2ZVector([]() { return make_unique<int64_t>(); }, n*k, 1);
+		Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, 1);
 
 		double sigmaLarge = sqrt(s * s - sigma * sigma);
 
@@ -367,12 +367,12 @@ namespace lbcrypto {
 		DEBUG("z1h3: "<<TOC(t1));
 		TIC(t1);
 
-		Matrix<Field2n> c([]() { return make_unique<Field2n>(); }, 2, 1);
+		Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
 
 		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
-		shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return make_unique<int64_t>(); }, n * 2, 1));
+		shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2, 1));
 		DEBUG("z1i: "<<TOC(t1));
 		TIC(t1);
 

@@ -129,11 +129,6 @@ BigInteger<uint_type,BITLENGTH>::BigInteger(BigInteger&& bigInteger){
 	}
 }
 
-template<typename uint_type,usint BITLENGTH>
-unique_ptr<BigInteger<uint_type,BITLENGTH>> BigInteger<uint_type,BITLENGTH>::Allocator() {
-	return lbcrypto::make_unique<cpu_int::BigInteger<uint_type,BITLENGTH>>();
-};
-
 /*
 *Converts the BigInteger to unsigned integer or returns the first 32 bits of the BigInteger.
 *Splits the BigInteger into bit length of uint data type and then uses shift and add to form the 32 bit unsigned integer.

@@ -307,7 +307,7 @@ main(int argc, char *argv[])
 				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
 			}
 
-		Matrix<Plaintext> mat([cc](){return make_unique<Plaintext>(cc->MakePackedPlaintext({uint64_t(0)}));},mdim,mdim);
+		Matrix<Plaintext> mat([cc](){return cc->MakePackedPlaintext({uint64_t(0)});},mdim,mdim);
 		usint mi=1;
 		for(usint r=0; r<mat.GetRows(); r++)
 			for(usint c=0; c<mat.GetCols(); c++) {

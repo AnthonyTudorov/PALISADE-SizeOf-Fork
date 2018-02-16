@@ -74,7 +74,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakeCoefPackedPlaintext({int64_t(0)})); };
+	auto zeroAlloc = [=]() { return cc->MakeCoefPackedPlaintext({int64_t(0)}); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
@@ -164,7 +164,7 @@ TEST_F(UTStatisticalEval, Null_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
+	auto zeroAlloc = [=]() { return Plaintext(); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
@@ -244,7 +244,7 @@ TEST_F(UTStatisticalEval, BFV_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
+	auto zeroAlloc = [=]() { return Plaintext(); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 
@@ -325,7 +325,7 @@ TEST_F(UTStatisticalEval, BFVrns_Eval_Lin_Regression_Int) {
 
 	// Set the plaintext matrices
 
-	auto zeroAlloc = [=]() { return make_unique<Plaintext>(); };
+	auto zeroAlloc = [=]() { return Plaintext(); };
 
 	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 2, 2);
 

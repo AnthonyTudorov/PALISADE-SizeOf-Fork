@@ -427,7 +427,7 @@ void Encrypt(string keyDir,
 
     std::cout << "Encoding the data...";
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
     Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, numRegressors);
     Plaintext yP;
@@ -566,7 +566,7 @@ void Compute(string keyDir,
 	    return;
 	}
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly> >(cc); };
+	auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly> > > x(new Matrix<RationalCiphertext<DCRTPoly> >(zeroAlloc));
 
@@ -785,7 +785,7 @@ void Decrypt(string keyDir,
 	    return;
 	}
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<RationalCiphertext<DCRTPoly> >(cc); };
+	auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly> > > xtx(new Matrix<RationalCiphertext<DCRTPoly> >(zeroAlloc));
 
@@ -800,7 +800,7 @@ void Decrypt(string keyDir,
 
 	std::cout << "Decrypting matrix X^T X...";
 
-	auto zeroPackingAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroPackingAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 	shared_ptr<Matrix<Plaintext>> numeratorXTX;
 
@@ -870,16 +870,14 @@ void Decrypt(string keyDir,
 	// std::cout << numeratorXTY(18, 0)[0] << std::endl;
     }
 
-    auto zeroAlloc64 = [=]() { return lbcrypto::make_unique<NativeInteger>(); };
-
     // Convert back to large plaintext modulus
 
     std::cout << "\nCLEARTEXT OPERATIONS\n" << std::endl;
 
     std::cout << "CRT Interpolation to transform to large plaintext modulus...";
 
-    shared_ptr<Matrix<NativeInteger> > XTX(new Matrix<NativeInteger>(zeroAlloc64));
-    shared_ptr<Matrix<NativeInteger> > XTY(new Matrix<NativeInteger>(zeroAlloc64));
+    shared_ptr<Matrix<NativeInteger> > XTX(new Matrix<NativeInteger>(NativeInteger::Allocator));
+    shared_ptr<Matrix<NativeInteger> > XTY(new Matrix<NativeInteger>(NativeInteger::Allocator));
 
     CRTInterpolate(xTxCRT, *XTX);
     CRTInterpolate(xTyCRT, *XTY);
@@ -900,7 +898,7 @@ void Decrypt(string keyDir,
 
     std::cout << "\nMatrix inversion (in cleartext)...";
 
-    auto zeroAllocDouble = [=]() { return lbcrypto::make_unique<double>(0.0); };
+    auto zeroAllocDouble = [=]() { return 0.0; };
 
     shared_ptr<Matrix<double> > XTXInverse(new Matrix<double>(zeroAllocDouble));
 

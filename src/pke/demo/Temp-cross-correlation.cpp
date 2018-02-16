@@ -116,7 +116,7 @@ void BGVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 	Matrix<Plaintext> x = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
@@ -214,7 +214,7 @@ void BFVCrossCorrelation() {
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	auto zeroAlloc = [=]() { return lbcrypto::make_unique<Plaintext>(cc->MakePackedPlaintext({0})); };
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
 
 	Matrix<Plaintext> x = Matrix<Plaintext>(zeroAlloc, 2, 1);
 
