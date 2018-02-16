@@ -641,8 +641,8 @@ namespace lbcrypto {
 	  void  SerializeObfuscatedPatternToFileSet(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
 						    const string obfFileName, bool pretty_flag){
 	  bool dbg_flag = false;
-	  TimeVar t1; //for TIC TOC
-	  double serTime(0.0);
+	  TimeVar t1,t2; //for TIC TOC
+	  double serTime(0.0), subtime(0.0);
 	  DEBUG("in SerializeObfuscatedPatternToFileSet");
 	  DEBUGEXP(*obfuscatedPattern.GetParameters());
 
@@ -654,6 +654,7 @@ namespace lbcrypto {
 	      Serialized serObj;
 	      serObj.SetObject();
 	      DEBUGEXP(step);
+	      TIC(t2);
 	      switch (step) {
 	      case(0):
 		subname = "head";
@@ -684,12 +685,17 @@ namespace lbcrypto {
 		obfuscatedPattern.SerializeEK(&serObj);	  	  
 		break;
 	      }		  
-
+	      subtime = TOC(t2);
+	      DEBUG(subname << " serialization time "<<subtime<<" ms");
+	      TIC(t2);
 	      string outfname = obfFileName+subname+".json";
 	      if (!SerializableHelper::WriteSerializationToFile(serObj, outfname ))
 		PALISADE_THROW(lbcrypto::serialize_error,
 			       "Can't write the obfuscated JSON string to the file: "+outfname );
-	      
+
+	      subtime = TOC(t2);	      
+	      DEBUG(subname << " write time  "<<subtime<<" ms");
+
 	      if (pretty_flag){
 		outfname = obfFileName+subname+"pretty.json";
 		if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, outfname))

@@ -304,6 +304,9 @@ namespace lbcrypto {
     // use VpM  serialization helper for each element
     
     //make sure the input is a rapidjson object
+    bool dbg_flag = false;
+    TimeVar t1; //for TIC TOC
+    
     if( ! serObj->IsObject() )
       serObj->SetObject();
     
@@ -318,6 +321,7 @@ namespace lbcrypto {
     Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 
     for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      TIC(t1);
       //serialize the ith element
       Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
       
@@ -328,6 +332,7 @@ namespace lbcrypto {
       //add it with the index as a key to the member container
       SerialItem key( std::to_string(i), serObj->GetAllocator() );
       serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+      DEBUG("vvpm "<<i<<" serial time "<<TOC(t1));
     }
 
     //add the member container to the top level
@@ -354,6 +359,9 @@ namespace lbcrypto {
    */
   template<typename T>
     void SerializeVectorOfPointersToMatrix(const std::string& vectorName, const std::string& typeName, const std::vector<shared_ptr<Matrix<T>>> &inVector, Serialized* serObj) {
+    bool dbg_flag = false;
+    TimeVar t1; //for TIC TOC
+    
 
     //make sure the input is a rapidjson object
     if( ! serObj->IsObject() )
@@ -370,6 +378,8 @@ namespace lbcrypto {
     Serialized serElements(rapidjson::kObjectType, &serObj->GetAllocator());
 
     for( size_t i=0; i<inVector.size(); i++ ) {//for each element
+      TIC(t1);
+  
       //serialize the ith element
       Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
       
@@ -380,6 +390,7 @@ namespace lbcrypto {
       //add it with the index as a key to the member container
       SerialItem key( std::to_string(i), serObj->GetAllocator() );
       serElements.AddMember(key, oneEl.Move(), serObj->GetAllocator());
+      DEBUG("        vpm "<<i<<" serial time "<<TOC(t1));
     }
 
     //add the member container to the top level
@@ -692,10 +703,13 @@ namespace lbcrypto {
     bool dbg_flag = false;
     DEBUG("in SerializeMatrix<"<<typeName<<">");
     //make sure the input is a rapidjson object
+    TimeVar t1; //for TIC TOC
+    
+ 
     if( ! serObj->IsObject() )
       serObj->SetObject();
 
-    size_t rows = inMatrix.GetRows();
+        size_t rows = inMatrix.GetRows();
     size_t cols = inMatrix.GetCols();
 
     Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
@@ -711,6 +725,7 @@ namespace lbcrypto {
     for( size_t i=0; i<rows; i++ ) {
       for( size_t j=0; j<cols; j++ ) {
 	bool rc = 0;
+	TIC(t1);
 	Serialized oneEl(rapidjson::kObjectType, &serObj->GetAllocator());
 	rc = ((inMatrix.GetData())[i][j])->Serialize(&oneEl);
 	if (!rc) {
@@ -723,6 +738,8 @@ namespace lbcrypto {
 			
 	SerialItem key(keystring , serObj->GetAllocator() );
 	serElements.AddMember(key, oneEl, serObj->GetAllocator());
+	DEBUG("              m "<<i<<","<<j<<" serial time "<<TOC(t1));
+	
       }
     }
 

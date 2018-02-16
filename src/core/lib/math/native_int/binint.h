@@ -51,6 +51,7 @@
 #include "../../utils/memory.h"
 #include "../../utils/palisadebase64.h"
 #include "../../utils/exception.h"
+#include "../../utils/debug.h"
 #include "../nbtheory.h"
 
 
@@ -964,14 +965,67 @@ public:
 	const std::string ToString() const {
 		return std::to_string(m_value);
 	}
+#if 0
+	template <typename I> std::string n2hexstr(const I w, size_t hex_len = sizeof(I)<<(8/4)) const{
+	  //note the 8 above is the sizeof byte and the 4 is log2(16) as are the 4's below
+	  //and the 0f below is the 4 bits. each of the following templates follow this pattern
+	  static const char* digits = "0123456789ABCDEF";
 
-	// note that for efficiency, we use [De]Serialize[To|From]String when serializing
+	  std::string rc(hex_len,'0');
+	  for (size_t i=0, j=(hex_len-1)*4 ; i<hex_len; ++i,j-=4)
+	    rc[i] = digits[(w>>j) & 0x0f];
+	  return rc;
+	}
+
+	template <typename I> std::string n2_32str(const I w, size_t hex_len = ceil(sizeof(I)*(8/5.0))) const{
+	  static const char* digits = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
+	  //WXYZabcdefghijklmnopqrstuvwxyz@#
+					 std::string rc(hex_len,'0');
+	  for (size_t i=0, j=(hex_len-1)*5 ; i<hex_len; ++i,j-=5)
+	    rc[i] = digits[(w>>j) & 0x1f];
+	  return rc;
+	}
+	template <typename I> std::string n2_64str(const I w, size_t hex_len = ceil(sizeof(I)*(8/6.0))-1) const{
+	  static const char* digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#";
+					 std::string rc(hex_len,'0');
+	  for (size_t i=0, j=(hex_len-1)*6 ; i<hex_len; ++i,j-=6)
+	    rc[i] = digits[(w>>j) & 0x3f];
+	  return rc;
+	}
+#endif
+	//this function coverts the type I into 128bit characters. Note they are nonprintable
+	template <typename I> std::string n2_128str(const I w, size_t ohex_len = ceil(sizeof(I)*(8/7.0))) const{
+	  bool dbg_flag = false;
+	  static unsigned char digits[128] =" ";
+
+	  if (digits[0]==' ') { //digits is uninitialized, initialize first time around
+	    //std::cout << "INITIALIZING DIGITS"<<std::endl;
+	    uint firstchar = 35;
+	    for (unsigned int i=0; i < 128; i++){
+	      digits[i] = (char)(i+firstchar);
+	    }
+	  }
+	  std::string rc(ohex_len,' ');
+	  for (size_t i=0, j=(ohex_len-1)*7 ; i<ohex_len; ++i,j-=7){
+	    DEBUGEXP(std::hex<<w);
+	    DEBUGEXP(std::dec<<j);
+	    DEBUGEXP(std::hex<<(w>>j));
+	    DEBUGEXP(std::hex<<((w>>j) & 0x7f));
+	    rc[i] = digits[(w>>j) & 0x7f];
+	    DEBUGEXP(std::hex<<rc[i]);
+	  }
+	  return rc;
+	}
+	    // note that for efficiency, we use [De]Serialize[To|From]String when serializing
 	// BigVectors, and [De]Serialize otherwise (to work the same as all
 	// other serialized objects.
 	// Serialize using the modulus; convert value to signed, then serialize to string
 	const std::string SerializeToString(const NativeInteger& modulus = 0) const {
-		// numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
-		bool isneg = false;
+	  //numbers are straight unsigned int ==> base 128
+	  bool dbg_flag = false;
+        #if 0 //old slow way
+	  // numbers go from high to low -1, -2, ... +modulus/2, modulus/2 - 1, ... ,1, 0
+	    bool isneg = false;
 		NativeInteger signedVal;
 		if( modulus.m_value == 0 || m_value < modulus.m_value/2 )
 			signedVal = m_value;
@@ -987,10 +1041,54 @@ public:
 		for( int i=len; i>0; i-=6 )
 			ser += lbcrypto::value_to_base64(signedVal.Get6BitsAtIndex(i));
 		return ser;
+        #else
+		//std::string ser(n2hexstr<uint_type>(m_value)+"|");
+		//std::string ser(n2_64str<uint_type>(m_value)+"|");
+		DEBUG("---");
+		std::string ser(n2_128str<uint_type>(m_value));
+		DEBUGEXP(m_value);
+		DEBUGEXP(ser);
+		return ser;
+
+        #endif
+	}
+
+	//this function coverts string of 128bit characters into the type I 
+        template <typename I> const char* str128_2n( I* w, const char * &s, size_t ohex_len = ceil(sizeof(I)*(8/7.0))) {
+	  static unsigned char digits[128] =" ";
+	  bool dbg_flag = false;
+	  uint firstchar = 35;
+	    
+	  if (digits[0]==' ') { //digits is uninitialized, initialize first time around
+	    //std::cout << "INITIALIZING DIGITS"<<std::endl;
+	    for (unsigned int i=0; i < 128; i++){
+	       digits[i] = (char)(i+firstchar);
+	    }
+	  }
+
+	  DEBUGEXP(*w);
+	  *w=0;
+	  DEBUGEXP(*w);	  
+	  I d(0);
+	  for (size_t i=0, j=(ohex_len-1)*7 ; i<ohex_len; ++i,j-=7) {
+	    //d = (unsigned char)s[ohex_len-i-1] - firstchar;
+	    d = (unsigned char)s[i] - firstchar;
+	    DEBUGEXP(std::hex<<(unsigned int)d);
+	    DEBUGEXP(std::dec<<j);
+	    DEBUGEXP(std::hex<<(d<<j));
+	    *w|= (d<<j);
+	    
+	    DEBUGEXP(std::hex<<w);	    
+	  }
+	  DEBUGEXP(s);
+	  s+=ohex_len;
+	  DEBUGEXP(s);
+	  return s;
 	}
 
 	//deserialize from string
 	const char * DeserializeFromString(const char * str, const NativeInteger& modulus = 0) {
+        #if 0 //old slow way
 		bool isneg = false;
 		if( *str == '-' ) {
 			++str;
@@ -1012,6 +1110,15 @@ public:
 
 		m_value = value;
 		return str;
+           #else		
+
+		bool dbg_flag = false;
+		DEBUG("===");
+		DEBUGEXP(m_value);
+		DEBUGEXP(str);
+		
+		return str128_2n<uint_type>(&m_value, str);
+           #endif
 	}
 	/**
 	* Serialize the object into a Serialized
