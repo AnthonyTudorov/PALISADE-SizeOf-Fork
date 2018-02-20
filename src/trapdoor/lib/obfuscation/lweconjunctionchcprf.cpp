@@ -143,14 +143,19 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 template <class Element>
 std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const {
 
-	Matrix<Element> y = (*m_A)[m_adjustedLength];
+	Element yCurrent;
 
 	for (usint i = 0; i < m_adjustedLength; i++) {
 		std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
 		int k = std::stoi(chunk, nullptr, 2);
 
-		y = y * (*s)[i][k];
+		if (i == 0)
+			yCurrent = (*s)[i][k];
+		else
+			yCurrent *= (*s)[i][k];
 	}
+
+	Matrix<Element> y = (*m_A)[m_adjustedLength]*yCurrent;
 
 	return TransformMatrixToPRFOutput(y);
 
