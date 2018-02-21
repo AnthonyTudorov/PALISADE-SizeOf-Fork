@@ -189,7 +189,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	double alpha = 36;
 
 	//empirical parameter
-	double beta = 1.3;
+	double beta = 6;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
