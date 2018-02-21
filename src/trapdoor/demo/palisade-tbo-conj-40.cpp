@@ -152,16 +152,16 @@ bool CONJOBF(size_t n_evals, int n) {
 	//std::cout << value2 << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
 	std::cout << "input 1: " << input1 << std::endl;
-	std::cout << (value1 == value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
+	std::cout << (*value1 == *value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
 
-	if (value1 != value2)
+	if (*value1 != *value2)
 		errorflag = true;
 	//std::cout << value3 << std::endl;
 	//std::cout << value4 << std::endl;
 	std::cout << "input 2: " << input2 << std::endl;
-	std::cout << (value3 == value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
+	std::cout << (*value3 == *value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
 
-	if (value3 == value4)
+	if (*value3 == *value4)
 		errorflag = true;
 
 	if (errorflag)
