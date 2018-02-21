@@ -399,26 +399,26 @@ namespace lbcrypto {
 	/* Function to reverse bits of num */
 	usint ReverseBits(usint num, usint msb)
 	{
-		usint msbb = msb / 8 + (msb % 8 ? 1 : 0);
+	  usint msbb = (msb >>3) + (msb & 0x7 ? 1 : 0);
 
 		switch (msbb) {
 		case 1:
-			return (reverse_byte((num) & 0xff) >> shift_trick[msb % 8]);
+			return (reverse_byte((num) & 0xff) >> shift_trick[msb & 0x7]);
 
 		case 2:
 			return (reverse_byte((num) & 0xff) << 8 |
-				reverse_byte((num >> 8) & 0xff)) >> shift_trick[msb % 8];
+				reverse_byte((num >> 8) & 0xff)) >> shift_trick[msb & 0x7];
 
 		case 3:
 			return (reverse_byte((num) & 0xff) << 16 |
 				reverse_byte((num >> 8) & 0xff) << 8 |
-				reverse_byte((num >> 16) & 0xff)) >> shift_trick[msb % 8];
+				reverse_byte((num >> 16) & 0xff)) >> shift_trick[msb & 0x7];
 
 		case 4:
 			return (reverse_byte((num) & 0xff) << 24 |
 				reverse_byte((num >> 8) & 0xff) << 16 |
 				reverse_byte((num >> 16) & 0xff) << 8 |
-				reverse_byte((num >> 24) & 0xff)) >> shift_trick[msb % 8];
+				reverse_byte((num >> 24) & 0xff)) >> shift_trick[msb & 0x7];
 		default:
 			throw std::logic_error("msbb value not handled:" + std::to_string(msbb));
 		}
