@@ -152,16 +152,16 @@ bool CONJOBF(size_t n_evals, int n) {
 	//std::cout << value2 << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
 	std::cout << "input 1: " << input1 << std::endl;
-	std::cout << (*value1 == *value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
+	std::cout << (algorithm.EqualTest(value2,value1) ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
 
-	if (*value1 != *value2)
+	if (!algorithm.EqualTest(value2,value1))
 		errorflag = true;
 	//std::cout << value3 << std::endl;
 	//std::cout << value4 << std::endl;
 	std::cout << "input 2: " << input2 << std::endl;
-	std::cout << (*value3 == *value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
+	std::cout << (algorithm.EqualTest(value4,value3) ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
 
-	if (*value3 == *value4)
+	if (algorithm.EqualTest(value4,value3))
 		errorflag = true;
 
 	if (errorflag)
@@ -174,8 +174,9 @@ bool CONJOBF(size_t n_evals, int n) {
     }
 
 	//Variables for timing
-	vector<double> timeTokenEval(n_evals);;
-	vector<double> timeEval(n_evals);;
+	vector<double> timeTokenEval(n_evals);
+	vector<double> timeEval(n_evals);
+	vector<double> timeEqualTest(n_evals);
 
 	////////////////////////////////////////////////////////////
 	// test the obfuscated pattern
@@ -191,20 +192,28 @@ bool CONJOBF(size_t n_evals, int n) {
 		const auto cresult = algorithm.Evaluate(constrainedKey, inputStr[i]);
 		timeEval[i] = TOC_US(t1);
 
+		TIC(t1);
+		algorithm.EqualTest(uresult, cresult);
+		timeEqualTest[i] = TOC_US(t1);
+
 	} // end eval loop
 
 	//print output timing results
 	//note one could use PROFILELOG for these lines
-	float aveTokenTime = 0.0;
-	float aveTime = 0.0;
+	float sumTokenTime = 0.0;
+	float sumTime = 0.0;
+	float sumETtime = 0.0;
 	for (usint i = 0; i < n_evals; i++){
-		aveTokenTime += timeTokenEval[i];
+		sumTokenTime += timeTokenEval[i];
 		std::cout << "T: Token Eval "<<i<<" execution time:  " << "\t" << timeTokenEval[i]/1000 << " ms" << std::endl;
-		aveTime += timeEval[i];
+		sumTime += timeEval[i];
 		std::cout << "T: Eval "<<i<<" execution time:  " << "\t" << timeEval[i]/1000 << " ms" << std::endl;
+		sumETtime += timeEqualTest[i];
+		std::cout << "T: Equal test "<<i<<" execution time:  " << "\t" << timeEqualTest[i]/1000 << " ms" << std::endl;
 	}
-	aveTime /= float(n_evals);
-	aveTokenTime /= float(n_evals);
+	float aveTime = sumTime/float(n_evals);
+	float aveTokenTime = sumTokenTime/float(n_evals);
+	float aveETtime = sumETtime/float(n_evals);
 
 	//print output timing results
 	//note one could use PROFILELOG for these lines
@@ -212,7 +221,8 @@ bool CONJOBF(size_t n_evals, int n) {
 	std::cout << "T: Obfuscation execution time: " << "\t" << conKeyGenTime << " ms" << std::endl;
 	std::cout << "T: Average token evaluation time:  " << "\t" << aveTokenTime/1000 << " ms" << std::endl;
 	std::cout << "T: Average evaluation time:  " << "\t" << aveTime/1000 << " ms" << std::endl;
-	std::cout << "T: Average total evaluation time:       " << "\t" << aveTokenTime/1000 + aveTime/1000 << " ms" << std::endl;
+	std::cout << "T: Average EqualTest time:  " << "\t" << aveETtime/1000 << " ms" << std::endl;
+	std::cout << "T: Average total evaluation time:       " << "\t" << aveTokenTime/1000 + aveTime/1000 + aveETtime/1000 << " ms" << std::endl;
 
 	return errorflag;
 
