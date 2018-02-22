@@ -433,28 +433,41 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Reset() {
 	}
 
 	std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(std::vector<std::complex<double>> & A) {
-		int m = A.size();
+		usint m = A.size();
 		std::vector<std::complex<double>> B(A);
-		int levels = floor(log2(m));
+		usint l = floor(log2(m));
 
-		static int cachedM;
-		static std::vector<double> cosTable;
-		static std::vector<double> sinTable;
+
+		static usint maxMCached (8192);
+		static usint LOGM_MAX(13);
+		static std::vector<usint> cachedM(LOGM_MAX, 0);
+		static std::vector<std::vector<double>> cosTable(LOGM_MAX);
+		static std::vector<std::vector<double>> sinTable(LOGM_MAX);;
 
 #pragma omp critical
-		if( m != cachedM ) {
-			cachedM = m;
-			sinTable.resize(m/2);
-			cosTable.resize(m/2);
-			for (int i = 0; i < m / 2; i++) {
-				cosTable[i] = cos(2 * M_PI * i / m);
-				sinTable[i] = sin(2 * M_PI * i / m);
-			}
+		if( m != cachedM[l] ) {
+		  if (m>maxMCached){
+		     //need to grow cachedM and the tables
+		    cachedM.resize(l);
+		    cosTable.resize(l);
+		    cosTable.resize(l);
+		    maxMCached = m;
+		  }
+		  //std::cout<<"miss m "<<m<<" != M "<<cachedM[l]<<std::endl;
+		  cachedM[l] = m;
+
+		  sinTable[l].resize(m/2);
+		  cosTable[l].resize(m/2);
+		  for (usint i = 0; i < m / 2; i++) {
+		    cosTable[l][i] = cos(2 * M_PI * i / m);
+		    sinTable[l][i] = sin(2 * M_PI * i / m);
+		  }
+		  
 		}
 
 		// Bit-reversed addressing permutation
-		for (int i = 0; i < m; i++) {
-			int j = ReverseBits(i,32) >> (32-levels);
+		for (usint i = 0; i < m; i++) {
+			usint j = ReverseBits(i,32) >> (32-l);
 			if (j > i) {
 				double temp = B[i].real();
 				B[i].real( B[j].real() );
@@ -466,13 +479,13 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Reset() {
 		}
 
 		// Cooley-Tukey decimation-in-time radix-2 FFT
-		for (int size = 2; size <= m; size *= 2) {
-			int halfsize = size / 2;
-			int tablestep = m / size;
-			for (int i = 0; i < m; i += size) {
-				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-					double tpre =  B[j+halfsize].real() * cosTable[k] + B[j+halfsize].imag() * sinTable[k];
-					double tpim = -B[j+halfsize].real() * sinTable[k] + B[j+halfsize].imag() * cosTable[k];
+		for (usint size = 2; size <= m; size *= 2) {
+			usint halfsize = size / 2;
+			usint tablestep = m / size;
+			for (usint i = 0; i < m; i += size) {
+				for (usint j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+					double tpre =  B[j+halfsize].real() * cosTable[l][k] + B[j+halfsize].imag() * sinTable[l][k];
+					double tpim = -B[j+halfsize].real() * sinTable[l][k] + B[j+halfsize].imag() * cosTable[l][k];
 					B[j + halfsize].real( B[j].real() - tpre );
 					B[j + halfsize].imag( B[j].imag() - tpim );
 					B[j].real( B[j].real() + tpre );
@@ -503,9 +516,9 @@ void ChineseRemainderTransformFTT<IntType,VecType>::Reset() {
 			A[n + i] = 0;
 			//A.push_back(0);
 		}
-		if (rootOfUnityTable == NULL) {
-			PreComputeTable(2 * n);
-		}
+		// if (rootOfUnityTable == NULL) {
+		// 	PreComputeTable(2 * n);
+		// }
 		std::vector<std::complex<double>> dft = FFTForwardTransform(A);
 		std::vector<std::complex<double>> dftRemainder(dft.size()/2);
 		size_t k = 0;

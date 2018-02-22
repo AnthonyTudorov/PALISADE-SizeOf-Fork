@@ -418,12 +418,13 @@ public:
 	usint GetLengthForBase(usint base) const {return GetMSB();};
 
 	/**
-	 * Get the integer value of the of a subfield of bits.
-	 * power-of-2 bases are currently supported.
+	 * Get the integer value of the of a subfield of bits. Where the length of
+	 * the field is specifice by a power of two base
+	 * only power of two bases are currently supported.
 	 *
 	 * @param index is the bit location (lsb)
-	 * @param base is the bitwidth of the subfield
-	 * @return the integer value of the subfield
+	 * @param base such that log2(base)+1 is the bitwidth of the subfield
+	 * @return the unsigned integer value of the subfield
 	 */
 	usint GetDigitAtIndexForBase(usint index, usint base) const;
 
@@ -457,11 +458,19 @@ public:
 
 	static const std::string IntegerTypeName() { return "NTL"; }
 
+	/**
+	 * Gets a subset of bits of a given length with LSB at specified index.
+	 * optimized for speed in backend 6
+	 * @param index of the set of bit to get. LSB=1
+	 * @param length of the set of bits to get. LSB=1
+	 * @return resulting unsigned in formed by set of bits.
+	 */
+	usint GetBitRangeAtIndex(usint index, usint length)const;
 
 	/**
 	 * Gets the bit at the specified index.
 	 *
-	 * @param index is the index of the bit to get.
+	 * @param index of the bit to get. LSB=1
 	 * @return resulting bit.
 	 */
 	uschar GetBitAtIndex(usint index) const;
@@ -469,7 +478,7 @@ public:
 	/**
 	 * Gets 6 bits at the specified index. Right fill with 0
 	 *
-	 * @param index is the index of the bit to get.
+	 * @param index of the bit to get. LSB=1
 	 * @return resulting bits.
 	 */
 	uschar Get6BitsAtIndex(usint index) const;
