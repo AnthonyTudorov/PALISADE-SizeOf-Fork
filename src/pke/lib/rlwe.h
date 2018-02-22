@@ -282,6 +282,7 @@ protected:
 		cryptoParamsMap.AddMember("SecurityLevel", std::to_string(this->GetSecurityLevel()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("RelinWindow", std::to_string(this->GetRelinWindow()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("Depth", std::to_string(this->GetDepth()), serObj->GetAllocator());
+		cryptoParamsMap.AddMember("MaxDepth", std::to_string(this->GetMaxDepth()), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("Mode", std::to_string(m_mode), serObj->GetAllocator());
 		cryptoParamsMap.AddMember("PlaintextModulus", std::to_string(this->GetPlaintextModulus()), serObj->GetAllocator());
 
@@ -352,6 +353,10 @@ protected:
 			return false;
 		int depth = atoi(pIt->value.GetString());
 
+		if( (pIt = mIter->value.FindMember("MaxDepth")) == mIter->value.MemberEnd() )
+			return false;
+		int maxDepth = atoi(pIt->value.GetString());
+
 		if ((pIt = mIter->value.FindMember("Mode")) == mIter->value.MemberEnd())
 			return false;
 		MODE mode = (MODE)atoi(pIt->value.GetString());
@@ -362,6 +367,7 @@ protected:
 		this->SetSecurityLevel(securityLevel);
 		this->SetRelinWindow(relinWindow);
 		this->SetDepth(depth);
+		this->SetMaxDepth(maxDepth);
 		this->SetMode(mode);
 
 		return true;
