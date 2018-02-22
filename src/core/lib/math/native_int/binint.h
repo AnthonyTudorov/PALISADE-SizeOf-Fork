@@ -1000,7 +1000,7 @@ public:
 
 	  if (digits[0]==' ') { //digits is uninitialized, initialize first time around
 	    //std::cout << "INITIALIZING DIGITS"<<std::endl;
-	    uint firstchar = 35;
+	    usint firstchar = 35;
 	    for (unsigned int i=0; i < 128; i++){
 	      digits[i] = (char)(i+firstchar);
 	    }
@@ -1057,7 +1057,7 @@ public:
         template <typename I> const char* str128_2n( I* w, const char * &s, size_t ohex_len = ceil(sizeof(I)*(8/7.0))) {
 	  static unsigned char digits[128] =" ";
 	  bool dbg_flag = false;
-	  uint firstchar = 35;
+	  usint firstchar = 35;
 	    
 	  if (digits[0]==' ') { //digits is uninitialized, initialize first time around
 	    //std::cout << "INITIALIZING DIGITS"<<std::endl;
