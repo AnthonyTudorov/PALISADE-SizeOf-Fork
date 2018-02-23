@@ -1062,4 +1062,41 @@ void AESUtil::Decrypt(unsigned char *pCipher, unsigned char *pData, unsigned int
 	    	    }
 	    }
 }
+void AESUtil::SplitIntegers(unsigned char* bytes, int64_t i1,int64_t i2){
+    bytes[0]= (i1 >> 56) & 0xFF;   
+    bytes[1]= (i1 >> 48) & 0xFF; 
+    bytes[2]= (i1 >> 40) & 0xFF;
+    bytes[3]= (i1 >> 32) & 0xFF;     
+    bytes[4]= (i1 >> 24) & 0xFF;
+    bytes[5]= (i1 >> 16) & 0xFF;
+    bytes[6]= (i1 >> 8) & 0xFF;
+    bytes[7]= (i1) & 0xFF;
+    bytes[8]= (i2 >> 56) & 0xFF;
+    bytes[9]= (i2 >> 48) & 0xFF;
+    bytes[10]= (i2 >> 40) & 0xFF;
+    bytes[11]= (i2 >> 32) & 0xFF;
+    bytes[12]= (i2 >> 24) & 0xFF;
+    bytes[13]= (i2 >> 16) & 0xFF;
+    bytes[14]= (i2 >> 8) & 0xFF;
+    bytes[15]= (i2) & 0xFF;
+}
+void CombineBytes(unsigned char* bytes, int64_t& i1,int64_t& i2){
+    i1 = (((int64_t)bytes[0] << 56) & 0xFF00000000000000U)
+    | (((int64_t)bytes[1] << 48) & 0x00FF000000000000U)
+    | (((int64_t)bytes[2] << 40) & 0x0000FF0000000000U)
+    | (((int64_t)bytes[3] << 32) & 0x000000FF00000000U)
+    | ((bytes[4] << 24) & 0x00000000FF000000U)
+    | ((bytes[5] << 16) & 0x0000000000FF0000U)
+    | ((bytes[6] <<  8) & 0x000000000000FF00U)
+    | (bytes[7]        & 0x00000000000000FFU);
+
+    i2 = (((int64_t)bytes[8] << 56) & 0xFF00000000000000U)
+    | (((int64_t)bytes[9] << 48) & 0x00FF000000000000U)
+    | (((int64_t)bytes[10] << 40) & 0x0000FF0000000000U)
+    | (((int64_t)bytes[11] << 32) & 0x000000FF00000000U)
+    | ((bytes[12] << 24) & 0x00000000FF000000U)
+    | ((bytes[13] << 16) & 0x0000000000FF0000U)
+    | ((bytes[14] <<  8) & 0x000000000000FF00U)
+    | (bytes[15]        & 0x00000000000000FFU);
+}
 }

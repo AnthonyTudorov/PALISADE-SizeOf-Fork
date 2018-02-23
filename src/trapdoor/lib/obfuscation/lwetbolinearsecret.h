@@ -33,6 +33,7 @@
 #include "math/distrgen.h"
 #include "math/backend.h"
 #include "math/matrix.cpp"
+#include "utils/aesutil.h"
 
 /**
  * @namespace lbcrypto
@@ -48,6 +49,25 @@ namespace lbcrypto {
 
 		const NativeVector &GetSecretKey(size_t index) {
 			return m_secretKey[index];
+		}
+
+		shared_ptr<NativeVector> GenerateSecretKey(char* aes_key,size_t index,size_t n, uint32_t seed, NativeInteger modulus){
+			char iv[4]={0,1,2,3};
+			char counter[16];
+			char result[16];
+			int64_t i1,i2;
+			AESUtil util(iv,aes_key,32);
+			shared_ptr<NativeVector> v(new NativeVector(n,modulus));
+
+			for(size_t i = 0; i<n;i+=2){
+				int ctr = seed + index*(n/2)+2*i;
+				util.SplitBytes(counter,ctr,ctr+1);
+				util.EncryptBlock(counter,result);
+				util.CombineBytes(result,i1,i2);
+				(*v)[i] = i1;
+				(*v)[i+1] = i2;
+			}
+			return v;
 		}
 
 		const NativeVector &GetPublicRandomVector() {
