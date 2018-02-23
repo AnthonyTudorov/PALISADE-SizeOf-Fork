@@ -170,11 +170,11 @@ NativeInteger LWETBOLinearSecret::EvaluateClassifier(const vector<uint32_t> &inp
 	NativeInteger halfQ(m_modulus >> 1);
 
 	if (result>halfQ)
-		result=result.ModSub(m_modulus,m_p);
+		result.ModSubEq(m_modulus,m_p);
 	else
-		result=result.Mod(m_p);
+		result.ModEq(m_p);
 
-	return result.Mod(m_p);
+	return result;
 
 }
 

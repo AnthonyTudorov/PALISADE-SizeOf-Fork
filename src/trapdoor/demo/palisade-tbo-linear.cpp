@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 		TIC(t);
 		NativeInteger resultClear = algorithm.EvaluateClearClassifier(*indices,*weights);
 		processingTime = TOC_US(t);
-		std::cout << "nEvaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
+		std::cout << "Evaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
 
 		std::cout << "result (plaintext computation) = " << resultClear << std::endl;
 
