@@ -51,10 +51,10 @@ namespace lbcrypto {
 			return m_secretKey[index];
 		}
 
-		shared_ptr<NativeVector> GenerateSecretKey(char* aes_key,size_t index,size_t n, uint32_t seed, NativeInteger modulus){
-			char iv[4]={0,1,2,3};
-			char counter[16];
-			char result[16];
+		shared_ptr<NativeVector> GenerateSecretKey(unsigned char* aes_key,size_t index,size_t n, uint32_t seed, NativeInteger modulus){
+			unsigned char iv[4]={0,1,2,3};
+			unsigned char counter[16];
+			unsigned char result[16];
 			int64_t i1,i2;
 			AESUtil util(iv,aes_key,32);
 			shared_ptr<NativeVector> v(new NativeVector(n,modulus));
