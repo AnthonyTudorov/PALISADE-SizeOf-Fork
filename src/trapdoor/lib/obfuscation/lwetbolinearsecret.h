@@ -67,8 +67,8 @@ namespace lbcrypto {
 				util.SplitIntegers(counter,ctr,ctr+1);
 				util.EncryptBlock(counter,result);
 				util.CombineBytes(result,i1,i2);
-				(*v)[i] = i1;
-				(*v)[i+1] = i2;
+				(*v)[i] = i1%modulus;
+				(*v)[i+1] = i2%modulus;
 			}
 			return v;
 		}
