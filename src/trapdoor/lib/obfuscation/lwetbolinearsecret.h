@@ -43,8 +43,8 @@ namespace lbcrypto {
 	class LWETBOKeys{
 	public:
 
-		explicit LWETBOKeys(const vector<NativeVector> &secretKey, const NativeVector &publicKey) :
-			m_secretKey(secretKey), m_publicRandomVector(publicKey) {};
+		explicit LWETBOKeys(const vector<NativeVector> &secretKey, const NativeVector &publicKey, const NativeVector &publicKeyPrecon) :
+			m_secretKey(secretKey), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon) {};
 
 		const NativeVector &GetSecretKey(size_t index) {
 			return m_secretKey[index];
@@ -54,10 +54,15 @@ namespace lbcrypto {
 			return m_publicRandomVector;
 		}
 
+		const NativeVector &GetPublicRandomVectorPrecon() {
+			return m_publicRandomVectorPrecon;
+		}
+
 	private:
 
 		vector<NativeVector> m_secretKey;
 		NativeVector m_publicRandomVector;
+		NativeVector m_publicRandomVectorPrecon;
 
 	};
 
@@ -168,11 +173,12 @@ namespace lbcrypto {
 		 * @param inputIndices indices where input is 1
 		 * @param ciphertext obfuscated program
 		 * @param publicRandomVector public random vector
+		 * @param publicRandomVectorPrecon precomputation for NTL
 		 * @param token the token for the input data vector
 		 * @return the result of the summation
 		 */
 		NativeInteger EvaluateClassifier(const vector<uint32_t> &inputIndices, const shared_ptr<NativeVector> ciphertext,
-				const NativeVector &publicRandomVector, const shared_ptr<NativeVector> token) const;
+				const NativeVector &publicRandomVector, const NativeVector &publicRandomVectorPrecon, const shared_ptr<NativeVector> token) const;
 
 		/**
 		 * Evaluates \Sum{w_i x_i} using cleartext program

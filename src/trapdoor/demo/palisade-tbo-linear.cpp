@@ -45,9 +45,9 @@ shared_ptr<vector<NativeInteger>> BuildWeightVector(const vector<uint32_t> &thre
 		for (size_t i = 0; i < wordSize-1; i++)
 		{
 			if (i > thresholds[k])
-				(*weights)[i + k*wordSize] = dug.GenerateInteger();
-			else
 				(*weights)[i + k*wordSize] = 0;
+			else
+				(*weights)[i + k*wordSize] = dug.GenerateInteger();
 		}
 
 	return weights;
@@ -65,24 +65,6 @@ shared_ptr<vector<uint32_t>> BuildDataVector(const vector<uint32_t> &input, uint
 }
 
 int main(int argc, char* argv[]) {
-
-	int nthreads, tid;
-
-	// Fork a team of threads giving them their own copies of variables
-	//so we can see how many threads we have to work with
-#pragma omp parallel private(nthreads, tid)
-	{
-
-		/* Obtain thread number */
-		tid = omp_get_thread_num();
-
-		/* Only master thread does this */
-		if (tid == 0)
-		{
-			nthreads = omp_get_num_threads();
-			std::cout << "Number of threads = " << nthreads << std::endl;
-		}
-	}
 
 	TimeVar t;
 
@@ -114,17 +96,22 @@ int main(int argc, char* argv[]) {
 	vector<uint32_t> thresholds = {134, 90, 56, 89, 200};
 	shared_ptr<vector<NativeInteger>> weights = BuildWeightVector(thresholds, p, N, wordSize);
 
-	std::cerr << "Thresholds vector: " << thresholds << std::endl;
+	std::cout << "\nThresholds vector: " << thresholds << std::endl;
 
 	TIC(t);
 	shared_ptr<NativeVector> ciphertext = algorithm.Obfuscate(keys,*weights);
 	processingTime = TOC_US(t);
 	std::cout << "\nObfuscation time: " << processingTime/1000 << "ms" << std::endl;
 
-	vector<vector<uint32_t>> inputs = {{100, 70, 50, 80, 100},
-			{200, 70, 50, 80, 100},{100, 170, 50, 80, 100},{100, 70, 60, 80, 100},
-			{100, 70, 50, 92, 100},{100, 70, 50, 80, 180},
+	vector<vector<uint32_t>> inputs = {{135, 100, 60, 95, 210},
+			{34, 100, 60, 95, 210},{135, 80, 60, 95, 210},{135, 100, 40, 95, 210},
+			{135, 100, 60, 85, 210},{255, 254, 200, 150, 215},
 	};
+
+	bool errorFlag = false;
+
+	double evalTokenTime(0.0);
+	double evalTime(0.0);
 
 	for (size_t i = 0; i < inputs.size(); i++)
 	{
@@ -136,11 +123,13 @@ int main(int argc, char* argv[]) {
 		TIC(t);
 		shared_ptr<NativeVector> token = algorithm.TokenGen(keys,*indices);
 		processingTime = TOC_US(t);
+		evalTokenTime += processingTime;
 		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
 
 		TIC(t);
-		NativeInteger result = algorithm.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),token);
+		NativeInteger result = algorithm.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),keys->GetPublicRandomVectorPrecon(),token);
 		processingTime = TOC_US(t);
+		evalTime += processingTime;
 		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
 
 		std::cout << "result (encrypted computation) = " << result << std::endl;
@@ -152,8 +141,28 @@ int main(int argc, char* argv[]) {
 
 		std::cout << "result (plaintext computation) = " << resultClear << std::endl;
 
+		string flagResult;
+
+		if (resultClear == 0)
+			flagResult = "MATCH: ";
+		else
+			flagResult = "NO MATCH: ";
+
+		if (result == resultClear)
+			flagResult = flagResult  + " CORRECT";
+		else
+		{
+			flagResult = flagResult  + " INCORRECT";
+			errorFlag = true;
+		}
+
+		std::cout << flagResult << std::endl;
 	}
 
-	return 0;
+	std::cout << "\nT: Average token evaluation time:  " << "\t" << evalTokenTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average evaluation time:  " << "\t" << evalTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average total evaluation time:       " << "\t" << (evalTokenTime+evalTime)/(double)(1000*inputs.size()) << " ms" << std::endl;
+
+	return errorFlag;
 
 }

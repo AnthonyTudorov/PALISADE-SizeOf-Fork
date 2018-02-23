@@ -105,7 +105,12 @@ shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
 
 	NativeVector publicRandomVector = dug.GenerateVector(m_n);
 
-	shared_ptr<LWETBOKeys> keys(new LWETBOKeys(secretKey,publicRandomVector));
+	NativeVector publicRandomVectorPrecon(m_n,m_modulus);
+
+	for (size_t i = 0; i < m_n; i++)
+		publicRandomVectorPrecon[i] = publicRandomVector[i].PrepModMulPreconNTL(m_modulus);
+
+	shared_ptr<LWETBOKeys> keys(new LWETBOKeys(secretKey,publicRandomVector,publicRandomVectorPrecon));
 
 	return keys;
 
@@ -157,7 +162,7 @@ shared_ptr<NativeVector> LWETBOLinearSecret::Obfuscate(const shared_ptr<LWETBOKe
 }
 
 NativeInteger LWETBOLinearSecret::EvaluateClassifier(const vector<uint32_t> &inputIndices, const shared_ptr<NativeVector> ciphertext,
-			const NativeVector &publicRandomVector, const shared_ptr<NativeVector> token) const{
+			const NativeVector &publicRandomVector, const NativeVector &publicRandomVectorPrecon, const shared_ptr<NativeVector> token) const{
 
 	NativeInteger result;
 
@@ -165,7 +170,7 @@ NativeInteger LWETBOLinearSecret::EvaluateClassifier(const vector<uint32_t> &inp
 		result.ModAddEq((*ciphertext)[inputIndices[Ni]],m_modulus);
 
 	for (size_t ni = 0; ni < m_n; ni++)
-		result.ModSubEq(publicRandomVector[ni].ModMul((*token)[ni],m_modulus),m_modulus);
+		result.ModSubEq(publicRandomVector[ni].ModMulPreconNTL((*token)[ni],m_modulus,publicRandomVectorPrecon[ni]),m_modulus);
 
 	NativeInteger halfQ(m_modulus >> 1);
 
