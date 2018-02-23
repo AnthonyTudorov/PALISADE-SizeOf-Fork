@@ -61,7 +61,7 @@ namespace lbcrypto {
 
 			for(size_t i = 0; i<n;i+=2){
 				int ctr = seed + index*(n/2)+2*i;
-				util.SplitBytes(counter,ctr,ctr+1);
+				util.SplitIntegers(counter,ctr,ctr+1);
 				util.EncryptBlock(counter,result);
 				util.CombineBytes(result,i1,i2);
 				(*v)[i] = i1;
