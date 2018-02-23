@@ -1080,7 +1080,7 @@ void AESUtil::SplitIntegers(unsigned char* bytes, int64_t i1,int64_t i2){
     bytes[14]= (i2 >> 8) & 0xFF;
     bytes[15]= (i2) & 0xFF;
 }
-void CombineBytes(unsigned char* bytes, int64_t& i1,int64_t& i2){
+void AESUtil::CombineBytes(unsigned char* bytes, int64_t& i1,int64_t& i2){
     i1 = (((int64_t)bytes[0] << 56) & 0xFF00000000000000U)
     | (((int64_t)bytes[1] << 48) & 0x00FF000000000000U)
     | (((int64_t)bytes[2] << 40) & 0x0000FF0000000000U)

@@ -92,7 +92,7 @@ double LWETBOLinearSecret::EstimateModulusClassifier() {
 
 };
 
-shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
+shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen(unsigned char* aes_key, uint32_t seed) const
 {
 
 	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
@@ -110,7 +110,7 @@ shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
 	for (size_t i = 0; i < m_n; i++)
 		publicRandomVectorPrecon[i] = publicRandomVector[i].PrepModMulPreconNTL(m_modulus);
 
-	shared_ptr<LWETBOKeys> keys(new LWETBOKeys(secretKey,publicRandomVector,publicRandomVectorPrecon));
+	shared_ptr<LWETBOKeys> keys(new LWETBOKeys(publicRandomVector,publicRandomVectorPrecon,aes_key,seed));
 
 	return keys;
 
@@ -133,7 +133,7 @@ shared_ptr<NativeVector> LWETBOLinearSecret::TokenGen(shared_ptr<LWETBOKeys> &ke
 	shared_ptr<NativeVector> token(new NativeVector(m_n,m_modulus));
 
 	for (size_t i = 0; i < inputIndices.size(); i++)
-		token->ModAddEq(keys->GetSecretKey(inputIndices[i]));
+		token->ModAddEq(*keys->GenerateSecretKey(inputIndices[i],m_n,m_modulus));
 
 	return token;
 
@@ -146,9 +146,10 @@ shared_ptr<NativeVector> LWETBOLinearSecret::Obfuscate(const shared_ptr<LWETBOKe
 
 	for (size_t Ni = 0; Ni < m_N; Ni++)
 	{
+		shared_ptr<NativeVector> secretKey = keyPair->GenerateSecretKey(Ni,m_n,m_modulus);
 
 		for (size_t ni = 0; ni < m_n; ni++){
-			(*ciphertext)[Ni].ModAddEq(keyPair->GetSecretKey(Ni)[ni].ModMul(keyPair->GetPublicRandomVector()[ni],m_modulus),m_modulus);
+			(*ciphertext)[Ni].ModAddEq((*secretKey)[ni].ModMul(keyPair->GetPublicRandomVector()[ni],m_modulus),m_modulus);
 		}
 
 		(*ciphertext)[Ni].ModAddEq(NativeInteger(m_p).ModMul(m_dgg.GenerateInteger(m_modulus),m_modulus),m_modulus);

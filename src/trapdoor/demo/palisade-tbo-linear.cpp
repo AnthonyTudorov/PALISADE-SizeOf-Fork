@@ -76,6 +76,8 @@ int main(int argc, char* argv[]) {
 	PlaintextModulus p = 1099511627776; //2^40
 	uint32_t wordSize = 256;
 
+	unsigned char key[32]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
+
 	TIC(t);
 	LWETBOLinearSecret algorithm(N, n, p, numAtt);
 	processingTime = TOC_US(t);
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
 
 	TIC(t);
-	shared_ptr<LWETBOKeys> keys = algorithm.KeyGen();
+	shared_ptr<LWETBOKeys> keys = algorithm.KeyGen(key,1);
 	processingTime = TOC_US(t);
 	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
 

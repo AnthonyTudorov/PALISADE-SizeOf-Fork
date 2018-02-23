@@ -45,22 +45,25 @@ namespace lbcrypto {
 	public:
 
 		explicit LWETBOKeys(const vector<NativeVector> &secretKey, const NativeVector &publicKey, const NativeVector &publicKeyPrecon) :
-			m_secretKey(secretKey), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon) {};
+			m_secretKey(secretKey), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon), m_AESkey(NULL), m_seed(0) {};
+
+		explicit LWETBOKeys(const NativeVector &publicKey, const NativeVector &publicKeyPrecon, unsigned char* aes_key, uint32_t seed) :
+			m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon), m_AESkey(aes_key), m_seed(seed) {};
 
 		const NativeVector &GetSecretKey(size_t index) {
 			return m_secretKey[index];
 		}
 
-		shared_ptr<NativeVector> GenerateSecretKey(unsigned char* aes_key,size_t index,size_t n, uint32_t seed, NativeInteger modulus){
+		shared_ptr<NativeVector> GenerateSecretKey(size_t index, size_t n, NativeInteger modulus){
 			unsigned char iv[4]={0,1,2,3};
 			unsigned char counter[16];
 			unsigned char result[16];
 			int64_t i1,i2;
-			AESUtil util(iv,aes_key,32);
+			AESUtil util(iv,m_AESkey,32);
 			shared_ptr<NativeVector> v(new NativeVector(n,modulus));
 
 			for(size_t i = 0; i<n;i+=2){
-				int ctr = seed + index*(n/2)+2*i;
+				int ctr = m_seed + index*(n/2)+2*i;
 				util.SplitIntegers(counter,ctr,ctr+1);
 				util.EncryptBlock(counter,result);
 				util.CombineBytes(result,i1,i2);
@@ -83,6 +86,8 @@ namespace lbcrypto {
 		vector<NativeVector> m_secretKey;
 		NativeVector m_publicRandomVector;
 		NativeVector m_publicRandomVectorPrecon;
+		unsigned char* m_AESkey;
+		uint32_t m_seed;
 
 	};
 
@@ -158,7 +163,7 @@ namespace lbcrypto {
 		 * Generate N random secret vectors Z_q^n and public random vector a
 		 * @return the secret keys and public random vector
 		 */
-		shared_ptr<LWETBOKeys> KeyGen() const;
+		shared_ptr<LWETBOKeys> KeyGen(unsigned char* aes_key, uint32_t seed) const;
 
 		/**
 		 * Generate token t = \Sum{w_i s_i} \in Z_q^n
