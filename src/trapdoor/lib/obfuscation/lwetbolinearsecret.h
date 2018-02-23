@@ -40,9 +40,25 @@
  */
 namespace lbcrypto {
 
-	struct LWETBOKeys{
-		shared_ptr<Matrix<NativeInteger>> m_secretKey;
-		shared_ptr<Matrix<NativeInteger>> m_publicRandomVector;
+	class LWETBOKeys{
+	public:
+
+		explicit LWETBOKeys(const vector<NativeVector> &secretKey, const NativeVector &publicKey) :
+			m_secretKey(secretKey), m_publicRandomVector(publicKey) {};
+
+		const NativeVector &GetSecretKey(size_t index) {
+			return m_secretKey[index];
+		}
+
+		const NativeVector &GetPublicRandomVector() {
+			return m_publicRandomVector;
+		}
+
+	private:
+
+		vector<NativeVector> m_secretKey;
+		NativeVector m_publicRandomVector;
+
 	};
 
 	/**
@@ -51,9 +67,6 @@ namespace lbcrypto {
 	class LWETBOLinearSecret {
 	public:
 
-		typedef shared_ptr<Matrix<NativeInteger>> NativeMatrixPtr;
-		typedef Matrix<NativeInteger> NativeMatrix;
-
 		/**
 		 * Constructor
 		 *
@@ -61,26 +74,42 @@ namespace lbcrypto {
 		 * @param n LWE security parameter
 		 * @param wmax infinity norm of the weights vector
 		 * @param pmax infinity norm of input data vector
+		 * @param numAtt number of attributes
 		 */
-		explicit LWETBOLinearSecret(usint N, usint n, usint wmax, usint pmax);
+		explicit LWETBOLinearSecret(uint32_t N, uint32_t n, uint32_t wmax, uint32_t pmax, uint32_t numAtt);
+
+		/**
+		 * Constructor
+		 *
+		 * @param N the dimension
+		 * @param n LWE security parameter
+		 * @param numAtt in the case of classification
+		 */
+		explicit LWETBOLinearSecret(uint32_t N, uint32_t n, PlaintextModulus p, uint32_t numAtt);
 
 		/**
 		 * Gets the LWE security parameter
 		 * @return the LWE security parameter
 		 */
-		usint GetSecurityParameter() const {return m_n;}
+		uint32_t GetSecurityParameter() const {return m_n;}
 
 		/**
 		 * Gets the log of the modulus
 		 * @return the log of the modulus
 		 */
-		usint GetLogModulus() const;
+		uint32_t GetLogModulus() const;
+
+		/**
+		 * Gets the number of attributes (in classification)
+		 * @return the number of attributes
+		 */
+		uint32_t GetNumAtt() const {return m_numAtt;};
 
 		/**
 		 * Gets the weight infinity norm
 		 * @return the weight norm
 		 */
-		usint GetWeightNorm() const {return m_wmax;}
+		uint32_t GetWeightNorm() const {return m_wmax;}
 
 		/**
 		 * Gets the "plaintext" modulus p used by the LWE scheme
@@ -98,13 +127,13 @@ namespace lbcrypto {
 		 * Gets the dimension N
 		 * @return the dimension N
 		 */
-		usint GetDimension() const {return m_N;}
+		uint32_t GetDimension() const {return m_N;}
 
 		/**
 		 * Generate N random secret vectors Z_q^n and public random vector a
 		 * @return the secret keys and public random vector
 		 */
-		LWETBOKeys KeyGen() const;
+		shared_ptr<LWETBOKeys> KeyGen() const;
 
 		/**
 		 * Generate token t = \Sum{w_i s_i} \in Z_q^n
@@ -113,68 +142,88 @@ namespace lbcrypto {
 		 * @param input input data vector
 		 * @return the token
 		 */
-		NativeMatrixPtr TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const;
+		shared_ptr<NativeVector> TokenGen(const vector<NativeVector> &keys, const vector<NativeInteger> &input) const;
+
+		/**
+		 * Generate token t = \Sum{x_i s_i} \in Z_q^n for the case when x_i's are 1's
+		 *
+		 * @param keys secret keys
+		 * @param inputIndices indicies where x_i is 1 (0 elsewhere)
+		 * @return the token
+		 */
+		shared_ptr<NativeVector> TokenGen(shared_ptr<LWETBOKeys> &keys, const vector<uint32_t> &inputIndices) const;
 
 		/**
 		 * Generates an encryption of weights (obfuscated program)
 		 *
 		 * @param keyPair secret keys + public random vector
-		 * @param weigts the weights vector
+		 * @param weights the weights vector
 		 * @return the obfuscated program
 		 */
-		NativeMatrixPtr Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const;
+		shared_ptr<NativeVector> Obfuscate(const shared_ptr<LWETBOKeys> keyPair, const vector<NativeInteger> &weights) const;
 
 		/**
 		 * Evaluates \Sum{w_i x_i} using obfuscated program
 		 *
-		 * @param input input data vector
+		 * @param inputIndices indices where input is 1
 		 * @param ciphertext obfuscated program
 		 * @param publicRandomVector public random vector
 		 * @param token the token for the input data vector
 		 * @return the result of the summation
 		 */
-		NativeInteger Evaluate(const NativeMatrixPtr input, const NativeMatrixPtr ciphertext,
-				const NativeMatrixPtr publicRandomVector, const NativeMatrixPtr token) const;
+		NativeInteger EvaluateClassifier(const vector<uint32_t> &inputIndices, const shared_ptr<NativeVector> ciphertext,
+				const NativeVector &publicRandomVector, const shared_ptr<NativeVector> token) const;
 
 		/**
 		 * Evaluates \Sum{w_i x_i} using cleartext program
 		 *
-		 * @param input input data vector
+		 * @param inputIndices indices where input is 1
 		 * @param weigts the weights vector
 		 * @return the result of the summation
 		 */
-		NativeInteger EvaluateClear(const NativeMatrixPtr input, const NativeMatrixPtr weights) const;
+		NativeInteger EvaluateClearClassifier(const vector<uint32_t> &inputIndices, const vector<NativeInteger> weights) const;
 
 	private:
 
 		// Dimension - size of weight/data vectors
-		usint m_N;
+		uint32_t m_N;
 
 		// LWE security parameter
-		usint m_n;
+		uint32_t m_n;
 
 		// Infinity norm for the weight vector
-		usint m_wmax;
+		uint32_t m_wmax;
 
 		// Plaintext modulus p
 		PlaintextModulus m_p;
 
 		// Infinity norm for the input data vector
-		usint m_pmax;
+		uint32_t m_pmax;
 
 		// LWE "ciphertext" modulus q
 		NativeInteger m_modulus;
+
+		// number of attributes (when applied to classification)
+		uint32_t m_numAtt;
 
 		// Discrete Gaussian distribution for generating the noise in the LWE encryption
 		DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> m_dgg;
 
 		/**
 		 * Method to estimate the modulus
-		 * Used as a subroutine by constructor
+		 * Used as a subroutine by constructor LWETBOLinearSecret(uint32_t N, uint32_t n, uint32_t wmax, uint32_t pmax)
 		 *
 		 * @return estimated value q of modulus
 		 */
 		double EstimateModulus();
+
+		/**
+		 * Method to estimate the modulus for the classifier scenario
+		 * Used as a subroutine by constructor LWETBOLinearSecret(uint32_t N, uint32_t n, uint32_t numAtt);
+		 *
+		 * @return estimated value q of modulus
+		 */
+		double EstimateModulusClassifier();
 
 	};
 

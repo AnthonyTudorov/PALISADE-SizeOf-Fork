@@ -29,14 +29,40 @@
 
 #include <iostream>
 #include "obfuscation/lwetbolinearsecret.h"
-#include "obfuscation/lwetbolinearsecret.cpp"
 
 #include "utils/debug.h"
 
 using namespace lbcrypto;
 
-typedef typename LWETBOLinearSecret::NativeMatrixPtr NativeMatrixPtr;
-typedef typename LWETBOLinearSecret::NativeMatrix NativeMatrix;
+shared_ptr<vector<NativeInteger>> BuildWeightVector(const vector<uint32_t> &thresholds, PlaintextModulus p, uint32_t N, uint32_t wordSize) {
+
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	dug.SetModulus(p);
+
+	shared_ptr<vector<NativeInteger>> weights(new vector<NativeInteger>(N));
+
+	for (size_t k = 0; k < thresholds.size(); k++)
+		for (size_t i = 0; i < wordSize-1; i++)
+		{
+			if (i > thresholds[k])
+				(*weights)[i + k*wordSize] = dug.GenerateInteger();
+			else
+				(*weights)[i + k*wordSize] = 0;
+		}
+
+	return weights;
+
+}
+
+shared_ptr<vector<uint32_t>> BuildDataVector(const vector<uint32_t> &input, uint32_t wordSize) {
+
+	shared_ptr<vector<uint32_t>> indices(new vector<uint32_t>(input.size()));
+	for (size_t k = 0; k < input.size(); k++)
+		(*indices)[k] = input[k] + k*wordSize;
+
+	return indices;
+
+}
 
 int main(int argc, char* argv[]) {
 
@@ -62,74 +88,71 @@ int main(int argc, char* argv[]) {
 
 	double processingTime(0.0);
 
-	usint N = 1000;
-	usint n = 2048;
-	usint wmax = 4;
-	usint pmax = 16;
+	uint32_t N = 1280;
+	uint32_t n = 2048;
+	uint32_t numAtt = 5;
+	PlaintextModulus p = 1099511627776; //2^40
+	uint32_t wordSize = 256;
 
 	TIC(t);
-	LWETBOLinearSecret algorithm(N, n, wmax, pmax);
-	processingTime = TOC(t);
-	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
+	LWETBOLinearSecret algorithm(N, n, p, numAtt);
+	processingTime = TOC_US(t);
+	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
 
 	std::cout << "\nn = " << algorithm.GetSecurityParameter() << std::endl;
 	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
-	std::cout << "weight norm = " << algorithm.GetWeightNorm() << std::endl;
-	std::cout << "input data norm = " << pmax << std::endl;
+	std::cout << "Number of attributes = " << algorithm.GetNumAtt() << std::endl;
 	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
 	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
 
 	TIC(t);
-	LWETBOKeys keys = algorithm.KeyGen();
-	processingTime = TOC(t);
-	std::cout << "\nKey generation time: " << processingTime << "ms" << std::endl;
+	shared_ptr<LWETBOKeys> keys = algorithm.KeyGen();
+	processingTime = TOC_US(t);
+	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
 
-	//std::cout << "secretkeys(0,0) = " << (*keys.m_secretKey)(0,0) << std::endl;
-	//std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
+	// vector of thresholds
+	vector<uint32_t> thresholds = {134, 90, 56, 89, 200};
+	shared_ptr<vector<NativeInteger>> weights = BuildWeightVector(thresholds, p, N, wordSize);
 
-	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
-	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
-
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dugWeights;
-	dugWeights.SetModulus(algorithm.GetWeightNorm());
-
-	NativeMatrixPtr weights(new  NativeMatrix([&]() {
-		return dugWeights.GenerateInteger(); }, algorithm.GetDimension(),1));
+	std::cerr << "Thresholds vector: " << thresholds << std::endl;
 
 	TIC(t);
-	NativeMatrixPtr ciphertext = algorithm.Obfuscate(keys,weights);
-	processingTime = TOC(t);
-	std::cout << "\nObfuscation time: " << processingTime << "ms" << std::endl;\
+	shared_ptr<NativeVector> ciphertext = algorithm.Obfuscate(keys,*weights);
+	processingTime = TOC_US(t);
+	std::cout << "\nObfuscation time: " << processingTime/1000 << "ms" << std::endl;
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
-	dug.SetModulus(16);
+	vector<vector<uint32_t>> inputs = {{100, 70, 50, 80, 100},
+			{200, 70, 50, 80, 100},{100, 170, 50, 80, 100},{100, 70, 60, 80, 100},
+			{100, 70, 50, 92, 100},{100, 70, 50, 80, 180},
+	};
 
-	NativeMatrixPtr input(new  NativeMatrix([&]() {
-		return dug.GenerateInteger(); }, algorithm.GetDimension(),1));
+	for (size_t i = 0; i < inputs.size(); i++)
+	{
 
-	TIC(t);
-	NativeMatrixPtr token = algorithm.TokenGen(keys.m_secretKey,input);
-	processingTime = TOC(t);
-	std::cout << "\nToken generation time: " << processingTime << "ms" << std::endl;
+		shared_ptr<vector<uint32_t>> indices = BuildDataVector(inputs[i], wordSize);
 
-	//Generate parameters.
-	double start, finish;
+		std::cout << "\nInput #" << i+1 << ": " << inputs[i] << std::endl;
 
-	start = currentDateTime();
-	NativeInteger result = algorithm.Evaluate(input,ciphertext,keys.m_publicRandomVector,token);
-	finish = currentDateTime();
-	processingTime = finish - start;
-	std::cout << "\nEvaluation time: " << processingTime << "ms" << std::endl;
+		TIC(t);
+		shared_ptr<NativeVector> token = algorithm.TokenGen(keys,*indices);
+		processingTime = TOC_US(t);
+		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
 
-	std::cout << "result (encrypted computation) = " << result << std::endl;
+		TIC(t);
+		NativeInteger result = algorithm.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),token);
+		processingTime = TOC_US(t);
+		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
 
-	start = currentDateTime();
-	NativeInteger resultClear = algorithm.EvaluateClear(input,weights);
-	finish = currentDateTime();
-	processingTime = finish - start;
-	std::cout << "\nEvaluation time (in clear): " << processingTime << "ms" << std::endl;
+		std::cout << "result (encrypted computation) = " << result << std::endl;
 
-	std::cout << "result (plaintext computation) = " << resultClear << std::endl;
+		TIC(t);
+		NativeInteger resultClear = algorithm.EvaluateClearClassifier(*indices,*weights);
+		processingTime = TOC_US(t);
+		std::cout << "nEvaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
+
+		std::cout << "result (plaintext computation) = " << resultClear << std::endl;
+
+	}
 
 	return 0;
 

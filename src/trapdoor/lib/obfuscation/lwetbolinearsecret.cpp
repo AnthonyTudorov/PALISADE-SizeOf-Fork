@@ -31,17 +31,28 @@
 
 namespace lbcrypto {
 
-usint LWETBOLinearSecret::GetLogModulus() const {
+uint32_t LWETBOLinearSecret::GetLogModulus() const {
 	double q = m_modulus.ConvertToDouble();
-	usint logModulus = floor(log2(q - 1.0) + 1.0);
+	uint32_t logModulus = floor(log2(q - 1.0) + 1.0);
 	return logModulus;
 }
 
-LWETBOLinearSecret::LWETBOLinearSecret(usint N, usint n, usint wmax, usint pmax) : m_N(N), m_n(n), m_wmax(wmax), m_pmax(pmax) {
+LWETBOLinearSecret::LWETBOLinearSecret(uint32_t N, uint32_t n, uint32_t wmax, uint32_t pmax, uint32_t numAtt) :
+		m_N(N), m_n(n), m_wmax(wmax), m_pmax(pmax), m_numAtt(numAtt) {
 
 	double q = EstimateModulus();
 
-	m_modulus = FirstPrime<NativeInteger>(floor(log2(q - 1.0) + 1.0), 2*m_n);
+	m_modulus = FirstPrime<NativeInteger>(ceil(log2(q)), 2*m_n);
+
+	m_dgg.SetStd(3.2);
+
+}
+
+LWETBOLinearSecret::LWETBOLinearSecret(uint32_t N, uint32_t n, PlaintextModulus p, uint32_t numAtt) : m_N(N), m_n(n), m_p(p), m_numAtt(numAtt) {
+
+	double q = EstimateModulusClassifier();
+
+	m_modulus = FirstPrime<NativeInteger>(ceil(log2(q)), 2*m_n);
 
 	m_dgg.SetStd(3.2);
 
@@ -53,7 +64,7 @@ double LWETBOLinearSecret::EstimateModulus() {
 	double sigma = 3.2;
 
 	//assurance measure
-	double alpha = 36;
+	double alpha = 144;
 
 	//Bound of the Gaussian error
 	double Berr = sigma*sqrt(alpha);
@@ -61,57 +72,83 @@ double LWETBOLinearSecret::EstimateModulus() {
 	m_p = m_N*m_wmax*m_pmax;
 
 	//Correctness constraint
-	return 4*m_N*m_wmax*m_p*Berr;
+	return 4*m_N*m_pmax*m_p*Berr;
 
 };
 
-LWETBOKeys LWETBOLinearSecret::KeyGen() const
+double LWETBOLinearSecret::EstimateModulusClassifier() {
+
+	//distribution parameter
+	double sigma = 3.2;
+
+	//assurance measure
+	double alpha = 144;
+
+	//Bound of the Gaussian error
+	double Berr = sigma*sqrt(alpha);
+
+	//Correctness constraint
+	return 4*m_numAtt*m_p*Berr;
+
+};
+
+shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
 {
 
 	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
 	dug.SetModulus(m_modulus);
 
-	// discrete uniform generator is used to generate the secret keys
-	NativeMatrixPtr secretKey(new Matrix<NativeInteger>([&]() { return dug.GenerateInteger(); }, m_n,m_N));
+	vector<NativeVector> secretKey(m_N);
 
-	NativeMatrixPtr publicRandomVector(new Matrix<NativeInteger>([&]() { return dug.GenerateInteger(); }, 1,m_n));
+	for (size_t i = 0; i < m_N; i++)
+		secretKey[i] = dug.GenerateVector(m_n);
 
-	LWETBOKeys keys;
-	keys.m_secretKey = secretKey;
-	keys.m_publicRandomVector = publicRandomVector;
+	NativeVector publicRandomVector = dug.GenerateVector(m_n);
+
+	shared_ptr<LWETBOKeys> keys(new LWETBOKeys(secretKey,publicRandomVector));
 
 	return keys;
 
 }
 
-shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::TokenGen(const NativeMatrixPtr keys, const NativeMatrixPtr input) const
+shared_ptr<NativeVector> LWETBOLinearSecret::TokenGen(const vector<NativeVector> &keys, const vector<NativeInteger> &input) const
 {
 
-	NativeMatrixPtr token(new Matrix<NativeInteger>(NativeInteger::Allocator, m_n, 1));
+	shared_ptr<NativeVector> token(new NativeVector(m_n,m_modulus));
 
-	for (size_t ni = 0; ni < keys->GetRows(); ni++)
-		for (size_t Ni = 0; Ni < keys->GetCols(); Ni++)
-			(*token)(ni,0) = (*token)(ni,0).ModAdd((*keys)(ni,Ni).ModMul((*input)(Ni,0),m_modulus),m_modulus);
+	for (size_t Ni = 0; Ni < input.size(); Ni++)
+		token->ModAddEq(keys[Ni].ModMul(input[Ni]));
 
 	return token;
 
 }
 
-shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys &keyPair, const NativeMatrixPtr weights) const
+shared_ptr<NativeVector> LWETBOLinearSecret::TokenGen(shared_ptr<LWETBOKeys> &keys, const vector<uint32_t> &inputIndices) const{
+
+	shared_ptr<NativeVector> token(new NativeVector(m_n,m_modulus));
+
+	for (size_t i = 0; i < inputIndices.size(); i++)
+		token->ModAddEq(keys->GetSecretKey(inputIndices[i]));
+
+	return token;
+
+}
+
+shared_ptr<NativeVector> LWETBOLinearSecret::Obfuscate(const shared_ptr<LWETBOKeys> keyPair, const vector<NativeInteger> &weights) const
 {
 
-	NativeMatrixPtr ciphertext(new Matrix<NativeInteger>(NativeInteger::Allocator, m_N, 1));
+	shared_ptr<NativeVector> ciphertext(new NativeVector(m_N,m_modulus));
 
-	for (size_t Ni = 0; Ni < keyPair.m_secretKey->GetCols(); Ni++)
+	for (size_t Ni = 0; Ni < m_N; Ni++)
 	{
 
-		for (size_t ni = 0; ni < keyPair.m_secretKey->GetRows(); ni++){
-			(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*keyPair.m_secretKey)(ni,Ni).ModMul((*keyPair.m_publicRandomVector)(0,ni),m_modulus),m_modulus);
+		for (size_t ni = 0; ni < m_n; ni++){
+			(*ciphertext)[Ni].ModAddEq(keyPair->GetSecretKey(Ni)[ni].ModMul(keyPair->GetPublicRandomVector()[ni],m_modulus),m_modulus);
 		}
 
-		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd(NativeInteger(m_p)*m_dgg.GenerateInteger(m_modulus),m_modulus);
+		(*ciphertext)[Ni].ModAddEq(NativeInteger(m_p).ModMul(m_dgg.GenerateInteger(m_modulus),m_modulus),m_modulus);
 
-		(*ciphertext)(Ni,0) = (*ciphertext)(Ni,0).ModAdd((*weights)(Ni,0),m_modulus);
+		(*ciphertext)[Ni].ModAddEq(weights[Ni],m_modulus);
 
 	}
 
@@ -119,16 +156,16 @@ shared_ptr<Matrix<NativeInteger>> LWETBOLinearSecret::Obfuscate(const LWETBOKeys
 
 }
 
-NativeInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input, const NativeMatrixPtr ciphertext,
-		const NativeMatrixPtr publicKey, const NativeMatrixPtr token) const{
+NativeInteger LWETBOLinearSecret::EvaluateClassifier(const vector<uint32_t> &inputIndices, const shared_ptr<NativeVector> ciphertext,
+			const NativeVector &publicRandomVector, const shared_ptr<NativeVector> token) const{
 
 	NativeInteger result;
 
-	for (size_t Ni = 0; Ni < m_N; Ni++)
-		result = result.ModAdd((*input)(Ni,0).ModMul((*ciphertext)(Ni,0),m_modulus),m_modulus);
+	for (size_t Ni = 0; Ni < inputIndices.size(); Ni++)
+		result.ModAddEq((*ciphertext)[inputIndices[Ni]],m_modulus);
 
 	for (size_t ni = 0; ni < m_n; ni++)
-		result = result.ModSub((*publicKey)(0,ni).ModMul((*token)(ni,0),m_modulus),m_modulus);
+		result.ModSubEq(publicRandomVector[ni].ModMul((*token)[ni],m_modulus),m_modulus);
 
 	NativeInteger halfQ(m_modulus >> 1);
 
@@ -141,12 +178,12 @@ NativeInteger LWETBOLinearSecret::Evaluate(const NativeMatrixPtr input, const Na
 
 }
 
-NativeInteger LWETBOLinearSecret::EvaluateClear(const NativeMatrixPtr input, const NativeMatrixPtr weights) const{
+NativeInteger LWETBOLinearSecret::EvaluateClearClassifier(const vector<uint32_t> &inputIndices, const vector<NativeInteger> weights) const{
 
 	NativeInteger result;
 
-	for (size_t Ni = 0; Ni < m_N; Ni++)
-		result += (*input)(Ni,0)*(*weights)(Ni,0);
+	for (size_t Ni = 0; Ni < inputIndices.size(); Ni++)
+		result += weights[inputIndices[Ni]];
 
 	return result;
 
