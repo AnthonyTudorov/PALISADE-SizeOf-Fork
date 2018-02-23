@@ -170,7 +170,7 @@ NativeInteger LWETBOLinearSecret::EvaluateClassifier(const vector<uint32_t> &inp
 		result.ModAddEq((*ciphertext)[inputIndices[Ni]],m_modulus);
 
 	for (size_t ni = 0; ni < m_n; ni++)
-		result.ModSubEq(publicRandomVector[ni].ModMulPreconNTL((*token)[ni],m_modulus,publicRandomVectorPrecon[ni]),m_modulus);
+		result.ModSubEq((*token)[ni].ModMulPreconNTL(publicRandomVector[ni],m_modulus,publicRandomVectorPrecon[ni]),m_modulus);
 
 	NativeInteger halfQ(m_modulus >> 1);
 
