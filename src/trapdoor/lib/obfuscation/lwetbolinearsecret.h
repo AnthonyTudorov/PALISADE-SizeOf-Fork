@@ -95,6 +95,10 @@ namespace lbcrypto {
 			return m_publicRandomVectorPrecon;
 		}
 
+		const TboLinearMode GetMode() {
+			return m_mode;
+		}
+
 	private:
 
 		TboLinearMode m_mode;

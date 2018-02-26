@@ -76,17 +76,6 @@ int main(int argc, char* argv[]) {
 	PlaintextModulus p = 1099511627776; //2^40
 	uint32_t wordSize = 256;
 
-	TIC(t);
-	LWETBOLinearSecret algorithm(N, n, p, numAtt);
-	processingTime = TOC_US(t);
-	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
-
-	std::cout << "\nn = " << algorithm.GetSecurityParameter() << std::endl;
-	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
-	std::cout << "Number of attributes = " << algorithm.GetNumAtt() << std::endl;
-	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
-	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
-
 	// vector of thresholds
 	vector<uint32_t> thresholds = {134, 90, 56, 89, 200};
 	shared_ptr<vector<NativeInteger>> weights = BuildWeightVector(thresholds, p, N, wordSize);
@@ -101,9 +90,22 @@ int main(int argc, char* argv[]) {
 	std::cout << "========================================================" << std::endl;
 
 	TIC(t);
+	LWETBOLinearSecret algorithm(N, n, p, numAtt);
+	processingTime = TOC_US(t);
+	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
+
+	std::cout << "\nn = " << algorithm.GetSecurityParameter() << std::endl;
+	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
+	std::cout << "Number of attributes = " << algorithm.GetNumAtt() << std::endl;
+	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
+	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
+
+	TIC(t);
 	shared_ptr<LWETBOKeys> keys = algorithm.KeyGen();
 	processingTime = TOC_US(t);
 	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
+
+	std::cout << "MODE = " << ((keys->GetMode()==AES)?"AES":"PRECOMPUTED") << std::endl;
 
 	TIC(t);
 	shared_ptr<NativeVector> ciphertext = algorithm.Obfuscate(keys,*weights);
@@ -174,12 +176,25 @@ int main(int argc, char* argv[]) {
 	unsigned char key[32]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
 
 	TIC(t);
-	shared_ptr<LWETBOKeys> keysAES = algorithm.KeyGen(key,1);
+	LWETBOLinearSecret algorithmAES(N, n, p, numAtt);
+	processingTime = TOC_US(t);
+	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
+
+	std::cout << "\nn = " << algorithmAES.GetSecurityParameter() << std::endl;
+	std::cout << "log2 q = " << algorithmAES.GetLogModulus() << std::endl;
+	std::cout << "Number of attributes = " << algorithmAES.GetNumAtt() << std::endl;
+	std::cout << "plaintext modulus = " << algorithmAES.GetPlaintextModulus() << std::endl;
+	std::cout << "Dimension of weight/data vectors = " << algorithmAES.GetDimension() << std::endl;
+
+	TIC(t);
+	shared_ptr<LWETBOKeys> keysAES = algorithmAES.KeyGen(key,1);
 	processingTime = TOC_US(t);
 	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
 
+	std::cout << "MODE = " << ((keysAES->GetMode()==AES)?"AES":"PRECOMPUTED") << std::endl;
+
 	TIC(t);
-	shared_ptr<NativeVector> ciphertextAES = algorithm.Obfuscate(keysAES,*weights);
+	shared_ptr<NativeVector> ciphertextAES = algorithmAES.Obfuscate(keysAES,*weights);
 	processingTime = TOC_US(t);
 	std::cout << "\nObfuscation time: " << processingTime/1000 << "ms" << std::endl;
 
@@ -196,13 +211,13 @@ int main(int argc, char* argv[]) {
 		std::cout << "\nInput #" << i+1 << ": " << inputs[i] << std::endl;
 
 		TIC(t);
-		shared_ptr<NativeVector> token = algorithm.TokenGen(keys,*indices);
+		shared_ptr<NativeVector> token = algorithmAES.TokenGen(keys,*indices);
 		processingTime = TOC_US(t);
 		evalTokenTime += processingTime;
 		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
 
 		TIC(t);
-		NativeInteger result = algorithm.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),keys->GetPublicRandomVectorPrecon(),token);
+		NativeInteger result = algorithmAES.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),keys->GetPublicRandomVectorPrecon(),token);
 		processingTime = TOC_US(t);
 		evalTime += processingTime;
 		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
@@ -210,7 +225,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "result (encrypted computation) = " << result << std::endl;
 
 		TIC(t);
-		NativeInteger resultClear = algorithm.EvaluateClearClassifier(*indices,*weights);
+		NativeInteger resultClear = algorithmAES.EvaluateClearClassifier(*indices,*weights);
 		processingTime = TOC_US(t);
 		std::cout << "Evaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
 
