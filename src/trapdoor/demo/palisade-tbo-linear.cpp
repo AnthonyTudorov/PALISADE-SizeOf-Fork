@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
 		std::cout << flagResult << std::endl;
 	}
 
-	std::cout << "/nT: Average token evaluation time:  " << "\t" << evalTokenTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "\nT: Average token evaluation time:  " << "\t" << evalTokenTime/(double)(1000*inputs.size()) << " ms" << std::endl;
 	std::cout << "T: Average evaluation time:  " << "\t" << evalTime/(double)(1000*inputs.size()) << " ms" << std::endl;
 	std::cout << "T: Average total evaluation time:       " << "\t" << (evalTokenTime+evalTime)/(double)(1000*inputs.size()) << " ms" << std::endl;
 
