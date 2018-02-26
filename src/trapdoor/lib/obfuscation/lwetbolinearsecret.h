@@ -57,6 +57,7 @@ namespace lbcrypto {
 			m_mode(AES), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon),
 			m_AESkey(aes_key), m_seed(seed), m_n(n), m_modulus(modulus) {};
 
+		// either accesses a precomputed secret key or computes it using AES on the fly
 		const shared_ptr<NativeVector> GetSecretKey(size_t index) const{
 
 			shared_ptr<NativeVector> v;
@@ -101,13 +102,26 @@ namespace lbcrypto {
 
 	private:
 
+		// mode of extracting secret keys: from memory or using AES-CTR on demand
 		TboLinearMode m_mode;
+
+		// secret keys for the precomputed scenario
 		vector<shared_ptr<NativeVector>> m_secretKey;
+
+		// public key and a precomputed vector for it for the preconditioned NTL modular arithmetic subroutine
 		NativeVector m_publicRandomVector;
 		NativeVector m_publicRandomVectorPrecon;
+
+		// AES key (nonce)
 		unsigned char* m_AESkey;
+
+		// initial value of the counter to be encrypted
 		uint32_t m_seed;
+
+		// LWE security parameter (vector size)
 		size_t m_n;
+
+		// ciphertext modulus
 		NativeInteger m_modulus;
 
 	};
@@ -193,7 +207,7 @@ namespace lbcrypto {
 		shared_ptr<LWETBOKeys> KeyGen() const;
 
 		/**
-		 * Generate token t = \Sum{w_i s_i} \in Z_q^n
+		 * Generate token t = \Sum{w_i s_i} \in Z_q^n for a general case of linear function
 		 *
 		 * @param keys secret keys
 		 * @param input input data vector
