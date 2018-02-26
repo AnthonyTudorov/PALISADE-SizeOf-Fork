@@ -211,13 +211,13 @@ int main(int argc, char* argv[]) {
 		std::cout << "\nInput #" << i+1 << ": " << inputs[i] << std::endl;
 
 		TIC(t);
-		shared_ptr<NativeVector> token = algorithmAES.TokenGen(keys,*indices);
+		shared_ptr<NativeVector> tokenAES = algorithmAES.TokenGen(keysAES,*indices);
 		processingTime = TOC_US(t);
 		evalTokenTime += processingTime;
 		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
 
 		TIC(t);
-		NativeInteger result = algorithmAES.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),keys->GetPublicRandomVectorPrecon(),token);
+		NativeInteger result = algorithmAES.EvaluateClassifier(*indices,ciphertextAES,keysAES->GetPublicRandomVector(),keysAES->GetPublicRandomVectorPrecon(),tokenAES);
 		processingTime = TOC_US(t);
 		evalTime += processingTime;
 		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
