@@ -41,35 +41,49 @@
  */
 namespace lbcrypto {
 
+	enum TboLinearMode { PRECOMPUTED=0, AES=1};
+
 	class LWETBOKeys{
 	public:
 
-		explicit LWETBOKeys(const vector<NativeVector> &secretKey, const NativeVector &publicKey, const NativeVector &publicKeyPrecon) :
-			m_secretKey(secretKey), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon), m_AESkey(NULL), m_seed(0) {};
+		// constructor for the PRECOMPUTED scenario
+		explicit LWETBOKeys(const vector<shared_ptr<NativeVector>> &secretKey, const NativeVector &publicKey, const NativeVector &publicKeyPrecon) :
+			m_mode(PRECOMPUTED), m_secretKey(secretKey), m_publicRandomVector(publicKey),
+			m_publicRandomVectorPrecon(publicKeyPrecon), m_AESkey(NULL), m_seed(0), m_n(0), m_modulus(0) {};
 
-		explicit LWETBOKeys(const NativeVector &publicKey, const NativeVector &publicKeyPrecon, unsigned char* aes_key, uint32_t seed) :
-			m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon), m_AESkey(aes_key), m_seed(seed) {};
+		// constructor for the AES PRNG case (secret keys are computed on the fly)
+		explicit LWETBOKeys(const NativeVector &publicKey, const NativeVector &publicKeyPrecon, unsigned char* aes_key, uint32_t seed,
+				size_t n, const NativeInteger &modulus) :
+			m_mode(AES), m_publicRandomVector(publicKey), m_publicRandomVectorPrecon(publicKeyPrecon),
+			m_AESkey(aes_key), m_seed(seed), m_n(n), m_modulus(modulus) {};
 
-		const NativeVector &GetSecretKey(size_t index) {
-			return m_secretKey[index];
-		}
+		const shared_ptr<NativeVector> GetSecretKey(size_t index) const{
 
-		shared_ptr<NativeVector> GenerateSecretKey(size_t index, size_t n, NativeInteger modulus){
-			unsigned char iv[4]={0,1,2,3};
-			unsigned char counter[16];
-			unsigned char result[16];
-			int64_t i1,i2;
-			AESUtil util(iv,m_AESkey,32);
-			shared_ptr<NativeVector> v(new NativeVector(n,modulus));
+			shared_ptr<NativeVector> v;
 
-			for(size_t i = 0; i<n;i+=2){
-				int ctr = m_seed + index*(n/2)+2*i;
-				util.SplitIntegers(counter,ctr,ctr+1);
-				util.EncryptBlock(counter,result);
-				util.CombineBytes(result,i1,i2);
-				(*v)[i] = i1%modulus;
-				(*v)[i+1] = i2%modulus;
+			if (m_mode==AES)
+			{
+				v = std::make_shared<NativeVector>(NativeVector(m_n,m_modulus));
+				unsigned char iv[4]={0,1,2,3};
+				unsigned char counter[16];
+				unsigned char result[16];
+				int64_t i1,i2;
+				AESUtil util(iv,m_AESkey,32);
+
+				for(size_t i = 0; i<m_n;i+=2){
+					int ctr = m_seed + index*(m_n/2)+2*i;
+					util.SplitIntegers(counter,ctr,ctr+1);
+					util.EncryptBlock(counter,result);
+					util.CombineBytes(result,i1,i2);
+					(*v)[i] = i1 % m_modulus;
+					(*v)[i+1] = i2 % m_modulus;
+				}
 			}
+			else
+			{
+				v = m_secretKey[index];
+			}
+
 			return v;
 		}
 
@@ -83,11 +97,14 @@ namespace lbcrypto {
 
 	private:
 
-		vector<NativeVector> m_secretKey;
+		TboLinearMode m_mode;
+		vector<shared_ptr<NativeVector>> m_secretKey;
 		NativeVector m_publicRandomVector;
 		NativeVector m_publicRandomVectorPrecon;
 		unsigned char* m_AESkey;
 		uint32_t m_seed;
+		size_t m_n;
+		NativeInteger m_modulus;
 
 	};
 
@@ -160,10 +177,16 @@ namespace lbcrypto {
 		uint32_t GetDimension() const {return m_N;}
 
 		/**
-		 * Generate N random secret vectors Z_q^n and public random vector a
+		 * Generate N random secret vectors Z_q^n and public random vector a - AES mode
 		 * @return the secret keys and public random vector
 		 */
 		shared_ptr<LWETBOKeys> KeyGen(unsigned char* aes_key, uint32_t seed) const;
+
+		/**
+		 * Generate N random secret vectors Z_q^n and public random vector a - PRECOMPUTED mode
+		 * @return the secret keys and public random vector
+		 */
+		shared_ptr<LWETBOKeys> KeyGen() const;
 
 		/**
 		 * Generate token t = \Sum{w_i s_i} \in Z_q^n
@@ -172,7 +195,7 @@ namespace lbcrypto {
 		 * @param input input data vector
 		 * @return the token
 		 */
-		shared_ptr<NativeVector> TokenGen(const vector<NativeVector> &keys, const vector<NativeInteger> &input) const;
+		shared_ptr<NativeVector> TokenGen(const vector<shared_ptr<NativeVector>> &keys, const vector<NativeInteger> &input) const;
 
 		/**
 		 * Generate token t = \Sum{x_i s_i} \in Z_q^n for the case when x_i's are 1's
