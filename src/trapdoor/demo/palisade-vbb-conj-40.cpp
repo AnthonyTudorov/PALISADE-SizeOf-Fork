@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 	  bool dbg_flag = false; //if true print debugging info
 	  usint pattern_size(40); //size of the cleartext pattern
 	  int n_bits = 8;	 // number of bits in underlying vector length
-	  usint n_evals = 100; //number of evaluations to run
+	  int n_evals = 100; //number of evaluations to run
 
 	  while ((opt = getopt(argc, argv, "e:k:d")) != -1) {
 	    switch (opt) {

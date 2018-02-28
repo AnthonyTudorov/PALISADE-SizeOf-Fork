@@ -92,7 +92,9 @@ static struct FeatureMap FeatureMap[] = {
 	{ OpRingReduce, "RingReduce", LEVELEDSHE },
 	{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
 	{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
+	{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
 	{ OpEvalSum, "EvalSum", ENCRYPTION },
+	{ OpEvalAtIndex, "EvalAtIndex", SHE },
 	{ OpEvalInnerProduct, "EvalInnerProduct", ENCRYPTION },
 	{ OpEvalCrossCorrelation, "EvalCrossCorrelation", ENCRYPTION },
 	{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", ENCRYPTION }

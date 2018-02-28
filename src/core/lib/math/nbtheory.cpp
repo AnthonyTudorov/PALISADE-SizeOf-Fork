@@ -956,4 +956,62 @@ namespace lbcrypto {
 #endif
 	}
 
+	uint32_t FindAutomorphismIndex2n(int32_t i, uint32_t m) {
+
+		uint32_t n = GetTotient(m);
+
+		uint32_t f1, f2;
+
+		if (i < 0)
+		{
+			f1 = NativeInteger(5).ModInverse(m).ConvertToInt();
+			f2 = NativeInteger(3).ModInverse(m).ConvertToInt();
+		}
+		else
+		{
+			f1 = 5;
+			f2 = 3;
+		}
+
+		uint32_t i_unsigned = (uint32_t)std::abs(i);
+
+		uint32_t g0 = f1;
+		uint32_t g;
+
+		if (i_unsigned < n/2)
+		{
+			g = f1;
+			for (size_t j = 1; j < i_unsigned; j++)
+				g = (g * g0) % m;
+		}
+		else
+		{
+			g = f2;
+			for (size_t j = n/2; j < i_unsigned; j++)
+				g = (g * g0) % m;
+		}
+
+		return g;
+
+	}
+
+	uint32_t FindAutomorphismIndexCyclic(int32_t i, uint32_t m, uint32_t g){
+
+		int32_t n = GetTotient(m);
+
+		int32_t i_signed = i % n;
+		if (i_signed <= 0)
+			i_signed += n;
+
+		uint32_t i_unsigned = (uint32_t)i_signed;
+
+		uint32_t k = g;
+
+		for (size_t i = 2; i < i_unsigned; i++)
+			k = (k * g) % m;
+
+		return k;
+
+	}
+
 }

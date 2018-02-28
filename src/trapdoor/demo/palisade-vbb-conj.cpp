@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
   usint pattern_size(8); //size of the cleartext pattern
   bool eval_flag = false; //if true, also run evaluation to verify correct generation.
   int n_bits = 8;	 // number of bits in underlying vector length
-  usint n_evals = 0; //number of evaluations to run
+  int n_evals = 0; //number of evaluations to run
   bool rand_evals = false;
   bool pretty_flag = false;
   bool verify_flag = false;

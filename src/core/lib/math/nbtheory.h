@@ -313,6 +313,23 @@ namespace lbcrypto {
 	template<typename IntType>
 	IntType ComputeMu(const IntType& q);
 	
+	/**
+	* Find an automorphism index for a power-of-two cyclotomic order
+	* @param i is the plaintext array index
+	* @param m is the cyclotomic order
+	* @return the automorphism index
+	*/
+	uint32_t FindAutomorphismIndex2n(int32_t i, uint32_t m);
+
+	/**
+	* Find an automorhism index for cyclic groups
+	* @param i is the plaintext array index
+	* @param m is the cyclotomic order
+	* @param g is the generator
+	* @return the automorphism index
+	*/
+	uint32_t FindAutomorphismIndexCyclic(int32_t i, uint32_t m, uint32_t g);
+
 
 } // namespace lbcrypto ends
 

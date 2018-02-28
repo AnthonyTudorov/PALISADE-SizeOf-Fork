@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 	bool errorflag = false;
 
 	int opt; //used in getting options
-	size_t n_evals = 100;
+	int n_evals = 100;
 	int n_bits = 10;
 
 	while ((opt = getopt(argc, argv, "e:k:")) != -1) {
