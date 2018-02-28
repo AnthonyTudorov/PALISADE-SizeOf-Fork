@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
   usint n_evals = 3; //number of evaluations to run
   bool rand_evals = false;
   bool single_flag = false;
-  while ((opt = getopt(argc, argv, "de:n:b:hs")) != -1) {
+  while ((opt = getopt(argc, argv, "de:k:b:hs")) != -1) {
     switch (opt) {
     case 'd':
       dbg_flag = true;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
     	  	  rand_evals = true;
       }
       break;
-    case 'n':
+    case 'k':
       n_bits = atoi(optarg);
       if (n_bits < 8) {
 	n_bits = 8;
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]){
     default: /* '?' */
       std::cerr<< "Usage: "<<argv[0]<<" <arguments> " <<std::endl
 	       << "required arguments:" <<std::endl
-	       << "  -n  vector bitsize [8:13] (10)"  <<std::endl
+	       << "  -k  bitsize of security parameter (ring dimension = 2^k) [8:13] (10)"  <<std::endl
 	       << "  -b  pattern_bitsize [8 16 32 40 64] (8)"  <<std::endl	
 	       << "  -e num_evals (3) {If >3, then all evaluations will be random}"  <<std::endl
 	       << "optional arguments:"<<std::endl
@@ -113,8 +113,8 @@ int main(int argc, char* argv[]){
   std::cout << "NDEBUG is defined" << std::endl;
 #endif
   
-  std::cerr << "Running " << argv[0] << " with " 
-	    << n_bits << " bits. Pattern length "<< pattern_size << std::endl;
+  std::cerr << "Running " << argv[0] << " with security parameter "
+  	    << std::to_string(1<<n_bits) << ". Pattern length "<< pattern_size << "." << std::endl;
   
   
   //determine #processors and # threads for run
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
     if (tid == 0)
       {
 	nthreads = omp_get_num_threads();
-	std::cout << nthreads << std::endl;
+	std::cout << nthreads << " threads." << std::endl;
       }
   }
     

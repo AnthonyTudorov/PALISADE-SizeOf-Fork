@@ -97,7 +97,7 @@ namespace lbcrypto {
 		 * @param input PRF input
 		 * @return PRF output
 		 */
-		std::string Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const;
+		shared_ptr<vector<Poly>> Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const;
 
 		/**
 		 * Method to evaluate PRF using constrained PRF key and input
@@ -106,7 +106,18 @@ namespace lbcrypto {
 		 * @param input PRF input
 		 * @return PRF output
 		 */
-		std::string Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const;
+		shared_ptr<vector<Poly>> Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const;
+
+		/**
+		 * Compares the evaluation results using constrained and unconstrained keys
+		 *
+		 * @param y evaluation result using the constrained key
+		 * @param yPrime evaluation result using the unconstrained key
+		 * @return true if the inputs match
+		 */
+		bool EqualTest(shared_ptr<vector<Poly>> y, shared_ptr<vector<Poly>> yPrime) const{
+			return (*y == *yPrime);
+		}
 
 	private:
 		/**
@@ -145,7 +156,7 @@ namespace lbcrypto {
 		 */
 		shared_ptr<Matrix<Element>> Encode(usint i, usint j, const Element &elem);
 
-		std::string TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const;
+		shared_ptr<vector<Poly>> TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const;
 
 		usint m_base;
 		usint m_chunkSize;

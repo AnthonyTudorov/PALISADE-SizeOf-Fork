@@ -941,7 +941,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::ParamsGen(typename Element::Dg
 		}
 	}
 
-	std::cout << "q (param gen)= " << log2(q) << " bits" <<std::endl;
+	//std::cout << "q (param gen)= " << log2(q) << " bits" <<std::endl;
 
 	//Prepare for parameters.
 	auto params = GenerateElemParams(q, n);
@@ -1448,7 +1448,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 	norm = CrossProd.Norm();
 	DEBUG("Eval5: " <<TOC(t1) <<" ms");
 
-	std::cout << " Norm (bits): " << log2(norm) << std::endl;
+	//std::cout << " Norm (bits): " << log2(norm) << std::endl;
 
 	return (norm <= constraint);
 

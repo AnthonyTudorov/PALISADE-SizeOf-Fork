@@ -29,108 +29,231 @@
 
 #include <iostream>
 #include "obfuscation/lwetbolinearsecret.h"
-#include "obfuscation/lwetbolinearsecret.cpp"
 
 #include "utils/debug.h"
 
 using namespace lbcrypto;
 
-typedef typename LWETBOLinearSecret::NativeMatrixPtr NativeMatrixPtr;
-typedef typename LWETBOLinearSecret::NativeMatrix NativeMatrix;
+shared_ptr<vector<NativeInteger>> BuildWeightVector(const vector<uint32_t> &thresholds, PlaintextModulus p, uint32_t N, uint32_t wordSize) {
+
+	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	dug.SetModulus(p);
+
+	shared_ptr<vector<NativeInteger>> weights(new vector<NativeInteger>(N));
+
+	for (size_t k = 0; k < thresholds.size(); k++)
+		for (size_t i = 0; i < wordSize-1; i++)
+		{
+			if (i > thresholds[k])
+				(*weights)[i + k*wordSize] = 0;
+			else
+				(*weights)[i + k*wordSize] = dug.GenerateInteger();
+		}
+
+	return weights;
+
+}
+
+shared_ptr<vector<uint32_t>> BuildDataVector(const vector<uint32_t> &input, uint32_t wordSize) {
+
+	shared_ptr<vector<uint32_t>> indices(new vector<uint32_t>(input.size()));
+	for (size_t k = 0; k < input.size(); k++)
+		(*indices)[k] = input[k] + k*wordSize;
+
+	return indices;
+
+}
 
 int main(int argc, char* argv[]) {
-
-	int nthreads, tid;
-
-	// Fork a team of threads giving them their own copies of variables
-	//so we can see how many threads we have to work with
-#pragma omp parallel private(nthreads, tid)
-	{
-
-		/* Obtain thread number */
-		tid = omp_get_thread_num();
-
-		/* Only master thread does this */
-		if (tid == 0)
-		{
-			nthreads = omp_get_num_threads();
-			std::cout << "Number of threads = " << nthreads << std::endl;
-		}
-	}
 
 	TimeVar t;
 
 	double processingTime(0.0);
 
-	usint N = 1000;
-	usint n = 2048;
-	usint wmax = 4;
-	usint pmax = 16;
+	uint32_t N = 1280;
+	uint32_t n = 2048;
+	uint32_t numAtt = 5;
+	PlaintextModulus p = 1099511627776; //2^40
+	uint32_t wordSize = 256;
+
+	// vector of thresholds
+	vector<uint32_t> thresholds = {134, 90, 56, 89, 200};
+	shared_ptr<vector<NativeInteger>> weights = BuildWeightVector(thresholds, p, N, wordSize);
+
+	vector<vector<uint32_t>> inputs = {{135, 100, 60, 95, 210},
+			{34, 100, 60, 95, 210},{135, 80, 60, 95, 210},{135, 100, 40, 95, 210},
+			{135, 100, 60, 85, 210},{255, 254, 200, 150, 215},
+	};
+
+	std::cout << "\n======================================================" << std::endl;
+	std::cout << "OBFUSCATION PROTOTYPE USING PRECOMPUTED SECRET KEYS" << std::endl;
+	std::cout << "========================================================" << std::endl;
 
 	TIC(t);
-	LWETBOLinearSecret algorithm(N, n, wmax, pmax);
-	processingTime = TOC(t);
-	std::cout << "Parameter Generation: " << processingTime << "ms" << std::endl;
+	LWETBOLinearSecret algorithm(N, n, p, numAtt);
+	processingTime = TOC_US(t);
+	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
 
 	std::cout << "\nn = " << algorithm.GetSecurityParameter() << std::endl;
 	std::cout << "log2 q = " << algorithm.GetLogModulus() << std::endl;
-	std::cout << "weight norm = " << algorithm.GetWeightNorm() << std::endl;
-	std::cout << "input data norm = " << pmax << std::endl;
+	std::cout << "Number of attributes = " << algorithm.GetNumAtt() << std::endl;
 	std::cout << "plaintext modulus = " << algorithm.GetPlaintextModulus() << std::endl;
 	std::cout << "Dimension of weight/data vectors = " << algorithm.GetDimension() << std::endl;
 
 	TIC(t);
-	LWETBOKeys keys = algorithm.KeyGen();
-	processingTime = TOC(t);
-	std::cout << "\nKey generation time: " << processingTime << "ms" << std::endl;
+	shared_ptr<LWETBOKeys> keys = algorithm.KeyGen();
+	processingTime = TOC_US(t);
+	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
 
-	//std::cout << "secretkeys(0,0) = " << (*keys.m_secretKey)(0,0) << std::endl;
-	//std::cout << "secretkeys(1,1) = " << (*keys.m_secretKey)(1,1) << std::endl;
-
-	//std::cout << "Token row dimension = " << token->GetRows() << std::endl;
-	//std::cout << "Token column dimension = " << token->GetCols() << std::endl;
-
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dugWeights;
-	dugWeights.SetModulus(algorithm.GetWeightNorm());
-
-	NativeMatrixPtr weights(new  NativeMatrix([&]() {
-		return dugWeights.GenerateInteger(); }, algorithm.GetDimension(),1));
+	std::cout << "MODE = " << ((keys->GetMode()==AES)?"AES":"PRECOMPUTED") << std::endl;
 
 	TIC(t);
-	NativeMatrixPtr ciphertext = algorithm.Obfuscate(keys,weights);
-	processingTime = TOC(t);
-	std::cout << "\nObfuscation time: " << processingTime << "ms" << std::endl;\
+	shared_ptr<NativeVector> ciphertext = algorithm.Obfuscate(keys,*weights);
+	processingTime = TOC_US(t);
+	std::cout << "\nObfuscation time: " << processingTime/1000 << "ms" << std::endl;
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
-	dug.SetModulus(16);
+	bool errorFlag = false;
 
-	NativeMatrixPtr input(new  NativeMatrix([&]() {
-		return dug.GenerateInteger(); }, algorithm.GetDimension(),1));
+	double evalTokenTime(0.0);
+	double evalTime(0.0);
+
+	std::cout << "\nThresholds vector: " << thresholds << std::endl;
+
+	for (size_t i = 0; i < inputs.size(); i++)
+	{
+
+		shared_ptr<vector<uint32_t>> indices = BuildDataVector(inputs[i], wordSize);
+
+		std::cout << "\nInput #" << i+1 << ": " << inputs[i] << std::endl;
+
+		TIC(t);
+		shared_ptr<NativeVector> token = algorithm.TokenGen(keys,*indices);
+		processingTime = TOC_US(t);
+		evalTokenTime += processingTime;
+		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
+
+		TIC(t);
+		NativeInteger result = algorithm.EvaluateClassifier(*indices,ciphertext,keys->GetPublicRandomVector(),keys->GetPublicRandomVectorPrecon(),token);
+		processingTime = TOC_US(t);
+		evalTime += processingTime;
+		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
+
+		std::cout << "result (encrypted computation) = " << result << std::endl;
+
+		TIC(t);
+		NativeInteger resultClear = algorithm.EvaluateClearClassifier(*indices,*weights);
+		processingTime = TOC_US(t);
+		std::cout << "Evaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
+
+		std::cout << "result (plaintext computation) = " << resultClear << std::endl;
+
+		string flagResult;
+
+		if (resultClear == 0)
+			flagResult = "MATCH: ";
+		else
+			flagResult = "NO MATCH: ";
+
+		if (result == resultClear)
+			flagResult = flagResult  + " CORRECT";
+		else
+		{
+			flagResult = flagResult  + " INCORRECT";
+			errorFlag = true;
+		}
+
+		std::cout << flagResult << std::endl;
+	}
+
+	std::cout << "\nT: Average token evaluation time:  " << "\t" << evalTokenTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average evaluation time:  " << "\t" << evalTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average total evaluation time:       " << "\t" << (evalTokenTime+evalTime)/(double)(1000*inputs.size()) << " ms" << std::endl;
+
+	std::cout << "\n=====================================================================================" << std::endl;
+	std::cout << "OBFUSCATION PROTOTYPE WITH ON-DEMAND GENERATION OF SECRET KEYS USING AES-CTR" << std::endl;
+	std::cout << "=======================================================================================" << std::endl;
+
+	unsigned char key[32]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
 
 	TIC(t);
-	NativeMatrixPtr token = algorithm.TokenGen(keys.m_secretKey,input);
-	processingTime = TOC(t);
-	std::cout << "\nToken generation time: " << processingTime << "ms" << std::endl;
+	LWETBOLinearSecret algorithmAES(N, n, p, numAtt);
+	processingTime = TOC_US(t);
+	std::cout << "Parameter Generation: " << processingTime/1000 << "ms" << std::endl;
 
-	//Generate parameters.
-	double start, finish;
+	std::cout << "\nn = " << algorithmAES.GetSecurityParameter() << std::endl;
+	std::cout << "log2 q = " << algorithmAES.GetLogModulus() << std::endl;
+	std::cout << "Number of attributes = " << algorithmAES.GetNumAtt() << std::endl;
+	std::cout << "plaintext modulus = " << algorithmAES.GetPlaintextModulus() << std::endl;
+	std::cout << "Dimension of weight/data vectors = " << algorithmAES.GetDimension() << std::endl;
 
-	start = currentDateTime();
-	NativeInteger result = algorithm.Evaluate(input,ciphertext,keys.m_publicRandomVector,token);
-	finish = currentDateTime();
-	processingTime = finish - start;
-	std::cout << "\nEvaluation time: " << processingTime << "ms" << std::endl;
+	TIC(t);
+	shared_ptr<LWETBOKeys> keysAES = algorithmAES.KeyGen(key,1);
+	processingTime = TOC_US(t);
+	std::cout << "\nKey generation time: " << processingTime/1000 << "ms" << std::endl;
 
-	std::cout << "result (encrypted computation) = " << result << std::endl;
+	std::cout << "MODE = " << ((keysAES->GetMode()==AES)?"AES":"PRECOMPUTED") << std::endl;
 
-	start = currentDateTime();
-	NativeInteger resultClear = algorithm.EvaluateClear(input,weights);
-	finish = currentDateTime();
-	processingTime = finish - start;
-	std::cout << "\nEvaluation time (in clear): " << processingTime << "ms" << std::endl;
+	TIC(t);
+	shared_ptr<NativeVector> ciphertextAES = algorithmAES.Obfuscate(keysAES,*weights);
+	processingTime = TOC_US(t);
+	std::cout << "\nObfuscation time: " << processingTime/1000 << "ms" << std::endl;
 
-	std::cout << "result (plaintext computation) = " << resultClear << std::endl;
+	evalTokenTime = 0.0;
+	evalTime = 0.0;
 
-	return 0;
+	std::cout << "\nThresholds vector: " << thresholds << std::endl;
+
+	for (size_t i = 0; i < inputs.size(); i++)
+	{
+
+		shared_ptr<vector<uint32_t>> indices = BuildDataVector(inputs[i], wordSize);
+
+		std::cout << "\nInput #" << i+1 << ": " << inputs[i] << std::endl;
+
+		TIC(t);
+		shared_ptr<NativeVector> tokenAES = algorithmAES.TokenGen(keysAES,*indices);
+		processingTime = TOC_US(t);
+		evalTokenTime += processingTime;
+		std::cout << "Token generation time: " << processingTime/1000 << "ms" << std::endl;
+
+		TIC(t);
+		NativeInteger result = algorithmAES.EvaluateClassifier(*indices,ciphertextAES,keysAES->GetPublicRandomVector(),keysAES->GetPublicRandomVectorPrecon(),tokenAES);
+		processingTime = TOC_US(t);
+		evalTime += processingTime;
+		std::cout << "Evaluation time: " << processingTime/1000 << "ms" << std::endl;
+
+		std::cout << "result (encrypted computation) = " << result << std::endl;
+
+		TIC(t);
+		NativeInteger resultClear = algorithmAES.EvaluateClearClassifier(*indices,*weights);
+		processingTime = TOC_US(t);
+		std::cout << "Evaluation time (in clear): " << processingTime/1000 << "ms" << std::endl;
+
+		std::cout << "result (plaintext computation) = " << resultClear << std::endl;
+
+		string flagResult;
+
+		if (resultClear == 0)
+			flagResult = "MATCH: ";
+		else
+			flagResult = "NO MATCH: ";
+
+		if (result == resultClear)
+			flagResult = flagResult  + " CORRECT";
+		else
+		{
+			flagResult = flagResult  + " INCORRECT";
+			errorFlag = true;
+		}
+
+		std::cout << flagResult << std::endl;
+	}
+
+	std::cout << "\nT: Average token evaluation time:  " << "\t" << evalTokenTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average evaluation time:  " << "\t" << evalTime/(double)(1000*inputs.size()) << " ms" << std::endl;
+	std::cout << "T: Average total evaluation time:       " << "\t" << (evalTokenTime+evalTime)/(double)(1000*inputs.size()) << " ms" << std::endl;
+
+
+	return errorFlag;
 
 }

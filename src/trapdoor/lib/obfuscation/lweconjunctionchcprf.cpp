@@ -141,16 +141,21 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 };
 
 template <class Element>
-std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const {
+shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const {
 
-	Matrix<Element> y = (*m_A)[m_adjustedLength];
+	Element yCurrent;
 
 	for (usint i = 0; i < m_adjustedLength; i++) {
 		std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
 		int k = std::stoi(chunk, nullptr, 2);
 
-		y = y * (*s)[i][k];
+		if (i == 0)
+			yCurrent = (*s)[i][k];
+		else
+			yCurrent *= (*s)[i][k];
 	}
+
+	Matrix<Element> y = (*m_A)[m_adjustedLength]*yCurrent;
 
 	return TransformMatrixToPRFOutput(y);
 
@@ -158,7 +163,7 @@ std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<ve
 
 
 template <class Element>
-std::string LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const {
+shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const {
 
 	Matrix<Element> y = (*m_A)[0];
 
@@ -184,7 +189,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	double alpha = 36;
 
 	//empirical parameter
-	double beta = 1.3;
+	double beta = 6;
 
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
@@ -193,7 +198,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	uint32_t base = m_base;
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length-1);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -312,12 +317,16 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 };
 
 template <class Element>
-std::string LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const {
+shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const {
 
 	const BigInteger &q = m_elemParams->GetModulus();
 	const BigInteger &half = m_elemParams->GetModulus() >> 1;
-	std::stringstream output;
 
+	shared_ptr<vector<Poly>> result(new vector<Poly>(matrix.GetCols()));
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
 	for (size_t i = 0; i < matrix.GetCols(); i++) {
 		Poly poly = matrix(0, i).CRTInterpolate();
 
@@ -329,12 +338,10 @@ std::string LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(c
 
 		poly = poly.DivideAndRound(half);
 
-		for (size_t j = 0; j < poly.GetLength(); j++) {
-			output << poly.at(j);
-		}
+		(*result)[i] = std::move(poly);
 	}
 
-	return output.str();
+	return result;
 
 }
 
