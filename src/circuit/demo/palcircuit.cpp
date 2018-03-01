@@ -251,6 +251,8 @@ main(int argc, char *argv[])
 			evalStatF.close();
 			return 1;
 		}
+		evalStatF.close();
+	}
 
 		while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
 			TimingStatistics stat;
