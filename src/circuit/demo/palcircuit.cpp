@@ -52,6 +52,7 @@ template class CircuitObject<DCRTPoly>;
 }
 
 void usage() {
+	cout << "Usage is palcircuit {Arguments} specfile" << endl;
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
 	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
@@ -103,6 +104,9 @@ main(int argc, char *argv[])
 	ostream	*resultGraph = &cout;
 	ofstream inGF, procGF, resultGF;
 
+	string specfile;
+	cout << specfile.length() << endl;
+
 	// PROCESS USER ARGS
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
@@ -115,9 +119,8 @@ main(int argc, char *argv[])
 
 		if( arg == "-d" ) {
 			debug_parse = true;
-			continue;
 		}
-		if( arg == "-ginput" ) {
+		else if( arg == "-ginput" ) {
 			print_input_graph = true;
 			if( argf.size() > 0 ) {
 				inGF.open(argf, ostream::out);
@@ -127,9 +130,8 @@ main(int argc, char *argv[])
 				}
 				inGraph = &inGF;
 			}
-			continue;
 		}
-		if( arg == "-gproc" ) {
+		else if( arg == "-gproc" ) {
 			print_preproc_graph = true;
 			if( argf.size() > 0 ) {
 				procGF.open(argf, ostream::out);
@@ -139,9 +141,8 @@ main(int argc, char *argv[])
 				}
 				procGraph = &procGF;
 			}
-			continue;
 		}
-		if( arg == "-gresult" ) {
+		else if( arg == "-gresult" ) {
 			print_result_graph = true;
 			if( argf.size() > 0 ) {
 				resultGF.open(argf, ostream::out);
@@ -151,17 +152,15 @@ main(int argc, char *argv[])
 				}
 				resultGraph = &resultGF;
 			}
-			continue;
 		}
-		if( arg == "-v" ) {
+		else if( arg == "-v" ) {
 			verbose = true;
-			continue;
 		}
-		if( arg == "-h" ) {
+		else if( arg == "-h" ) {
 			usage();
 			return 0;
 		}
-		if( arg == "-elist" ) {
+		else if( arg == "-elist" ) {
 			evaluation_list_mode = true;
 			evalListF.open(argf, ofstream::out);
 			if( !evalListF.is_open() ) {
@@ -170,7 +169,7 @@ main(int argc, char *argv[])
 			}
 			continue;
 		}
-		if( arg == "-estats" ) {
+		else if( arg == "-estats" ) {
 			evaluation_run_mode = true;
 			evalStatF.open(argf, ofstream::in);
 			if( !evalStatF.is_open() ) {
@@ -179,233 +178,245 @@ main(int argc, char *argv[])
 			}
 			continue;
 		}
-		if( arg[0] == '-' ) { // an unrecognized arg
+		else if( arg[0] == '-' ) { // an unrecognized arg
 			usage();
 			return 1;
 		}
+		else {
+			if( specfile.length() > 0 ) {
+				cout << "Too many spec files provided" << endl;
+				usage();
+				return 1;
+			}
 
-		if( evaluation_list_mode && evaluation_run_mode ) {
-			cout << "Cannot specify both -elist and -estats" << endl;
+			specfile = arg;
+		}
+	}
+
+	if( specfile.length() == 0 ) {
+		usage();
+		return 1;
+	}
+
+	if( evaluation_list_mode && evaluation_run_mode ) {
+		cout << "Cannot specify both -elist and -estats" << endl;
+		return 1;
+	}
+
+	// Prepare to process the graph
+
+	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
+	if( evaluation_list_mode ) {
+		Serialized serObj;
+		serObj.SetObject();
+		if( cc->Serialize(&serObj) == false ) {
+			cout << "Can't serialize CryptoContext" << endl;
+			return 1;
+		}
+		SerializableHelper::SerializationToStream(serObj, evalListF);
+	}
+
+	// when generating timing estimates, need to read in the Context and the timings
+	map<OpType,TimingStatistics> timings;
+	if( evaluation_run_mode ) {
+		Serialized serObj;
+		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
+			cout << "Input file does not begin with a serialization" << endl;
 			return 1;
 		}
 
-		// Prepare to process the graph
-
-		// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
-		if( evaluation_list_mode ) {
-			Serialized serObj;
-			serObj.SetObject();
-			if( cc->Serialize(&serObj) == false ) {
-				cout << "Can't serialize CryptoContext" << endl;
-				return 1;
-			}
-			SerializableHelper::SerializationToStream(serObj, evalListF);
-		}
-
-		// when generating timing estimates, need to read in the Context and the timings
-		map<OpType,TimingStatistics> timings;
-		if( evaluation_run_mode ) {
-			Serialized serObj;
-			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
-				cout << "Input file does not begin with a serialization" << endl;
-				return 1;
-			}
-
-			if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
-				cout << "Unable to deserialize and initialize from saved crypto context" << endl;
-				evalStatF.close();
-				return 1;
-			}
-
-			while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
-				TimingStatistics stat;
-				stat.Deserialize(serObj);
-				timings[ stat.operation ] = stat;
-			}
+		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
+			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
 			evalStatF.close();
-		}
-
-		// PARSE THE GRAPH
-		pdriver driver(debug_parse);
-
-		auto res = driver.parse(argv[i]);
-		if( res != 0 ) {
-			cout << "Parse error" << endl;
 			return 1;
 		}
 
+		while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
+			TimingStatistics stat;
+			stat.Deserialize(serObj);
+			timings[ stat.operation ] = stat;
+		}
+		evalStatF.close();
+	}
+
+	// PARSE THE GRAPH
+	pdriver driver(debug_parse);
+
+	auto res = driver.parse(specfile);
+	if( res != 0 ) {
+		cout << "Parse error" << endl;
+		return 1;
+	}
+
+	if( verbose ) {
+		cout << "Circuit parsed" << endl;
+	}
+
+	if( print_input_graph ) {
+		driver.graph.DisplayGraph(inGraph);
+		if( inGF.is_open() )
+			inGF.close();
+	}
+
+	// ASSIGN DEPTHS (and, eventually, optimize)
+	if( verbose ) cout << "Preprocessing" << endl;
+	driver.graph.Preprocess();
+
+	if( print_preproc_graph ) {
+		driver.graph.DisplayGraph(procGraph);
+		if( procGF.is_open() )
+			procGF.close();
+	}
+
+	// to do estimates we need to know what functions we called; write them out and finish up
+	if( evaluation_list_mode ) {
+		vector<CircuitSimulation> opslist;
+		driver.graph.GenerateOperationList(opslist);
 		if( verbose ) {
-			cout << "Circuit parsed" << endl;
+			cout << "The operations used are:" << endl;
+			PrintOperationSet(cout, opslist);
+		}
+		PrintOperationSet(evalListF, opslist);
+		evalListF.close();
+		return 0;
+	}
+
+	// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
+	if( evaluation_run_mode ) {
+		vector<CircuitSimulation> opslist;
+		driver.graph.GenerateOperationList(opslist);
+		driver.graph.UpdateRuntimeEstimates(opslist, timings);
+		driver.graph.PrintRuntimeEstimates(cout);
+	}
+
+	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph);
+
+	if( verbose )
+		cir.CircuitDump();
+
+	auto intypes = cir.GetGraph().GetInputTypes();
+	if( verbose ) {
+		cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
+	}
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(LEVELEDSHE);
+
+	Plaintext ints[] = {
+			cc->MakeCoefPackedPlaintext({ int64_t(7) }),
+			cc->MakeCoefPackedPlaintext({ int64_t(3) })
+	};
+
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+	cc->EvalMultKeyGen(kp.secretKey);
+
+	vector<Ciphertext<DCRTPoly>> intVecs;
+	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
+		intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
+
+	vector<Ciphertext<DCRTPoly>> cipherVecs;
+	for( uint64_t d = 0; d < 4; d++ )
+		for( int64_t i=1; i<10; i++ ){
+			cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
 		}
 
-		if( print_input_graph ) {
-			driver.graph.DisplayGraph(inGraph);
-			if( inGF.is_open() )
-				inGF.close();
+	Matrix<Plaintext> mat([cc](){return cc->MakePackedPlaintext({uint64_t(0)});},mdim,mdim);
+	usint mi=1;
+	for(usint r=0; r<mat.GetRows(); r++)
+		for(usint c=0; c<mat.GetCols(); c++) {
+			mat(r,c) = cc->MakePackedPlaintext({ mi++, 0, 0, 0 });
 		}
 
-		// ASSIGN DEPTHS (and, eventually, optimize)
-		if( verbose ) cout << "Preprocessing" << endl;
-		driver.graph.Preprocess();
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
 
-		if( print_preproc_graph ) {
-			driver.graph.DisplayGraph(procGraph);
-			if( procGF.is_open() )
-				procGF.close();
-		}
+	CircuitIO<DCRTPoly> inputs;
 
-		// to do estimates we need to know what functions we called; write them out and finish up
-		if( evaluation_list_mode ) {
-			vector<CircuitSimulation> opslist;
-			driver.graph.GenerateOperationList(opslist);
+	size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
+	size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
+
+	for( size_t i = 0; i < intypes.size(); i++ ) {
+		if( verbose )
+			cout << "input " << i << ": type " << intypes[i] << endl;
+
+		switch(intypes[i]) {
+		case INT:
+			if( curInt == maxInt )
+				throw std::logic_error("out of ints");
+			inputs[i] = intVecs[curInt++];
+			break;
+
+		case VECTOR_INT:
+			if( curVec == maxVec )
+				throw std::logic_error("out of vecs");
+			inputs[i] = cipherVecs[curVec++];
+			break;
+
+		case MATRIX_RAT:
+			inputs[i] = emat;
 			if( verbose ) {
-				cout << "The operations used are:" << endl;
-				PrintOperationSet(cout, opslist);
-			}
-			PrintOperationSet(evalListF, opslist);
-			evalListF.close();
-			return 0;
-		}
-
-		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
-		if( evaluation_run_mode ) {
-			vector<CircuitSimulation> opslist;
-			driver.graph.GenerateOperationList(opslist);
-			driver.graph.UpdateRuntimeEstimates(opslist, timings);
-			driver.graph.PrintRuntimeEstimates(cout);
-		}
-
-		PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph);
-
-		if( verbose )
-			cir.CircuitDump();
-
-		auto intypes = cir.GetGraph().GetInputTypes();
-		if( verbose ) {
-			cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
-		}
-
-		cc->Enable(ENCRYPTION);
-		cc->Enable(SHE);
-		cc->Enable(LEVELEDSHE);
-
-		Plaintext ints[] = {
-				cc->MakeCoefPackedPlaintext({ int64_t(7) }),
-				cc->MakeCoefPackedPlaintext({ int64_t(3) })
-		};
-
-		LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-		cc->EvalMultKeyGen(kp.secretKey);
-
-		vector<Ciphertext<DCRTPoly>> intVecs;
-		for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
-			intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
-
-		vector<Ciphertext<DCRTPoly>> cipherVecs;
-		for( uint64_t d = 0; d < 4; d++ )
-			for( int64_t i=1; i<10; i++ ){
-				cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
-			}
-
-		Matrix<Plaintext> mat([cc](){return cc->MakePackedPlaintext({uint64_t(0)});},mdim,mdim);
-		usint mi=1;
-		for(usint r=0; r<mat.GetRows(); r++)
-			for(usint c=0; c<mat.GetCols(); c++) {
-				mat(r,c) = cc->MakePackedPlaintext({ mi++, 0, 0, 0 });
-			}
-
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
-
-		CircuitIO<DCRTPoly> inputs;
-
-		size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
-		size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
-
-		for( size_t i = 0; i < intypes.size(); i++ ) {
-			if( verbose )
-				cout << "input " << i << ": type " << intypes[i] << endl;
-
-			switch(intypes[i]) {
-			case INT:
-				if( curInt == maxInt )
-					throw std::logic_error("out of ints");
-				inputs[i] = intVecs[curInt++];
-				break;
-
-			case VECTOR_INT:
-				if( curVec == maxVec )
-					throw std::logic_error("out of vecs");
-				inputs[i] = cipherVecs[curVec++];
-				break;
-
-			case MATRIX_RAT:
-				inputs[i] = emat;
-				if( verbose ) {
-					for(usint r=0; r<mat.GetRows(); r++) {
-						cout << "Row " << r << endl;
-						for(usint c=0; c<mat.GetCols(); c++) {
-							cout << "Col " << c << ": [";
-							size_t i;
-							for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
-								cout << mat(r,c)->GetPackedValue()[i] << " ";
-							cout << (( i == maxprint ) ? "..." : "");
-							cout << "] ";
-						}
-						cout << endl;
+				for(usint r=0; r<mat.GetRows(); r++) {
+					cout << "Row " << r << endl;
+					for(usint c=0; c<mat.GetCols(); c++) {
+						cout << "Col " << c << ": [";
+						size_t i;
+						for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
+							cout << mat(r,c)->GetPackedValue()[i] << " ";
+						cout << (( i == maxprint ) ? "..." : "");
+						cout << "] ";
 					}
+					cout << endl;
 				}
-				break;
-
-			default:
-				throw std::logic_error("type not supported");
 			}
+			break;
+
+		default:
+			throw std::logic_error("type not supported");
 		}
+	}
 
-		vector<TimingInfo>	times;
-		cc->StartTiming(&times);
+	vector<TimingInfo>	times;
+	cc->StartTiming(&times);
 
-		CircuitIO<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
+	CircuitIO<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
-		cc->StopTiming();
+	cc->StopTiming();
 
-		if( verbose )
-			CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
+	if( verbose )
+		CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
 
-		// apply the actual timings to the circuit
-		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			int s = node.second->GetEvalSequenceNumber();
-			if( s < 0 ) continue;
-			node.second->SetRuntime( times[s].timeval );
+	// apply the actual timings to the circuit
+	for( auto& node : cir.GetGraph().getAllNodes() ) {
+		int s = node.second->GetEvalSequenceNumber();
+		if( s < 0 ) continue;
+		node.second->SetRuntime( times[s].timeval );
+	}
+
+	// print the output
+	for( auto& out : outputs ) {
+		cout << "For output " << out.first << " type " << out.second.GetType() << endl;
+		out.second.DecryptAndPrint(cc, kp.secretKey, cout);
+	}
+
+	if( print_result_graph ) {
+		cir.GetGraph().DisplayDecryptedGraph(resultGraph, cc, kp.secretKey);
+		if( resultGF.is_open() )
+			resultGF.close();
+	}
+
+	// we have the times for each node, now sum up for each output
+	for( auto& out : cir.GetGraph().getOutputs() ) {
+		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
+		cir.GetGraph().ClearVisited();
+		n->CircuitVisit(cir.GetGraph());
+		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
+	}
+
+	if( verbose ) {
+		cout << "Timing Information:" << endl;
+		for( size_t i = 0; i < times.size(); i++ ) {
+			cout << times[i] << endl;
 		}
-
-		// print the output
-		for( auto& out : outputs ) {
-			cout << "For output " << out.first << " type " << out.second.GetType() << endl;
-			out.second.DecryptAndPrint(cc, kp.secretKey, cout);
-		}
-
-		if( print_result_graph ) {
-			cir.GetGraph().DisplayDecryptedGraph(resultGraph, cc, kp.secretKey);
-			if( resultGF.is_open() )
-				resultGF.close();
-		}
-
-		// we have the times for each node, now sum up for each output
-		for( auto& out : cir.GetGraph().getOutputs() ) {
-			CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
-			cir.GetGraph().ClearVisited();
-			n->CircuitVisit(cir.GetGraph());
-			cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
-		}
-
-		if( verbose ) {
-			cout << "Timing Information:" << endl;
-			for( size_t i = 0; i < times.size(); i++ ) {
-				cout << times[i] << endl;
-			}
-		}
-
-		break;
 	}
 
 	return 0;
