@@ -84,11 +84,9 @@ main(int argc, char *argv[])
 {
 	const usint MAXVECS = 9*4;
 	const usint m = 8;
-	const usint ptm = 256;
+	const PlaintextModulus ptm = 256;
 	const usint mdim = 3;
 	const usint maxprint = 10;
-
-	CryptoContext<DCRTPoly> cc = GenCryptoContextNull<DCRTPoly>(m, 5, ptm, 20);
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -105,7 +103,6 @@ main(int argc, char *argv[])
 	ofstream inGF, procGF, resultGF;
 
 	string specfile;
-	cout << specfile.length() << endl;
 
 	// PROCESS USER ARGS
 	for( int i=1; i<argc; i++ ) {
@@ -204,6 +201,15 @@ main(int argc, char *argv[])
 	}
 
 	// Prepare to process the graph
+
+	EncodingParams ep( new EncodingParamsImpl(ptm,
+			8,
+			PackedEncoding::GetAutomorphismGenerator(m),
+			NativeInteger(1),
+			NativeInteger(ptm),
+			NativeInteger(1)) );
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(m, ep);
+	PackedEncoding::SetParams(m, ep);
 
 	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
 	if( evaluation_list_mode ) {
@@ -328,7 +334,7 @@ main(int argc, char *argv[])
 			mat(r,c) = cc->MakePackedPlaintext({ mi++, 0, 0, 0 });
 		}
 
-	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat; // FIXME = cc->EncryptMatrix(kp.publicKey, mat);
 
 	CircuitIO<DCRTPoly> inputs;
 
