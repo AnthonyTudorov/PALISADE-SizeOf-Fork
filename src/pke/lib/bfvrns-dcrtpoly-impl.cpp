@@ -90,13 +90,15 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used in decryption
 
-	std::vector<double> CRTDecryptionFloatTable(size);
+	std::vector<QuadFloat> CRTDecryptionFloatTable(size);
 
 	const BigInteger modulusQ = GetElementParams()->GetModulus();
 
 	for (size_t i = 0; i < size; i++){
 		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		CRTDecryptionFloatTable[i] = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+		int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
+		int64_t denominator = moduli[i].ConvertToInt();
+		CRTDecryptionFloatTable[i] = QuadFloat(numerator)/QuadFloat(denominator);
 	}
 
 	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
@@ -278,7 +280,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 
 	//bits per prime modulus
-	size_t dcrtBits = 47;
+	size_t dcrtBits = 53;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
@@ -511,7 +513,7 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	auto &p = cryptoParams->GetPlaintextModulus();
 
-	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
@@ -865,7 +867,7 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 		b += c2[0];
 	}
 
-	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 

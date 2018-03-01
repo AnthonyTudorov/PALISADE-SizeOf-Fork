@@ -1025,7 +1025,7 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
-		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
+		const std::vector<typename PolyType::Integer> &alpha, const std::vector<QuadFloat> &beta,
 		const std::vector<typename PolyType::Integer> &alphaPrecon) const {
 
 	usint ringDimension = GetRingDimension();
@@ -1037,7 +1037,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 #pragma omp parallel for
 #endif
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
-		double curFloatSum = 0.0f;
+		QuadFloat curFloatSum = QuadFloat(0);
 		typename PolyType::Integer curIntSum = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
@@ -1050,7 +1050,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			curFloatSum += xi.ConvertToInt()*beta[vi];
 		}
 
-		coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+		coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive

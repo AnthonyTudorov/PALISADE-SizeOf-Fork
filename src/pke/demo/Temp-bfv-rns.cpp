@@ -71,7 +71,7 @@ int main() {
 
 	PKE();
 	//SHETestCoeff();
-	SHETestPacked();
+	//SHETestPacked();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();

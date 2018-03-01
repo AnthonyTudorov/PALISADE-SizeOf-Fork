@@ -239,7 +239,7 @@ namespace NTL {
     DEBUG("myZZ::GetDigitAtIndexForBase:  index = " << index
 	  << ", base = " << base);
 
-    usint DigitLen = ceil(log2(base));
+    usint DigitLen = std::ceil(log2(base));
     usint digit = 0;
     usint newIndex = 1 + (index - 1)*DigitLen;
 

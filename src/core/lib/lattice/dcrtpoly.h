@@ -41,6 +41,7 @@
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
+#include "../math/quadfloat.h"
 
 namespace lbcrypto
 {
@@ -701,7 +702,7 @@ public:
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
+			const std::vector<QuadFloat> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
