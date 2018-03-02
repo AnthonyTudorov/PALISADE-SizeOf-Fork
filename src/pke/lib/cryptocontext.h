@@ -1000,8 +1000,8 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeIntegerPlaintext(int64_t value) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+	Plaintext MakeIntegerPlaintext(int64_t value, size_t truncatedBits = 0) const {
+		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
 	}
 
 	/**
@@ -1615,6 +1615,19 @@ public:
 	EvalMult(const Plaintext pt2, const Ciphertext<Element> ct1) const
 	{
 		return EvalMult(ct1, pt2);
+	}
+
+	/**
+	 * EvalShiftRight - works only for Integer Encoding
+	 * @param pt2
+	 * @param ct1
+	 * @return new ciphertext for ct1 * pt2
+	 */
+	Ciphertext<Element>
+	EvalRightShift(const Ciphertext<Element> ct1, size_t shift) const
+	{
+		Plaintext plaintextShift = MakeIntegerPlaintext(-9999,shift);
+		return EvalMult(ct1, plaintextShift);
 	}
 
 	/**
