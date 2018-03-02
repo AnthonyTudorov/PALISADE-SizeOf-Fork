@@ -36,6 +36,7 @@ typedef NTL::quad_float QuadFloat;
 namespace lbcrypto {
 
 int64_t quadFloatRound(const QuadFloat& input);
+QuadFloat quadFloatFromInt64(const long long int input);
 
 } // namespace lbcrypto ends
 

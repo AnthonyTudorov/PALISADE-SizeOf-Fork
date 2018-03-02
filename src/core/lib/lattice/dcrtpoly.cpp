@@ -1047,7 +1047,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			//curIntSum += xi.ModMul(alpha[vi],p);
 			curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
 
-			curFloatSum += xi.ConvertToInt()*beta[vi];
+			curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*beta[vi];
 		}
 
 		coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);

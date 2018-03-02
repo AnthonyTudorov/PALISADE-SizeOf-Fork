@@ -98,9 +98,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
 		int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
 		int64_t denominator = moduli[i].ConvertToInt();
-		CRTDecryptionFloatTable[i] = QuadFloat(numerator)/QuadFloat(denominator);
-		QuadFloat::SetOutputPrecision(30);
-		std::cout << "numbers: " << numerator << ", " << denominator << ", "  << CRTDecryptionFloatTable[i] << std::endl;
+		CRTDecryptionFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
 	}
 
 	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
@@ -282,7 +280,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 
 	//bits per prime modulus
-	size_t dcrtBits = 53;
+	size_t dcrtBits = 60;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
@@ -410,7 +408,10 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	moduli[0] = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
 	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 
 	for (size_t i = 1; i < size; i++)
@@ -420,6 +421,8 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
+
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
 
 	cryptoParamsBFVrns->SetElementParams(params);
 
