@@ -251,8 +251,9 @@ extern CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
 
 class ConstInput : public CircuitNode {
 	usint val;
+	wire_type	type;
 public:
-	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {
+	ConstInput(usint id, usint value) : CircuitNode(id), val(value), type(INT) {
 		this->runtime = new TimingStatistics();
 	}
 

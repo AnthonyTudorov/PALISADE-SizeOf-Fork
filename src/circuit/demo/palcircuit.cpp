@@ -111,8 +111,12 @@ main(int argc, char *argv[])
 
 		// split by = sign
 		auto epos = arg.find('=');
-		arg = arg.substr(0, epos);
-		argf = argf.substr(epos+1);
+		if( epos == string::npos )
+			argf.clear();
+		else {
+			arg = arg.substr(0, epos);
+			argf = argf.substr(epos+1);
+		}
 
 		if( arg == "-d" ) {
 			debug_parse = true;
@@ -310,8 +314,13 @@ main(int argc, char *argv[])
 	cc->Enable(LEVELEDSHE);
 
 	Plaintext ints[] = {
+			cc->MakeCoefPackedPlaintext({ int64_t(8) }),
+			cc->MakeCoefPackedPlaintext({ int64_t(6) }),
 			cc->MakeCoefPackedPlaintext({ int64_t(7) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(3) })
+			cc->MakeCoefPackedPlaintext({ int64_t(5) }),
+			cc->MakeCoefPackedPlaintext({ int64_t(3) }),
+			cc->MakeCoefPackedPlaintext({ int64_t(0) }),
+			cc->MakeCoefPackedPlaintext({ int64_t(9) }),
 	};
 
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();

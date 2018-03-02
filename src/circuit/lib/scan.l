@@ -36,6 +36,8 @@ static yy::location loc;
 
 input       { return yy::parser::make_INPUT(loc); }
 const       { return yy::parser::make_CONST(loc); }
+Integer     { return yy::parser::make_INTEGER(loc); }
+Rational    { return yy::parser::make_RATIONAL(loc); }
 :outputs	{ return yy::parser::make_OUTPUTS(loc); }
 @           { return yy::parser::make_TYPEOF(loc); }
 \[          { return yy::parser::make_LEFT_BRACK(loc); }

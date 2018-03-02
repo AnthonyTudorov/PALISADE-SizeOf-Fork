@@ -149,6 +149,8 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
+	cout << "Add With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
+
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	auto t0 = v0.GetType();
@@ -160,24 +162,33 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		auto t1 = v1.GetType();
 
 		if( t0 != t1 ) {
-			throw std::logic_error("type mismatch for EvalAdd");
+			stringstream ss;
+			ss << "EvalAdd node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
+			throw std::logic_error(ss.str());
 		}
 
 		if( t0 == VECTOR_INT ) {
 			v0 = cc->EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
+			t0 = v0.GetType();
 		}
 		else if( t0 == MATRIX_RAT ) {
 			v0 = cc->EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
+			t0 = v0.GetType();
 		}
 		else {
-			throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval add for types " + std::to_string(t0) + " and " + std::to_string(t1) + " not implemented");
+			stringstream str;
+			str << "node " << this->getNode()->GetId() << " eval add for types "
+					<< t0 << " and " << t1 << " not implemented";
+			throw std::logic_error(str.str());
 		}
 		noise += n1->GetNoise();
 	}
+	this->value = v0;
+	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( noise );
-	return this->value = v0;
+	return this->value;
 }
 
 void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
@@ -217,6 +228,8 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
+	cout << "Sub With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
+
 	if( this->getNode()->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
@@ -233,6 +246,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 			this->value = cc->EvalNegateMatrix(v0.GetIntMatValue());
 			this->SetNoise( n0->GetNoise() );
 			this->Log();
+			cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 			return this->value;
 		}
 		else {
@@ -253,21 +267,31 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		auto t1 = v1.GetType();
 
 		if( t0 != t1 ) {
-			throw std::logic_error("type mismatch for EvalSub");
+			stringstream ss;
+			ss << "EvalSub node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
+			throw std::logic_error(ss.str());
 		}
 
 		if( t0 == VECTOR_INT ) {
 			v0 = cc->EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
+			t0 = v0.GetType();
 		}
 		else if( t0 == MATRIX_RAT ) {
 			v0 = cc->EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
+			t0 = v0.GetType();
 		}
 		else {
-			throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval sub for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
+			stringstream str;
+			str << "node " << this->getNode()->GetId() << " eval sub for types "
+					<< t0 << " and " << t1 << " not implemented";
+			throw std::logic_error(str.str());
 		}
 
 		noise += n1->GetNoise();
 	}
+
+	this->value = v0;
+	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( noise );
@@ -310,6 +334,7 @@ Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval negate for type " + std::to_string(t0) + " is not implemented");
 	}
 
+	cout << "NEG node " << this->getNode()->GetId() << " type now " << v0.GetType() << endl;
 	this->Log();
 	this->SetNoise( n0->GetNoise() );
 	return this->value;
@@ -339,6 +364,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 
 	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
 
+	cout << "Mult With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
@@ -347,7 +373,9 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	auto t1 = v1.GetType();
 
 	if( t0 != t1 ) {
-		throw std::logic_error("type mismatch for EvalSub");
+		stringstream ss;
+		ss << "EvalMult node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
+		throw std::logic_error(ss.str());
 	}
 
 	if( t1 == VECTOR_INT ) {
@@ -357,8 +385,12 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 		this->value = cc->EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
 	}
 	else {
-		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval mult for types " + std::to_string(t0) + " and " + std::to_string(t1) + " are not implemented");
+		stringstream str;
+		str << "node " << this->getNode()->GetId() << " eval mult for types "
+				<< t0 << " and " << t1 << " not implemented";
+		throw std::logic_error(str.str());
 	}
+	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( n0->GetNoise() * n1->GetNoise() );

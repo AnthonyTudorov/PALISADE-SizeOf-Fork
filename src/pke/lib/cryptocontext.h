@@ -1482,6 +1482,12 @@ public:
 		return rv;
 	}
 
+	Ciphertext<Element>
+	EvalAdd(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	{
+		return EvalAdd(ciphertext, plaintext);
+	}
+
 	/**
 	* EvalSubPlain - PALISADE EvalSub method for a ciphertext and plaintext
 	* @param ciphertext
@@ -1500,6 +1506,12 @@ public:
 			timeSamples->push_back( TimingInfo(OpEvalSubPlain, TOC_US(t)) );
 		}
 		return rv;
+	}
+
+	Ciphertext<Element>
+	EvalSub(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	{
+		return EvalSub(ciphertext, plaintext);
 	}
 
 	/**

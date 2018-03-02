@@ -41,7 +41,7 @@ using namespace lbcrypto;
 
 typedef enum wire_type {
     INT,
-    RATIONAL,
+    RAT,
     VECTOR_INT,
     VECTOR_RAT,
 	MATRIX_INT,
@@ -54,7 +54,7 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 	switch (ty) {
 	case INT:
 		out << "Integer"; break;
-	case RATIONAL:
+	case RAT:
 		out << "Rational"; break;
 	case VECTOR_INT:
 		out << "Vector of Integer"; break;
@@ -86,7 +86,7 @@ class CircuitObject {
 public:
 	CircuitObject() : t(UNKNOWN) {}
 	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
-	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RATIONAL), ival(ival), dval(dval) {}
+	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RAT), ival(ival), dval(dval) {}
 	CircuitObject(const Ciphertext<Element> ct) : t(VECTOR_INT), ct(ct) {}
 	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
 	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}

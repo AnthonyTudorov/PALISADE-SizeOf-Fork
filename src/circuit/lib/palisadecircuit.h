@@ -81,8 +81,9 @@ public:
 
 			// type check
 			if( i->GetType() != cinput->second.GetType() ) {
-				cout << i->GetType() << " " << cinput->second.GetType() << endl;
-				throw std::logic_error("input number " + std::to_string(input) + " type mismatch");
+				stringstream ss;
+				ss << "input number " << input << " type mismatch, expected " << i->GetType() << ", got " << cinput->second.GetType();
+				throw std::logic_error(ss.str());
 			}
 
 			i->setValue(cinput->second);

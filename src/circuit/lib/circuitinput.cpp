@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 	switch (obj.GetType()) {
 	case INT:
 		out << "Integer not implemented"; break;
-	case RATIONAL:
+	case RAT:
 		out << "Rational not implemented"; break;
 	case VECTOR_INT:
 		out << obj.GetIntVecValue(); break;
