@@ -106,6 +106,8 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 		noise += n1->GetNoiseActual();
 	}
+	this->value = v0;
+	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->value = v0;
 
@@ -407,6 +409,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	if( CircuitOpTrace ) {
 		cout << ss.str() << endl;
 	}
+	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	// FIXME this->SetNoise( ???? );
 	return this->value;
