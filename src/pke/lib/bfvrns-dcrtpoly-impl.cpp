@@ -99,6 +99,8 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
 		int64_t denominator = moduli[i].ConvertToInt();
 		CRTDecryptionFloatTable[i] = QuadFloat(numerator)/QuadFloat(denominator);
+		QuadFloat::SetOutputPrecision(30);
+		std::cout << "numbers: " << numerator << ", " << denominator << ", "  << CRTDecryptionFloatTable[i] << std::endl;
 	}
 
 	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
