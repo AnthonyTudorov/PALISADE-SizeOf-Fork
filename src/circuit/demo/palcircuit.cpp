@@ -82,11 +82,9 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 int
 main(int argc, char *argv[])
 {
-	const usint MAXVECS = 9*4;
 	const usint m = 8;
 	const PlaintextModulus ptm = 256;
 	const usint mdim = 3;
-	const usint maxprint = 10;
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -192,11 +190,6 @@ main(int argc, char *argv[])
 
 			specfile = arg;
 		}
-	}
-
-	if( specfile.length() == 0 ) {
-		usage();
-		return 1;
 	}
 
 	if( evaluation_list_mode && evaluation_run_mode ) {
@@ -313,77 +306,71 @@ main(int argc, char *argv[])
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);
 
-	Plaintext ints[] = {
-			cc->MakeCoefPackedPlaintext({ int64_t(8) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(6) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(7) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(5) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(3) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(0) }),
-			cc->MakeCoefPackedPlaintext({ int64_t(9) }),
-	};
-
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	vector<Ciphertext<DCRTPoly>> intVecs;
-	for( size_t i = 0; i < sizeof(ints)/sizeof(ints[0]); i++ )
-		intVecs.push_back( cc->Encrypt(kp.publicKey, ints[i]) );
+	// Note that the circuit evaluator does not know about or enforce which encodings
+	// for this demo we use Integer encoding
 
-	vector<Ciphertext<DCRTPoly>> cipherVecs;
-	for( uint64_t d = 0; d < 4; d++ )
-		for( int64_t i=1; i<10; i++ ){
-			cipherVecs.push_back( cc->Encrypt(kp.publicKey, cc->MakeCoefPackedPlaintext({i})) );
-		}
+	const int ValueCount = 7;
 
-	Matrix<Plaintext> mat([cc](){return cc->MakePackedPlaintext({uint64_t(0)});},mdim,mdim);
+	// Plaintext inputs will be chosen from these
+	Plaintext ptxts[ValueCount];
+	for( int i=0; i < ValueCount; i++ ) {
+		ptxts[i] = cc->MakeScalarPlaintext(i+1);
+	}
+
+	Ciphertext<DCRTPoly> ctxts[ValueCount];
+	for( int i=0; i < ValueCount; i++ ) {
+		ctxts[i] = cc->Encrypt(kp.publicKey, cc->MakeScalarPlaintext(i+1));
+	}
+
+	Matrix<Plaintext> mat([cc](){return cc->MakeScalarPlaintext(0);},mdim,mdim);
 	usint mi=1;
 	for(usint r=0; r<mat.GetRows(); r++)
 		for(usint c=0; c<mat.GetCols(); c++) {
-			mat(r,c) = cc->MakePackedPlaintext({ mi++, 0, 0, 0 });
+			mat(r,c) = cc->MakeScalarPlaintext( mi++ );
 		}
 
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat; // FIXME = cc->EncryptMatrix(kp.publicKey, mat);
 
 	CircuitIO<DCRTPoly> inputs;
 
-	size_t curVec = 0, maxVec = MAXVECS; //sizeof(vecs)/sizeof(vecs[0]);
-	size_t curInt = 0, maxInt = sizeof(ints)/sizeof(ints[0]);
+	size_t curPtxt = 0;
+	size_t curCtxt = 0;
 
 	for( size_t i = 0; i < intypes.size(); i++ ) {
 		if( verbose )
 			cout << "input " << i << ": type " << intypes[i] << endl;
 
 		switch(intypes[i]) {
-		case INT:
-			if( curInt == maxInt )
-				throw std::logic_error("out of ints");
-			inputs[i] = intVecs[curInt++];
+		case PLAINTEXT:
+			inputs[i] = ptxts[curPtxt++];
+			curPtxt %= ValueCount;
 			break;
 
-		case VECTOR_INT:
-			if( curVec == maxVec )
-				throw std::logic_error("out of vecs");
-			inputs[i] = cipherVecs[curVec++];
+		case CIPHERTEXT:
+			inputs[i] = ctxts[curCtxt++];
+			curCtxt %= ValueCount;
 			break;
 
-		case MATRIX_RAT:
-			inputs[i] = emat;
-			if( verbose ) {
-				for(usint r=0; r<mat.GetRows(); r++) {
-					cout << "Row " << r << endl;
-					for(usint c=0; c<mat.GetCols(); c++) {
-						cout << "Col " << c << ": [";
-						size_t i;
-						for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
-							cout << mat(r,c)->GetPackedValue()[i] << " ";
-						cout << (( i == maxprint ) ? "..." : "");
-						cout << "] ";
-					}
-					cout << endl;
-				}
-			}
-			break;
+//		case MATRIX_RAT:
+//			inputs[i] = emat;
+//			if( verbose ) {
+//				for(usint r=0; r<mat.GetRows(); r++) {
+//					cout << "Row " << r << endl;
+//					for(usint c=0; c<mat.GetCols(); c++) {
+//						cout << "Col " << c << ": [";
+//						size_t i;
+//						for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
+//							cout << mat(r,c)->GetPackedValue()[i] << " ";
+//						cout << (( i == maxprint ) ? "..." : "");
+//						cout << "] ";
+//					}
+//					cout << endl;
+//				}
+//			}
+//			break;
 
 		default:
 			throw std::logic_error("type not supported");
@@ -409,8 +396,9 @@ main(int argc, char *argv[])
 
 	// print the output
 	for( auto& out : outputs ) {
-		cout << "For output " << out.first << " type " << out.second.GetType() << endl;
+		cout << "For output " << out.first << " type " << out.second.GetType() << " Value: ";
 		out.second.DecryptAndPrint(cc, kp.secretKey, cout);
+		cout << endl;
 	}
 
 	if( print_result_graph ) {

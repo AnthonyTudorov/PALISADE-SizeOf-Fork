@@ -62,18 +62,18 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 template<typename Element>
 void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, LPPrivateKey<Element> key, std::ostream& out) const
 {
-	const size_t n = 10;
-
 	switch( this->t ) {
-	case VECTOR_INT:
+	case PLAINTEXT:
+	{
+		out << this->GetPlaintextValue();
+	}
+	break;
+
+	case CIPHERTEXT:
 	{
 		Plaintext result;
-		cc->Decrypt(key, GetIntVecValue(), &result);
-
-		size_t i;
-		for( i=0; i < n && i < cc->GetRingDimension(); i++ )
-			out << result->GetCoefPackedValue()[i] << " ";
-		out << (( i == n ) ? "..." : " ") << std::endl;
+		cc->Decrypt(key, this->GetCiphertextValue(), &result);
+		out << result;
 	}
 	break;
 
@@ -81,25 +81,15 @@ void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, LPPrivat
 	{
 		shared_ptr<Matrix<Plaintext>> numerator;
 		shared_ptr<Matrix<Plaintext>> denominator;
-		cc->DecryptMatrix(key, GetIntMatValue(), &numerator, &denominator);
+		cc->DecryptMatrix(key, this->GetMatrixRtValue(), &numerator, &denominator);
 
-		size_t r, c, i;
-		for( r=0; r < GetIntMatValue()->GetRows(); r++ ) {
+		for( size_t r=0; r < this->GetMatrixRtValue()->GetRows(); r++ ) {
 			out << "Row " << r << std::endl;
-			for( c=0; c < GetIntMatValue()->GetCols(); c++ ) {
-				out << "Col " << c << ": ([";
-				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
-					out << (*numerator)(r,c)->GetCoefPackedValue()[i] << " ";
-				}
-				out << (( i == n ) ? "..." : "");
-				out << "]/[";
-				for( i=0; i < n && i < cc->GetRingDimension(); i++ ) {
-					out << (*denominator)(r,c)->GetCoefPackedValue()[i] << " ";
-				}
-				out << (( i == n ) ? "..." : "");
-				out << "])  ";
+			for( size_t c=0; c < this->GetMatrixRtValue()->GetCols(); c++ ) {
+				out << "Col " << c << " n/d = ";
+				out << (*numerator)(r,c) << " / ";
+				out << (*denominator)(r,c) << std::endl;
 			}
-			out << std::endl;
 		}
 	}
 		break;

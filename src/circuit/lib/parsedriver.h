@@ -63,8 +63,6 @@ public:
   // Return 0 on success.
   int parse (const std::string& f);
 
-  int parse (istream& in);
-
   // The name of the file being parsed.
   // Used later to pass the file name to the location tracker.
   std::string file;

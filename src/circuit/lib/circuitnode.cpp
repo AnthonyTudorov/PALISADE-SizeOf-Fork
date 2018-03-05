@@ -153,34 +153,14 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	auto t0 = v0.GetType();
 	usint noise = n0->GetNoise();
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
-		auto t1 = v1.GetType();
 
-		if( t0 != t1 ) {
-			stringstream ss;
-			ss << "EvalAdd node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
-			throw std::logic_error(ss.str());
-		}
+		v0 = v0 + v1;
 
-		if( t0 == VECTOR_INT ) {
-			v0 = cc->EvalAdd(v0.GetIntVecValue(), v1.GetIntVecValue());
-			t0 = v0.GetType();
-		}
-		else if( t0 == MATRIX_RAT ) {
-			v0 = cc->EvalAddMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
-			t0 = v0.GetType();
-		}
-		else {
-			stringstream str;
-			str << "node " << this->getNode()->GetId() << " eval add for types "
-					<< t0 << " and " << t1 << " not implemented";
-			throw std::logic_error(str.str());
-		}
 		noise += n1->GetNoise();
 	}
 	this->value = v0;
@@ -234,58 +214,24 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 		Value<Element> v0( n0->eval(cc,cg) );
-		auto t0 = v0.GetType();
 
-		if( t0 == VECTOR_INT ) {
-			this->value = cc->EvalNegate(v0.GetIntVecValue());
-			this->SetNoise( n0->GetNoise() );
-			this->Log();
-			return this->value;
-		}
-		else if( t0 == MATRIX_RAT ) {
-			this->value = cc->EvalNegateMatrix(v0.GetIntMatValue());
-			this->SetNoise( n0->GetNoise() );
-			this->Log();
-			cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
-			return this->value;
-		}
-		else {
-			throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval negate for type " + std::to_string(t0) + " is not implemented");
-		}
+		this->value = -v0;
+		this->SetNoise( n0->GetNoise() );
+		this->Log();
+		return this->value;
 	}
 
 	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	auto t0 = v0.GetType();
 	usint noise = n0->GetNoise();
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
-		auto t1 = v1.GetType();
 
-		if( t0 != t1 ) {
-			stringstream ss;
-			ss << "EvalSub node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
-			throw std::logic_error(ss.str());
-		}
-
-		if( t0 == VECTOR_INT ) {
-			v0 = cc->EvalSub(v0.GetIntVecValue(), v1.GetIntVecValue());
-			t0 = v0.GetType();
-		}
-		else if( t0 == MATRIX_RAT ) {
-			v0 = cc->EvalSubMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
-			t0 = v0.GetType();
-		}
-		else {
-			stringstream str;
-			str << "node " << this->getNode()->GetId() << " eval sub for types "
-					<< t0 << " and " << t1 << " not implemented";
-			throw std::logic_error(str.str());
-		}
+		v0 = v0 - v1;
 
 		noise += n1->GetNoise();
 	}
@@ -295,48 +241,6 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	this->Log();
 	this->SetNoise( noise );
-	return this->value;
-}
-
-void EvalNegNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
-		return; // visit only once!
-
-	Visit();
-	if( getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
-
-	auto n0 = g.getNodeById(getInputs()[0]);
-	n0->simeval(g,ops);
-
-	CircuitNode::Log(ops,GetId(),OpEvalNeg);
-	this->SetNoise( n0->GetNoise() );
-	return;
-}
-
-template<typename Element>
-Value<Element> EvalNegNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
-
-	if( this->getNode()->getInputs().size() != 1 ) throw std::logic_error("Neg requires 1 input");
-
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	Value<Element> v0( n0->eval(cc,cg) );
-	auto t0 = v0.GetType();
-
-	if( t0 == VECTOR_INT ) {
-		this->value = cc->EvalNegate(v0.GetIntVecValue());
-	}
-	else if( t0 == MATRIX_RAT ) {
-		v0 = cc->EvalNegateMatrix(v0.GetIntMatValue());
-	}
-	else {
-		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " eval negate for type " + std::to_string(t0) + " is not implemented");
-	}
-
-	cout << "NEG node " << this->getNode()->GetId() << " type now " << v0.GetType() << endl;
-	this->Log();
-	this->SetNoise( n0->GetNoise() );
 	return this->value;
 }
 
@@ -369,27 +273,9 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	Value<Element> v1( n1->eval(cc,cg) );
-	auto t0 = v0.GetType();
-	auto t1 = v1.GetType();
 
-	if( t0 != t1 ) {
-		stringstream ss;
-		ss << "EvalMult node " << this->getNode()->GetId() << " type mismatch between " << t0 << " and " << t1;
-		throw std::logic_error(ss.str());
-	}
+	this->value = v0 * v1;
 
-	if( t1 == VECTOR_INT ) {
-		this->value = cc->EvalMult(v0.GetIntVecValue(), v1.GetIntVecValue());
-	}
-	else if( t0 == MATRIX_RAT ) {
-		this->value = cc->EvalMultMatrix(v0.GetIntMatValue(), v1.GetIntMatValue());
-	}
-	else {
-		stringstream str;
-		str << "node " << this->getNode()->GetId() << " eval mult for types "
-				<< t0 << " and " << t1 << " not implemented";
-		throw std::logic_error(str.str());
-	}
 	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
@@ -421,16 +307,18 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	auto t0 = v0.GetType();
 
-	if( t0 == VECTOR_INT ) {
-		this->value = cc->ModReduce(v0.GetIntVecValue());
-	}
-	else if( t0 == MATRIX_RAT ) {
-		this->value = cc->ModReduceMatrix(v0.GetIntMatValue());
-	}
-	else {
-		throw std::logic_error("node " + std::to_string(this->getNode()->GetId()) + " modreduce for type " + std::to_string(t0) + " is not implemented");
+	switch( v0.GetType() ) {
+	case CIPHERTEXT:
+		this->value = cc->ModReduce(v0.GetCiphertextValue());
+		break;
+
+	case MATRIX_RAT:
+		this->value = cc->ModReduceMatrix(v0.GetMatrixRtValue());
+		break;
+
+	default:
+		PALISADE_THROW(type_error, "ModReduce operation not available for this operand's type");
 	}
 
 	this->Log();
@@ -442,10 +330,8 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 
 template<typename Element>
 CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
-	TESTANDMAKE( ConstInput, ConstInputWithValue<Element>, n );
 	TESTANDMAKE( Input, InputWithValue<Element>, n );
 	TESTANDMAKE( ModReduceNode, ModReduceNodeWithValue<Element>, n );
-	TESTANDMAKE( EvalNegNode, EvalNegNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalAddNode, EvalAddNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalSubNode, EvalSubNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalMultNode, EvalMultNodeWithValue<Element>, n );

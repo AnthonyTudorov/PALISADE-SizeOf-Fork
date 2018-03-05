@@ -324,25 +324,6 @@ public:
 	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
-class EvalNegNode : public CircuitNode {
-public:
-	EvalNegNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
-		this->inputs = inputs;
-	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	OpType OpTag() const { return OpEvalNeg; }
-	string getNodeLabel() const { return "-"; }
-};
-
-template<typename Element>
-class EvalNegNodeWithValue : public CircuitNodeWithValue<Element> {
-public:
-	EvalNegNodeWithValue(EvalNegNode* node) : CircuitNodeWithValue<Element>(node) {}
-
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
-};
-
 class EvalAddNode : public CircuitNode {
 public:
 	EvalAddNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {

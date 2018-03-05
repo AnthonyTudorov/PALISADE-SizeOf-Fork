@@ -83,7 +83,7 @@ class pdriver;
 %define api.token.prefix {TOK_}
 %token END 0
 %token ENDL
-%token INPUT CONST OUTPUTS INTEGER RATIONAL
+%token INPUT CONST OUTPUTS INTEGER RATIONAL PLAINTEXT CIPHERTEXT RATIONALCIPHERTEXT
 %token TYPEOF
 %token LEFT_BRACK
 %token RIGHT_BRACK
@@ -125,10 +125,12 @@ line:           command
 						driver.graph.getNodeById(i)->setAsOutput();
 					}
 				}
+				/********
 		| 		const
 				{
 					driver.graph.addNode($1, $1->GetId());
 				}
+				*********/
 		| 		gate
 				{
 					// put $1 in the CircuitGraph
@@ -174,6 +176,18 @@ basic_type:		INTEGER
 				{
 					$$ = RAT;
 				}
+				| PLAINTEXT
+				{
+					$$ = PLAINTEXT;
+				}
+				| CIPHERTEXT
+				{
+					$$ = CIPHERTEXT;
+				}
+				| RATIONALCIPHERTEXT
+				{
+					$$ = RATIONALCIPHERTEXT;
+				}
 				
 agg_type:		LEFT_BRACK INTEGER RIGHT_BRACK
                 {
@@ -192,12 +206,14 @@ agg_type:		LEFT_BRACK INTEGER RIGHT_BRACK
 					$$ = MATRIX_RAT;
                 }
 
-const:          NUM CONST TYPEOF INTEGER NUM ENDLS
+/*******
+const:          NUM CONST NUM ENDLS
                 {
-                    //std::cout << "Adding the constant " << $5 << std::endl;
-                    $$ = new ConstInput($1, $5);
+                    //std::cout << "Adding the constant " << $3 << std::endl;
+                    $$ = new Const($1, $3);
                 }
         ;
+*********/
 
 strlist:        /* empty */
                 {

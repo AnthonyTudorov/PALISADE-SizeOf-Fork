@@ -40,13 +40,16 @@ using std::shared_ptr;
 using namespace lbcrypto;
 
 typedef enum wire_type {
-    INT,
-    RAT,
-    VECTOR_INT,
-    VECTOR_RAT,
+	INT,
+	RAT,
+	VECTOR_INT,
+	VECTOR_RAT,
 	MATRIX_INT,
 	MATRIX_RAT,
-    UNKNOWN
+	PLAINTEXT,
+	CIPHERTEXT,
+	RATIONALCIPHERTEXT,
+	UNKNOWN
 } wire_type;
 
 inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
@@ -64,8 +67,12 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 		out << "Matrix of Integer"; break;
 	case MATRIX_RAT:
 		out << "Matrix of Rational"; break;
+	case PLAINTEXT:
+		out << "Plaintext"; break;
+	case CIPHERTEXT:
+		out << "Ciphertext"; break;
 	default:
-		out << "UNKNOWN TYPE"; break;
+		out << "Unknown (" << ty << ")"; break;
 	}
 
 	return out;
@@ -76,32 +83,276 @@ namespace lbcrypto {
 template<typename Element>
 class CircuitObject {
 	wire_type	t;
-	BigInteger	ival;
-	BigInteger	dval;
+	//	BigInteger	ival;
+	//	BigInteger	dval;
+	Plaintext	pt;
 	Ciphertext<Element> ct;
-	shared_ptr<RationalCiphertext<Element>> rct;
-	shared_ptr<Matrix<Ciphertext<Element>>> mct;
+	//	shared_ptr<RationalCiphertext<Element>> rct;
+	//	shared_ptr<Matrix<Ciphertext<Element>>> mct;
 	shared_ptr<Matrix<RationalCiphertext<Element>>> mrct;
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
-	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
-	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RAT), ival(ival), dval(dval) {}
-	CircuitObject(const Ciphertext<Element> ct) : t(VECTOR_INT), ct(ct) {}
-	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
-	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}
+	//	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
+	//	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RAT), ival(ival), dval(dval) {}
+	CircuitObject(const Plaintext pt) : t(PLAINTEXT), pt(pt) {}
+	CircuitObject(const Ciphertext<Element> ct) : t(CIPHERTEXT), ct(ct) {}
+	//	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
+	//	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}
 	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<Element>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
 
 	wire_type GetType() const { return t; }
+
 	void SetType(wire_type t) {
+		pt.reset();
 		ct.reset();
-		rct.reset();
-		mct.reset();
+		//		rct.reset();
+		//		mct.reset();
 		mrct.reset();
 		this->t = t;
 	}
-	Ciphertext<Element> GetIntVecValue() const { return ct; }
-	shared_ptr<Matrix<RationalCiphertext<Element>>> GetIntMatValue() const { return mrct; }
+
+	// unary minus
+	CircuitObject<Element> operator-() const {
+		switch( this->GetType() ) {
+		case CIPHERTEXT: {
+			auto op1 = this->GetCiphertextValue();
+			auto cc = op1->GetCryptoContext();
+			return cc->EvalNegate(op1);
+		}
+		break;
+
+		case MATRIX_RAT: {
+			auto op1 = this->GetMatrixRtValue();
+			auto cc = (*op1)(0,0).GetCryptoContext();
+			return cc->EvalNegateMatrix(op1);
+		}
+		break;
+
+		default:
+			PALISADE_THROW(type_error, "Unary minus operation not available for this operand's type");
+		}
+	}
+
+	CircuitObject<Element> operator+(const CircuitObject<Element>& other) const {
+		switch( this->GetType() ) {
+		case PLAINTEXT: {
+			auto op1 = this->GetPlaintextValue();
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+				auto cc = op2->GetCryptoContext();
+
+				return cc->EvalAdd(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Addition operation not available for Plaintext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case CIPHERTEXT: {
+			auto op1 = this->GetCiphertextValue();
+			auto cc = op1->GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+cout << "this + other " << *op1 << " " << *op2 << " == " << *cc->EvalAdd(op1,op2) << endl;
+				return cc->EvalAdd(op1, op2);
+			}
+			break;
+
+			case PLAINTEXT:
+			{
+				auto op2 = other.GetPlaintextValue();
+
+				return cc->EvalAdd(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Addition operation not available for Ciphertext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case MATRIX_RAT: {
+			auto op1 = this->GetMatrixRtValue();
+			auto cc = (*op1)(0,0).GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case MATRIX_RAT:
+			{
+				auto op2 = other.GetMatrixRtValue();
+
+				return cc->EvalAddMatrix(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Addition operation not available for Matrix<RationalCiphertext> and right-hand operand's type");
+			}
+		}
+		break;
+
+		default:
+			PALISADE_THROW(type_error, "Addition operation not available for left-hand operand's type");
+		}
+	}
+
+	CircuitObject<Element> operator-(const CircuitObject<Element>& other) const {
+		switch( this->GetType() ) {
+		case PLAINTEXT: {
+			auto op1 = this->GetPlaintextValue();
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+				auto cc = op2->GetCryptoContext();
+
+				return cc->EvalSub(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Subtraction operation not available for Plaintext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case CIPHERTEXT: {
+			auto op1 = this->GetCiphertextValue();
+			auto cc = op1->GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+cout << "this - other " << *op1 << " " << *op2 << " == " << *cc->EvalSub(op1,op2) << endl;
+
+				return cc->EvalSub(op1, op2);
+			}
+			break;
+
+			case PLAINTEXT:
+			{
+				auto op2 = other.GetPlaintextValue();
+
+				return cc->EvalSub(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Subtraction operation not available for Ciphertext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case MATRIX_RAT: {
+			auto op1 = this->GetMatrixRtValue();
+			auto cc = (*op1)(0,0).GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case MATRIX_RAT:
+			{
+				auto op2 = other.GetMatrixRtValue();
+
+				return cc->EvalSubMatrix(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Subtraction operation not available for Matrix<RationalCiphertext> and right-hand operand's type");
+			}
+		}
+		break;
+
+		default:
+			PALISADE_THROW(type_error, "Subtraction operation not available for left-hand operand's type");
+		}
+	}
+
+
+	CircuitObject<Element> operator*(const CircuitObject<Element>& other) const {
+		switch( this->GetType() ) {
+		case PLAINTEXT: {
+			auto op1 = this->GetPlaintextValue();
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+				auto cc = op2->GetCryptoContext();
+
+				return cc->EvalMult(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Multiply operation not available for Plaintext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case CIPHERTEXT: {
+			auto op1 = this->GetCiphertextValue();
+			auto cc = op1->GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case CIPHERTEXT:
+			{
+				auto op2 = other.GetCiphertextValue();
+cout << "this * other " << *op1 << " " << *op2 << " == " << *cc->EvalMult(op1,op2) << endl;
+
+				return cc->EvalMult(op1, op2);
+			}
+			break;
+
+			case PLAINTEXT:
+			{
+				auto op2 = other.GetPlaintextValue();
+
+				return cc->EvalMult(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Multiply operation not available for Ciphertext and right-hand operand's type");
+			}
+		}
+		break;
+
+		case MATRIX_RAT: {
+			auto op1 = this->GetMatrixRtValue();
+			auto cc = (*op1)(0,0).GetCryptoContext();
+
+			switch( other.GetType() ) {
+			case MATRIX_RAT:
+			{
+				auto op2 = other.GetMatrixRtValue();
+
+				return cc->EvalMultMatrix(op1, op2);
+			}
+			break;
+
+			default:
+				PALISADE_THROW(type_error, "Multiply operation not available for Matrix<RationalCiphertext> and right-hand operand's type");
+			}
+		}
+		break;
+
+		default:
+			PALISADE_THROW(type_error, "Multiply operation not available for left-hand operand's type");
+		}
+	}
+
+	Plaintext GetPlaintextValue() const { return pt; }
+	Ciphertext<Element> GetCiphertextValue() const { return ct; }
+	shared_ptr<Matrix<RationalCiphertext<Element>>> GetMatrixRtValue() const { return mrct; }
 
 	void DecryptAndPrint(CryptoContext<Element> cc, LPPrivateKey<Element> key, std::ostream& out) const;
 };

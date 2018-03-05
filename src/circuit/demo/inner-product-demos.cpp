@@ -151,7 +151,7 @@ main(int argc, char *argv[])
 		cc->StopTiming();
 
 		for( auto& out : outputs ) {
-			auto m = out.second.GetIntMatValue();
+			auto m = out.second.GetMatrixRtValue();
 			shared_ptr<Matrix<Plaintext>> numerator;
 			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
@@ -232,7 +232,7 @@ main(int argc, char *argv[])
 		cc->StopTiming();
 
 		for( auto& out : outputs ) {
-			auto m = out.second.GetIntMatValue();
+			auto m = out.second.GetMatrixRtValue();
 			shared_ptr<Matrix<Plaintext>> numerator;
 			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);

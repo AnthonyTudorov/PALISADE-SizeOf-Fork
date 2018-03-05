@@ -38,6 +38,10 @@ input       { return yy::parser::make_INPUT(loc); }
 const       { return yy::parser::make_CONST(loc); }
 Integer     { return yy::parser::make_INTEGER(loc); }
 Rational    { return yy::parser::make_RATIONAL(loc); }
+plaintext	{ return yy::parser::make_PLAINTEXT(loc); }
+ciphertext	{ return yy::parser::make_CIPHERTEXT(loc); }
+rationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
+
 :outputs	{ return yy::parser::make_OUTPUTS(loc); }
 @           { return yy::parser::make_TYPEOF(loc); }
 \[          { return yy::parser::make_LEFT_BRACK(loc); }
