@@ -132,10 +132,12 @@ line:           command
 						driver.graph.getNodeById(i)->setAsOutput();
 					}
 				}
+				/********
 		| 		const
 				{
 					driver.graph.addNode($1, $1->GetId());
 				}
+				*********/
 		| 		gate
 				{
 					// put $1 in the CircuitGraph
