@@ -82,16 +82,23 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 }
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS
-//YSP Commnted out because it fails on Linux
-//Need to understand the cause and fix
-/*TEST(UTSignatureGPV,simple_sign_verify_native) {
+
+TEST(UTSignatureGPV,simple_sign_verify_native) {
   bool dbg_flag = false;
 
   DEBUG("Step 1");
-	NativePoly::DggType dgg(4);
-	usint sm = 16;
-	NativeInteger smodulus("1152921504606847009");
-	NativeInteger srootOfUnity("405107564542978792");
+  NativePoly::DggType dgg(4);
+   	usint sm = 16;
+     NativeInteger smodulus;
+     NativeInteger srootOfUnity;
+   	usint bits = 57;
+     smodulus = FirstPrime<NativeInteger>(bits,sm);
+     srootOfUnity = RootOfUnity<NativeInteger>(sm, smodulus);
+
+    /*
+   	NativeInteger smodulus("1152921504606847009");
+   	NativeInteger srootOfUnity("405107564542978792");
+   */
 
 	shared_ptr<ILNativeParams> silParams( new ILNativeParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
@@ -119,7 +126,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 
 	DEBUG("Step 12");
 
-}*/
+}
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS - TWO STEP PROCESS
 TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
