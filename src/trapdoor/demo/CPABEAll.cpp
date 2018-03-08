@@ -122,7 +122,7 @@ int CPABE_Test(int iter, int32_t base, usint ringDimension, usint k, usint ell,/
 //	BinaryUniformGenerator bug = BinaryUniformGenerator();
 	typename Element::BugType bug = typename Element::BugType();
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<typename Element::Integer, NativeVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Integer, typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
 	Matrix<Element> pubElemBPos(zero_alloc, ell, m);
 	Matrix<Element> pubElemBNeg(zero_alloc, ell, m);
