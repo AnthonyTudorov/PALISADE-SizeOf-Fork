@@ -33,6 +33,7 @@
 #include "../lib/abe/kp_abe.h"
 #include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
+#include "../lib/abe/cp_abe.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -89,7 +90,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	RingMat pubElemBNeg(zero_alloc, ell, m);
 	Poly u(pubElemBPos(0,0));
 
-	CPABE pkg, sender, receiver;
+	CPABE<Poly> pkg, sender, receiver;
 
 	auto trapdoor = pkg.Setup(ilParams, base, ell, dug, &u, &pubElemBPos, &pubElemBNeg);
 

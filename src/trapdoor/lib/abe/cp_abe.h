@@ -54,7 +54,7 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
-
+template <class Element>
 	class CPABE{
 		public:
 
@@ -79,31 +79,31 @@ namespace lbcrypto {
 		* @param *pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
 		* @param *pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
 		*/
-		std::pair<RingMat, RLWETrapdoorPair<Poly>> Setup(
-			const shared_ptr<ILParams> ilParams,
+		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> Setup(
+			const shared_ptr<typename Element::Params> ilParams,
 			int32_t base,
 			const usint ell,
-			const DiscreteUniformGenerator &dug,
-			Poly *pubElemD,
-			RingMat *pubElemBPos,
-			RingMat *pubElemBNeg
+			const typename Element::DugType &dug,
+			Element *pubElemD,
+			Matrix<Element> *pubElemBPos,
+			Matrix<Element> *pubElemBNeg
 		);
 		/**
 		* Setup function for all parties except the Private Key Generator (PKG)
 		*
-		* @param ilParams parameter set
+		* @param elementParams parameter set
 		* @param base is a power of two
 		* @param ell total number of attributes
 		*/
 		void Setup(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> elementParams,
 			int32_t base,
 			const usint ell
 		);
 		/**
 		* KeyGen Function
 		*
-		* @param ilParams parameter set
+		* @param elementParams parameter set
 		* @param &s[] Access rights of the user {0, 1}
 		* @param &pubTA Public parameter of trapdoor
 		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
@@ -114,21 +114,21 @@ namespace lbcrypto {
 		* @param *sk secret key
 		*/
 		void KeyGen(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> elementParams,
 			const usint s[],
-			const RingMat &pubTA,
-			const RingMat &pubElemBPos,
-			const RingMat &pubElemBNeg,
-			const Poly &pubElemD,
-			const RLWETrapdoorPair<Poly> &secTA,
-			DiscreteGaussianGenerator &dgg,
-			RingMat *sk
+			const Matrix<Element> &pubTA,
+			const Matrix<Element> &pubElemBPos,
+			const Matrix<Element> &pubElemBNeg,
+			const Element &pubElemD,
+			const RLWETrapdoorPair<Element> &secTA,
+			typename Element::DggType &dgg,
+			Matrix<Element> *sk
 		);
 
 		/**
 		* KeyGen Function
 		*
-		* @param ilParams parameter set
+		* @param elementParams parameter set
 		* @param &s[] Access rights of the user {0, 1}
 		* @param &pubTA Public parameter of trapdoor
 		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
@@ -140,16 +140,16 @@ namespace lbcrypto {
 		* @param *sk secret key
 		*/
 		void KeyGenOnline(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> elementParams,
 			const usint s[],
-			const RingMat &pubTA,
-			const RingMat &pubElemBPos,
-			const RingMat &pubElemBNeg,
-			const Poly &pubElemD,
-			const RLWETrapdoorPair<Poly> &secTA,
-			DiscreteGaussianGenerator &dgg,
-			const shared_ptr<RingMat> perturbationVector,
-			RingMat *sk
+			const Matrix<Element> &pubTA,
+			const Matrix<Element> &pubElemBPos,
+			const Matrix<Element> &pubElemBNeg,
+			const Element &pubElemD,
+			const RLWETrapdoorPair<Element> &secTA,
+			typename Element::DggType &dgg,
+			const shared_ptr<Matrix<Element>> perturbationVector,
+			Matrix<Element> *sk
 		);
 
 		/**
@@ -159,14 +159,14 @@ namespace lbcrypto {
 		* @param &dgg to generate error terms (Gaussian)
 		* @return precomputed perturation vector
 		*/
-		shared_ptr<RingMat> KeyGenOffline(
-			const RLWETrapdoorPair<Poly> &secTA,
-			DiscreteGaussianGenerator &dgg
+		shared_ptr<Matrix<Element>> KeyGenOffline(
+			const RLWETrapdoorPair<Element> &secTA,
+			typename Element::DggType &dgg
 		);
 		/**
 		* Encrypt Function
 		*
-		* @param ilParams parameter set
+		* @param elementParams parameter set
 		* @param &pubTA public element of trapdoor
 		* @param &pubElemBPos is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to one
 		* @param &pubElemBNeg is a matrix where each column corresponds to the public vector of each attribute for when the attribute is equal to zero
@@ -181,19 +181,19 @@ namespace lbcrypto {
 		* @param *ctC1 B^t * s + e0 part of CP-ABE algorithm for encryption/decryption
 		*/
 		void Encrypt(
-			shared_ptr<ILParams> ilParams,
-			const RingMat &pubTA,
-			const RingMat &pubElemBPos,
-			const RingMat &pubElemBNeg,
-			const Poly &pubElemD,
+			shared_ptr<typename Element::Params> elementParams,
+			const Matrix<Element> &pubTA,
+			const Matrix<Element> &pubElemBPos,
+			const Matrix<Element> &pubElemBNeg,
+			const Element &pubElemD,
 			const int w[],
-			const Poly &ptext,
-			DiscreteGaussianGenerator &dgg,
-			DiscreteUniformGenerator &dug,
-			RingMat *ctW,
-			RingMat *ctPos,
-			RingMat *ctNeg,
-			Poly *ctC1
+			const Element &ptext,
+			typename Element::DggType &dgg,
+			typename Element::DugType &dug,
+			Matrix<Element> *ctW,
+			Matrix<Element> *ctPos,
+			Matrix<Element> *ctNeg,
+			Element *ctC1
 		);
 		/**
 		* Decrypt Function
@@ -210,19 +210,19 @@ namespace lbcrypto {
 		void Decrypt(
 			const int w[],
 			const usint s[],
-			const RingMat &sk,
-			const RingMat &ctW,
-			const RingMat &ctPos,
-			const RingMat &ctNeg,
-			const Poly &ctC1,
-			Poly *dtext
+			const Matrix<Element> &sk,
+			const Matrix<Element> &ctW,
+			const Matrix<Element> &ctPos,
+			const Matrix<Element> &ctNeg,
+			const Element &ctC1,
+			Element *dtext
 		);
 
 		private:
 			usint m_k; //number of bits of the modulus
 			usint m_ell; //number of attributes
 			usint m_N; // ring dimension
-			BigInteger m_q; // modulus
+			typename Element::Integer m_q; // modulus
 			usint m_m; // m = k+2
 			usint m_base;
 	};
