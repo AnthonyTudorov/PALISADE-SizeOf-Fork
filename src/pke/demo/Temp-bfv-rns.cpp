@@ -71,7 +71,7 @@ int main() {
 
 	PKE();
 	//SHETestCoeff();
-	//SHETestPacked();
+	SHETestPacked();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
@@ -85,12 +85,6 @@ int main() {
 	//	ScaleAndRound();
 
 	std::cout << "total number of errors: " << COUNTER << std::endl;
-
-	QuadFloat t1 = QuadFloat(4611686018427387904);
-
-	t1 = t1/17;
-
-	std::cout << "result = " << quadFloatRound(t1) << std::endl;
 
 	//std::cout << "Please press any key to continue..." << std::endl;
 
