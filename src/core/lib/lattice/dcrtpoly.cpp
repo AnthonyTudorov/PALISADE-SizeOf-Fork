@@ -358,8 +358,7 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTDecompose(
-		const std::vector<NativeInteger> &qDivqiInverse) const
+std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTDecompose() const
 {
 
 	std::vector<DCRTPolyType> result(m_vectors.size());
@@ -375,10 +374,9 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 	for( usint i=0; i<m_vectors.size(); i++ ) {
 
 		DCRTPolyType currentDCRTPoly = input.Clone();
-		PolyType currentPoly = input.m_vectors[i]*qDivqiInverse[i];
 
 		for ( usint k=0; k<m_vectors.size(); k++ ){
-			PolyType temp(currentPoly);
+			PolyType temp(input.m_vectors[i]);
 			if (i!=k)
 				temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
 			currentDCRTPoly.m_vectors[k] = temp;

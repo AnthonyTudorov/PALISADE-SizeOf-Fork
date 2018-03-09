@@ -195,13 +195,6 @@ namespace lbcrypto {
 			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
 			/**
-			* Gets the precomputed table of (Q/qi) mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTqDivqiTable() const { return m_CRTqDivqiTable; }
-
-			/**
 			* Gets the precomputed table of (Q/qi) mod si
 			*
 			* @return the precomputed table
@@ -307,9 +300,6 @@ namespace lbcrypto {
 
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<NativeInteger> m_CRTInverseTable;
-
-			// Stores a precomputed table of (Q/qi) mod qi
-			std::vector<NativeInteger> m_CRTqDivqiTable;
 
 			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;

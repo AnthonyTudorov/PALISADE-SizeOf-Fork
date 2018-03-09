@@ -352,7 +352,7 @@ public:
 	 * @param &qDivqiInverse precomputed table of [qi_q]_qi
 	 * @return is the pointer where the resulting vector is stored
 	 */
-	std::vector<DCRTPolyType> CRTDecompose(const std::vector<NativeInteger> &qDivqiInverse) const;
+	std::vector<DCRTPolyType> CRTDecompose() const;
 
 	//VECTOR OPERATIONS
 
