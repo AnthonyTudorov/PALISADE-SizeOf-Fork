@@ -155,8 +155,16 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 			if (typeid(IntType) == typeid(NativeInteger)) {
 				NativeInteger nativeModulus = modulus.ConvertToInt();
 				NativeVector preconTable(CycloOrder/2,nativeModulus);
-				for (usint i = 0; i<CycloOrder / 2; i++) {
-					preconTable[i] = NativeInteger(rootOfUnityTable->operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+				if(nativeModulus < NTL_SP_NBITS + 1)
+				{
+					for (usint i = 0; i<CycloOrder / 2; i++) {
+						preconTable[i] = NativeInteger(rootOfUnityTable->operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+					}
+				}
+				else{
+					for (usint i = 0; i<CycloOrder / 2; i++) {
+						preconTable[i] = 0;
+					}
 				}
 				m_rootOfUnityPreconTableByModulus[modulus] = std::move(preconTable);
 			}
@@ -174,13 +182,24 @@ void ChineseRemainderTransformFTT<IntType,VecType>::ForwardTransform(const VecTy
 	if (typeid(IntType) == typeid(NativeInteger)) {
 		const NativeVector &preconTable = m_rootOfUnityPreconTableByModulus[element.GetModulus()];
 		NativeInteger modulus = element.GetModulus().ConvertToInt();
-		if (ringDimensionFactor == 1)
-			for (usint i = 0; i<CycloOrder / 2; i++)
-				InputToFFT[i]=element[i].ModMulPreconNTL((*rootOfUnityTable)[i],modulus,preconTable[i]);
-		else
-			for (usint i = 0; i<CycloOrder / 2; i++)
-				InputToFFT[i]=element[i].ModMulPreconNTL((*rootOfUnityTable)[i*ringDimensionFactor],
-						modulus,preconTable[i*ringDimensionFactor]);
+		if(element.GetModulus() < NTL_SP_NBITS + 1){
+			if (ringDimensionFactor == 1)
+					for (usint i = 0; i<CycloOrder / 2; i++)
+							InputToFFT[i]=element[i].ModMulPreconNTL((*rootOfUnityTable)[i],modulus,preconTable[i]);
+					else
+						for (usint i = 0; i<CycloOrder / 2; i++)
+							InputToFFT[i]=element[i].ModMulPreconNTL((*rootOfUnityTable)[i*ringDimensionFactor],modulus,preconTable[i*ringDimensionFactor]);
+		}
+		else{
+			if (ringDimensionFactor == 1)
+								for (usint i = 0; i<CycloOrder / 2; i++)
+										InputToFFT[i]=element[i].ModMulFast((*rootOfUnityTable)[i],modulus);
+								else
+									for (usint i = 0; i<CycloOrder / 2; i++)
+										InputToFFT[i]=element[i].ModMulFast((*rootOfUnityTable)[i*ringDimensionFactor],modulus);
+
+		}
+
 	} else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT[i]= element[i].ModBarrettMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus(), mu);
@@ -245,9 +264,19 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 				if (typeid(IntType) == typeid(NativeInteger)) {
 					NativeInteger nativeModulus = element.GetModulus().ConvertToInt();
 					NativeVector preconTableI(CycloOrder / 2, nativeModulus);
-					for (usint i = 0; i<CycloOrder / 2; i++) {
-						preconTableI[i] = NativeInteger(rootOfUnityITable->operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+					if(element.GetModulus()<NTL_SP_NBITS+1){
+						for (usint i = 0; i<CycloOrder / 2; i++) {
+											preconTableI[i] = NativeInteger(rootOfUnityITable->operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+										}
 					}
+					else{
+
+						for (usint i = 0; i<CycloOrder / 2; i++) {
+											preconTableI[i] = 0;
+										}
+
+					}
+
 					m_rootOfUnityInversePreconTableByModulus[element.GetModulus()] = std::move(preconTableI);
 				}
 			}
@@ -268,12 +297,23 @@ void ChineseRemainderTransformFTT<IntType,VecType>::InverseTransform(const VecTy
 	if (typeid(IntType) == typeid(NativeInteger)) {
 		const NativeVector &preconTable = m_rootOfUnityInversePreconTableByModulus[element.GetModulus()];
 		NativeInteger nativeModulus = element.GetModulus().ConvertToInt();
-		if (ringDimensionFactor == 1)
-			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i].ModMulPreconNTLEq((*rootOfUnityITable)[i],nativeModulus,preconTable[i]);
-		else
-			for (usint i = 0; i<CycloOrder / 2; i++)
-				(*OpIFFT)[i].ModMulPreconNTLEq((*rootOfUnityITable)[i*ringDimensionFactor],nativeModulus,preconTable[i*ringDimensionFactor]);
+		if(element.GetModulus() < NTL_SP_NBITS + 1){
+			if (ringDimensionFactor == 1)
+						for (usint i = 0; i<CycloOrder / 2; i++)
+							(*OpIFFT)[i].ModMulPreconNTLEq((*rootOfUnityITable)[i],nativeModulus,preconTable[i]);
+					else
+						for (usint i = 0; i<CycloOrder / 2; i++)
+							(*OpIFFT)[i].ModMulPreconNTLEq((*rootOfUnityITable)[i*ringDimensionFactor],nativeModulus,preconTable[i*ringDimensionFactor]);
+		}
+		else{
+			if (ringDimensionFactor == 1)
+						for (usint i = 0; i<CycloOrder / 2; i++)
+							(*OpIFFT)[i].ModMulEq((*rootOfUnityITable)[i],nativeModulus);
+					else
+						for (usint i = 0; i<CycloOrder / 2; i++)
+							(*OpIFFT)[i].ModMulEq((*rootOfUnityITable)[i*ringDimensionFactor],nativeModulus);
+		}
+
 	}
 	else {
 		for (usint i = 0; i<CycloOrder / 2; i++)
@@ -309,9 +349,17 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 		if (typeid(IntType) == typeid(NativeInteger)) {
 			NativeInteger nativeModulus = modulus.ConvertToInt();
 			NativeVector preconTable(CycloOrder/2,nativeModulus);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				preconTable[i] = NativeInteger(m_rootOfUnityTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+			if(modulus<NTL_SP_NBITS+1){
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+						preconTable[i] = NativeInteger(m_rootOfUnityTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+					}
 			}
+			else{
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+						preconTable[i] = 0;
+					}
+			}
+
 			m_rootOfUnityPreconTableByModulus[modulus] = std::move(preconTable);
 		}
 }
@@ -337,9 +385,17 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(const IntType& ro
 		if (typeid(IntType) == typeid(NativeInteger)) {
 			NativeInteger nativeModulus = modulus.ConvertToInt();
 			NativeVector preconTableI(CycloOrder/2,nativeModulus);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				preconTableI[i] = NativeInteger(m_rootOfUnityInverseTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+			if(modulus<NTL_SP_NBITS+1){
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+								preconTableI[i] = NativeInteger(m_rootOfUnityInverseTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+						}
 			}
+			else{
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+								preconTableI[i] = 0;
+				}
+			}
+
 			m_rootOfUnityInversePreconTableByModulus[modulus] = std::move(preconTableI);
 		}
 }
@@ -384,9 +440,17 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		if (typeid(x) == typeid(NativeInteger)) {
 			NativeInteger nativeModulus = currentMod.ConvertToInt();
 			NativeVector preconTable(CycloOrder/2,nativeModulus);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-			  preconTable[i] = NativeInteger(m_rootOfUnityTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+			if(currentMod<NTL_SP_NBITS+1){
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+						  preconTable[i] = NativeInteger(m_rootOfUnityTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+						}
 			}
+			else{
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+						  preconTable[i] = 0;
+						}
+			}
+
 			m_rootOfUnityPreconTableByModulus[currentMod] = std::move(preconTable);
 		}
 
@@ -406,9 +470,17 @@ void ChineseRemainderTransformFTT<IntType,VecType>::PreCompute(std::vector<IntTy
 		if (typeid(x) == typeid(NativeInteger)) {
 			NativeInteger nativeModulus = currentMod.ConvertToInt();
 			NativeVector preconTableI(CycloOrder/2,nativeModulus);
-			for (usint i = 0; i<CycloOrder / 2; i++) {
-				preconTableI[i] = NativeInteger(m_rootOfUnityInverseTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+			if(currentMod<NTL_SP_NBITS+1){
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+								preconTableI[i] = NativeInteger(m_rootOfUnityInverseTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconNTL(nativeModulus);
+							}
 			}
+			else{
+				for (usint i = 0; i<CycloOrder / 2; i++) {
+								preconTableI[i] = 0;
+							}
+			}
+
 			m_rootOfUnityInversePreconTableByModulus[currentMod] = std::move(preconTableI);
 		}
 	}
