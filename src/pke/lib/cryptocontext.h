@@ -2344,11 +2344,13 @@ public:
 	* @param numAdds
 	* @param numMults
 	* @param numKeyswitches
+	* @param relinWindow
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
+		uint32_t relinWindow = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
@@ -2358,11 +2360,13 @@ public:
 	* @param numAdds
 	* @param numMults
 	* @param numKeyswitches
+	* @param relinWindow
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		EncodingParams encodingParams, float securityLevel, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
+		uint32_t relinWindow = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BGV Scheme

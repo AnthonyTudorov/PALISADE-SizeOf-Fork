@@ -349,10 +349,10 @@ public:
 	/**
 	 * CRT basis decomposition of c as [c qi/q]_qi
 	 *
-	 * @param &qDivqiInverse precomputed table of [qi_q]_qi
+	 * @param &baseBits bits in the base for additional digit decomposition if base > 0
 	 * @return is the pointer where the resulting vector is stored
 	 */
-	std::vector<DCRTPolyType> CRTDecompose() const;
+	std::vector<DCRTPolyType> CRTDecompose(uint32_t baseBits = 0) const;
 
 	//VECTOR OPERATIONS
 

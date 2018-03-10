@@ -267,6 +267,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double alpha = cryptoParamsBFVrns->GetAssuranceMeasure();
 	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
+	uint32_t relinWindow = cryptoParamsBFVrns->GetRelinWindow();
 
 	//bits per prime modulus
 	size_t dcrtBits = 60;
@@ -316,7 +317,11 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
 
 		//base for relinearization
-		double w = pow(2, dcrtBits);
+		double w;
+		if (relinWindow == 0)
+			w = pow(2, dcrtBits);
+		else
+			w = pow(2, relinWindow);
 
 		//Correctness constraint
 		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
@@ -352,7 +357,11 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	{
 
 		//base for relinearization
-		double w = pow(2, dcrtBits);
+		double w;
+		if (relinWindow == 0)
+			w = pow(2, dcrtBits);
+		else
+			w = pow(2, relinWindow);
 
 		//function used in the EvalMult constraint
 		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
@@ -713,24 +722,52 @@ LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const LPPrivate
 
 	const DCRTPoly &oldKey = originalPrivateKey->GetPrivateElement();
 
-	//std::vector<DCRTPoly> evalKeyElements(originalPrivateKey->GetPrivateElement().PowersOfBase(relinWindow));
 	std::vector<DCRTPoly> evalKeyElements;
 	std::vector<DCRTPoly> evalKeyElementsGenerated;
 
+	uint32_t relinWindow = cryptoParamsLWE->GetRelinWindow();
+
 	for (usint i = 0; i < oldKey.GetNumOfElements(); i++)
 	{
-		// Generate a_i vectors
-		DCRTPoly a(dug, elementParams, Format::EVALUATION);
-		evalKeyElementsGenerated.push_back(a);
 
-		// Creates an element with all zeroes
-		DCRTPoly filtered(elementParams,EVALUATION,true);
+		if (relinWindow>0)
+		{
+			vector<NativePoly> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
 
-		filtered.SetElementAtIndex(i,oldKey.GetElementAtIndex(i));
+			for (size_t k = 0; k < decomposedKeyElements.size(); k++)
+			{
 
-		// Generate a_i * s + e - [oldKey]_qi [(q/qi)^{-1}]_qi (q/qi)
-		DCRTPoly e(dgg, elementParams, Format::EVALUATION);
-		evalKeyElements.push_back(filtered - (a*s + e));
+				// Creates an element with all zeroes
+				DCRTPoly filtered(elementParams,EVALUATION,true);
+
+				filtered.SetElementAtIndex(i,decomposedKeyElements[k]);
+
+				// Generate a_i vectors
+				DCRTPoly a(dug, elementParams, Format::EVALUATION);
+				evalKeyElementsGenerated.push_back(a);
+
+				// Generate a_i * s + e - [oldKey]_qi [(q/qi)^{-1}]_qi (q/qi)
+				DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+				evalKeyElements.push_back(filtered - (a*s + e));
+			}
+		}
+		else
+		{
+
+			// Creates an element with all zeroes
+			DCRTPoly filtered(elementParams,EVALUATION,true);
+
+			filtered.SetElementAtIndex(i,oldKey.GetElementAtIndex(i));
+
+			// Generate a_i vectors
+			DCRTPoly a(dug, elementParams, Format::EVALUATION);
+			evalKeyElementsGenerated.push_back(a);
+
+			// Generate a_i * s + e - [oldKey]_qi [(q/qi)^{-1}]_qi (q/qi)
+			DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+			evalKeyElements.push_back(filtered - (a*s + e));
+		}
+
 	}
 
 	ek->SetAVector(std::move(evalKeyElements));
@@ -756,6 +793,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<D
 	const std::vector<DCRTPoly> &b = evalKey->GetAVector();
 	const std::vector<DCRTPoly> &a = evalKey->GetBVector();
 
+	uint32_t relinWindow = cryptoParamsLWE->GetRelinWindow();
+
 	std::vector<DCRTPoly> digitsC2;
 
 	DCRTPoly ct0(c[0]);
@@ -768,12 +807,12 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<D
 
 	if (c.size() == 2) //case of PRE or automorphism
 	{
-		digitsC2 = c[1].CRTDecompose();
+		digitsC2 = c[1].CRTDecompose(relinWindow);
 		ct1 = digitsC2[0] * a[0];
 	}
 	else //case of EvalMult
 	{
-		digitsC2 = c[2].CRTDecompose();
+		digitsC2 = c[2].CRTDecompose(relinWindow);
 		ct1 = c[1];
 		//Convert ct1 to evaluation representation
 		ct1.SwitchFormat();
