@@ -52,6 +52,7 @@ namespace lbcrypto {
 		for(size_t i=1;i<=k;i++){
 			m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
 		}
+
 		// main diagonal of matrix L
 		std::vector<double> l(k);
 		//upper diagonal of matrix L
