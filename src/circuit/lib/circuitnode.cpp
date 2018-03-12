@@ -152,12 +152,10 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	usint noise = n0->GetNoise();
-	cout << "Eval Add First Arg is " << n0->GetId() << " " << n0->eval(cc,cg) << " " << v0 << endl;
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
-		cout << "Eval Add Next Arg is " << n1->GetId() << " " << n1->eval(cc,cg) << " " << v1 << endl;
 
 		v0 = v0 + v1;
 

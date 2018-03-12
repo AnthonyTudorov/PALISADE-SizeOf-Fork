@@ -1627,7 +1627,14 @@ public:
 	EvalRightShift(const Ciphertext<Element> ct1, size_t shift) const
 	{
 		Plaintext plaintextShift = MakeIntegerPlaintext(-9999,shift);
-		return EvalMult(ct1, plaintextShift);
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalMult(ct1, plaintextShift);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalRightShift, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**

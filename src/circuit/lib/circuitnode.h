@@ -447,7 +447,7 @@ public:
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	OpType OpTag() const { return OpEvalMult; }
+	OpType OpTag() const { return OpEvalRightShift; }
 	string getNodeLabel() const { return ">>"; }
 };
 
