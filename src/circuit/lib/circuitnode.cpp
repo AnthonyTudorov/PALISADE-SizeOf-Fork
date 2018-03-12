@@ -97,7 +97,6 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
-		cout << "Eval Add Next Arg is " << n1->GetId() << " " << n1->eval(cc,cg) << " " << v1 << endl;
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";

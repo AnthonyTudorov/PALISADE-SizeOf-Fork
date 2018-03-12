@@ -352,8 +352,9 @@ public:
 			PALISADE_THROW(type_error, "Right shift operation not available for left-hand operand's type");
 		if( other.GetType() != INT )
 			PALISADE_THROW(type_error, "Right shift operation has wrong type for right-hand operand");
+		auto cc = this->GetCiphertextValue()->GetCryptoContext();
 
-		return CircuitObject<Element>();
+		return cc->EvalRightShift(this->GetCiphertextValue(), other.GetIntValue());
 	}
 
 	usint GetIntValue() const { return ival; }
