@@ -339,7 +339,7 @@ main(int argc, char *argv[])
 			mat(r,c) = EncodeFunction( cc, mi++ );
 		}
 
-	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat; // FIXME = cc->EncryptMatrix(kp.publicKey, mat);
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
 
 	CircuitIO<DCRTPoly> inputs;
 
@@ -361,23 +361,9 @@ main(int argc, char *argv[])
 			curCtxt %= ValueCount;
 			break;
 
-//		case MATRIX_RAT:
-//			inputs[i] = emat;
-//			if( verbose ) {
-//				for(usint r=0; r<mat.GetRows(); r++) {
-//					cout << "Row " << r << endl;
-//					for(usint c=0; c<mat.GetCols(); c++) {
-//						cout << "Col " << c << ": [";
-//						size_t i;
-//						for( i=0; i < maxprint && i < cc->GetRingDimension(); i++ )
-//							cout << mat(r,c)->GetPackedValue()[i] << " ";
-//						cout << (( i == maxprint ) ? "..." : "");
-//						cout << "] ";
-//					}
-//					cout << endl;
-//				}
-//			}
-//			break;
+		case MATRIX_RAT:
+			inputs[i] = emat;
+			break;
 
 		default:
 			throw std::logic_error("type not supported");
