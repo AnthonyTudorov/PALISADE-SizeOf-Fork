@@ -347,6 +347,16 @@ public:
 		}
 	}
 
+	CircuitObject<Element> operator>>(const CircuitObject<Element>& other) const {
+		if( this->GetType() != CIPHERTEXT )
+			PALISADE_THROW(type_error, "Right shift operation not available for left-hand operand's type");
+		if( other.GetType() != INT )
+			PALISADE_THROW(type_error, "Right shift operation has wrong type for right-hand operand");
+
+		return CircuitObject<Element>();
+	}
+
+	usint GetIntValue() const { return ival; }
 	Plaintext GetPlaintextValue() const { return pt; }
 	Ciphertext<Element> GetCiphertextValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetMatrixRtValue() const { return mrct; }
