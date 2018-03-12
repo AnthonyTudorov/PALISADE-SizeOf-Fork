@@ -83,7 +83,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS
 
-TEST(UTSignatureGPV,simple_sign_verify_native) {
+TEST(UTSignatureGPV,simple_sign_verify_native_below_sixty_bits) {
   bool dbg_flag = false;
 
   DEBUG("Step 1");
@@ -127,6 +127,54 @@ TEST(UTSignatureGPV,simple_sign_verify_native) {
 	DEBUG("Step 12");
 
 }
+
+//TEST FOR BASIC SIGNING & VERIFICATION PROCESS
+
+TEST(UTSignatureGPV,simple_sign_verify_native_above_sixty_bits) {
+  bool dbg_flag = false;
+
+  DEBUG("Step 1");
+  NativePoly::DggType dgg(4);
+   	usint sm = 16;
+     NativeInteger smodulus;
+     NativeInteger srootOfUnity;
+   	usint bits = 61;
+     smodulus = FirstPrime<NativeInteger>(bits,sm);
+     srootOfUnity = RootOfUnity<NativeInteger>(sm, smodulus);
+
+    /*
+   	NativeInteger smodulus("1152921504606847009");
+   	NativeInteger srootOfUnity("405107564542978792");
+   */
+
+	shared_ptr<ILNativeParams> silParams( new ILNativeParams(sm, smodulus, srootOfUnity) );
+  DEBUG("Step 2");
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
+  DEBUG("Step 4");
+	LPSignatureParameters<NativePoly> signParams(silParams, dgg);
+  DEBUG("Step 5");
+	LPSignKeyGPVGM<NativePoly> s_k(signParams);
+  DEBUG("Step 6");
+	LPVerificationKeyGPVGM<NativePoly> v_k(signParams);
+  DEBUG("Step 7");
+	LPSignatureSchemeGPVGM<NativePoly> scheme;
+  DEBUG("Step 8");
+	scheme.KeyGen(&s_k, &v_k);
+  DEBUG("Step 9");
+	Signature<Matrix<NativePoly>> signature;
+  DEBUG("Step 10");
+	string text("Since hashing is integrated now");
+  DEBUG("Step 11");
+
+	scheme.Sign(s_k, text, &signature);
+
+	EXPECT_EQ(true, scheme.Verify(v_k, signature, text))
+		<<"Failed verification";
+
+	DEBUG("Step 12");
+
+}
+
 
 //TEST FOR BASIC SIGNING & VERIFICATION PROCESS - TWO STEP PROCESS
 TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
