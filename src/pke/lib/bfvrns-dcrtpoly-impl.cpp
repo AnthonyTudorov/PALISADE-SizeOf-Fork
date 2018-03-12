@@ -255,11 +255,14 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 // Parameter generation for BFV-RNS
 template <>
 bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
 
 	if (!cryptoParams)
-		return false;
+		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrns ParamsGen");
+
+	if ((dcrtBits < 30) || (dcrtBits > 60))
+		PALISADE_THROW(math_error, "BFVrns.ParamsGen: Number of bits in CRT moduli should be in the range from 30 to 60");
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cryptoParams);
 
@@ -268,9 +271,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
 	double p = cryptoParamsBFVrns->GetPlaintextModulus();
 	uint32_t relinWindow = cryptoParamsBFVrns->GetRelinWindow();
-
-	//bits per prime modulus
-	size_t dcrtBits = 60;
 
 	//Bound of the Gaussian error polynomial
 	double Berr = sigma*sqrt(alpha);
@@ -451,7 +451,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
 	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
-	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(dcrtBits/3));
 	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
 	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
 

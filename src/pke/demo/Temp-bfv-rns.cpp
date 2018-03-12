@@ -540,7 +540,7 @@ void SHETestPackedRelin() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,3,relinWindow);
+			ptm, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,3,relinWindow,60);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);

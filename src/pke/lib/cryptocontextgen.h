@@ -148,7 +148,7 @@ GenCryptoContextBFVrns(PlaintextModulus ptm, MODE mode) {
 template<>
 inline CryptoContext<DCRTPoly>
 GenCryptoContextBFVrns(PlaintextModulus ptm, MODE mode) {
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 4, 0, 2, 0, mode);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm, 1.006, 4, 0, 2, 0, mode, 2, 30, 60);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(PRE);
 	cc->Enable(SHE);

@@ -295,9 +295,10 @@ namespace lbcrypto {
 		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		* @param dcrtBits number of bits in each CRT modulus - NOT USED IN BFV
 		*/
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const;
 
 		virtual ~LPAlgorithmParamsGenBFV() {}
 
