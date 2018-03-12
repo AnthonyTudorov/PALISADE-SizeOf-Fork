@@ -372,6 +372,35 @@ public:
 	string getNodeLabel() const { return "(const plaintext)"; }
 };
 
+class Const : public CircuitNode {
+	wire_type type;
+public:
+	Const(usint id, wire_type type) : CircuitNode(id), type(type) {
+		this->runtime = new TimingStatistics(0,0,0,0);
+	}
+
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
+		if( !Visited() ) {
+			Visit();
+			noiseval = DEFAULTNOISEVAL;
+		}
+	}
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const)"; }
+	wire_type GetType() const { return type; }
+};
+
+template<typename Element>
+class ConstWithValue : public CircuitNodeWithValue<Element> {
+public:
+	ConstWithValue(Input* in) : CircuitNodeWithValue<Element>(in) {
+		this->value.SetType(in->GetType());
+	}
+
+	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+};
+
+
 class ModReduceNode : public CircuitNode {
 public:
 	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
