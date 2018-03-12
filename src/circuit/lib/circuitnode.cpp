@@ -149,8 +149,6 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
-	cout << "Add With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
-
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	usint noise = n0->GetNoise();
@@ -164,7 +162,6 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		noise += n1->GetNoise();
 	}
 	this->value = v0;
-	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( noise );
@@ -208,8 +205,6 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	cout << "Sub With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
-
 	if( this->getNode()->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
@@ -237,7 +232,6 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	}
 
 	this->value = v0;
-	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( noise );
@@ -268,15 +262,12 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 
 	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
 
-	cout << "Mult With Value " << this->getNode()->GetId() << " " << this->getNode()->getInputs().size() << endl;
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	Value<Element> v1( n1->eval(cc,cg) );
 
 	this->value = v0 * v1;
-
-	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	this->Log();
 	this->SetNoise( n0->GetNoise() * n1->GetNoise() );

@@ -162,7 +162,6 @@ public:
 			case CIPHERTEXT:
 			{
 				auto op2 = other.GetCiphertextValue();
-cout << "this + other " << *op1 << " " << *op2 << " == " << *cc->EvalAdd(op1,op2) << endl;
 				return cc->EvalAdd(op1, op2);
 			}
 			break;
@@ -170,7 +169,6 @@ cout << "this + other " << *op1 << " " << *op2 << " == " << *cc->EvalAdd(op1,op2
 			case PLAINTEXT:
 			{
 				auto op2 = other.GetPlaintextValue();
-
 				return cc->EvalAdd(op1, op2);
 			}
 			break;
@@ -233,8 +231,6 @@ cout << "this + other " << *op1 << " " << *op2 << " == " << *cc->EvalAdd(op1,op2
 			case CIPHERTEXT:
 			{
 				auto op2 = other.GetCiphertextValue();
-cout << "this - other " << *op1 << " " << *op2 << " == " << *cc->EvalSub(op1,op2) << endl;
-
 				return cc->EvalSub(op1, op2);
 			}
 			break;
@@ -242,7 +238,6 @@ cout << "this - other " << *op1 << " " << *op2 << " == " << *cc->EvalSub(op1,op2
 			case PLAINTEXT:
 			{
 				auto op2 = other.GetPlaintextValue();
-
 				return cc->EvalSub(op1, op2);
 			}
 			break;
@@ -306,8 +301,6 @@ cout << "this - other " << *op1 << " " << *op2 << " == " << *cc->EvalSub(op1,op2
 			case CIPHERTEXT:
 			{
 				auto op2 = other.GetCiphertextValue();
-cout << "this * other " << *op1 << " " << *op2 << " == " << *cc->EvalMult(op1,op2) << endl;
-
 				return cc->EvalMult(op1, op2);
 			}
 			break;
@@ -315,7 +308,6 @@ cout << "this * other " << *op1 << " " << *op2 << " == " << *cc->EvalMult(op1,op
 			case PLAINTEXT:
 			{
 				auto op2 = other.GetPlaintextValue();
-
 				return cc->EvalMult(op1, op2);
 			}
 			break;

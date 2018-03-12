@@ -79,6 +79,10 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 		out << i << ": " << timings[i] << endl;
 }
 
+Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, uint64_t val) {
+	return cc->MakeIntegerPlaintext(val);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -205,7 +209,14 @@ main(int argc, char *argv[])
 			NativeInteger(1),
 			NativeInteger(ptm),
 			NativeInteger(1)) );
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextNull(m, ep);
+
+	CryptoContext<DCRTPoly> cc =
+			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
+			//::genCryptoContextNull(m, ep);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
 	PackedEncoding::SetParams(m, ep);
 
 	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
@@ -302,10 +313,6 @@ main(int argc, char *argv[])
 		cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
 	}
 
-	cc->Enable(ENCRYPTION);
-	cc->Enable(SHE);
-	cc->Enable(LEVELEDSHE);
-
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
@@ -317,19 +324,19 @@ main(int argc, char *argv[])
 	// Plaintext inputs will be chosen from these
 	Plaintext ptxts[ValueCount];
 	for( int i=0; i < ValueCount; i++ ) {
-		ptxts[i] = cc->MakeScalarPlaintext(i+1);
+		ptxts[i] = EncodeFunction(cc, i+1);
 	}
 
 	Ciphertext<DCRTPoly> ctxts[ValueCount];
 	for( int i=0; i < ValueCount; i++ ) {
-		ctxts[i] = cc->Encrypt(kp.publicKey, cc->MakeScalarPlaintext(i+1));
+		ctxts[i] = cc->Encrypt(kp.publicKey, EncodeFunction(cc, i+1));
 	}
 
-	Matrix<Plaintext> mat([cc](){return cc->MakeScalarPlaintext(0);},mdim,mdim);
+	Matrix<Plaintext> mat([cc](){return EncodeFunction(cc,0);},mdim,mdim);
 	usint mi=1;
 	for(usint r=0; r<mat.GetRows(); r++)
 		for(usint c=0; c<mat.GetCols(); c++) {
-			mat(r,c) = cc->MakeScalarPlaintext( mi++ );
+			mat(r,c) = EncodeFunction( cc, mi++ );
 		}
 
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat; // FIXME = cc->EncryptMatrix(kp.publicKey, mat);
