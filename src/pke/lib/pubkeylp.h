@@ -991,9 +991,10 @@ namespace lbcrypto {
 		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		* @param dcrtBits number of bits in each CRT modulus*
 		*/
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const = 0;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const = 0;
 
 	};
 
@@ -2099,9 +2100,9 @@ namespace lbcrypto {
 		//
 
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const {
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const {
 			if (this->m_algorithmParamsGen) {
-				return this->m_algorithmParamsGen->ParamsGen(cryptoParams, evalAddCount, evalMultCount, keySwitchCount);
+				return this->m_algorithmParamsGen->ParamsGen(cryptoParams, evalAddCount, evalMultCount, keySwitchCount, dcrtBits);
 			}
 			else {
 				throw std::logic_error("Parameter generation operation has not been implemented");

@@ -164,7 +164,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
+			const std::vector<QuadFloat>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
 
 			/**
 			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
@@ -193,13 +193,6 @@ namespace lbcrypto {
 			* @return the precomputed table
 			*/
 			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi) mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTqDivqiTable() const { return m_CRTqDivqiTable; }
 
 			/**
 			* Gets the precomputed table of (Q/qi) mod si
@@ -297,7 +290,7 @@ namespace lbcrypto {
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<double> m_CRTDecryptionFloatTable;
+			std::vector<QuadFloat> m_CRTDecryptionFloatTable;
 
 			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntTable;
@@ -307,9 +300,6 @@ namespace lbcrypto {
 
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<NativeInteger> m_CRTInverseTable;
-
-			// Stores a precomputed table of (Q/qi) mod qi
-			std::vector<NativeInteger> m_CRTqDivqiTable;
 
 			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
@@ -373,9 +363,10 @@ namespace lbcrypto {
 		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
+		* @param dcrtBits number of bits in each CRT modulus
 		*/
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
 
 	};
 

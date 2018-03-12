@@ -902,7 +902,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::DividedBy(const
 	if(b==0)
 		throw std::logic_error("DIVISION BY ZERO");
 
-	if(b.m_MSB>this->m_MSB)
+	if(b>*this)
 		return 0;
 	else if(b==*this)
 		return 1;
@@ -1017,7 +1017,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::DividedB
 	if(b==0)
 		throw std::logic_error("DIVISION BY ZERO");
 
-	if(b.m_MSB>this->m_MSB) {
+	if(b>*this) {
 		*this = 0;
 		return *this;
 	}

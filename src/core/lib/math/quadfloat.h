@@ -1,5 +1,6 @@
-/*
-* @file ltv-poly-impl.cpp - poly implementation for the LTV scheme.
+/**
+ * @file quadfloat.h This file has the definitions for the quad-precision floating-point data type
+ *
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,36 +25,19 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "ltv.cpp"
+#ifndef LBCRYPTO_MATH_QUADFLOAT_H
+#define LBCRYPTO_MATH_QUADFLOAT_H
+
+#include <NTL/quad_float.h>
+
+///////// definition of the quad-precision floating-point data type
+typedef NTL::quad_float QuadFloat;
 
 namespace lbcrypto {
-template class LPCryptoParametersLTV<Poly>;
-template class LPPublicKeyEncryptionSchemeLTV<Poly>;
-template class LPAlgorithmLTV<Poly>;
-template class LPAlgorithmPRELTV<Poly>;
-template class LPAlgorithmSHELTV<Poly>;
-template class LPLeveledSHEAlgorithmLTV<Poly>;
 
-template class LPCryptoParametersLTV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeLTV<NativePoly>;
-template class LPAlgorithmLTV<NativePoly>;
-template class LPAlgorithmPRELTV<NativePoly>;
-template class LPAlgorithmSHELTV<NativePoly>;
-template class LPLeveledSHEAlgorithmLTV<NativePoly>;
+int64_t quadFloatRound(const QuadFloat& input);
+QuadFloat quadFloatFromInt64(const long long int input);
 
-template <>
-bool LPAlgorithmParamsGenLTV<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
-{
-	return false;
-}
+} // namespace lbcrypto ends
 
-template <>
-bool LPAlgorithmParamsGenLTV<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
-{
-	return false;
-}
-
-}
+#endif

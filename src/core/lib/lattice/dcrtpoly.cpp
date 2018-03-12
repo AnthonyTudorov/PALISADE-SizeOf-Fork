@@ -358,11 +358,20 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 }
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
-std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTDecompose(
-		const std::vector<NativeInteger> &qDivqiInverse) const
+std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::CRTDecompose(uint32_t baseBits) const
 {
 
-	std::vector<DCRTPolyType> result(m_vectors.size());
+	uint32_t nWindows = 1;
+
+	if (baseBits > 0) {
+		uint32_t nBits = m_vectors[0].GetModulus().GetLengthForBase(2);
+
+		nWindows = nBits / baseBits;
+		if (nBits % baseBits > 0)
+			nWindows++;
+	}
+
+	std::vector<DCRTPolyType> result(m_vectors.size()*nWindows);
 
 	DCRTPolyType input = this->Clone();
 
@@ -374,19 +383,44 @@ std::vector<DCRTPolyImpl<ModType,IntType,VecType,ParmType>> DCRTPolyImpl<ModType
 #endif
 	for( usint i=0; i<m_vectors.size(); i++ ) {
 
-		DCRTPolyType currentDCRTPoly = input.Clone();
-		PolyType currentPoly = input.m_vectors[i]*qDivqiInverse[i];
+		if (baseBits == 0)
+		{
+			DCRTPolyType currentDCRTPoly = input.Clone();
 
-		for ( usint k=0; k<m_vectors.size(); k++ ){
-			PolyType temp(currentPoly);
-			if (i!=k)
-				temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
-			currentDCRTPoly.m_vectors[k] = temp;
+			for ( usint k=0; k<m_vectors.size(); k++ ){
+				PolyType temp(input.m_vectors[i]);
+				if (i!=k)
+					temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
+				currentDCRTPoly.m_vectors[k] = temp;
+			}
+
+			currentDCRTPoly.SwitchFormat();
+
+			result[i] = std::move(currentDCRTPoly);
 		}
+		else
+		{
 
-		currentDCRTPoly.SwitchFormat();
+			vector<PolyType> decomposed = input.m_vectors[i].BaseDecompose(baseBits,false);
 
-		result[i] = std::move(currentDCRTPoly);
+			for (size_t j = 0; j < decomposed.size();  j++) {
+
+				DCRTPolyType currentDCRTPoly = input.Clone();
+
+				for ( usint k=0; k<m_vectors.size(); k++ ){
+					PolyType temp(decomposed[j]);
+					if (i!=k)
+						temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
+					currentDCRTPoly.m_vectors[k] = temp;
+				}
+
+				currentDCRTPoly.SwitchFormat();
+
+				result[j + i*nWindows] = std::move(currentDCRTPoly);
+
+			}
+
+		}
 	}
 
 	return std::move(result);
@@ -1025,7 +1059,7 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
-		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
+		const std::vector<typename PolyType::Integer> &alpha, const std::vector<QuadFloat> &beta,
 		const std::vector<typename PolyType::Integer> &alphaPrecon) const {
 
 	usint ringDimension = GetRingDimension();
@@ -1037,7 +1071,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 #pragma omp parallel for
 #endif
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
-		double curFloatSum = 0.0f;
+		QuadFloat curFloatSum = QuadFloat(0);
 		typename PolyType::Integer curIntSum = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
 			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
@@ -1047,10 +1081,10 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			//curIntSum += xi.ModMul(alpha[vi],p);
 			curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
 
-			curFloatSum += xi.ConvertToInt()*beta[vi];
+			curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*beta[vi];
 		}
 
-		coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+		coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive

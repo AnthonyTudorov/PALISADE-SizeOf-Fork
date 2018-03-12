@@ -41,6 +41,7 @@
 #include "../math/nbtheory.h"
 #include "../math/transfrm.h"
 #include "../math/distrgen.h"
+#include "../math/quadfloat.h"
 
 namespace lbcrypto
 {
@@ -348,10 +349,10 @@ public:
 	/**
 	 * CRT basis decomposition of c as [c qi/q]_qi
 	 *
-	 * @param &qDivqiInverse precomputed table of [qi_q]_qi
+	 * @param &baseBits bits in the base for additional digit decomposition if base > 0
 	 * @return is the pointer where the resulting vector is stored
 	 */
-	std::vector<DCRTPolyType> CRTDecompose(const std::vector<NativeInteger> &qDivqiInverse) const;
+	std::vector<DCRTPolyType> CRTDecompose(uint32_t baseBits = 0) const;
 
 	//VECTOR OPERATIONS
 
@@ -701,7 +702,7 @@ public:
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
+			const std::vector<QuadFloat> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
