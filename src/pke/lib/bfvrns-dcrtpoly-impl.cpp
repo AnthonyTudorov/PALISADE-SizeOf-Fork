@@ -312,6 +312,19 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 			q = qBFV(n);
 		}
 
+		// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
+
+		int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+
+		double qCeil = pow(2,k*dcrtBits);
+
+		while (nRLWE(qCeil) > n) {
+			n = 2 * n;
+			q = qBFV(n);
+			k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+			qCeil = pow(2,k*dcrtBits);
+		}
+
 	}
 	// this case supports re-encryption and automorphism w/o any other operations
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
@@ -346,6 +359,21 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 			while (std::abs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qBFV(n, qPrev);
+			}
+
+			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
+
+			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+
+			double qCeil = pow(2,k*dcrtBits);
+			qPrev = qCeil;
+
+			while (nRLWE(qCeil) > n) {
+				n = 2 * n;
+				q = qBFV(n, qPrev);
+				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+				qCeil = pow(2,k*dcrtBits);
+				qPrev = qCeil;
 			}
 
 		}
@@ -397,11 +425,26 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 				q = qBFV(n, qPrev);
 			}
 
+			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
+
+			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+
+			double qCeil = pow(2,k*dcrtBits);
+			qPrev = qCeil;
+
+			while (nRLWE(qCeil) > n) {
+				n = 2 * n;
+				q = qBFV(n, qPrev);
+				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+				qCeil = pow(2,k*dcrtBits);
+				qPrev = qCeil;
+			}
+
 		}
 
 	}
 
-	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
+	size_t size = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
 
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
@@ -732,7 +775,7 @@ LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const LPPrivate
 
 		if (relinWindow>0)
 		{
-			vector<NativePoly> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
+			vector<typename DCRTPoly::PolyType> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
 
 			for (size_t k = 0; k < decomposedKeyElements.size(); k++)
 			{
