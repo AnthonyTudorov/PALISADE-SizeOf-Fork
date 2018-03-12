@@ -125,12 +125,10 @@ line:           command
 						driver.graph.getNodeById(i)->setAsOutput();
 					}
 				}
-				/********
 		| 		const
 				{
 					driver.graph.addNode($1, $1->GetId());
 				}
-				*********/
 		| 		gate
 				{
 					// put $1 in the CircuitGraph
@@ -155,8 +153,17 @@ input:          NUM INPUT NUM TYPEOF type ENDLS
                 {
                 	//std::cout << "Adding input #" << $3 << " of type " << $5 << std::endl;
                 	
-                	$$ = new Input($1, $5);
+                		$$ = new Input($1, $5);
                 }
+
+const:          NUM CONST NUM TYPEOF type initial_value ENDLS
+                {
+                    //std::cout << "Adding the constant " << $3 << std::endl;
+                    $$ = new Const($1, $5);
+                }
+                
+initial_value:	NUM
+				;
 
 type:           basic_type 
 				{
@@ -205,15 +212,6 @@ agg_type:		LEFT_BRACK INTEGER RIGHT_BRACK
 				{
 					$$ = MATRIX_RAT;
                 }
-
-/*******
-const:          NUM CONST NUM ENDLS
-                {
-                    //std::cout << "Adding the constant " << $3 << std::endl;
-                    $$ = new Const($1, $3);
-                }
-        ;
-*********/
 
 strlist:        /* empty */
                 {
