@@ -71,8 +71,10 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 		out << "Plaintext"; break;
 	case CIPHERTEXT:
 		out << "Ciphertext"; break;
-	default:
-		out << "Unknown (" << ty << ")"; break;
+	case RATIONALCIPHERTEXT:
+		out << "Rational Ciphertext"; break;
+	case UNKNOWN:
+		out << "Unknown"; break;
 	}
 
 	return out;
@@ -83,8 +85,7 @@ namespace lbcrypto {
 template<typename Element>
 class CircuitObject {
 	wire_type	t;
-	//	BigInteger	ival;
-	//	BigInteger	dval;
+	usint		ival = 0;
 	Plaintext	pt;
 	Ciphertext<Element> ct;
 	//	shared_ptr<RationalCiphertext<Element>> rct;
@@ -93,8 +94,7 @@ class CircuitObject {
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
-	//	CircuitObject(const BigInteger& ival) : t(INT), ival(ival) {}
-	//	CircuitObject(const BigInteger& ival, const BigInteger& dval) : t(RAT), ival(ival), dval(dval) {}
+	CircuitObject(usint ival) : t(INT), ival(ival) {}
 	CircuitObject(const Plaintext pt) : t(PLAINTEXT), pt(pt) {}
 	CircuitObject(const Ciphertext<Element> ct) : t(CIPHERTEXT), ct(ct) {}
 	//	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
@@ -342,6 +342,16 @@ public:
 		}
 	}
 
+	CircuitObject<Element> operator>>(const CircuitObject<Element>& other) const {
+		if( this->GetType() != CIPHERTEXT )
+			PALISADE_THROW(type_error, "Right shift operation not available for left-hand operand's type");
+		if( other.GetType() != INT )
+			PALISADE_THROW(type_error, "Right shift operation has wrong type for right-hand operand");
+
+		return CircuitObject<Element>();
+	}
+
+	usint GetIntValue() const { return ival; }
 	Plaintext GetPlaintextValue() const { return pt; }
 	Ciphertext<Element> GetCiphertextValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetMatrixRtValue() const { return mrct; }

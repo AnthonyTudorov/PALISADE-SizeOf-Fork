@@ -53,7 +53,20 @@ class PalisadeCircuit {
 	CircuitGraphWithValues<Element>		g;
 
 public:
-	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg) : cc(cc), g(cg) {}
+	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg,
+			Plaintext (*EncodeFunction)(CryptoContext<Element>, uint64_t) = 0) : cc(cc), g(cg) {
+
+		// after initializing, search for all ConstPtxt and create a Plaintext for them
+		for( auto node : g.getAllNodes() ) {
+			ConstPtxtWithValue<Element>* n = dynamic_cast<ConstPtxtWithValue<Element>*>(node.second);
+			if( n == 0 )
+				continue;
+			if( EncodeFunction == 0 )
+				throw std::logic_error("Encode function required for plaintexts");
+			Plaintext ptxt = (*EncodeFunction)(cc, n->GetValue());
+			n->SetValue(ptxt);
+		}
+	}
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 

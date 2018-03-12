@@ -49,6 +49,7 @@ rationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
 \+			{ return yy::parser::make_ADD(loc); }
 \-			{ return yy::parser::make_SUB(loc); }
 \*			{ return yy::parser::make_MUL(loc); }
+\>\>		{ return yy::parser::make_RSHIFT(loc); }
 
 \n       { return yy::parser::make_ENDL(loc); }
 [ \r\t]+                        /* ignore whitespace */

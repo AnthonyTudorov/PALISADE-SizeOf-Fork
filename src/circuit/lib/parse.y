@@ -90,6 +90,7 @@ class pdriver;
 %token ADD
 %token SUB
 %token MUL
+%token RSHIFT
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
 %token  <usint>           			NUM
@@ -156,15 +157,15 @@ input:          NUM INPUT NUM TYPEOF type ENDLS
                 		$$ = new Input($1, $5);
                 }
 
-const:          NUM CONST NUM TYPEOF type initial_value ENDLS
+const:          NUM CONST TYPEOF INTEGER NUM ENDLS
                 {
-                    //std::cout << "Adding the constant " << $3 << std::endl;
-                    $$ = new Const($1, $5);
+                    $$ = new ConstInt($1, $5);
+                }
+                | NUM CONST TYPEOF PLAINTEXT NUM ENDLS
+                {
+                    $$ = new ConstPtxt($1, $5);
                 }
                 
-initial_value:	NUM
-				;
-
 type:           basic_type 
 				{
 					$$ = $1;
@@ -247,7 +248,10 @@ gate:           NUM ADD numlist ENDLS
                 {
                     $$ = new EvalMultNode($1, $3);
                 }
-                ;
+        |		NUM RSHIFT numlist ENDLS
+        		{
+        			$$ = new EvalRShiftNode($1, $3);
+                }
 
 ENDLS:          ENDLS ENDL | ENDL
         ;

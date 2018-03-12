@@ -152,10 +152,12 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	usint noise = n0->GetNoise();
+	cout << "Eval Add First Arg is " << n0->GetId() << " " << n0->eval(cc,cg) << " " << v0 << endl;
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
+		cout << "Eval Add Next Arg is " << n1->GetId() << " " << n1->eval(cc,cg) << " " << v1 << endl;
 
 		v0 = v0 + v1;
 
@@ -274,6 +276,42 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	return this->value;
 }
 
+void EvalRShiftNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
+	if( Visited() )
+		return; // visit only once!
+
+	Visit();
+	if( getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n1 = g.getNodeById(getInputs()[1]);
+	n0->simeval(g,ops);
+	n1->simeval(g,ops);
+
+	CircuitNode::Log(ops,GetId(),OpEvalMult);
+	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	return;
+}
+
+template<typename Element>
+Value<Element> EvalRShiftNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+	if( this->value.GetType() != UNKNOWN )
+		return this->value;
+
+	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
+
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v1( n1->eval(cc,cg) );
+
+	this->value = v0 >> v1;
+
+	this->Log();
+	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	return this->value;
+}
+
 void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( Visited() )
 		return; // visit only once!
@@ -300,6 +338,10 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 	Value<Element> v0( n0->eval(cc,cg) );
 
 	switch( v0.GetType() ) {
+	case PLAINTEXT:
+		this->value = v0;
+		break;
+
 	case CIPHERTEXT:
 		this->value = cc->ModReduce(v0.GetCiphertextValue());
 		break;
@@ -309,7 +351,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 		break;
 
 	default:
-		PALISADE_THROW(type_error, "ModReduce operation not available for this operand's type");
+		break;
 	}
 
 	this->Log();
@@ -322,10 +364,13 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 template<typename Element>
 CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
 	TESTANDMAKE( Input, InputWithValue<Element>, n );
+	TESTANDMAKE( ConstInt, ConstIntWithValue<Element>, n );
+	TESTANDMAKE( ConstPtxt, ConstPtxtWithValue<Element>, n );
 	TESTANDMAKE( ModReduceNode, ModReduceNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalAddNode, EvalAddNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalSubNode, EvalSubNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalMultNode, EvalMultNodeWithValue<Element>, n );
+	TESTANDMAKE( EvalRShiftNode, EvalRShiftNodeWithValue<Element>, n);
 	throw std::logic_error("Type not supported in ValueNodeFactory");
 }
 

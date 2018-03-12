@@ -1,0 +1,5 @@
+v0.1
+0 input 0 @ ciphertext
+1 const @ Integer 4
+2 >> 0 1
+:outputs 2 

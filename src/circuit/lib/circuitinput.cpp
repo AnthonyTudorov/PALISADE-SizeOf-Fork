@@ -39,21 +39,14 @@ namespace lbcrypto {
 template<typename Element>
 std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 {
+	out << obj.GetType() << ": ";
 	switch (obj.GetType()) {
 	case INT:
-		out << "Integer not implemented"; break;
-	case RAT:
-		out << "Rational not implemented"; break;
-	case VECTOR_INT:
-		out << obj.GetIntVecValue(); break;
-	case VECTOR_RAT:
-		out << "Vector of Rational not implemented"; break;
-	case MATRIX_INT:
-		out << "Matrix of Integer not implemented"; break;
-	case MATRIX_RAT:
-		out << "Matrix of Rational not implemented"; break;
+		out << obj.GetIntValue(); break;
+	case PLAINTEXT:
+		out << obj.GetPlaintextValue(); break;
 	default:
-		out << "UNKNOWN TYPE"; break;
+		out << "print not implemented"; break;
 	}
 
 	return out;
@@ -63,6 +56,12 @@ template<typename Element>
 void CircuitObject<Element>::DecryptAndPrint(CryptoContext<Element> cc, LPPrivateKey<Element> key, std::ostream& out) const
 {
 	switch( this->t ) {
+	case INT:
+	{
+		out << this->GetIntValue();
+	}
+	break;
+
 	case PLAINTEXT:
 	{
 		out << this->GetPlaintextValue();

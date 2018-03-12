@@ -303,7 +303,7 @@ main(int argc, char *argv[])
 		driver.graph.PrintRuntimeEstimates(cout);
 	}
 
-	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph);
+	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
 
 	if( verbose )
 		cir.CircuitDump();
@@ -316,7 +316,7 @@ main(int argc, char *argv[])
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	// Note that the circuit evaluator does not know about or enforce which encodings
+	// Note that the circuit evaluator does not know about or enforce encodings
 	// for this demo we use Integer encoding
 
 	const int ValueCount = 7;

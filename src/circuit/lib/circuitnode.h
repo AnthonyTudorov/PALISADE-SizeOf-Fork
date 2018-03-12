@@ -303,10 +303,11 @@ public:
 	}
 };
 
-class Const : public CircuitNode {
-	wire_type type;
+class ConstInt : public CircuitNode {
+	usint val;
 public:
-	Const(usint id, wire_type type) : CircuitNode(id), type(type) {
+	ConstInt(usint id, usint val) : CircuitNode(id), val(val) {
+		this->setAsInput();
 		this->runtime = new TimingStatistics(0,0,0,0);
 	}
 
@@ -317,20 +318,47 @@ public:
 		}
 	}
 	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(const)"; }
-	wire_type GetType() const { return type; }
+	string getNodeLabel() const { return "(const int)"; }
+	wire_type GetType() const { return INT; }
+	usint GetInt() const { return val; }
 };
 
 template<typename Element>
-class ConstWithValue : public CircuitNodeWithValue<Element> {
+class ConstIntWithValue : public CircuitNodeWithValue<Element> {
 public:
-	ConstWithValue(Input* in) : CircuitNodeWithValue<Element>(in) {
-		this->value.SetType(in->GetType());
+	ConstIntWithValue(ConstInt* in) : CircuitNodeWithValue<Element>(in) {
+		this->value = Value<Element>(in->GetInt());
 	}
-
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
+class ConstPtxt : public CircuitNode {
+	usint val;
+public:
+	ConstPtxt(usint id, usint val) : CircuitNode(id),val(val) {
+		this->setAsInput();
+		this->runtime = new TimingStatistics(0,0,0,0);
+	}
+
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
+		if( !Visited() ) {
+			Visit();
+			noiseval = DEFAULTNOISEVAL;
+		}
+	}
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const plaintext)"; }
+	wire_type GetType() const { return PLAINTEXT; }
+	usint GetInt() const { return val; }
+};
+
+template<typename Element>
+class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
+	usint val; // have to save the value because we need it at Eval time
+public:
+	ConstPtxtWithValue(ConstPtxt* in) : CircuitNodeWithValue<Element>(in), val(in->GetInt()) {}
+	usint GetValue() const { return val; }
+	void SetValue(const Value<Element>& v) { this->value = v; }
+};
 
 class ModReduceNode : public CircuitNode {
 public:
@@ -410,6 +438,27 @@ public:
 
 	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
+
+class EvalRShiftNode : public CircuitNode {
+public:
+	EvalRShiftNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
+		this->inputs = inputs;
+	}
+
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
+	OpType OpTag() const { return OpEvalMult; }
+	string getNodeLabel() const { return ">>"; }
+};
+
+template<typename Element>
+class EvalRShiftNodeWithValue : public CircuitNodeWithValue<Element> {
+public:
+	EvalRShiftNodeWithValue(EvalRShiftNode* node) : CircuitNodeWithValue<Element>(node) {}
+
+	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+};
+
 
 }
 
