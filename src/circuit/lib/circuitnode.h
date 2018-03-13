@@ -401,9 +401,9 @@ public:
 };
 
 class ConstPtxt : public CircuitNode {
-	usint val;
+	int64_t val;
 public:
-	ConstPtxt(usint id, usint val) : CircuitNode(id),val(val) {
+	ConstPtxt(usint id, int64_t val) : CircuitNode(id),val(val) {
 		this->setAsInput();
 		this->runtime = new TimingStatistics(0,0,0,0);
 	}
@@ -417,15 +417,15 @@ public:
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const plaintext)"; }
 	wire_type GetType() const { return PLAINTEXT; }
-	usint GetInt() const { return val; }
+	int64_t GetInt() const { return val; }
 };
 
 template<typename Element>
 class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
-	usint val; // have to save the value because we need it at Eval time
+	int64_t val; // have to save the value because we need it at Eval time
 public:
 	ConstPtxtWithValue(ConstPtxt* in) : CircuitNodeWithValue<Element>(in), val(in->GetInt()) {}
-	usint GetValue() const { return val; }
+	int64_t GetValue() const { return val; }
 	void SetValue(const Value<Element>& v) { this->value = v; }
 };
 
