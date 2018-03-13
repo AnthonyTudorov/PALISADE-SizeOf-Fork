@@ -171,7 +171,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
+			const std::vector<QuadFloat>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
 
 			/**
 			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
@@ -364,7 +364,7 @@ namespace lbcrypto {
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<double> m_CRTDecryptionFloatTable;
+			std::vector<QuadFloat> m_CRTDecryptionFloatTable;
 
 			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntTable;
@@ -546,7 +546,7 @@ namespace lbcrypto {
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		*/
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0) const;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
 
 	};
 

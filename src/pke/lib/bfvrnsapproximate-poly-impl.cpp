@@ -132,14 +132,14 @@ LPPublicKeyEncryptionSchemeBFVrnsApproximate<NativePoly>::LPPublicKeyEncryptionS
 
 template <>
 bool LPAlgorithmParamsGenBFVrnsApproximate<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
 	NOPOLY
 }
 
 template <>
 bool LPAlgorithmParamsGenBFVrnsApproximate<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
 	NONATIVEPOLY
 }
