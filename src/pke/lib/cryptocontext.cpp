@@ -1469,6 +1469,81 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 }
 
 
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
+		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
+{
+	int nonZeroCount = 0;
+
+	if( numAdds > 0 ) nonZeroCount++;
+	if( numMults > 0 ) nonZeroCount++;
+	if( numKeyswitches > 0 ) nonZeroCount++;
+
+	if( nonZeroCount > 1 )
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsApproximate context constructor");
+
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
+
+	shared_ptr<LPCryptoParametersBFVrnsApproximate<T>> params( new LPCryptoParametersBFVrnsApproximate<T>(
+			ep,
+			EncodingParams(new EncodingParamsImpl(plaintextModulus)),
+			dist,
+			9.0,
+			securityLevel,
+			1,
+			mode,
+			1,
+			maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsApproximate<T>() );
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
+	EncodingParams encodingParams, float securityLevel, float dist,
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
+{
+	int nonZeroCount = 0;
+
+	if (numAdds > 0) nonZeroCount++;
+	if (numMults > 0) nonZeroCount++;
+	if (numKeyswitches > 0) nonZeroCount++;
+
+	if (nonZeroCount > 1)
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsApproximate context constructor");
+
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
+
+	shared_ptr<LPCryptoParametersBFVrnsApproximate<T>> params(
+			new LPCryptoParametersBFVrnsApproximate<T>(
+				ep,
+				encodingParams,
+				dist,
+				9.0,
+				securityLevel,
+				1,
+				mode,
+				1,
+				maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsApproximate<T>());
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
+
+
+
+
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,

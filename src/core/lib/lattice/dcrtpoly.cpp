@@ -32,6 +32,8 @@ using std::string;
 #include "../utils/serializablehelper.h"
 #include "../utils/debug.h"
 
+//#define BFVrns_APPROXIMATE_DEBUG
+
 namespace lbcrypto
 {
 
@@ -1096,6 +1098,69 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 }
 
+
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
+		const std::vector<typename PolyType::Integer> &qModuliTable,
+		const typename PolyType::Integer &gamma,
+		const typename PolyType::Integer &t,
+		const typename PolyType::Integer &gammaInvModt,
+		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
+		const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const {
+
+	usint n = GetRingDimension();
+	usint numq = m_vectors.size();
+
+	typename PolyType::Vector coefficients(n, t);
+
+#ifdef BFVrns_APPROXIMATE_DEBUG
+	cout << "Dec input: " << endl;
+	cout << *this << endl;
+#endif
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
+	for (usint k = 0; k < n; k++)
+	{
+		typename PolyType::Integer sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
+		for (usint i = 0; i < numq; i++)
+		{
+			const typename PolyType::Integer &qi = qModuliTable[i];
+			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi );
+			tmp = tmp.ModMulFastNTL( gamma, qi );
+			tmp = tmp.ModMulFastNTL( qDivqiModqiTable[i], qi );
+
+			tmpt = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][0], t );
+			tmpgamma = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][1], gamma );
+
+			st = st.ModAddFastNTL( tmpt, t );
+			sgamma = sgamma.ModAddFastNTL( tmpgamma, gamma );
+		}
+
+		// mul by -q^-1
+		st = st.ModMulFastNTL(negqInvModtgammaTable[0], t);
+		sgamma = sgamma.ModMulFastNTL( negqInvModtgammaTable[1], gamma );
+		if ( sgamma > (gamma/2) )
+			sgamma = sgamma.ModSub( gamma, t );
+
+		tmp = st.ModSubFast( sgamma, t );
+		coefficients[k] = tmp.ModMul( gammaInvModt, t );
+	}
+
+	// Setting the root of unity to ONE as the calculation is expensive
+	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
+	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), t, 1) ) );
+	result.SetValues(coefficients,COEFFICIENT);
+
+	return std::move(result);
+
+}
+
+
 /*
  * Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
  *
@@ -1237,6 +1302,335 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 	m_params = paramsExpanded;
 
 }
+
+
+
+// Source: Bajard et al. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes.
+// Almost equivalent to "ExpandCRTBasis"
+// @brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}
+// Outputs the resulting polynomial in CRT/RNS representation
+
+
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomery(
+		const shared_ptr<ParmType> paramsBsk,
+		const std::vector<typename PolyType::Integer> &qModuli,
+		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+		const std::vector<typename PolyType::Integer> &qModBski,
+		const typename PolyType::Integer &negqInvModmtilde,
+		const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable) {
+
+	// Input: poly in basis q
+	// Output: poly in base Bsk = {B U msk}
+
+	//computing steps 0 and 1 in Algorithm 3 in source paper.
+
+	// TODO:: should be done in mul entry function
+	std::vector<PolyType> polyInNTT;
+
+	// if the input polynomial is in evaluation representation, store it for later use to reduce the number of NTTs
+	if (this->GetFormat() == EVALUATION) {
+		polyInNTT = m_vectors;
+		this->SwitchFormat();
+	}
+
+	size_t numq = qModuli.size();
+	size_t numBsk = BskmtildeModuli.size() - 1;
+	size_t newSize = numq + BskmtildeModuli.size();
+
+	m_vectors.resize(newSize);
+
+	uint32_t n = GetLength();
+
+	m_params = paramsBsk;
+
+	// ----------------------- step 0 -----------------------
+
+	// first we twist xi by mtilde*(q/qi)^-1 mod qi
+	typename PolyType::Integer *ximtildeqiDivqModqi = new typename PolyType::Integer[n*numq];
+    for (uint32_t i = 0; i < numq; i++)
+    {
+    	const typename PolyType::Integer &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
+        for (uint32_t k = 0; k < n; k++)
+        {
+            ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulFastNTL( currentmtildeqDivqiModqi, qModuli[i]);
+        }
+    }
+
+// TODO remove this
+#ifdef BFVrns_APPROXIMATE_DEBUG
+    static int count = 0;
+    if (count < 1)
+    {
+		cout << "ximtildeqiDivqModqi: " << endl;
+		for (uint32_t i = 0; i < numq; i++)
+		{
+			for (uint32_t k = 0; k < n; k++)
+			{
+				cout << ximtildeqiDivqModqi[i*n + k] << ", ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+    }
+#endif
+
+    for (uint32_t j = 0; j < numBsk + 1; j++)
+    {
+    	if( j < numBsk)
+    	{
+    		// TODO check this
+			PolyType newvec(m_params->GetParams()[j], m_format, true);
+			m_vectors[numq+j] = std::move(newvec);
+    	}
+    	else
+    	{
+    		// the mtilde vector (params not important)
+    		PolyType newvec(m_params->GetParams()[0], m_format, true);
+			m_vectors[numq+j] = std::move(newvec);
+    	}
+    	for ( uint32_t k = 0; k < n; k++ )
+    	{
+    		//m_vectors[vIndex].GetValues()[rIndex]
+    		//m_vectors[v].at(p)= tmp.ConvertToInt();
+//    		m_vectors[numq+j].at(k) = 0;
+    		for (uint32_t i = 0; i < numq; i++)
+    		{
+    			typename PolyType::Integer qDivqiModBjValue = qDivqiModBj[i][j];
+    			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
+    					qDivqiModBjValue.ModMulFastNTL(ximtildeqiDivqModqi[i*n+k], BskmtildeModuli[j] ),
+						BskmtildeModuli[j] );
+    		}
+    	}
+    }
+
+#ifdef BFVrns_APPROXIMATE_DEBUG
+    if (count < 1)
+    {
+		cout << "ximtildeqiDivqModqi * q/qi mod Bski: " << endl;
+		for (uint32_t i = 0; i < numq+numBsk+1; i++)
+		{
+			for (uint32_t k = 0; k < n; k++)
+			{
+				cout << m_vectors[i].at(k) << ", ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+    }
+    count++;
+#endif
+
+    // now we have input in Basis (q U Bsk U mtilde)
+
+    // ----------------------- step 1 -----------------------
+    const typename PolyType::Integer &mtilde = BskmtildeModuli[numBsk];
+    for (uint32_t i = 0; i < numBsk; i++)
+    {
+    	const typename PolyType::Integer &currentqModBski = qModBski[i];
+    	for ( uint32_t k = 0; k < n; k++ )
+		{
+    		typename PolyType::Integer rmtilde = m_vectors[numq+numBsk].at(k); // r_mtilde
+    		rmtilde = rmtilde.ModMulFastNTL(negqInvModmtilde, mtilde); // r_mtilde*-1/q mod mtilde
+    		rmtilde = rmtilde.ModMulFastNTL( currentqModBski, BskmtildeModuli[i] ); // (r_mtilde*-1/q mod mtilde) * q mod Bski
+    		rmtilde = rmtilde.ModAddFastNTL( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // c_m + ((r_mtilde*-1/q mod mtilde) * q) mod Bski
+    		m_vectors[numq+i].at(k) = rmtilde.ModMulFastNTL( mtildeInvModBskiTable[i], BskmtildeModuli[i] );
+		}
+    }
+
+    // remove mtilde residue
+    m_vectors.erase(m_vectors.begin()+numq+numBsk);
+
+    if (polyInNTT.size() > 0) // if the input polynomial was in evaluation representation, use the towers for Q from it
+	{
+		for (size_t i = 0; i < numq; i++ )
+			m_vectors[i] = polyInNTT[i];
+	}
+	else
+	{ // else call NTT for the towers for q
+#ifdef OMP
+#pragma omp parallel for
+#endif
+		for (size_t i = 0; i <numq; i++ )
+			m_vectors[i].SwitchFormat();
+	}
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
+    for (uint32_t i = 0; i < numBsk; i++)
+		m_vectors[numq+i].SwitchFormat();
+
+
+    m_format = EVALUATION;
+
+    delete[] ximtildeqiDivqModqi;
+    ximtildeqiDivqModqi = nullptr;
+}
+
+
+// Almost equivalent to "ScaleAndRound"
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
+		const typename PolyType::Integer &t,
+		const std::vector<typename PolyType::Integer> &qModuli,
+		const std::vector<typename PolyType::Integer> &BskModuli,
+		const std::vector<typename PolyType::Integer> &qDivqiModqi,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+		const std::vector<typename PolyType::Integer> &qInvModBi) {
+
+	// Input: poly in basis {q U Bsk}
+	// Output: approximateFloor(t/q*poly) in basis Bsk
+
+	// --------------------- step 3 ---------------------
+	// approximate rounding
+
+	size_t numq = qModuli.size();
+	size_t numBsk = BskModuli.size();
+
+	uint32_t n = GetLength();
+
+	// Twist xi by t*(q/qi)^-1 mod qi
+	typename PolyType::Integer *txiqiDivqModqi = new typename PolyType::Integer[n*numBsk];
+
+	for (uint32_t i = 0; i < numq; i++)
+	{
+		const typename PolyType::Integer &currentqDivqiModqi = qDivqiModqi[i];
+		for (uint32_t k = 0; k < n; k++)
+		{
+			// multiply by t
+			m_vectors[i].at(k) = m_vectors[i].at(k).ModMulFastNTL(t, qModuli[i]);
+			m_vectors[i].at(k) = m_vectors[i].at(k).ModMulFastNTL( currentqDivqiModqi, qModuli[i]);
+		}
+	}
+
+	for (uint32_t j = 0; j < numBsk; j++)
+	{
+		for ( uint32_t k = 0; k < n; k++ )
+		{
+			typename PolyType::Integer aq = 0;
+			for (uint32_t i = 0; i < numq; i++)
+			{
+				typename PolyType::Integer qDivqiModBjValue = qDivqiModBj[i][j];
+				aq = aq.ModAddFastNTL( qDivqiModBjValue.ModMulFastNTL(m_vectors[i].at(k), BskModuli[j]), BskModuli[j] );
+			}
+			txiqiDivqModqi[j*n + k] = aq;
+		}
+	}
+
+	// now we have FastBaseConv( |t*ct|q, q, Bsk ) in txiqiDivqModqi
+
+    for (uint32_t i = 0; i < numBsk; i++)
+    {
+        const typename PolyType::Integer &currentqInvModBski = qInvModBi[i];
+        for (uint32_t k = 0; k < n; k++)
+        {
+        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModMulFastNTL(t, BskModuli[i]);
+        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
+        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModMulFastNTL( currentqInvModBski, BskModuli[i] );
+        }
+    }
+	delete[] txiqiDivqModqi;
+	txiqiDivqModqi = nullptr;
+}
+
+// Almost qeuivalent to "SwitchCRTBasis"
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
+			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<typename PolyType::Integer> &BDivBiModBi,
+			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
+			const typename PolyType::Integer &BInvModmsk,
+			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
+			const std::vector<typename PolyType::Integer> &BModqi
+			)
+{
+	// Input: poly in basis Bsk
+	// Output: poly in basis q
+
+	// 1) FastBaseconv(x, B, q)
+	size_t numq = qModuli.size();
+	size_t numBsk = BskModuli.size();
+
+	uint32_t n = GetLength();
+
+//	typename PolyType::Integer *xiBiDivBModBi = new typename PolyType::Integer[n*numBsk];
+    for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
+    {
+        const typename PolyType::Integer &currentBDivBiModBi = BDivBiModBi[i];
+        for (uint32_t k = 0; k < n; k++)
+        {
+            m_vectors[numq+i].at(k) = m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModBi, BskModuli[i]);
+        }
+    }
+
+    for (uint32_t j = 0; j < numq; j++)
+	{
+		for (uint32_t k = 0; k < n; k++)
+		{
+			m_vectors[j].at(k) = 0;
+			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
+			{
+				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
+				m_vectors[j].at(k) = m_vectors[j].at(k).ModAddFastNTL(
+						m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModqj, qModuli[j] ),
+						qModuli[j]);
+			}
+		}
+	}
+
+    // calculate alphaskx
+    // FastBaseConv(x, B, msk)
+    typename PolyType::Integer *alphaskxVector = new typename PolyType::Integer[n];
+    for (uint32_t k = 0; k < n; k++)
+    {
+    	alphaskxVector[k] = 0;
+        for (uint32_t i = 0; i < numBsk-1; i++)
+        {
+        	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
+        	alphaskxVector[k] = alphaskxVector[k].ModAddFastNTL( m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModmsk , BskModuli[numBsk-1])
+        			, BskModuli[numBsk-1]);
+        }
+    }
+
+    // subtract xsk
+    for (uint32_t k = 0; k < n; k++)
+	{
+    	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
+    			, BskModuli[numBsk-1]);
+    	alphaskxVector[k] = alphaskxVector[k].ModMulFastNTL( BInvModmsk, BskModuli[numBsk-1]);
+	}
+
+    // do (m_vector - alphaskx*M) mod q
+    typename PolyType::Integer mskDivTwo = BskModuli[numBsk-1]/2;
+	for (uint32_t i = 0; i < numq; i++)
+	{
+		const typename PolyType::Integer &currentBModqi = BModqi[i];
+		for (uint32_t k = 0; k < n; k++)
+		{
+			typename PolyType::Integer alphaskBModqi = alphaskxVector[k];
+			if (alphaskBModqi > mskDivTwo)
+				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
+
+			alphaskBModqi = alphaskBModqi.ModMulFastNTL( currentBModqi, qModuli[i] );
+			m_vectors[i].at(k) = m_vectors[i].at(k).ModSubFast( alphaskBModqi, qModuli[i] );
+		}
+	}
+
+	// drop extra vectors
+	for (uint32_t i = 0; i < numBsk; i++)
+		m_vectors.erase (m_vectors.begin() + numq + i);
+
+	delete[] alphaskxVector;
+	alphaskxVector = nullptr;
+
+//    delete[] xiBiDivBModBi;
+//    xiBiDivBModBi = nullptr;
+}
+
 
 // Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
 //

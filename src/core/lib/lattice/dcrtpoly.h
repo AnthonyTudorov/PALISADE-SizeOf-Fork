@@ -710,6 +710,17 @@ public:
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
 			const std::vector<QuadFloat> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
+
+	PolyType ScaleAndRound(
+			const std::vector<typename PolyType::Integer> &qModuliTable,
+			const typename PolyType::Integer &gamma,
+			const typename PolyType::Integer &t,
+			const typename PolyType::Integer &gammaInvModt,
+			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
+			const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const;
+
+
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
 	*
@@ -739,6 +750,37 @@ public:
 			const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon);
+
+
+	void FastBaseConvqToBskMontgomery(
+			const shared_ptr<ParmType> paramsBsk,
+			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+			const std::vector<typename PolyType::Integer> &qModBski,
+			const typename PolyType::Integer &negqInvModmtilde,
+			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable);
+
+
+	void FastRNSFloorq(
+			const typename PolyType::Integer &t,
+			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<typename PolyType::Integer> &qDivqiModqi,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+			const std::vector<typename PolyType::Integer> &qInvModBi);
+
+	void FastBaseConvSK(
+			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<typename PolyType::Integer> &BDivBiModBi,
+			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
+			const typename PolyType::Integer &BInvModmsk,
+			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
+			const std::vector<typename PolyType::Integer> &BModqi
+			);
+
 
 	/**
 	* @brief Computes Round(p/Q*x), where x is in the CRT basis Q*S,

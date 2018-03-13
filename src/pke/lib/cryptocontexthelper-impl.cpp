@@ -108,6 +108,15 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 				0, 1, 0);
 
 	}
+	else if( parmtype == "BFVrnsApproximate" ) {
+		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
+				!getValueForName(s, "securityLevel", secLevel) )
+			return 0;
+
+		return CryptoContextFactory<Element>::genCryptoContextBFVrnsApproximate(stoul(plaintextModulus), stof(secLevel), 4,
+				0, 0, 1);
+
+	}
 	else if( parmtype == "BGV" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
