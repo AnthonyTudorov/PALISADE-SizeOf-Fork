@@ -57,7 +57,7 @@ rationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
 
 v[0-9]+.[0-9]+ { return yy::parser::make_VERSION(yytext,loc); }
 
-[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext), loc); }
+-?[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext), loc); }
 [a-zA-Z]+   { return yy::parser::make_STR(yytext, loc); }
 :[a-zA-Z]+  { BEGIN(command); return yy::parser::make_COMMAND(yytext,loc); }
 
