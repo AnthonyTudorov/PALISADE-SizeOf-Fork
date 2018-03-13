@@ -79,7 +79,7 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 		out << i << ": " << timings[i] << endl;
 }
 
-Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, uint64_t val) {
+Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 	return cc->MakeIntegerPlaintext(val);
 }
 

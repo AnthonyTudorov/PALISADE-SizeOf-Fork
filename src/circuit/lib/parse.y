@@ -93,7 +93,7 @@ class pdriver;
 %token RSHIFT
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
-%token  <usint>           			NUM
+%token  <int64_t>           			NUM
 %token  <std::string>           	STR
 %type   <std::vector<usint>>		numlist
 %type   <std::vector<std::string>>	strlist

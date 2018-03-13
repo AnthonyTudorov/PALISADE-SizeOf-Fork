@@ -54,7 +54,7 @@ class PalisadeCircuit {
 
 public:
 	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg,
-			Plaintext (*EncodeFunction)(CryptoContext<Element>, uint64_t) = 0) : cc(cc), g(cg) {
+			Plaintext (*EncodeFunction)(CryptoContext<Element>, int64_t) = 0) : cc(cc), g(cg) {
 
 		// after initializing, search for all ConstPtxt and create a Plaintext for them
 		for( auto node : g.getAllNodes() ) {
