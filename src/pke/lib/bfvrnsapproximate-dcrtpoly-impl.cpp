@@ -1,5 +1,5 @@
 /*
-* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
+* @file bfvrnsapproximate-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme using approximatation techniques.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -557,10 +557,10 @@ bool LPAlgorithmParamsGenBFVrnsApproximate<DCRTPoly>::ParamsGen(shared_ptr<LPCry
 {
 
 	if (!cryptoParams)
-		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrns ParamsGen");
+		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrnsApproximate ParamsGen");
 
 	if ((dcrtBits < 30) || (dcrtBits > 60))
-		PALISADE_THROW(math_error, "BFVrns.ParamsGen: Number of bits in CRT moduli should be in the range from 30 to 60");
+		PALISADE_THROW(math_error, "BFVrnsApproximate.ParamsGen: Number of bits in CRT moduli should be in the range from 30 to 60");
 
 	const shared_ptr<LPCryptoParametersBFVrnsApproximate<DCRTPoly>> cryptoParamsBFVrnsApproximate = std::dynamic_pointer_cast<LPCryptoParametersBFVrnsApproximate<DCRTPoly>>(cryptoParams);
 

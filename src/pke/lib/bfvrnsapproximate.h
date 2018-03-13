@@ -1,5 +1,5 @@
 /**
- * @file bfvrns.h -- Operations for the RNS variant of the BFV cryptoscheme.
+ * @file bfvrnsapproximate.h -- Operations for the RNS variant of the BFV cryptoscheme using approximation techniques.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -46,7 +46,7 @@
 namespace lbcrypto {
 
 	/**
- 	* @brief This is the parameters class for the BFVrns encryption scheme.  This scheme is also referred to as the FVrns scheme.
+ 	* @brief This is the parameters class for the BFVrnsApproximate encryption scheme.  This scheme is also referred to as the FVrns scheme.
  	*
  	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
@@ -518,7 +518,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Parameter generation for BFVrns.  This scheme is also referred to as the FV scheme.
+	* @brief Parameter generation for BFVrnsApproximate.  This scheme is also referred to as the FV scheme.
 	*
  	* The BFV scheme parameter guidelines are introduced here:
  	*   - Junfeng Fan and Frederik Vercauteren. Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
@@ -551,8 +551,8 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Encryption algorithm implementation for BFVrns for the basic public key encrypt, decrypt and
-	* key generation methods for the BFVrns encryption scheme.
+	* @brief Encryption algorithm implementation for BFVrnsApproximate for the basic public key encrypt, decrypt and
+	* key generation methods for the BFVrnsApproximate encryption scheme.
 	*
 	* @tparam Element a ring element.
 	*/
@@ -566,7 +566,7 @@ namespace lbcrypto {
 		LPAlgorithmBFVrnsApproximate() {}
 
 		/**
-		* Method for encrypting plaintext using BFVrns.
+		* Method for encrypting plaintext using BFVrnsApproximate.
 		*
 		* @param publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
@@ -577,7 +577,7 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext with private key using BFVrns.
+		* Method for encrypting plaintext with private key using BFVrnsApproximate.
 		*
 		* @param privateKey private key used for encryption.
 		* @param plaintext the plaintext input.
@@ -588,7 +588,7 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for decrypting using BFVrns. See the class description for citations on where the algorithms were
+		* Method for decrypting using BFVrnsApproximate. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
 		* @param privateKey private key used for decryption.
@@ -604,7 +604,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief SHE algorithms implementation for BFVrns.
+	* @brief SHE algorithms implementation for BFVrnsApproximate.
 	*
 	* @tparam Element a ring element.
 	*/
@@ -686,7 +686,7 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief PRE algorithms implementation for BFVrns.
+	* @brief PRE algorithms implementation for BFVrnsApproximate.
 	*
 	* @tparam Element a ring element.
 	*/
@@ -704,7 +704,7 @@ namespace lbcrypto {
 
 
 	/**
-	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrns.    This scheme is also referred to as the FV scheme.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrnsApproximate.    This scheme is also referred to as the FV scheme.  A version of this multiparty scheme built on the BGV scheme is seen here:
 	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
 	 *
 	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
@@ -742,7 +742,7 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Main public key encryption scheme for BFVrns implementation,
+	* @brief Main public key encryption scheme for BFVrnsApproximate implementation,
 	* @tparam Element a ring element.
 	*/
 	template <class Element>

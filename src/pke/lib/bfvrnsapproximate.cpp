@@ -1,5 +1,5 @@
 /*
-* @file bfvrns.cpp - implementation of the BFVrns scheme.
+* @file bfvrnsapproximate.cpp - implementation of the BFVrns scheme using approximation techniques.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)

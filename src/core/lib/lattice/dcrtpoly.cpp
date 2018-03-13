@@ -1098,69 +1098,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 }
 
-
-
-template<typename ModType, typename IntType, typename VecType, typename ParmType>
-PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
-DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
-		const std::vector<typename PolyType::Integer> &qModuliTable,
-		const typename PolyType::Integer &gamma,
-		const typename PolyType::Integer &t,
-		const typename PolyType::Integer &gammaInvModt,
-		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-		const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const {
-
-	usint n = GetRingDimension();
-	usint numq = m_vectors.size();
-
-	typename PolyType::Vector coefficients(n, t);
-
-#ifdef BFVrns_APPROXIMATE_DEBUG
-	cout << "Dec input: " << endl;
-	cout << *this << endl;
-#endif
-
-#ifdef OMP
-#pragma omp parallel for
-#endif
-	for (usint k = 0; k < n; k++)
-	{
-		typename PolyType::Integer sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
-		for (usint i = 0; i < numq; i++)
-		{
-			const typename PolyType::Integer &qi = qModuliTable[i];
-			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi );
-			tmp = tmp.ModMulFastNTL( gamma, qi );
-			tmp = tmp.ModMulFastNTL( qDivqiModqiTable[i], qi );
-
-			tmpt = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][0], t );
-			tmpgamma = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][1], gamma );
-
-			st = st.ModAddFastNTL( tmpt, t );
-			sgamma = sgamma.ModAddFastNTL( tmpgamma, gamma );
-		}
-
-		// mul by -q^-1
-		st = st.ModMulFastNTL(negqInvModtgammaTable[0], t);
-		sgamma = sgamma.ModMulFastNTL( negqInvModtgammaTable[1], gamma );
-		if ( sgamma > (gamma/2) )
-			sgamma = sgamma.ModSub( gamma, t );
-
-		tmp = st.ModSubFast( sgamma, t );
-		coefficients[k] = tmp.ModMul( gammaInvModt, t );
-	}
-
-	// Setting the root of unity to ONE as the calculation is expensive
-	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
-	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), t, 1) ) );
-	result.SetValues(coefficients,COEFFICIENT);
-
-	return std::move(result);
-
-}
-
-
 /*
  * Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
  *
@@ -1303,13 +1240,79 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 
 }
 
+//Source: Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (https://eprint.iacr.org/2016/510)
+//
+// Computes Round(t/q*x) mod t for fast rounding in RNS
+// vector qDivqiModqiTable are precomputed as (q/qi)^-1 mod qi
+// matrix qDivqiModtgammaTable are precomputed as (q/qi) mod {t U gamma}, we assume t is stored first in the vector
+// GCD(t, gamma) = 1
+// used in decryption of BFVrnsApproximate
 
+template<typename ModType, typename IntType, typename VecType, typename ParmType>
+PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
+DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
+		const std::vector<typename PolyType::Integer> &qModuliTable,
+		const typename PolyType::Integer &gamma,
+		const typename PolyType::Integer &t,
+		const typename PolyType::Integer &gammaInvModt,
+		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
+		const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const {
 
-// Source: Bajard et al. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes.
+	usint n = GetRingDimension();
+	usint numq = m_vectors.size();
+
+	typename PolyType::Vector coefficients(n, t);
+
+#ifdef BFVrns_APPROXIMATE_DEBUG
+	cout << "Dec input: " << endl;
+	cout << *this << endl;
+#endif
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
+	for (usint k = 0; k < n; k++)
+	{
+		typename PolyType::Integer sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
+		for (usint i = 0; i < numq; i++)
+		{
+			const typename PolyType::Integer &qi = qModuliTable[i];
+			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi );
+			tmp = tmp.ModMulFastNTL( gamma, qi );
+			tmp = tmp.ModMulFastNTL( qDivqiModqiTable[i], qi );
+
+			tmpt = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][0], t );
+			tmpgamma = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][1], gamma );
+
+			st = st.ModAddFastNTL( tmpt, t );
+			sgamma = sgamma.ModAddFastNTL( tmpgamma, gamma );
+		}
+
+		// mul by -q^-1
+		st = st.ModMulFastNTL(negqInvModtgammaTable[0], t);
+		sgamma = sgamma.ModMulFastNTL( negqInvModtgammaTable[1], gamma );
+		if ( sgamma > (gamma/2) )
+			sgamma = sgamma.ModSub( gamma, t );
+
+		tmp = st.ModSubFast( sgamma, t );
+		coefficients[k] = tmp.ModMul( gammaInvModt, t );
+	}
+
+	// Setting the root of unity to ONE as the calculation is expensive
+	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
+	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), t, 1) ) );
+	result.SetValues(coefficients,COEFFICIENT);
+
+	return std::move(result);
+
+}
+
+//Source: Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (https://eprint.iacr.org/2016/510)
 // Almost equivalent to "ExpandCRTBasis"
-// @brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}
-// Outputs the resulting polynomial in CRT/RNS representation
-
+// @brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}, mtilde is a redundant modulus used to remove q overflows generated from fast conversion.
+// Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}
+// used in EvalMult of BFVrnsApproximate
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomery(
@@ -1327,7 +1330,6 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 
 	//computing steps 0 and 1 in Algorithm 3 in source paper.
 
-	// TODO:: should be done in mul entry function
 	std::vector<PolyType> polyInNTT;
 
 	// if the input polynomial is in evaluation representation, store it for later use to reduce the number of NTTs
@@ -1353,6 +1355,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     for (uint32_t i = 0; i < numq; i++)
     {
     	const typename PolyType::Integer &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
         for (uint32_t k = 0; k < n; k++)
         {
             ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulFastNTL( currentmtildeqDivqiModqi, qModuli[i]);
@@ -1391,11 +1397,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     		PolyType newvec(m_params->GetParams()[0], m_format, true);
 			m_vectors[numq+j] = std::move(newvec);
     	}
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
     	for ( uint32_t k = 0; k < n; k++ )
     	{
-    		//m_vectors[vIndex].GetValues()[rIndex]
-    		//m_vectors[v].at(p)= tmp.ConvertToInt();
-//    		m_vectors[numq+j].at(k) = 0;
     		for (uint32_t i = 0; i < numq; i++)
     		{
     			typename PolyType::Integer qDivqiModBjValue = qDivqiModBj[i][j];
@@ -1424,12 +1431,16 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 #endif
 
     // now we have input in Basis (q U Bsk U mtilde)
-
+    // next we perform Small Motgomery Reduction mod q
     // ----------------------- step 1 -----------------------
     const typename PolyType::Integer &mtilde = BskmtildeModuli[numBsk];
     for (uint32_t i = 0; i < numBsk; i++)
     {
     	const typename PolyType::Integer &currentqModBski = qModBski[i];
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
     	for ( uint32_t k = 0; k < n; k++ )
 		{
     		typename PolyType::Integer rmtilde = m_vectors[numq+numBsk].at(k); // r_mtilde
@@ -1470,8 +1481,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     ximtildeqiDivqModqi = nullptr;
 }
 
-
+//Source: Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (https://eprint.iacr.org/2016/510)
 // Almost equivalent to "ScaleAndRound"
+// @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
+// Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}. Note that the actual result is basically in basis {Bsk}.
+// used in EvalMult of BFVrnsApproximate
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		const typename PolyType::Integer &t,
@@ -1498,6 +1513,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 	for (uint32_t i = 0; i < numq; i++)
 	{
 		const typename PolyType::Integer &currentqDivqiModqi = qDivqiModqi[i];
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 			// multiply by t
@@ -1508,6 +1527,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 
 	for (uint32_t j = 0; j < numBsk; j++)
 	{
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for ( uint32_t k = 0; k < n; k++ )
 		{
 			typename PolyType::Integer aq = 0;
@@ -1525,6 +1547,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
     for (uint32_t i = 0; i < numBsk; i++)
     {
         const typename PolyType::Integer &currentqInvModBski = qInvModBi[i];
+#ifdef OMP
+#pragma omp parallel for
+#endif
         for (uint32_t k = 0; k < n; k++)
         {
         	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModMulFastNTL(t, BskModuli[i]);
@@ -1536,7 +1561,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 	txiqiDivqModqi = nullptr;
 }
 
-// Almost qeuivalent to "SwitchCRTBasis"
+//Source: Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (https://eprint.iacr.org/2016/510)
+// // Almost qeuivalent to "SwitchCRTBasis"
+// @brief Converts fast polynomial in CRT basis {q U Bsk} to basis {q} using Shenoy Kumaresan method.
+// Outputs the resulting polynomial in CRT/RNS representation in basis q. Note that the actual result is basically in basis {Bsk}.
+// used in EvalMult of BFVrnsApproximate
+
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
@@ -1561,6 +1591,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
     for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
     {
         const typename PolyType::Integer &currentBDivBiModBi = BDivBiModBi[i];
+#ifdef OMP
+#pragma omp parallel for
+#endif
         for (uint32_t k = 0; k < n; k++)
         {
             m_vectors[numq+i].at(k) = m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModBi, BskModuli[i]);
@@ -1569,6 +1602,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 
     for (uint32_t j = 0; j < numq; j++)
 	{
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 			m_vectors[j].at(k) = 0;
@@ -1585,6 +1621,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
     // calculate alphaskx
     // FastBaseConv(x, B, msk)
     typename PolyType::Integer *alphaskxVector = new typename PolyType::Integer[n];
+#ifdef OMP
+#pragma omp parallel for
+#endif
     for (uint32_t k = 0; k < n; k++)
     {
     	alphaskxVector[k] = 0;
@@ -1597,6 +1636,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
     }
 
     // subtract xsk
+#ifdef OMP
+#pragma omp parallel for
+#endif
     for (uint32_t k = 0; k < n; k++)
 	{
     	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
@@ -1609,6 +1651,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	for (uint32_t i = 0; i < numq; i++)
 	{
 		const typename PolyType::Integer &currentBModqi = BModqi[i];
+#ifdef OMP
+#pragma omp parallel for
+#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 			typename PolyType::Integer alphaskBModqi = alphaskxVector[k];
@@ -1630,7 +1675,6 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 //    delete[] xiBiDivBModBi;
 //    xiBiDivBModBi = nullptr;
 }
-
 
 // Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
 //

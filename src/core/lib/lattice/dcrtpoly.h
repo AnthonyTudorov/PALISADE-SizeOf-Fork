@@ -710,17 +710,6 @@ public:
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
 			const std::vector<QuadFloat> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon) const;
 
-
-	PolyType ScaleAndRound(
-			const std::vector<typename PolyType::Integer> &qModuliTable,
-			const typename PolyType::Integer &gamma,
-			const typename PolyType::Integer &t,
-			const typename PolyType::Integer &gammaInvModt,
-			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-			const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const;
-
-
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
 	*
@@ -751,7 +740,37 @@ public:
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon);
 
+	/**
+	 * @brief Computes Round(t/q*x) mod t for fast rounding in RNS
+	 * @param qModuliTable: basis q = q1 * q2 * ...
+	 * @param gamma: redundant modulus
+	 * @param t: plaintext modulus
+	 * @param gammaInvModt
+	 * @param negqInvModtgammaTable: -1/q mod {t U gamma}
+	 * @param qDivqiModqiTable: (q/qi)^-1 mod qi
+	 * @param qDivqiModtgammaTable (q/qi) mod {t U gamma}
+	 * @return
+	 */
+	PolyType ScaleAndRound(
+			const std::vector<typename PolyType::Integer> &qModuliTable,
+			const typename PolyType::Integer &gamma,
+			const typename PolyType::Integer &t,
+			const typename PolyType::Integer &gammaInvModt,
+			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
+			const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const;
 
+	/**
+	 *@ brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}, mtilde is a redundant modulus used to remove q overflows generated from fast conversion.
+	 * @param paramsBsk: container of Bsk moduli and roots on unity
+	 * @param qModuli: basis q = q1 * q2 * ...
+	 * @param BskmtildeModuli: basis {Bsk U mtilde} ...
+	 * @param mtildeqDivqiModqi: mtilde*(q/qi)^-1 (mod qi)
+	 * @param qDivqiModBj: q/qi mod {Bsk U mtilde}
+	 * @param qModBski: q mod {Bsk}
+	 * @param negqInvModmtilde: -1/q mod mtilde
+	 * @param mtildeInvModBskiTable: mtilde^-1 mod {Bsk}
+	 */
 	void FastBaseConvqToBskMontgomery(
 			const shared_ptr<ParmType> paramsBsk,
 			const std::vector<typename PolyType::Integer> &qModuli,
@@ -762,7 +781,15 @@ public:
 			const typename PolyType::Integer &negqInvModmtilde,
 			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable);
 
-
+	/**
+	 * @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
+	 * @param t: plaintext modulus
+	 * @param qModuli: basis q = q1 * q2 * ...
+	 * @param BskModuli: Bsk basis
+	 * @param qDivqiModqi: (q/qi)^-1 mod qi
+	 * @param qDivqiModBj: (q/qi) mod {Bsk}
+	 * @param qInvModBi: q^-1 mod {Bsk}
+	 */
 	void FastRNSFloorq(
 			const typename PolyType::Integer &t,
 			const std::vector<typename PolyType::Integer> &qModuli,
@@ -771,6 +798,16 @@ public:
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
 			const std::vector<typename PolyType::Integer> &qInvModBi);
 
+	/**
+	 * @brief Converts fast polynomial in CRT basis {q U Bsk} to basis {q} using Shenoy Kumaresan method.
+	 * @param qModuli: basis q = q1 * q2 * ...
+	 * @param BskModuli: Bsk basis
+	 * @param BDivBiModBi: (B/Bi)^-1 mod Bi, where B = m1 * m2 * ... (without msk). Note in the source paper, B is referred to by M.
+	 * @param BDivBiModmsk: B/Bi mod msk
+	 * @param BInvModmsk: B^-1 mod msk
+	 * @param BDivBiModqj: B/Bi mod {q}
+	 * @param BModqi: B mod {q}
+	 */
 	void FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskModuli,

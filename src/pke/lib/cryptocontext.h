@@ -2468,7 +2468,7 @@ public:
 
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFVrnsApproximate Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus
 	* @param securityLevel
 	* @param distribution parameter
@@ -2483,7 +2483,7 @@ public:
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFVrnsApproximate Scheme using the scheme's ParamsGen methods
 	* @param encodingParams
 	* @param securityLevel
 	* @param distribution parameter
