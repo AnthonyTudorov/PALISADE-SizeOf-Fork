@@ -1,0 +1,20 @@
+# args get passed into first keygenner
+# like: -dcrt -use BFVrns1
+# or:	-poly -use Null
+
+# first arg needs to be -poly or -dcrt
+
+ELEMENT=$1
+shift
+
+cat myints1
+cat myints2
+bin/demo/pke/palisade $ELEMENT $* makekey HEDEMO
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt encrypt myints1 HEDEMOPUB.txt CT1
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt encrypt myints2 HEDEMOPUB.txt CT2
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt evaladd CT1 CT2 CTSum
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt evalmult CT1 CT2 CTProd
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt decrypt CTProd HEDEMOPRI.txt PTProd
+bin/demo/pke/palisade $ELEMENT -integers -from HEDEMOPUB.txt decrypt CTSum HEDEMOPRI.txt PTSum
+cat PTSum
+cat PTProd
