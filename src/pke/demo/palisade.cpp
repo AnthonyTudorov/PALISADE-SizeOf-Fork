@@ -208,7 +208,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	else {
 		ctSer.close();
 
-		vector<int64_t> intVector;
+		vector<uint64_t> intVector;
 		for( size_t i=0; i<IntVectorLen; i++ ) {
 			int val;
 
@@ -221,7 +221,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		}
 
 		// pull in file full of integers and do the encryption
-		Plaintext iPlaintext = ctx->MakeCoefPackedPlaintext(intVector);
+		Plaintext iPlaintext = ctx->MakePackedPlaintext(intVector);
 
 		// now encrypt iPlaintext
 		Ciphertext<Element> ciphertext = ctx->Encrypt(pk, iPlaintext);
