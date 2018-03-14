@@ -56,7 +56,7 @@ class CircuitNodeWithValue;
 class CircuitGraph {
 	map<usint,CircuitNode*>			allNodes;
 	vector<usint>					inputs;
-	set<usint>						outputs;
+	vector<usint>					outputs;
 
 	bool nodeExists(int id) {
 		return allNodes.find(id) != allNodes.end();
@@ -134,11 +134,11 @@ public:
 	}
 
 	void addOutput(int n) {
-		outputs.insert(n);
+		outputs.push_back(n);
 	}
 
 	const vector<usint>& getInputs() const { return inputs; }
-	const set<usint>& getOutputs() const { return outputs; }
+	const vector<usint>& getOutputs() const { return outputs; }
 
 	void resetAllDepths();
 };
@@ -166,7 +166,7 @@ public:
 	static LPPrivateKey<Element>	_graph_key;
 
 	const vector<usint>& getInputs() const { return g.getInputs(); }
-	const set<usint>& getOutputs() const { return g.getOutputs(); }
+	const vector<usint>& getOutputs() const { return g.getOutputs(); }
 
 	map<usint,CircuitNodeWithValue<Element>*>& getAllNodes() { return allNodes; }
 

@@ -45,7 +45,13 @@ using std::map;
 typedef	size_t CircuitKey;
 
 template<typename Element>
-using CircuitIO = map<CircuitKey,CircuitObject<Element>>;
+using CircuitIOPair = pair<CircuitKey,CircuitObject<Element>>;
+
+template<typename Element>
+using CircuitInput = map<CircuitKey,CircuitObject<Element>>;
+
+template<typename Element>
+using CircuitOutput = vector<CircuitIOPair<Element>>;
 
 template<typename Element>
 class PalisadeCircuit {
@@ -70,7 +76,7 @@ public:
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 
-	CircuitIO<Element>	CircuitEval(const CircuitIO<Element>& inputs, bool verbose=false ) {
+	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false ) {
 		g.Reset();
 
 		if( verbose ) cout << "Setting inputs" << endl;
@@ -106,9 +112,9 @@ public:
 		g.Execute(cc);
 
 		if( verbose ) cout << "Gathering outputs" << endl;
-		CircuitIO<Element> retval;
+		CircuitOutput<Element> retval;
 		for( auto output : g.getOutputs() ) {
-			retval[output] = g.getNodeById(output)->getValue();
+			retval.push_back( CircuitIOPair<Element>(output, g.getNodeById(output)->getValue()) );
 		}
 		return retval;
 	}

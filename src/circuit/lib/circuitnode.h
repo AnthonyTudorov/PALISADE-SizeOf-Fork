@@ -85,9 +85,13 @@ public:
 	int getInput(usint i) { return inputs[i]; }
 	void setInput(usint inputIdx, usint nodeId) { inputs[inputIdx] = nodeId; }
 
-	const set<usint>& getOutputs() const { return outputs; }
-	void addOutput(usint n) { outputs.insert(n); }
-	void delOutput(usint n) { outputs.erase(n); }
+	const vector<usint>& getOutputs() const { return outputs; }
+	void addOutput(usint n) { outputs.push_back(n); }
+	void delOutput(usint n) {
+		auto it = std::find( outputs.begin(), outputs.end(), n);
+		if( it != outputs.end() )
+			outputs.erase(it);
+	}
 
 	void setAsOutput() { is_output = true; }
 	void unsetAsOutput() { is_output = false; }
@@ -144,7 +148,7 @@ protected:
 	usint			nodeId;
 
 	vector<usint>	inputs;
-	set<usint>		outputs;
+	vector<usint>	outputs;
 	usint			nodeInputDepth;
 	usint			nodeOutputDepth;
 

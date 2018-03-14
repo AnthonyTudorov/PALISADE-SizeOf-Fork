@@ -139,14 +139,14 @@ main(int argc, char *argv[])
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, scalarMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<Poly> inputs;
+		CircuitInput<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
+		CircuitOutput<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 
@@ -220,14 +220,14 @@ main(int argc, char *argv[])
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, bitMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<Poly> inputs;
+		CircuitInput<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
+		CircuitOutput<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 

@@ -341,7 +341,7 @@ main(int argc, char *argv[])
 
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
 
-	CircuitIO<DCRTPoly> inputs;
+	CircuitInput<DCRTPoly> inputs;
 
 	size_t curPtxt = 0;
 	size_t curCtxt = 0;
@@ -373,7 +373,7 @@ main(int argc, char *argv[])
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
 
-	CircuitIO<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
+	CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
 	cc->StopTiming();
 
