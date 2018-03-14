@@ -1271,7 +1271,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::KeySwitch(const 
 
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
-	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBFVrnsApproximate<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrnsApproximate<DCRTPoly>>(ek->GetCryptoParameters());
 
 	LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek);
 
@@ -1327,8 +1327,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::EvalMultAndRelin
 
 	Ciphertext<DCRTPoly> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
-	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
-			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ek[0]->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBFVrnsApproximate<DCRTPoly>> cryptoParamsLWE =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsApproximate<DCRTPoly>>(ek[0]->GetCryptoParameters());
 
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
@@ -1368,8 +1368,8 @@ DecryptResult LPAlgorithmMultipartyBFVrnsApproximate<DCRTPoly>::MultipartyDecryp
 		NativePoly *plaintext) const
 {
 
-	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParams =
-			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(ciphertextVec[0]->GetCryptoParameters());
+	const shared_ptr<LPCryptoParametersBFVrnsApproximate<DCRTPoly>> cryptoParams =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsApproximate<DCRTPoly>>(ciphertextVec[0]->GetCryptoParameters());
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
 	const auto &p = cryptoParams->GetPlaintextModulus();

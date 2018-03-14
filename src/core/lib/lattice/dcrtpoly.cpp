@@ -1278,7 +1278,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		for (usint i = 0; i < numq; i++)
 		{
 			const typename PolyType::Integer &qi = qModuliTable[i];
-			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi );
+			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi ); // collapse mod t
 			tmp = tmp.ModMulFastNTL( gamma, qi );
 			tmp = tmp.ModMulFastNTL( qDivqiModqiTable[i], qi );
 
@@ -1443,6 +1443,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 #endif
     	for ( uint32_t k = 0; k < n; k++ )
 		{
+    		// collapsing
     		typename PolyType::Integer rmtilde = m_vectors[numq+numBsk].at(k); // r_mtilde
     		rmtilde = rmtilde.ModMulFastNTL(negqInvModmtilde, mtilde); // r_mtilde*-1/q mod mtilde
     		rmtilde = rmtilde.ModMulFastNTL( currentqModBski, BskmtildeModuli[i] ); // (r_mtilde*-1/q mod mtilde) * q mod Bski
