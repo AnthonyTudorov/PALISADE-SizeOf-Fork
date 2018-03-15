@@ -159,7 +159,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
 		ss << "EvalAdd of ";
-		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+		//ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
 	}
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
@@ -167,7 +167,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		Value<Element> v1( n1->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
-			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+			//ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
 		}
 
 		v0 = v0 + v1;
