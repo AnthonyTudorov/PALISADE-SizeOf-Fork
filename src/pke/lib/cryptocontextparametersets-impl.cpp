@@ -32,7 +32,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "LTV1" , {
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "268441601" },
 				{ "rootOfUnity", "16947867" },
@@ -42,7 +42,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "LTV2", {
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "536881153" },
 				{ "rootOfUnity", "267934765" },
@@ -52,7 +52,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "LTV3", {
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "1073750017" },
 				{ "rootOfUnity", "180790047" },
@@ -62,7 +62,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "LTV4", {
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "8589987841" },
 				{ "rootOfUnity", "2678760785" },
@@ -72,7 +72,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "LTV5", {
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "4096" },
 				{ "modulus", "2199023288321" },
 				{ "rootOfUnity", "1858080237421" },
@@ -82,7 +82,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "StSt1", {
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "8589987841" },
 				{ "rootOfUnity", "8451304774" },
@@ -93,7 +93,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "StSt2", {
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "137439004673" },
 				{ "rootOfUnity", "7643730114" },
@@ -104,7 +104,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "StSt3", {
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "4096" },
 				{ "modulus", "17179926529" },
 				{ "rootOfUnity", "1874048014" },
@@ -116,7 +116,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		{ "StSt4", {
 				{ "Note", "FGCS1" },
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "4096" },
 				{ "modulus", "140737488486401" },
 				{ "rootOfUnity", "65185722416667" },
@@ -128,7 +128,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		{ "StSt5", {
 				{ "Note", "FGCS2" },
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "16" },
 				{ "ring", "4096" },
 				{ "modulus", "72057594037948417" },
 				{ "rootOfUnity", "12746853818308484" },
@@ -140,7 +140,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		{ "StSt6", {
 				{ "Note", "FGCS Final" },
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "256" },
 				{ "ring", "8192" },
 				{ "modulus", "75557863725914323468289" },
 				{ "rootOfUnity", "36933905409054618621009" },
@@ -149,33 +149,33 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 				{ "stDevStSt", "41411.5" }
 		} },
 
-		{ "BFV1", {
-				{ "parameters", "BFV" },
-				{ "plaintextModulus", "65537" },
+		{ "FV1", {
+				{ "parameters", "FV" },
+				{ "plaintextModulus", "4" },
 				{ "securityLevel", "1.006" },
 		} },
 
-		{ "BFV2", {
-				{ "parameters", "BFV" },
-				{ "plaintextModulus", "65537" },
+		{ "FV2", {
+				{ "parameters", "FV" },
+				{ "plaintextModulus", "16" },
 				{ "securityLevel", "1.006" }
 		} },
 
 		{ "BFVrns1", {
 				{ "parameters", "BFVrns" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "4" },
 				{ "securityLevel", "1.006" },
 		} },
 
 		{ "BFVrns2", {
 				{ "parameters", "BFVrns" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "16" },
 				{ "securityLevel", "1.006" }
 		} },
 
 		{ "BGV1", {
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "268441601" },
 				{ "rootOfUnity", "16947867" },
@@ -185,7 +185,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "BGV2", {
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "536881153" },
 				{ "rootOfUnity", "267934765" },
@@ -195,7 +195,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "BGV3", {
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "1073750017" },
 				{ "rootOfUnity", "180790047" },
@@ -205,7 +205,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "BGV4", {
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "8589987841" },
 				{ "rootOfUnity", "2678760785" },
@@ -215,7 +215,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "BGV5", {
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "4096" },
 				{ "modulus", "2199023288321" },
 				{ "rootOfUnity", "1858080237421" },
@@ -225,22 +225,22 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 
 		{ "Null", {
 				{ "parameters", "Null" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "256" },
 				{ "ring", "8192" },
-				{ "modulus", "65537" },
+				{ "modulus", "256" },
 				{ "rootOfUnity", "242542334" }
 		} },
 
 		{ "Null2", {
 				{ "parameters", "Null" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "5" },
 				{ "ring", "32" },
-				{ "modulus", "65537" },
+				{ "modulus", "256" },
 				{ "rootOfUnity", "322299632" }
 		} },
 		{ "LTV-PRE" ,{
 				{ "parameters", "LTV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "8589987841" },
 				{ "rootOfUnity", "2678760785" },
@@ -249,7 +249,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		} },
 		{ "StSt-PRE",{
 				{ "parameters", "StehleSteinfeld" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring",  "2048" },
 				{ "modulus", "137439004673" },
 				{ "rootOfUnity", "7643730114" },
@@ -264,7 +264,7 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		} },
 		{ "BGV-PRE",{
 				{ "parameters", "BGV" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
 				{ "modulus", "8589987841" },
 				{ "rootOfUnity", "2678760785" },
@@ -273,9 +273,9 @@ map<string, map<string,string>> CryptoContextParameterSets = {
 		} },
 		{ "Null-PRE",{
 				{ "parameters", "Null" },
-				{ "plaintextModulus", "65537" },
+				{ "plaintextModulus", "2" },
 				{ "ring", "2048" },
-				{ "modulus", "65537" },
+				{ "modulus", "2" },
 				{ "rootOfUnity", "1" }
 		} }
 
