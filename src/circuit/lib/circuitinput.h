@@ -145,7 +145,8 @@ public:
 
 	CircuitObject<Element> operator+(const CircuitObject<Element>& other) const {
 		switch( this->GetType() ) {
-		case PLAINTEXT: {
+		case PLAINTEXT:
+		case INT: {
 			auto op1 = this->GetPlaintextValue();
 			switch( other.GetType() ) {
 			case CIPHERTEXT:
@@ -215,7 +216,8 @@ public:
 
 	CircuitObject<Element> operator-(const CircuitObject<Element>& other) const {
 		switch( this->GetType() ) {
-		case PLAINTEXT: {
+		case PLAINTEXT:
+		case INT: {
 			auto op1 = this->GetPlaintextValue();
 			switch( other.GetType() ) {
 			case CIPHERTEXT:
@@ -286,7 +288,8 @@ public:
 
 	CircuitObject<Element> operator*(const CircuitObject<Element>& other) const {
 		switch( this->GetType() ) {
-		case PLAINTEXT: {
+		case PLAINTEXT:
+		case INT: {
 			auto op1 = this->GetPlaintextValue();
 			switch( other.GetType() ) {
 			case CIPHERTEXT:
