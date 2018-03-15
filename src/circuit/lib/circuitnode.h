@@ -373,9 +373,9 @@ public:
 };
 
 class ConstInt : public CircuitNode {
-	usint val;
+	int64_t val;
 public:
-	ConstInt(usint id, usint val) : CircuitNode(id), val(val) {
+	ConstInt(usint id, int64_t val) : CircuitNode(id), val(val) {
 		this->setAsInput();
 		this->runtime = new TimingStatistics(0,0,0,0);
 	}
@@ -389,15 +389,17 @@ public:
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const int)"; }
 	wire_type GetType() const { return INT; }
-	usint GetInt() const { return val; }
+	int64_t GetInt() const { return val; }
 };
 
 template<typename Element>
 class ConstIntWithValue : public CircuitNodeWithValue<Element> {
+	int64_t val;
 public:
-	ConstIntWithValue(ConstInt* in) : CircuitNodeWithValue<Element>(in) {
+	ConstIntWithValue(ConstInt* in) : CircuitNodeWithValue<Element>(in), val(in->GetInt()) {
 		this->value = Value<Element>(in->GetInt());
 	}
+	int64_t GetInt() const { return val; }
 };
 
 class ConstPtxt : public CircuitNode {

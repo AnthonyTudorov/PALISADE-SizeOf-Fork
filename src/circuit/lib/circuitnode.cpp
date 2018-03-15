@@ -35,6 +35,8 @@
 
 namespace lbcrypto {
 
+bool CircuitOpTrace;
+
 template<typename Element>
 void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
 	if( this->Visited() )
@@ -106,7 +108,6 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 		noise += n1->GetNoiseActual();
 	}
-	this->value = v0;
 
 	this->value = v0;
 
