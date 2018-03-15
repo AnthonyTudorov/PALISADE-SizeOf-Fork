@@ -35,6 +35,8 @@
 
 namespace lbcrypto {
 
+bool CircuitOpTrace;
+
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 
@@ -153,15 +155,31 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	Value<Element> v0( n0->eval(cc,cg) );
 	usint noise = n0->GetNoise();
 
+	stringstream ss;
+	if( CircuitOpTrace ) {
+		ss << "Node " << this->GetId() << ": ";
+		ss << "EvalAdd of ";
+		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+	}
+
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
+
+		if( CircuitOpTrace ) {
+			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+		}
 
 		v0 = v0 + v1;
 
 		noise += n1->GetNoise();
 	}
+
 	this->value = v0;
+
+	if( CircuitOpTrace ) {
+		cout << ss.str() << endl;
+	}
 
 	this->Log();
 	this->SetNoise( noise );

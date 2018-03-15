@@ -112,6 +112,10 @@ public:
 		this->t = t;
 	}
 
+	void SetPlaintext(Plaintext p) {
+		pt = p;
+	}
+
 	// unary minus
 	CircuitObject<Element> operator-() const {
 		switch( this->GetType() ) {
@@ -167,6 +171,7 @@ public:
 			break;
 
 			case PLAINTEXT:
+			case INT:
 			{
 				auto op2 = other.GetPlaintextValue();
 				return cc->EvalAdd(op1, op2);
@@ -236,6 +241,7 @@ public:
 			break;
 
 			case PLAINTEXT:
+			case INT:
 			{
 				auto op2 = other.GetPlaintextValue();
 				return cc->EvalSub(op1, op2);
@@ -306,6 +312,7 @@ public:
 			break;
 
 			case PLAINTEXT:
+			case INT:
 			{
 				auto op2 = other.GetPlaintextValue();
 				return cc->EvalMult(op1, op2);

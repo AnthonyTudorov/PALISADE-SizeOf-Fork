@@ -54,23 +54,34 @@ template<typename Element>
 using CircuitOutput = vector<CircuitIOPair<Element>>;
 
 template<typename Element>
+using EF = Plaintext (*)(CryptoContext<Element>, int64_t);
+
+template<typename Element>
 class PalisadeCircuit {
 	CryptoContext<Element>	cc;
 	CircuitGraphWithValues<Element>		g;
+	EF<Element> EncodeFunction;
 
 public:
-	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg,
-			Plaintext (*EncodeFunction)(CryptoContext<Element>, int64_t) = 0) : cc(cc), g(cg) {
+	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg, EF<Element> EncodeFunction = 0)
+				: cc(cc), g(cg), EncodeFunction(EncodeFunction) {
 
 		// after initializing, search for all ConstPtxt and create a Plaintext for them
 		for( auto node : g.getAllNodes() ) {
 			ConstPtxtWithValue<Element>* n = dynamic_cast<ConstPtxtWithValue<Element>*>(node.second);
-			if( n == 0 )
-				continue;
-			if( EncodeFunction == 0 )
-				throw std::logic_error("Encode function required for plaintexts");
-			Plaintext ptxt = (*EncodeFunction)(cc, n->GetValue());
-			n->SetValue(ptxt);
+			if( n != 0 ) {
+				if( EncodeFunction == 0 )
+					throw std::logic_error("Encode function required for plaintexts");
+				Plaintext ptxt = (*EncodeFunction)(cc, n->GetValue());
+				n->SetValue(ptxt);
+			}
+			ConstIntWithValue<Element>* i = dynamic_cast<ConstIntWithValue<Element>*>(node.second);
+			if( i != 0 ) {
+				if( EncodeFunction == 0 )
+					throw std::logic_error("Encode function required for integers");
+				Plaintext ptxt = (*EncodeFunction)(cc, i->GetInt());
+				node.second->getValue().SetPlaintext(ptxt);
+			}
 		}
 	}
 

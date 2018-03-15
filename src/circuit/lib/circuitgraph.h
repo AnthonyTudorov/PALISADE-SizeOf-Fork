@@ -45,6 +45,7 @@ using namespace std;
 #include "cryptocontext.h"
 #include "circuitinput.h"
 #include "circuitnode.h"
+#include "palisadecircuit.h"
 
 namespace lbcrypto {
 

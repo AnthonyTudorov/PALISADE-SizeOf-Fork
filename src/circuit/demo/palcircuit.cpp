@@ -61,9 +61,11 @@ void usage() {
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
+	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-h  --  this message" << endl;
 }
 
+extern bool lbcrypto::CircuitOpTrace;
 
 void PrintOperationSet(ostream& out, vector<CircuitSimulation>& timings) {
 	map<OpType,bool> ops;
@@ -86,8 +88,8 @@ Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 int
 main(int argc, char *argv[])
 {
-	const usint m = 8;
-	const PlaintextModulus ptm = 256;
+	const usint m = 16;
+	const PlaintextModulus ptm = 1073872897;
 	const usint mdim = 3;
 
 	bool debug_parse = false;
@@ -122,6 +124,9 @@ main(int argc, char *argv[])
 
 		if( arg == "-d" ) {
 			debug_parse = true;
+		}
+		else if( arg == "-otrace" ){
+			lbcrypto::CircuitOpTrace = true;
 		}
 		else if( arg == "-ginput" ) {
 			print_input_graph = true;
@@ -211,11 +216,13 @@ main(int argc, char *argv[])
 			NativeInteger(1)) );
 
 	CryptoContext<DCRTPoly> cc =
-			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
-			//::genCryptoContextNull(m, ep);
+			CryptoContextFactory<DCRTPoly>::
+			//genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
+			genCryptoContextNull(m, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
+	cc->Enable(LEVELEDSHE);
 
 	PackedEncoding::SetParams(m, ep);
 
@@ -317,19 +324,19 @@ main(int argc, char *argv[])
 	cc->EvalMultKeyGen(kp.secretKey);
 
 	// Note that the circuit evaluator does not know about or enforce encodings
-	// for this demo we use Integer encoding
 
-	const int ValueCount = 7;
+	const int ValueCount = 12;
+	int vals[] = {1,5,9,2,6,10,3,7,11,4,8,12};
 
 	// Plaintext inputs will be chosen from these
 	Plaintext ptxts[ValueCount];
 	for( int i=0; i < ValueCount; i++ ) {
-		ptxts[i] = EncodeFunction(cc, i+1);
+		ptxts[i] = EncodeFunction(cc, vals[i]);
 	}
 
 	Ciphertext<DCRTPoly> ctxts[ValueCount];
 	for( int i=0; i < ValueCount; i++ ) {
-		ctxts[i] = cc->Encrypt(kp.publicKey, EncodeFunction(cc, i+1));
+		ctxts[i] = cc->Encrypt(kp.publicKey, ptxts[i]);
 	}
 
 	Matrix<Plaintext> mat([cc](){return EncodeFunction(cc,0);},mdim,mdim);

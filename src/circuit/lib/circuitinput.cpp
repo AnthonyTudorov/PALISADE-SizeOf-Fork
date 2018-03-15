@@ -45,6 +45,8 @@ std::ostream& operator<<(std::ostream& out, const CircuitObject<Element>& obj)
 		out << obj.GetIntValue(); break;
 	case PLAINTEXT:
 		out << obj.GetPlaintextValue(); break;
+	case CIPHERTEXT:
+		out << obj.GetCiphertextValue(); break;
 	default:
 		out << "print not implemented"; break;
 	}

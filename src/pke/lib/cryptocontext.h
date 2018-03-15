@@ -131,8 +131,13 @@ private:
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a->GetCryptoContext().get() != this )
 			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
-		if( a->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
+		if( a->GetEncodingType() != b->GetEncodingType() ) {
+			stringstream ss;
+			ss << "Ciphertext encoding type " << a->GetEncodingType();
+			ss << " and Plaintext encoding type " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
