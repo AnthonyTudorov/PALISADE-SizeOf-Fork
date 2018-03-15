@@ -105,7 +105,7 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 			return 0;
 
 		return CryptoContextFactory<Element>::genCryptoContextBFVrns(stoul(plaintextModulus), stof(secLevel), 4,
-				0, 0, 1);
+				0, 1, 0);
 
 	}
 	else if( parmtype == "BGV" ) {

@@ -150,7 +150,7 @@ decrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		// now decrypt iPlaintext
 		ctx->Decrypt(sk, ct, &iPlaintext);
 
-		for( int i=0; i<IntVectorLen; i++ )
+		for( size_t i=0; i<IntVectorLen; i++ )
 			outF << iPlaintext->GetCoefPackedValue()[i] << " ";
 		outF << endl;
 	}
@@ -208,7 +208,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	else {
 		ctSer.close();
 
-		vector<uint64_t> intVector;
+		vector<int64_t> intVector;
 		for( size_t i=0; i<IntVectorLen; i++ ) {
 			int val;
 
@@ -221,7 +221,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		}
 
 		// pull in file full of integers and do the encryption
-		Plaintext iPlaintext = ctx->MakePackedPlaintext(intVector);
+		Plaintext iPlaintext = ctx->MakeCoefPackedPlaintext(intVector);
 
 		// now encrypt iPlaintext
 		Ciphertext<Element> ciphertext = ctx->Encrypt(pk, iPlaintext);
@@ -323,14 +323,33 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 
 		Serialized ctxSer;
 		if( ctx->Serialize(&ctxSer) ) {
+			if( !SerializableHelper::WriteSerializationToFile(ctxSer, keyname + "CTXT") ) {
+				cerr << "Error writing serialization of cryptocontext to " + keyname + "CTXT" << endl;
+				return;
+			}
+		}
+		else {
+			cerr << "Could not serialize crypto context" << endl;
+			return;
+		}
 
+		Serialized emKeys;
+		if( ctx->SerializeEvalMultKey(&emKeys) ) {
+			if( !SerializableHelper::WriteSerializationToFile(emKeys, keyname + "EMK") ) {
+				cerr << "Error writing serialization of eval mult keys to " + keyname + "EMK" << endl;
+				return;
+			}
+		}
+		else {
+			cerr << "Could not serialize eval mult keys" << endl;
+			return;
 		}
 
 		Serialized pubK, privK;
 
 		if( kp.publicKey->Serialize(&pubK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB.txt") ) {
-				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
+			if( !SerializableHelper::WriteSerializationToFile(pubK, keyname + "PUB") ) {
+				cerr << "Error writing serialization of public key to " + keyname + "PUB" << endl;
 				return;
 			}
 		}
@@ -340,8 +359,8 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		}
 
 		if( kp.secretKey->Serialize(&privK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI.txt") ) {
-				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
+			if( !SerializableHelper::WriteSerializationToFile(privK, keyname + "PRI") ) {
+				cerr << "Error writing serialization of private key to " + keyname + "PRI" << endl;
 				return;
 			}
 		}
@@ -478,7 +497,7 @@ struct {
 	string				helpline;
 } cmds[] = {
 		{"makekey", keymaker<Poly>, keymaker<DCRTPoly>, " [optional parms] keyname\n"
-		"\tcreate a new keypair\n\t\tsave in keynamePUB.txt and keynamePRI.txt"},
+		"\tcreate a new keypair\n\t\tsave keynamePUB, keynamePRI, keynameCTXT and keynameEMK"},
 		{"makerekey", rekeymaker<Poly>, rekeymaker<DCRTPoly>, " [optional parms] pubkey_file secretkey_file rekey_file\n"
 		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file\n\tsave in rekey_file"},
 		{"encrypt", encrypter<Poly>, encrypter<DCRTPoly>, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
@@ -512,7 +531,7 @@ usage(const string& cmd, const string& msg)
 	cerr << "-intlen N: use integer plaintext with N integers; default is " << IntVectorLen << endl;
 	cerr << "-list: list all the parameter sets, then exit" << endl;
 	cerr << "-use parmset: use the parameter set named parmset from the parameter file" << endl;
-	cerr << "-from filename: use the deserialization of filename to set the crypto context" << endl;
+	cerr << "-from keyname: use the serialization of keynameCTXT and EMK for the crypto context" << endl;
 }
 
 int
@@ -549,14 +568,14 @@ main( int argc, char *argv[] )
 			if( ElementMode == POLY ) {
 				ctx = CryptoContextHelper::getNewContext( string(argv[cmdidx+1]) );
 				if( !ctx ) {
-					usage("ALL", "Could not construct a crypto context");
+					cerr << "Could not construct a crypto context" << endl;
 					return 1;
 				}
 			}
 			else if( ElementMode == DCRT ) {
 				dctx = CryptoContextHelper::getNewDCRTContext( string(argv[cmdidx+1]), 5, 32 );
 				if( !dctx ) {
-					usage("ALL", "Could not construct a dcrt crypto context");
+					cerr << "Could not construct a dcrt crypto context" << endl;
 					return 1;
 				}
 			}
@@ -564,12 +583,33 @@ main( int argc, char *argv[] )
 			cmdidx += 2;
 		}
 		else if( arg == "-from" && cmdidx+1 < argc ) {
-			Serialized	kser;
-			if( SerializableHelper::ReadSerializationFromFile(string(argv[cmdidx+1]), &kser) ) {
+			Serialized	cser;
+			string cfile( string(argv[cmdidx+1])+"CTXT" );
+			if( SerializableHelper::ReadSerializationFromFile(cfile, &cser) ) {
 				if( ElementMode == POLY )
-					ctx = CryptoContextFactory<Poly>::DeserializeAndCreateContext(kser);
+					ctx = CryptoContextFactory<Poly>::DeserializeAndCreateContext(cser);
 				else if( ElementMode == DCRT )
-					dctx = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(kser);
+					dctx = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(cser);
+			}
+			else {
+				cerr << "Could not construct a crypto context from the file " << cfile << endl;
+				return 1;
+			}
+
+			// now get the keys
+			Serialized kser;
+			bool result = false;
+			string kfile( string(argv[cmdidx+1])+"EMK" );
+			if( SerializableHelper::ReadSerializationFromFile(kfile, &kser) ) {
+				if( ElementMode == POLY )
+					result = ctx->DeserializeEvalMultKey(kser);
+				else if( ElementMode == DCRT )
+					result = dctx->DeserializeEvalMultKey(kser);
+			}
+
+			if( !result ) {
+				cerr << "Could not get evalmult keys from the file " << kfile << endl;
+				return 1;
 			}
 
 			cmdidx += 2;
@@ -595,7 +635,7 @@ main( int argc, char *argv[] )
 	}
 
 	if( !ctx && !dctx ) {
-		usage("ALL", "Unable to create a crypto context");
+		cerr << "Unable to create a crypto context" << endl;
 		return 1;
 	}
 
