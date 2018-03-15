@@ -8,6 +8,7 @@ ELEMENT=$1
 shift
 
 rm -f HEDEMOPUB HEDEMOPRI HEDEMOCTXT HEDEMOEMK CT1 CT2 CTSum CTProd PTSum PTProd
+echo Inputs:
 cat myints1
 cat myints2
 bin/demo/pke/palisade $ELEMENT $* makekey HEDEMO
@@ -17,5 +18,8 @@ bin/demo/pke/palisade $ELEMENT -integers -from HEDEMO evaladd CT1 CT2 CTSum
 bin/demo/pke/palisade $ELEMENT -integers -from HEDEMO evalmult CT1 CT2 CTProd
 bin/demo/pke/palisade $ELEMENT -integers -from HEDEMO decrypt CTProd HEDEMOPRI PTProd
 bin/demo/pke/palisade $ELEMENT -integers -from HEDEMO decrypt CTSum HEDEMOPRI PTSum
+
+echo ; echo Sum:
 cat PTSum
+echo ; echo Product:
 cat PTProd
