@@ -756,9 +756,13 @@ public:
 			const typename PolyType::Integer &gamma,
 			const typename PolyType::Integer &t,
 			const typename PolyType::Integer &gammaInvModt,
+			const typename PolyType::Integer &gammaInvModtPrecon,
 			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-			const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const;
+			const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
+			const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
+			const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiPreconTable,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaPreconTable) const;
 
 	/**
 	 *@ brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}, mtilde is a redundant modulus used to remove q overflows generated from fast conversion.
@@ -776,10 +780,15 @@ public:
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskmtildeModuli,
 			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
+			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
 			const std::vector<typename PolyType::Integer> &qModBski,
+			const std::vector<typename PolyType::Integer> &qModBskiPrecon,
 			const typename PolyType::Integer &negqInvModmtilde,
-			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable);
+			const typename PolyType::Integer &negqInvModmtildePrecon,
+			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable,
+			const std::vector<typename PolyType::Integer> &mtildeInvModBskiPreconTable);
 
 	/**
 	 * @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
@@ -792,11 +801,15 @@ public:
 	 */
 	void FastRNSFloorq(
 			const typename PolyType::Integer &t,
+			const typename PolyType::Integer &tPrecon,
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskModuli,
-			const std::vector<typename PolyType::Integer> &qDivqiModqi,
+			const std::vector<typename PolyType::Integer> &tqDivqiModqi,
+			const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-			const std::vector<typename PolyType::Integer> &qInvModBi);
+			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
+			const std::vector<typename PolyType::Integer> &qInvModBi,
+			const std::vector<typename PolyType::Integer> &qInvModBiPrecon);
 
 	/**
 	 * @brief Converts fast polynomial in CRT basis {q U Bsk} to basis {q} using Shenoy Kumaresan method.
@@ -812,10 +825,15 @@ public:
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskModuli,
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
+			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
+			const std::vector<typename PolyType::Integer> &BDivBiModmskPrecon,
 			const typename PolyType::Integer &BInvModmsk,
+			const typename PolyType::Integer &BInvModmskPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
-			const std::vector<typename PolyType::Integer> &BModqi
+			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqjPrecon,
+			const std::vector<typename PolyType::Integer> &BModqi,
+			const std::vector<typename PolyType::Integer> &BModqiPrecon
 			);
 
 

@@ -1255,9 +1255,13 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		const typename PolyType::Integer &gamma,
 		const typename PolyType::Integer &t,
 		const typename PolyType::Integer &gammaInvModt,
+		const typename PolyType::Integer &gammaInvModtPrecon,
 		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-		const std::vector<typename PolyType::Integer> &qDivqiModqiTable,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable) const {
+		const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
+		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
+		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiPreconTable,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaPreconTable) const {
 
 	usint n = GetRingDimension();
 	usint numq = m_vectors.size();
@@ -1278,25 +1282,29 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		for (usint i = 0; i < numq; i++)
 		{
 			const typename PolyType::Integer &qi = qModuliTable[i];
-			tmp = t.ModMulFastNTL( m_vectors[i].at(k), qi ); // collapse mod t
-			tmp = tmp.ModMulFastNTL( gamma, qi );
-			tmp = tmp.ModMulFastNTL( qDivqiModqiTable[i], qi );
+			const typename PolyType::Integer &xi = m_vectors[i].at(k);
+			tmp = xi;
+			tmp = tmp.ModMulPreconNTL( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
 
-			tmpt = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][0], t );
-			tmpgamma = tmp.ModMulFastNTL( qDivqiModtgammaTable[i][1], gamma );
+			tmpt = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][0], t, qDivqiModtgammaPreconTable[i][0] ); // mod t
+			tmpgamma = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][1], gamma, qDivqiModtgammaPreconTable[i][1] ); // mod gamma
 
 			st = st.ModAddFastNTL( tmpt, t );
 			sgamma = sgamma.ModAddFastNTL( tmpgamma, gamma );
 		}
 
 		// mul by -q^-1
-		st = st.ModMulFastNTL(negqInvModtgammaTable[0], t);
-		sgamma = sgamma.ModMulFastNTL( negqInvModtgammaTable[1], gamma );
-		if ( sgamma > (gamma/2) )
-			sgamma = sgamma.ModSub( gamma, t );
+		st = st.ModMulPreconNTL(negqInvModtgammaTable[0], t, negqInvModtgammaPreconTable[0]);
+		sgamma = sgamma.ModMulPreconNTL( negqInvModtgammaTable[1], gamma, negqInvModtgammaPreconTable[1] );
+
+		if ( sgamma > (gamma >> 1) )
+			sgamma = sgamma.ModSubFast( gamma, t );
 
 		tmp = st.ModSubFast( sgamma, t );
-		coefficients[k] = tmp.ModMul( gammaInvModt, t );
+
+		// TODO [Fix me]
+//		coefficients[k] = tmp.ModMulPreconNTL( gammaInvModt, t, gammaInvModtPrecon ); // We cannot use precon here, for some t, (eg: t = 200), the NTL precomputed value is 0 [Probably a bug]
+		coefficients[k] = tmp.ModMulFastNTL( gammaInvModt, t );
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive
@@ -1320,10 +1328,15 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
+		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
 		const std::vector<typename PolyType::Integer> &qModBski,
+		const std::vector<typename PolyType::Integer> &qModBskiPrecon,
 		const typename PolyType::Integer &negqInvModmtilde,
-		const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable) {
+		const typename PolyType::Integer &negqInvModmtildePrecon,
+		const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable,
+		const std::vector<typename PolyType::Integer> &mtildeInvModBskiPreconTable) {
 
 	// Input: poly in basis q
 	// Output: poly in base Bsk = {B U msk}
@@ -1355,13 +1368,14 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     for (uint32_t i = 0; i < numq; i++)
     {
     	const typename PolyType::Integer &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
+    	const typename PolyType::Integer &currentmtildeqDivqiModqiPrecon = mtildeqDivqiModqiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-            ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulFastNTL( currentmtildeqDivqiModqi, qModuli[i]);
+        	ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulPreconNTL( currentmtildeqDivqiModqi, qModuli[i], currentmtildeqDivqiModqiPrecon);
         }
     }
 
@@ -1405,9 +1419,14 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     	{
     		for (uint32_t i = 0; i < numq; i++)
     		{
-    			typename PolyType::Integer qDivqiModBjValue = qDivqiModBj[i][j];
+    			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
+    			const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
+
+//    			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
+//    					qDivqiModBjValue.ModMulFastNTL(ximtildeqiDivqModqi[i*n+k], BskmtildeModuli[j] ),
+//						BskmtildeModuli[j] );
     			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
-    					qDivqiModBjValue.ModMulFastNTL(ximtildeqiDivqModqi[i*n+k], BskmtildeModuli[j] ),
+    					ximtildeqiDivqModqi[i*n+k].ModMulPreconNTL(qDivqiModBjValue, BskmtildeModuli[j], qDivqiModBjPreconValue ),
 						BskmtildeModuli[j] );
     		}
     	}
@@ -1437,6 +1456,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     for (uint32_t i = 0; i < numBsk; i++)
     {
     	const typename PolyType::Integer &currentqModBski = qModBski[i];
+    	const typename PolyType::Integer &currentqModBskiPrecon = qModBskiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1444,11 +1464,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     	for ( uint32_t k = 0; k < n; k++ )
 		{
     		// collapsing
-    		typename PolyType::Integer rmtilde = m_vectors[numq+numBsk].at(k); // r_mtilde
-    		rmtilde = rmtilde.ModMulFastNTL(negqInvModmtilde, mtilde); // r_mtilde*-1/q mod mtilde
-    		rmtilde = rmtilde.ModMulFastNTL( currentqModBski, BskmtildeModuli[i] ); // (r_mtilde*-1/q mod mtilde) * q mod Bski
-    		rmtilde = rmtilde.ModAddFastNTL( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // c_m + ((r_mtilde*-1/q mod mtilde) * q) mod Bski
-    		m_vectors[numq+i].at(k) = rmtilde.ModMulFastNTL( mtildeInvModBskiTable[i], BskmtildeModuli[i] );
+    		const typename PolyType::Integer &c_mtilde = m_vectors[numq+numBsk].at(k);
+    		typename PolyType::Integer rmtilde = c_mtilde; // c``_mtilde
+    		rmtilde = rmtilde.ModMulPreconNTL(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
+    		rmtilde = rmtilde.ModMulPreconNTL( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
+    		rmtilde = rmtilde.ModAddFastNTL( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
+    		m_vectors[numq+i].at(k) = rmtilde.ModMulPreconNTL( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) * mtilde mod Bski
 		}
     }
 
@@ -1491,11 +1512,15 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		const typename PolyType::Integer &t,
+		const typename PolyType::Integer &tPrecon,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskModuli,
-		const std::vector<typename PolyType::Integer> &qDivqiModqi,
+		const std::vector<typename PolyType::Integer> &tqDivqiModqi,
+		const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-		const std::vector<typename PolyType::Integer> &qInvModBi) {
+		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
+		const std::vector<typename PolyType::Integer> &qInvModBi,
+		const std::vector<typename PolyType::Integer> &qInvModBiPrecon) {
 
 	// Input: poly in basis {q U Bsk}
 	// Output: approximateFloor(t/q*poly) in basis Bsk
@@ -1513,16 +1538,16 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 
 	for (uint32_t i = 0; i < numq; i++)
 	{
-		const typename PolyType::Integer &currentqDivqiModqi = qDivqiModqi[i];
+		const typename PolyType::Integer &currenttqDivqiModqi = tqDivqiModqi[i];
+		const typename PolyType::Integer &currenttqDivqiModqiPrecon = tqDivqiModqiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
 #endif
 		for (uint32_t k = 0; k < n; k++)
 		{
-			// multiply by t
-			m_vectors[i].at(k) = m_vectors[i].at(k).ModMulFastNTL(t, qModuli[i]);
-			m_vectors[i].at(k) = m_vectors[i].at(k).ModMulFastNTL( currentqDivqiModqi, qModuli[i]);
+			// multiply by t*(q/qi)^-1 mod qi
+			m_vectors[i].at(k).ModMulPreconNTLEq(currenttqDivqiModqi, qModuli[i], currenttqDivqiModqiPrecon);
 		}
 	}
 
@@ -1536,8 +1561,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 			typename PolyType::Integer aq = 0;
 			for (uint32_t i = 0; i < numq; i++)
 			{
-				typename PolyType::Integer qDivqiModBjValue = qDivqiModBj[i][j];
-				aq = aq.ModAddFastNTL( qDivqiModBjValue.ModMulFastNTL(m_vectors[i].at(k), BskModuli[j]), BskModuli[j] );
+				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
+				const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
+
+				aq = aq.ModAddFastNTL(
+						m_vectors[i].at(k).ModMulPreconNTL(qDivqiModBjValue, BskModuli[j], qDivqiModBjPreconValue),
+						BskModuli[j] );
 			}
 			txiqiDivqModqi[j*n + k] = aq;
 		}
@@ -1548,14 +1577,16 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
     for (uint32_t i = 0; i < numBsk; i++)
     {
         const typename PolyType::Integer &currentqInvModBski = qInvModBi[i];
+        const typename PolyType::Integer &currentqInvModBskiPrecon = qInvModBiPrecon[i];
 #ifdef OMP
 #pragma omp parallel for
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModMulFastNTL(t, BskModuli[i]);
-        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
-        	m_vectors[i+numq].at(k) = m_vectors[i+numq].at(k).ModMulFastNTL( currentqInvModBski, BskModuli[i] );
+        	// TODO [fix-me] we cannot use ModMulPreconNTL with t when t = 200 for example,
+        	m_vectors[i+numq].at(k).ModMulFastEq(t, BskModuli[i]);
+        	m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
+        	m_vectors[i+numq].at(k).ModMulPreconNTLEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
         }
     }
 	delete[] txiqiDivqModqi;
@@ -1573,10 +1604,15 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskModuli,
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
+			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
+			const std::vector<typename PolyType::Integer> &BDivBiModmskPrecon,
 			const typename PolyType::Integer &BInvModmsk,
+			const typename PolyType::Integer &BInvModmskPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
-			const std::vector<typename PolyType::Integer> &BModqi
+			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqjPrecon,
+			const std::vector<typename PolyType::Integer> &BModqi,
+			const std::vector<typename PolyType::Integer> &BModqiPrecon
 			)
 {
 	// Input: poly in basis Bsk
@@ -1588,16 +1624,16 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 
 	uint32_t n = GetLength();
 
-//	typename PolyType::Integer *xiBiDivBModBi = new typename PolyType::Integer[n*numBsk];
     for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
     {
         const typename PolyType::Integer &currentBDivBiModBi = BDivBiModBi[i];
+        const typename PolyType::Integer &currentBDivBiModBiPrecon = BDivBiModBiPrecon[i];
 #ifdef OMP
 #pragma omp parallel for
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-            m_vectors[numq+i].at(k) = m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModBi, BskModuli[i]);
+            m_vectors[numq+i].at(k).ModMulPreconNTLEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
         }
     }
 
@@ -1612,8 +1648,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
+				const typename PolyType::Integer &currentBDivBiModqjPrecon = BDivBiModqjPrecon[i][j];
+
 				m_vectors[j].at(k) = m_vectors[j].at(k).ModAddFastNTL(
-						m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModqj, qModuli[j] ),
+						m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModqj, qModuli[j], currentBDivBiModqjPrecon ),
 						qModuli[j]);
 			}
 		}
@@ -1631,7 +1669,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
-        	alphaskxVector[k] = alphaskxVector[k].ModAddFastNTL( m_vectors[numq+i].at(k).ModMulFastNTL( currentBDivBiModmsk , BskModuli[numBsk-1])
+        	const typename PolyType::Integer &currentBDivBiModmskPrecon = BDivBiModmskPrecon[i];
+
+        	alphaskxVector[k] = alphaskxVector[k].ModAddFastNTL(
+        			m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModmsk , BskModuli[numBsk-1], currentBDivBiModmskPrecon)
         			, BskModuli[numBsk-1]);
         }
     }
@@ -1644,7 +1685,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	{
     	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
     			, BskModuli[numBsk-1]);
-    	alphaskxVector[k] = alphaskxVector[k].ModMulFastNTL( BInvModmsk, BskModuli[numBsk-1]);
+    	alphaskxVector[k] = alphaskxVector[k].ModMulPreconNTL( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
 	}
 
     // do (m_vector - alphaskx*M) mod q
@@ -1652,6 +1693,8 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	for (uint32_t i = 0; i < numq; i++)
 	{
 		const typename PolyType::Integer &currentBModqi = BModqi[i];
+		const typename PolyType::Integer &currentBModqiPrecon = BModqiPrecon[i];
+
 #ifdef OMP
 #pragma omp parallel for
 #endif
@@ -1661,7 +1704,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			if (alphaskBModqi > mskDivTwo)
 				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
 
-			alphaskBModqi = alphaskBModqi.ModMulFastNTL( currentBModqi, qModuli[i] );
+			alphaskBModqi = alphaskBModqi.ModMulPreconNTL( currentBModqi, qModuli[i], currentBModqiPrecon );
 			m_vectors[i].at(k) = m_vectors[i].at(k).ModSubFast( alphaskBModqi, qModuli[i] );
 		}
 	}

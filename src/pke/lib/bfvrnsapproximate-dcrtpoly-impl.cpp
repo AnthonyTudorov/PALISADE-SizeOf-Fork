@@ -349,21 +349,42 @@ bool LPCryptoParametersBFVrnsApproximate<DCRTPoly>::PrecomputeCRTTables(){
 		m_qDivqiModqiTable[i] = qDivqi.ConvertToInt();
 	}
 
+	// Populate t*(q/qi)^-1 mod qi
+	m_tqDivqiModqiTable.resize(m_numq);
+	m_tqDivqiModqiPreconTable.resize(m_numq);
+	for (uint32_t i = 0; i < m_tqDivqiModqiTable.size() ; i++ )
+	{
+		BigInteger tqDivqi;
+		tqDivqi = q.DividedBy(moduli[i]) ;
+		tqDivqi = tqDivqi.Mod(moduli[i]);
+		tqDivqi = tqDivqi.ModInverse( moduli[i] );
+		tqDivqi = tqDivqi.ModMul( t.ConvertToInt() , moduli[i] );
+		m_tqDivqiModqiTable[i] = tqDivqi.ConvertToInt();
+		m_tqDivqiModqiPreconTable[i] = m_tqDivqiModqiTable[i].PrepModMulPreconNTL( moduli[i] );
+	}
+
 	// Populate q/qi mod Bj table where Bj \in {Bsk U mtilde}
 	m_qDivqiModBskmtildeTable.resize(m_numq);
+	m_qDivqiModBskmtildePreconTable.resize(m_numq);
+
 	for (uint32_t i = 0; i < m_qDivqiModBskmtildeTable.size(); i++)
 	{
 		m_qDivqiModBskmtildeTable[i].resize( m_numB + 2);
+		m_qDivqiModBskmtildePreconTable[i].resize( m_numB + 2);
+
 		BigInteger qDivqi = q.DividedBy(moduli[i]);
 		for (uint32_t j = 0; j < m_qDivqiModBskmtildeTable[i].size(); j++)
 		{
 			BigInteger qDivqiModBj = qDivqi.Mod(m_BskmtildeModuli[j]);
 			m_qDivqiModBskmtildeTable[i][j] = qDivqiModBj.ConvertToInt();
+			m_qDivqiModBskmtildePreconTable[i][j] = m_qDivqiModBskmtildeTable[i][j].PrepModMulPreconNTL( m_BskmtildeModuli[j] );
 		}
 	}
 
 	// Populate mtilde*(q/qi)^-1 mod qi table
 	m_mtildeqDivqiTable.resize(m_numq);
+	m_mtildeqDivqiPreconTable.resize(m_numq);
+
 	for (uint32_t i = 0; i < m_mtildeqDivqiTable.size() ; i++ )
 	{
 		BigInteger qDivqi = q.DividedBy(moduli[i]);
@@ -372,40 +393,55 @@ bool LPCryptoParametersBFVrnsApproximate<DCRTPoly>::PrecomputeCRTTables(){
 		qDivqi = qDivqi * m_mtilde;
 		qDivqi = qDivqi.Mod(moduli[i]);
 		m_mtildeqDivqiTable[i] = qDivqi.ConvertToInt();
+		m_mtildeqDivqiPreconTable[i] = m_mtildeqDivqiTable[i].PrepModMulPreconNTL( moduli[i] );
 	}
 
 	// Populate -1/q mod mtilde
 	BigInteger negqInvModmtilde = ((m_mtilde-1) * q.ModInverse(m_mtilde));
 	negqInvModmtilde = negqInvModmtilde.Mod(m_mtilde);
 	m_negqInvModmtilde = negqInvModmtilde.ConvertToInt();
+	m_negqInvModmtildePrecon = m_negqInvModmtilde.PrepModMulPreconNTL(m_mtilde);
 
 	// Populate q mod Bski
 	m_qModBskiTable.resize(m_numB + 1);
+	m_qModBskiPreconTable.resize(m_numB + 1);
+
 	for (uint32_t i = 0; i < m_qModBskiTable.size(); i++)
 	{
 		BigInteger qModBski = q.Mod(m_BskModuli[i]);
 		m_qModBskiTable[i] = qModBski.ConvertToInt();
+		m_qModBskiPreconTable[i] = m_qModBskiTable[i].PrepModMulPreconNTL(m_BskModuli[i]);
 	}
 
 	// Populate mtilde^-1 mod Bski
 	m_mtildeInvModBskiTable.resize( m_numB + 1 );
+	m_mtildeInvModBskiPreconTable.resize( m_numB + 1 );
 	for (uint32_t i = 0; i < m_mtildeInvModBskiTable.size(); i++)
 	{
 		BigInteger mtildeInvModBski = m_mtilde % m_BskModuli[i];
 		mtildeInvModBski = mtildeInvModBski.ModInverse(m_BskModuli[i]);
 		m_mtildeInvModBskiTable[i] = mtildeInvModBski.ConvertToInt();
+		m_mtildeInvModBskiPreconTable[i] = m_mtildeInvModBskiTable[i].PrepModMulPreconNTL(m_BskModuli[i]);
 	}
+
+	// Populate m_tPrecon
+	m_tPrecon.PrepModMulPreconNTL( t.ConvertToInt() );
 
 	// Populate q^-1 mod Bski
 	m_qInvModBskiTable.resize(m_numB + 1);
+	m_qInvModBskiPreconTable.resize(m_numB + 1);
+
 	for (uint32_t i = 0; i < m_qInvModBskiTable.size(); i++)
 	{
 		BigInteger qInvModBski = q.ModInverse(m_BskModuli[i]);
 		m_qInvModBskiTable[i] = qInvModBski.ConvertToInt();
+		m_qInvModBskiPreconTable[i] = m_qInvModBskiTable[i].PrepModMulPreconNTL( m_BskModuli[i] );
 	}
 
 	// Populate (B/Bi)^-1 mod Bi
 	m_BDivBiModBiTable.resize(m_numB);
+	m_BDivBiModBiPreconTable.resize(m_numB);
+
 	for (uint32_t i = 0; i < m_BDivBiModBiTable.size(); i++)
 	{
 		BigInteger BDivBi;
@@ -413,37 +449,48 @@ bool LPCryptoParametersBFVrnsApproximate<DCRTPoly>::PrecomputeCRTTables(){
 		BDivBi = BDivBi.Mod(m_BModuli[i]);
 		BDivBi = BDivBi.ModInverse( m_BModuli[i] );
 		m_BDivBiModBiTable[i] = BDivBi.ConvertToInt();
+		m_BDivBiModBiPreconTable[i] = m_BDivBiModBiTable[i].PrepModMulPreconNTL(m_BModuli[i]);
 	}
 
 	// Populate B/Bi mod qj table (Matrix) where Bj \in {q}
 	m_BDivBiModqTable.resize(m_numB);
+	m_BDivBiModqPreconTable.resize(m_numB);
+
 	for (uint32_t i = 0; i < m_BDivBiModqTable.size(); i++)
 	{
 		m_BDivBiModqTable[i].resize(m_numq);
+		m_BDivBiModqPreconTable[i].resize(m_numq);
 		BigInteger BDivBi = B.DividedBy(m_BModuli[i]);
 		for (uint32_t j = 0; j<m_BDivBiModqTable[i].size(); j++)
 		{
 			BigInteger BDivBiModqj = BDivBi.Mod(moduli[j]);
 			m_BDivBiModqTable[i][j] = BDivBiModqj.ConvertToInt();
+			m_BDivBiModqPreconTable[i][j] = m_BDivBiModqTable[i][j].PrepModMulPreconNTL(moduli[j]);
 		}
 	}
 
 	// Populate B/Bi mod msk
 	m_BDivBiModmskTable.resize(m_numB);
+	m_BDivBiModmskPreconTable.resize(m_numB);
+
 	for (uint32_t i = 0; i < m_BDivBiModmskTable.size(); i++)
 	{
 		BigInteger BDivBi = B.DividedBy(m_BModuli[i]);
 		m_BDivBiModmskTable[i] = (BDivBi.Mod(m_msk)).ConvertToInt();
+		m_BDivBiModmskPreconTable[i] = m_BDivBiModmskTable[i].PrepModMulPreconNTL(m_msk);
 	}
 
 	// Populate B^-1 mod msk
 	m_BInvModmsk = (B.ModInverse(m_msk)).ConvertToInt();
+	m_BInvModmskPrecon = m_BInvModmsk.PrepModMulPreconNTL( m_msk );
 
 	// Populate B mod qi
 	m_BModqiTable.resize(m_numq);
+	m_BModqiPreconTable.resize(m_numq);
 	for (uint32_t i = 0; i < m_BModqiTable.size(); i++)
 	{
 		m_BModqiTable[i] = (B.Mod( moduli[i] )).ConvertToInt();
+		m_BModqiPreconTable[i] = m_BModqiTable[i].PrepModMulPreconNTL( moduli[i] );
 	}
 
 	// Priniting out for debugging
@@ -512,26 +559,51 @@ bool LPCryptoParametersBFVrnsApproximate<DCRTPoly>::PrecomputeCRTTables(){
 	m_gamma = NextPrime<NativeInteger>(m_mtilde, 2 * n);
 
 	m_gammaInvModt = m_gamma.ModInverse(t.ConvertToInt());
+	m_gammaInvModtPrecon = m_gammaInvModt.PrepModMulPreconNTL( t.ConvertToInt() );
 
 	BigInteger negqModt = ((t-1) * q.ModInverse(t));
 	BigInteger negqModgamma = ((m_gamma-1) * q.ModInverse(m_gamma));
 	m_negqInvModtgammaTable.resize(2);
+	m_negqInvModtgammaPreconTable.resize(2);
+
 	m_negqInvModtgammaTable[0] = negqModt.Mod(t).ConvertToInt();
+	m_negqInvModtgammaPreconTable[0] = m_negqInvModtgammaTable[0].PrepModMulPreconNTL( t.ConvertToInt() );
+
 	m_negqInvModtgammaTable[1] = negqModgamma.Mod(m_gamma).ConvertToInt();
+	m_negqInvModtgammaPreconTable[1] = m_negqInvModtgammaTable[1].PrepModMulPreconNTL(m_gamma);
 
 	// Populate q/qi mod mj table where mj \in {t U gamma}
 	m_qDivqiModtgammaTable.resize(m_numq);
+	m_qDivqiModtgammaPreconTable.resize(m_numq);
 	for (uint32_t i = 0; i < m_qDivqiModtgammaTable.size(); i++)
 	{
 		m_qDivqiModtgammaTable[i].resize(2);
+		m_qDivqiModtgammaPreconTable[i].resize(2);
+
 		BigInteger qDivqi = q.DividedBy(moduli[i]);
 
 		BigInteger qDivqiModt = qDivqi.Mod(t);
 		m_qDivqiModtgammaTable[i][0] = qDivqiModt.ConvertToInt();
+		m_qDivqiModtgammaPreconTable[i][0] = m_qDivqiModtgammaTable[i][0].PrepModMulPreconNTL( t.ConvertToInt() );
 
 		BigInteger qDivqiModgamma = qDivqi.Mod(m_gamma);
 		m_qDivqiModtgammaTable[i][1] = qDivqiModgamma.ConvertToInt();
+		m_qDivqiModtgammaPreconTable[i][1] = m_qDivqiModtgammaTable[i][1].PrepModMulPreconNTL( m_gamma );
 
+	}
+
+	// populate (t*gamma*q/qi)^-1 mod qi
+	m_tgammaqDivqiModqiTable.resize( m_numq );
+	m_tgammaqDivqiModqiPreconTable.resize(m_numq);
+
+	for (uint32_t i = 0; i < m_tgammaqDivqiModqiTable.size(); i++)
+	{
+		BigInteger qDivqi = q.DividedBy(moduli[i]);
+		qDivqi = qDivqi.ModInverse( moduli[i] );
+		BigInteger gammaqDivqi = (qDivqi*m_gamma) % moduli[i];
+		BigInteger tgammaqDivqi = (gammaqDivqi*t) % moduli[i];
+		m_tgammaqDivqiModqiTable[i] = tgammaqDivqi.ConvertToInt();
+		m_tgammaqDivqiModqiPreconTable[i] = m_tgammaqDivqiModqiTable[i].PrepModMulPreconNTL( moduli[i] );
 	}
 
 #ifdef BFVrns_APPROXIMATE_DEBUG
@@ -544,6 +616,9 @@ bool LPCryptoParametersBFVrnsApproximate<DCRTPoly>::PrecomputeCRTTables(){
 
 	cout << "(q/qi) mod (t U gamma): ";
 	PrintSTDMat( m_qDivqiModtgammaTable );
+
+	cout << "t*gamma*(q/qi)^-1 mod qi: ";
+	PrintSTDVector( m_tgammaqDivqiModqiTable );
 #endif
 
 
@@ -916,12 +991,28 @@ DecryptResult LPAlgorithmBFVrnsApproximate<DCRTPoly>::Decrypt(const LPPrivateKey
 	const std::vector<NativeInteger> paramsqModuliTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsqModuli();
 	const NativeInteger paramsgamma = cryptoParamsBFVrnsApproximate->GetDCRTParamsgamma();
 	const NativeInteger paramsgammaInvModt = cryptoParamsBFVrnsApproximate->GetDCRTParamsgammaInvModt();
+	const NativeInteger paramsgammaInvModtPrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsgammaInvModtPrecon();
 	const std::vector<NativeInteger> paramsnegqInvModtgammaTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsnegqInvModtgammaTable();
-	const std::vector<NativeInteger> paramsqDivqiModqiTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModqiTable();
+	const std::vector<NativeInteger> paramsnegqInvModtgammaPreconTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsnegqInvModtgammaPreconTable();
+	const std::vector<NativeInteger> paramstgammaqDivqiModqiTable = cryptoParamsBFVrnsApproximate->GetDCRTParamstgammaqDivqiModqiTable();
+	const std::vector<NativeInteger> paramstgammaqDivqiModqiPreconTable = cryptoParamsBFVrnsApproximate->GetDCRTParamstgammaqDivqiModqiPreconTable();
 	const std::vector<std::vector<NativeInteger>> paramsqDivqiModtgammaTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModtgammaTable();
+	const std::vector<std::vector<NativeInteger>> paramsqDivqiModtgammaPreconTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModtgammaPreconTable();
+
+
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(paramsqModuliTable, paramsgamma, t, paramsgammaInvModt, paramsnegqInvModtgammaTable, paramsqDivqiModqiTable, paramsqDivqiModtgammaTable);
+	*plaintext = b.ScaleAndRound(paramsqModuliTable,
+			paramsgamma,
+			t,
+			paramsgammaInvModt,
+			paramsgammaInvModtPrecon,
+			paramsnegqInvModtgammaTable,
+			paramsnegqInvModtgammaPreconTable,
+			paramstgammaqDivqiModqiTable,
+			paramstgammaqDivqiModqiPreconTable,
+			paramsqDivqiModtgammaTable,
+			paramsqDivqiModtgammaPreconTable);
 
 	//std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
@@ -1058,10 +1149,15 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::EvalMult(const C
 	const std::vector<NativeInteger> paramsBskModuli = cryptoParamsBFVrnsApproximate->GetDCRTParamsBskModuli();
 	const std::vector<NativeInteger> paramsBskmtildeModuli = cryptoParamsBFVrnsApproximate->GetDCRTParamsBskmtildeModuli();
 	const std::vector<NativeInteger> paramsmtildeqDivqiModqi = cryptoParamsBFVrnsApproximate->GetDCRTParamsmtildeqDivqiModqi();
+	const std::vector<NativeInteger> paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsmtildeqDivqiModqiPrecon();
 	const std::vector<std::vector<NativeInteger>> paramsqDivqiModBskmtilde = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModBskmtilde();
+	const std::vector<std::vector<NativeInteger>> paramsqDivqiModBskmtildePrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModBskmtildePrecon();
 	const std::vector<NativeInteger> paramsqModBski = cryptoParamsBFVrnsApproximate->GetDCRTParamsqModBski();
+	const std::vector<NativeInteger> paramsqModBskiPrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsqModBskiPrecon();
 	const NativeInteger paramsnegqInvModmtilde = cryptoParamsBFVrnsApproximate->GetDCRTParamsnegqInvModmtilde();
+	const NativeInteger paramsnegqInvModmtildePrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsnegqInvModmtildePrecon();
 	const std::vector<NativeInteger> paramsmtildeInvModBskiTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsmtildeInvModBskiTable();
+	const std::vector<NativeInteger> paramsmtildeInvModBskiPreconTable = cryptoParamsBFVrnsApproximate->GetDCRTParamsmtildeInvModBskiPreconTable();
 
 	// Expands the CRT basis to q*Bsk; Outputs the polynomials in coeff representation
 
@@ -1123,7 +1219,19 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::EvalMult(const C
 
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 	{
-		cipherText1Elements[i].FastBaseConvqToBskMontgomery(paramsBsk, paramsqModuli, paramsBskmtildeModuli, paramsmtildeqDivqiModqi, paramsqDivqiModBskmtilde, paramsqModBski, paramsnegqInvModmtilde, paramsmtildeInvModBskiTable);
+		cipherText1Elements[i].FastBaseConvqToBskMontgomery(paramsBsk,
+				paramsqModuli,
+				paramsBskmtildeModuli,
+				paramsmtildeqDivqiModqi,
+				paramsmtildeqDivqiModqiPrecon,
+				paramsqDivqiModBskmtilde,
+				paramsqDivqiModBskmtildePrecon,
+				paramsqModBski,
+				paramsqModBskiPrecon,
+				paramsnegqInvModmtilde,
+				paramsnegqInvModmtildePrecon,
+				paramsmtildeInvModBskiTable,
+				paramsmtildeInvModBskiPreconTable);
 		if (cipherText1Elements[i].GetFormat() == COEFFICIENT) {
 			cipherText1Elements[i].SwitchFormat();
 		}
@@ -1131,7 +1239,19 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::EvalMult(const C
 
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 	{
-		cipherText2Elements[i].FastBaseConvqToBskMontgomery(paramsBsk, paramsqModuli, paramsBskmtildeModuli, paramsmtildeqDivqiModqi, paramsqDivqiModBskmtilde, paramsqModBski, paramsnegqInvModmtilde, paramsmtildeInvModBskiTable);
+		cipherText2Elements[i].FastBaseConvqToBskMontgomery(paramsBsk,
+				paramsqModuli,
+				paramsBskmtildeModuli,
+				paramsmtildeqDivqiModqi,
+				paramsmtildeqDivqiModqiPrecon,
+				paramsqDivqiModBskmtilde,
+				paramsqDivqiModBskmtildePrecon,
+				paramsqModBski,
+				paramsqModBskiPrecon,
+				paramsnegqInvModmtilde,
+				paramsnegqInvModmtildePrecon,
+				paramsmtildeInvModBskiTable,
+				paramsmtildeInvModBskiPreconTable);
 		if (cipherText2Elements[i].GetFormat() == COEFFICIENT) {
 			cipherText2Elements[i].SwitchFormat();
 		}
@@ -1166,24 +1286,52 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsApproximate<DCRTPoly>::EvalMult(const C
 
 	// perfrom RNS approximate Flooring
 	const NativeInteger paramsPlaintextModulus = cryptoParamsBFVrnsApproximate->GetPlaintextModulus();
-	const std::vector<NativeInteger> paramsqDivqiModqi = cryptoParamsBFVrnsApproximate->GetDCRTParamsqDivqiModqiTable();
+	const NativeInteger paramsPlaintextModulusPrecon = cryptoParamsBFVrnsApproximate->GetPlaintextModulusPrecon();
+	const std::vector<NativeInteger> paramstqDivqiModqi = cryptoParamsBFVrnsApproximate->GetDCRTParamstqDivqiModqiTable();
+	const std::vector<NativeInteger> paramstqDivqiModqiPrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamstqDivqiModqiPreconTable();
 	const std::vector<NativeInteger> paramsqInvModBi = cryptoParamsBFVrnsApproximate->GetDCRTParamsqInvModBiTable();
+	const std::vector<NativeInteger> paramsqInvModBiPrecon = cryptoParamsBFVrnsApproximate->GetDCRTParamsqInvModBiPreconTable();
 
 
 	// perform FastBaseConvSK
 	const std::vector<NativeInteger> paramsBDivBiModBi = cryptoParamsBFVrnsApproximate->GetBDivBiModBi();
+	const std::vector<NativeInteger> paramsBDivBiModBiPrecon = cryptoParamsBFVrnsApproximate->GetBDivBiModBiPrecon();
 	const std::vector<NativeInteger> paramsBDivBiModmsk = cryptoParamsBFVrnsApproximate->GetBDivBiModmsk();
+	const std::vector<NativeInteger> paramsBDivBiModmskPrecon = cryptoParamsBFVrnsApproximate->GetBDivBiModmskPrecon();
 	const NativeInteger paramsBInvModmsk = cryptoParamsBFVrnsApproximate->GetBInvModmsk();
+	const NativeInteger paramsBInvModmskPrecon = cryptoParamsBFVrnsApproximate->GetBInvModmskPrecon();
 	const std::vector<std::vector<NativeInteger>> paramsBDivBiModqj = cryptoParamsBFVrnsApproximate->GetBDivBiModqj();
+	const std::vector<std::vector<NativeInteger>> paramsBDivBiModqjPrecon = cryptoParamsBFVrnsApproximate->GetBDivBiModqjPrecon();
 	const std::vector<NativeInteger> paramsBModqi = cryptoParamsBFVrnsApproximate->GetBModqi();
+	const std::vector<NativeInteger> paramsBModqiPrecon = cryptoParamsBFVrnsApproximate->GetBModqiPrecon();
 
 	for(size_t i=0; i<cipherTextRElementsSize; i++){
 		//converts to coefficient representation before rounding
 		c[i].SwitchFormat();
 		// Performs the scaling by t/q followed by rounding; the result is in the CRT basis Bsk
-		c[i].FastRNSFloorq(paramsPlaintextModulus, paramsqModuli, paramsBskModuli, paramsqDivqiModqi, paramsqDivqiModBskmtilde, paramsqInvModBi);
+		c[i].FastRNSFloorq(paramsPlaintextModulus,
+				paramsPlaintextModulusPrecon,
+				paramsqModuli,
+				paramsBskModuli,
+				paramstqDivqiModqi,
+				paramstqDivqiModqiPrecon,
+				paramsqDivqiModBskmtilde,
+				paramsqDivqiModBskmtildePrecon,
+				paramsqInvModBi,
+				paramsqInvModBiPrecon);
 		// Converts from the CRT basis Bsk to q
-		c[i].FastBaseConvSK(paramsqModuli, paramsBskModuli, paramsBDivBiModBi, paramsBDivBiModmsk, paramsBInvModmsk, paramsBDivBiModqj, paramsBModqi);
+		c[i].FastBaseConvSK(paramsqModuli,
+				paramsBskModuli,
+				paramsBDivBiModBi,
+				paramsBDivBiModBiPrecon,
+				paramsBDivBiModmsk,
+				paramsBDivBiModmskPrecon,
+				paramsBInvModmsk,
+				paramsBInvModmskPrecon,
+				paramsBDivBiModqj,
+				paramsBDivBiModqjPrecon,
+				paramsBModqi,
+				paramsBModqiPrecon);
 	}
 
 	newCiphertext->SetElements(c);

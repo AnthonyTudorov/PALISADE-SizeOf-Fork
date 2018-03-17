@@ -316,43 +316,64 @@ namespace lbcrypto {
 			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqiPrecon() const { return m_mtildeqDivqiPreconTable; }
 
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModBskmtilde() const { return m_qDivqiModBskmtildeTable; }
+			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModBskmtildePrecon() const { return m_qDivqiModBskmtildePreconTable; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsqModBski() const { return m_qModBskiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamsqModBskiPrecon() const { return m_qModBskiPreconTable; }
 
 			NativeInteger const &GetDCRTParamsnegqInvModmtilde() const { return m_negqInvModmtilde; }
+			NativeInteger const &GetDCRTParamsnegqInvModmtildePrecon() const { return m_negqInvModmtildePrecon; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeInvModBskiTable() const { return m_mtildeInvModBskiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeInvModBskiPreconTable() const { return m_mtildeInvModBskiPreconTable; }
 
 
 
 
 			std::vector<NativeInteger> const &GetDCRTParamsqDivqiModqiTable() const { return m_qDivqiModqiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiTable() const { return m_tqDivqiModqiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiPreconTable() const { return m_tqDivqiModqiPreconTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiTable() const { return m_tgammaqDivqiModqiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiPreconTable() const { return m_tgammaqDivqiModqiPreconTable; }
+
+			NativeInteger const &GetPlaintextModulusPrecon() const { return m_tPrecon; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiTable() const { return m_qInvModBskiTable; }
+			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiPreconTable() const { return m_qInvModBskiPreconTable; }
 
 
 
 			std::vector<NativeInteger> const &GetBDivBiModBi() const { return m_BDivBiModBiTable; }
+			std::vector<NativeInteger> const &GetBDivBiModBiPrecon() const { return m_BDivBiModBiPreconTable; }
 
 			std::vector<NativeInteger> const &GetBDivBiModmsk() const { return m_BDivBiModmskTable; }
+			std::vector<NativeInteger> const &GetBDivBiModmskPrecon() const { return m_BDivBiModmskPreconTable; }
 
 			NativeInteger const &GetBInvModmsk() const { return m_BInvModmsk; }
+			NativeInteger const &GetBInvModmskPrecon() const { return m_BInvModmskPrecon; }
 
 			std::vector<std::vector<NativeInteger>> const &GetBDivBiModqj() const { return m_BDivBiModqTable; }
+			std::vector<std::vector<NativeInteger>> const &GetBDivBiModqjPrecon() const { return m_BDivBiModqPreconTable; }
 
 			std::vector<NativeInteger> const &GetBModqi() const { return m_BModqiTable; }
+			std::vector<NativeInteger> const &GetBModqiPrecon() const { return m_BModqiPreconTable; }
 
 
 
 			NativeInteger const &GetDCRTParamsgamma() const { return m_gamma; }
 
 			NativeInteger const &GetDCRTParamsgammaInvModt() const { return m_gammaInvModt; }
+			NativeInteger const &GetDCRTParamsgammaInvModtPrecon() const { return m_gammaInvModtPrecon; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaTable() const { return m_negqInvModtgammaTable; }
+			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaPreconTable() const { return m_negqInvModtgammaPreconTable; }
 
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaTable() const { return m_qDivqiModtgammaTable; }
+			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaPreconTable() const { return m_qDivqiModtgammaPreconTable; }
 
 
 		private:
@@ -461,43 +482,59 @@ namespace lbcrypto {
 			// 10) Stores (q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_qDivqiModqiTable;
 
+			// 10) Stores t*(q/qi)^-1 mod qi
+			std::vector<NativeInteger> m_tqDivqiModqiTable;
+			std::vector<NativeInteger> m_tqDivqiModqiPreconTable;
+
 			// 11) Stores q/qi mod Bj table (Matrix) where Bj \in {Bsk U mtilde}
 			std::vector<std::vector<NativeInteger>> m_qDivqiModBskmtildeTable;
+			std::vector<std::vector<NativeInteger>> m_qDivqiModBskmtildePreconTable;
 
 			// 12) Stores mtilde*(q/qi)^-1 mod qi table
 			std::vector<NativeInteger> m_mtildeqDivqiTable;
+			std::vector<NativeInteger> m_mtildeqDivqiPreconTable;
 
 			// 13) Stores -1/q mod mtilde
 			NativeInteger m_negqInvModmtilde;
+			NativeInteger m_negqInvModmtildePrecon;
 
 			// 14) Stores q mod Bski
 			std::vector<NativeInteger> m_qModBskiTable;
+			std::vector<NativeInteger> m_qModBskiPreconTable;
 
 			// 15) Stores mtilde^-1 mod Bski
 			std::vector<NativeInteger> m_mtildeInvModBskiTable;
+			std::vector<NativeInteger> m_mtildeInvModBskiPreconTable;
 
 
+			// Stores t Precon
+			NativeInteger m_tPrecon;
 
 			// 16) Stores q^-1 mod Bski
 			std::vector<NativeInteger> m_qInvModBskiTable;
+			std::vector<NativeInteger> m_qInvModBskiPreconTable;
 
 
 
 			// 17) Stores (B/Bi)^-1 mod Bi
 			std::vector<NativeInteger> m_BDivBiModBiTable;
+			std::vector<NativeInteger> m_BDivBiModBiPreconTable;
 
 			// 18) Stores B/Bi mod qj table (Matrix) where qj \in {q}
 			std::vector<std::vector<NativeInteger>> m_BDivBiModqTable;
+			std::vector<std::vector<NativeInteger>> m_BDivBiModqPreconTable;
 
 			// 19) stores B/Bi mod msk
 			std::vector<NativeInteger> m_BDivBiModmskTable;
+			std::vector<NativeInteger> m_BDivBiModmskPreconTable;
 
 			// 20) Stores B^-1 mod msk
 			NativeInteger m_BInvModmsk;
+			NativeInteger m_BInvModmskPrecon;
 
 			// 21) Stores B mod qi
 			std::vector<NativeInteger> m_BModqiTable;
-
+			std::vector<NativeInteger> m_BModqiPreconTable;
 
 
 
@@ -508,12 +545,20 @@ namespace lbcrypto {
 
 			// 23) Stores gamma^-1 mod t
 			NativeInteger m_gammaInvModt;
+			NativeInteger m_gammaInvModtPrecon;
 
 			// 24) Stores -1/q mod {t U gamma}
 			std::vector<NativeInteger> m_negqInvModtgammaTable;
+			std::vector<NativeInteger> m_negqInvModtgammaPreconTable;
 
 			// 25) Stores q/qi mod mj table (matrix) where mj \in {t U gamma}
 			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaTable;
+			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaPreconTable;
+
+			// 26) Stores (t*gamma*q/qi)^-1 mod qi
+			std::vector<NativeInteger> m_tgammaqDivqiModqiTable;
+			std::vector<NativeInteger> m_tgammaqDivqiModqiPreconTable;
+
 
 	};
 
