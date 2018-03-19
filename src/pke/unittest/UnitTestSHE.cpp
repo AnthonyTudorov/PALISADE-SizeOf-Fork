@@ -90,7 +90,7 @@ static const usint ORDER = 16;
 static const usint PTMOD = 64;
 
 template<class Element>
-static void UnitTest_Add(const CryptoContext<Element> cc, const string& failmsg) {
+static void UnitTest_Add_Packed(const CryptoContext<Element> cc, const string& failmsg) {
 
 	std::vector<int64_t> vectorOfInts1 = { 1,0,3,1,0,1,2,1 };
 	Plaintext plaintext1 = cc->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -136,7 +136,93 @@ static void UnitTest_Add(const CryptoContext<Element> cc, const string& failmsg)
 	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub Ct and Pt fails";
 }
 
-GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Add, ORDER, PTMOD)
+GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Add_Packed, ORDER, PTMOD)
+
+template<class Element>
+static void UnitTest_Add_Scalar(const CryptoContext<Element> cc, const string& failmsg) {
+
+	Plaintext plaintext1 = cc->MakeScalarPlaintext(1);
+
+	Plaintext plaintext2 = cc->MakeScalarPlaintext(2);
+
+	Plaintext plaintextAdd = cc->MakeScalarPlaintext(3);
+
+	Plaintext plaintextSub = cc->MakeScalarPlaintext(-1);
+
+	LPKeyPair<Element> kp = cc->KeyGen();
+	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
+
+	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+
+	Plaintext results;
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalAdd fails";
+
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalSub fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalAdd Ct and Pt fails";
+
+	cResult = cc->EvalSub(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalSub Ct and Pt fails";
+}
+
+GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Add_Scalar, ORDER, PTMOD)
+
+template<class Element>
+static void UnitTest_Add_Integer(const CryptoContext<Element> cc, const string& failmsg) {
+
+	Plaintext plaintext1 = cc->MakeIntegerPlaintext(4);
+
+	Plaintext plaintext2 = cc->MakeIntegerPlaintext(7);
+
+	Plaintext plaintextAdd = cc->MakeIntegerPlaintext(11);
+
+	Plaintext plaintextSub = cc->MakeIntegerPlaintext(-3);
+
+	LPKeyPair<Element> kp = cc->KeyGen();
+	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
+	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
+
+	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+
+	Plaintext results;
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalAdd fails";
+
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalSub fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalAdd Ct and Pt fails";
+
+	cResult = cc->EvalSub(ciphertext1, plaintext2);
+
+	cc->Decrypt(kp.secretKey, cResult, &results);
+
+	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalSub Ct and Pt fails";
+}
+
+GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Add_Integer, ORDER, PTMOD)
 
 template<class Element>
 static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg) {
