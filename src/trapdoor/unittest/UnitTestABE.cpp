@@ -33,6 +33,8 @@
 #include "../lib/abe/kp_abe.h"
 #include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
+#include "../lib/abe/ibe.cpp"
+#include "../lib/abe/cp_abe.cpp"
 
 using namespace std;
 using namespace lbcrypto;
@@ -57,15 +59,15 @@ protected:
 	virtual ~UTABE() {  }
 
 };
-
+template <class Element>
 void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 	usint n = ringDimension*2;
 	usint ell = 4;
 
-	BigInteger q = BigInteger(1) << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	BigInteger rootOfUnity(RootOfUnity(n, q));
+	typename Element::Integer q = typename Element::Integer(1) << (k-1);
+	q = lbcrypto::FirstPrime<typename Element::Integer>(k,n);
+	typename Element::Integer rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -73,23 +75,23 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 	usint m = k_+2;
 
-	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+	shared_ptr<typename Element::Params> ilParams(new typename Element::Params(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Element::Allocator(ilParams, COEFFICIENT);
 
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-	Poly::DugType dug = Poly::DugType();
+	typename Element::DggType dgg = typename Element::DggType(SIGMA);
+	typename Element::DugType dug = typename Element::DugType();
 	dug.SetModulus(q);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();
+	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Integer,typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
-	RingMat pubElemBPos(zero_alloc, ell, m);
-	RingMat pubElemBNeg(zero_alloc, ell, m);
-	Poly u(pubElemBPos(0,0));
+	Matrix<Element> pubElemBPos(zero_alloc, ell, m);
+	Matrix<Element> pubElemBNeg(zero_alloc, ell, m);
+	Element u(pubElemBPos(0,0));
 
-	CPABE pkg, sender, receiver;
+	CPABE<Element> pkg, sender, receiver;
 
 	auto trapdoor = pkg.Setup(ilParams, base, ell, dug, &u, &pubElemBPos, &pubElemBNeg);
 
@@ -103,14 +105,14 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	int *w = new int[ell];
 
 	// Secret key for the output of the circuit
-	RingMat sk(zero_alloc, m, ell+1);
+	Matrix<Element> sk(zero_alloc, m, ell+1);
 
 	// plain text in $R_2$
-	Poly ptext(ilParams, COEFFICIENT, true);
+	Element ptext(ilParams, COEFFICIENT, true);
 	// text after the decryption
-	Poly dtext(ilParams, EVALUATION, true);
+	Element dtext(ilParams, EVALUATION, true);
 
-	Poly c1(dug, ilParams, EVALUATION);
+	Element c1(dug, ilParams, EVALUATION);
 
 	for(usint j=0; j<ell; j++)
 		s[j] = rand()%2;
@@ -137,8 +139,8 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 
 	pkg.KeyGen(ilParams, s, trapdoor.first, pubElemBPos, pubElemBNeg, u, trapdoor.second, dgg, &sk);
 
-	Poly t1(ilParams, EVALUATION, true);
-	Poly t2(ilParams, EVALUATION, true);
+	Element t1(ilParams, EVALUATION, true);
+	Element t2(ilParams, EVALUATION, true);
 
 	for(usint i=0; i<ell; i++) {
 			if(s[i]==1) {
@@ -163,9 +165,9 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	EXPECT_EQ(t1,u);  //test key generation
 
 
-	RingMat ctW(Poly::Allocator(ilParams, EVALUATION), lenW+1, m);
-	RingMat ctCPos(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
-	RingMat nC(Poly::Allocator(ilParams, EVALUATION), ell-lenW, m);
+	Matrix<Element> ctW(Element::Allocator(ilParams, EVALUATION), lenW+1, m);
+	Matrix<Element> ctCPos(Element::Allocator(ilParams, EVALUATION), ell-lenW, m);
+	Matrix<Element> nC(Element::Allocator(ilParams, EVALUATION), ell-lenW, m);
 
 	// Encrypt a uniformly randomly selected message ptext (in ptext in $R_2$)
 	ptext.SetValues(bug.GenerateVector(ringDimension, q), COEFFICIENT);
@@ -271,12 +273,13 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 
 }
 
+template <class Element>
 void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	usint n = ringDimension*2;
 
-	BigInteger q = BigInteger(1) << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	BigInteger rootOfUnity(RootOfUnity(n, q));
+	typename Element::Integer q = typename Element::Integer(1) << (k-1);
+	q = lbcrypto::FirstPrime<typename Element::Integer>(k,n);
+	typename Element::Integer rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -284,19 +287,19 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 
 	usint m = k_+2;
 
-	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+	shared_ptr<typename Element::Params> ilParams(new typename Element::Params(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Element::Allocator(ilParams, COEFFICIENT);
 
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-	Poly::DugType dug = Poly::DugType();
+	typename Element::DggType dgg = typename Element::DggType(SIGMA);
+	typename Element::DugType dug = typename Element::DugType();
 	dug.SetModulus(q);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();
+	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Integer,typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
-	IBE pkg, sender, receiver;
+	IBE<Element> pkg, sender, receiver;
 
 	auto pubElemA = pkg.SetupPKG(ilParams, base);
 
@@ -304,18 +307,18 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	EXPECT_NO_THROW(receiver.SetupNonPKG(ilParams, base));
 
 	// Secret key for the output of the circuit
-	RingMat sk(zero_alloc, m, 1);
+	Matrix<Element> sk(zero_alloc, m, 1);
 
 	// plain text in $R_2$
-	Poly ptext(ilParams, COEFFICIENT, true);
+	Element ptext(ilParams, COEFFICIENT, true);
 	// text after the decryption
-	Poly dtext(ilParams, EVALUATION, true);
+	Element dtext(ilParams, EVALUATION, true);
 
 	// ciphertext first and second parts
-	RingMat ctC0(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	Poly ctC1(dug, ilParams, EVALUATION);
+	Matrix<Element> ctC0(Element::Allocator(ilParams, EVALUATION), 1, m);
+	Element ctC1(dug, ilParams, EVALUATION);
 
-	Poly u(dug, ilParams, EVALUATION);
+	Element u(dug, ilParams, EVALUATION);
 
 	EXPECT_NO_THROW(pkg.KeyGen(pubElemA.first, u, pubElemA.second, dgg, &sk));
 
@@ -801,8 +804,12 @@ void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 	delete[] x;
 }
 
-TEST(UTABE, cp_abe_base_32) {
-	UnitTestCPABE(32,34, 1024);
+TEST(UTABE, cp_abe_base_poly_32) {
+	UnitTestCPABE<Poly>(32,34, 1024);
+}
+
+TEST(UTABE, cp_abe_base_native_32) {
+	UnitTestCPABE<NativePoly>(32,34, 1024);
 }
 
 TEST(UTABE, kp_abe_benchmarkcircuit_base_32) {
@@ -817,8 +824,12 @@ TEST(UTABE, kp_abe_nandgate_base_32) {
 	UnitTesKPABENANDGATE(32,51,2048);
 }
 
-TEST(UTABE, ibe_base_32) {
-	UnitTestIBE(32,34,1024);
+TEST(UTABE, ibe_base_32_poly) {
+	UnitTestIBE<Poly>(32,34,1024);
+}
+
+TEST(UTABE, ibe_base_32_native) {
+	UnitTestIBE<NativePoly>(32,34,1024);
 }
 
 TEST(UTABE, polyVecBalDecompose_base_32) {

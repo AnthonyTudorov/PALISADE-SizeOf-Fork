@@ -1,14 +1,11 @@
 #include "abe/ibe.h"
-#include <iostream>
-#include <fstream>
-
+#include "abe/ibe.cpp"
 #include "utils/debug.h"
 
-#include <omp.h> //open MP header
 
 using namespace lbcrypto;
-
-int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger q, BigInteger rootOfUnity*/, bool offline);
+template <class Element>
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, typename Element::Integer q, typename Element::Integer rootOfUnity*/, bool offline);
 
 struct Params_Set {
 	usint base;			// Base
@@ -36,9 +33,9 @@ int main()
 	};	
 
 	for(usint i = 0; i < 10; i++){
-		BigInteger modulus(ibe_params[i].modulus);
-		BigInteger rootOfUnity(ibe_params[i].rootOfUnity);
-		IBE_Test(100, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, /*modulus, rootOfUnity,*/ true); //iter. ring dimension, k, bool offline
+		NativeInteger modulus(ibe_params[i].modulus);
+		NativeInteger rootOfUnity(ibe_params[i].rootOfUnity);
+		IBE_Test<NativePoly>(5, ibe_params[i].base, ibe_params[i].ringDimension, ibe_params[i].q, /*modulus, rootOfUnity,*/ true); //iter. ring dimension, k, bool offline
 	}	
 
 	std::cout << "-------End demo for IBE-------" << std::endl << std::endl; 
@@ -46,15 +43,16 @@ int main()
 	return 0;
 }
 
-int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger q, BigInteger rootOfUnity*/, bool offline)
+template <class Element>
+int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, typename Element::Integer q, typename Element::Integer rootOfUnity*/, bool offline)
 
 {
 
 	usint n = ringDimension*2;
 
-	BigInteger q = 1 << (k-1);
-	q = lbcrypto::FirstPrime<BigInteger>(k,n);
-	BigInteger rootOfUnity(RootOfUnity(n, q));
+	typename Element::Integer q = 1 << (k-1);
+	q = lbcrypto::FirstPrime<typename Element::Integer>(k,n);
+	typename Element::Integer rootOfUnity(RootOfUnity(n, q));
 
 	double val = q.ConvertToDouble();
 	double logTwo = log(val-1.0)/log(base)+1.0;
@@ -66,22 +64,22 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 
 	usint m = k_+2;
 
-	shared_ptr<ILParams> ilParams(new ILParams(n, q, rootOfUnity));
+	shared_ptr<typename Element::Params> ilParams(new typename Element::Params(n, q, rootOfUnity));
 
-	auto zero_alloc = Poly::Allocator(ilParams, COEFFICIENT);
+	auto zero_alloc = Element::Allocator(ilParams, COEFFICIENT);
 
-	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
-	Poly::DugType dug = Poly::DugType();
+	typename Element::DggType dgg = typename Element::DggType(SIGMA);
+	typename Element::DugType dug = typename Element::DugType();
 	dug.SetModulus(q);
-	BinaryUniformGenerator bug = BinaryUniformGenerator();
+	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Integer, typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
 	// for timing
 	long double start, finish, avg_keygen_offline, avg_keygen_online, avg_enc, avg_dec;
 
-	IBE pkg, sender, receiver;
+	IBE<Element> pkg, sender, receiver;
 
 	start = currentDateTime();
 	auto pubElemA = pkg.SetupPKG(ilParams, base);
@@ -90,22 +88,22 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, BigInteger 
 	sender.SetupNonPKG(ilParams, base);
 	receiver.SetupNonPKG(ilParams, base);
 	// Secret key for the output of the circuit
-	RingMat sk(zero_alloc, m, 1);
+	Matrix<Element> sk(zero_alloc, m, 1);
 	// plain text in $R_2$
-	Poly ptext(ilParams, COEFFICIENT, true);
+	Element ptext(ilParams, COEFFICIENT, true);
 	// text after the decryption
-	Poly dtext(ilParams, EVALUATION, true);
+	Element dtext(ilParams, EVALUATION, true);
 	// ciphertext first and second parts
-	RingMat ctC0(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	Poly ctC1(dug, ilParams, EVALUATION);
+	Matrix<Element> ctC0(Element::Allocator(ilParams, EVALUATION), 1, m);
+	Element ctC1(dug, ilParams, EVALUATION);
 	int failure = 0;
 	avg_keygen_online = avg_keygen_offline = avg_enc = avg_dec = 0.0;
 
 	for(int i=0; i<iter; i++)
 	{
 
-		Poly u(dug, ilParams, EVALUATION);
-		shared_ptr<RingMat> perturbationVector;
+		Element u(dug, ilParams, EVALUATION);
+		shared_ptr<Matrix<Element>> perturbationVector;
 		if(offline){
 			start = currentDateTime();
 			perturbationVector = pkg.KeyGenOffline(pubElemA.second, dgg);

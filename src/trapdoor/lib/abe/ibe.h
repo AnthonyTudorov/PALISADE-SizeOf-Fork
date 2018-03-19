@@ -55,6 +55,7 @@
  */
 namespace lbcrypto {
 
+template <class Element>
 	class IBE{
 		public:
 
@@ -75,8 +76,8 @@ namespace lbcrypto {
 			* @param ilParams parameter set
 			* @param base is a power of two
 			*/
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> SetupPKG(
-				const shared_ptr<ILParams> ilParams,
+			std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> SetupPKG(
+				const shared_ptr<typename Element::Params> ilParams,
 				int32_t base
 			);
 			/**
@@ -86,7 +87,7 @@ namespace lbcrypto {
 			* @param base is a power of two
 			*/
 			void SetupNonPKG(
-				const shared_ptr<ILParams> ilParams,
+				const shared_ptr<typename Element::Params> ilParams,
 				int32_t base
 			);
 			/**
@@ -99,11 +100,11 @@ namespace lbcrypto {
 			* @param *sk secret key
 			*/
 			void KeyGen(
-				const RingMat &pubA,
-				const Poly &pubElemD,
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg,
-				RingMat *sk
+				const Matrix<Element> &pubA,
+				const Element &pubElemD,
+				const RLWETrapdoorPair<Element> &secTA,
+				typename Element::DggType &dgg,
+				Matrix<Element> *sk
 			);
 
 			/**
@@ -114,9 +115,9 @@ namespace lbcrypto {
 			*
 			* @return perturbation vector
 			*/
-			shared_ptr<RingMat> KeyGenOffline(
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg
+			shared_ptr<Matrix<Element>> KeyGenOffline(
+				const RLWETrapdoorPair<Element> &secTA,
+				typename Element::DggType &dgg
 			);
 
 			/**
@@ -130,12 +131,12 @@ namespace lbcrypto {
 			* @param *sk secret key
 			*/
 			void KeyGenOnline(
-				const RingMat &pubA,
-				const Poly &pubElemD,
-				const RLWETrapdoorPair<Poly> &secTA,
-				DiscreteGaussianGenerator &dgg,
-				const shared_ptr<RingMat> perturbationVector,
-				RingMat *sk
+				const Matrix<Element> &pubA,
+				const Element &pubElemD,
+				const RLWETrapdoorPair<Element> &secTA,
+				typename Element::DggType &dgg,
+				const shared_ptr<Matrix<Element>> perturbationVector,
+				Matrix<Element> *sk
 			);
 			/**
 			* Encrypt Function
@@ -149,13 +150,13 @@ namespace lbcrypto {
 			* @param *ctC1 ciphertext C1
 			*/
 			void Encrypt(
-				const shared_ptr<ILParams> ilParams,
-				const RingMat &pubA,
-				const Poly &pubElemD,
-				const Poly &ptext,
-				DiscreteUniformGenerator &dug,  // select according to uniform distribution
-				RingMat *ctC0,
-				Poly *ctC1
+				const shared_ptr<typename Element::Params> ilParams,
+				const Matrix<Element> &pubA,
+				const Element &pubElemD,
+				const Element &ptext,
+				typename Element::DugType &dug,  // select according to uniform distribution
+				Matrix<Element> *ctC0,
+				Element *ctC1
 			);
 			/**
 			* Decrypt Function
@@ -166,16 +167,16 @@ namespace lbcrypto {
 			* @param *dtext decrypted ciphertext
 			*/
 			void Decrypt(
-				const RingMat &sk,
-				const RingMat &ctC0,
-				const Poly &ctC1,
-				Poly *dtext
+				const Matrix<Element> &sk,
+				const Matrix<Element> &ctC0,
+				const Element &ctC1,
+				Element *dtext
 			);
 
 		private:
 			usint m_k; //number of bits of the modulus
 			usint m_N; // ring dimension
-			BigInteger m_q; // modulus
+			typename Element::Integer m_q; // modulus
 			usint m_m; // m = k+2
 			usint m_base;
 	};
