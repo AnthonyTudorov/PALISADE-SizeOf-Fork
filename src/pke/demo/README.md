@@ -32,3 +32,4 @@ File Listing
 - [demo-she.cpp](src/pke/demo/demo-she.cpp): demonstrates SHE operations using several schemes
 - [demo_fusion_simple.cpp](src/pke/demo/demo_fusion_simple.cpp): a demo program of multiparty FHE operations built on FV.
 - [palisade.cpp](src/demo/pre/palisade.cpp): a program designed to demonstrate the key generation, evaluation key generation, encryption, re-encryption, and decryption functionality of the library. If you run the command without any parameters it generates a help message. Results are serialized into flat files, and are deserialized when needed. The program will read the crypto context parms file, or will read a file that you provide. Note you can also tell the program to figure out what crypto parameters to use based on whatever serialized object you are reading at the start of your program.
+- [palisadedemo.sh](src/pke/demo/palisadedemo.sh): a shell script that runs the palisade demo
