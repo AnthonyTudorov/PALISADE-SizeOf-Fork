@@ -2468,7 +2468,7 @@ public:
 
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BFVrnsApproximate Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus
 	* @param securityLevel
 	* @param distribution parameter
@@ -2477,13 +2477,13 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBFVrnsApproximate(
+	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the BFVrnsApproximate Scheme using the scheme's ParamsGen methods
+	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
 	* @param encodingParams
 	* @param securityLevel
 	* @param distribution parameter
@@ -2492,7 +2492,7 @@ public:
 	* @param numKeyswitches
 	* @return new context
 	*/
-	static CryptoContext<Element> genCryptoContextBFVrnsApproximate(
+	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		EncodingParams encodingParams, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);

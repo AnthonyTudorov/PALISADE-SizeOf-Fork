@@ -1471,7 +1471,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
+CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 		uint32_t relinWindow, size_t dcrtBits)
@@ -1483,11 +1483,11 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
 	if( numKeyswitches > 0 ) nonZeroCount++;
 
 	if( nonZeroCount > 1 )
-		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsApproximate context constructor");
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsB context constructor");
 
 	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
 
-	shared_ptr<LPCryptoParametersBFVrnsApproximate<T>> params( new LPCryptoParametersBFVrnsApproximate<T>(
+	shared_ptr<LPCryptoParametersBFVrnsB<T>> params( new LPCryptoParametersBFVrnsB<T>(
 			ep,
 			EncodingParams(new EncodingParamsImpl(plaintextModulus)),
 			dist,
@@ -1498,7 +1498,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
 			1,
 			maxDepth) );
 
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsApproximate<T>() );
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsB<T>() );
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
@@ -1507,7 +1507,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
 
 template <typename T>
 CryptoContext<T>
-CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
+CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 	EncodingParams encodingParams, float securityLevel, float dist,
 	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 	uint32_t relinWindow, size_t dcrtBits)
@@ -1519,12 +1519,12 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
 	if (numKeyswitches > 0) nonZeroCount++;
 
 	if (nonZeroCount > 1)
-		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsApproximate context constructor");
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsB context constructor");
 
 	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
 
-	shared_ptr<LPCryptoParametersBFVrnsApproximate<T>> params(
-			new LPCryptoParametersBFVrnsApproximate<T>(
+	shared_ptr<LPCryptoParametersBFVrnsB<T>> params(
+			new LPCryptoParametersBFVrnsB<T>(
 				ep,
 				encodingParams,
 				dist,
@@ -1535,7 +1535,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsApproximate(
 				1,
 				maxDepth) );
 
-	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsApproximate<T>());
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsB<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 

@@ -32,7 +32,7 @@ using std::string;
 #include "../utils/serializablehelper.h"
 #include "../utils/debug.h"
 
-//#define BFVrns_APPROXIMATE_DEBUG
+//#define BFVRNS_B_DEBUG
 
 namespace lbcrypto
 {
@@ -1246,7 +1246,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 // vector qDivqiModqiTable are precomputed as (q/qi)^-1 mod qi
 // matrix qDivqiModtgammaTable are precomputed as (q/qi) mod {t U gamma}, we assume t is stored first in the vector
 // GCD(t, gamma) = 1
-// used in decryption of BFVrnsApproximate
+// used in decryption of BFVrnsB
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
@@ -1268,7 +1268,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 
 	typename PolyType::Vector coefficients(n, t);
 
-#ifdef BFVrns_APPROXIMATE_DEBUG
+#ifdef BFVRNS_B_DEBUG
 	cout << "Dec input: " << endl;
 	cout << *this << endl;
 #endif
@@ -1284,18 +1284,18 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 			const typename PolyType::Integer &qi = qModuliTable[i];
 			const typename PolyType::Integer &xi = m_vectors[i].at(k);
 			tmp = xi;
-			tmp = tmp.ModMulPreconNTL( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
+			tmp.ModMulPreconNTLEq( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
 
 			tmpt = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][0], t, qDivqiModtgammaPreconTable[i][0] ); // mod t
 			tmpgamma = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][1], gamma, qDivqiModtgammaPreconTable[i][1] ); // mod gamma
 
-			st = st.ModAddFastNTL( tmpt, t );
-			sgamma = sgamma.ModAddFastNTL( tmpgamma, gamma );
+			st.ModAddFastNTLEq( tmpt, t );
+			sgamma.ModAddFastNTLEq( tmpgamma, gamma );
 		}
 
 		// mul by -q^-1
-		st = st.ModMulPreconNTL(negqInvModtgammaTable[0], t, negqInvModtgammaPreconTable[0]);
-		sgamma = sgamma.ModMulPreconNTL( negqInvModtgammaTable[1], gamma, negqInvModtgammaPreconTable[1] );
+		st.ModMulPreconNTLEq(negqInvModtgammaTable[0], t, negqInvModtgammaPreconTable[0]);
+		sgamma.ModMulPreconNTLEq( negqInvModtgammaTable[1], gamma, negqInvModtgammaPreconTable[1] );
 
 		if ( sgamma > (gamma >> 1) )
 			sgamma = sgamma.ModSubFast( gamma, t );
@@ -1320,7 +1320,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 // Almost equivalent to "ExpandCRTBasis"
 // @brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}, mtilde is a redundant modulus used to remove q overflows generated from fast conversion.
 // Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}
-// used in EvalMult of BFVrnsApproximate
+// used in EvalMult of BFVrnsB
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomery(
@@ -1380,7 +1380,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     }
 
 // TODO remove this
-#ifdef BFVrns_APPROXIMATE_DEBUG
+#ifdef BFVRNS_B_DEBUG
     static int count = 0;
     if (count < 1)
     {
@@ -1425,14 +1425,14 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 //    			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
 //    					qDivqiModBjValue.ModMulFastNTL(ximtildeqiDivqModqi[i*n+k], BskmtildeModuli[j] ),
 //						BskmtildeModuli[j] );
-    			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
+    			m_vectors[numq+j].at(k).ModAddFastNTLEq(
     					ximtildeqiDivqModqi[i*n+k].ModMulPreconNTL(qDivqiModBjValue, BskmtildeModuli[j], qDivqiModBjPreconValue ),
 						BskmtildeModuli[j] );
     		}
     	}
     }
 
-#ifdef BFVrns_APPROXIMATE_DEBUG
+#ifdef BFVRNS_B_DEBUG
     if (count < 1)
     {
 		cout << "ximtildeqiDivqModqi * q/qi mod Bski: " << endl;
@@ -1466,9 +1466,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     		// collapsing
     		const typename PolyType::Integer &c_mtilde = m_vectors[numq+numBsk].at(k);
     		typename PolyType::Integer rmtilde = c_mtilde; // c``_mtilde
-    		rmtilde = rmtilde.ModMulPreconNTL(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
-    		rmtilde = rmtilde.ModMulPreconNTL( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
-    		rmtilde = rmtilde.ModAddFastNTL( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
+    		rmtilde.ModMulPreconNTLEq(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
+    		rmtilde.ModMulPreconNTLEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
+    		rmtilde.ModAddFastNTLEq( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
     		m_vectors[numq+i].at(k) = rmtilde.ModMulPreconNTL( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) * mtilde mod Bski
 		}
     }
@@ -1507,7 +1507,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 // Almost equivalent to "ScaleAndRound"
 // @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
 // Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}. Note that the actual result is basically in basis {Bsk}.
-// used in EvalMult of BFVrnsApproximate
+// used in EvalMult of BFVrnsB
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
@@ -1564,7 +1564,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
 				const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
 
-				aq = aq.ModAddFastNTL(
+				aq.ModAddFastNTLEq(
 						m_vectors[i].at(k).ModMulPreconNTL(qDivqiModBjValue, BskModuli[j], qDivqiModBjPreconValue),
 						BskModuli[j] );
 			}
@@ -1597,7 +1597,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 // // Almost qeuivalent to "SwitchCRTBasis"
 // @brief Converts fast polynomial in CRT basis {q U Bsk} to basis {q} using Shenoy Kumaresan method.
 // Outputs the resulting polynomial in CRT/RNS representation in basis q. Note that the actual result is basically in basis {Bsk}.
-// used in EvalMult of BFVrnsApproximate
+// used in EvalMult of BFVrnsB
 
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
@@ -1650,7 +1650,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
 				const typename PolyType::Integer &currentBDivBiModqjPrecon = BDivBiModqjPrecon[i][j];
 
-				m_vectors[j].at(k) = m_vectors[j].at(k).ModAddFastNTL(
+				m_vectors[j].at(k).ModAddFastNTLEq(
 						m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModqj, qModuli[j], currentBDivBiModqjPrecon ),
 						qModuli[j]);
 			}
@@ -1671,7 +1671,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
         	const typename PolyType::Integer &currentBDivBiModmskPrecon = BDivBiModmskPrecon[i];
 
-        	alphaskxVector[k] = alphaskxVector[k].ModAddFastNTL(
+        	alphaskxVector[k].ModAddFastNTLEq(
         			m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModmsk , BskModuli[numBsk-1], currentBDivBiModmskPrecon)
         			, BskModuli[numBsk-1]);
         }
@@ -1685,7 +1685,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	{
     	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
     			, BskModuli[numBsk-1]);
-    	alphaskxVector[k] = alphaskxVector[k].ModMulPreconNTL( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
+    	alphaskxVector[k].ModMulPreconNTLEq( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
 	}
 
     // do (m_vector - alphaskx*M) mod q
@@ -1704,7 +1704,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			if (alphaskBModqi > mskDivTwo)
 				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
 
-			alphaskBModqi = alphaskBModqi.ModMulPreconNTL( currentBModqi, qModuli[i], currentBModqiPrecon );
+			alphaskBModqi.ModMulPreconNTLEq( currentBModqi, qModuli[i], currentBModqiPrecon );
 			m_vectors[i].at(k) = m_vectors[i].at(k).ModSubFast( alphaskBModqi, qModuli[i] );
 		}
 	}

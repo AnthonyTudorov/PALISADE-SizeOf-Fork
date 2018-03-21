@@ -82,7 +82,7 @@ using ConstCiphertext = shared_ptr<const CiphertextImpl<Element>>;
 #include "bgv.h"
 #include "bfv.h"
 #include "bfvrns.h"
-#include "bfvrnsapproximate.h"
+#include "bfvrnsB.h"
 #include "nullscheme.h"
 
 #include "utils/serializable.h"
