@@ -46,139 +46,133 @@ const int MaxIterations = 10;
 const int NumInputs = 2;
 string progname;
 
-void
-usage(const string& msg = "") {
-	if( msg.length() > 0 ) {
-		cerr << msg << endl;
-	}
-	cerr << "Usage is:" << endl;
-	cerr << progname << " -ctxt SERIALIZATION-FILE" << endl;
-}
+vector<PKESchemeFeature> features( {ENCRYPTION, PRE, SHE, FHE, LEVELEDSHE, MULTIPARTY} );
 
-int
-main(int argc, char *argv[])
-{
-	progname = argv[0];
 
-	if( argc != 3 ) {
-		usage();
-		cout << "Error: usage is" << endl;
-		cout << argv[0] << " inputfile outputfile" << endl;
-		return 1;
+template<typename Element>
+int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYPTION|PRE|SHE|FHE|LEVELEDSHE|MULTIPARTY)) {
+
+	for( auto f : features ) {
+		try {
+			cc->Enable(f);
+		} catch(...) {}
 	}
 
-	ifstream in(argv[1]);
-	if( !in.is_open() ) {
-		cout << "Cannot open input file " << argv[1] << endl;
-		return 1;
-	}
-
-	ofstream out(argv[2]);
-	if( !out.is_open() ) {
-		cout << "Cannot open output file " << argv[2] << endl;
-		return 1;
-	}
-
-	Serialized serObj;
-	if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
-		cout << "Input file does not begin with a serialization" << endl;
-		return 1;
-	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
-
-	if( cc == 0 ) {
-		cout << "Unable to deserialize CryptoContext" << endl;
-		return 1;
-	}
-
-	SerializableHelper::SerializationToStream(serObj, out);
-
-	cc->Enable(ENCRYPTION);
-	cc->Enable(SHE);
-	cc->Enable(LEVELEDSHE);
-
-	string operation;
-	set<OpType> operations;
-	while( in >> operation ) {
-		auto fop = OperatorType.find(operation);
-		if( fop == OperatorType.end() ) {
-			cout << "Unrecognized op " << operation << endl;
-			return 1;
-		}
-		operations.insert(fop->second);
-	}
-	in.close();
-
-	// set up to encrypt some things
-	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
+	// make NumInputs random vectors
 	Plaintext inputs[NumInputs];
-	for( size_t i=0; i<NumInputs; i++ ) {
+	{
+		auto maxval = cc->GetCryptoParameters()->GetPlaintextModulus() / 2;
 		vector<int64_t> vec;
-		vec.clear();
-		for( size_t n=0; n<cc->GetRingDimension(); n++ )
-			vec.push_back( rand() % ptm );
-		inputs[i] = cc->MakeCoefPackedPlaintext(vec);
+		auto maxentry = cc->GetRingDimension();
+
+		for( size_t i=0; i<NumInputs; i++ ) {
+			vec.clear();
+			for( size_t n=0; n<maxentry; n++ )
+				vec.push_back( (rand() % maxval) * ((rand() % 1) > 0 ? 1 : -1) );
+			inputs[i] = cc->MakeCoefPackedPlaintext(vec);
+		}
 	}
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
-	cc->StopTiming();
 
-	if( operations.count(OpKeyGen) ||
-			operations.count(OpEncrypt) ||
-			operations.count(OpDecrypt) ) {
-		cc->ResumeTiming();
+	// ENCRYPTION: KeyGen, Encrypt (2 kinds) and Decrtpt
+
+	if( verbose )
+		cerr << "ENCRYPTION" << endl;
+
+	if( tmask & ENCRYPTION ) {
 		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
 			for( int reps=0; reps < MaxIterations; reps++ ) {
-				LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+				LPKeyPair<Element> kp = cc->KeyGen();
 				auto crypt = cc->Encrypt(kp.publicKey, inputs[nInputs]);
 				Plaintext decrypted;
 				cc->Decrypt(kp.secretKey, crypt, &decrypted);
+				auto crypt2 = cc->Encrypt(kp.secretKey, inputs[nInputs]);
+				cc->Decrypt(kp.secretKey, crypt, &decrypted);
 			}
 		}
-		cc->StopTiming();
 	}
 
-#define BINARY_SHE_OP(opfunc,ek) \
-		LPKeyPair<DCRTPoly> kp = cc->KeyGen(); \
-		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]); \
-		auto crypt1 = cc->Encrypt(kp.publicKey, inputs[1]); \
-		if( ek ) cc->EvalMultKeyGen(kp.secretKey); \
-		cc->ResumeTiming(); \
-		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc->opfunc(crypt0, crypt1); \
-		} \
-		cc->StopTiming();
+	// PKE: ReKeyGen and ReEncrypt
 
-	if( operations.count(OpEvalAdd) ) {
-		BINARY_SHE_OP(EvalAdd,false);
+	if( verbose )
+		cerr << "PRE" << endl;
+
+	if( tmask & PRE ) {
+		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				LPKeyPair<Element> kp1 = cc->KeyGen();
+				LPKeyPair<Element> kp2 = cc->KeyGen();
+				auto rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
+				auto rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
+				auto crypt = cc->Encrypt(kp1.publicKey, inputs[nInputs]);
+				auto recrypt1 = cc->ReEncrypt(rekey1, crypt);
+				auto recrypt2 = cc->ReEncrypt(rekey2, crypt);
+				Plaintext decrypted1;
+				Plaintext decrypted2;
+				cc->Decrypt(kp2.secretKey, recrypt1, &decrypted1);
+				cc->Decrypt(kp2.secretKey, recrypt2, &decrypted2);
+			}
+		}
 	}
 
-	if( operations.count(OpEvalSub) ) {
-		BINARY_SHE_OP(EvalSub,false);
+	// SHE: EvalAdd/Sub/Neg/Mult; binary with ciphers and one cipher one pre
+
+	if( verbose )
+		cerr << "SHE" << endl;
+
+	if( tmask & SHE ) {
+		LPKeyPair<Element> kp = cc->KeyGen();
+		cc->EvalMultKeyGen(kp.secretKey);
+
+		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]);
+		auto crypt1 = cc->Encrypt(kp.publicKey, inputs[1]);
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalAdd(crypt0, crypt1);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalAdd(crypt0, inputs[1]);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalSub(crypt0, crypt1);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalSub(crypt0, inputs[1]);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalMult(crypt0, crypt1);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalMult(crypt0, inputs[1]);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->EvalNegate(crypt0);
+		}
+
+		for (int reps = 0; reps < MaxIterations; reps++) {
+			cc->ModReduce(crypt0);
+		}
 	}
 
-	if( operations.count(OpEvalMult) ) {
-		BINARY_SHE_OP(EvalMult,true);
-	}
+	// FHE: bootstrap, nothing yet
 
-#define UNARY_SHE_OP(opfunc) \
-		LPKeyPair<DCRTPoly> kp = cc->KeyGen(); \
-		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]); \
-		cc->ResumeTiming(); \
-		for (int reps = 0; reps < MaxIterations; reps++) { \
-			cc->opfunc(crypt0); \
-		} \
-		cc->StopTiming();
+	// LEVELEDSHE
 
-	if( operations.count(OpEvalNeg) ) {
-		UNARY_SHE_OP(EvalNegate);
-	}
+	// MULTIPARTY
 
-	if( operations.count(OpModReduce) ) {
-		UNARY_SHE_OP(ModReduce);
-	}
+
+	if( verbose )
+		cerr << "Summarizing" << endl;
+
+	// FIXME put this summary stuff into a common place
 
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
@@ -187,6 +181,7 @@ main(int argc, char *argv[])
 		if( st.operation == OpNOOP ) {
 			st.operation = sample.operation;
 			st.startup = sample.timeval;
+			st.samples = 1;
 		} else {
 			st.samples++;
 			st.average += sample.timeval;
@@ -197,22 +192,98 @@ main(int argc, char *argv[])
 		}
 	}
 
+
+	if( verbose )
+		cerr << "Results:" << endl;
+
 	// read them out
 	for( auto &tstat : stats ) {
 		auto ts = tstat.second;
 		ts.average /= ts.samples;
 
 		cout << tstat.first << ':' << ts << endl;
-
-		Serialized ser;
-		if( ts.Serialize(&ser) == false ) {
-			cout << "Cannot serialize a measurement for " << ts.operation << endl;
-			return 1;
-		}
-		SerializableHelper::SerializationToStream(ser,out);
 	}
 
-	out.close();
-
 	return 0;
+}
+
+void
+usage(const string& msg = "") {
+	if( msg.length() > 0 ) {
+		cerr << msg << endl;
+	}
+	cerr << "Usage is:" << endl;
+	cerr << progname << " [-v] [-dcrt|-poly] -ctxt SERIALIZATION-FILE" << endl;
+}
+
+int
+main(int argc, char *argv[])
+{
+	progname = argv[0];
+
+	bool verbose = false;
+	enum Element { UNKNOWN, POLY, DCRT } element = UNKNOWN;
+	string ctxtFile;
+
+	for( int i=1; i<argc; i++ ) {
+		string arg( argv[i] );
+
+		if( arg == "-v" )
+			verbose = true;
+		else if( arg == "-dcrt" )
+			element = DCRT;
+		else if( arg == "-poly" )
+			element = POLY;
+		else if( arg == "-ctxt" ) {
+			if( i+1 == argc ) {
+				usage("Filename missing after -ctxt");
+				return 1;
+			}
+			ctxtFile = argv[++i];
+		}
+		else {
+			usage("Unrecognized argument " + arg);
+			return 1;
+		}
+	}
+
+	if( element == UNKNOWN ) {
+		usage("Must specify -poly or -dcrt");
+		return 1;
+	}
+
+	if( ctxtFile.length() == 0 ) {
+		usage("Must specify -ctxt SERIALIZATION-FILE");
+		return 1;
+	}
+
+	ifstream in( ctxtFile );
+	if( !in.is_open() ) {
+		cout << "Cannot open input file " << ctxtFile << endl;
+		return 1;
+	}
+
+	Serialized serObj;
+	if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
+		cout << "Input file does not begin with a serialization" << endl;
+		return 1;
+	}
+
+	CryptoContext<Poly> cc;
+	CryptoContext<DCRTPoly> dcc;
+
+	if( element == POLY )
+		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(serObj);
+	else
+		dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
+
+	if( cc == 0 && dcc == 0 ) {
+		cout << "Unable to deserialize CryptoContext" << endl;
+		return 1;
+	}
+
+	if( element == POLY )
+		return generateTimings(verbose, cc);
+	else
+		return generateTimings(verbose, dcc);
 }

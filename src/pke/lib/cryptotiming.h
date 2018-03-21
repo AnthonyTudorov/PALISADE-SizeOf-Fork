@@ -116,7 +116,7 @@ inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 }
 
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
-	out << "(startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
+	out << "(count=" << t.samples << ",startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
 	return out;
 }
 
