@@ -74,7 +74,6 @@ public:
 	uint64_t	 GetNumerator() const { return m_numerator; }
 	uint64_t GetDenominator() const { return m_denominator; }
 
-
 	/**
 	 * Encode the plaintext into the Poly
 	 * @return true on success
