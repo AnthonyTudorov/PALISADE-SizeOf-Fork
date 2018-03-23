@@ -259,7 +259,8 @@ public:
 	 * @return result of the subtraction operation of type BigInteger.
 	 */
 	const NativeInteger& MinusEq(const NativeInteger& b) {
-		m_value -= m_value <= b.m_value ? m_value : b.m_value;
+		//m_value -= m_value <= b.m_value ? m_value : b.m_value;
+		m_value -= b.m_value;
 		return *this;
 	}
 
@@ -1366,6 +1367,14 @@ public:
 	 * It is used to initialize a Matrix of NativeInteger objects.
 	 */
 	static NativeInteger<uint_type> Allocator() { return 0; }
+
+	inline bool operator==(const NativeInteger& b) {return this->m_value==b.m_value; }
+	inline bool operator!=(const NativeInteger& b) {return this->m_value!=b.m_value;}
+
+	inline bool operator> (const NativeInteger& b) {return this->m_value > b.m_value;}
+	inline bool operator>=(const NativeInteger& b) {return this->m_value >= b.m_value; }
+	inline bool operator< (const NativeInteger& b) {return this->m_value < b.m_value;}
+	inline bool operator<=(const NativeInteger& b) {return this->m_value <= b.m_value;}
 
 protected:
 

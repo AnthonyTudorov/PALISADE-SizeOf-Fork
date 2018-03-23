@@ -247,31 +247,22 @@ namespace lbcrypto {
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
-							NativeInteger oddVal = resultVec[indexOdd];
 
-							if (oddVal != 0)
-							{
-								if (oddVal == 1)
-									omegaFactor = omega;
-								else
-									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
+							omegaFactor = resultVec[indexOdd].ModMulPreconNTL(omega,modulus,preconOmega);
 
-								butterflyPlus = resultVec[indexEven];
-								butterflyPlus += omegaFactor;
-								if (butterflyPlus >= modulus)
-									butterflyPlus -= modulus;
+							butterflyPlus = resultVec[indexEven];
+							butterflyPlus += omegaFactor;
+							if (butterflyPlus >= modulus)
+								butterflyPlus -= modulus;
 
-								butterflyMinus = resultVec[indexEven];
-								if (resultVec[indexEven] < omegaFactor)
-									butterflyMinus += modulus;
-								butterflyMinus -= omegaFactor;
+							butterflyMinus = resultVec[indexEven];
+							if (butterflyMinus < omegaFactor)
+								butterflyMinus += modulus;
+							butterflyMinus -= omegaFactor;
 
-								resultVec[indexEven]= butterflyPlus;
-								resultVec[indexOdd]= butterflyMinus;
+							resultVec[indexEven]= butterflyPlus;
+							resultVec[indexOdd]= butterflyMinus;
 
-							}
-							else
-								resultVec[indexOdd] = resultVec[indexEven];
 						}
 					}
 				}
