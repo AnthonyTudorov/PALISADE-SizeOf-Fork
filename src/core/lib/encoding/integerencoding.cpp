@@ -49,17 +49,6 @@ inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& pt
 	}
 }
 
-template<typename P>
-inline static void encodePolyShift(P& poly, size_t shift, const PlaintextModulus& ptm) {
-
-	poly.SetValuesToZero();
-
-	size_t n = poly.GetLength();
-
-	poly[n-shift] = ptm-1;
-
-}
-
 bool
 IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;
@@ -73,35 +62,18 @@ IntegerEncoding::Encode() {
 		PALISADE_THROW( config_error, "Plaintext modulus must be less than " + std::to_string(UINT32_MAX) + " for integer encoding");
 	}
 
-	if (value == -9999) {
+	if( value <= LowBound() || value > HighBound() )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
 
-		if( this->typeFlag == IsNativePoly ) {
-			encodePolyShift(this->encodedNativeVector, m_truncatedBits, mod);
-		}
-		else {
-			encodePolyShift(this->encodedVector, m_truncatedBits, mod);
-		}
-
-		if( this->typeFlag == IsDCRTPoly ) {
-			this->encodedVectorDCRT = this->encodedVector;
-		}
-
+	if( this->typeFlag == IsNativePoly ) {
+		encodePoly(this->encodedNativeVector, value, mod);
 	}
-	else
-	{
-		if( value <= LowBound() || value > HighBound() )
-			PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
+	else {
+		encodePoly(this->encodedVector, value, mod);
+	}
 
-		if( this->typeFlag == IsNativePoly ) {
-			encodePoly(this->encodedNativeVector, value, mod);
-		}
-		else {
-			encodePoly(this->encodedVector, value, mod);
-		}
-
-		if( this->typeFlag == IsDCRTPoly ) {
-			this->encodedVectorDCRT = this->encodedVector;
-		}
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT = this->encodedVector;
 	}
 
 	this->isEncoded = true;
@@ -109,12 +81,12 @@ IntegerEncoding::Encode() {
 }
 
 template<typename P>
-inline static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm, size_t truncatedBits) {
+inline static int64_t decodePoly(const P& poly, const PlaintextModulus& ptm) {
 	int64_t result = 0;
 	int64_t powerFactor = 1;
 	int64_t half = ptm/2;
 
-	for (size_t i = 0; i < poly.GetLength()-truncatedBits; i++) {
+	for (size_t i = 0; i < poly.GetLength(); i++) {
 
 		int64_t val = poly[i].ConvertToInt();
 
@@ -137,9 +109,9 @@ IntegerEncoding::Decode() {
 	auto modulus = this->encodingParams->GetPlaintextModulus();
 
 	if( this->typeFlag == IsNativePoly )
-		value = decodePoly(this->encodedNativeVector, modulus, m_truncatedBits);
+		value = decodePoly(this->encodedNativeVector, modulus);
 	else
-		value = decodePoly(this->encodedVector, modulus, m_truncatedBits);
+		value = decodePoly(this->encodedVector, modulus);
 
 	return true;
 }

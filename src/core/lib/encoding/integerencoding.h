@@ -33,27 +33,26 @@ namespace lbcrypto {
 
 class IntegerEncoding: public PlaintextImpl {
 	int64_t		value;
-	size_t 		m_truncatedBits;
 
 public:
 	// these two constructors are used inside of Decrypt
 	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
+		PlaintextImpl(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0)  {}
+		PlaintextImpl(vp,ep), value(0) {}
 
 	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
+		PlaintextImpl(vp,ep), value(0) {}
 
-	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
+	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(scalar) {}
 
-	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits)  {}
+	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(scalar) {}
 
-	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
+	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), value(scalar) {}
 
 	virtual ~IntegerEncoding() {}
 
