@@ -49,6 +49,7 @@ enum PlaintextEncodings {
 	CoefPacked,
 	Packed,
 	String,
+	Fractional,
 };
 
 class PlaintextImpl;

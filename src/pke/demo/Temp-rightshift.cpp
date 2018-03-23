@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 	size_t truncatedBits = 2;
 	int64_t inputnumber = 1427;
 
-	Plaintext plaintext1 = cryptoContext->MakeFractionalPlaintext(inputnumber,truncatedBits);
+	Plaintext plaintext1 = cryptoContext->MakeFractionalPlaintext(inputnumber);
 
 	////////////////////////////////////////////////////////////
 	// Encryption

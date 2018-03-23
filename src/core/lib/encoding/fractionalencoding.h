@@ -1,6 +1,7 @@
 /**
- * @file integerencoding.h EXPERIMENTAL FEATURE: Represents and defines a limited version of the fractional encoder.
- * Currently it is simply an extended version of integer encoding with division supported.
+ * @file fractionalencoding.h EXPERIMENTAL FEATURE: Defines a limited version of the fractional encoder.
+ * Currently it is simply an extended version of integer encoding. In addition to integer encoding operations,
+ * it supports integer division by another integer (with the fractional part being truncated during decryption).
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -33,28 +34,33 @@
 namespace lbcrypto {
 
 class FractionalEncoding: public PlaintextImpl {
-	int64_t		value;
-	size_t 		m_truncatedBits;
+	// integer part
+	int64_t		m_integer;
+	// number of bits reserved for the fractional part (index from the end)
+	size_t 		m_separator;
+	// m_numerator and m_denominator are not currently used
+	uint64_t	m_numerator;
+	uint64_t	m_denominator;
 
 public:
 	// these two constructors are used inside of Decrypt
 	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
+		PlaintextImpl(vp,ep), m_integer(0), m_separator(0), m_numerator(0), m_denominator(0) {}
 
 	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0)  {}
+		PlaintextImpl(vp,ep), m_integer(0), m_separator(0), m_numerator(0), m_denominator(0)  {}
 
 	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
+		PlaintextImpl(vp,ep), m_integer(0), m_separator(0), m_numerator(0), m_denominator(0) {}
 
-	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
+	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0) {}
 
-	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits)  {}
+	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0)  {}
 
-	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
-		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
+	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0) {}
 
 	virtual ~FractionalEncoding() {}
 
@@ -62,7 +68,7 @@ public:
 	 * GetScalarValue
 	 * @return the un-encoded scalar
 	 */
-	const int64_t GetIntegerValue() const { return value; }
+	const int64_t GetIntegerValue() const { return m_integer; }
 
 	/**
 	 * Encode the plaintext into the Poly
@@ -80,7 +86,7 @@ public:
 	 * GetEncodingType
 	 * @return this is an Integer encoding
 	 */
-	PlaintextEncodings GetEncodingType() const { return Integer; }
+	PlaintextEncodings GetEncodingType() const { return Fractional; }
 
 	/**
 	 * Get length of the plaintext
@@ -98,14 +104,14 @@ public:
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
 		const FractionalEncoding& oth = dynamic_cast<const FractionalEncoding&>(other);
-		return oth.value == this->value;
+		return oth.m_integer == this->m_integer;
 	}
 
 	/**
 	 * PrintValue - used by operator<< for this object
 	 * @param out
 	 */
-	void PrintValue(std::ostream& out) const { out << value; }
+	void PrintValue(std::ostream& out) const { out << m_integer; }
 };
 
 } /* namespace lbcrypto */

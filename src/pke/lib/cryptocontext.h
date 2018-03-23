@@ -1082,6 +1082,9 @@ private:
 		case String:
 			pt.reset( new StringEncoding(vp,ep) );
 			break;
+		case Fractional:
+			pt.reset( new FractionalEncoding(vp,ep) );
+			break;
 		}
 
 		return pt;
@@ -1638,9 +1641,9 @@ public:
 	 * @return new ciphertext for ct1 * pt2
 	 */
 	Ciphertext<Element>
-	EvalRightShift(const Ciphertext<Element> ct1, size_t shift) const
+	EvalRightShift(const Ciphertext<Element> ct1, size_t divisor) const
 	{
-		Plaintext plaintextShift = MakeFractionalPlaintext(-9999,shift);
+		Plaintext plaintextShift = MakeFractionalPlaintext(0,divisor);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();

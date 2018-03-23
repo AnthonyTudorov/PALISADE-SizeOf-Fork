@@ -1,5 +1,5 @@
 /**
- * @file integerencoding.cpp EXPERIMENTAL FEATURE: Represents and defines a limited version of the fractional encoder.
+ * @file fractionalencoding.cpp EXPERIMENTAL FEATURE: Represents and defines a limited version of the fractional encoder.
  * Currently it is simply an extended version of integer encoding with division supported.
  * @author  TPOC: palisade@njit.edu
  *
@@ -30,7 +30,7 @@
 namespace lbcrypto {
 
 template<typename P>
-inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& ptm) {
+inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& ptm, size_t divisorBits) {
 	uint32_t negvalue = ptm - 1;
 	bool isNegative = value < 0;
 	uint64_t entry = isNegative ? -value : value;
@@ -48,17 +48,13 @@ inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& pt
 		i++;
 		entry >>= 1;
 	}
-}
 
-template<typename P>
-inline static void encodePolyShift(P& poly, size_t shift, const PlaintextModulus& ptm) {
+	if (divisorBits!=0)
+	{
+		size_t n = poly.GetLength();
 
-	poly.SetValuesToZero();
-
-	size_t n = poly.GetLength();
-
-	poly[n-shift] = ptm-1;
-
+		poly[n-divisorBits] = ptm-1;
+	}
 }
 
 bool
@@ -67,42 +63,25 @@ FractionalEncoding::Encode() {
 	PlaintextModulus mod = this->encodingParams->GetPlaintextModulus();
 
 	if( mod < 2 ) {
-		PALISADE_THROW( config_error, "Plaintext modulus must be 2 or more for integer encoding");
+		PALISADE_THROW( config_error, "Plaintext modulus must be 2 or more for fractional encoding");
 	}
 
 	if( mod >= UINT32_MAX ) {
-		PALISADE_THROW( config_error, "Plaintext modulus must be less than " + std::to_string(UINT32_MAX) + " for integer encoding");
+		PALISADE_THROW( config_error, "Plaintext modulus must be less than " + std::to_string(UINT32_MAX) + " for fractional encoding");
 	}
 
-	if (value == -9999) {
+	if( m_integer <= LowBound() || m_integer > HighBound() )
+		PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(m_integer) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
 
-		if( this->typeFlag == IsNativePoly ) {
-			encodePolyShift(this->encodedNativeVector, m_truncatedBits, mod);
-		}
-		else {
-			encodePolyShift(this->encodedVector, m_truncatedBits, mod);
-		}
-
-		if( this->typeFlag == IsDCRTPoly ) {
-			this->encodedVectorDCRT = this->encodedVector;
-		}
-
+	if( this->typeFlag == IsNativePoly ) {
+		encodePoly(this->encodedNativeVector, m_integer, mod, m_separator);
 	}
-	else
-	{
-		if( value <= LowBound() || value > HighBound() )
-			PALISADE_THROW( config_error, "Cannot encode integer " + std::to_string(value) + " because it is out of range of plaintext modulus " + std::to_string(mod) );
+	else {
+		encodePoly(this->encodedVector, m_integer, mod, m_separator);
+	}
 
-		if( this->typeFlag == IsNativePoly ) {
-			encodePoly(this->encodedNativeVector, value, mod);
-		}
-		else {
-			encodePoly(this->encodedVector, value, mod);
-		}
-
-		if( this->typeFlag == IsDCRTPoly ) {
-			this->encodedVectorDCRT = this->encodedVector;
-		}
+	if( this->typeFlag == IsDCRTPoly ) {
+		this->encodedVectorDCRT = this->encodedVector;
 	}
 
 	this->isEncoded = true;
@@ -138,9 +117,9 @@ FractionalEncoding::Decode() {
 	auto modulus = this->encodingParams->GetPlaintextModulus();
 
 	if( this->typeFlag == IsNativePoly )
-		value = decodePoly(this->encodedNativeVector, modulus, m_truncatedBits);
+		m_integer = decodePoly(this->encodedNativeVector, modulus, m_separator);
 	else
-		value = decodePoly(this->encodedVector, modulus, m_truncatedBits);
+		m_integer = decodePoly(this->encodedVector, modulus, m_separator);
 
 	return true;
 }
