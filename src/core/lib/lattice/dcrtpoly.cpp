@@ -1327,6 +1327,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 		const shared_ptr<ParmType> paramsBsk,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+		const std::vector<unsigned __int128> &BskmtildeModulimu,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -1417,18 +1418,19 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 #endif
     	for ( uint32_t k = 0; k < n; k++ )
     	{
+    		unsigned __int128 result = 0;
     		for (uint32_t i = 0; i < numq; i++)
     		{
     			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-    			const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
-
-//    			m_vectors[numq+j].at(k) = m_vectors[numq+j].at(k).ModAddFastNTL(
-//    					qDivqiModBjValue.ModMulFastNTL(ximtildeqiDivqModqi[i*n+k], BskmtildeModuli[j] ),
+//    			const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
+    			result += Mul128( ximtildeqiDivqModqi[i*n+k].ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
+//    			m_vectors[numq+j].at(k).ModAddFastNTLEq(
+//    					ximtildeqiDivqModqi[i*n+k].ModMulPreconNTL(qDivqiModBjValue, BskmtildeModuli[j], qDivqiModBjPreconValue ),
 //						BskmtildeModuli[j] );
-    			m_vectors[numq+j].at(k).ModAddFastNTLEq(
-    					ximtildeqiDivqModqi[i*n+k].ModMulPreconNTL(qDivqiModBjValue, BskmtildeModuli[j], qDivqiModBjPreconValue ),
-						BskmtildeModuli[j] );
+
+//    			cout << "result: " << Uint128ToString(result) << endl;
     		}
+    		m_vectors[numq+j].at(k) = BarrettUint128ModUint64( result, BskmtildeModuli[j].ConvertToInt(), BskmtildeModulimu[j] );
     	}
     }
 
@@ -1515,6 +1517,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		const typename PolyType::Integer &tPrecon,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskModuli,
+		const std::vector<unsigned __int128> &BskModulimu,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -1558,17 +1561,21 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 #endif
 		for ( uint32_t k = 0; k < n; k++ )
 		{
-			typename PolyType::Integer aq = 0;
+//			typename PolyType::Integer aq = 0;
+			unsigned __int128 aq = 0;
 			for (uint32_t i = 0; i < numq; i++)
 			{
 				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-				const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
+//				const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
+				typename PolyType::Integer &xi = m_vectors[i].at(k);
 
-				aq.ModAddFastNTLEq(
-						m_vectors[i].at(k).ModMulPreconNTL(qDivqiModBjValue, BskModuli[j], qDivqiModBjPreconValue),
-						BskModuli[j] );
+//				aq.ModAddFastNTLEq(
+//						m_vectors[i].at(k).ModMulPreconNTL(qDivqiModBjValue, BskModuli[j], qDivqiModBjPreconValue),
+//						BskModuli[j] );
+				aq += Mul128( xi.ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
 			}
-			txiqiDivqModqi[j*n + k] = aq;
+//			txiqiDivqModqi[j*n + k] = aq;
+			txiqiDivqModqi[j*n + k] = BarrettUint128ModUint64( aq, BskModuli[j].ConvertToInt(), BskModulimu[j] );
 		}
 	}
 
@@ -1602,7 +1609,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<unsigned __int128> &qModulimu,
 			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<unsigned __int128> &BskModulimu,
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
 			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
@@ -1644,16 +1653,20 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
 		for (uint32_t k = 0; k < n; k++)
 		{
-			m_vectors[j].at(k) = 0;
+
+			unsigned __int128 result = 0;
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
-				const typename PolyType::Integer &currentBDivBiModqjPrecon = BDivBiModqjPrecon[i][j];
+//				const typename PolyType::Integer &currentBDivBiModqjPrecon = BDivBiModqjPrecon[i][j];
+				const typename PolyType::Integer &xi = m_vectors[numq+i].at(k);
+//				m_vectors[j].at(k).ModAddFastNTLEq(
+//						m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModqj, qModuli[j], currentBDivBiModqjPrecon ),
+//						qModuli[j]);
 
-				m_vectors[j].at(k).ModAddFastNTLEq(
-						m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModqj, qModuli[j], currentBDivBiModqjPrecon ),
-						qModuli[j]);
+				result += Mul128( xi.ConvertToInt(), currentBDivBiModqj.ConvertToInt() );
 			}
+			m_vectors[j].at(k) = BarrettUint128ModUint64( result, qModuli[j].ConvertToInt(), qModulimu[j] );
 		}
 	}
 
@@ -1665,16 +1678,20 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
     for (uint32_t k = 0; k < n; k++)
     {
-    	alphaskxVector[k] = 0;
+//    	alphaskxVector[k] = 0;
+    	unsigned __int128 result = 0;
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
-        	const typename PolyType::Integer &currentBDivBiModmskPrecon = BDivBiModmskPrecon[i];
+//        	const typename PolyType::Integer &currentBDivBiModmskPrecon = BDivBiModmskPrecon[i];
 
-        	alphaskxVector[k].ModAddFastNTLEq(
-        			m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModmsk , BskModuli[numBsk-1], currentBDivBiModmskPrecon)
-        			, BskModuli[numBsk-1]);
+//        	alphaskxVector[k].ModAddFastNTLEq(
+//        			m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModmsk , BskModuli[numBsk-1], currentBDivBiModmskPrecon)
+//        			, BskModuli[numBsk-1]);
+
+        	result += Mul128( m_vectors[numq+i].at(k).ConvertToInt(), currentBDivBiModmsk.ConvertToInt() );
         }
+        alphaskxVector[k] = BarrettUint128ModUint64( result, BskModuli[numBsk-1].ConvertToInt(), BskModulimu[numBsk-1] );
     }
 
     // subtract xsk

@@ -308,12 +308,16 @@ namespace lbcrypto {
 
 			// RNS approximate getters and setters
 			std::vector<NativeInteger> const &GetDCRTParamsqModuli() const { return m_qModuli; }
+			std::vector<unsigned __int128> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskModuli() const { return m_BskModuli; }
+			std::vector<unsigned __int128> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
 
 			NativeInteger const &GetDCRTParamsmtilde() const { return m_mtilde; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
+
+			std::vector<unsigned __int128> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqiPrecon() const { return m_mtildeqDivqiPreconTable; }
@@ -468,6 +472,8 @@ namespace lbcrypto {
 
 			// 6) Stores the crt moduli of base B (size of B moduli is chosen such that )
 			std::vector<NativeInteger> m_qModuli;
+			std::vector<unsigned __int128> m_qModulimu;
+
 			std::vector<NativeInteger> m_BModuli;
 
 			// 7) Stores the roots of unity modulo Bsk
@@ -475,9 +481,12 @@ namespace lbcrypto {
 
 			// 8) Stores the crt moduli of base Bsk = {B U msk}
 			std::vector<NativeInteger> m_BskModuli;
+			std::vector<unsigned __int128> m_BskModulimu;
 
 			// 9) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
 			std::vector<NativeInteger> m_BskmtildeModuli;
+
+			std::vector<unsigned __int128> m_BskmtildeModulimu; // Barrett constant
 
 			// 10) Stores (q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_qDivqiModqiTable;

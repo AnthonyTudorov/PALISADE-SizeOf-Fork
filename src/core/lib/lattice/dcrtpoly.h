@@ -779,6 +779,7 @@ public:
 			const shared_ptr<ParmType> paramsBsk,
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+			const std::vector<unsigned __int128> &BskmtildeModulimu,
 			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
 			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -804,6 +805,7 @@ public:
 			const typename PolyType::Integer &tPrecon,
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<unsigned __int128> &BskModulimu,
 			const std::vector<typename PolyType::Integer> &tqDivqiModqi,
 			const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -823,7 +825,9 @@ public:
 	 */
 	void FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<unsigned __int128> &qModulimu,
 			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<unsigned __int128> &BskModulimu,
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
 			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,

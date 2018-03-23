@@ -73,13 +73,28 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	m_qModuli.resize(size);
+	BigInteger BarrettBase128Bit("340282366920938463463374607431768211456"); // 2^128
+	BigInteger TwoPower64("18446744073709551616"); // 2^128
 
+	m_qModuli.resize(size);
 	for (size_t i = 0; i < size; i++){
 		moduli[i] = GetElementParams()->GetParams()[i]->GetModulus();
 		roots[i] = GetElementParams()->GetParams()[i]->GetRootOfUnity();
 		m_qModuli[i] = moduli[i];
 	}
+
+	m_qModulimu.resize(size);
+	for (uint32_t i = 0; i< m_qModulimu.size(); i++ )
+	{
+		BigInteger mu = BarrettBase128Bit/m_qModuli[i];
+		uint64_t val[2];
+		val[0] = (mu % TwoPower64).ConvertToInt();
+		val[1] = mu.RShift(64).ConvertToInt();
+
+		memcpy(&m_qModulimu[i], val, sizeof(unsigned __int128));
+	}
+
+
 
 	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
 
@@ -338,6 +353,24 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_mtilde = NextPrime<NativeInteger>(m_msk, 2 * n);
 
 	m_BskmtildeModuli.push_back( m_mtilde );
+
+	// populate Barrett constant for m_BskmtildeModuli
+	m_BskmtildeModulimu.resize( m_BskmtildeModuli.size() );
+	for (uint32_t i = 0; i< m_BskmtildeModulimu.size(); i++ )
+	{
+		BigInteger mu = BarrettBase128Bit/m_BskmtildeModuli[i];
+		uint64_t val[2];
+		val[0] = (mu % TwoPower64).ConvertToInt();
+		val[1] = mu.RShift(64).ConvertToInt();
+
+		memcpy(&m_BskmtildeModulimu[i], val, sizeof(unsigned __int128));
+	}
+
+	// Populate Barrett constants for BskModuli
+	m_BskModulimu.resize(m_BskModuli.size());
+	for (uint32_t i = 0; i < m_numB + 1; i++)
+		m_BskModulimu[i] = m_BskmtildeModulimu[i]; // mtilde is last (ignored)
+
 
 	// Populate (q/qi)^-1 mod qi
 	m_qDivqiModqiTable.resize(m_numq);
@@ -1146,8 +1179,15 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsBsk = cryptoParamsBFVrnsB->GetDCRTParamsBsk();
 
 	const std::vector<NativeInteger> paramsqModuli = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
+	const std::vector<unsigned __int128> paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
+
 	const std::vector<NativeInteger> paramsBskModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskModuli();
+	const std::vector<unsigned __int128> paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
+
 	const std::vector<NativeInteger> paramsBskmtildeModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModuli();
+
+	const std::vector<unsigned __int128> paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
+
 	const std::vector<NativeInteger> paramsmtildeqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqi();
 	const std::vector<NativeInteger> paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqiPrecon();
 	const std::vector<std::vector<NativeInteger>> paramsqDivqiModBskmtilde = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModBskmtilde();
@@ -1222,6 +1262,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 		cipherText1Elements[i].FastBaseConvqToBskMontgomery(paramsBsk,
 				paramsqModuli,
 				paramsBskmtildeModuli,
+				paramsBskmtildeModulimu,
 				paramsmtildeqDivqiModqi,
 				paramsmtildeqDivqiModqiPrecon,
 				paramsqDivqiModBskmtilde,
@@ -1242,6 +1283,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 		cipherText2Elements[i].FastBaseConvqToBskMontgomery(paramsBsk,
 				paramsqModuli,
 				paramsBskmtildeModuli,
+				paramsBskmtildeModulimu,
 				paramsmtildeqDivqiModqi,
 				paramsmtildeqDivqiModqiPrecon,
 				paramsqDivqiModBskmtilde,
@@ -1350,6 +1392,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 				paramsPlaintextModulusPrecon,
 				paramsqModuli,
 				paramsBskModuli,
+				paramsBskModulimu,
 				paramstqDivqiModqi,
 				paramstqDivqiModqiPrecon,
 				paramsqDivqiModBskmtilde,
@@ -1358,7 +1401,9 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 				paramsqInvModBiPrecon);
 		// Converts from the CRT basis Bsk to q
 		c[i].FastBaseConvSK(paramsqModuli,
+				paramsqModulimu,
 				paramsBskModuli,
+				paramsBskModulimu,
 				paramsBDivBiModBi,
 				paramsBDivBiModBiPrecon,
 				paramsBDivBiModmsk,
