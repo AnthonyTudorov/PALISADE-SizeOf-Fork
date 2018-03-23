@@ -1,5 +1,6 @@
 /**
- * @file integerencoding.h Represents and defines integer-encoded plaintext objects in Palisade.
+ * @file integerencoding.h EXPERIMENTAL FEATURE: Represents and defines a limited version of the fractional encoder.
+ * Currently it is simply an extended version of integer encoding with division supported.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,37 +25,38 @@
  *
  */
 
-#ifndef SRC_CORE_LIB_ENCODING_INTEGERENCODING_H_
-#define SRC_CORE_LIB_ENCODING_INTEGERENCODING_H_
+#ifndef SRC_CORE_LIB_ENCODING_FRACTIONALENCODING_H_
+#define SRC_CORE_LIB_ENCODING_FRACTIONALENCODING_H_
 
 #include "plaintext.h"
 
 namespace lbcrypto {
 
-class IntegerEncoding: public PlaintextImpl {
+class FractionalEncoding: public PlaintextImpl {
 	int64_t		value;
+	size_t 		m_truncatedBits;
 
 public:
 	// these two constructors are used inside of Decrypt
-	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
 
-	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0)  {}
 
-	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
-		PlaintextImpl(vp,ep), value(0) {}
+	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
+		PlaintextImpl(vp,ep), value(0), m_truncatedBits(0) {}
 
-	IntegerEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
+		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
 
-	IntegerEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
+		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits)  {}
 
-	IntegerEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
-		PlaintextImpl(vp,ep), value(scalar) {}
+	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t truncatedBits = 0) :
+		PlaintextImpl(vp,ep), value(scalar), m_truncatedBits(truncatedBits) {}
 
-	virtual ~IntegerEncoding() {}
+	virtual ~FractionalEncoding() {}
 
 	/**
 	 * GetScalarValue
@@ -95,7 +97,7 @@ public:
 	 * @return whether the two plaintext are equivalent.
 	 */
 	bool CompareTo(const PlaintextImpl& other) const {
-		const IntegerEncoding& oth = dynamic_cast<const IntegerEncoding&>(other);
+		const FractionalEncoding& oth = dynamic_cast<const FractionalEncoding&>(other);
 		return oth.value == this->value;
 	}
 

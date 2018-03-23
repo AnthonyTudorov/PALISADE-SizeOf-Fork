@@ -1005,8 +1005,17 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakeIntegerPlaintext(int64_t value, size_t truncatedBits = 0) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
+	Plaintext MakeIntegerPlaintext(int64_t value) const {
+		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value) );
+	}
+
+	/**
+	 * MakeIntegerPlaintext constructs a FractionalEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
+		return Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
 	}
 
 	/**
@@ -1631,7 +1640,7 @@ public:
 	Ciphertext<Element>
 	EvalRightShift(const Ciphertext<Element> ct1, size_t shift) const
 	{
-		Plaintext plaintextShift = MakeIntegerPlaintext(-9999,shift);
+		Plaintext plaintextShift = MakeFractionalPlaintext(-9999,shift);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
