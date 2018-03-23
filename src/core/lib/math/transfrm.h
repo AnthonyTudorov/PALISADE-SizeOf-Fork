@@ -262,7 +262,7 @@ namespace lbcrypto {
 									butterflyPlus -= modulus;
 
 								butterflyMinus = resultVec[indexEven];
-								if (resultVec[indexEven] < omegaFactor)
+								if (butterflyMinus < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
 
