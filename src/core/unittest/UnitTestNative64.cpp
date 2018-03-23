@@ -219,11 +219,15 @@ TEST(UTNativeInteger,basic_math){
   /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
   /************************************************/
 
+  // YSP the behavior for the NativeInteger has changed
+  // Setting it to 0 has a performance penalty, and the result
+  // cannot be used in either case
+  //
   // The operator "-=(Minus Equals)" does subtractionn of two Big
   // Integers a,b Calculates a-b, and stores result in a Results to 0,
   // when a<b, since there is no concept of negative number as of now
   // ConvertToInt converts NativeInteger a to integer
-  {
+  /*{
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
     NativeInteger a("20489");
@@ -236,7 +240,7 @@ TEST(UTNativeInteger,basic_math){
     //ZERO
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << "Failure testing minus_equals_a_less_than_b";
-  }
+  }*/
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
     NativeInteger a("2048956567");
