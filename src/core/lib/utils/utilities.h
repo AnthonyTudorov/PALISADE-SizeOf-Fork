@@ -86,9 +86,26 @@ std::string replaceChar(std::string str, char in, char out);
  * @param b: operand 2
  * @return 1 if overflow occurs, 0 otherwise
  */
-inline uint32_t AdditionOverflow(uint64_t a, uint64_t b)
+inline uint32_t IsAdditionOverflow(uint64_t a, uint64_t b)
 {
 	a += b;
+	if (a < b )
+		return 1;
+	else
+		return 0;
+}
+
+/**
+ * add two 64-bit number with carry out, c = a + b
+ * @param a: operand 1
+ * @param b: operand 2
+ * @param c: c = a + b
+ * @return 1 if overflow occurs, 0 otherwise
+ */
+inline uint32_t AdditionWithCarryOut(uint64_t a, uint64_t b, uint64_t &c)
+{
+	a += b;
+	c = a;
 	if (a < b )
 		return 1;
 	else
@@ -107,7 +124,7 @@ inline unsigned __int128 Mul128(uint64_t a, uint64_t b) {
 }
 
 /**
- * Barrett reduction of 128-bit integer modulo 64-bit integer
+ * Barrett reduction of 128-bit integer modulo 64-bit integer. Source: Menezes, Alfred; Oorschot, Paul; Vanstone, Scott. Handbook of Applied Cryptography, Section 14.3.3.
  * @param a: operand (128-bit)
  * @param m: modulus (64-bit)
  * @param mu: 2^128/modulus (128-bit)
@@ -116,7 +133,7 @@ inline unsigned __int128 Mul128(uint64_t a, uint64_t b) {
 inline uint64_t BarrettUint128ModUint64(unsigned __int128 a, uint64_t modulus, unsigned __int128 mu)
 {
 	// (a * mu)/2^128 // we need the upper 128-bit of (256-bit product)
-	uint64_t result = 0, a_lo = 0, a_hi = 0, mu_lo = 0, mu_hi = 0, right_hi = 0, middle_lo = 0, middle_hi = 0, tmp1 = 0, tmp2 = 0, overflow = 0;// tmp var
+	uint64_t result = 0, a_lo = 0, a_hi = 0, mu_lo = 0, mu_hi = 0, left_hi = 0, middle_lo = 0, middle_hi = 0, tmp1 = 0, tmp2 = 0, carry = 0;
 	unsigned __int128 middle = 0;
 
 	a_lo = (uint64_t)a;
@@ -124,38 +141,27 @@ inline uint64_t BarrettUint128ModUint64(unsigned __int128 a, uint64_t modulus, u
 	mu_lo = (uint64_t)mu;
 	mu_hi = mu >> 64;
 
-	right_hi = (Mul128( a_lo, mu_lo )) >> 64;
+	left_hi = (Mul128( a_lo, mu_lo )) >> 64; // mul left parts, discard lower word
 
-	middle =  Mul128( a_lo, mu_hi );
+	middle =  Mul128( a_lo, mu_hi ); // mul middle first
 	middle_lo = (uint64_t)middle;
 	middle_hi = middle >> 64;
 
-	tmp1 = middle_lo + right_hi;
-//	middle = (__int128)middle_lo + right_hi;
-//	if ( middle > 0xFFFFFFFFFFFFFFFF )
-//		overflow = 1;
-//	else
-//		overflow = 0;
-	overflow = AdditionOverflow(middle_lo, right_hi);
+	carry = AdditionWithCarryOut(middle_lo, left_hi, tmp1); // accumulate and check carry
 
-	tmp2 = middle_hi + overflow;
+	tmp2 = middle_hi + carry; // accumulate
 
-	middle = Mul128( a_hi, mu_lo );
+	middle = Mul128( a_hi, mu_lo ); // mul middle second
 	middle_lo = (uint64_t)middle;
 	middle_hi = middle >> 64;
 
-//	middle = (__int128)middle_lo + tmp1;
-//	if ( middle > 0xFFFFFFFFFFFFFFFF )
-//		overflow = 1;
-//	else
-//		overflow = 0;
-	overflow = AdditionOverflow(middle_lo, tmp1);
+	carry = IsAdditionOverflow(middle_lo, tmp1); // check carry
 
-	right_hi = middle_hi + overflow;
+	left_hi = middle_hi + carry; // accumulate
 
-	tmp1 = a_hi*mu_hi + tmp2 + right_hi; // now we have (a * mu)/2^128
+	tmp1 = a_hi*mu_hi + tmp2 + left_hi; // now we have the lower word of (a * mu)/2^128, no need for higher word
 
-	// subtract
+	// subtract lower words only, higher words should be the same
 	result = a_lo - tmp1 * modulus;
 
 	while (result >= modulus)
@@ -164,8 +170,12 @@ inline uint64_t BarrettUint128ModUint64(unsigned __int128 a, uint64_t modulus, u
 	return result;
 }
 
-// for debugging [not efficient]
-inline std::string Uint128ToString(const unsigned __int128 a) noexcept
+/**
+ * Only meant for debugging [not necessarily efficient]
+ * @param a: 128-bit integer to convert
+ * @return std:string of a
+ */
+inline std::string Uint128ToString(const unsigned __int128 &a) noexcept
 {
 	unsigned __int128 tmp = a;
 	char buffer[128];

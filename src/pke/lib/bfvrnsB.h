@@ -32,8 +32,7 @@
  *   - Junfeng Fan and Frederik Vercauteren (2012). Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  *
  * Our implementation builds from the designs here:
- *   [TODO: remove reference to Halevi et al. variant since this implementation is only based on Bajard et al. scheme]
- *   - Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
+ *   - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (hhttps://eprint.iacr.org/2016/510)
  *   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
  *	 - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca (2016). A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive, Report 2016/510. (https://eprint.iacr.org/2016/510)
  */
@@ -147,26 +146,6 @@ namespace lbcrypto {
 			bool PrecomputeCRTTables();
 
 			/**
-			* Gets Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
-			*
-			* @return the precomputed CRT basis
-			*/
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
-
-
-
-
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsBsk() const { return m_paramsBsk; }
-
-
-			/**
-			* Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
-			*
-			* @return the precomputed CRT basis
-			*/
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
-
-			/**
 			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			*
 			* @return the precomputed table
@@ -199,84 +178,6 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi) mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTqDivqiTable() const { return m_CRTqDivqiTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi) mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi) mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiPreconTable() const { return m_CRTqDivqiModsiPreconTable; }
-
-			/**
-			* Gets the precomputed table of Q mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
-
-			/**
-			* Gets the precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
-
-			/**
-			* Gets the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
-
-			/**
-			* Gets an NTL precomputation of the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntPreconTable() const { return m_CRTMultIntPreconTable; }
-
-			/**
-			* Gets the precomputed table of (S/si)^{-1} mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
-
-			/**
-			* Gets the precomputed table of (S/si) mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
-
-			/**
-			* Gets an NTL precomputation of the precomputed table of (S/si) mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiPreconTable() const { return m_CRTsDivsiModqiPreconTable; }
-
-			/**
-			* Gets the precomputed table of S mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
 
 			/**
 			* == operator to compare to this instance of LPCryptoParametersBFVrnsB object.
@@ -295,18 +196,9 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 			}
 
+			// BFVrnsB getters and setters
+			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsBsk() const { return m_paramsBsk; }
 
-
-
-
-
-
-
-
-
-
-
-			// RNS approximate getters and setters
 			std::vector<NativeInteger> const &GetDCRTParamsqModuli() const { return m_qModuli; }
 			std::vector<unsigned __int128> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
 
@@ -316,14 +208,12 @@ namespace lbcrypto {
 			NativeInteger const &GetDCRTParamsmtilde() const { return m_mtilde; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
-
 			std::vector<unsigned __int128> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqiPrecon() const { return m_mtildeqDivqiPreconTable; }
 
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModBskmtilde() const { return m_qDivqiModBskmtildeTable; }
-			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModBskmtildePrecon() const { return m_qDivqiModBskmtildePreconTable; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsqModBski() const { return m_qModBskiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsqModBskiPrecon() const { return m_qModBskiPreconTable; }
@@ -335,43 +225,34 @@ namespace lbcrypto {
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeInvModBskiPreconTable() const { return m_mtildeInvModBskiPreconTable; }
 
 
-
-
 			std::vector<NativeInteger> const &GetDCRTParamsqDivqiModqiTable() const { return m_qDivqiModqiTable; }
+
 			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiTable() const { return m_tqDivqiModqiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiPreconTable() const { return m_tqDivqiModqiPreconTable; }
 
 			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiTable() const { return m_tgammaqDivqiModqiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiPreconTable() const { return m_tgammaqDivqiModqiPreconTable; }
 
-			NativeInteger const &GetPlaintextModulusPrecon() const { return m_tPrecon; }
-
 			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiTable() const { return m_qInvModBskiTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiPreconTable() const { return m_qInvModBskiPreconTable; }
-
 
 
 			std::vector<NativeInteger> const &GetBDivBiModBi() const { return m_BDivBiModBiTable; }
 			std::vector<NativeInteger> const &GetBDivBiModBiPrecon() const { return m_BDivBiModBiPreconTable; }
 
 			std::vector<NativeInteger> const &GetBDivBiModmsk() const { return m_BDivBiModmskTable; }
-			std::vector<NativeInteger> const &GetBDivBiModmskPrecon() const { return m_BDivBiModmskPreconTable; }
 
 			NativeInteger const &GetBInvModmsk() const { return m_BInvModmsk; }
 			NativeInteger const &GetBInvModmskPrecon() const { return m_BInvModmskPrecon; }
 
 			std::vector<std::vector<NativeInteger>> const &GetBDivBiModqj() const { return m_BDivBiModqTable; }
-			std::vector<std::vector<NativeInteger>> const &GetBDivBiModqjPrecon() const { return m_BDivBiModqPreconTable; }
 
 			std::vector<NativeInteger> const &GetBModqi() const { return m_BModqiTable; }
 			std::vector<NativeInteger> const &GetBModqiPrecon() const { return m_BModqiPreconTable; }
 
-
-
 			NativeInteger const &GetDCRTParamsgamma() const { return m_gamma; }
 
 			NativeInteger const &GetDCRTParamsgammaInvModt() const { return m_gammaInvModt; }
-			NativeInteger const &GetDCRTParamsgammaInvModtPrecon() const { return m_gammaInvModtPrecon; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaTable() const { return m_negqInvModtgammaTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaPreconTable() const { return m_negqInvModtgammaPreconTable; }
@@ -379,14 +260,7 @@ namespace lbcrypto {
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaTable() const { return m_qDivqiModtgammaTable; }
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaPreconTable() const { return m_qDivqiModtgammaPreconTable; }
 
-
 		private:
-
-			// Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
-
-			// Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			std::vector<QuadFloat> m_CRTDecryptionFloatTable;
@@ -397,61 +271,12 @@ namespace lbcrypto {
 			// Stores a precomputed table of floor(Q/p) mod qi
 			std::vector<NativeInteger> m_CRTDeltaTable;
 
-			// Stores a precomputed table of (Q/qi)^{-1} mod qi
-			std::vector<NativeInteger> m_CRTInverseTable;
-
-			// Stores a precomputed table of (Q/qi) mod qi
-			std::vector<NativeInteger> m_CRTqDivqiTable;
-
-			// Stores a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
-
-			// Stores a precomputed table of Q mod si
-			std::vector<NativeInteger> m_CRTqModsiTable;
-
-			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
-
-			// Stores an NTL precomputation of precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<NativeInteger>> m_CRTMultIntPreconTable;
-
-			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			std::vector<double> m_CRTMultFloatTable;
-
-			// Stores a precomputed table of (S/si)^{-1} mod si
-			std::vector<NativeInteger> m_CRTSInverseTable;
-
-			// Stores a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiTable;
-
-			// Stores a precomputed table of S mod qi table
-			std::vector<NativeInteger> m_CRTsModqiTable;
-
 			// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
-
-			// Stores an NTL approximation for a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiPreconTable;
-
-			// Stores an NTL approximation for a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiPreconTable;
-
-
-
-
-
-
-
-
-
-
-
-
 
 			// Precomputed tables of Bajard et al. BFVrns variant (we call it BFVrnsB )
 			// naming convention:
 			// 1) let RNS base q = {q0, q1, ..., q(k-1)}, then q is used to refer to the RNS base or its dynamic value which is equal to q = q0*q1*...*q(k-1)
-
 
 			// EvalMulRNS parameters
 
@@ -474,101 +299,87 @@ namespace lbcrypto {
 			std::vector<NativeInteger> m_qModuli;
 			std::vector<unsigned __int128> m_qModulimu;
 
+			// 7) Stores the auxilliary base B moduli
 			std::vector<NativeInteger> m_BModuli;
 
-			// 7) Stores the roots of unity modulo Bsk
+			// 8) Stores the roots of unity modulo Bsk
 			std::vector<NativeInteger> m_BskRoots;
 
-			// 8) Stores the crt moduli of base Bsk = {B U msk}
+			// 9) Stores the crt moduli of base Bsk = {B U msk}
 			std::vector<NativeInteger> m_BskModuli;
 			std::vector<unsigned __int128> m_BskModulimu;
 
-			// 9) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
+			// 10) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
 			std::vector<NativeInteger> m_BskmtildeModuli;
-
 			std::vector<unsigned __int128> m_BskmtildeModulimu; // Barrett constant
 
-			// 10) Stores (q/qi)^-1 mod qi
+			// 11) Stores (q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_qDivqiModqiTable;
 
-			// 10) Stores t*(q/qi)^-1 mod qi
+			// 12) Stores t*(q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_tqDivqiModqiTable;
 			std::vector<NativeInteger> m_tqDivqiModqiPreconTable;
 
-			// 11) Stores q/qi mod Bj table (Matrix) where Bj \in {Bsk U mtilde}
+			// 13) Stores q/qi mod Bj table (Matrix) where Bj \in {Bsk U mtilde}
 			std::vector<std::vector<NativeInteger>> m_qDivqiModBskmtildeTable;
-			std::vector<std::vector<NativeInteger>> m_qDivqiModBskmtildePreconTable;
 
-			// 12) Stores mtilde*(q/qi)^-1 mod qi table
+			// 14) Stores mtilde*(q/qi)^-1 mod qi table
 			std::vector<NativeInteger> m_mtildeqDivqiTable;
 			std::vector<NativeInteger> m_mtildeqDivqiPreconTable;
 
-			// 13) Stores -1/q mod mtilde
+			// 15) Stores -1/q mod mtilde
 			NativeInteger m_negqInvModmtilde;
 			NativeInteger m_negqInvModmtildePrecon;
 
-			// 14) Stores q mod Bski
+			// 16) Stores q mod Bski
 			std::vector<NativeInteger> m_qModBskiTable;
 			std::vector<NativeInteger> m_qModBskiPreconTable;
 
-			// 15) Stores mtilde^-1 mod Bski
+			// 17) Stores mtilde^-1 mod Bski
 			std::vector<NativeInteger> m_mtildeInvModBskiTable;
 			std::vector<NativeInteger> m_mtildeInvModBskiPreconTable;
 
-
-			// Stores t Precon
-			NativeInteger m_tPrecon;
-
-			// 16) Stores q^-1 mod Bski
+			// 18) Stores q^-1 mod Bski
 			std::vector<NativeInteger> m_qInvModBskiTable;
 			std::vector<NativeInteger> m_qInvModBskiPreconTable;
 
-
-
-			// 17) Stores (B/Bi)^-1 mod Bi
+			// 19) Stores (B/Bi)^-1 mod Bi
 			std::vector<NativeInteger> m_BDivBiModBiTable;
 			std::vector<NativeInteger> m_BDivBiModBiPreconTable;
 
-			// 18) Stores B/Bi mod qj table (Matrix) where qj \in {q}
+			// 20) Stores B/Bi mod qj table (Matrix) where qj \in {q}
 			std::vector<std::vector<NativeInteger>> m_BDivBiModqTable;
-			std::vector<std::vector<NativeInteger>> m_BDivBiModqPreconTable;
 
-			// 19) stores B/Bi mod msk
+			// 21) stores B/Bi mod msk
 			std::vector<NativeInteger> m_BDivBiModmskTable;
-			std::vector<NativeInteger> m_BDivBiModmskPreconTable;
 
-			// 20) Stores B^-1 mod msk
+			// 22) Stores B^-1 mod msk
 			NativeInteger m_BInvModmsk;
 			NativeInteger m_BInvModmskPrecon;
 
-			// 21) Stores B mod qi
+			// 23) Stores B mod qi
 			std::vector<NativeInteger> m_BModqiTable;
 			std::vector<NativeInteger> m_BModqiPreconTable;
 
-
-
 			// DecRNS parameters
 
-			// 22) Stores gamma
+			// 24) Stores gamma
 			NativeInteger m_gamma;
 
-			// 23) Stores gamma^-1 mod t
+			// 25) Stores gamma^-1 mod t
 			NativeInteger m_gammaInvModt;
-			NativeInteger m_gammaInvModtPrecon;
 
-			// 24) Stores -1/q mod {t U gamma}
+			// 26) Stores -1/q mod {t U gamma}
 			std::vector<NativeInteger> m_negqInvModtgammaTable;
 			std::vector<NativeInteger> m_negqInvModtgammaPreconTable;
 
-			// 25) Stores q/qi mod mj table (matrix) where mj \in {t U gamma}
+			// 27) Stores q/qi mod mj table (matrix) where mj \in {t U gamma}
 			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaTable;
 			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaPreconTable;
 
-			// 26) Stores (t*gamma*q/qi)^-1 mod qi
+			// 28) Stores (t*gamma*q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_tgammaqDivqiModqiTable;
 			std::vector<NativeInteger> m_tgammaqDivqiModqiPreconTable;
-
-
 	};
 
 	/**

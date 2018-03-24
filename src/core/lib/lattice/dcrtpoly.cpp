@@ -32,8 +32,6 @@ using std::string;
 #include "../utils/serializablehelper.h"
 #include "../utils/debug.h"
 
-//#define BFVRNS_B_DEBUG
-
 namespace lbcrypto
 {
 
@@ -1255,7 +1253,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		const typename PolyType::Integer &gamma,
 		const typename PolyType::Integer &t,
 		const typename PolyType::Integer &gammaInvModt,
-		const typename PolyType::Integer &gammaInvModtPrecon,
 		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
 		const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
 		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
@@ -1267,11 +1264,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 	usint numq = m_vectors.size();
 
 	typename PolyType::Vector coefficients(n, t);
-
-#ifdef BFVRNS_B_DEBUG
-	cout << "Dec input: " << endl;
-	cout << *this << endl;
-#endif
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1302,8 +1294,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 
 		tmp = st.ModSubFast( sgamma, t );
 
-		// TODO [Fix me]
-//		coefficients[k] = tmp.ModMulPreconNTL( gammaInvModt, t, gammaInvModtPrecon ); // We cannot use precon here, for some t, (eg: t = 200), the NTL precomputed value is 0 [Probably a bug]
 		coefficients[k] = tmp.ModMulFastNTL( gammaInvModt, t );
 	}
 
@@ -1313,7 +1303,6 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 	result.SetValues(coefficients,COEFFICIENT);
 
 	return std::move(result);
-
 }
 
 //Source: Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca. A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive: Report 2016/510. (https://eprint.iacr.org/2016/510)
@@ -1331,7 +1320,6 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
 		const std::vector<typename PolyType::Integer> &qModBski,
 		const std::vector<typename PolyType::Integer> &qModBskiPrecon,
 		const typename PolyType::Integer &negqInvModmtilde,
@@ -1380,24 +1368,6 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
         }
     }
 
-// TODO remove this
-#ifdef BFVRNS_B_DEBUG
-    static int count = 0;
-    if (count < 1)
-    {
-		cout << "ximtildeqiDivqModqi: " << endl;
-		for (uint32_t i = 0; i < numq; i++)
-		{
-			for (uint32_t k = 0; k < n; k++)
-			{
-				cout << ximtildeqiDivqModqi[i*n + k] << ", ";
-			}
-			cout << endl;
-		}
-		cout << endl;
-    }
-#endif
-
     for (uint32_t j = 0; j < numBsk + 1; j++)
     {
     	if( j < numBsk)
@@ -1422,34 +1392,11 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     		for (uint32_t i = 0; i < numq; i++)
     		{
     			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-//    			const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
     			result += Mul128( ximtildeqiDivqModqi[i*n+k].ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
-//    			m_vectors[numq+j].at(k).ModAddFastNTLEq(
-//    					ximtildeqiDivqModqi[i*n+k].ModMulPreconNTL(qDivqiModBjValue, BskmtildeModuli[j], qDivqiModBjPreconValue ),
-//						BskmtildeModuli[j] );
-
-//    			cout << "result: " << Uint128ToString(result) << endl;
     		}
     		m_vectors[numq+j].at(k) = BarrettUint128ModUint64( result, BskmtildeModuli[j].ConvertToInt(), BskmtildeModulimu[j] );
     	}
     }
-
-#ifdef BFVRNS_B_DEBUG
-    if (count < 1)
-    {
-		cout << "ximtildeqiDivqModqi * q/qi mod Bski: " << endl;
-		for (uint32_t i = 0; i < numq+numBsk+1; i++)
-		{
-			for (uint32_t k = 0; k < n; k++)
-			{
-				cout << m_vectors[i].at(k) << ", ";
-			}
-			cout << endl;
-		}
-		cout << endl;
-    }
-    count++;
-#endif
 
     // now we have input in Basis (q U Bsk U mtilde)
     // next we perform Small Motgomery Reduction mod q
@@ -1514,14 +1461,12 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		const typename PolyType::Integer &t,
-		const typename PolyType::Integer &tPrecon,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskModuli,
 		const std::vector<unsigned __int128> &BskModulimu,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBjPrecon,
 		const std::vector<typename PolyType::Integer> &qInvModBi,
 		const std::vector<typename PolyType::Integer> &qInvModBiPrecon) {
 
@@ -1561,20 +1506,13 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 #endif
 		for ( uint32_t k = 0; k < n; k++ )
 		{
-//			typename PolyType::Integer aq = 0;
 			unsigned __int128 aq = 0;
 			for (uint32_t i = 0; i < numq; i++)
 			{
 				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-//				const typename PolyType::Integer &qDivqiModBjPreconValue = qDivqiModBjPrecon[i][j];
 				typename PolyType::Integer &xi = m_vectors[i].at(k);
-
-//				aq.ModAddFastNTLEq(
-//						m_vectors[i].at(k).ModMulPreconNTL(qDivqiModBjValue, BskModuli[j], qDivqiModBjPreconValue),
-//						BskModuli[j] );
 				aq += Mul128( xi.ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
 			}
-//			txiqiDivqModqi[j*n + k] = aq;
 			txiqiDivqModqi[j*n + k] = BarrettUint128ModUint64( aq, BskModuli[j].ConvertToInt(), BskModulimu[j] );
 		}
 	}
@@ -1590,7 +1528,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-        	// TODO [fix-me] we cannot use ModMulPreconNTL with t when t = 200 for example,
+        	// Not worthy to use lazy reduction here
         	m_vectors[i+numq].at(k).ModMulFastEq(t, BskModuli[i]);
         	m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
         	m_vectors[i+numq].at(k).ModMulPreconNTLEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
@@ -1615,11 +1553,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
 			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
-			const std::vector<typename PolyType::Integer> &BDivBiModmskPrecon,
 			const typename PolyType::Integer &BInvModmsk,
 			const typename PolyType::Integer &BInvModmskPrecon,
 			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
-			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqjPrecon,
 			const std::vector<typename PolyType::Integer> &BModqi,
 			const std::vector<typename PolyType::Integer> &BModqiPrecon
 			)
@@ -1627,7 +1563,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	// Input: poly in basis Bsk
 	// Output: poly in basis q
 
-	// 1) FastBaseconv(x, B, q)
+	// FastBaseconv(x, B, q)
 	size_t numq = qModuli.size();
 	size_t numBsk = BskModuli.size();
 
@@ -1658,12 +1594,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
-//				const typename PolyType::Integer &currentBDivBiModqjPrecon = BDivBiModqjPrecon[i][j];
 				const typename PolyType::Integer &xi = m_vectors[numq+i].at(k);
-//				m_vectors[j].at(k).ModAddFastNTLEq(
-//						m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModqj, qModuli[j], currentBDivBiModqjPrecon ),
-//						qModuli[j]);
-
 				result += Mul128( xi.ConvertToInt(), currentBDivBiModqj.ConvertToInt() );
 			}
 			m_vectors[j].at(k) = BarrettUint128ModUint64( result, qModuli[j].ConvertToInt(), qModulimu[j] );
@@ -1678,17 +1609,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
     for (uint32_t k = 0; k < n; k++)
     {
-//    	alphaskxVector[k] = 0;
     	unsigned __int128 result = 0;
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
-//        	const typename PolyType::Integer &currentBDivBiModmskPrecon = BDivBiModmskPrecon[i];
-
-//        	alphaskxVector[k].ModAddFastNTLEq(
-//        			m_vectors[numq+i].at(k).ModMulPreconNTL( currentBDivBiModmsk , BskModuli[numBsk-1], currentBDivBiModmskPrecon)
-//        			, BskModuli[numBsk-1]);
-
         	result += Mul128( m_vectors[numq+i].at(k).ConvertToInt(), currentBDivBiModmsk.ConvertToInt() );
         }
         alphaskxVector[k] = BarrettUint128ModUint64( result, BskModuli[numBsk-1].ConvertToInt(), BskModulimu[numBsk-1] );
@@ -1732,9 +1656,6 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 
 	delete[] alphaskxVector;
 	alphaskxVector = nullptr;
-
-//    delete[] xiBiDivBModBi;
-//    xiBiDivBModBi = nullptr;
 }
 
 // Source: Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
