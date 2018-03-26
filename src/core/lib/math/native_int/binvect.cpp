@@ -187,28 +187,27 @@ void NativeVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
     DEBUG("Switch modulus old this :"<<*this);
 	
 	IntegerType oldModulus(this->m_modulus);
-	IntegerType n;
 	IntegerType oldModulusByTwo(oldModulus>>1);
 	IntegerType diff ((oldModulus > newModulus) ? (oldModulus-newModulus) : (newModulus - oldModulus));
 	DEBUG("Switch modulus diff :"<<diff);
 	for(usint i=0; i< this->m_data.size(); i++) {
-		n = this->at(i);
+		IntegerType n = this->m_data[i];
 		DEBUG("i,n "<<i<<" "<< n);
 		if(oldModulus < newModulus) {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s1 "<<n.ModAdd(diff, newModulus));
-				this->at(i) =n.ModAdd(diff, newModulus);
+				this->m_data[i] = n.ModAdd(diff, newModulus);
 			} else {
 			  DEBUG("s2 "<<n.Mod(newModulus));
-				this->at(i) =n.Mod(newModulus);
+				this->m_data[i] = n.Mod(newModulus);
 			}
 		} else {
 			if(n > oldModulusByTwo) {
 			  DEBUG("s3 "<<n.ModSub(diff, newModulus));				
-				this->at(i) =n.ModSub(diff, newModulus);
+				this->m_data[i] = n.ModSub(diff, newModulus);
 			} else {
 			  DEBUG("s4 "<<n.Mod(newModulus));
-				this->at(i) =n.Mod(newModulus);
+				this->m_data[i] = n.Mod(newModulus);
 			}
 		}
 	}
