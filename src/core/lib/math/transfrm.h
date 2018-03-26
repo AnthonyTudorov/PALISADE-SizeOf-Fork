@@ -185,21 +185,11 @@ namespace lbcrypto {
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
-			// works with a local copy to take advantage of caching
-			NativeVector resultVec(n);
-
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
 			for (size_t i = 0; i < n; i++)
-			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
+			  (*result)[i]= element[ReverseBits(i, msb)].ConvertToInt();
 
-			// works with a local copy to take advantage of caching
-			usint ruLength = rootOfUnityTable.GetLength();
-			NativeVector localRootOfUnityTable(ruLength);
-			for (size_t i = 0; i <  ruLength; i++)
-				localRootOfUnityTable[i] = rootOfUnityTable[i].ConvertToInt();
-
-			//int64_t signedOmegaFactor;
 			NativeInteger omegaFactor;
 			NativeInteger butterflyPlus;
 			NativeInteger butterflyMinus;
@@ -242,13 +232,13 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = localRootOfUnityTable[x];
+							NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
 							NativeInteger preconOmega = preconRootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
 
-							NativeInteger oddVal = resultVec[indexOdd];
+							NativeInteger oddVal = (*result)[indexOdd].ConvertToInt();
 
 							if (oddVal != 0)
 							{
@@ -257,22 +247,22 @@ namespace lbcrypto {
 								else
 									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
 
-								butterflyPlus = resultVec[indexEven];
+								butterflyPlus = (*result)[indexEven].ConvertToInt();
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = resultVec[indexEven];
+								butterflyMinus = (*result)[indexEven].ConvertToInt();
 								if (butterflyMinus < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
 
-								resultVec[indexEven]= butterflyPlus;
-								resultVec[indexOdd]= butterflyMinus;
+								(*result)[indexEven]= butterflyPlus;
+								(*result)[indexOdd]= butterflyMinus;
 
 							}
 							else
-								resultVec[indexOdd] = resultVec[indexEven];
+								(*result)[indexOdd] = (*result)[indexEven];
 
 						}
 					}
@@ -305,11 +295,11 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = localRootOfUnityTable[x];
+							NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
-							NativeInteger oddVal = resultVec[indexOdd];
+							NativeInteger oddVal = (*result)[indexOdd].ConvertToInt();
 
 							if (oddVal != 0)
 							{
@@ -318,29 +308,26 @@ namespace lbcrypto {
 								else
 									omegaFactor = oddVal.ModMulFast(omega,modulus);
 
-								butterflyPlus = resultVec[indexEven];
+								butterflyPlus = (*result)[indexEven].ConvertToInt();
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = resultVec[indexEven];
-								if (resultVec[indexEven] < omegaFactor)
+								butterflyMinus = (*result)[indexEven].ConvertToInt();
+								if ((*result)[indexEven] < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
 
-								resultVec[indexEven]= butterflyPlus;
-								resultVec[indexOdd]= butterflyMinus;
+								(*result)[indexEven]= butterflyPlus;
+								(*result)[indexOdd]= butterflyMinus;
 
 							}
 							else
-								resultVec[indexOdd] = resultVec[indexEven];
+								(*result)[indexOdd] = (*result)[indexEven];
 						}
 					}
 				}
 			}
-
-			for (size_t i = 0; i < n; i++)
-			  (*result)[i]=resultVec[i];
 
 		}
 		else
