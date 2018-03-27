@@ -102,6 +102,7 @@ inline uint32_t IsAdditionOverflow(uint64_t a, uint64_t b)
  * @param c: c = a + b
  * @return 1 if overflow occurs, 0 otherwise
  */
+
 inline uint32_t AdditionWithCarryOut(uint64_t a, uint64_t b, uint64_t &c)
 {
 	a += b;
