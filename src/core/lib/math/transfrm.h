@@ -179,7 +179,7 @@ namespace lbcrypto {
 			bool dbg_flag = false;
 			usint n = cycloOrder;
 
-			NativeInteger modulus = element.GetModulus().ConvertToInt();
+			IntType modulus = element.GetModulus();
 
 			if( result->GetLength() != n )
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
@@ -188,11 +188,11 @@ namespace lbcrypto {
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
 			for (size_t i = 0; i < n; i++)
-			  (*result)[i]= element[ReverseBits(i, msb)].ConvertToInt();
+			  (*result)[i]= element[ReverseBits(i, msb)];
 
-			NativeInteger omegaFactor;
-			NativeInteger butterflyPlus;
-			NativeInteger butterflyMinus;
+			IntType omegaFactor;
+			IntType butterflyPlus;
+			IntType butterflyMinus;
 
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
@@ -232,13 +232,13 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
-							NativeInteger preconOmega = preconRootOfUnityTable[x];
+							IntType omega = rootOfUnityTable[x];
+							IntType preconOmega = preconRootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
 
-							NativeInteger oddVal = (*result)[indexOdd].ConvertToInt();
+							IntType oddVal = (*result)[indexOdd];
 
 							if (oddVal != 0)
 							{
@@ -247,12 +247,12 @@ namespace lbcrypto {
 								else
 									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
 
-								butterflyPlus = (*result)[indexEven].ConvertToInt();
+								butterflyPlus = (*result)[indexEven];
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = (*result)[indexEven].ConvertToInt();
+								butterflyMinus = (*result)[indexEven];
 								if (butterflyMinus < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
@@ -295,11 +295,11 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = rootOfUnityTable[x].ConvertToInt();
+							IntType omega = rootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
-							NativeInteger oddVal = (*result)[indexOdd].ConvertToInt();
+							IntType oddVal = (*result)[indexOdd];
 
 							if (oddVal != 0)
 							{
@@ -308,12 +308,12 @@ namespace lbcrypto {
 								else
 									omegaFactor = oddVal.ModMulFast(omega,modulus);
 
-								butterflyPlus = (*result)[indexEven].ConvertToInt();
+								butterflyPlus = (*result)[indexEven];
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = (*result)[indexEven].ConvertToInt();
+								butterflyMinus = (*result)[indexEven];
 								if ((*result)[indexEven] < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
