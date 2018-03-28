@@ -828,17 +828,12 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrnsB->GetElementParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsBsk = cryptoParamsBFVrnsB->GetDCRTParamsBsk();
-
 	const std::vector<NativeInteger> &paramsqModuli = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
 	const std::vector<unsigned __int128> &paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
-
 	const std::vector<NativeInteger> &paramsBskModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskModuli();
 	const std::vector<unsigned __int128> &paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
-
 	const std::vector<NativeInteger> &paramsBskmtildeModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModuli();
-
 	const std::vector<unsigned __int128> &paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
-
 	const std::vector<NativeInteger> &paramsmtildeqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqi();
 	const std::vector<NativeInteger> &paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqiPrecon();
 	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModBskmtilde = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModBskmtilde();
@@ -949,22 +944,21 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 #endif
 
 	// perfrom RNS approximate Flooring
-	const NativeInteger paramsPlaintextModulus = cryptoParamsBFVrnsB->GetPlaintextModulus();
-	const std::vector<NativeInteger> paramstqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamstqDivqiModqiTable();
-	const std::vector<NativeInteger> paramstqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamstqDivqiModqiPreconTable();
-	const std::vector<NativeInteger> paramsqInvModBi = cryptoParamsBFVrnsB->GetDCRTParamsqInvModBiTable();
-	const std::vector<NativeInteger> paramsqInvModBiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsqInvModBiPreconTable();
-
+	const NativeInteger &paramsPlaintextModulus = cryptoParamsBFVrnsB->GetPlaintextModulus();
+	const std::vector<NativeInteger> &paramstqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamstqDivqiModqiTable();
+	const std::vector<NativeInteger> &paramstqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamstqDivqiModqiPreconTable();
+	const std::vector<NativeInteger> &paramsqInvModBi = cryptoParamsBFVrnsB->GetDCRTParamsqInvModBiTable();
+	const std::vector<NativeInteger> &paramsqInvModBiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsqInvModBiPreconTable();
 
 	// perform FastBaseConvSK
-	const std::vector<NativeInteger> paramsBDivBiModBi = cryptoParamsBFVrnsB->GetBDivBiModBi();
-	const std::vector<NativeInteger> paramsBDivBiModBiPrecon = cryptoParamsBFVrnsB->GetBDivBiModBiPrecon();
-	const std::vector<NativeInteger> paramsBDivBiModmsk = cryptoParamsBFVrnsB->GetBDivBiModmsk();
-	const NativeInteger paramsBInvModmsk = cryptoParamsBFVrnsB->GetBInvModmsk();
-	const NativeInteger paramsBInvModmskPrecon = cryptoParamsBFVrnsB->GetBInvModmskPrecon();
-	const std::vector<std::vector<NativeInteger>> paramsBDivBiModqj = cryptoParamsBFVrnsB->GetBDivBiModqj();
-	const std::vector<NativeInteger> paramsBModqi = cryptoParamsBFVrnsB->GetBModqi();
-	const std::vector<NativeInteger> paramsBModqiPrecon = cryptoParamsBFVrnsB->GetBModqiPrecon();
+	const std::vector<NativeInteger> &paramsBDivBiModBi = cryptoParamsBFVrnsB->GetBDivBiModBi();
+	const std::vector<NativeInteger> &paramsBDivBiModBiPrecon = cryptoParamsBFVrnsB->GetBDivBiModBiPrecon();
+	const std::vector<NativeInteger> &paramsBDivBiModmsk = cryptoParamsBFVrnsB->GetBDivBiModmsk();
+	const NativeInteger &paramsBInvModmsk = cryptoParamsBFVrnsB->GetBInvModmsk();
+	const NativeInteger &paramsBInvModmskPrecon = cryptoParamsBFVrnsB->GetBInvModmskPrecon();
+	const std::vector<std::vector<NativeInteger>> &paramsBDivBiModqj = cryptoParamsBFVrnsB->GetBDivBiModqj();
+	const std::vector<NativeInteger> &paramsBModqi = cryptoParamsBFVrnsB->GetBModqi();
+	const std::vector<NativeInteger> &paramsBModqiPrecon = cryptoParamsBFVrnsB->GetBModqiPrecon();
 
 	for(size_t i=0; i<cipherTextRElementsSize; i++){
 		//converts to coefficient representation before rounding
