@@ -902,7 +902,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 		c[2] = cipherText1Elements[1] * cipherText2Elements[1]; // b
 
 		c[1] = cipherText1Elements[0] + cipherText1Elements[1];
-		c[1] = c[1] * (cipherText2Elements[0] + cipherText2Elements[1]);
+		c[1] *= (cipherText2Elements[0] + cipherText2Elements[1]);
 		c[1] -= c[2];
 		c[1] -= c[0];
 
