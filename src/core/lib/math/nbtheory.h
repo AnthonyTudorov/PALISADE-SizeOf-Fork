@@ -41,8 +41,8 @@
 #include <set>
 #include <string>
 #include <random>
+#include <stdexcept>
 #include "../utils/inttypes.h"
-#include "../utils/debug.h"
 
 /**
  * @namespace lbcrypto
@@ -149,8 +149,8 @@ namespace lbcrypto {
 				reverse_byte((num >> 16) & 0xff) << 8 |
 				reverse_byte((num >> 24) & 0xff)) >> shift_trick[msb & 0x7];
 		default:
-			return -1;
-		//	throw std::logic_error("msbb value not handled:" + std::to_string(msbb));
+			//return -1;
+			throw std::logic_error("msbb value not handled:" + std::to_string(msbb));
 		}
 	}
 
