@@ -673,16 +673,16 @@ DecryptResult LPAlgorithmBFVrnsB<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly>
 
 	// Invoke BFVrnsB DecRNS
 
-	const std::vector<NativeInteger> paramsqModuliTable = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
-	const NativeInteger paramsgamma = cryptoParamsBFVrnsB->GetDCRTParamsgamma();
-	const NativeInteger paramsgammaInvModt = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModt();
-	const NativeInteger paramsgammaInvModtPrecon = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModtPrecon();
-	const std::vector<NativeInteger> paramsnegqInvModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaTable();
-	const std::vector<NativeInteger> paramsnegqInvModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaPreconTable();
-	const std::vector<NativeInteger> paramstgammaqDivqiModqiTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiTable();
-	const std::vector<NativeInteger> paramstgammaqDivqiModqiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiPreconTable();
-	const std::vector<std::vector<NativeInteger>> paramsqDivqiModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaTable();
-	const std::vector<std::vector<NativeInteger>> paramsqDivqiModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaPreconTable();
+	const std::vector<NativeInteger> &paramsqModuliTable = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
+	const NativeInteger &paramsgamma = cryptoParamsBFVrnsB->GetDCRTParamsgamma();
+	const NativeInteger &paramsgammaInvModt = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModt();
+	const NativeInteger &paramsgammaInvModtPrecon = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModtPrecon();
+	const std::vector<NativeInteger> &paramsnegqInvModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaTable();
+	const std::vector<NativeInteger> &paramsnegqInvModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaPreconTable();
+	const std::vector<NativeInteger> &paramstgammaqDivqiModqiTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiTable();
+	const std::vector<NativeInteger> &paramstgammaqDivqiModqiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiPreconTable();
+	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaTable();
+	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaPreconTable();
 
 
 
@@ -829,25 +829,25 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrnsB->GetElementParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsBsk = cryptoParamsBFVrnsB->GetDCRTParamsBsk();
 
-	const std::vector<NativeInteger> paramsqModuli = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
-	const std::vector<unsigned __int128> paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
+	const std::vector<NativeInteger> &paramsqModuli = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
+	const std::vector<unsigned __int128> &paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
 
-	const std::vector<NativeInteger> paramsBskModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskModuli();
-	const std::vector<unsigned __int128> paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
+	const std::vector<NativeInteger> &paramsBskModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskModuli();
+	const std::vector<unsigned __int128> &paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
 
-	const std::vector<NativeInteger> paramsBskmtildeModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModuli();
+	const std::vector<NativeInteger> &paramsBskmtildeModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModuli();
 
-	const std::vector<unsigned __int128> paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
+	const std::vector<unsigned __int128> &paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
 
-	const std::vector<NativeInteger> paramsmtildeqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqi();
-	const std::vector<NativeInteger> paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqiPrecon();
-	const std::vector<std::vector<NativeInteger>> paramsqDivqiModBskmtilde = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModBskmtilde();
-	const std::vector<NativeInteger> paramsqModBski = cryptoParamsBFVrnsB->GetDCRTParamsqModBski();
-	const std::vector<NativeInteger> paramsqModBskiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsqModBskiPrecon();
-	const NativeInteger paramsnegqInvModmtilde = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModmtilde();
-	const NativeInteger paramsnegqInvModmtildePrecon = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModmtildePrecon();
-	const std::vector<NativeInteger> paramsmtildeInvModBskiTable = cryptoParamsBFVrnsB->GetDCRTParamsmtildeInvModBskiTable();
-	const std::vector<NativeInteger> paramsmtildeInvModBskiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsmtildeInvModBskiPreconTable();
+	const std::vector<NativeInteger> &paramsmtildeqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqi();
+	const std::vector<NativeInteger> &paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqiPrecon();
+	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModBskmtilde = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModBskmtilde();
+	const std::vector<NativeInteger> &paramsqModBski = cryptoParamsBFVrnsB->GetDCRTParamsqModBski();
+	const std::vector<NativeInteger> &paramsqModBskiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsqModBskiPrecon();
+	const NativeInteger &paramsnegqInvModmtilde = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModmtilde();
+	const NativeInteger &paramsnegqInvModmtildePrecon = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModmtildePrecon();
+	const std::vector<NativeInteger> &paramsmtildeInvModBskiTable = cryptoParamsBFVrnsB->GetDCRTParamsmtildeInvModBskiTable();
+	const std::vector<NativeInteger> &paramsmtildeInvModBskiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsmtildeInvModBskiPreconTable();
 
 	// Expands the CRT basis to q*Bsk; Outputs the polynomials in coeff representation
 
