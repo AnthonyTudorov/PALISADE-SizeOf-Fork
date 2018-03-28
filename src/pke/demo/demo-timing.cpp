@@ -76,7 +76,7 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYP
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
 
-	// ENCRYPTION: KeyGen, Encrypt (2 kinds) and Decrtpt
+	// ENCRYPTION: KeyGen, Encrypt (2 kinds) and Decrypt
 
 	if( verbose )
 		cerr << "ENCRYPTION" << endl;
@@ -213,7 +213,8 @@ usage(const string& msg = "") {
 		cerr << msg << endl;
 	}
 	cerr << "Usage is:" << endl;
-	cerr << progname << " [-v] [-dcrt|-poly] -ctxt SERIALIZATION-FILE" << endl;
+	cerr << progname << " [-v] [-dcrt|-poly] [-cfile SERIALIZATION-FILE | -cpre PREDEFINED ]" << endl;
+	cerr << " NOTE the -cpre predefined contexts only support poly at the moment" << endl;
 }
 
 int
@@ -224,6 +225,7 @@ main(int argc, char *argv[])
 	bool verbose = false;
 	enum Element { UNKNOWN, POLY, DCRT } element = UNKNOWN;
 	string ctxtFile;
+	string ctxtName;
 
 	for( int i=1; i<argc; i++ ) {
 		string arg( argv[i] );
@@ -234,12 +236,20 @@ main(int argc, char *argv[])
 			element = DCRT;
 		else if( arg == "-poly" )
 			element = POLY;
-		else if( arg == "-ctxt" ) {
+		else if( arg == "-cfile" ) {
 			if( i+1 == argc ) {
-				usage("Filename missing after -ctxt");
+				usage("Filename missing after -cfile");
 				return 1;
 			}
 			ctxtFile = argv[++i];
+		}
+		else if( arg == "-cpre" ) {
+			if( i+1 == argc ) {
+				usage("Context name missing after -cpre");
+				return 1;
+			}
+			ctxtName = argv[++i];
+			element = POLY;
 		}
 		else {
 			usage("Unrecognized argument " + arg);
@@ -252,34 +262,44 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	if( ctxtFile.length() == 0 ) {
-		usage("Must specify -ctxt SERIALIZATION-FILE");
-		return 1;
-	}
-
-	ifstream in( ctxtFile );
-	if( !in.is_open() ) {
-		cout << "Cannot open input file " << ctxtFile << endl;
-		return 1;
-	}
-
-	Serialized serObj;
-	if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
-		cout << "Input file does not begin with a serialization" << endl;
-		return 1;
-	}
-
 	CryptoContext<Poly> cc;
 	CryptoContext<DCRTPoly> dcc;
 
-	if( element == POLY )
-		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(serObj);
-	else
-		dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
-
-	if( cc == 0 && dcc == 0 ) {
-		cout << "Unable to deserialize CryptoContext" << endl;
+	if( ctxtFile.length() == 0 && ctxtName.length() == 0 ) {
+		usage("Must specify -cfile or -cpre");
 		return 1;
+	}
+
+	if( ctxtFile.length() > 0 && ctxtName.length() > 0 ) {
+		usage("Must specify -cfile or -cpre, not both!");
+		return 1;
+	}
+
+	if( ctxtFile.length() > 0 ) {
+		ifstream in( ctxtFile );
+		if( !in.is_open() ) {
+			cout << "Cannot open input file " << ctxtFile << endl;
+			return 1;
+		}
+
+		Serialized serObj;
+		if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
+			cout << "Input file does not begin with a serialization" << endl;
+			return 1;
+		}
+
+		if( element == POLY )
+			cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(serObj);
+		else
+			dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
+
+		if( cc == 0 && dcc == 0 ) {
+			cout << "Unable to deserialize CryptoContext" << endl;
+			return 1;
+		}
+	}
+	else {
+		// FIXME
 	}
 
 	if( element == POLY )
