@@ -36,6 +36,7 @@
 #include "../interface.h"
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
+#include "../../utils/blockAllocator/blockAllocator.h"
 
 
 #include "../../utils/blockAllocator/xvector.h"
@@ -54,6 +55,56 @@ namespace native_int {
 /**
  * @brief The class for representing vectors of native integers.
  */
+#if BLOCK_VECTOR_ALLOCATION // block allocator
+template <class Tp>
+class BAlloc {
+    DECLARE_ALLOCATOR //Declares the blockAllocator is to be used.
+    public:
+    typedef Tp value_type;
+    BAlloc() = default;
+    template <class T> BAlloc(const BAlloc<T>&) {}
+    Tp* allocate(std::size_t n) {
+        n *= sizeof(Tp);
+        //std::cout << "Ballocating   " << n << " bytes\n";
+        //return static_cast<Tp*>(::operator new(n));
+        return static_cast<Tp*>( _allocator.Allocate(n));
+    }
+    void deallocate(Tp* p, std::size_t n) {
+      //std::cout << "B deallocating " << n*sizeof*p << " bytes\n";
+      //  ::operator delete(p);
+        _allocator.Deallocate(p);
+    }
+};
+template <class T, class U>
+bool operator==(const BAlloc<T>&, const BAlloc<U>&) { return true; }
+template <class T, class U>
+bool operator!=(const BAlloc<T>&, const BAlloc<U>&) { return false; }
+#endif 
+
+
+ #if 0 // allocator that reports bytes used.
+template <class Tp>
+struct NAlloc {
+    typedef Tp value_type;
+    NAlloc() = default;
+    template <class T> NAlloc(const NAlloc<T>&) {}
+    Tp* allocate(std::size_t n) {
+        n *= sizeof(Tp);
+        std::cout << "allocating   " << n << " bytes\n";
+        return static_cast<Tp*>(::operator new(n));
+    }
+    void deallocate(Tp* p, std::size_t n) {
+        std::cout << "deallocating " << n*sizeof*p << " bytes\n";
+        ::operator delete(p);
+    }
+};
+template <class T, class U>
+bool operator==(const NAlloc<T>&, const NAlloc<U>&) { return true; }
+template <class T, class U>
+bool operator!=(const NAlloc<T>&, const NAlloc<U>&) { return false; }
+#endif 
+
+
 
  #if 0 // allocator that reports bytes used.
 template <class Tp>
@@ -83,7 +134,7 @@ template <class IntegerType>
 class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerType>,IntegerType>, public lbcrypto::Serializable
 {
 
- public:
+public:
 	typedef IntegerType BVInt;
 
 	/**

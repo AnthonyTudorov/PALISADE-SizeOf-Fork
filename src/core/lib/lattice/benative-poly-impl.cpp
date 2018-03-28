@@ -23,7 +23,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
+#define BLOCK_VECTOR_IMPLEMENT
 #include "math/backend.h"
 #include "lattice/backend.h"
 #include "math/matrix.cpp"
@@ -35,21 +35,12 @@
 
 namespace lbcrypto
 {
+template class DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector>;
+template class BinaryUniformGeneratorImpl<NativeInteger,NativeVector>;
+template class TernaryUniformGeneratorImpl<NativeInteger,NativeVector>;
+template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
 
 template class ElemParams<NativeInteger>;
 template class ILParamsImpl<NativeInteger>;
-template class PolyImpl<NativeVector>;
-
-template class Matrix<NativePoly>;
-ONES_FOR_TYPE(NativePoly)
-IDENTITY_FOR_TYPE(NativePoly)
-GADGET_FOR_TYPE(NativePoly)
-NORM_FOR_TYPE(NativePoly)
-MATRIX_NOT_SERIALIZABLE(NativePoly)
-SPLIT64_FOR_TYPE(NativePoly)
-SPLIT64ALT_FOR_TYPE(NativePoly)
-SPLIT32ALT_FOR_TYPE(NativePoly)
-template Matrix<NativeVector> RotateVecResult(Matrix<NativePoly> const& inMat);
-template Matrix<NativeInteger> Rotate(Matrix<NativePoly> const& inMat);
-
+template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
 }
