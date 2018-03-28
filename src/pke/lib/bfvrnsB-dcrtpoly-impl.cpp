@@ -29,7 +29,7 @@
 
 #define PROFILE
 
-#define USE_KARATSUBA
+//#define USE_KARATSUBA
 
 namespace lbcrypto {
 
@@ -314,6 +314,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_gamma = NextPrime<NativeInteger>(m_mtilde, 2 * n);
 
 	m_gammaInvModt = m_gamma.ModInverse(t.ConvertToInt());
+	m_gammaInvModtPrecon = m_gammaInvModt.PrepModMulPreconNTL( t.ConvertToInt() );
 
 	BigInteger negqModt = ((t-1) * q.ModInverse(t));
 	BigInteger negqModgamma = ((m_gamma-1) * q.ModInverse(m_gamma));
@@ -675,6 +676,7 @@ DecryptResult LPAlgorithmBFVrnsB<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly>
 	const std::vector<NativeInteger> paramsqModuliTable = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
 	const NativeInteger paramsgamma = cryptoParamsBFVrnsB->GetDCRTParamsgamma();
 	const NativeInteger paramsgammaInvModt = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModt();
+	const NativeInteger paramsgammaInvModtPrecon = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModtPrecon();
 	const std::vector<NativeInteger> paramsnegqInvModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaTable();
 	const std::vector<NativeInteger> paramsnegqInvModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaPreconTable();
 	const std::vector<NativeInteger> paramstgammaqDivqiModqiTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiTable();
@@ -689,6 +691,7 @@ DecryptResult LPAlgorithmBFVrnsB<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly>
 			paramsgamma,
 			t,
 			paramsgammaInvModt,
+			paramsgammaInvModtPrecon,
 			paramsnegqInvModtgammaTable,
 			paramsnegqInvModtgammaPreconTable,
 			paramstgammaqDivqiModqiTable,

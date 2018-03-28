@@ -756,6 +756,7 @@ public:
 			const typename PolyType::Integer &gamma,
 			const typename PolyType::Integer &t,
 			const typename PolyType::Integer &gammaInvModt,
+			const typename PolyType::Integer &gammaInvModtPrecon,
 			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
 			const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
 			const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,

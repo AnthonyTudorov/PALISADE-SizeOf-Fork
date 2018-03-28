@@ -1253,6 +1253,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		const typename PolyType::Integer &gamma,
 		const typename PolyType::Integer &t,
 		const typename PolyType::Integer &gammaInvModt,
+		const typename PolyType::Integer &gammaInvModtPrecon,
 		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
 		const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
 		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
@@ -1292,9 +1293,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		if ( sgamma > (gamma >> 1) )
 			sgamma = sgamma.ModSubFast( gamma, t );
 
-		tmp = st.ModSubFast( sgamma, t );
+		tmp = st.ModSub( sgamma, t );
 
-		coefficients[k] = tmp.ModMulFastNTL( gammaInvModt, t );
+		coefficients[k] = tmp.ModMulPreconNTL( gammaInvModt, t, gammaInvModtPrecon );
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive

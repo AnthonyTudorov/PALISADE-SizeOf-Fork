@@ -253,6 +253,7 @@ namespace lbcrypto {
 			NativeInteger const &GetDCRTParamsgamma() const { return m_gamma; }
 
 			NativeInteger const &GetDCRTParamsgammaInvModt() const { return m_gammaInvModt; }
+			NativeInteger const &GetDCRTParamsgammaInvModtPrecon() const { return m_gammaInvModtPrecon; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaTable() const { return m_negqInvModtgammaTable; }
 			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaPreconTable() const { return m_negqInvModtgammaPreconTable; }
@@ -368,6 +369,7 @@ namespace lbcrypto {
 
 			// 25) Stores gamma^-1 mod t
 			NativeInteger m_gammaInvModt;
+			NativeInteger m_gammaInvModtPrecon;
 
 			// 26) Stores -1/q mod {t U gamma}
 			std::vector<NativeInteger> m_negqInvModtgammaTable;
