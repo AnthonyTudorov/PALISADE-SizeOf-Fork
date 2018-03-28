@@ -34,7 +34,7 @@
 #include "math/backend.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
-#include "utils/blockAllocator/Allocator.h"
+#include "utils/blockAllocator/blockAllocator.h"
 #include <assert.h>
 #include <new>
 #include <iostream>

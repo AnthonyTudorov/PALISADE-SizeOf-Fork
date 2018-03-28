@@ -48,6 +48,28 @@ namespace native_int {
 /**
  * @brief The class for representing vectors of native integers.
  */
+#if 0
+template <class Tp>
+struct NAlloc {
+    typedef Tp value_type;
+    NAlloc() = default;
+    template <class T> NAlloc(const NAlloc<T>&) {}
+    Tp* allocate(std::size_t n) {
+        n *= sizeof(Tp);
+        std::cout << "allocating   " << n << " bytes\n";
+        return static_cast<Tp*>(::operator new(n));
+    }
+    void deallocate(Tp* p, std::size_t n) {
+        std::cout << "deallocating " << n*sizeof*p << " bytes\n";
+        ::operator delete(p);
+    }
+};
+template <class T, class U>
+bool operator==(const NAlloc<T>&, const NAlloc<U>&) { return true; }
+template <class T, class U>
+bool operator!=(const NAlloc<T>&, const NAlloc<U>&) { return false; }
+#endif 
+  
 
 template <class IntegerType>
 class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerType>,IntegerType>, public lbcrypto::Serializable
@@ -479,7 +501,8 @@ public:
 
 private:
 	//m_data is a pointer to the vector
-	std::vector<IntegerType> m_data;
+	std::vector<IntegerType> m_data;	
+	//std::vector<IntegerType, NAlloc<IntegerType>> m_data;
 
 	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus = 0;

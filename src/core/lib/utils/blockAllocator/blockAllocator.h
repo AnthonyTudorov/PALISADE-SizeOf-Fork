@@ -1,7 +1,8 @@
 #ifndef __ALLOCATOR_H
 #define __ALLOCATOR_H
 
-#include "DataTypes.h"
+#include "utils/inttypes.h"
+
 #include <stddef.h>
 #include <cstdlib>
 
