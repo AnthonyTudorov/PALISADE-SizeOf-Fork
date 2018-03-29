@@ -315,6 +315,7 @@ main(int argc, char *argv[])
 	if( verbose )
 		cir.CircuitDump();
 
+	auto inwires = cir.GetGraph().getInputs();
 	auto intypes = cir.GetGraph().GetInputTypes();
 	if( verbose ) {
 		cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
@@ -354,22 +355,24 @@ main(int argc, char *argv[])
 	size_t curCtxt = 0;
 
 	for( size_t i = 0; i < intypes.size(); i++ ) {
+		auto wire = inwires[i];
+		auto type = intypes[i];
 		if( verbose )
-			cout << "input " << i << ": type " << intypes[i] << endl;
+			cout << "input " << wire << ": type " << type << endl;
 
-		switch(intypes[i]) {
+		switch(type) {
 		case PLAINTEXT:
-			inputs[i] = ptxts[curPtxt++];
+			inputs[wire] = ptxts[curPtxt++];
 			curPtxt %= ValueCount;
 			break;
 
 		case CIPHERTEXT:
-			inputs[i] = ctxts[curCtxt++];
+			inputs[wire] = ctxts[curCtxt++];
 			curCtxt %= ValueCount;
 			break;
 
 		case MATRIX_RAT:
-			inputs[i] = emat;
+			inputs[wire] = emat;
 			break;
 
 		default:

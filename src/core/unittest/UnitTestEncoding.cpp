@@ -188,4 +188,22 @@ TEST_F(UTEncoding,integer_encoding){
 	EXPECT_THROW( mone.Encode(), config_error ) << "Encode did not throw the proper exception";
 }
 
+TEST_F(UTEncoding,fractional_encoding) {
+	int	m = 64;
+	PlaintextModulus ptm = ((uint64_t)1<<30);
+	shared_ptr<ILParams> lp = ElemParamFactory::GenElemParams<ILParamsImpl<BigInteger>>(m);
+	EncodingParams ep( new EncodingParamsImpl(ptm) );
+
+	int64_t sv = 42;
+
+	FractionalEncoding psn(lp, ep, sv);
+	FractionalEncoding pst(lp, ep, sv, 4);
+	psn.Encode();
+	pst.Encode();
+	psn.Decode();
+	pst.Decode();
+
+	EXPECT_EQ( psn.GetIntegerValue(), 0) << "small no trunc";
+	EXPECT_EQ( pst.GetIntegerValue(), 0) << "small trunc";
+}
 

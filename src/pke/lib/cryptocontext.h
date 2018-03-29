@@ -1644,6 +1644,7 @@ public:
 	EvalRightShift(const Ciphertext<Element> ct1, size_t divisor) const
 	{
 		Plaintext plaintextShift = MakeFractionalPlaintext(0,divisor);
+		TypeCheck(ct1, plaintextShift);
 
 		double start = 0;
 		if( doTiming ) start = currentDateTime();
