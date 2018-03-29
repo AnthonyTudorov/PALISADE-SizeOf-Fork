@@ -82,26 +82,44 @@ public:
 	double	max;
 	double	average;
 
-	TimingStatistics() : operation(OpNOOP), samples(0), startup(0), wasCalled(false),
-			min(std::numeric_limits<double>::max()),
-			max(std::numeric_limits<double>::min()), average(0) {}
-	TimingStatistics(double startup, double min, double max, double average) : operation(OpNOOP), samples(0),
-			startup(startup), wasCalled(false),
-			min(min), max(max), average(average) {}
+	TimingStatistics() :
+		operation(OpNOOP), samples(0), startup(0), wasCalled(false), min(0), max(0), average(0) {}
+	TimingStatistics(usint samples, double startup, double min, double max, double average) :
+		operation(OpNOOP), samples(samples), startup(startup), wasCalled(false),
+		min(min), max(max), average(average) {}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
-	const TimingStatistics operator+(const TimingStatistics& op) const {
-		return TimingStatistics( startup, min + op.min, max + op.max, average + op.average);
-	}
-	TimingStatistics& operator+=(const TimingStatistics& op) {
-		startup = op.startup, min += op.min, max += op.max, average += op.average;
-		return *this;
-	}
+
 	double GetEstimate() {
 		if( wasCalled ) return average;
 		wasCalled = true;
 		return startup;
 	}
+
+	static void GenStatisticsMap( vector<TimingInfo>& times, map<OpType,TimingStatistics>& stats ) {
+		for( TimingInfo& sample : times ) {
+			TimingStatistics& st = stats[ sample.operation ];
+			if( st.operation == OpNOOP ) {
+				st.operation = sample.operation;
+				st.startup = sample.timeval;
+
+				st.min = sample.timeval;
+				st.max = sample.timeval;
+				st.average = sample.timeval;
+				st.samples = 1;
+			} else {
+				if( sample.timeval < st.min )
+					st.min = sample.timeval;
+				if( sample.timeval > st.max )
+					st.max = sample.timeval;
+
+				st.average = ((st.average * st.samples) + sample.timeval)/(st.samples + 1);
+				st.samples++;
+			}
+		}
+	}
+
+
 };
 
 extern std::map<OpType,string> OperatorName;

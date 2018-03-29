@@ -32,7 +32,7 @@
 
 #include "palisade.h"
 #include "cryptocontextgen.h"
-#include "palisadecircuit.h"
+#include "cryptocontextparametersets.h"
 using namespace lbcrypto;
 using std::cout;
 
@@ -50,11 +50,18 @@ vector<PKESchemeFeature> features( {ENCRYPTION, PRE, SHE, FHE, LEVELEDSHE, MULTI
 
 
 template<typename Element>
-int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYPTION|PRE|SHE|FHE|LEVELEDSHE|MULTIPARTY)) {
+int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYPTION|PRE|SHE|FHE|LEVELEDSHE|MULTIPARTY)) {
 
+	// enable all the features I was asked to enable
+	// remember the ones that were successfully enabled in tmask
+	// be silent about failures
+	usint tmask = 0;
 	for( auto f : features ) {
 		try {
-			cc->Enable(f);
+			if( emask & f ) {
+				cc->Enable(f);
+				tmask |= f;
+			}
 		} catch(...) {}
 	}
 
@@ -100,19 +107,33 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYP
 		cerr << "PRE" << endl;
 
 	if( tmask & PRE ) {
+		bool run1 = true, run2 = true;
 		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
 			for( int reps=0; reps < MaxIterations; reps++ ) {
 				LPKeyPair<Element> kp1 = cc->KeyGen();
 				LPKeyPair<Element> kp2 = cc->KeyGen();
-				auto rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
-				auto rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
+
 				auto crypt = cc->Encrypt(kp1.publicKey, inputs[nInputs]);
-				auto recrypt1 = cc->ReEncrypt(rekey1, crypt);
-				auto recrypt2 = cc->ReEncrypt(rekey2, crypt);
-				Plaintext decrypted1;
-				Plaintext decrypted2;
-				cc->Decrypt(kp2.secretKey, recrypt1, &decrypted1);
-				cc->Decrypt(kp2.secretKey, recrypt2, &decrypted2);
+
+				if( run1 ) try {
+					auto rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
+					auto recrypt1 = cc->ReEncrypt(rekey1, crypt);
+					Plaintext decrypted1;
+					cc->Decrypt(kp2.secretKey, recrypt1, &decrypted1);
+				} catch(exception& e) {
+					cout << e.what() << endl;
+					run1 = false;
+				}
+
+				if( run2 ) try {
+					auto rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
+					auto recrypt2 = cc->ReEncrypt(rekey2, crypt);
+					Plaintext decrypted2;
+					cc->Decrypt(kp2.secretKey, recrypt2, &decrypted2);
+				} catch(exception& e) {
+					cout << e.what() << endl;
+					run2 = false;
+				}
 			}
 		}
 	}
@@ -158,7 +179,12 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYP
 		}
 
 		for (int reps = 0; reps < MaxIterations; reps++) {
-			cc->ModReduce(crypt0);
+			try {
+				cc->ModReduce(crypt0);
+			} catch( exception& e ) {
+				cout << e.what() << endl;
+				break;
+			}
 		}
 	}
 
@@ -172,36 +198,20 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint tmask=(ENCRYP
 	if( verbose )
 		cerr << "Summarizing" << endl;
 
-	// FIXME put this summary stuff into a common place
-
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
-	for( TimingInfo& sample : times ) {
-		TimingStatistics& st = stats[ sample.operation ];
-		if( st.operation == OpNOOP ) {
-			st.operation = sample.operation;
-			st.startup = sample.timeval;
-			st.samples = 1;
-		} else {
-			st.samples++;
-			st.average += sample.timeval;
-			if( sample.timeval < st.min )
-				st.min = sample.timeval;
-			if( sample.timeval > st.max )
-				st.max = sample.timeval;
-		}
-	}
 
+	for( auto& s : times ) {
+		cout << s << endl;
+	}
+	TimingStatistics::GenStatisticsMap(times, stats);
 
 	if( verbose )
 		cerr << "Results:" << endl;
 
 	// read them out
 	for( auto &tstat : stats ) {
-		auto ts = tstat.second;
-		ts.average /= ts.samples;
-
-		cout << tstat.first << ':' << ts << endl;
+		cout << tstat.first << ':' << tstat.second << endl;
 	}
 
 	return 0;
@@ -214,7 +224,7 @@ usage(const string& msg = "") {
 	}
 	cerr << "Usage is:" << endl;
 	cerr << progname << " [-v] [-dcrt|-poly] [-cfile SERIALIZATION-FILE | -cpre PREDEFINED ]" << endl;
-	cerr << " NOTE the -cpre predefined contexts only support poly at the moment" << endl;
+	cerr << "      -poly is the default" << endl;
 }
 
 int
@@ -223,7 +233,7 @@ main(int argc, char *argv[])
 	progname = argv[0];
 
 	bool verbose = false;
-	enum Element { UNKNOWN, POLY, DCRT } element = UNKNOWN;
+	enum Element { POLY, DCRT } element = POLY;
 	string ctxtFile;
 	string ctxtName;
 
@@ -249,17 +259,11 @@ main(int argc, char *argv[])
 				return 1;
 			}
 			ctxtName = argv[++i];
-			element = POLY;
 		}
 		else {
 			usage("Unrecognized argument " + arg);
 			return 1;
 		}
-	}
-
-	if( element == UNKNOWN ) {
-		usage("Must specify -poly or -dcrt");
-		return 1;
 	}
 
 	CryptoContext<Poly> cc;
@@ -293,13 +297,24 @@ main(int argc, char *argv[])
 		else
 			dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
 
-		if( cc == 0 && dcc == 0 ) {
-			cout << "Unable to deserialize CryptoContext" << endl;
-			return 1;
-		}
 	}
 	else {
-		// FIXME
+		if( !knownParameterSet(ctxtName) ) {
+			cout << ctxtName << " is not a known parameter set name" << endl;
+			cout << "Choices are: ";
+			CryptoContextHelper::printAllParmSetNames(cout);
+			return 1;
+		}
+
+		if( element == POLY )
+			cc = CryptoContextHelper::getNewContext(ctxtName);
+		else
+			dcc = CryptoContextHelper::getNewDCRTContext(ctxtName, 3, 20);
+	}
+
+	if( cc == 0 && dcc == 0 ) {
+		cout << "Unable to create CryptoContext" << endl;
+		return 1;
 	}
 
 	if( element == POLY )
