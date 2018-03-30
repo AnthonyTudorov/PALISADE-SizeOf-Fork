@@ -142,17 +142,6 @@ CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
 	}
 }
 
-template<typename Element>
-const vector<wire_type> CircuitGraphWithValues<Element>::GetInputTypes() {
-	vector<wire_type>	types;
-
-	for( usint i : getInputs() ) {
-		types.push_back( allNodes[i]->GetType() );
-	}
-
-	return types;
-}
-
 static bool
 insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 {

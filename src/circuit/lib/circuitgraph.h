@@ -155,6 +155,7 @@ public:
 			allNodes[ it->first ] = ValueNodeFactory<Element>( it->second );
 		}
 	}
+
 	virtual ~CircuitGraphWithValues() {
 		for( typename map<usint,CircuitNodeWithValue<Element>*>::iterator it = allNodes.begin(); it != allNodes.end(); it++ ) {
 			delete ( it->second );
@@ -181,7 +182,12 @@ public:
 
 	void Execute(CryptoContext<Element> cc);
 
-	const vector<wire_type> GetInputTypes();
+	wire_type GetTypeForNode(usint id) {
+		auto np = getNodeById(id);
+		if( np )
+			return np->GetType();
+		return UNKNOWN;
+	}
 
 	void DisplayGraph(ostream* f) const;
 	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, LPPrivateKey<Element> k) const;

@@ -316,9 +316,8 @@ main(int argc, char *argv[])
 		cir.CircuitDump();
 
 	auto inwires = cir.GetGraph().getInputs();
-	auto intypes = cir.GetGraph().GetInputTypes();
 	if( verbose ) {
-		cout << "Circuit takes " << intypes.size() << " inputs:" <<endl;
+		cout << "Circuit takes " << inwires.size() << " inputs:" <<endl;
 	}
 
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
@@ -354,9 +353,8 @@ main(int argc, char *argv[])
 	size_t curPtxt = 0;
 	size_t curCtxt = 0;
 
-	for( size_t i = 0; i < intypes.size(); i++ ) {
-		auto wire = inwires[i];
-		auto type = intypes[i];
+	for( auto wire : inwires ) {
+		auto type = cir.GetGraph().GetTypeForNode(wire);
 		if( verbose )
 			cout << "input " << wire << ": type " << type << endl;
 
