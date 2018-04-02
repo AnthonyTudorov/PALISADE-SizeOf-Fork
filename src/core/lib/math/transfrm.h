@@ -240,9 +240,9 @@ namespace lbcrypto {
 
 							IntType oddVal = (*result)[indexOdd];
 
-							if (oddVal != 0)
+							if (oddVal != IntType(0))
 							{
-								if (oddVal == 1)
+								if (oddVal == IntType(1))
 									omegaFactor = omega;
 								else
 									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
@@ -301,9 +301,9 @@ namespace lbcrypto {
 							usint indexOdd = indexEven + (1 << (logm-1));
 							IntType oddVal = (*result)[indexOdd];
 
-							if (oddVal != 0)
+							if (oddVal != IntType(0))
 							{
-								if (oddVal == 1)
+								if (oddVal == IntType(1))
 									omegaFactor = omega;
 								else
 									omegaFactor = oddVal.ModMulFast(omega,modulus);
