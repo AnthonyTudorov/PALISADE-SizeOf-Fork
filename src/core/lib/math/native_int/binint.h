@@ -250,6 +250,7 @@ public:
 	 */
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
+		//return m_value - b.m_value;
 	}
 
 	/**

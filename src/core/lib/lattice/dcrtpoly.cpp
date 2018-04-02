@@ -550,7 +550,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 const DCRTPolyImpl<ModType,IntType,VecType,ParmType>& DCRTPolyImpl<ModType,IntType,VecType,ParmType>::operator-=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
-		this->m_vectors.at(i) -= rhs.GetElementAtIndex(i);
+		this->m_vectors.at(i) -= rhs.m_vectors[i];
 	}
 	return *this;
 
@@ -773,7 +773,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 #pragma omp parallel for
 #endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
-		tmp.m_vectors[i] = tmp.m_vectors[i] * element[i]; // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+		tmp.m_vectors[i] *= element[i]; // (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
 	return std::move(tmp);
 }

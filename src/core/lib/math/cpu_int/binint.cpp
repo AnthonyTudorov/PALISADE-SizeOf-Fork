@@ -1642,7 +1642,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModSubEq
 	}
 
 	if(*this >= b_op){
-		this->ModEq(b_op);
+		this->MinusEq(b_op);
 		this->ModEq(modulus);
 	}
 	else{
