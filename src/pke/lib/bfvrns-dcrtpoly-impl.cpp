@@ -710,8 +710,9 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
 
-	// Performs the multiplication itself; Use the Karatsuba technique for the ciphertexts of size 2
-	if (cipherText1ElementsSize == 2 && cipherText2ElementsSize == 2) // size of each ciphertxt = 2, use Karatsuba
+	// Performs the multiplication itself
+	// Karatsuba technique is currently slower so it is commented out
+	/*if (cipherText1ElementsSize == 2 && cipherText2ElementsSize == 2) // size of each ciphertxt = 2, use Karatsuba
 	{
 
 		c[0] = cipherText1Elements[0] * cipherText2Elements[0]; // a
@@ -724,25 +725,26 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<D
 
 	}
 	else // if size of any of the ciphertexts > 2
-	{
-		bool *isFirstAdd = new bool[cipherTextRElementsSize];
-		std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
+	{*/
 
-		for(size_t i=0; i<cipherText1ElementsSize; i++){
-			for(size_t j=0; j<cipherText2ElementsSize; j++){
+	bool *isFirstAdd = new bool[cipherTextRElementsSize];
+	std::fill_n(isFirstAdd, cipherTextRElementsSize, true);
 
-				if(isFirstAdd[i+j] == true){
-					c[i+j] = cipherText1Elements[i] * cipherText2Elements[j];
-					isFirstAdd[i+j] = false;
-				}
-				else{
-					c[i+j] += cipherText1Elements[i] * cipherText2Elements[j];
-				}
+	for(size_t i=0; i<cipherText1ElementsSize; i++){
+		for(size_t j=0; j<cipherText2ElementsSize; j++){
+
+			if(isFirstAdd[i+j] == true){
+				c[i+j] = cipherText1Elements[i] * cipherText2Elements[j];
+				isFirstAdd[i+j] = false;
+			}
+			else{
+				c[i+j] += cipherText1Elements[i] * cipherText2Elements[j];
 			}
 		}
+	}
 
-		delete []isFirstAdd;
-	};
+	delete []isFirstAdd;
+	//};
 
 	for(size_t i=0; i<cipherTextRElementsSize; i++){
 		//converts to coefficient representation before rounding
