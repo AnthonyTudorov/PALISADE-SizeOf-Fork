@@ -635,25 +635,37 @@ public:
 	}
 
 	/**
-	 * Fast scalar modular subtraction. ModSubFast assumes b < modulus.
+	 * Fast scalar modular subtraction. Assumes both arguments are in [0,modulus-1].
 	 *
 	 * @param &b is the scalar to subtract.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus subtraction operation.
 	 */
 	inline NativeInteger ModSubFast(const NativeInteger& b, const NativeInteger& modulus) const {
-		Duint_type av = m_value;
-		Duint_type bv = b.m_value;
-		Duint_type mod = modulus.m_value;
-	
-		if(av >= bv){
-			return uint_type((av - bv) % mod);
+		if(m_value >= b.m_value){
+			return uint_type(m_value - b.m_value);
 		}
 		else{
-			return uint_type((av + mod) - bv);
+			return uint_type((m_value + modulus.m_value) - b.m_value);
 		}
 	}
 
+	/**
+	 * Scalar modular subtraction (in-place version). Assumes both arguments are in [0,modulus-1].
+	 *
+	 * @param &b is the scalar to subtract.
+	 * @param modulus is the modulus to perform operations with.
+	 * @return result of the modulus subtraction operation.
+	 */
+	const NativeInteger& ModSubFastEq(const NativeInteger& b, const NativeInteger& modulus) {
+		if(m_value >= b.m_value){
+			m_value -= b.m_value;
+		}
+		else{
+			m_value += (modulus.m_value - b.m_value);
+		}
+		return *this;
+	}
 
 	/**
 	 * Scalar modular subtraction where Barrett modular reduction is used.

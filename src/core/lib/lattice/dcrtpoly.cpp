@@ -1157,33 +1157,13 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 		// alpha corresponds to the number of overflows
 		typename PolyType::Integer alpha = std::llround(lyam);
 
-		// alpha may get estimated incorrectly in this region; so we apply a correction procedure
-		// currently we use the multiprecision approach for simplicity but we will change it to
-		// the single-precision approach proposed by Kawamura et al. in https://doi.org/10.1007/3-540-45539-6_37
-		if ((std::fabs(std::llround(lyam*2)/(double)2 - lyam) < nTowers*(2.22e-16)) && (std::llround(lyam*2) % 2 == 1) ){
-
-			BigInteger xBig = 0;
-
-			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-
-				BigInteger qi = m_vectors[vIndex].GetModulus();
-
-				xBig += xInvVector[vIndex]*params->GetModulus()/qi;
-
-			}
-
-			BigInteger alphaBig = xBig.DivideAndRound(params->GetModulus());
-
-			alpha = alphaBig.ConvertToInt();
-
-		}
-
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
 			typename PolyType::Integer curValue = 0;
 
 			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
 
+			// TODO YSP Change this code to lazy reduction
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
 				curValue += xInvVector[vIndex].ModMulPreconNTL(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);

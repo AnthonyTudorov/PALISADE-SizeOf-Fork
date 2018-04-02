@@ -482,7 +482,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModSub(const NativeVector &
 	NativeVector ans(*this);
 
 	for(usint i=0;i<ans.m_data.size();i++){
-		ans.m_data[i] = ans.m_data[i].ModSub(b.m_data[i],this->m_modulus);
+		ans.m_data[i] = ans.m_data[i].ModSubFast(b.m_data[i],this->m_modulus);
 	}
 	return ans;
 
@@ -496,7 +496,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModSubEq(const Nativ
 	}
 
 	for(usint i=0;i<this->m_data.size();i++){
-		this->m_data[i].ModSubEq(b.m_data[i],this->m_modulus);
+		this->m_data[i].ModSubFastEq(b.m_data[i],this->m_modulus);
 	}
 	return *this;
 
