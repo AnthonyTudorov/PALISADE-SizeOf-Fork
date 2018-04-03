@@ -179,30 +179,20 @@ namespace lbcrypto {
 			bool dbg_flag = false;
 			usint n = cycloOrder;
 
-			NativeInteger modulus = element.GetModulus().ConvertToInt();
+			IntType modulus = element.GetModulus();
 
 			if( result->GetLength() != n )
 				throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
 			result->SetModulus(modulus);
 
-			// works with a local copy to take advantage of caching
-			NativeVector resultVec(n);
-
 			//reverse coefficients (bit reversal)
 			usint msb = GetMSB64(n - 1);
 			for (size_t i = 0; i < n; i++)
-			  resultVec[i]= element[ReverseBits(i, msb)].ConvertToInt();
+			  (*result)[i]= element[ReverseBits(i, msb)];
 
-			// works with a local copy to take advantage of caching
-			usint ruLength = rootOfUnityTable.GetLength();
-			NativeVector localRootOfUnityTable(ruLength);
-			for (size_t i = 0; i <  ruLength; i++)
-				localRootOfUnityTable[i] = rootOfUnityTable[i].ConvertToInt();
-
-			//int64_t signedOmegaFactor;
-			NativeInteger omegaFactor;
-			NativeInteger butterflyPlus;
-			NativeInteger butterflyMinus;
+			IntType omegaFactor;
+			IntType butterflyPlus;
+			IntType butterflyMinus;
 
 			/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
 				  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
@@ -242,37 +232,37 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = localRootOfUnityTable[x];
-							NativeInteger preconOmega = preconRootOfUnityTable[x];
+							IntType omega = rootOfUnityTable[x];
+							IntType preconOmega = preconRootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
 
-							NativeInteger oddVal = resultVec[indexOdd];
+							IntType oddVal = (*result)[indexOdd];
 
-							if (oddVal != 0)
+							if (oddVal != IntType(0))
 							{
-								if (oddVal == 1)
+								if (oddVal == IntType(1))
 									omegaFactor = omega;
 								else
 									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
 
-								butterflyPlus = resultVec[indexEven];
+								butterflyPlus = (*result)[indexEven];
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = resultVec[indexEven];
+								butterflyMinus = (*result)[indexEven];
 								if (butterflyMinus < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
 
-								resultVec[indexEven]= butterflyPlus;
-								resultVec[indexOdd]= butterflyMinus;
+								(*result)[indexEven]= butterflyPlus;
+								(*result)[indexOdd]= butterflyMinus;
 
 							}
 							else
-								resultVec[indexOdd] = resultVec[indexEven];
+								(*result)[indexOdd] = (*result)[indexEven];
 
 						}
 					}
@@ -305,42 +295,39 @@ namespace lbcrypto {
 						{
 							usint x = indexes[i];
 
-							NativeInteger omega = localRootOfUnityTable[x];
+							IntType omega = rootOfUnityTable[x];
 
 							usint indexEven = j + i;
 							usint indexOdd = indexEven + (1 << (logm-1));
-							NativeInteger oddVal = resultVec[indexOdd];
+							IntType oddVal = (*result)[indexOdd];
 
-							if (oddVal != 0)
+							if (oddVal != IntType(0))
 							{
-								if (oddVal == 1)
+								if (oddVal == IntType(1))
 									omegaFactor = omega;
 								else
 									omegaFactor = oddVal.ModMulFast(omega,modulus);
 
-								butterflyPlus = resultVec[indexEven];
+								butterflyPlus = (*result)[indexEven];
 								butterflyPlus += omegaFactor;
 								if (butterflyPlus >= modulus)
 									butterflyPlus -= modulus;
 
-								butterflyMinus = resultVec[indexEven];
-								if (resultVec[indexEven] < omegaFactor)
+								butterflyMinus = (*result)[indexEven];
+								if ((*result)[indexEven] < omegaFactor)
 									butterflyMinus += modulus;
 								butterflyMinus -= omegaFactor;
 
-								resultVec[indexEven]= butterflyPlus;
-								resultVec[indexOdd]= butterflyMinus;
+								(*result)[indexEven]= butterflyPlus;
+								(*result)[indexOdd]= butterflyMinus;
 
 							}
 							else
-								resultVec[indexOdd] = resultVec[indexEven];
+								(*result)[indexOdd] = (*result)[indexEven];
 						}
 					}
 				}
 			}
-
-			for (size_t i = 0; i < n; i++)
-			  (*result)[i]=resultVec[i];
 
 		}
 		else

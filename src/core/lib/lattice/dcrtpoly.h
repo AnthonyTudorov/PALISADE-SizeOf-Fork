@@ -550,7 +550,10 @@ public:
 	DCRTPolyType Negate() const;
 
 	const DCRTPolyType& operator+=(const IntType &element) {
-		return *this = Plus(element);
+		for (usint i = 0; i < this->GetNumOfElements(); i++) {
+			this->m_vectors[i] += element.ConvertToInt();
+		}
+		return *this;
 	}
 
 	/**
@@ -560,7 +563,10 @@ public:
 	* @return is the result of the subtraction.
 	*/
 	const DCRTPolyType& operator-=(const IntType &element) {
-		return *this = Minus(element);
+		for (usint i = 0; i < this->GetNumOfElements(); i++) {
+			this->m_vectors[i] -= element.ConvertToInt();
+		}
+		return *this;
 	}
 
 	/**

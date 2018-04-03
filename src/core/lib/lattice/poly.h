@@ -483,7 +483,7 @@ public:
 	 * @return is the result of the subtraction.
 	 */
 	const PolyImpl& operator-=(const IntType &element) {
-		SetValues( GetValues().ModSub(element), this->m_format );
+		m_values->ModSubEq(element);
 		return *this;
 	}
 
@@ -494,7 +494,7 @@ public:
 	 * @return is the result of the multiplication.
 	 */
 	const PolyImpl& operator*=(const IntType &element) {
-		SetValues( GetValues().ModMul(element), this->m_format );
+		m_values->ModMulEq(element);
 		return *this;
 	}
 
