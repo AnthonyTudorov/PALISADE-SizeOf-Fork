@@ -159,6 +159,10 @@ namespace lbcrypto {
 			*/
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
 
+			std::vector<DoubleNativeInteger> const &GetDCRTParamsQModulimu() const { return m_qModulimu; }
+
+			std::vector<DoubleNativeInteger> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
+
 			/**
 			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			*
@@ -202,13 +206,6 @@ namespace lbcrypto {
 			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
 
 			/**
-			* Gets the precomputed table of (Q/qi) mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiPreconTable() const { return m_CRTqDivqiModsiPreconTable; }
-
-			/**
 			* Gets the precomputed table of Q mod si
 			*
 			* @return the precomputed table
@@ -230,13 +227,6 @@ namespace lbcrypto {
 			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
 
 			/**
-			* Gets an NTL precomputation of the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntPreconTable() const { return m_CRTMultIntPreconTable; }
-
-			/**
 			* Gets the precomputed table of (S/si)^{-1} mod si
 			*
 			* @return the precomputed table
@@ -249,13 +239,6 @@ namespace lbcrypto {
 			* @return the precomputed table
 			*/
 			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
-
-			/**
-			* Gets an NTL precomputation of the precomputed table of (S/si) mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiPreconTable() const { return m_CRTsDivsiModqiPreconTable; }
 
 			/**
 			* Gets the precomputed table of S mod qi table
@@ -289,6 +272,12 @@ namespace lbcrypto {
 			// Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
+			// Barrett modulo reduction precomputation
+			std::vector<DoubleNativeInteger> m_qModulimu;
+
+			// Barrett modulo reduction precomputation
+			std::vector<DoubleNativeInteger> m_sModulimu;
+
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			std::vector<QuadFloat> m_CRTDecryptionFloatTable;
 
@@ -310,9 +299,6 @@ namespace lbcrypto {
 			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
 			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
 
-			// Stores an NTL precomputation of precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<NativeInteger>> m_CRTMultIntPreconTable;
-
 			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
 			std::vector<double> m_CRTMultFloatTable;
 
@@ -327,12 +313,6 @@ namespace lbcrypto {
 
 			// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
-
-			// Stores an NTL approximation for a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiPreconTable;
-
-			// Stores an NTL approximation for a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiPreconTable;
 
 	};
 

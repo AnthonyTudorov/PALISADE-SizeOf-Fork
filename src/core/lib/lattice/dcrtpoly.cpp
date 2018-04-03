@@ -1126,7 +1126,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::SwitchCRTBasis(
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) const{
+		const std::vector<DoubleNativeInteger> &siModulimu) const{
 
 	DCRTPolyType ans(params,m_format,true);
 
@@ -1159,21 +1159,27 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
-			typename PolyType::Integer curValue = 0;
+			DoubleNativeInteger curValue = 0;
 
 			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
 
-			// TODO YSP Change this code to lazy reduction
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
+<<<<<<< HEAD
 				curValue += xInvVector[vIndex].ModMulPreconOptimized(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
+=======
+				curValue += Mul128(xInvVector[vIndex].ConvertToInt(),qDivqiModsi[newvIndex][vIndex].ConvertToInt());
+>>>>>>> Switched BVRrns EvalMult to lazy reduction - optimization
 			}
 
-			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
-			curValue = curValue.Mod(si);
+			const typename PolyType::Integer &curNativeValue = typename PolyType::Integer(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
 			//second round - remove q-overflows
+<<<<<<< HEAD
 			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si),si);
+=======
+			ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastNTL(qModsi[newvIndex],si),si);
+>>>>>>> Switched BVRrns EvalMult to lazy reduction - optimization
 
 		}
 
@@ -1192,7 +1198,7 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
 		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) {
+		const std::vector<DoubleNativeInteger> &siModulimu) {
 
 	std::vector<PolyType> polyInNTT;
 
@@ -1202,7 +1208,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ExpandCRTBasis(const shared
 		this->SwitchFormat();
 	}
 
-	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi,qDivqiModsiPrecon);
+	DCRTPolyType polyWithSwitchedCRTBasis = SwitchCRTBasis(params,qInvModqi,qDivqiModsi,qModsi, siModulimu);
 
 	size_t size = m_vectors.size();
 	size_t newSize = polyWithSwitchedCRTBasis.m_vectors.size() + size;
@@ -1670,7 +1676,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-		const std::vector<double> &beta, const std::vector<std::vector<typename PolyType::Integer>> &alphaPrecon) const {
+		const std::vector<double> &beta, const std::vector<DoubleNativeInteger> &siModulimu) const {
 
 		DCRTPolyType ans(params,m_format,true);
 
@@ -1698,26 +1704,37 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 
 			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
 
-				typename PolyType::Integer curValue = 0;
+				DoubleNativeInteger curValue = 0;
 
 				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
 
 				for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
+<<<<<<< HEAD
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
 					curValue += xi.ModMulPreconOptimized(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
 
+=======
+					curValue += Mul128(xi.ConvertToInt(),alpha[vIndex][newvIndex].ConvertToInt());
+>>>>>>> Switched BVRrns EvalMult to lazy reduction - optimization
 				}
 
 				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
 
+<<<<<<< HEAD
 				curValue += xi.ModMulPreconOptimized(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
+=======
+				curValue += Mul128(xi.ConvertToInt(),alpha[sizeQ][newvIndex].ConvertToInt());
+>>>>>>> Switched BVRrns EvalMult to lazy reduction - optimization
 
-				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
-				curValue = curValue.Mod(si);
+				const typename PolyType::Integer &curNativeValue = typename PolyType::Integer(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
+<<<<<<< HEAD
 				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFastOptimized(rounded,si);
+=======
+				ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModAddFastNTL(rounded,si);
+>>>>>>> Switched BVRrns EvalMult to lazy reduction - optimization
 
 			}
 

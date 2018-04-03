@@ -722,7 +722,7 @@ public:
 	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon) const;
+			const std::vector<DoubleNativeInteger> &siModulimu) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -738,7 +738,7 @@ public:
 	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
 			const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsiPrecon);
+			const std::vector<DoubleNativeInteger> &siModulimu);
 
 	/**
 	 * @brief Computes Round(t/q*x) mod t for fast rounding in RNS
@@ -848,7 +848,8 @@ public:
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-			const std::vector<double> &beta, const std::vector<std::vector<typename PolyType::Integer>> &alphaPrecon) const;
+			const std::vector<double> &beta,
+			const std::vector<DoubleNativeInteger> &siModulimu) const;
 
 	/**
 	* @brief Convert from Coefficient to CRT or vice versa; calls FFT and inverse FFT.
