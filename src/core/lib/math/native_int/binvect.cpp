@@ -318,7 +318,6 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModSub(const IntegerType &b
 	NativeVector ans(*this);
 	for(usint i=0;i<this->m_data.size();i++){
 		ans.m_data[i].ModSubEq(b,this->m_modulus);
-		//ans.m_data[i] = ans.m_data[i].ModSub(b,this->m_modulus);
 	}
 	return ans;
 }
@@ -361,7 +360,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::DivideAndRound(const Intege
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b) const{
 
-	NativeVector ans(this->m_data.size(),this->m_modulus);
+	NativeVector ans(*this);
 
 	IntegerType modulus = this->m_modulus;
 	IntegerType bLocal = b;
@@ -369,11 +368,11 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			 ans.m_data[i] = m_data[i].ModMulFastNTL(bLocal,modulus);
+			 ans.m_data[i].ModMulFastNTLEq(bLocal,modulus);
 	}
 	else{
 		for(usint i=0;i<this->m_data.size();i++)
-			ans.m_data[i] = m_data[i].ModMulFast(bLocal,modulus);
+			ans.m_data[i].ModMulFastEq(bLocal,modulus);
 	}
 
 	return ans;
@@ -430,19 +429,19 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const NativeVector &
         throw std::logic_error("ModAdd called on NativeVector's with different parameters.");
 	}
 
-	NativeVector ans(this->m_data.size(),this->m_modulus);
+	NativeVector ans(*this);
 
 	IntegerType modulus = this->m_modulus;
 
 	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<ans.m_data.size();i++)
-			ans.m_data[i] = m_data[i].ModAddFastNTL(b[i],modulus);
+			ans.m_data[i].ModAddFastNTLEq(b[i],modulus);
 	}
 	else
 	{
 		for(usint i=0;i<ans.m_data.size();i++)
-			ans.m_data[i] = m_data[i].ModAddFast(b[i],modulus);
+			ans.m_data[i].ModAddFastEq(b[i],modulus);
 	}
 
 	return ans;
@@ -540,18 +539,18 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
         throw std::logic_error("ModMul called on NativeVector's with different parameters.");
 	}
 
-	NativeVector ans(this->m_data.size(),this->m_modulus);
+	NativeVector ans(*this);
 	IntegerType modulus = this->m_modulus;
 
 	if (modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			ans.m_data[i] = m_data[i].ModMulFastNTL(b[i],modulus);
+			ans.m_data[i].ModMulFastNTLEq(b[i],modulus);
 	}
 	else
 	{
 		for(usint i=0;i<this->m_data.size();i++)
-			ans.m_data[i] = m_data[i].ModMulFast(b[i],modulus);
+			ans.m_data[i].ModMulFastEq(b[i],modulus);
 	}
 
 	return ans;
