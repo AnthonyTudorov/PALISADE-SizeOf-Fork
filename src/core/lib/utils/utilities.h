@@ -119,8 +119,8 @@ inline uint32_t AdditionWithCarryOut(uint64_t a, uint64_t b, uint64_t &c)
  * @param b: operand 2
  * @return result: 128-bit result = a * b
  */
-inline unsigned __int128 Mul128(uint64_t a, uint64_t b) {
-	unsigned __int128 result = (unsigned __int128)a * (unsigned __int128)b;
+inline DoubleNativeInteger Mul128(uint64_t a, uint64_t b) {
+	DoubleNativeInteger result = (DoubleNativeInteger)a * (DoubleNativeInteger)b;
     return result;
 }
 
@@ -131,11 +131,11 @@ inline unsigned __int128 Mul128(uint64_t a, uint64_t b) {
  * @param mu: 2^128/modulus (128-bit)
  * @return result: 64-bit result = a mod m
  */
-inline uint64_t BarrettUint128ModUint64(unsigned __int128 a, uint64_t modulus, unsigned __int128 mu)
+inline uint64_t BarrettUint128ModUint64(DoubleNativeInteger a, uint64_t modulus, DoubleNativeInteger mu)
 {
 	// (a * mu)/2^128 // we need the upper 128-bit of (256-bit product)
 	uint64_t result = 0, a_lo = 0, a_hi = 0, mu_lo = 0, mu_hi = 0, left_hi = 0, middle_lo = 0, middle_hi = 0, tmp1 = 0, tmp2 = 0, carry = 0;
-	unsigned __int128 middle = 0;
+	DoubleNativeInteger middle = 0;
 
 	a_lo = (uint64_t)a;
 	a_hi = a >> 64;
@@ -176,9 +176,9 @@ inline uint64_t BarrettUint128ModUint64(unsigned __int128 a, uint64_t modulus, u
  * @param a: 128-bit integer to convert
  * @return std:string of a
  */
-inline std::string Uint128ToString(const unsigned __int128 &a) noexcept
+inline std::string Uint128ToString(DoubleNativeInteger &a) noexcept
 {
-	unsigned __int128 tmp = a;
+	DoubleNativeInteger tmp = a;
 	char buffer[128];
 	memset(buffer, 0, sizeof(buffer));
 

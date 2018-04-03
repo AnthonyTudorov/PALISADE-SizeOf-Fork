@@ -1317,7 +1317,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 		const shared_ptr<ParmType> paramsBsk,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
-		const std::vector<unsigned __int128> &BskmtildeModulimu,
+		const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -1389,7 +1389,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 #endif
     	for ( uint32_t k = 0; k < n; k++ )
     	{
-    		unsigned __int128 result = 0;
+    		DoubleNativeInteger result = 0;
     		for (uint32_t i = 0; i < numq; i++)
     		{
     			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
@@ -1464,7 +1464,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		const typename PolyType::Integer &t,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskModuli,
-		const std::vector<unsigned __int128> &BskModulimu,
+		const std::vector<DoubleNativeInteger> &BskModulimu,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqi,
 		const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
@@ -1507,7 +1507,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 #endif
 		for ( uint32_t k = 0; k < n; k++ )
 		{
-			unsigned __int128 aq = 0;
+			DoubleNativeInteger aq = 0;
 			for (uint32_t i = 0; i < numq; i++)
 			{
 				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
@@ -1548,9 +1548,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
-			const std::vector<unsigned __int128> &qModulimu,
+			const std::vector<DoubleNativeInteger> &qModulimu,
 			const std::vector<typename PolyType::Integer> &BskModuli,
-			const std::vector<unsigned __int128> &BskModulimu,
+			const std::vector<DoubleNativeInteger> &BskModulimu,
 			const std::vector<typename PolyType::Integer> &BDivBiModBi,
 			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
 			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
@@ -1591,7 +1591,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 		for (uint32_t k = 0; k < n; k++)
 		{
 
-			unsigned __int128 result = 0;
+			DoubleNativeInteger result = 0;
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
@@ -1610,7 +1610,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
     for (uint32_t k = 0; k < n; k++)
     {
-    	unsigned __int128 result = 0;
+    	DoubleNativeInteger result = 0;
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];

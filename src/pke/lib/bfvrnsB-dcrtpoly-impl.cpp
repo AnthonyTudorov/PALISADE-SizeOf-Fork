@@ -64,7 +64,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		val[0] = (mu % TwoPower64).ConvertToInt();
 		val[1] = mu.RShift(64).ConvertToInt();
 
-		memcpy(&m_qModulimu[i], val, sizeof(unsigned __int128));
+		memcpy(&m_qModulimu[i], val, sizeof(DoubleNativeInteger));
 	}
 
 	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
@@ -159,7 +159,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		val[0] = (mu % TwoPower64).ConvertToInt();
 		val[1] = mu.RShift(64).ConvertToInt();
 
-		memcpy(&m_BskmtildeModulimu[i], val, sizeof(unsigned __int128));
+		memcpy(&m_BskmtildeModulimu[i], val, sizeof(DoubleNativeInteger));
 	}
 
 	// Populate Barrett constants for BskModuli
@@ -829,11 +829,11 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrnsB->GetElementParams();
 	const shared_ptr<ILDCRTParams<BigInteger>> paramsBsk = cryptoParamsBFVrnsB->GetDCRTParamsBsk();
 	const std::vector<NativeInteger> &paramsqModuli = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
-	const std::vector<unsigned __int128> &paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
+	const std::vector<DoubleNativeInteger> &paramsqModulimu = cryptoParamsBFVrnsB->GetDCRTParamsqModulimu();
 	const std::vector<NativeInteger> &paramsBskModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskModuli();
-	const std::vector<unsigned __int128> &paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
+	const std::vector<DoubleNativeInteger> &paramsBskModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskModulimu();
 	const std::vector<NativeInteger> &paramsBskmtildeModuli = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModuli();
-	const std::vector<unsigned __int128> &paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
+	const std::vector<DoubleNativeInteger> &paramsBskmtildeModulimu = cryptoParamsBFVrnsB->GetDCRTParamsBskmtildeModulimu();
 	const std::vector<NativeInteger> &paramsmtildeqDivqiModqi = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqi();
 	const std::vector<NativeInteger> &paramsmtildeqDivqiModqiPrecon = cryptoParamsBFVrnsB->GetDCRTParamsmtildeqDivqiModqiPrecon();
 	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModBskmtilde = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModBskmtilde();
