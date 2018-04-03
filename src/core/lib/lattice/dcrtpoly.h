@@ -717,12 +717,13 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
-	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
+	* @param &siModulimu Barrett modulo reduction precomputations for si's
+	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	* @return the polynomial in the CRT basis S
 	*/
 	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<DoubleNativeInteger> &siModulimu) const;
+			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -733,12 +734,13 @@ public:
 	* @param &qInvModqi a vector of precomputed integer factors (q/qi)^{-1} mod qi for all qi
 	* @param &qDivqiModsi a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
 	* @param &qModsi a vector of precomputed integer factors q mod si for all si
-	* @param &qDivqiModsiPrecon an NTL precomputation of a matrix of precomputed integer factors (q/qi)^{-1} mod si for all si, qi combinations
+	* @param &siModulimu Barrett modulo reduction precomputations for si's
+	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	*/
 	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
 			const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<DoubleNativeInteger> &siModulimu);
+			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon);
 
 	/**
 	 * @brief Computes Round(t/q*x) mod t for fast rounding in RNS
@@ -843,8 +845,8 @@ public:
 	* @param &params parameters for the CRT basis Q
 	* @param &alpha a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
 	* @param &beta a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
-	* @param &alphaPrecon an NTL precomputation for the matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
-	* @return the result of computation as a polynomial in the CRT basis Q
+	* @param &siModulimu Barrett modulo reduction precomputations for si's
+ 	* @return the result of computation as a polynomial in the CRT basis Q
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,

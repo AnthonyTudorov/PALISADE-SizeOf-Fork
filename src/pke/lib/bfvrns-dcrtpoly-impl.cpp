@@ -162,13 +162,16 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication and key switching
 
 	std::vector<NativeInteger> qInv(size);
+	std::vector<NativeInteger> qInvPrecon(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
 		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
+		qInvPrecon[vi] = qInv[vi].PrepModMulPreconNTL(qi.ConvertToInt());
 	}
 
 	m_CRTInverseTable = qInv;
+	m_CRTInversePreconTable = qInvPrecon;
 
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
@@ -233,13 +236,16 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the (S/si)^{-1} mod si table - used for homomorphic multiplication
 
 	std::vector<NativeInteger> sInv(sizeS);
+	std::vector<NativeInteger> sInvPrecon(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
 		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
 		BigInteger divBy = modulusS / si;
 		sInv[vi] = divBy.ModInverse(si).Mod(si).ConvertToInt();
+		sInvPrecon[vi] = sInv[vi].PrepModMulPreconNTL(si.ConvertToInt());
 	}
 
 	m_CRTSInverseTable = sInv;
+	m_CRTSInversePreconTable = sInvPrecon;
 
 	// compute (S/si) mod qi table - used for homomorphic multiplication
 	std::vector<std::vector<NativeInteger>> sDivsiModqi(size);
@@ -717,12 +723,12 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(ConstCiphertext<DC
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
-				cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+				cryptoParamsBFVrns->GetDCRTParamsSModulimu(),cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
-				cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+				cryptoParamsBFVrns->GetDCRTParamsSModulimu(),cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	// Performs the multiplication itself
 	// Karatsuba technique is currently slower so it is commented out
@@ -769,7 +775,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(ConstCiphertext<DC
 		// Converts from the CRT basis S to Q
 		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
 					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),
-					cryptoParamsBFVrns->GetDCRTParamsQModulimu());
+					cryptoParamsBFVrns->GetDCRTParamsQModulimu(),cryptoParamsBFVrns->GetCRTSInversePreconTable());
 	}
 
 	newCiphertext->SetElements(c);

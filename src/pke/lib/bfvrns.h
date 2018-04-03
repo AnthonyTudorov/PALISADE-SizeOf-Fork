@@ -159,8 +159,18 @@ namespace lbcrypto {
 			*/
 			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
 
+			/**
+			* Gets the Barrett modulo reduction precomputations for Q
+			*
+			* @return the precomputed table
+			*/
 			std::vector<DoubleNativeInteger> const &GetDCRTParamsQModulimu() const { return m_qModulimu; }
 
+			/**
+			* Gets the Barrett modulo reduction precomputations for S
+			*
+			* @return the precomputed table
+			*/
 			std::vector<DoubleNativeInteger> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
 
 			/**
@@ -199,6 +209,13 @@ namespace lbcrypto {
 			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
 
 			/**
+			* Gets the NTL precomputation for the precomputed table of (Q/qi)^{-1} mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<NativeInteger>& GetCRTInversePreconTable() const { return m_CRTInversePreconTable; }
+
+			/**
 			* Gets the precomputed table of (Q/qi) mod si
 			*
 			* @return the precomputed table
@@ -232,6 +249,13 @@ namespace lbcrypto {
 			* @return the precomputed table
 			*/
 			const std::vector<NativeInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
+
+			/**
+			* Gets the NTL precomputation for the precomputed table of (S/si)^{-1} mod si
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<NativeInteger>& GetCRTSInversePreconTable() const { return m_CRTSInversePreconTable; }
 
 			/**
 			* Gets the precomputed table of (S/si) mod qi table
@@ -290,6 +314,9 @@ namespace lbcrypto {
 			// Stores a precomputed table of (Q/qi)^{-1} mod qi
 			std::vector<NativeInteger> m_CRTInverseTable;
 
+			// Stores an NTL precomputation for the precomputed table of (Q/qi)^{-1} mod qi
+			std::vector<NativeInteger> m_CRTInversePreconTable;
+
 			// Stores a precomputed table of (Q/qi) mod si
 			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
 
@@ -304,6 +331,9 @@ namespace lbcrypto {
 
 			// Stores a precomputed table of (S/si)^{-1} mod si
 			std::vector<NativeInteger> m_CRTSInverseTable;
+
+			// Stores an NTL precomputation for the precomputed table of (S/si)^{-1} mod si
+			std::vector<NativeInteger> m_CRTSInversePreconTable;
 
 			// Stores a precomputed table of (S/si) mod qi table
 			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiTable;

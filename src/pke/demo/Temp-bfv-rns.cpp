@@ -1198,7 +1198,8 @@ void SwitchCRT() {
 	std::cout << "Starting CRT Basis switch" << std::endl;
 
 	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	std::cout << "a mod s0 = " << resultA.at(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
 	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).at(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
@@ -1258,7 +1259,8 @@ void SwitchCRTSingleTests() {
 		Poly resultA = a.CRTInterpolate();
 
 		const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+				cryptoParamsBFVrns->GetCRTInverseTable());
 
 		Poly resultB = b.CRTInterpolate();
 
@@ -1370,10 +1372,12 @@ void Multiply() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1437,7 +1441,8 @@ void Multiply() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1515,10 +1520,12 @@ void MultiplyTwo() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1630,7 +1637,8 @@ void MultiplyTwo() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1709,10 +1717,12 @@ void MultiplyThree() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1824,7 +1834,8 @@ void MultiplyThree() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1903,10 +1914,12 @@ void ScaleAndRound() {
 	//std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
