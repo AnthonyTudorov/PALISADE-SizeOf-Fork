@@ -74,6 +74,7 @@ class MyClass
 };
 IMPLEMENT_ALLOCATOR(MyClass, 0, 0)
 
+
 // Heap blocks mode unlimited with BLOCKSIZE byte blocks
 Allocator allocatorHeapBlocks(BLOCKSIZE);
 

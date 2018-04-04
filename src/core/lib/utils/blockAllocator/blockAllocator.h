@@ -102,9 +102,13 @@ private:
 #define DECLARE_ALLOCATOR \
     public: \
         void* operator new(size_t size) { \
+        bool dbg_flag = false;\
+        DEBUG( "allocating   " << size << " bytes");\
             return _allocator.Allocate(size); \
         } \
         void operator delete(void* pObject) { \
+        bool dbg_flag = false;\
+	DEBUG("deallocating  ");\
             _allocator.Deallocate(pObject); \
         } \
     private: \
@@ -113,6 +117,10 @@ private:
 // macro to provide source file interface
 #define IMPLEMENT_ALLOCATOR(class, objects, memory) \
 	Allocator class::_allocator(sizeof(class), objects, memory, #class);
+
+
+#define IMPLEMENT_BALLOCATOR(class, blocksize, objects, memory)		\
+	Allocator class::_allocator(blocksize, objects, memory, #class);
 
 #endif
 

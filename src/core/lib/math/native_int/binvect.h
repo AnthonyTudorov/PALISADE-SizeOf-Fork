@@ -36,6 +36,7 @@
 #include "../interface.h"
 #include "../../utils/serializable.h"
 #include "../../utils/inttypes.h"
+#include "../../utils/blockAllocator/blockAllocator.h"
 
 /**
  * @namespace native_int
@@ -43,12 +44,35 @@
  */
 namespace native_int {
 	
-
-
+#define BLOCK_ALLOCATION 0
+#define BLOCK_VECTOR_ALLOCATION 1
 /**
  * @brief The class for representing vectors of native integers.
  */
-#if 0
+#if BLOCK_VECTOR_ALLOCATION // block allocator
+template <class Tp>
+struct BAlloc {
+    typedef Tp value_type;
+    BAlloc() = default;
+    template <class T> BAlloc(const BAlloc<T>&) {}
+    Tp* allocate(std::size_t n) {
+        n *= sizeof(Tp);
+        std::cout << "Ballocating   " << n << " bytes\n";
+        return static_cast<Tp*>(::operator new(n));
+    }
+    void deallocate(Tp* p, std::size_t n) {
+        std::cout << "B deallocating " << n*sizeof*p << " bytes\n";
+        ::operator delete(p);
+    }
+};
+template <class T, class U>
+bool operator==(const BAlloc<T>&, const BAlloc<U>&) { return true; }
+template <class T, class U>
+bool operator!=(const BAlloc<T>&, const BAlloc<U>&) { return false; }
+#endif 
+
+
+ #if 0 // allocator that reports bytes used.
 template <class Tp>
 struct NAlloc {
     typedef Tp value_type;
@@ -69,12 +93,18 @@ bool operator==(const NAlloc<T>&, const NAlloc<U>&) { return true; }
 template <class T, class U>
 bool operator!=(const NAlloc<T>&, const NAlloc<U>&) { return false; }
 #endif 
-  
+
+
 
 template <class IntegerType>
 class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerType>,IntegerType>, public lbcrypto::Serializable
 {
-public:
+
+  #if BLOCK_ALLOCATION == 1
+  DECLARE_ALLOCATOR //Declares the blockAllocator is to be used.
+  #endif
+
+ public:
 	typedef IntegerType BVInt;
 
 	/**
@@ -501,9 +531,11 @@ public:
 
 private:
 	//m_data is a pointer to the vector
-	std::vector<IntegerType> m_data;	
-	//std::vector<IntegerType, NAlloc<IntegerType>> m_data;
-
+#if BLOCK_VECTOR_ALLOCATION != 1
+	std::vector<IntegerType> m_data;
+#else
+	std::vector<IntegerType, BAlloc<IntegerType>> m_data;
+#endif
 	//m_modulus stores the internal modulus of the vector.
 	IntegerType m_modulus = 0;
 

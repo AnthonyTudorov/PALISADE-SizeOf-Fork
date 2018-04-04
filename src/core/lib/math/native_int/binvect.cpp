@@ -677,5 +677,17 @@ bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) 
 }
 
 template class NativeVector<NativeInteger<uint64_t>>;
+  typedef NativeVector<NativeInteger<uint64_t>> myClass;
 
+#if BLOCK_ALLOCATION == 1
+#define BLOCKSIZE 8192
+  //  template<>
+  //IMPLEMENT_ALLOCATOR( myClass, 0, 0) //this implements the allocator
+
+  template<>
+  IMPLEMENT_BALLOCATOR( myClass, BLOCKSIZE, 2048, 0) //this implements the allocator
+#endif
+
+
+  
 } // namespace lbcrypto ends
