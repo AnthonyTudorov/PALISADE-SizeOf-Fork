@@ -261,15 +261,26 @@ void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 		return; // visit only once!
 
 	Visit();
-	if( getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
+	if( getInputs().size() > 2 ) {
+		usint noiseTotal = 0;
+		for( auto nid : getInputs() ) {
+			auto n = g.getNodeById(nid);
+			n->simeval(g, ops);
+			noiseTotal += n->GetNoise();
+		}
 
-	auto n0 = g.getNodeById(getInputs()[0]);
-	auto n1 = g.getNodeById(getInputs()[1]);
-	n0->simeval(g,ops);
-	n1->simeval(g,ops);
+		CircuitNode::Log(ops,GetId(),OpEvalMultMany);
+		this->SetNoise( noiseTotal );
+	}
+	else {
+		auto n0 = g.getNodeById(getInputs()[0]);
+		auto n1 = g.getNodeById(getInputs()[1]);
+		n0->simeval(g,ops);
+		n1->simeval(g,ops);
 
-	CircuitNode::Log(ops,GetId(),OpEvalMult);
-	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+		CircuitNode::Log(ops,GetId(),OpEvalMult);
+		this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	}
 	return;
 }
 
@@ -278,17 +289,36 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("Mult requires 2 inputs");
+	if( this->getNode()->getInputs().size() > 2 ) {
+		usint noiseTotal = 0;
+		vector<Ciphertext<Element>> cvec;
+		for( auto nid : this->getNode()->getInputs() ) {
+			auto n = cg.getNodeById(nid);
+			noiseTotal += n->GetNoise();
+			Value<Element> v( n->eval(cc,cg) );
+			if( v.GetType() != CIPHERTEXT ) {
+				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
+			}
+			cvec.push_back( v.GetCiphertextValue() );
+		}
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
-	Value<Element> v0( n0->eval(cc,cg) );
-	Value<Element> v1( n1->eval(cc,cg) );
+		this->value = cc->EvalMultMany( cvec );
 
-	this->value = v0 * v1;
+		this->SetNoise( noiseTotal );
+	}
+	else {
+
+		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+		auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+		Value<Element> v0( n0->eval(cc,cg) );
+		Value<Element> v1( n1->eval(cc,cg) );
+
+		this->value = v0 * v1;
+
+		this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	}
 
 	this->Log();
-	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
 	return this->value;
 }
 

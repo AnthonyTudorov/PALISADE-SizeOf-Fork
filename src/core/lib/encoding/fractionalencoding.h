@@ -39,8 +39,8 @@ class FractionalEncoding: public PlaintextImpl {
 	// number of bits reserved for the fractional part (index from the end)
 	size_t 		m_separator;
 	// m_numerator and m_denominator are not currently used
-	uint64_t	m_numerator;
-	uint64_t	m_denominator;
+	uint64_t		m_numerator;
+	uint64_t		m_denominator;
 
 public:
 	// these two constructors are used inside of Decrypt
@@ -69,6 +69,11 @@ public:
 	 * @return the un-encoded scalar
 	 */
 	const int64_t GetIntegerValue() const { return m_integer; }
+
+	// these methods are placeholders until the members are used
+	uint64_t	 GetNumerator() const { return m_numerator; }
+	uint64_t GetDenominator() const { return m_denominator; }
+
 
 	/**
 	 * Encode the plaintext into the Poly

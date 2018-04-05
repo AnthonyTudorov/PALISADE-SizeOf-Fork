@@ -110,13 +110,18 @@ private:
 		if( a == NULL || b == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( a->GetCryptoContext().get() != this )
-			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
 		if( a->GetCryptoContext() != b->GetCryptoContext() )
-			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContextImpl");
+			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContext");
 		if( a->GetKeyTag() != b->GetKeyTag() )
 			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
-		if( a->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+		if( a->GetEncodingType() != b->GetEncodingType() ) {
+			stringstream ss;
+			ss << "Ciphertext encoding types " << a->GetEncodingType();
+			ss << " and " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
@@ -130,7 +135,7 @@ private:
 		if( b == NULL )
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a->GetCryptoContext().get() != this )
-			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
 		if( a->GetEncodingType() != b->GetEncodingType() ) {
 			stringstream ss;
 			ss << "Ciphertext encoding type " << a->GetEncodingType();
@@ -152,8 +157,13 @@ private:
 			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContextImpl");
 		if( a.GetKeyTag() != b.GetKeyTag() )
 			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
-		if( a.GetNumerator()->GetEncodingType() != b.GetNumerator()->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+		if( a.GetNumerator()->GetEncodingType() != b.GetNumerator()->GetEncodingType() ) {
+			stringstream ss;
+			ss << "RationalCiphertext encoding types " << a.GetNumerator()->GetEncodingType();
+			ss << " and " << b.GetNumerator()->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
@@ -166,8 +176,13 @@ private:
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a.GetCryptoContext().get() != this )
 			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
-		if( a.GetNumerator()->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
+		if( a.GetNumerator()->GetEncodingType() != b->GetEncodingType() ){
+			stringstream ss;
+			ss << "RationalCiphertext encoding type " << a.GetNumerator()->GetEncodingType();
+			ss << " and Plaintext encoding type " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	bool Mismatched(const CryptoContext<Element> a) const {
@@ -1592,7 +1607,7 @@ public:
 		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMultMany(ct, ek);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
+			timeSamples->push_back( TimingInfo(OpEvalMultMany, TOC_US(t)) );
 		}
 		return rv;
 
@@ -1643,6 +1658,12 @@ public:
 	Ciphertext<Element>
 	EvalRightShift(const Ciphertext<Element> ct1, size_t divisor) const
 	{
+		if( ct1 && ct1->GetEncodingType() != Fractional ) {
+			stringstream ss;
+			ss << "A " << Fractional << " encoded ciphertext is required for the EvalRightShift operation";
+			PALISADE_THROW( type_error, ss.str() );
+		}
+
 		Plaintext plaintextShift = MakeFractionalPlaintext(0,divisor);
 		TypeCheck(ct1, plaintextShift);
 

@@ -52,6 +52,33 @@ enum PlaintextEncodings {
 	Fractional,
 };
 
+inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
+	switch( p ) {
+	case Unknown:
+		out << "Unknown";
+		break;
+	case Scalar:
+		out << "Scalar";
+		break;
+	case Integer:
+		out << "Integer";
+		break;
+	case CoefPacked:
+		out << "CoefPacked";
+		break;
+	case Packed:
+		out << "Packed";
+		break;
+	case String:
+		out << "String";
+		break;
+	case Fractional:
+		out << "Fractional";
+		break;
+	}
+	return out;
+}
+
 class PlaintextImpl;
 typedef shared_ptr<PlaintextImpl> Plaintext;
 

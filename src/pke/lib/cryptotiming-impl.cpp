@@ -77,6 +77,7 @@ static struct FeatureMap FeatureMap[] = {
 	{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
 	{ OpEvalSubPlain, "EvalSubPlain", SHE },
 	{ OpEvalMult, "EvalMult", SHE },
+	{ OpEvalMultMany, "EvalMultMany", SHE },
 	{ OpEvalMultMatrix, "EvalMultMatrix", SHE },
 	{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
 	{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
