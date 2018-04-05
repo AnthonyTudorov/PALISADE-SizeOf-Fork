@@ -51,18 +51,22 @@ namespace native_int {
  */
 #if BLOCK_VECTOR_ALLOCATION // block allocator
 template <class Tp>
-struct BAlloc {
+class BAlloc {
+    DECLARE_ALLOCATOR //Declares the blockAllocator is to be used.
+    public:
     typedef Tp value_type;
     BAlloc() = default;
     template <class T> BAlloc(const BAlloc<T>&) {}
     Tp* allocate(std::size_t n) {
         n *= sizeof(Tp);
-        std::cout << "Ballocating   " << n << " bytes\n";
-        return static_cast<Tp*>(::operator new(n));
+        //std::cout << "Ballocating   " << n << " bytes\n";
+        //return static_cast<Tp*>(::operator new(n));
+        return static_cast<Tp*>( _allocator.Allocate(n));
     }
     void deallocate(Tp* p, std::size_t n) {
-        std::cout << "B deallocating " << n*sizeof*p << " bytes\n";
-        ::operator delete(p);
+      //std::cout << "B deallocating " << n*sizeof*p << " bytes\n";
+      //  ::operator delete(p);
+        _allocator.Deallocate(p);
     }
 };
 template <class T, class U>
