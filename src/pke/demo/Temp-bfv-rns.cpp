@@ -533,14 +533,14 @@ void SHETestPackedRelin() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	usint ptm = 65537;
+	usint ptm = 786433;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
 	uint32_t relinWindow = 0;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,3,relinWindow,30);
+			ptm, rootHermiteFactor, sigma, 0, 27, 0, OPTIMIZED,3,relinWindow,60);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -548,7 +548,7 @@ void SHETestPackedRelin() {
 
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
 	std::cout << "k = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetParams().size() << std::endl;
 
 	// Initialize Public Key Containers

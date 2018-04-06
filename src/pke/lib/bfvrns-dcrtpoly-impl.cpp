@@ -301,17 +301,17 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cryptoParams);
 
-	double sigma = cryptoParamsBFVrns->GetDistributionParameter();
-	double alpha = cryptoParamsBFVrns->GetAssuranceMeasure();
-	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
-	double p = cryptoParamsBFVrns->GetPlaintextModulus();
+	ExtendedDouble sigma = ExtendedDouble(cryptoParamsBFVrns->GetDistributionParameter());
+	ExtendedDouble alpha = ExtendedDouble(cryptoParamsBFVrns->GetAssuranceMeasure());
+	ExtendedDouble hermiteFactor = ExtendedDouble(cryptoParamsBFVrns->GetSecurityLevel());
+	ExtendedDouble p = ExtendedDouble(cryptoParamsBFVrns->GetPlaintextModulus());
 	uint32_t relinWindow = cryptoParamsBFVrns->GetRelinWindow();
 
 	//Bound of the Gaussian error polynomial
-	double Berr = sigma*sqrt(alpha);
+	ExtendedDouble Berr = sigma*sqrt(alpha);
 
 	//Bound of the key polynomial
-	double Bkey;
+	ExtendedDouble Bkey;
 
 	//supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParamsBFVrns->GetMode() == RLWE)
@@ -320,24 +320,24 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> double { return sqrt(n); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(n)); };
 
 	//norm of fresh ciphertext polynomial
-	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*delta(n)*Bkey);  };
+	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
 	//RLWE security constraint
-	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
+	auto nRLWE = [&](ExtendedDouble q) -> ExtendedDouble { return log(q / sigma) / (ExtendedDouble(4) * log(hermiteFactor));  };
 
 	//initial values
 	uint32_t n = 512;
-	double q = 0;
+	ExtendedDouble q = ExtendedDouble(0);
 
 	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
 	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
 	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+		auto qBFV = [&](uint32_t n) -> ExtendedDouble { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
 
 		//initial value
 		q = qBFV(n);
@@ -349,15 +349,15 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 		// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-		int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+		int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-		double qCeil = pow(2,k*dcrtBits);
+		ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 
 		while (nRLWE(qCeil) > n) {
 			n = 2 * n;
 			q = qBFV(n);
-			k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-			qCeil = pow(2,k*dcrtBits);
+			k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+			qCeil = power((ExtendedDouble)2,k*dcrtBits);
 		}
 
 	}
@@ -365,17 +365,17 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
 
 		//base for relinearization
-		double w;
+		ExtendedDouble w;
 		if (relinWindow == 0)
 			w = pow(2, dcrtBits);
 		else
 			w = pow(2, relinWindow);
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr) + p);  };
 
 		//initial values
-		double qPrev = 1e6;
+		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
 
@@ -391,23 +391,23 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			q = qBFV(n, qPrev);
 
-			while (std::abs(q - qPrev) > 0.001*q) {
+			while (fabs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qBFV(n, qPrev);
 			}
 
 			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+			int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-			double qCeil = pow(2,k*dcrtBits);
+			ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 			qPrev = qCeil;
 
 			while (nRLWE(qCeil) > n) {
 				n = 2 * n;
 				q = qBFV(n, qPrev);
-				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-				qCeil = pow(2,k*dcrtBits);
+				k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+				qCeil = power((ExtendedDouble)2,k*dcrtBits);
 				qPrev = qCeil;
 			}
 
@@ -420,26 +420,26 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	{
 
 		//base for relinearization
-		double w;
+		ExtendedDouble w;
 		if (relinWindow == 0)
 			w = pow(2, dcrtBits);
 		else
 			w = pow(2, relinWindow);
 
 		//function used in the EvalMult constraint
-		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
+		auto epsilon1 = [&](uint32_t n) -> ExtendedDouble { return 4 / (delta(n)*Bkey);  };
 
 		//function used in the EvalMult constraint
-		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
+		auto C1 = [&](uint32_t n) -> ExtendedDouble { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
 
 		//function used in the EvalMult constraint
-		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr;  };
+		auto C2 = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr;  };
 
 		//main correctness constraint
-		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(2 * (power(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*power(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
 
 		//initial values
-		double qPrev = 1e6;
+		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
 
@@ -455,23 +455,23 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			q = qBFV(n, qPrev);
 
-			while (std::abs(q - qPrev) > 0.001*q) {
+			while (fabs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qBFV(n, qPrev);
 			}
 
 			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+			int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-			double qCeil = pow(2,k*dcrtBits);
+			ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 			qPrev = qCeil;
 
 			while (nRLWE(qCeil) > n) {
 				n = 2 * n;
 				q = qBFV(n, qPrev);
-				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-				qCeil = pow(2,k*dcrtBits);
+				k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+				qCeil = power((ExtendedDouble)2,k*dcrtBits);
 				qPrev = qCeil;
 			}
 
@@ -479,7 +479,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	}
 
-	size_t size = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+	size_t size = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
