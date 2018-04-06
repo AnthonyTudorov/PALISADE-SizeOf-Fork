@@ -667,19 +667,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		}
 
 		/**
-		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the NULL scheme.
-		*
-		* @param cipherTextList is the ciphertext list input.
-		* @param evalKeys is the evaluation key list input.
-		* @return A shared pointer to the ciphertext which is the result of the multiplication.
-		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
-				const vector<LPEvalKey<Element>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmNULL::EvalMultMany is not implemented for the NULL Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Function for homomorpic negation of ciphertext.
 		*
 		* @param &ciphertext input ciphertext.

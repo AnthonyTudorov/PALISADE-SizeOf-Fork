@@ -1324,13 +1324,15 @@ namespace lbcrypto {
 			vector<Ciphertext<Element>> workarea;
 			workarea = cipherTextList;
 			size_t size = workarea.size();
-			while( size > 1 ) {
-				size_t i = 0;
-				for( ; i < ((size/2)*2); i += 2) {
-					// EvalMult i and i+1
-					// save result
+
+			for( size_t nextop = 1; nextop < size; nextop *= 2 ) {
+				for( size_t i = 0; i < size; i += nextop) {
+					std::cout << "mult of " << i << " and " << i+nextop << endl;
+					workarea[i] = this->EvalMult(workarea[i], workarea[i+nextop]);
 				}
 			}
+
+			return workarea[0];
 		}
 
 		/**

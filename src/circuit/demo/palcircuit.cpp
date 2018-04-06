@@ -217,8 +217,8 @@ main(int argc, char *argv[])
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
-			//genCryptoContextNull(m, ep);
+			//genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
+			genCryptoContextNull(m, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
