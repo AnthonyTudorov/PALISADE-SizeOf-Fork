@@ -75,7 +75,7 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_SwitchCRTBasis) {
 
 	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
-			cryptoParamsBFVrns->GetCRTInverseTable());
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	Poly resultB = b.CRTInterpolate();
 	
@@ -128,11 +128,11 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Constant) {
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
-			cryptoParamsBFVrns->GetCRTInverseTable());
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
-			cryptoParamsBFVrns->GetCRTInverseTable());
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	Poly resultExpandedB = b.CRTInterpolate();
 
@@ -198,7 +198,7 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Constant) {
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
 			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
-			cryptoParamsBFVrns->GetCRTSInverseTable());
+			cryptoParamsBFVrns->GetCRTSInversePreconTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -256,11 +256,11 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Gaussian) {
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
-			cryptoParamsBFVrns->GetCRTInverseTable());
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
-			cryptoParamsBFVrns->GetCRTInverseTable());
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	Poly resultExpandedB = b.CRTInterpolate();
 
@@ -326,7 +326,7 @@ TEST_F(UTBFVrnsCRTOperations, BFVrns_Mult_by_Gaussian) {
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
 			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
-			cryptoParamsBFVrns->GetCRTSInverseTable());
+			cryptoParamsBFVrns->GetCRTSInversePreconTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
