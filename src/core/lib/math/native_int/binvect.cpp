@@ -281,7 +281,7 @@ template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const IntegerType &b) const{
 
 	NativeVector ans(*this);
-	if (this->m_modulus < NTL_SP_NBITS + 1)
+	if (this->m_modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++){
 			ans.m_data[i].ModAddFastOptimizedEq(b, this->m_modulus);
@@ -297,7 +297,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const IntegerType &b
 template<class IntegerType>
 const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const IntegerType &b) {
 
-	if (this->m_modulus < NTL_SP_NBITS + 1)
+	if (this->m_modulus.GetMSB() < NTL_SP_NBITS + 1)
 	{
 		for(usint i=0;i<this->m_data.size();i++){
 			this->m_data[i].ModAddFastOptimizedEq(b, this->m_modulus);

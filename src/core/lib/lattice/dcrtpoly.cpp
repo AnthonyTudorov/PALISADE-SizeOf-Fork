@@ -1059,32 +1059,57 @@ NativePoly DCRTPolyImpl<ModType,IntType,VecType,ParmType>::DecryptionCRTInterpol
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
-		const std::vector<typename PolyType::Integer> &alpha, const std::vector<QuadFloat> &beta,
-		const std::vector<typename PolyType::Integer> &alphaPrecon) const {
+		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
+		const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
 
 	typename PolyType::Vector coefficients(ringDimension, p);
 
+	if(m_vectors[0].GetModulus().GetMSB() < 48)
+	{
 #ifdef OMP
 #pragma omp parallel for
 #endif
-	for( usint ri = 0; ri < ringDimension; ri++ ) {
-		QuadFloat curFloatSum = QuadFloat(0);
-		typename PolyType::Integer curIntSum = 0;
-		for( usint vi = 0; vi < nTowers; vi++ ) {
-			const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+		for( usint ri = 0; ri < ringDimension; ri++ ) {
+			double curFloatSum = 0.0;
+			typename PolyType::Integer curIntSum = 0;
+			for( usint vi = 0; vi < nTowers; vi++ ) {
+				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 
-			// We assume that that the value of p is smaller than 64 bits (like 58)
-			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
-			//curIntSum += xi.ModMul(alpha[vi],p);
-			curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
+				// We assume that that the value of p is smaller than 64 bits (like 58)
+				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+				//curIntSum += xi.ModMul(alpha[vi],p);
+				curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
-			curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*beta[vi];
+				curFloatSum += (double)(xi.ConvertToInt())*beta[vi];
+			}
+
+			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
 		}
+	}
+	else
+	{
+#ifdef OMP
+#pragma omp parallel for
+#endif
+		for( usint ri = 0; ri < ringDimension; ri++ ) {
+			QuadFloat curFloatSum = QuadFloat(0);
+			typename PolyType::Integer curIntSum = 0;
+			for( usint vi = 0; vi < nTowers; vi++ ) {
+				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 
-		coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
+				// We assume that that the value of p is smaller than 64 bits (like 58)
+				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+				//curIntSum += xi.ModMul(alpha[vi],p);
+				curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+
+				curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+			}
+
+			coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
+		}
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive

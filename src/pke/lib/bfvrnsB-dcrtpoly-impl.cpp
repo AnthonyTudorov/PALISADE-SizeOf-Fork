@@ -1170,7 +1170,7 @@ DecryptResult LPAlgorithmMultipartyBFVrnsB<DCRTPoly>::MultipartyDecryptFusion(co
 		NativePoly *plaintext) const
 {
 
-	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParams =
+	/*const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParams =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(ciphertextVec[0]->GetCryptoParameters());
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
@@ -1187,10 +1187,12 @@ DecryptResult LPAlgorithmMultipartyBFVrnsB<DCRTPoly>::MultipartyDecryptFusion(co
 
 	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
-	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
+	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();*/
+
+	//TODO YSP This needs to be implemented using the Bajard et al. division and rounding
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;
+	//*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;
 
 	return DecryptResult(plaintext->GetLength());
 

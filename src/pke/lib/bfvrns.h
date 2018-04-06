@@ -174,11 +174,18 @@ namespace lbcrypto {
 			std::vector<DoubleNativeInteger> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
 
 			/**
-			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus <= 47 bits
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<QuadFloat>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
+			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
+
+			/**
+			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus has 48..60 bits
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<QuadFloat>& GetCRTDecryptionQuadFloatTable() const { return m_CRTDecryptionQuadFloatTable; }
 
 			/**
 			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
@@ -302,8 +309,13 @@ namespace lbcrypto {
 			// Barrett modulo reduction precomputation
 			std::vector<DoubleNativeInteger> m_sModulimu;
 
+			// when log2 qi <= 47 bits
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<QuadFloat> m_CRTDecryptionFloatTable;
+			std::vector<double> m_CRTDecryptionFloatTable;
+
+			// when log2 qi = 48..60 bits
+			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+			std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
 
 			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntTable;
