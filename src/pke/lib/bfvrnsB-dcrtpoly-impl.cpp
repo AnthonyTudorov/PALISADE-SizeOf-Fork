@@ -115,7 +115,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	BigInteger q(GetElementParams()->GetModulus());
 
 	BigInteger B = 1;
-	BigInteger maxConvolutionValue = 4 * n * q * q * t;
+	BigInteger maxConvolutionValue = BigInteger(4) * BigInteger(n) * q * q * t;
 
 	m_BModuli.push_back( NextPrime<NativeInteger>(moduli[m_numq-1], 2 * n) );
 
@@ -316,7 +316,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_gammaInvModt = m_gamma.ModInverse(t.ConvertToInt());
 	m_gammaInvModtPrecon = m_gammaInvModt.PrepModMulPreconNTL( t.ConvertToInt() );
 
-	BigInteger negqModt = ((t-1) * q.ModInverse(t));
+	BigInteger negqModt = ((t-BigInteger(1)) * q.ModInverse(t));
 	BigInteger negqModgamma = ((m_gamma-1) * q.ModInverse(m_gamma));
 	m_negqInvModtgammaTable.resize(2);
 	m_negqInvModtgammaPreconTable.resize(2);
