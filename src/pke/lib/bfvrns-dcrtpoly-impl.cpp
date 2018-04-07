@@ -320,7 +320,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(2*sqrt(n)); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(n)); };
 
 	//norm of fresh ciphertext polynomial
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
