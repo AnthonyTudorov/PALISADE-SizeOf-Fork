@@ -358,6 +358,48 @@ Value<Element> EvalRShiftNodeWithValue<Element>::eval(CryptoContext<Element> cc,
 	return this->value;
 }
 
+void EvalInnerProdNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
+	if( Visited() )
+		return; // visit only once!
+
+	Visit();
+	if( getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
+
+	int vecsize = getInputs().size()/2;
+	cout << vecsize << endl;
+
+	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n1 = g.getNodeById(getInputs()[1]);
+	n0->simeval(g,ops);
+	n1->simeval(g,ops);
+
+	CircuitNode::Log(ops,GetId(),OpEvalMult);
+	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	return;
+}
+
+template<typename Element>
+Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+	if( this->value.GetType() != UNKNOWN )
+		return this->value;
+
+	if( this->getNode()->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
+
+	int vecsize = this->getNode()->getInputs().size()/2;
+	cout << vecsize << endl;
+
+	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v1( n1->eval(cc,cg) );
+
+	this->value = v0 >> v1;
+
+	this->Log();
+	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	return this->value;
+}
+
 void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
 	if( Visited() )
 		return; // visit only once!

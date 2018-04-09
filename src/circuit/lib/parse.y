@@ -91,6 +91,7 @@ class pdriver;
 %token SUB
 %token MUL
 %token RSHIFT
+%token DOTPROD
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
 %token  <int64_t>           			NUM
@@ -236,22 +237,26 @@ numlist:       /* empty */
                 }
                 ;
 
-gate:           NUM ADD numlist ENDLS
+gate:			NUM ADD numlist ENDLS
                 {
                     $$ = new EvalAddNode($1, $3);
                 }
-        |       NUM SUB numlist ENDLS
+        |		NUM SUB numlist ENDLS
                 {
                     $$ = new EvalSubNode($1, $3);
                 }
-        |       NUM MUL numlist ENDLS
+        |		NUM MUL numlist ENDLS
                 {
                     $$ = new EvalMultNode($1, $3);
                 }
         |		NUM RSHIFT numlist ENDLS
-        		{
-        			$$ = new EvalRShiftNode($1, $3);
-                }
+				{
+        				$$ = new EvalRShiftNode($1, $3);
+				}
+		|		NUM DOTPROD numlist ENDLS
+				{
+					$$ = new EvalInnerProdNode($1, $3);
+				}
 
 ENDLS:          ENDLS ENDL | ENDL
         ;

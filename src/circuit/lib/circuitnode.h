@@ -465,6 +465,26 @@ public:
 	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
+class EvalInnerProdNode : public CircuitNode {
+public:
+	EvalInnerProdNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
+		this->inputs = inputs;
+	}
+
+	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
+	OpType OpTag() const { return OpEvalInnerProduct; }
+	string getNodeLabel() const { return "o"; }
+};
+
+template<typename Element>
+class EvalInnerProdNodeWithValue : public CircuitNodeWithValue<Element> {
+public:
+	EvalInnerProdNodeWithValue(EvalRShiftNode* node) : CircuitNodeWithValue<Element>(node) {}
+
+	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+};
+
 
 }
 

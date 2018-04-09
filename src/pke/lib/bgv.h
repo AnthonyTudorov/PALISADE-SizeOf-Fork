@@ -374,18 +374,6 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the BGV scheme.
-		*
-		* @param cipCount is the number of input ciphertext.
-		* @param evalKey The evaluation key input.
-		* @return A shared pointer to the ciphertext which is the result of the multiplication.
-		*/
-		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const vector<LPEvalKey<Element>> &evalKeys) const {
-			std::string errMsg = "LPAlgorithmSHEBGV::EvalMultMany is not implemented for the BGV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Function for homomorphic negation of ciphertexts.
 		*
 		* @param ct first input ciphertext.

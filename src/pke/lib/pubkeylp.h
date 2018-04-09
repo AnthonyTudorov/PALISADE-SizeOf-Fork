@@ -1326,9 +1326,10 @@ namespace lbcrypto {
 			size_t size = workarea.size();
 
 			for( size_t nextop = 1; nextop < size; nextop *= 2 ) {
-				for( size_t i = 0; i < size; i += nextop) {
-					std::cout << "mult of " << i << " and " << i+nextop << endl;
-					workarea[i] = this->EvalMult(workarea[i], workarea[i+nextop]);
+				for( size_t i = 0; i < size; i += (nextop*2)) {
+					if( i+nextop < size ) {
+						workarea[i] = this->EvalMult(workarea[i], workarea[i+nextop]);
+					}
 				}
 			}
 
