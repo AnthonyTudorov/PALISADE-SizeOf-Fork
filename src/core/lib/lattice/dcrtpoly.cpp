@@ -1067,7 +1067,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 
 	typename PolyType::Vector coefficients(ringDimension, p);
 
-	if(m_vectors[0].GetModulus().GetMSB() < 48)
+	if(m_vectors[0].GetModulus().GetMSB() < 46)
 	{
 #ifdef OMP
 #pragma omp parallel for

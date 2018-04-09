@@ -117,7 +117,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	const BigInteger modulusQ = GetElementParams()->GetModulus();
 
-	if (moduli[0].GetMSB() < 48)
+	if (moduli[0].GetMSB() < 46)
 	{
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<double> CRTDecryptionFloatTable(size);
@@ -320,7 +320,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(n)); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(1.5*n)); };
 
 	//norm of fresh ciphertext polynomial
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
