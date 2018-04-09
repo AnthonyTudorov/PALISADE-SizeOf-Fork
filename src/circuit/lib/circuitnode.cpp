@@ -386,17 +386,36 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	if( this->getNode()->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
 	int vecsize = this->getNode()->getInputs().size()/2;
-	cout << vecsize << endl;
+	auto logsize = log2(vecsize);
+	int logfl = (int)floor(logsize);
+	if( logfl != logsize ) // power of 2
+		logfl++;
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
-	Value<Element> v0( n0->eval(cc,cg) );
-	Value<Element> v1( n1->eval(cc,cg) );
+	vector<Ciphertext<Element>> vec1;
+	vec1.reserve(vecsize);
+	vector<Ciphertext<Element>> vec2;
+	vec2.reserve(vecsize);
+	vector<Ciphertext<Element>>* vecp = &vec1;
+	for( auto i = 0; i < this->getNode()->getInputs().size(); i++ ) {
+		if( i == vecsize )
+			vecp = &vec2;
 
-	this->value = v0 >> v1;
+		Value<Element> v( cg.getNodeById(this->getNode()->getInputs()[i])->eval(cc, cg) );
+		if( v.GetType() != CIPHERTEXT ) {
+			throw std::logic_error("InnerProduct only works on ciphertexts");
+		}
+		vecp->push_back( v.GetCiphertextValue() );
+	}
+
+	std::cout << vec1.size() << endl;
+
+	auto arg1 = cc->EvalMerge(vec1);
+	auto arg2 = cc->EvalMerge(vec2);
+
+	this->value = cc->EvalInnerProduct(arg1, arg2, logfl);
 
 	this->Log();
-	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	// FIXME this->SetNoise( ???? );
 	return this->value;
 }
 
@@ -459,6 +478,7 @@ CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
 	TESTANDMAKE( EvalSubNode, EvalSubNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalMultNode, EvalMultNodeWithValue<Element>, n );
 	TESTANDMAKE( EvalRShiftNode, EvalRShiftNodeWithValue<Element>, n);
+	TESTANDMAKE( EvalInnerProdNode, EvalInnerProdNodeWithValue<Element>, n);
 	throw std::logic_error("Type not supported in ValueNodeFactory");
 }
 

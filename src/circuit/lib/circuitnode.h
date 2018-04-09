@@ -480,7 +480,7 @@ public:
 template<typename Element>
 class EvalInnerProdNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	EvalInnerProdNodeWithValue(EvalRShiftNode* node) : CircuitNodeWithValue<Element>(node) {}
+	EvalInnerProdNodeWithValue(EvalInnerProdNode* node) : CircuitNodeWithValue<Element>(node) {}
 
 	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };

@@ -626,7 +626,7 @@ template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(const Ciphertext<Element> ciphertext, usint batchSize) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
-		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+		throw std::logic_error("Information passed to EvalSum was not generated with this crypto context");
 
 	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ciphertext->GetKeyTag());
 	double start = 0;
@@ -812,7 +812,7 @@ template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(const Ciphertext<Element> ciphertext, int32_t index) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
-		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+		throw std::logic_error("Information passed to EvalAtIndex was not generated with this crypto context");
 
 	auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertext->GetKeyTag());
 	double start = 0;
@@ -828,7 +828,7 @@ template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<Ciphertext<Element>> &ciphertextVector) const {
 
 	if( ciphertextVector[0] == NULL || Mismatched(ciphertextVector[0]->GetCryptoContext()) )
-		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+		throw std::logic_error("Information passed to EvalMerge was not generated with this crypto context");
 
 	auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertextVector[0]->GetKeyTag());
 	double start = 0;
@@ -863,7 +863,7 @@ template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Plaintext ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
-		throw std::logic_error("Information passed to EvalAdd was not generated with this crypto context");
+		throw std::logic_error("Information passed to EvalInnerProduct was not generated with this crypto context");
 
 	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ct1->GetKeyTag());
 
