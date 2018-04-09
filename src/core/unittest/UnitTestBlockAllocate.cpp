@@ -99,7 +99,14 @@ Allocator allocatorHeapBlocksBenchmark(MAX_BLOCK_SIZE);
 static void out_of_memory()
 {
   // new-handler function called by Allocator when pool is out of memory
+
+  std::cerr<<"out_of_memory in block allocator";
+  #if 0
+  std::bad_alloc exception;
+  throw( exception);
+#else
   assert(0);
+#endif
 }
 
 typedef char* (*AllocFunc)(int size);
@@ -218,7 +225,7 @@ void Benchmark(const char* name, AllocFunc allocFunc, DeallocFunc deallocFunc)
 }
 
 
-TEST(UTBlockAllocate,basic_test){
+TEST(UTBlockAllocate,block_allocator_test){
 
   std::set_new_handler(out_of_memory);
 
