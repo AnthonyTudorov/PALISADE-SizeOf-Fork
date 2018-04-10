@@ -217,8 +217,8 @@ main(int argc, char *argv[])
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			//genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
-			genCryptoContextNull(m, ep);
+			genCryptoContextBFVrns(ep,1.004,3.2,0,2,0,OPTIMIZED);
+			//genCryptoContextNull(m, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -322,8 +322,13 @@ main(int argc, char *argv[])
 		cout << "Circuit takes " << inwires.size() << " inputs:" <<endl;
 	}
 
+	int32_t n = cc->GetCryptoParameters()->GetElementParams()->GetRingDimension();
+	vector<int32_t> indexList = {2,3,4,5,6,7,8,9,10,-n+2,-n+3, n-1, n-2, -1, -2, -3, -4, -5};
+
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
+	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
 
 	// Note that the circuit evaluator does not know about or enforce encodings
 
