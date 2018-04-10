@@ -662,8 +662,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
 			const Ciphertext<Element> ciphertext2,
 			const vector<LPEvalKey<Element>> &evalKey) const {
-			std::string errMsg = "LPAlgorithmNULL::EvalMultAndRelinearize is not implemented for the NULL Scheme.";
-			throw std::runtime_error(errMsg);
+			// since there's no relinearize needed in NULL:
+			return EvalMult(ciphertext1, ciphertext2);
 		}
 
 		/**
