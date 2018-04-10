@@ -325,6 +325,9 @@ main(int argc, char *argv[])
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
+	int32_t n = cc->GetCryptoParameters()->GetElementParams()->GetRingDimension();
+	vector<int32_t> indexList = {2,3,4,5,6,7,8,9,10,-n+2,-n+3, n-1, n-2, -1, -2, -3, -4, -5};
+
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
 	cc->EvalSumKeyGen(kp.secretKey);
