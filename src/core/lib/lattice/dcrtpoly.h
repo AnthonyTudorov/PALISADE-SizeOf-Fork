@@ -703,13 +703,15 @@ public:
 	*
 	* @param &p 64-bit integer (often corresponds to the plaintext modulus)
 	* @param &alpha a vector of precomputed integer factors mod p - for each q_i
-	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are <= 47 bits
+	* @param &beta a vector of precomputed floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are <= 44 bits
 	* @param &alphaPrecon an NTL-specific vector of precomputed integer factors mod p - for each q_i
-	* @param &quadBeta a vector of precomputed quad-precision floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are 48..60 bits long
+	* @param &quadBeta a vector of precomputed quad-precision floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are 58..60 bits long
+	* @param &extBeta a vector of precomputed extended-double-precision floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are 45..57 bits long
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta) const;
+			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
+			const std::vector<long double> &extBeta) const;
 
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn

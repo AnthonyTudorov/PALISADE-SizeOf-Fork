@@ -1060,14 +1060,15 @@ template<typename ModType, typename IntType, typename VecType, typename ParmType
 PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
 		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
-		const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta) const {
+		const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
+		const std::vector<long double> &extBeta) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
 
 	typename PolyType::Vector coefficients(ringDimension, p);
 
-	if(m_vectors[0].GetModulus().GetMSB() < 46)
+	if(m_vectors[0].GetModulus().GetMSB() < 45)
 	{
 #ifdef OMP
 #pragma omp parallel for
@@ -1084,6 +1085,28 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 				curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
 				curFloatSum += (double)(xi.ConvertToInt())*beta[vi];
+			}
+
+			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+		}
+	}
+	else if (m_vectors[0].GetModulus().GetMSB() < 58)
+	{
+#ifdef OMP
+#pragma omp parallel for
+#endif
+		for( usint ri = 0; ri < ringDimension; ri++ ) {
+			long double curFloatSum = 0.0;
+			typename PolyType::Integer curIntSum = 0;
+			for( usint vi = 0; vi < nTowers; vi++ ) {
+				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+
+				// We assume that that the value of p is smaller than 64 bits (like 58)
+				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+				//curIntSum += xi.ModMul(alpha[vi],p);
+				curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+
+				curFloatSum += (long double)(xi.ConvertToInt())*extBeta[vi];
 			}
 
 			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);

@@ -117,7 +117,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	const BigInteger modulusQ = GetElementParams()->GetModulus();
 
-	if (moduli[0].GetMSB() < 46)
+	if (moduli[0].GetMSB() < 45)
 	{
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<double> CRTDecryptionFloatTable(size);
@@ -129,6 +129,19 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			CRTDecryptionFloatTable[i] = (double)numerator/(double)denominator;
 		}
 		m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+	}
+	else if (moduli[0].GetMSB() < 58)
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<long double> CRTDecryptionExtFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionExtFloatTable[i] = (long double)numerator/(long double)denominator;
+		}
+		m_CRTDecryptionExtFloatTable = CRTDecryptionExtFloatTable;
 	}
 	else
 	{
@@ -595,12 +608,13 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 	auto &p = cryptoParams->GetPlaintextModulus();
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
 	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable);
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	//std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
@@ -990,12 +1004,13 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 	}
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
 	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable);;
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return DecryptResult(plaintext->GetLength());
 
