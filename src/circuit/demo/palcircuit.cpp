@@ -279,9 +279,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	if( verbose ) {
-		cout << "Circuit parsed" << endl;
-	}
+		string specfile( argv[i] );
 
 	// create a circuit with values from the graph
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
@@ -307,13 +305,8 @@ main(int argc, char *argv[])
 		vector<CircuitSimulation> opslist;
 		cir.GetGraph().GenerateOperationList(opslist);
 		if( verbose ) {
-			cout << "The operations used are:" << endl;
-			PrintOperationSet(cout, opslist);
+			cout << "Circuit parsed" << endl;
 		}
-		PrintOperationSet(evalListF, opslist);
-		evalListF.close();
-		return 0;
-	}
 
 	// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 	if( evaluation_run_mode ) {
@@ -325,12 +318,13 @@ main(int argc, char *argv[])
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
-	vector<int32_t> indexList = {-1, -2, -3, -4, -5};
+		if( verbose )
+			cir.CircuitDump();
 
-	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-	cc->EvalMultKeyGen(kp.secretKey);
-	cc->EvalSumKeyGen(kp.secretKey);
-	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
+		auto inwires = cir.GetGraph().getInputs();
+		if( verbose ) {
+			cout << "Circuit takes " << inwires.size() << " inputs:" <<endl;
+		}
 
 	CircuitInput<DCRTPoly> inputs;
 
@@ -340,10 +334,7 @@ main(int argc, char *argv[])
 	}
 	bool input_mapping_error = false;
 
-	for( auto wire : inwires ) {
-		auto type = cir.GetGraph().GetTypeForNode(wire);
-		if( verbose )
-			cout << "input " << wire << ": type " << type << endl;
+		CircuitInput<DCRTPoly> inputs;
 
 		auto iv = driver.inputwires.find(wire);
 		if( iv == driver.inputwires.end() ) {
@@ -376,10 +367,10 @@ main(int argc, char *argv[])
 //			inputs[wire] = emat;
 //			break;
 
-		default:
-			throw std::logic_error("type not supported");
+			default:
+				throw std::logic_error("type not supported");
+			}
 		}
-	}
 
 	if( input_mapping_error )
 		return 1;
@@ -387,9 +378,9 @@ main(int argc, char *argv[])
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
 
-	CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
+		CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
-	cc->StopTiming();
+		cc->StopTiming();
 
 	//FIXME old
 //	if( verbose )
@@ -435,10 +426,11 @@ main(int argc, char *argv[])
 //		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
 //	}
 
-	if( verbose ) {
-		cout << "Timing Information:" << endl;
-		for( size_t i = 0; i < times.size(); i++ ) {
-			cout << times[i] << endl;
+		if( verbose ) {
+			cout << "Timing Information:" << endl;
+			for( size_t i = 0; i < times.size(); i++ ) {
+				cout << times[i] << endl;
+			}
 		}
 	}
 
