@@ -1,3 +1,4 @@
+// See http://www.codeproject.com/Articles/1089905/A-Custom-STL-std-allocator-Replacement-Improves-Performance-
 
 #include "blockAllocator.h"
 #include <new>
@@ -98,6 +99,7 @@ void* Allocator::Allocate(size_t size)
 	
     return pBlock;
 }
+
 
 //------------------------------------------------------------------------------
 // Deallocate

@@ -1,3 +1,5 @@
+// See http://www.codeproject.com/Articles/1089905/A-Custom-STL-std-allocator-Replacement-Improves-Performance-
+
 #ifndef __ALLOCATOR_H
 #define __ALLOCATOR_H
 

@@ -39,7 +39,11 @@
 
 
 #include "../../utils/blockAllocator/xvector.h"
-#define BLOCK_VECTOR_ALLOCATION 1 //set to 1 to use block allocations
+
+//the following should be set to 1 in order to have native vector use block allocations
+//then determine if you want dynamic or static allocations by settingdefining STAIC_POOLS on line 24 of
+// xallocator.cpp
+#define BLOCK_VECTOR_ALLOCATION 0 //set to 1 to use block allocations
 
 /**
  * @namespace native_int

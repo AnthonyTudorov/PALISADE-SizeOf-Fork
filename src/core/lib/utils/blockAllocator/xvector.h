@@ -1,3 +1,6 @@
+// See http://www.codeproject.com/Articles/1089905/A-Custom-STL-std-allocator-Replacement-Improves-Performance-
+// written by dcousins BBN
+
 #ifndef _XVECTOR_H
 #define _XVECTOR_H
 

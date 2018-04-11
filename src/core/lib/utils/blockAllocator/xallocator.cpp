@@ -1,3 +1,5 @@
+// See http://www.codeproject.com/Articles/1089905/A-Custom-STL-std-allocator-Replacement-Improves-Performance-
+
 #include <cassert>
 #include "xallocator.h"
 #include "blockAllocator.h"
@@ -21,12 +23,13 @@ static std::mutex xalloc_mutex;
 static bool _xallocInitialized = false;
 
 // Define STATIC_POOLS to switch from heap blocks mode to static pools mode
-#define STATIC_POOLS 
+//#define STATIC_POOLS 
 #ifdef STATIC_POOLS
 	// Update this section as necessary if you want to use static memory pools.
 	// See also xalloc_init() and xalloc_destroy() for additional updates required.
 	#define MAX_ALLOCATORS	14
-#define MAX_BLOCKS	        2048
+//#define MAX_BLOCKS	        2048
+#define MAX_BLOCKS	        18948
 
 	// Create static storage for each static allocator instance
 	char* _allocator8 [sizeof(AllocatorPool<char[8], MAX_BLOCKS>)];
@@ -41,7 +44,7 @@ static bool _xallocInitialized = false;
 	char* _allocator1024 [sizeof(AllocatorPool<char[1024], MAX_BLOCKS>)];
 	char* _allocator2048 [sizeof(AllocatorPool<char[2048], MAX_BLOCKS>)];	
 	char* _allocator4096 [sizeof(AllocatorPool<char[4096], MAX_BLOCKS>)];
-	char* _allocator8192 [sizeof(AllocatorPool<char[8192], MAX_BLOCKS>)];
+        char* _allocator8192 [sizeof(AllocatorPool<char[8192], MAX_BLOCKS>)];
 	char* _allocator16384 [sizeof(AllocatorPool<char[16384], MAX_BLOCKS>)];
 
 	// Array of pointers to all allocator instances
@@ -95,20 +98,12 @@ T nexthigher(T k)
     return k+1;
 }
 
-/// Create the xallocator lock. Call only one time at startup. 
+/// Create the xallocator lock. Call only one time at startup.
+/// note for C++11 we do not need to control the lock with the lock_* functions.
+/// instead we control the next exection function in the code. 
 static void lock_init()
 {
 
-#if 0// Set the mutex as a recursive mutex
-  pthread_mutexattr_settype(&xalloc_mutexattr, PTHREAD_MUTEX_RECURSIVE_NP);
-  // create the mutex with the attributes set
-  pthread_mutex_init(&xalloc_mutex, &xalloc_mutexattr);
-
-  //After initializing the mutex, the thread attribute can be destroyed
-  pthread_mutexattr_destroy(&xalloc_mutexattr);
-#endif
-  //bool success = InitializeCriticalSectionAndSpinCount(&_criticalSection, 0x00000400);
-    //	assert(success);
 	_xallocInitialized = true;
 }
 
@@ -436,13 +431,18 @@ extern "C" void xalloc_stats()
 {
 	lock_get();
   std::unique_lock<std::mutex> lock(xalloc_mutex); { 
-	for (usint i=0; i<MAX_ALLOCATORS; i++)
+#ifdef STATIC_POOLS
+    cout << " Static Pools "<< endl;
+#endif
+    
+    for (usint i=0; i<MAX_ALLOCATORS; i++)
 	{
 		if (_allocators[i] == 0)
 			break;
 
 		if (_allocators[i]->GetName() != NULL)
 			cout << _allocators[i]->GetName();
+
 		cout << " Block Size: " << _allocators[i]->GetBlockSize();
 		cout << " Block Count: " << _allocators[i]->GetBlockCount();
 		cout << " Blocks In Use: " << _allocators[i]->GetBlocksInUse();
