@@ -76,6 +76,8 @@ void
 pdriver::scan_begin ()
 {
   yy_flex_debug = trace_scanning;
+  YY_FLUSH_BUFFER;
+  BEGIN(0);
   if (file.empty () || file == "-")
     yyin = stdin;
   else if (!(yyin = fopen (file.c_str (), "r")))
