@@ -92,6 +92,7 @@ class pdriver;
 %token MUL
 %token RSHIFT
 %token DOTPROD
+%token WIRE
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
 %token  <int64_t>           			NUM
@@ -114,6 +115,10 @@ prog:
 
 line:           command
 				{
+				}
+		|		WIRE NUM TYPEOF type numlist ENDLS
+				{
+					driver.inputwires[$2] = $5; // fix: should be by type?
 				}
 		| 		input
 				{

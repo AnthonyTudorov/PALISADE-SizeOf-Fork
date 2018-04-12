@@ -43,6 +43,7 @@ ciphertext	{ return yy::parser::make_CIPHERTEXT(loc); }
 rationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
 
 :outputs	{ return yy::parser::make_OUTPUTS(loc); }
+:wire		{ return yy::parser::make_WIRE(loc); }
 @           { return yy::parser::make_TYPEOF(loc); }
 \[          { return yy::parser::make_LEFT_BRACK(loc); }
 \]          { return yy::parser::make_RIGHT_BRACK(loc); }

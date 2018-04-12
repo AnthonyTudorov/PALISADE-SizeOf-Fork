@@ -51,8 +51,9 @@ public:
   pdriver (bool trace=false);
   virtual ~pdriver ();
 
-  std::map<std::string, int> variables;
-  lbcrypto::CircuitGraph	graph;
+  std::map<std::string, int>		variables;
+  lbcrypto::CircuitGraph			graph;
+  std::map<usint,vector<usint>>		inputwires;
 
   // Handling the scanner.
   void scan_begin ();
