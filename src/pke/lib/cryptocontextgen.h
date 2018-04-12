@@ -68,7 +68,7 @@ template<typename Element>
 inline CryptoContext<Element>
 GenCryptoContextStSt(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 
-	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
+	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params>(ORDER, bits, towers);
 
 	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	cc->Enable(ENCRYPTION);
@@ -82,7 +82,7 @@ template<typename Element>
 inline CryptoContext<Element>
 GenCryptoContextBGV(usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT, MODE mode=RLWE) {
 
-	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params,typename Element::Integer>(ORDER, bits, towers);
+	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params>(ORDER, bits, towers);
 
 	CryptoContext<Element> cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, mode);
 	cc->Enable(ENCRYPTION);
