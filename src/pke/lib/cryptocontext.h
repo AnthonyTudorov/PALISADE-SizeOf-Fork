@@ -106,7 +106,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const Ciphertext<Element> a, const Ciphertext<Element> b) const {
+	void TypeCheck(ConstCiphertext<Element> a, ConstCiphertext<Element> b) const {
 		if( a == NULL || b == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( a->GetCryptoContext().get() != this )

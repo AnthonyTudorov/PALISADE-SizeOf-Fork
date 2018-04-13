@@ -81,6 +81,7 @@ inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
 
 class PlaintextImpl;
 typedef shared_ptr<PlaintextImpl> Plaintext;
+typedef shared_ptr<const PlaintextImpl> ConstPlaintext;
 
 /**
  * @class PlaintextImpl
