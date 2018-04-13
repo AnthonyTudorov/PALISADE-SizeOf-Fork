@@ -470,8 +470,8 @@ public:
 	* @param ciphertext2 The second input ciphertext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-		const Ciphertext<Element> ciphertext2) const;
+	Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+			ConstCiphertext<Element> ciphertext2) const;
 
 	/**
 	* Function for evaluation addition on ciphertext.
@@ -481,8 +481,8 @@ public:
 	* @param plaintext The input plaintext.
 	* @return A shared pointer to the ciphertext which is the EvalAdd of the two inputs.
 	*/
-	Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
-		const Plaintext plaintext) const;
+	Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext,
+			ConstPlaintext plaintext) const;
 
 	/**
 	* Function for homomorphic subtraction of ciphertexts.

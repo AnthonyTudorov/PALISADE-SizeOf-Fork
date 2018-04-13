@@ -64,7 +64,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHENull<DCRTPoly>::EvalMult(const Ciphertext<DCR
 	Ciphertext<DCRTPoly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const DCRTPoly& c1 = ciphertext1->GetElement();
-	const DCRTPoly& c2 = plaintext->GetEncodedElement<DCRTPoly>();
+	const DCRTPoly& c2 = plaintext->GetElement<DCRTPoly>();
 
 	const vector<typename DCRTPoly::PolyType>& c1e = c1.GetAllElements();
 	const vector<typename DCRTPoly::PolyType>& c2e = c2.GetAllElements();

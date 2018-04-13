@@ -99,18 +99,18 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	string shortStr(vecSize/2,0);
 	std::generate_n(shortStr.begin(), vecSize/2, randchar);
-	Plaintext plaintextShort( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), shortStr) );
+	Plaintext plaintextShort = cc->MakeStringPlaintext(shortStr);
 
 	string fullStr(vecSize,0);
 	std::generate_n(fullStr.begin(), vecSize, randchar);
-	Plaintext plaintextFull( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), fullStr) );
+	Plaintext plaintextFull = cc->MakeStringPlaintext(fullStr);
 
 	auto ptm = cc->GetCryptoParameters()->GetPlaintextModulus();
 
 	vector<int64_t> intvec;
 	for( size_t ii=0; ii<vecSize; ii++)
 		intvec.push_back( (rand() % (ptm/2)) * (rand()%2 ? 1 : -1) );
-	Plaintext plaintextInt( new CoefPackedEncoding(cc->GetElementParams(), cc->GetEncodingParams(), intvec) );
+	Plaintext plaintextInt = cc->MakeCoefPackedPlaintext(intvec);
 
 	LPKeyPair<Element> kp = cc->KeyGen();
 	EXPECT_EQ(kp.good(), true) << failmsg << " key generation for scalar encrypt/decrypt failed";

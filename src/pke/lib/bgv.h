@@ -291,8 +291,8 @@ namespace lbcrypto {
 		* @param ciphertext2 second input ciphertext.
 		* @return result of homomorphic addition of input ciphertexts.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-			const Ciphertext<Element> ciphertext2) const;
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+				ConstCiphertext<Element> ciphertext2) const;
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -301,8 +301,8 @@ namespace lbcrypto {
 		* @param plaintext input plaintext.
 		* @return result of homomorphic addition of input ciphertexts.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
-			const Plaintext plaintext) const;
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext,
+				ConstPlaintext plaintext) const;
 
 		/**
 		* Function for homomorphic subtraction of ciphertexts.

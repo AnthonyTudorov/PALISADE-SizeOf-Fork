@@ -508,8 +508,8 @@ DecryptResult LPAlgorithmBFV<Element>::Decrypt(const LPPrivateKey<Element> priva
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(ConstCiphertext<Element> ciphertext1,
+		ConstCiphertext<Element> ciphertext2) const {
 
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFV::EvalAdd crypto parameters are not the same";
@@ -557,16 +557,15 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(const Ciphertext<Element
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(const Ciphertext<Element> ciphertext,
-	const Plaintext plaintext) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(ConstCiphertext<Element> ciphertext,
+		ConstPlaintext plaintext) const {
 
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+	const Element& ptElement = plaintext->GetElement<Element>();
 
 	std::vector<Element> c(cipherTextElements.size());
 
@@ -648,8 +647,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element
 
 	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetElement<Element>();
 
 	std::vector<Element> c(cipherTextElements.size());
 
@@ -794,8 +793,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Elemen
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	std::vector<Element> cipherTextElements = ciphertext->GetElements();
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-	const Element& ptElement = plaintext->GetEncodedElement<Element>();
+	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	const Element& ptElement = plaintext->GetElement<Element>();
 
 	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
 		throw std::runtime_error("LPAlgorithmSHEBFV::EvalMult cannot multiply in COEFFICIENT domain.");

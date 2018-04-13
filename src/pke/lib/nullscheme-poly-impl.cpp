@@ -54,7 +54,7 @@ Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(const Ciphertext<Poly> ciphe
 	Ciphertext<Poly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const Poly& c1 = ciphertext1->GetElement();
-	const Poly& c2 = plaintext->GetEncodedElement<Poly>();
+	const Poly& c2 = plaintext->GetElement<Poly>();
 
 	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 
@@ -97,7 +97,7 @@ Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(const Ciphertext
 	Ciphertext<NativePoly> newCiphertext = ciphertext1->CloneEmpty();
 
 	const NativePoly& c1 = ciphertext1->GetElement();
-	const NativePoly& c2 = plaintext->GetEncodedElement<NativePoly>();
+	const NativePoly& c2 = plaintext->GetElement<NativePoly>();
 
 	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
 

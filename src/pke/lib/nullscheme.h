@@ -512,8 +512,8 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param ciphertext2 second input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-			const Ciphertext<Element> ciphertext2) const {
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+				ConstCiphertext<Element> ciphertext2) const {
 			Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 			Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
@@ -530,11 +530,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		* @param plaintext input ciphertext.
 		* @return the new resulting ciphertext.
 		*/
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
-			const Plaintext plaintext) const {
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext,
+				ConstPlaintext plaintext) const {
 			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-			Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
+			Element cResult = ciphertext->GetElement() + plaintext->GetElement<Element>();
 
 			newCiphertext->SetElement(std::move(cResult));
 
@@ -570,7 +570,7 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			const Plaintext plaintext) const {
 			Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-			Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
+			Element cResult = ciphertext->GetElement() - plaintext->GetElement<Element>();
 
 			newCiphertext->SetElement(std::move(cResult));
 

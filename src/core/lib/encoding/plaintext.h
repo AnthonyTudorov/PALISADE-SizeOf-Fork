@@ -181,12 +181,13 @@ public:
 			encodedVectorDCRT.SetFormat(fmt);
 	}
 
-	template<typename Element>
-	Element& GetEncodedElement() {
-		if( !isEncoded )
-			this->Encode();
-		return GetElement<Element>();
-	}
+//	template<typename Element>
+//	const Element& GetElement() const {
+//		if( !isEncoded )
+//			PALISADE_THROW(type_error,"Element for this plaintext is not encoded");
+//			//this->Encode();
+//		return GetElement<Element>();
+//	}
 
 	/**
 	 * GetElement
@@ -194,6 +195,9 @@ public:
 	 */
 	template <typename Element>
 	Element& GetElement();
+
+	template <typename Element>
+	const Element& GetElement() const;
 
 	/**
 	 * GetElementRingDimension
@@ -291,6 +295,11 @@ inline bool operator!=(const Plaintext p1, const Plaintext p2) { return *p1 != *
  * @return the Polynomial that the element was encoded into
  */
 template <>
+inline const Poly& PlaintextImpl::GetElement<Poly>() const {
+	return encodedVector;
+}
+
+template <>
 inline Poly& PlaintextImpl::GetElement<Poly>() {
 	return encodedVector;
 }
@@ -300,6 +309,11 @@ inline Poly& PlaintextImpl::GetElement<Poly>() {
  * @return the NativePolynomial that the element was encoded into
  */
 template <>
+inline const NativePoly& PlaintextImpl::GetElement<NativePoly>() const {
+	return encodedNativeVector;
+}
+
+template <>
 inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
 	return encodedNativeVector;
 }
@@ -308,6 +322,11 @@ inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
  * GetElement
  * @return the DCRTPolynomial that the element was encoded into
  */
+template <>
+inline const DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() const {
+	return encodedVectorDCRT;
+}
+
 template <>
 inline DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() {
 	return encodedVectorDCRT;

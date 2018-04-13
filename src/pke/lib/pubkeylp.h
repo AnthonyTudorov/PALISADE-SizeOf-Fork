@@ -52,9 +52,6 @@ namespace lbcrypto {
 	class CiphertextImpl;
 
 	template<typename Element>
-	using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
-
-	template<typename Element>
 	class RationalCiphertext;
 
 	template<typename Element>
@@ -1245,8 +1242,8 @@ namespace lbcrypto {
 			* @param ciphertext2 the input ciphertext.
 			* @return the new ciphertext.
 			*/
-			virtual Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-				const Ciphertext<Element> ciphertext2) const = 0;
+			virtual Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+					ConstCiphertext<Element> ciphertext2) const = 0;
 
 			/**
 			* Virtual function to define the interface for homomorphic addition of ciphertexts.
@@ -1255,8 +1252,8 @@ namespace lbcrypto {
 			* @param plaintext the input plaintext.
 			* @return the new ciphertext.
 			*/
-			virtual Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext,
-				const Plaintext plaintext) const = 0;
+			virtual Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext,
+					ConstPlaintext plaintext) const = 0;
 
 			/**
 			* Virtual function to define the interface for homomorphic subtraction of ciphertexts.
@@ -2284,8 +2281,8 @@ namespace lbcrypto {
 			}
 		}
 
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-			const Ciphertext<Element> ciphertext2) const {
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+				ConstCiphertext<Element> ciphertext2) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalAdd(ciphertext1, ciphertext2);
@@ -2295,8 +2292,8 @@ namespace lbcrypto {
 			}
 		}
 
-		Ciphertext<Element> EvalAdd(const Ciphertext<Element> ciphertext1,
-			const Plaintext plaintext) const {
+		Ciphertext<Element> EvalAdd(ConstCiphertext<Element> ciphertext1,
+				ConstPlaintext plaintext) const {
 
 			if (this->m_algorithmSHE) {
 				auto ct = this->m_algorithmSHE->EvalAdd(ciphertext1, plaintext);

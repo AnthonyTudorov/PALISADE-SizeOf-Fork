@@ -201,14 +201,14 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMult(const Cipherte
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(const Ciphertext<Poly> ct,
-	const Plaintext pt) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(ConstCiphertext<Poly> ct,
+		ConstPlaintext pt) const{
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalAdd(const Ciphertext<NativePoly> ct,
-	const Plaintext pt) const{
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalAdd(ConstCiphertext<NativePoly> ct,
+		ConstPlaintext pt) const{
 	NONATIVEPOLY
 }
 

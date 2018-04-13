@@ -129,7 +129,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const Ciphertext<Element> a, const Plaintext b) const {
+	void TypeCheck(ConstCiphertext<Element> a, ConstPlaintext b) const {
 		if( a == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( b == NULL )
@@ -171,7 +171,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const RationalCiphertext<Element>& a, const Plaintext b) const {
+	void TypeCheck(const RationalCiphertext<Element>& a, ConstPlaintext b) const {
 		if( b == NULL )
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a.GetCryptoContext().get() != this )
@@ -850,7 +850,7 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetEncodedElement<Element>());
+		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -880,7 +880,7 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetEncodedElement<Element>());
+		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -973,7 +973,7 @@ public:
 				padded = true;
 			}
 
-			Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetEncodedElement<Element>());
+			Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
 			if (!ciphertext) {
 				break;
 			}
@@ -1003,7 +1003,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeScalarPlaintext(int64_t value) const {
-		return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1012,7 +1014,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeStringPlaintext(const string& str) const {
-		return Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
+		auto p = Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1021,7 +1025,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeIntegerPlaintext(int64_t value) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value) );
+		auto p = Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1030,7 +1036,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
-		return Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
+		auto p =  Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1040,7 +1048,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1050,7 +1060,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1059,7 +1071,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakePackedPlaintext(const vector<uint64_t>& value) const {
-		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1068,7 +1082,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakePackedPlaintext(const std::initializer_list<uint64_t>& value) const {
-		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 private:
@@ -1419,7 +1435,7 @@ public:
 	 * @return new ciphertext for ct1 + ct2
 	 */
 	Ciphertext<Element>
-	EvalAdd(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2) const
+	EvalAdd(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const
 	{
 		TypeCheck(ct1, ct2);
 
@@ -1501,7 +1517,7 @@ public:
 	* @return new ciphertext for ciphertext + plaintext 
 	*/
 	Ciphertext<Element>
-	EvalAdd(const Ciphertext<Element> ciphertext, const Plaintext plaintext) const
+	EvalAdd(ConstCiphertext<Element> ciphertext, ConstPlaintext plaintext) const
 	{
 		TypeCheck(ciphertext, plaintext);
 
@@ -1514,8 +1530,8 @@ public:
 		return rv;
 	}
 
-	Ciphertext<Element>
-	EvalAdd(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	inline Ciphertext<Element>
+	EvalAdd(ConstPlaintext plaintext, ConstCiphertext<Element> ciphertext) const
 	{
 		return EvalAdd(ciphertext, plaintext);
 	}

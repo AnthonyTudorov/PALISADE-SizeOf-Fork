@@ -170,14 +170,9 @@ DecryptResult LPAlgorithmLTV<Element>::Decrypt(const LPPrivateKey<Element> priva
 
 template <class Element>
 Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAdd(
-	const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2) const
+		ConstCiphertext<Element> ciphertext1,
+		ConstCiphertext<Element> ciphertext2) const
 {
-	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-		std::string errMsg = "EvalAdd crypto parameters are not the same";
-		throw std::runtime_error(errMsg);
-	}
-
 	Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
 	Element cResult = ciphertext1->GetElement() + ciphertext2->GetElement();
@@ -189,19 +184,12 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAdd(
 
 template <class Element>
 Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalAdd(
-	const Ciphertext<Element> ciphertext,
-	const Plaintext plaintext) const
+		ConstCiphertext<Element> ciphertext,
+		ConstPlaintext plaintext) const
 {
-//	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
-//		std::string errMsg = "EvalAdd crypto parameters are not the same";
-//		throw std::runtime_error(errMsg);
-//	}
-
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-
-	Element cResult = ciphertext->GetElement() + plaintext->GetEncodedElement<Element>();
+	Element cResult = ciphertext->GetElement() + plaintext->GetElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -239,9 +227,9 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	plaintext->GetElement<Element>().SetFormat(EVALUATION);
 
-	Element cResult = ciphertext->GetElement() - plaintext->GetEncodedElement<Element>();
+	Element cResult = ciphertext->GetElement() - plaintext->GetElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 
@@ -292,13 +280,13 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(
 {
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-	plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
+	plaintext->GetElement<Element>().SetFormat(EVALUATION);
 
-	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT ) {
+	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT ) {
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 	}
 
-	Element cResult = ciphertext->GetElement() * plaintext->GetEncodedElement<Element>();
+	Element cResult = ciphertext->GetElement() * plaintext->GetElement<Element>();
 
 	newCiphertext->SetElement(cResult);
 

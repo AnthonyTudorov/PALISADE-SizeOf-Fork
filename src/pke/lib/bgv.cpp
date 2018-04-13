@@ -233,8 +233,8 @@ namespace lbcrypto {
 
 	template <class Element>
 	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalAdd(
-		const Ciphertext<Element> ciphertext1,
-		const Ciphertext<Element> ciphertext2) const
+			ConstCiphertext<Element> ciphertext1,
+			ConstCiphertext<Element> ciphertext2) const
 	{
 		Ciphertext<Element> newCiphertext = ciphertext1->CloneEmpty();
 
@@ -256,15 +256,14 @@ namespace lbcrypto {
 
 	template <class Element>
 	Ciphertext<Element> LPAlgorithmSHEBGV<Element>::EvalAdd(
-		const Ciphertext<Element> ciphertext,
-		const Plaintext plaintext) const
+			ConstCiphertext<Element> ciphertext,
+			ConstPlaintext plaintext) const
 	{
 		Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-		const Element& c2 = plaintext->GetEncodedElement<Element>();
+		const Element& c2 = plaintext->GetElement<Element>();
 
 		std::vector<Element> cNew;
 
@@ -307,8 +306,8 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-		const Element& c2 = plaintext->GetEncodedElement<Element>();
+		plaintext->GetElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetElement<Element>();
 
 		std::vector<Element> cNew;
 
@@ -360,10 +359,10 @@ namespace lbcrypto {
 
 		const std::vector<Element> &c1 = ciphertext->GetElements();
 
-		plaintext->GetEncodedElement<Element>().SetFormat(EVALUATION);
-		const Element& c2 = plaintext->GetEncodedElement<Element>();
+		plaintext->GetElement<Element>().SetFormat(EVALUATION);
+		const Element& c2 = plaintext->GetElement<Element>();
 
-		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetEncodedElement<Element>().GetFormat() == Format::COEFFICIENT) {
+		if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
 			throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
 		}
 
