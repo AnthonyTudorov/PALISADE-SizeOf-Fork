@@ -159,7 +159,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
 		ss << "EvalAdd of ";
-		//ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
 	}
 
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
@@ -167,7 +167,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		Value<Element> v1( n1->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
-			//ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
 		}
 
 		v0 = v0 + v1;
@@ -223,14 +223,27 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
+	stringstream ss;
+
 	if( this->getNode()->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 		Value<Element> v0( n0->eval(cc,cg) );
 
+		if( CircuitOpTrace ) {
+			ss << "Node " << this->GetId() << ": ";
+			ss << "EvalNegate of ";
+			ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+		}
+
 		this->value = -v0;
 		this->SetNoise( n0->GetNoise() );
+
+		if( CircuitOpTrace ) {
+			cout << ss.str() << endl;
+		}
 		this->Log();
+
 		return this->value;
 	}
 
@@ -240,9 +253,19 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	Value<Element> v0( n0->eval(cc,cg) );
 	usint noise = n0->GetNoise();
 
+	if( CircuitOpTrace ) {
+		ss << "Node " << this->GetId() << ": ";
+		ss << "EvalSub of ";
+		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+	}
+
 	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
+
+		if( CircuitOpTrace ) {
+			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+		}
 
 		v0 = v0 - v1;
 
@@ -250,6 +273,10 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	}
 
 	this->value = v0;
+
+	if( CircuitOpTrace ) {
+		cout << ss.str() << endl;
+	}
 
 	this->Log();
 	this->SetNoise( noise );
@@ -289,13 +316,22 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
+	stringstream ss;
+
 	if( this->getNode()->getInputs().size() > 2 ) {
 		usint noiseTotal = 0;
 		vector<Ciphertext<Element>> cvec;
+
+		if( CircuitOpTrace ) {
+			ss << "Node " << this->GetId() << ": ";
+			ss << "EvalMultMany ";
+		}
+
 		for( auto nid : this->getNode()->getInputs() ) {
 			auto n = cg.getNodeById(nid);
 			noiseTotal += n->GetNoise();
 			Value<Element> v( n->eval(cc,cg) );
+			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
 				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
 			}
@@ -307,15 +343,25 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 		this->SetNoise( noiseTotal );
 	}
 	else {
-
 		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
 		auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
 		Value<Element> v0( n0->eval(cc,cg) );
 		Value<Element> v1( n1->eval(cc,cg) );
 
+		if( CircuitOpTrace ) {
+			ss << "Node " << this->GetId() << ": ";
+			ss << "EvalMult ";
+			ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+			ss << " and " << this->getNode()->getInputs()[1] << " (" << v1 << ")";
+		}
+
 		this->value = v0 * v1;
 
 		this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	}
+
+	if( CircuitOpTrace ) {
+		cout << ss.str() << endl;
 	}
 
 	this->Log();
@@ -365,9 +411,6 @@ void EvalInnerProdNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops)
 	Visit();
 	if( getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
-	int vecsize = getInputs().size()/2;
-	cout << vecsize << endl;
-
 	auto n0 = g.getNodeById(getInputs()[0]);
 	auto n1 = g.getNodeById(getInputs()[1]);
 	n0->simeval(g,ops);
@@ -396,23 +439,59 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	vector<Ciphertext<Element>> vec2;
 	vec2.reserve(vecsize);
 	vector<Ciphertext<Element>>* vecp = &vec1;
+
+	stringstream ss;
+
+	if( CircuitOpTrace ) {
+		ss << "Node " << this->GetId() << ": ";
+		ss << "EvalMerge: {\n";
+	}
+
 	for( auto i = 0; i < this->getNode()->getInputs().size(); i++ ) {
-		if( i == vecsize )
+		if( i == vecsize ) {
 			vecp = &vec2;
+			if( CircuitOpTrace ) {
+				ss << "} and {\n" ;
+			}
+		}
 
 		Value<Element> v( cg.getNodeById(this->getNode()->getInputs()[i])->eval(cc, cg) );
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
+
+		if( CircuitOpTrace ) {
+			ss << this->getNode()->getInputs()[i] << " (" << v << ")\n";
+		}
 		vecp->push_back( v.GetCiphertextValue() );
 	}
 
-	std::cout << vec1.size() << endl;
 
 	auto arg1 = cc->EvalMerge(vec1);
 	auto arg2 = cc->EvalMerge(vec2);
 
+	{
+		cout << "decrypt of first merge:" << endl;
+		Plaintext p;
+		cc->Decrypt(CircuitGraphWithValues<Element>::_graph_key, arg1, &p);
+		cout << p << endl;
+		cout << "decrypt of second merge:" << endl;
+		Plaintext q;
+		cc->Decrypt(CircuitGraphWithValues<Element>::_graph_key, arg2, &q);
+		cout << q << endl;
+	}
+
+	if( CircuitOpTrace ) {
+		ss << "}\nEvalInnerProduct (";
+		ss <<  arg1;
+		ss << ")\n and (" << arg2 << ")\n depth " << logfl;
+	}
+
 	this->value = cc->EvalInnerProduct(arg1, arg2, logfl);
+
+	if( CircuitOpTrace ) {
+		cout << ss.str() << endl;
+	}
 
 	this->Log();
 	// FIXME this->SetNoise( ???? );

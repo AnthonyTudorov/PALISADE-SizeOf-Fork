@@ -34,13 +34,13 @@ static yy::location loc;
   loc.step ();
 %}
 
-input       { return yy::parser::make_INPUT(loc); }
+[iI]nput       { return yy::parser::make_INPUT(loc); }
 const       { return yy::parser::make_CONST(loc); }
-Integer     { return yy::parser::make_INTEGER(loc); }
-Rational    { return yy::parser::make_RATIONAL(loc); }
-plaintext	{ return yy::parser::make_PLAINTEXT(loc); }
-ciphertext	{ return yy::parser::make_CIPHERTEXT(loc); }
-rationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
+[iI]nteger     { return yy::parser::make_INTEGER(loc); }
+[rR]ational    { return yy::parser::make_RATIONAL(loc); }
+[pP]laintext	{ return yy::parser::make_PLAINTEXT(loc); }
+[cC]iphertext	{ return yy::parser::make_CIPHERTEXT(loc); }
+[rR]ationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
 
 :outputs	{ return yy::parser::make_OUTPUTS(loc); }
 :wire		{ return yy::parser::make_WIRE(loc); }

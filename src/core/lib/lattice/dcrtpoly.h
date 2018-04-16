@@ -822,8 +822,9 @@ public:
 	 */
 	friend inline std::ostream& operator<<(std::ostream& os, const DCRTPolyType& vec) {
 		for( usint i=0; i<vec.GetAllElements().size(); i++ ) {
+			if( i != 0 ) os << std::endl;
 			os << i << ": ";
-			os << vec.GetAllElements()[i] << std::endl;
+			os << vec.GetAllElements()[i];
 		}
 		return os;
 	}
