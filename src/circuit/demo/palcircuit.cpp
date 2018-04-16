@@ -318,13 +318,24 @@ main(int argc, char *argv[])
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
-		if( verbose )
-			cir.CircuitDump();
+	if( print_preproc_graph ) {
+		driver.graph.DisplayGraph(procGraph);
+		if( procGF.is_open() )
+			procGF.close();
+	}
 
-		auto inwires = cir.GetGraph().getInputs();
+	// to do estimates we need to know what functions we called; write them out and finish up
+	if( evaluation_list_mode ) {
+		vector<CircuitSimulation> opslist;
+		driver.graph.GenerateOperationList(opslist);
 		if( verbose ) {
-			cout << "Circuit takes " << inwires.size() << " inputs:" <<endl;
+			cout << "The operations used are:" << endl;
+			PrintOperationSet(cout, opslist);
 		}
+		PrintOperationSet(evalListF, opslist);
+		evalListF.close();
+		return 0;
+	}
 
 	CircuitInput<DCRTPoly> inputs;
 
@@ -367,10 +378,10 @@ main(int argc, char *argv[])
 //			inputs[wire] = emat;
 //			break;
 
-			default:
-				throw std::logic_error("type not supported");
-			}
+		default:
+			throw std::logic_error("type not supported");
 		}
+	}
 
 	if( input_mapping_error )
 		return 1;
@@ -378,9 +389,10 @@ main(int argc, char *argv[])
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
 
-		CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
+	vector<TimingInfo>	times;
+	cc->StartTiming(&times);
 
-		cc->StopTiming();
+	CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
 	//FIXME old
 //	if( verbose )
@@ -426,11 +438,18 @@ main(int argc, char *argv[])
 //		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
 //	}
 
-		if( verbose ) {
-			cout << "Timing Information:" << endl;
-			for( size_t i = 0; i < times.size(); i++ ) {
-				cout << times[i] << endl;
-			}
+	// we have the times for each node, now sum up for each output
+	for( auto& out : cir.GetGraph().getOutputs() ) {
+		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
+		cir.GetGraph().ClearVisited();
+		n->CircuitVisit(cir.GetGraph());
+		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
+	}
+
+	if( verbose ) {
+		cout << "Timing Information:" << endl;
+		for( size_t i = 0; i < times.size(); i++ ) {
+			cout << times[i] << endl;
 		}
 	}
 
