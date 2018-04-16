@@ -213,12 +213,10 @@ main(int argc, char *argv[])
 
 	// Prepare to process the graph
 
-	EncodingParams ep( new EncodingParamsImpl(ptm,
+	EncodingParams ep( new EncodingParamsImpl(
+			ptm,
 			16,
-			PackedEncoding::GetAutomorphismGenerator(m),
-			NativeInteger(1),
-			NativeInteger(ptm),
-			NativeInteger(1)) );
+			PackedEncoding::GetAutomorphismGenerator(2048)) );
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::

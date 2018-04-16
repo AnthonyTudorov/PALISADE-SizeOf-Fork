@@ -433,6 +433,9 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	int logfl = (int)floor(logsize);
 	if( logfl != logsize ) // power of 2
 		logfl++;
+	int innerProdDepth = 1;
+	for( int ii=0; ii<logfl; ii++ )
+		innerProdDepth *= 2;
 
 	vector<Ciphertext<Element>> vec1;
 	vec1.reserve(vecsize);
@@ -484,10 +487,10 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	if( CircuitOpTrace ) {
 		ss << "}\nEvalInnerProduct (";
 		ss <<  arg1;
-		ss << ")\n and (" << arg2 << ")\n depth " << logfl;
+		ss << ")\n and (" << arg2 << ")\n depth " << innerProdDepth;
 	}
 
-	this->value = cc->EvalInnerProduct(arg1, arg2, logfl);
+	this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
 
 	if( CircuitOpTrace ) {
 		cout << ss.str() << endl;
