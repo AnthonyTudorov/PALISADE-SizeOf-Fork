@@ -166,8 +166,10 @@ public:
 	static void Destroy();
 
 	void PrintValue(std::ostream& out) const {
-		size_t i;
-		for (i = 0; i<value.size()-1; i++)
+		size_t i = 0, max = 8;
+		if( value.size() < max ) max = value.size();
+
+		for (i = 0; i<max-1; i++)
 			out << value[i] << ",";
 		out << value[i];
 	}

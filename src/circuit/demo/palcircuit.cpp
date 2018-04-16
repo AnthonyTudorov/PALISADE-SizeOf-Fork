@@ -82,7 +82,7 @@ void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
 }
 
 Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
-	return cc->MakeFractionalPlaintext(val);
+	return cc->MakePackedPlaintext({(uint64_t)val});
 }
 
 int
