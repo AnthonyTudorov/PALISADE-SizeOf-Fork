@@ -470,7 +470,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	auto arg1 = cc->EvalMerge(vec1);
 	auto arg2 = cc->EvalMerge(vec2);
 
-	if( true ) { // debug stuff
+	if( false ) { // debug stuff
 		cout << "decrypt of first merge:" << endl;
 		Plaintext p;
 		cc->Decrypt(CircuitGraphWithValues<Element>::_graph_key, arg1, &p);
