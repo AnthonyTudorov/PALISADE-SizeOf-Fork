@@ -42,8 +42,8 @@ using std::istream;
 using std::ostream;
 using std::set;
 
-const int MaxIterations = 10;
-const int NumInputs = 2;
+const int MaxIterations = 100;
+const int NumInputs = 10;
 string progname;
 
 vector<PKESchemeFeature> features( {ENCRYPTION, PRE, SHE, FHE, LEVELEDSHE, MULTIPARTY} );
@@ -80,8 +80,16 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYP
 		}
 	}
 
-	vector<TimingInfo>	times;
-	cc->StartTiming(&times);
+	// note we can NOT use the TimingInfo on a Windows platform because
+	// of clock granularity (or lack thereof)
+	// Therefore we simply repeat the calls and calculate an average
+	//	vector<TimingInfo>	times;
+	//	cc->StartTiming(&times);
+
+	// container for timing statistics
+	map<OpType,TimingStatistics*> stats;
+	TimeVar t;
+	double span;
 
 	// ENCRYPTION: KeyGen, Encrypt (2 kinds) and Decrypt
 
@@ -89,16 +97,39 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYP
 		cerr << "ENCRYPTION" << endl;
 
 	if( tmask & ENCRYPTION ) {
-		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				LPKeyPair<Element> kp = cc->KeyGen();
-				auto crypt = cc->Encrypt(kp.publicKey, inputs[nInputs]);
-				Plaintext decrypted;
-				cc->Decrypt(kp.secretKey, crypt, &decrypted);
-				auto crypt2 = cc->Encrypt(kp.secretKey, inputs[nInputs]);
-				cc->Decrypt(kp.secretKey, crypt, &decrypted);
-			}
+		LPKeyPair<Element> kp;
+
+		TIC(t);
+		for( int reps=0; reps < MaxIterations; reps++ ) {
+			kp = cc->KeyGen();
 		}
+		span = TOC_MS(t);
+		stats[OpKeyGen] = new TimingStatistics(OpKeyGen, MaxIterations, span);
+
+		Plaintext decrypted;
+
+		auto crypt = cc->Encrypt(kp.publicKey, inputs[0]);
+		TIC(t);
+		for( int reps=0; reps < MaxIterations; reps++ ) {
+			crypt = cc->Encrypt(kp.publicKey, inputs[0]);
+		}
+		span = TOC_MS(t);
+		stats[OpEncryptPub] = new TimingStatistics(OpType::OpEncryptPub, MaxIterations, span);
+
+		auto crypt2 = cc->Encrypt(kp.publicKey, inputs[0]);
+		TIC(t);
+		for( int reps=0; reps < MaxIterations; reps++ ) {
+			crypt2 = cc->Encrypt(kp.secretKey, inputs[0]);
+		}
+		span = TOC_MS(t);
+		stats[OpEncryptPriv] = new TimingStatistics(OpType::OpEncryptPriv, MaxIterations, span);
+
+		TIC(t);
+		for( int reps=0; reps < MaxIterations; reps++ ) {
+			cc->Decrypt(kp.secretKey, crypt, &decrypted);
+		}
+		span = TOC_MS(t);
+		stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
 	}
 
 	// PKE: ReKeyGen and ReEncrypt
@@ -107,34 +138,76 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYP
 		cerr << "PRE" << endl;
 
 	if( tmask & PRE ) {
-		bool run1 = true, run2 = true;
-		for( int nInputs=0; nInputs<NumInputs; nInputs++ ) {
+		bool runPubPri = true, runPriPri = true;
+		LPKeyPair<Element> kp1 = cc->KeyGen();
+		LPKeyPair<Element> kp2 = cc->KeyGen();
+
+		Ciphertext<Element> crypt, recrypt;
+		crypt = cc->Encrypt(kp1.publicKey, inputs[0]);
+
+		LPEvalKey<Element> rekey1, rekey2;
+		Plaintext decrypted;
+
+		try {
+			rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
+			recrypt = cc->ReEncrypt(rekey1, crypt);
+		} catch(exception& e) {
+			cout << e.what() << endl;
+			runPubPri = false;
+		}
+
+		try {
+			rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
+			recrypt = cc->ReEncrypt(rekey2, crypt);
+		} catch(exception& e) {
+			cout << e.what() << endl;
+			runPriPri = false;
+		}
+
+		if( runPubPri ) {
+			TIC(t);
 			for( int reps=0; reps < MaxIterations; reps++ ) {
-				LPKeyPair<Element> kp1 = cc->KeyGen();
-				LPKeyPair<Element> kp2 = cc->KeyGen();
-
-				auto crypt = cc->Encrypt(kp1.publicKey, inputs[nInputs]);
-
-				if( run1 ) try {
-					auto rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
-					auto recrypt1 = cc->ReEncrypt(rekey1, crypt);
-					Plaintext decrypted1;
-					cc->Decrypt(kp2.secretKey, recrypt1, &decrypted1);
-				} catch(exception& e) {
-					cout << e.what() << endl;
-					run1 = false;
-				}
-
-				if( run2 ) try {
-					auto rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
-					auto recrypt2 = cc->ReEncrypt(rekey2, crypt);
-					Plaintext decrypted2;
-					cc->Decrypt(kp2.secretKey, recrypt2, &decrypted2);
-				} catch(exception& e) {
-					cout << e.what() << endl;
-					run2 = false;
-				}
+				rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
 			}
+			span = TOC_MS(t);
+			stats[OpReKeyGenPubPri] = new TimingStatistics(OpType::OpReKeyGenPubPri, MaxIterations, span);
+
+			TIC(t);
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				recrypt = cc->ReEncrypt(rekey1, crypt);
+			}
+			span = TOC_MS(t);
+			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, MaxIterations, span);
+
+			TIC(t);
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
+			}
+			span = TOC_MS(t);
+			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
+		}
+
+		if( runPriPri ) {
+			TIC(t);
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
+			}
+			span = TOC_MS(t);
+			stats[OpReKeyGenPriPri] = new TimingStatistics(OpType::OpReKeyGenPriPri, MaxIterations, span);
+
+			TIC(t);
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				recrypt = cc->ReEncrypt(rekey2, crypt);
+			}
+			span = TOC_MS(t);
+			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, MaxIterations, span);
+
+			TIC(t);
+			for( int reps=0; reps < MaxIterations; reps++ ) {
+				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
+			}
+			span = TOC_MS(t);
+			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
 		}
 	}
 
@@ -150,41 +223,69 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYP
 		auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]);
 		auto crypt1 = cc->Encrypt(kp.publicKey, inputs[1]);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalAdd(crypt0, crypt1);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalAdd] = new TimingStatistics(OpType::OpEvalAdd, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalAdd(crypt0, inputs[1]);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalAddPlain] = new TimingStatistics(OpType::OpEvalAddPlain, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalSub(crypt0, crypt1);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalSub] = new TimingStatistics(OpType::OpEvalSub, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalSub(crypt0, inputs[1]);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalSubPlain] = new TimingStatistics(OpType::OpEvalSubPlain, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalMult(crypt0, crypt1);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalMult] = new TimingStatistics(OpType::OpEvalMult, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalMult(crypt0, inputs[1]);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalMultPlain] = new TimingStatistics(OpType::OpEvalMultPlain, MaxIterations, span);
 
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			cc->EvalNegate(crypt0);
 		}
+		span = TOC_MS(t);
+		stats[OpEvalNeg] = new TimingStatistics(OpType::OpEvalNeg, MaxIterations, span);
 
+		bool hasMR = true;
+		TIC(t);
 		for (int reps = 0; reps < MaxIterations; reps++) {
 			try {
 				cc->ModReduce(crypt0);
 			} catch( exception& e ) {
 				cout << e.what() << endl;
+				hasMR = false;
 				break;
 			}
+		}
+		if( hasMR ) {
+			span = TOC_MS(t);
+			stats[OpModReduce] = new TimingStatistics(OpType::OpModReduce, MaxIterations, span);
 		}
 	}
 
@@ -194,24 +295,12 @@ int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYP
 
 	// MULTIPARTY
 
-
-	if( verbose )
-		cerr << "Summarizing" << endl;
-
-	// time to assemble timing statistics
-	map<OpType,TimingStatistics> stats;
-
-	for( auto& s : times ) {
-		cout << s << endl;
-	}
-	TimingStatistics::GenStatisticsMap(times, stats);
-
 	if( verbose )
 		cerr << "Results:" << endl;
 
 	// read them out
 	for( auto &tstat : stats ) {
-		cout << tstat.first << ':' << tstat.second << endl;
+		cout << tstat.second->operation << ": " << tstat.second->average << "ms" <<endl;
 	}
 
 	return 0;

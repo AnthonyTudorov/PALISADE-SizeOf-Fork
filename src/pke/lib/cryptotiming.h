@@ -87,6 +87,13 @@ public:
 	TimingStatistics(usint samples, double startup, double min, double max, double average) :
 		operation(OpNOOP), samples(samples), startup(startup), wasCalled(false),
 		min(min), max(max), average(average) {}
+	TimingStatistics(OpType op, usint samples, double total) {
+		this->operation = op;
+		this->samples = samples;
+		this->startup = this->min = this->max = 0;
+		this->wasCalled = true;
+		this->average = total/samples;
+	}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
 
