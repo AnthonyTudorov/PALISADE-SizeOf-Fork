@@ -41,16 +41,6 @@ using namespace lbcrypto;
 #include <fstream>
 using namespace std;
 
-#include "circuitnode.cpp"
-#include "circuitgraph.cpp"
-#include "circuitinput.cpp"
-
-namespace lbcrypto {
-template class CircuitGraphWithValues<Poly>;
-template class CircuitNodeWithValue<Poly>;
-template class CircuitObject<Poly>;
-}
-
 int
 main(int argc, char *argv[])
 {

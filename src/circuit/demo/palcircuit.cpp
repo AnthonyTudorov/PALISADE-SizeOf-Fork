@@ -41,16 +41,6 @@ using std::ostream;
 
 #include "parsedriver.h"
 
-#include "circuitnode.cpp"
-#include "circuitgraph.cpp"
-#include "circuitinput.cpp"
-
-namespace lbcrypto {
-template class CircuitGraphWithValues<DCRTPoly>;
-template class CircuitNodeWithValue<DCRTPoly>;
-template class CircuitObject<DCRTPoly>;
-}
-
 void usage() {
 	cout << "Usage is palcircuit {Arguments} inputfile specfile" << endl;
 	cout << "Arguments are" << endl;
@@ -64,8 +54,6 @@ void usage() {
 	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-h  --  this message" << endl;
 }
-
-extern bool lbcrypto::CircuitOpTrace;
 
 void PrintOperationSet(ostream& out, vector<CircuitSimulation>& timings) {
 	map<OpType,bool> ops;

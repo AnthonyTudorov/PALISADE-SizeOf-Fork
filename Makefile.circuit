@@ -38,7 +38,8 @@ CIRCUITSOURCES := $(sort $(wildcard $(CIRCUITSRCDIR)/lib/*.cpp) $(CIRCUITSRCDIR)
 CIRCUITUNITSOURCES := $(wildcard $(CIRCUITSRCDIR)/unittest/*.cpp)
 CIRCUITDEMOSOURCES := $(wildcard $(CIRCUITDEMODIR)/*.cpp)
 
-CIRCUITOBJECTS = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
+CIRCUITOBJECTSALL = $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITSOURCES)))
+CIRCUITOBJECTS = $(filter-out $(CIRCUITBINDIR)/lib/circuit%.o,$(CIRCUITOBJECTSALL))
 CIRCUITUNITOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITUNITSOURCES)))
 CIRCUITDEMOOBJECTS := $(patsubst $(CIRCUITSRCDIR)/%,$(CIRCUITBINDIR)/%,$(patsubst %.cpp,%.o,$(CIRCUITDEMOSOURCES)))
 
@@ -54,7 +55,8 @@ CIRCUIT_TEST_TARGET := $(EXTTESTDIR)/circuit/tests$(EXESUFFIX)
 -include $(CIRCUITDEMOOBJECTS:.o=.d)
 
 circuitstring:
-	@echo $(INC)
+	@echo $(CIRCUITOBJECTSALL)
+	@echo $(CIRCUITOBJECTS)
 
 .PHONY:allcircuit
 allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) allcircuitdemos

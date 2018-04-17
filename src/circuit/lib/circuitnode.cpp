@@ -35,8 +35,6 @@
 
 namespace lbcrypto {
 
-bool CircuitOpTrace;
-
 template<typename Element>
 CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
 

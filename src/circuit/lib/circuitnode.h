@@ -66,6 +66,8 @@ static const usint DEFAULTNOISEVAL = 3;
 
 class CircuitGraph;
 
+extern bool CircuitOpTrace;
+
 // This class is used to represent a node in a circuit
 // the node can have several inputs, and it has one output
 // nodes are identified by a node id
