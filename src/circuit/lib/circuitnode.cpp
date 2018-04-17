@@ -35,8 +35,6 @@
 
 namespace lbcrypto {
 
-bool CircuitOpTrace;
-
 template<typename Element>
 void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
 	if( this->Visited() )
