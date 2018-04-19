@@ -208,8 +208,8 @@ main(int argc, char *argv[])
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			genCryptoContextBFVrns(ep,1.006,4.0,0,2,0,OPTIMIZED,2,30);
-			//genCryptoContextNull(m, ep);
+			//genCryptoContextBFVrns(ep,1.006,4.0,0,6,0,OPTIMIZED,2,48);
+			genCryptoContextNull(m, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -316,7 +316,7 @@ main(int argc, char *argv[])
 	if( verbose )
 		cir.CircuitDump();
 
-	vector<int32_t> indexList = {-1, -2, -3, -4, -5};
+	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
 	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
 	cc->EvalMultKeyGen(kp.secretKey);
