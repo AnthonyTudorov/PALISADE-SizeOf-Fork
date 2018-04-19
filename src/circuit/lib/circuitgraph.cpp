@@ -85,7 +85,7 @@ CircuitGraph::Preprocess()
 		out->setOutputDepth(1);
 	}
 
-	processNodeDepth();
+	//processNodeDepth();
 }
 
 void
