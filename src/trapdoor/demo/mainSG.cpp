@@ -36,9 +36,9 @@ int main(){
 
 	TIC(t1); //start timer for total time
 	inv_g(b, q, u, k, output);
-	timeEval = TOC_NS(t1);
+	timeEval = TOC_US(t1);
 
-	std::cout << "Sampling time: " << timeEval << " ns" << std::endl;
+	std::cout << "Sampling time: " << timeEval << " microseconds" << std::endl;
 	
 	NTL::RR a = NTL::RR(10.0/27); NTL::RR c = NTL::RR(19.0/27);
 
