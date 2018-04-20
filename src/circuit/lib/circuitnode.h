@@ -183,6 +183,8 @@ public:
 	CircuitNodeWithValue(CircuitNode *n) : node(n) { Reset(); }
 	virtual ~CircuitNodeWithValue() {}
 
+	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
+
 	wire_type GetType() const { return value.GetType(); }
 
 	usint GetNoise() const { return noiseval; }
@@ -241,10 +243,12 @@ public:
 	static const vector<CircuitSimulation>& GetSimulationItems() {
 		return sim;
 	}
+
+	ostream& Display(ostream& o, LPPrivateKey<Element> k);
 };
 
-template<typename Element>
-extern ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n);
+//template<typename Element>
+//extern ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n);
 
 template<typename Element>
 int	CircuitNodeWithValue<Element>::step;

@@ -50,13 +50,6 @@ CircuitGraph::DisplayGraph(ostream* out) const
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::SetStreamKey(CryptoContext<Element> cc, LPPrivateKey<Element> k) const {
-	CircuitGraphWithValues<Element>::_graph_cc = cc;
-	CircuitGraphWithValues<Element>::_graph_key = k;
-}
-
-template<typename Element>
-void
 CircuitGraphWithValues<Element>::DisplayGraph(ostream* f) const
 {
 	this->g.DisplayGraph(f);
@@ -64,15 +57,14 @@ CircuitGraphWithValues<Element>::DisplayGraph(ostream* f) const
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, LPPrivateKey<Element> k) const
+CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream& f, LPPrivateKey<Element> k) const
 {
-	SetStreamKey(cc, k);
-	*f << "digraph G {" << endl;
+	f << "digraph G {" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		*f << *it->second << endl;
+		it->second->Display(f, k) << endl;
 	}
-	*f << "}" << endl;
+	f << "}" << endl;
 }
 
 void

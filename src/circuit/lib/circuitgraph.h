@@ -152,7 +152,7 @@ class CircuitGraphWithValues {
 public:
 	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
 		for( map<usint,CircuitNode*>::const_iterator it = cg.getAllNodes().begin(); it != cg.getAllNodes().end(); it++ ) {
-			allNodes[ it->first ] = ValueNodeFactory<Element>( it->second );
+			allNodes[ it->first ] = CircuitNodeWithValue<Element>::ValueNodeFactory( it->second );
 		}
 	}
 
@@ -163,9 +163,7 @@ public:
 		allNodes.clear();
 	}
 
-	// these two statics are used by operator<< as a hack to display values
-	static CryptoContext<Element>	_graph_cc;
-	static LPPrivateKey<Element>	_graph_key;
+	LPPrivateKey<Element>	_graph_key;
 
 	const vector<usint>& getInputs() const { return g.getInputs(); }
 	const vector<usint>& getOutputs() const { return g.getOutputs(); }
@@ -190,7 +188,7 @@ public:
 	}
 
 	void DisplayGraph(ostream* f) const;
-	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
+	void DisplayDecryptedGraph(ostream& f, LPPrivateKey<Element> k) const;
 
 	void ClearVisited() {
 		for( auto node : allNodes )
@@ -210,14 +208,6 @@ public:
 				total += node.second->GetRuntime();
 		return total;
 	}
-
-	/**
-	 * SetStreamKey causes the graph creator to decrypt each available Value in the graph and display them
-	 *
-	 * @param cc - CryptoContext in use
-	 * @param k - private key for decryption
-	 */
-	void SetStreamKey(CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
 };
 
 }

@@ -51,6 +51,7 @@ void usage() {
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
+	cout << "-printall  --  prints value of every node after evaluation" << endl;
 	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-h  --  this message" << endl;
 }
@@ -86,6 +87,7 @@ main(int argc, char *argv[])
 	bool verbose = false;
 	bool evaluation_list_mode = false;
 	bool evaluation_run_mode = false;
+	bool print_all_flag = false;
 	ofstream	evalListF;
 	ifstream	evalStatF;
 	ostream	*inGraph = &cout;
@@ -152,6 +154,9 @@ main(int argc, char *argv[])
 		else if( arg == "-v" ) {
 			verbose = true;
 		}
+		else if( arg == "-printall" ) {
+			print_all_flag = true;
+		}
 		else if( arg == "-h" ) {
 			usage();
 			return 0;
@@ -201,15 +206,15 @@ main(int argc, char *argv[])
 
 	// Prepare to process the graph
 
-	EncodingParams ep( new EncodingParamsImpl(
-			ptm,
-			16,
-			PackedEncoding::GetAutomorphismGenerator(2048)) );
+	EncodingParams ep( new EncodingParamsImpl(ptm) );
+//			ptm,
+//			16,
+//			PackedEncoding::GetAutomorphismGenerator(2048)) );
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			//genCryptoContextBFVrns(ep,1.006,4.0,0,6,0,OPTIMIZED,2,48);
-			genCryptoContextNull(m, ep);
+			genCryptoContextBFVrns(ep,1.004,3.19,0,8,0,OPTIMIZED,8,30);
+			//genCryptoContextNull(m, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -218,6 +223,7 @@ main(int argc, char *argv[])
 	} catch(...) {}
 
 	PackedEncoding::SetParams(m, ep);
+	ep->SetBatchSize(1024);
 
 	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
 	if( evaluation_list_mode ) {
@@ -323,8 +329,7 @@ main(int argc, char *argv[])
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
 
-	CircuitGraphWithValues<DCRTPoly>::_graph_cc = cc;
-	CircuitGraphWithValues<DCRTPoly>::_graph_key = kp.secretKey;
+//	cir.SetDecryptionKey(kp.secretKey);
 
 //	// Note that the circuit evaluator does not know about or enforce encodings
 //
@@ -420,15 +425,21 @@ main(int argc, char *argv[])
 		node.second->SetRuntime( times[s].timeval );
 	}
 
+	if( print_all_flag ) {
+		for( auto& node : cir.GetGraph().getAllNodes() ) {
+			cout << "For node " << node.first << " Value: ";
+			node.second->getValue().Display(cout, kp.secretKey) << endl;
+		}
+	}
+
 	// print the output
 	for( auto& out : outputs ) {
 		cout << "For output " << out.first << " type " << out.second.GetType() << " Value: ";
-		out.second.DecryptAndPrint(cc, kp.secretKey, cout);
-		cout << endl;
+		out.second.Display(cout, kp.secretKey) << endl;
 	}
 
 	if( print_result_graph ) {
-		cir.GetGraph().DisplayDecryptedGraph(resultGraph, cc, kp.secretKey);
+		cir.GetGraph().DisplayDecryptedGraph(*resultGraph, kp.secretKey);
 		if( resultGF.is_open() )
 			resultGF.close();
 	}

@@ -40,13 +40,11 @@ using namespace lbcrypto;
 
 #include "circuitnode.cpp"
 #include "circuitgraph.cpp"
-#include "circuitinput.cpp"
+#include "circuitinput.h"
 
 namespace lbcrypto {
 bool CircuitOpTrace;
 
-template class CircuitGraphWithValues<Poly>;
-template class CircuitNodeWithValue<Poly>;
 template class InputWithValue<Poly>;
 template class ConstIntWithValue<Poly>;
 template class ConstPtxtWithValue<Poly>;
@@ -56,9 +54,9 @@ template class EvalSubNodeWithValue<Poly>;
 template class EvalMultNodeWithValue<Poly>;
 template class EvalRShiftNodeWithValue<Poly>;
 template class EvalInnerProdNodeWithValue<Poly>;
+template class CircuitNodeWithValue<Poly>;
+template class CircuitGraphWithValues<Poly>;
 
-template class CircuitGraphWithValues<NativePoly>;
-template class CircuitNodeWithValue<NativePoly>;
 template class InputWithValue<NativePoly>;
 template class ConstIntWithValue<NativePoly>;
 template class ConstPtxtWithValue<NativePoly>;
@@ -68,9 +66,9 @@ template class EvalSubNodeWithValue<NativePoly>;
 template class EvalMultNodeWithValue<NativePoly>;
 template class EvalRShiftNodeWithValue<NativePoly>;
 template class EvalInnerProdNodeWithValue<NativePoly>;
+template class CircuitNodeWithValue<NativePoly>;
+template class CircuitGraphWithValues<NativePoly>;
 
-template class CircuitGraphWithValues<DCRTPoly>;
-template class CircuitNodeWithValue<DCRTPoly>;
 template class InputWithValue<DCRTPoly>;
 template class ConstIntWithValue<DCRTPoly>;
 template class ConstPtxtWithValue<DCRTPoly>;
@@ -80,5 +78,7 @@ template class EvalSubNodeWithValue<DCRTPoly>;
 template class EvalMultNodeWithValue<DCRTPoly>;
 template class EvalRShiftNodeWithValue<DCRTPoly>;
 template class EvalInnerProdNodeWithValue<DCRTPoly>;
+template class CircuitNodeWithValue<DCRTPoly>;
+template class CircuitGraphWithValues<DCRTPoly>;
 }
 

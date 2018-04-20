@@ -35,12 +35,6 @@
 
 namespace lbcrypto {
 
-template<typename Element>
-CryptoContext<Element> CircuitGraphWithValues<Element>::_graph_cc;
-
-template<typename Element>
-LPPrivateKey<Element> CircuitGraphWithValues<Element>::_graph_key;
-
 ostream& operator<<(ostream& out, const CircuitNode& n)
 {
 	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
@@ -61,28 +55,28 @@ ostream& operator<<(ostream& out, const CircuitNode& n)
 }
 
 template<typename Element>
-ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n)
+ostream& CircuitNodeWithValue<Element>::Display(ostream& out, LPPrivateKey<Element> k)
 {
-	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
-	if( n.getNode()->getInputDepth() != 0 )
-		out << "(d=" + std::to_string(n.getNode()->getInputDepth()) + ")\\n";
-	out << n.getNodeLabel();
-	if( n.IsOutput() ) {
+	out << this->GetId() << "  [label=\"" << this->GetId() << "\\n";
+	if( this->getNode()->getInputDepth() != 0 )
+		out << "(d=" + std::to_string(this->getNode()->getInputDepth()) + ")\\n";
+	out << this->getNodeLabel();
+	if( this->IsOutput() ) {
 		out << "(output)\\n";
 	}
 
-	out << "\\n(noise=" << n.GetNoise() << ")\\n";
+	out << "\\n(noise=" << this->GetNoise() << ")\\n";
 
-	const Value<Element>& val = n.getValue();
-	if( CircuitGraphWithValues<Element>::_graph_key && val.GetType() != UNKNOWN ) {
-		val.DecryptAndPrint(CircuitGraphWithValues<Element>::_graph_cc, CircuitGraphWithValues<Element>::_graph_key, out);
+	const Value<Element>& val = this->getValue();
+	if( val.GetType() != UNKNOWN ) {
+		val.Display(out, k);
 	}
 
 	out << "\"]; ";
 
-	const vector<usint>& nodeInputs = n.getNode()->getInputs();
+	const vector<usint>& nodeInputs = this->getNode()->getInputs();
 	for( usint input : nodeInputs )
-		out << input << " -> " << n.GetId() << "; ";
+		out << input << " -> " << this->GetId() << "; ";
 
 	return out;
 }
@@ -471,17 +465,6 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	auto arg1 = cc->EvalMerge(vec1);
 	auto arg2 = cc->EvalMerge(vec2);
 
-	if( false ) { // debug stuff
-		cout << "decrypt of first merge:" << endl;
-		Plaintext p;
-		cc->Decrypt(CircuitGraphWithValues<Element>::_graph_key, arg1, &p);
-		cout << p << endl;
-		cout << "decrypt of second merge:" << endl;
-		Plaintext q;
-		cc->Decrypt(CircuitGraphWithValues<Element>::_graph_key, arg2, &q);
-		cout << q << endl;
-	}
-
 	if( CircuitOpTrace ) {
 		ss << "}\nEvalInnerProduct (";
 		ss <<  arg1;
@@ -549,7 +532,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 #define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(node); }
 
 template<typename Element>
-CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n ) {
+CircuitNodeWithValue<Element> *CircuitNodeWithValue<Element>::ValueNodeFactory( CircuitNode *n ) {
 	TESTANDMAKE( Input, InputWithValue<Element>, n );
 	TESTANDMAKE( ConstInt, ConstIntWithValue<Element>, n );
 	TESTANDMAKE( ConstPtxt, ConstPtxtWithValue<Element>, n );
