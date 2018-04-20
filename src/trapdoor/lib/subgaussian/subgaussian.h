@@ -24,6 +24,7 @@
  *
  */
 
+#include <random>
 #include "math/matrix.h"
 
 #ifndef LBCRYPTO_LATTICE_SUBGAUSSIAN_H

@@ -82,6 +82,8 @@ namespace lbcrypto {
 	template <class Integer, class Vector>
 	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const NativeVector &q, const vector<double> &target, NativeVector *v) {
 
+		std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
 	//Run the version of Babai's algorithm on basis D.
 	//Also, it returns a coset sample centered at 0.
 
@@ -98,11 +100,12 @@ namespace lbcrypto {
 
 	//Sample last coord.
 
-		NTL::RR prob = NTL::RR(target[m_k-1])/NTL::RR(d[m_k-1]); prob = prob - NTL::floor(prob);
+		double prob = target[m_k-1]/d[m_k-1];
+
+		prob = prob - floor(prob);
 		temp = (long)(ceil(target[m_k-1]/d[m_k-1]));//temp = z+1
 
-
-		if(NTL::random_RR() <= prob){
+		if(distribution(PseudoRandomNumberGenerator::GetPRNG()) <= prob){
 			(*v)[m_k-1] = temp;
 		}
 		else{
@@ -117,9 +120,10 @@ namespace lbcrypto {
 			ttemp = target[i] - (double)(*v)[m_k-1].ConvertToInt()*d[i];//update the target from the last coordinate (the only dependency)
 
 			temp = (NativeInteger)(ceil(ttemp - (*v)[m_k-1].ConvertToInt()*d[i]));//upper plane number
-			prob = (NTL::conv<NTL::RR>(ttemp) - NTL::conv<NTL::RR>((*v)[m_k-1].ConvertToInt()*d[i])); prob = prob - NTL::floor(prob);// ||b_i*|| = 1
+			prob = ttemp - (*v)[m_k-1].ConvertToInt()*d[i];
+			prob = prob - floor(prob);// ||b_i*|| = 1
 
-			if(NTL::random_RR() <= prob){
+			if(distribution(PseudoRandomNumberGenerator::GetPRNG()) <= prob){
 				(*v)[i] = temp;
 				//cout<<"top plane"<<endl;
 			}
