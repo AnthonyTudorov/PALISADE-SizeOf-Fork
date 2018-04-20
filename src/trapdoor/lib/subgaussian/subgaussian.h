@@ -24,21 +24,34 @@
  *
  */
 
+#include "math/matrix.h"
 
 #ifndef LBCRYPTO_LATTICE_SUBGAUSSIAN_H
 #define LBCRYPTO_LATTICE_SUBGAUSSIAN_H
 
 namespace lbcrypto {
 
-template <class Element>
-class SubgaussianUtility
+template <class Integer, class Vector>
+class LatticeSubgaussianUtility
 {
 public:
 
+	LatticeSubgaussianUtility() : m_base(2), m_modulus(1), m_k(1) {};
 
+	LatticeSubgaussianUtility(const uint32_t &base, const Integer &modulus, const uint32_t &k) :
+		m_base(base), m_modulus(modulus), m_k(k) {};
+
+	void InverseG(const Integer &u, Vector *output);
+
+	void BcBD(const NativeVector &q, const vector<double> &target, NativeVector *v);
 
 private:
 
+	uint32_t m_base;
+
+	Integer m_modulus;
+
+	uint32_t m_k;
 
 };
 

@@ -13,6 +13,8 @@
 
 #include "utils/debug.h"
 
+#include "subgaussian/subgaussian.cpp"
+
 //NTL
 
 #include <NTL/ZZ.h>
@@ -21,7 +23,7 @@
 #include <NTL/RR.h>
 
 using namespace std;
-
+using namespace lbcrypto;
 
 int main(){
 
@@ -38,8 +40,18 @@ int main(){
 	inv_g(b, q, u, k, output);
 	timeEval = TOC_US(t1);
 
-	std::cout << "Sampling time: " << timeEval << " microseconds" << std::endl;
+	std::cout << "Old impl sampling time: " << timeEval << " microseconds" << std::endl;
 	
+	LatticeSubgaussianUtility<NativeInteger,NativeVector> sampler(b,q,k);
+
+	NativeVector nativeOutput(k);
+
+	TIC(t1); //start timer for total time
+	sampler.InverseG(u, &nativeOutput);
+	timeEval = TOC_US(t1);
+
+	std::cout << "PALISADE impl sampling time: " << timeEval << " microseconds" << std::endl;
+
 	NTL::RR a = NTL::RR(10.0/27); NTL::RR c = NTL::RR(19.0/27);
 
 //test the output
@@ -52,6 +64,17 @@ cout<<"********************** output = "<<endl;
 	}
 
 cout<<"g^t * output = "<<test<<endl;
+
+//test the output
+NativeInteger test1 = 0; NativeInteger b_i1 = 1;
+cout<<"********************** output = "<<endl;
+	for(int i = 0; i<k; i++){
+		test1 +=nativeOutput[i]*b_i1;
+		b_i1 = b_i1*b;
+		std::cout<<nativeOutput[i]<<std::endl;
+	}
+
+cout<<"g^t * output 2 = "<<test1<<endl;
 return 0;
 }
 

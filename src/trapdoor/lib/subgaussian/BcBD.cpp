@@ -33,7 +33,7 @@ void BcBD(const unsigned long& b, const NTL::Vec<long>& q, const NTL::Vec<double
 		v[k-1] = temp - 1;	
 	}
 	
-	cout<<v[k-1]<<endl;
+	//cout<<v[k-1]<<endl;
 
 //Compute the remaining k-1 (independent) coordinates and update the target 
 double ttemp;
@@ -51,7 +51,7 @@ double ttemp;
 			v[i] = temp - 1;
 			//cout<<"bottom plane"<<endl;		
 		}
-		cout<<v[i]<<endl;
+		//cout<<v[i]<<endl;
 	}
 
 }
