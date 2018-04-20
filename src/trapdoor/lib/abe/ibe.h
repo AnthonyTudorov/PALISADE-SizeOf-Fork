@@ -63,7 +63,7 @@ template <class Element>
 			 * Default Constructor
 			 *
 			 */
-			IBE(){}
+			IBE(): m_N(0), m_m(0){}
 
 			/**
 			 * Destructor
