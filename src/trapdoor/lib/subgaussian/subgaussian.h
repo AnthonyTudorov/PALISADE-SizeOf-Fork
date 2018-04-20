@@ -40,19 +40,24 @@ public:
 	LatticeSubgaussianUtility() : m_base(2), m_modulus(1), m_k(1) {};
 
 	LatticeSubgaussianUtility(const uint32_t &base, const Integer &modulus, const uint32_t &k) :
-		m_base(base), m_modulus(modulus), m_k(k) {};
+		m_base(base), m_modulus(modulus), m_k(k) {Precompute();};
 
-	void InverseG(const Integer &u, Vector *output);
+	void InverseG(const Integer &u, vector<int64_t> *output);
 
-	void BcBD(const NativeVector &q, const vector<double> &target, NativeVector *v);
+	void BcBD(const vector<double> &target, vector<int64_t> *v);
 
 private:
 
+	void Precompute();
+
+	// input parameters
 	uint32_t m_base;
-
 	Integer m_modulus;
-
 	uint32_t m_k;
+
+	// precomputed tables
+	vector<int64_t> m_qvec;
+	vector<double> m_d;
 
 };
 

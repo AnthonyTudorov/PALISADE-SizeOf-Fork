@@ -44,7 +44,7 @@ int main(){
 	
 	LatticeSubgaussianUtility<NativeInteger,NativeVector> sampler(b,q,k);
 
-	NativeVector nativeOutput(k);
+	vector<int64_t> nativeOutput(k);
 
 	TIC(t1); //start timer for total time
 	sampler.InverseG(u, &nativeOutput);
@@ -66,7 +66,7 @@ cout<<"********************** output = "<<endl;
 cout<<"g^t * output = "<<test<<endl;
 
 //test the output
-NativeInteger test1 = 0; NativeInteger b_i1 = 1;
+int64_t test1 = 0; int64_t b_i1 = 1;
 cout<<"********************** output = "<<endl;
 	for(int i = 0; i<k; i++){
 		test1 +=nativeOutput[i]*b_i1;
