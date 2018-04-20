@@ -29,10 +29,10 @@ int main(){
 
 	double timeEval;
 
-	long b = 3; long q = 1000; long k = (long)ceil(log2(q)/log2(b)); 
+	long b = 3; long q = 10000000; long k = (long)ceil(log2(q)/log2(b)); 
 	NTL::Vec<long> output; output.SetLength(k);
 
-	long u = 699;
+	long u = 699211;
 
 	TIC(t1); //start timer for total time
 	inv_g(b, q, u, k, output);
