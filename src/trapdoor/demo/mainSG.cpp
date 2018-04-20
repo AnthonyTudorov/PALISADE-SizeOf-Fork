@@ -1,3 +1,5 @@
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
+
 //native libs
 //#include <sys/resource.h>
 #include <math.h>
@@ -8,6 +10,8 @@
 //created files
 #include "subgaussian/inv_g.h"
 #include "subgaussian/BcBD.h"
+
+#include "utils/debug.h"
 
 //NTL
 
@@ -21,11 +25,20 @@ using namespace std;
 
 int main(){
 
+	TimeVar t1; //for TIC TOC
+
+	double timeEval;
+
 	long b = 3; long q = 1000; long k = (long)ceil(log2(q)/log2(b)); 
 	NTL::Vec<long> output; output.SetLength(k);
 
 	long u = 699;
+
+	TIC(t1); //start timer for total time
 	inv_g(b, q, u, k, output);
+	timeEval = TOC_NS(t1);
+
+	std::cout << "Sampling time: " << timeEval << " ns" << std::endl;
 	
 	NTL::RR a = NTL::RR(10.0/27); NTL::RR c = NTL::RR(19.0/27);
 
