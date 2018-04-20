@@ -418,6 +418,13 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if( print_all_flag ) {
+		for( auto& node : cir.GetGraph().getAllNodes() ) {
+			cout << "For node " << node.first << " Value: ";
+			node.second->getValue().Display(cout, kp.secretKey) << endl;
+		}
+	}
+
 	// print the output
 	for( auto& out : outputs ) {
 		cout << "For output " << out.first << " type " << out.second.GetType() << " Value: " << out.second << endl;

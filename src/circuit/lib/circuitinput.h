@@ -367,6 +367,66 @@ public:
 		return cc->EvalRightShift(this->GetCiphertextValue(), other.GetIntValue());
 	}
 
+	friend ostream& operator<<(ostream& out, const CircuitObject<Element>& e) {
+		LPPrivateKey<Element> key;
+		return e.Display(out, key);
+	}
+
+	ostream& Display(ostream& out, LPPrivateKey<Element>& key) const {
+		switch( this->GetType() ) {
+		case PLAINTEXT:
+			out << this->GetPlaintextValue();
+			break;
+
+		case INT:
+			out << this->GetIntValue();
+			break;
+
+		case CIPHERTEXT: {
+			if( key ) {
+				auto ct = this->GetCiphertextValue();
+				auto cc = ct->GetCryptoContext();
+				Plaintext result;
+				cc->Decrypt(key, ct, &result);
+				out << result;
+			}
+			else {
+				out << "CIPHERTEXT";
+			}
+		}
+		break;
+
+		case MATRIX_RAT: {
+			if( key ) {
+				auto op1 = this->GetMatrixRtValue();
+				auto cc = (*op1)(0,0).GetCryptoContext();
+
+				shared_ptr<Matrix<Plaintext>> numerator;
+				shared_ptr<Matrix<Plaintext>> denominator;
+				cc->DecryptMatrix(key, this->GetMatrixRtValue(), &numerator, &denominator);
+
+				for( size_t r=0; r < this->GetMatrixRtValue()->GetRows(); r++ ) {
+					out << "Row " << r << std::endl;
+					for( size_t c=0; c < this->GetMatrixRtValue()->GetCols(); c++ ) {
+						out << "Col " << c << " n/d = ";
+						out << (*numerator)(r,c) << " / ";
+						out << (*denominator)(r,c) << std::endl;
+					}
+				}
+			}
+			else {
+				out << "MATRIX";
+			}
+		}
+		break;
+
+		default:
+			out << "<<<Don't know how to print a " << this->GetType() << ">>>";
+			break;
+		}
+		return out;
+	}
+
 	usint GetIntValue() const { return ival; }
 	Plaintext GetPlaintextValue() const { return pt; }
 	Ciphertext<Element> GetCiphertextValue() const { return ct; }
