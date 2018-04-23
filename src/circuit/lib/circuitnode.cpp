@@ -35,25 +35,6 @@
 
 namespace lbcrypto {
 
-ostream& operator<<(ostream& out, const CircuitNode& n)
-{
-//	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
-//	if( n.getInputDepth() != 0 )
-//		out << "(d=" + std::to_string(n.getInputDepth()) + ")\\n";
-//	out << n.getNodeLabel();
-//	if( n.IsOutput() ) {
-//		out << "(output)\\n";
-//	}
-//
-//	out << "\"]; ";
-//
-//	const vector<usint>& nodeInputs = n.getInputs();
-//	for( usint input : nodeInputs )
-//		out << input << " -> " << n.GetId() << "; ";
-
-	return out;
-}
-
 template<typename Element>
 void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
 	if( this->Visited() )
