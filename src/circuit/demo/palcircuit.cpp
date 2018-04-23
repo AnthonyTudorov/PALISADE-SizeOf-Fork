@@ -77,7 +77,6 @@ Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 int
 main(int argc, char *argv[])
 {
-	const usint m = 32;
 	const PlaintextModulus ptm = 1073872897;
 
 	bool debug_parse = false;
@@ -207,14 +206,11 @@ main(int argc, char *argv[])
 	// Prepare to process the graph
 
 	EncodingParams ep( new EncodingParamsImpl(ptm) );
-//			ptm,
-//			16,
-//			PackedEncoding::GetAutomorphismGenerator(2048)) );
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			genCryptoContextBFVrns(ep,1.004,3.19,0,8,0,OPTIMIZED,8,30);
-			//genCryptoContextNull(m, ep);
+			genCryptoContextBFVrns(ep,1.004,3.19,0,6,0,OPTIMIZED,8,30);
+			//genCryptoContextNull(32, ep);
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -222,6 +218,7 @@ main(int argc, char *argv[])
 		cc->Enable(LEVELEDSHE);
 	} catch(...) {}
 
+	const usint m = cc->GetCyclotomicOrder();
 	PackedEncoding::SetParams(m, ep);
 	ep->SetBatchSize(1024);
 
@@ -280,18 +277,21 @@ main(int argc, char *argv[])
 		cout << "Circuit parsed" << endl;
 	}
 
+	// create a circuit with values from the graph
+	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
+
 	if( print_input_graph ) {
-		driver.graph.DisplayGraph(inGraph);
+		cir.GetGraph().DisplayGraph(*inGraph);
 		if( inGF.is_open() )
 			inGF.close();
 	}
 
 	// ASSIGN DEPTHS (and, eventually, optimize)
 	if( verbose ) cout << "Preprocessing" << endl;
-	driver.graph.Preprocess();
+	cir.GetGraph().Preprocess();
 
 	if( print_preproc_graph ) {
-		driver.graph.DisplayGraph(procGraph);
+		cir.GetGraph().DisplayGraph(*procGraph);
 		if( procGF.is_open() )
 			procGF.close();
 	}
@@ -299,7 +299,7 @@ main(int argc, char *argv[])
 	// to do estimates we need to know what functions we called; write them out and finish up
 	if( evaluation_list_mode ) {
 		vector<CircuitSimulation> opslist;
-		driver.graph.GenerateOperationList(opslist);
+		cir.GetGraph().GenerateOperationList(opslist);
 		if( verbose ) {
 			cout << "The operations used are:" << endl;
 			PrintOperationSet(cout, opslist);
@@ -312,15 +312,10 @@ main(int argc, char *argv[])
 	// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 	if( evaluation_run_mode ) {
 		vector<CircuitSimulation> opslist;
-		driver.graph.GenerateOperationList(opslist);
-		driver.graph.UpdateRuntimeEstimates(opslist, timings);
-		driver.graph.PrintRuntimeEstimates(cout);
+		cir.GetGraph().GenerateOperationList(opslist);
+		cir.GetGraph().UpdateRuntimeEstimates(opslist, timings);
+		cir.GetGraph().PrintRuntimeEstimates(cout);
 	}
-
-	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
-
-	if( verbose )
-		cir.CircuitDump();
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
@@ -328,33 +323,6 @@ main(int argc, char *argv[])
 	cc->EvalMultKeyGen(kp.secretKey);
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
-
-//	cir.SetDecryptionKey(kp.secretKey);
-
-//	// Note that the circuit evaluator does not know about or enforce encodings
-//
-//	const int ValueCount = 12;
-//	int vals[] = {1,5,9,2,6,10,3,7,11,4,8,12};
-//
-//	// Plaintext inputs will be chosen from these
-//	Plaintext ptxts[ValueCount];
-//	for( int i=0; i < ValueCount; i++ ) {
-//		ptxts[i] = EncodeFunction(cc, vals[i]);
-//	}
-//
-//	Ciphertext<DCRTPoly> ctxts[ValueCount];
-//	for( int i=0; i < ValueCount; i++ ) {
-//		ctxts[i] = cc->Encrypt(kp.publicKey, ptxts[i]);
-//	}
-//
-//	Matrix<Plaintext> mat([cc](){return EncodeFunction(cc,0);},mdim,mdim);
-//	usint mi=1;
-//	for(usint r=0; r<mat.GetRows(); r++)
-//		for(usint c=0; c<mat.GetCols(); c++) {
-//			mat(r,c) = EncodeFunction( cc, mi++ );
-//		}
-//
-//	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> emat = cc->EncryptMatrix(kp.publicKey, mat);
 
 	CircuitInput<DCRTPoly> inputs;
 
@@ -415,42 +383,49 @@ main(int argc, char *argv[])
 
 	cc->StopTiming();
 
-	if( verbose )
-		CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
+	//FIXME old
+//	if( verbose )
+//		CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
 
 	// apply the actual timings to the circuit
-	for( auto& node : cir.GetGraph().getAllNodes() ) {
-		int s = node.second->GetEvalSequenceNumber();
-		if( s < 0 ) continue;
-		node.second->SetRuntime( times[s].timeval );
+	// FIXME
+//	for( auto& node : cir.GetGraph().getAllNodes() ) {
+//		int s = node.second->GetEvalSequenceNumber();
+//		if( s < 0 ) continue;
+//		node.second->SetRuntime( times[s].timeval );
+//	}
+
+	if( print_all_flag || print_result_graph ) {
+		for( auto& node : cir.GetGraph().getAllNodes() ) {
+			node.second->getValue().Decrypt(kp.secretKey);
+		}
 	}
 
 	if( print_all_flag ) {
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			cout << "For node " << node.first << " Value: ";
-			node.second->getValue().Display(cout, kp.secretKey) << endl;
+			cout << "For node " << node.first << " Value: " << node.second->getValue() << endl;
 		}
 	}
 
 	// print the output
 	for( auto& out : outputs ) {
-		cout << "For output " << out.first << " type " << out.second.GetType() << " Value: ";
-		out.second.Display(cout, kp.secretKey) << endl;
+		cout << "For output " << out.first << " type " << out.second.GetType() << " Value: " << out.second << endl;
 	}
 
 	if( print_result_graph ) {
-		cir.GetGraph().DisplayDecryptedGraph(*resultGraph, kp.secretKey);
+		cir.GetGraph().DisplayGraph(*resultGraph);
 		if( resultGF.is_open() )
 			resultGF.close();
 	}
 
 	// we have the times for each node, now sum up for each output
-	for( auto& out : cir.GetGraph().getOutputs() ) {
-		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
-		cir.GetGraph().ClearVisited();
-		n->CircuitVisit(cir.GetGraph());
-		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
-	}
+	// FIXME
+//	for( auto& out : cir.GetGraph().getOutputs() ) {
+//		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
+//		cir.GetGraph().ClearVisited();
+//		n->CircuitVisit(cir.GetGraph());
+//		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
+//	}
 
 	if( verbose ) {
 		cout << "Timing Information:" << endl;

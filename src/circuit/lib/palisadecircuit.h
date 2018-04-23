@@ -42,6 +42,8 @@ using std::map;
 #include "circuitnode.h"
 #include "circuitgraph.h"
 
+namespace lbcrypto {
+
 typedef	size_t CircuitKey;
 
 template<typename Element>
@@ -63,79 +65,17 @@ class PalisadeCircuit {
 	EF<Element> EncodeFunction;
 
 public:
-	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg, EF<Element> EncodeFunction = 0)
-				: cc(cc), g(cg), EncodeFunction(EncodeFunction) {
-
-		// after initializing, search for all ConstPtxt and create a Plaintext for them
-		for( auto node : g.getAllNodes() ) {
-			ConstPtxtWithValue<Element>* n = dynamic_cast<ConstPtxtWithValue<Element>*>(node.second);
-			if( n != 0 ) {
-				if( EncodeFunction == 0 )
-					throw std::logic_error("Encode function required for plaintexts");
-				Plaintext ptxt = (*EncodeFunction)(cc, n->GetValue());
-				n->SetValue(ptxt);
-			}
-			ConstIntWithValue<Element>* i = dynamic_cast<ConstIntWithValue<Element>*>(node.second);
-			if( i != 0 ) {
-				if( EncodeFunction == 0 )
-					throw std::logic_error("Encode function required for integers");
-				Plaintext ptxt = (*EncodeFunction)(cc, i->GetInt());
-				node.second->getValue().SetPlaintext(ptxt);
-			}
-		}
-	}
+	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg, EF<Element> EncodeFunction = 0);
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
-	void SetDecryptionKey(LPPrivateKey<Element> k) { g._graph_key = k; }
-	LPPrivateKey<Element> GetDecryptionKey() const { return g._graph_key; }
 
-	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false ) {
-		g.Reset();
-
-		if( verbose ) cout << "Setting inputs" << endl;
-		auto circuitInputs = g.getInputs();
-		if( verbose ) {
-			cout << "inputs: "; for( auto x : g.getInputs() ) cout << x << " "; cout << endl;
-			cout << "outputs: "; for( auto x : g.getOutputs() ) cout << x << " "; cout << endl;
-		}
-		if( circuitInputs.size() != inputs.size() ) {
-			throw std::logic_error("Argument count mismatch");
-		}
-
-		for( auto input : circuitInputs ) {
-			auto cinput = inputs.find(input);
-			if( cinput == inputs.end() ) {
-				throw std::logic_error("input number " + std::to_string(input) + " is not an input to the circuit");
-			}
-
-			CircuitNodeWithValue<Element> *i = g.getNodeById(input);
-			if( i == 0 ) throw std::logic_error("input " + std::to_string(input) + " was not specified");
-
-			// type check
-			if( i->GetType() != cinput->second.GetType() ) {
-				stringstream ss;
-				ss << "input number " << input << " type mismatch, expected " << i->GetType() << ", got " << cinput->second.GetType();
-				throw std::logic_error(ss.str());
-			}
-
-			i->setValue(cinput->second);
-		}
-
-		if( verbose ) cout << "Executing" << endl;
-		g.Execute(cc);
-
-		if( verbose ) cout << "Gathering outputs" << endl;
-		CircuitOutput<Element> retval;
-		for( auto output : g.getOutputs() ) {
-			retval.push_back( CircuitIOPair<Element>(output, g.getNodeById(output)->getValue()) );
-		}
-		return retval;
-	}
+	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false );
 
 	void CircuitDump() {
 
 	}
 };
 
+}
 
 #endif /* SRC_CIRCUIT_LIB_PALISADECIRCUIT_H_ */

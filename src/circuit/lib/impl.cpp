@@ -40,6 +40,7 @@ using namespace lbcrypto;
 
 #include "circuitnode.cpp"
 #include "circuitgraph.cpp"
+#include "palisadecircuit.cpp"
 #include "circuitinput.h"
 
 namespace lbcrypto {
@@ -56,6 +57,7 @@ template class EvalRShiftNodeWithValue<Poly>;
 template class EvalInnerProdNodeWithValue<Poly>;
 template class CircuitNodeWithValue<Poly>;
 template class CircuitGraphWithValues<Poly>;
+template class PalisadeCircuit<Poly>;
 
 template class InputWithValue<NativePoly>;
 template class ConstIntWithValue<NativePoly>;
@@ -68,6 +70,7 @@ template class EvalRShiftNodeWithValue<NativePoly>;
 template class EvalInnerProdNodeWithValue<NativePoly>;
 template class CircuitNodeWithValue<NativePoly>;
 template class CircuitGraphWithValues<NativePoly>;
+template class PalisadeCircuit<NativePoly>;
 
 template class InputWithValue<DCRTPoly>;
 template class ConstIntWithValue<DCRTPoly>;
@@ -80,5 +83,6 @@ template class EvalRShiftNodeWithValue<DCRTPoly>;
 template class EvalInnerProdNodeWithValue<DCRTPoly>;
 template class CircuitNodeWithValue<DCRTPoly>;
 template class CircuitGraphWithValues<DCRTPoly>;
+template class PalisadeCircuit<DCRTPoly>;
 }
 

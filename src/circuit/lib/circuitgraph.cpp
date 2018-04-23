@@ -37,61 +37,46 @@
 
 namespace lbcrypto {
 
-void
-CircuitGraph::DisplayGraph(ostream* out) const
-{
-	*out << "digraph G {" << endl;
-
-	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		*out << *it->second << endl;
-	}
-	*out << "}" << endl;
-}
-
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::DisplayGraph(ostream* f) const
-{
-	this->g.DisplayGraph(f);
-}
-
-template<typename Element>
-void
-CircuitGraphWithValues<Element>::DisplayDecryptedGraph(ostream& f, LPPrivateKey<Element> k) const
+CircuitGraphWithValues<Element>::DisplayGraph(ostream& f) const
 {
 	f << "digraph G {" << endl;
 
 	for( auto it = allNodes.begin(); it != allNodes.end(); it++ ) {
-		it->second->Display(f, k) << endl;
+		f << *it->second << endl;
 	}
 	f << "}" << endl;
 }
 
+template<typename Element>
 void
-CircuitGraph::Preprocess()
+CircuitGraphWithValues<Element>::Preprocess()
 {
 	resetAllDepths();
 
 	for( int output : getOutputs() ) {
-		CircuitNode *out = getNodeById(output);
+		auto out = getNodeById(output);
 		out->setOutputDepth(1);
 	}
 
-	//processNodeDepth();
+//	processNodeDepth();
 }
 
+template<typename Element>
 void
-CircuitGraph::GenerateOperationList(vector<CircuitSimulation>& ops)
+CircuitGraphWithValues<Element>::GenerateOperationList(vector<CircuitSimulation>& ops)
 {
 	for( int output : getOutputs() ) {
-		CircuitNode *out = getNodeById(output);
-		ClearVisited();
+		auto out = getNodeById(output);
+		this->ClearVisited();
 		out->simeval(*this, ops);
 	}
 }
 
+template<typename Element>
 void
-CircuitGraph::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats)
+CircuitGraphWithValues<Element>::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats)
 {
 	// first make sure we have estimates for every operation performed
 	set<OpType> ops;
@@ -107,17 +92,18 @@ CircuitGraph::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpTyp
 
 	// mark each of the nodes with a time estimate
 	for( size_t i=0; i<steps.size(); i++ ) {
-		CircuitNode *node = getNodeById(steps[i].nodeId);
+		auto node = getNodeById(steps[i].nodeId);
 		TimingStatistics& this_est = stats[ steps[i].op ];
-		node->SetRuntimeEstimate(&this_est);
+		node->SetRuntimeEstimate(this_est.average);
 	}
 }
 
+template<typename Element>
 void
-CircuitGraph::PrintRuntimeEstimates(ostream& out)
+CircuitGraphWithValues<Element>::PrintRuntimeEstimates(ostream& out)
 {
 	for( int output : getOutputs() ) {
-		CircuitNode *o = getNodeById(output);
+		auto o = getNodeById(output);
 		ClearVisited();
 		o->CircuitVisit(*this);
 		out << "RUNTIME ESTIMATE FOR Output " << output << " " << GetRuntime() << endl;
@@ -134,19 +120,21 @@ CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
 	}
 }
 
-static bool
-insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
+template<typename Element>
+static void
+insertMRbetween(CircuitGraphWithValues<Element> *g, CircuitNodeWithValue<Element> *up, CircuitNodeWithValue<Element> *down)
 {
 	if( down->isModReduce() ) {
 		// just expand the thing
 		down->setInputDepth(up->getOutputDepth());
-		return true;
+		return;
 	}
 
 	usint outName = up->GetId();
 	usint inName = down->GetId();
 
-	CircuitNode *newMR = new ModReduceNode(g->GenNodeNumber(), vector<usint>({outName}));
+	ModReduceNode mrn(g->GenNodeNumber(), vector<usint>({outName}));
+	auto newMR = new ModReduceNodeWithValue<Element>(&mrn);
 	newMR->setInputDepth(up->getOutputDepth());
 	newMR->setOutputDepth(down->getInputDepth());
 
@@ -170,11 +158,14 @@ insertMRbetween(CircuitGraph *g, CircuitNode *up, CircuitNode *down)
 	// remove inName from out; remove otherOut from inName
 	up->delOutput(inName);
 
-	return g->addNode(newMR, newMR->GetId());
+	g->getAllNodes()[newMR->GetId()] = newMR;
+
+	return; // g->addNode(newMR, newMR->GetId());
 }
 
+template<typename Element>
 void
-CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
+CircuitGraphWithValues<Element>::processNodeDepth(CircuitNodeWithValue<Element> *n, queue<CircuitNodeWithValue<Element> *>& nodeQueue)
 {
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
@@ -190,9 +181,7 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 			nodeQueue.push(in);
 		}
 		else if( in->getOutputDepth() > inDepth ) {
-			if( insertMRbetween(this, in, n) == false ) {
-				throw std::logic_error("problem inserting mr");
-			}
+			insertMRbetween(this, in, n);
 		}
 		else if( in->getOutputDepth() < inDepth ) {
 			in->resetOutputDepth(inDepth);
@@ -206,17 +195,15 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 				if( otherOut == i )
 					continue;
 
-				CircuitNode *out = getNodeById(otherOut);
-				if( out == (CircuitNode *)0 ) {
+				CircuitNodeWithValue<Element> *out = getNodeById(otherOut);
+				if( out == 0 ) {
 					throw std::logic_error( "There is no node with id " + to_string(otherOut) + " for node " + to_string(in->GetId()) + " in the graph!!" );
 				}
 
 				usint outDepth = out->getInputDepth();
 
 				if( inDepth > outDepth ) {
-					if( insertMRbetween(this, in, out) == false ) {
-						throw std::logic_error("problem inserting mr");
-					}
+					insertMRbetween(this, in, out);
 				} else if( inDepth < outDepth ) {
 					cout << "Node " << otherOut << " has inputDepth " << outDepth
 							<< " and node " << in << " has outputDepth " << inDepth << endl;
@@ -226,18 +213,20 @@ CircuitGraph::processNodeDepth(CircuitNode *n, queue<CircuitNode *>& nodeQueue)
 	}
 }
 
+template<typename Element>
 void
-CircuitGraph::resetAllDepths()
+CircuitGraphWithValues<Element>::resetAllDepths()
 {
 	for( auto it = allNodes.begin() ; it != allNodes.end() ; it++ )
 		it->second->resetDepth();
 }
 
 
+template<typename Element>
 void
-CircuitGraph::processNodeDepth()
+CircuitGraphWithValues<Element>::processNodeDepth()
 {
-	queue<CircuitNode *> items;
+	queue<CircuitNodeWithValue<Element> *> items;
 
 	for( int i : this->getOutputs() )
 		items.push(allNodes[i]);

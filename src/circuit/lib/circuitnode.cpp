@@ -37,102 +37,61 @@ namespace lbcrypto {
 
 ostream& operator<<(ostream& out, const CircuitNode& n)
 {
-	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
-	if( n.getInputDepth() != 0 )
-		out << "(d=" + std::to_string(n.getInputDepth()) + ")\\n";
-	out << n.getNodeLabel();
-	if( n.IsOutput() ) {
-		out << "(output)\\n";
-	}
-
-	out << "\"]; ";
-
-	const vector<usint>& nodeInputs = n.getInputs();
-	for( usint input : nodeInputs )
-		out << input << " -> " << n.GetId() << "; ";
-
-	return out;
-}
-
-template<typename Element>
-ostream& CircuitNodeWithValue<Element>::Display(ostream& out, LPPrivateKey<Element> k)
-{
-	out << this->GetId() << "  [label=\"" << this->GetId() << "\\n";
-	if( this->getNode()->getInputDepth() != 0 )
-		out << "(d=" + std::to_string(this->getNode()->getInputDepth()) + ")\\n";
-	out << this->getNodeLabel();
-	if( this->IsOutput() ) {
-		out << "(output)\\n";
-	}
-
-	out << "\\n(noise=" << this->GetNoise() << ")\\n";
-
-	const Value<Element>& val = this->getValue();
-	if( val.GetType() != UNKNOWN ) {
-		val.Display(out, k);
-	}
-
-	out << "\"]; ";
-
-	const vector<usint>& nodeInputs = this->getNode()->getInputs();
-	for( usint input : nodeInputs )
-		out << input << " -> " << this->GetId() << "; ";
+//	out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
+//	if( n.getInputDepth() != 0 )
+//		out << "(d=" + std::to_string(n.getInputDepth()) + ")\\n";
+//	out << n.getNodeLabel();
+//	if( n.IsOutput() ) {
+//		out << "(output)\\n";
+//	}
+//
+//	out << "\"]; ";
+//
+//	const vector<usint>& nodeInputs = n.getInputs();
+//	for( usint input : nodeInputs )
+//		out << input << " -> " << n.GetId() << "; ";
 
 	return out;
-}
-
-void CircuitNode::CircuitVisit(CircuitGraph& g) {
-	if( Visited() )
-		return;
-
-	for( usint in : inputs ) {
-		CircuitNode *n = g.getNodeById(in);
-		n->CircuitVisit(g);
-	}
-
-	this->MarkEstimate();
-	Visit();
-	return;
 }
 
 template<typename Element>
 void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
-	if( Visited() )
+	if( this->Visited() )
 		return;
 
-	for( usint in : this->getNode()->getInputs() ) {
+	for( usint in : this->getInputs() ) {
 		CircuitNodeWithValue<Element> *n = g.getNodeById(in);
 		n->CircuitVisit(g);
 	}
 
-	Visit();
+	this->Visit();
 	return;
 }
 
 // note that for our purposes here, INT and VECTOR_INT can be considered the same thing
 // since an INT is simply a vector with one entry and the rest zeroes
 
-void EvalAddNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void EvalAddNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
+	this->Visit();
 
-	if( getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
+	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
-	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n0 = g.getNodeById(this->getInputs()[0]);
 	n0->simeval(g, ops);
-	usint noise = n0->GetNoise();
+	usint noise = n0->GetNoiseEstimate();
 
-	for( size_t i=1; i < getInputs().size(); i++ ) {
-		auto n1 = g.getNodeById(getInputs()[i]);
+	for( size_t i=1; i < this->getInputs().size(); i++ ) {
+		auto n1 = g.getNodeById(this->getInputs()[i]);
 		n1->simeval(g, ops);
 
-		noise += n1->GetNoise();
+		noise += n1->GetNoiseEstimate();
 	}
 
-	CircuitNode::Log(ops,GetId(),OpEvalAdd);
-	this->SetNoise( noise );
+	this->SetNoiseEstimate( noise );
 	return;
 }
 
@@ -141,30 +100,30 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
+	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	usint noise = n0->GetNoise();
+	usint noise = n0->GetNoiseActual();
 
 	stringstream ss;
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
 		ss << "EvalAdd of ";
-		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+		ss << this->getInputs()[0] << " (" << v0 << ")";
 	}
 
-	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
-		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
+	for( size_t i=1; i < this->getInputs().size(); i++ ) {
+		auto n1 = cg.getNodeById(this->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
-			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
 		}
 
 		v0 = v0 + v1;
 
-		noise += n1->GetNoise();
+		noise += n1->GetNoiseActual();
 	}
 
 	this->value = v0;
@@ -173,40 +132,38 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		cout << ss.str() << endl;
 	}
 
-	this->Log();
-	this->SetNoise( noise );
+	this->SetNoiseActual( noise );
 	return this->value;
 }
 
-void EvalSubNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void EvalSubNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
+	this->Visit();
 
-	if( getInputs().size() == 1 ) {
-		auto n0 = g.getNodeById(getInputs()[0]);
+	if( this->getInputs().size() == 1 ) {
+		auto n0 = g.getNodeById(this->getInputs()[0]);
 		n0->simeval(g,ops);
-		this->SetNoise( n0->GetNoise() );
-		CircuitNode::Log(ops,GetId(),OpEvalNeg);
+		this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 		return;
 	}
 
-	if( getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
+	if( this->getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
 
-	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n0 = g.getNodeById(this->getInputs()[0]);
 	n0->simeval(g,ops);
-	usint noise = n0->GetNoise();
+	usint noise = n0->GetNoiseEstimate();
 
-	for( size_t i=1; i < getInputs().size(); i++ ) {
-		auto n1 = g.getNodeById(getInputs()[i]);
+	for( size_t i=1; i < this->getInputs().size(); i++ ) {
+		auto n1 = g.getNodeById(this->getInputs()[i]);
 		n1->simeval(g,ops);
 
-		noise += n1->GetNoise();
+		noise += n1->GetNoiseEstimate();
 	}
 
-	CircuitNode::Log(ops,GetId(),OpEvalSub);
-	this->SetNoise( noise );
+	this->SetNoiseEstimate( noise );
 	return;
 }
 
@@ -217,51 +174,50 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	stringstream ss;
 
-	if( this->getNode()->getInputs().size() == 1 ) {
+	if( this->getInputs().size() == 1 ) {
 		// EvalNegate
-		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		Value<Element> v0( n0->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
 			ss << "EvalNegate of ";
-			ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+			ss << this->getInputs()[0] << " (" << v0 << ")";
 		}
 
 		this->value = -v0;
-		this->SetNoise( n0->GetNoise() );
+		this->SetNoiseActual( n0->GetNoiseActual() );
 
 		if( CircuitOpTrace ) {
 			cout << ss.str() << endl;
 		}
-		this->Log();
 
 		return this->value;
 	}
 
-	if( this->getNode()->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
+	if( this->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
-	usint noise = n0->GetNoise();
+	usint noise = n0->GetNoiseActual();
 
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
 		ss << "EvalSub of ";
-		ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
+		ss << this->getInputs()[0] << " (" << v0 << ")";
 	}
 
-	for( size_t i=1; i < this->getNode()->getInputs().size(); i++ ) {
-		auto n1 = cg.getNodeById(this->getNode()->getInputs()[i]);
+	for( size_t i=1; i < this->getInputs().size(); i++ ) {
+		auto n1 = cg.getNodeById(this->getInputs()[i]);
 		Value<Element> v1( n1->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
-			ss << " and " << this->getNode()->getInputs()[i] << " (" << v1 << ")";
+			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
 		}
 
 		v0 = v0 - v1;
 
-		noise += n1->GetNoise();
+		noise += n1->GetNoiseActual();
 	}
 
 	this->value = v0;
@@ -270,35 +226,33 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 		cout << ss.str() << endl;
 	}
 
-	this->Log();
-	this->SetNoise( noise );
+	this->SetNoiseActual( noise );
 	return this->value;
 }
 
-void EvalMultNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void EvalMultNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
-	if( getInputs().size() > 2 ) {
+	this->Visit();
+	if( this->getInputs().size() > 2 ) {
 		usint noiseTotal = 0;
-		for( auto nid : getInputs() ) {
+		for( auto nid : this->getInputs() ) {
 			auto n = g.getNodeById(nid);
 			n->simeval(g, ops);
-			noiseTotal += n->GetNoise();
+			noiseTotal += n->GetNoiseEstimate();
 		}
 
-		CircuitNode::Log(ops,GetId(),OpEvalMultMany);
-		this->SetNoise( noiseTotal );
+		this->SetNoiseEstimate( noiseTotal );
 	}
 	else {
-		auto n0 = g.getNodeById(getInputs()[0]);
-		auto n1 = g.getNodeById(getInputs()[1]);
+		auto n0 = g.getNodeById(this->getInputs()[0]);
+		auto n1 = g.getNodeById(this->getInputs()[1]);
 		n0->simeval(g,ops);
 		n1->simeval(g,ops);
 
-		CircuitNode::Log(ops,GetId(),OpEvalMult);
-		this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+		this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 	}
 	return;
 }
@@ -310,7 +264,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 
 	stringstream ss;
 
-	if( this->getNode()->getInputs().size() > 2 ) {
+	if( this->getInputs().size() > 2 ) {
 		usint noiseTotal = 0;
 		vector<Ciphertext<Element>> cvec;
 
@@ -319,9 +273,9 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 			ss << "EvalMultMany ";
 		}
 
-		for( auto nid : this->getNode()->getInputs() ) {
+		for( auto nid : this->getInputs() ) {
 			auto n = cg.getNodeById(nid);
-			noiseTotal += n->GetNoise();
+			noiseTotal += n->GetNoiseActual();
 			Value<Element> v( n->eval(cc,cg) );
 			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
@@ -332,48 +286,47 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 
 		this->value = cc->EvalMultMany( cvec );
 
-		this->SetNoise( noiseTotal );
+		this->SetNoiseActual( noiseTotal );
 	}
 	else {
-		auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-		auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+		auto n0 = cg.getNodeById(this->getInputs()[0]);
+		auto n1 = cg.getNodeById(this->getInputs()[1]);
 		Value<Element> v0( n0->eval(cc,cg) );
 		Value<Element> v1( n1->eval(cc,cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
 			ss << "EvalMult ";
-			ss << this->getNode()->getInputs()[0] << " (" << v0 << ")";
-			ss << " and " << this->getNode()->getInputs()[1] << " (" << v1 << ")";
+			ss << this->getInputs()[0] << " (" << v0 << ")";
+			ss << " and " << this->getInputs()[1] << " (" << v1 << ")";
 		}
 
 		this->value = v0 * v1;
 
-		this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+		this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
 	}
 
 	if( CircuitOpTrace ) {
 		cout << ss.str() << endl;
 	}
 
-	this->Log();
 	return this->value;
 }
 
-void EvalRShiftNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void EvalRShiftNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
-	if( getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
+	this->Visit();
+	if( this->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
 
-	auto n0 = g.getNodeById(getInputs()[0]);
-	auto n1 = g.getNodeById(getInputs()[1]);
+	auto n0 = g.getNodeById(this->getInputs()[0]);
+	auto n1 = g.getNodeById(this->getInputs()[1]);
 	n0->simeval(g,ops);
 	n1->simeval(g,ops);
 
-	CircuitNode::Log(ops,GetId(),OpEvalMult);
-	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 	return;
 }
 
@@ -382,34 +335,33 @@ Value<Element> EvalRShiftNodeWithValue<Element>::eval(CryptoContext<Element> cc,
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
+	if( this->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
-	auto n1 = cg.getNodeById(this->getNode()->getInputs()[1]);
+	auto n0 = cg.getNodeById(this->getInputs()[0]);
+	auto n1 = cg.getNodeById(this->getInputs()[1]);
 	Value<Element> v0( n0->eval(cc,cg) );
 	Value<Element> v1( n1->eval(cc,cg) );
 
 	this->value = v0 >> v1;
 
-	this->Log();
-	this->SetNoise( n0->GetNoise() * n1->GetNoise() );
+	this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
 	return this->value;
 }
 
-void EvalInnerProdNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void EvalInnerProdNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
-	if( getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
+	this->Visit();
+	if( this->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
-	auto n0 = g.getNodeById(getInputs()[0]);
-	auto n1 = g.getNodeById(getInputs()[1]);
+	auto n0 = g.getNodeById(this->getInputs()[0]);
+	auto n1 = g.getNodeById(this->getInputs()[1]);
 	n0->simeval(g,ops);
 	n1->simeval(g,ops);
 
-	CircuitNode::Log(ops,GetId(),OpEvalMult);
-	this->SetNoise( n0->GetNoise() + n1->GetNoise() );
+	this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 	return;
 }
 
@@ -418,9 +370,9 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
+	if( this->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
-	int vecsize = this->getNode()->getInputs().size()/2;
+	int vecsize = this->getInputs().size()/2;
 	auto logsize = log2(vecsize);
 	int logfl = (int)floor(logsize);
 	if( logfl != logsize ) // power of 2
@@ -442,7 +394,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 		ss << "EvalMerge: {\n";
 	}
 
-	for( auto i = 0; i < this->getNode()->getInputs().size(); i++ ) {
+	for( auto i = 0; i < this->getInputs().size(); i++ ) {
 		if( i == vecsize ) {
 			vecp = &vec2;
 			if( CircuitOpTrace ) {
@@ -450,13 +402,13 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 			}
 		}
 
-		Value<Element> v( cg.getNodeById(this->getNode()->getInputs()[i])->eval(cc, cg) );
+		Value<Element> v( cg.getNodeById(this->getInputs()[i])->eval(cc, cg) );
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
 
 		if( CircuitOpTrace ) {
-			ss << this->getNode()->getInputs()[i] << " (" << v << ")\n";
+			ss << this->getInputs()[i] << " (" << v << ")\n";
 		}
 		vecp->push_back( v.GetCiphertextValue() );
 	}
@@ -466,9 +418,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	auto arg2 = cc->EvalMerge(vec2);
 
 	if( CircuitOpTrace ) {
-		ss << "}\nEvalInnerProduct (";
-		ss <<  arg1;
-		ss << ")\n and (" << arg2 << ")\n depth " << innerProdDepth;
+		ss << "}\nEvalInnerProduct of results, depth " << innerProdDepth;
 	}
 
 	this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
@@ -477,23 +427,22 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 		cout << ss.str() << endl;
 	}
 
-	this->Log();
 	// FIXME this->SetNoise( ???? );
 	return this->value;
 }
 
-void ModReduceNode::simeval(CircuitGraph& g, vector<CircuitSimulation>& ops) {
-	if( Visited() )
+template<typename Element>
+void ModReduceNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
+	if( this->Visited() )
 		return; // visit only once!
 
-	Visit();
-	if( getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
+	this->Visit();
+	if( this->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
-	auto n0 = g.getNodeById(getInputs()[0]);
+	auto n0 = g.getNodeById(this->getInputs()[0]);
 	n0->simeval(g,ops);
 
-	CircuitNode::Log(ops,GetId(),OpModReduce);
-	this->SetNoise( n0->GetNoise() );
+	this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 	return;
 }
 
@@ -502,9 +451,9 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 	if( this->value.GetType() != UNKNOWN )
 		return this->value;
 
-	if( this->getNode()->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
+	if( this->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
-	auto n0 = cg.getNodeById(this->getNode()->getInputs()[0]);
+	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	Value<Element> v0( n0->eval(cc,cg) );
 
 	switch( v0.GetType() ) {
@@ -524,12 +473,11 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 		break;
 	}
 
-	this->Log();
-	this->SetNoise( n0->GetNoise() );
+	this->SetNoiseActual( n0->GetNoiseActual() );
 	return this->value;
 }
 
-#define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(node); }
+#define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(n); }
 
 template<typename Element>
 CircuitNodeWithValue<Element> *CircuitNodeWithValue<Element>::ValueNodeFactory( CircuitNode *n ) {

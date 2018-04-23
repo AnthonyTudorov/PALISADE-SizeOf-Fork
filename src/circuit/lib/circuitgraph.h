@@ -69,40 +69,13 @@ class CircuitGraph {
 				std::find(inputs.begin(), inputs.end(), id) == inputs.end();
 	}
 
-	void processNodeDepth(CircuitNode *n, queue<CircuitNode*>&);
-
 public:
 	CircuitGraph() {}
 	virtual ~CircuitGraph() {}
 
-	int GenNodeNumber() { return allNodes.size(); }
+	int GenNodeNumber() { return allNodes.rbegin()->first + 1; }
 
 	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
-
-	void processNodeDepth();
-
-	void DisplayGraph(ostream* f) const;
-
-	void Preprocess();
-
-	void GenerateOperationList(vector<CircuitSimulation>& ops);
-
-	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
-	void PrintRuntimeEstimates(ostream& out);
-
-	void ClearVisited() {
-		for( auto node : allNodes )
-			node.second->ClearVisit();
-	}
-
-	double GetRuntime() const {
-		double	total = 0;
-		for( auto node : allNodes )
-			if( node.second->Visited() ) {
-				total += node.second->GetEstimate();
-			}
-		return total;
-	}
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);
@@ -140,14 +113,14 @@ public:
 
 	const vector<usint>& getInputs() const { return inputs; }
 	const vector<usint>& getOutputs() const { return outputs; }
-
-	void resetAllDepths();
 };
 
 template<typename Element>
 class CircuitGraphWithValues {
 	CircuitGraph&								g;
 	map<usint,CircuitNodeWithValue<Element>*>	allNodes;
+
+	void processNodeDepth(CircuitNodeWithValue<Element> *n, queue<CircuitNodeWithValue<Element>*>&);
 
 public:
 	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
@@ -162,6 +135,8 @@ public:
 		}
 		allNodes.clear();
 	}
+
+	int GenNodeNumber() { return allNodes.rbegin()->first + 1; }
 
 	LPPrivateKey<Element>	_graph_key;
 
@@ -178,6 +153,14 @@ public:
 		return it->second;
 	}
 
+	void Preprocess();
+	void GenerateOperationList(vector<CircuitSimulation>& ops);
+
+	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
+	void PrintRuntimeEstimates(ostream& out);
+
+	void processNodeDepth();
+	void resetAllDepths();
 	void Execute(CryptoContext<Element> cc);
 
 	wire_type GetTypeForNode(usint id) {
@@ -187,7 +170,7 @@ public:
 		return UNKNOWN;
 	}
 
-	void DisplayGraph(ostream* f) const;
+	void DisplayGraph(ostream& f) const;
 	void DisplayDecryptedGraph(ostream& f, LPPrivateKey<Element> k) const;
 
 	void ClearVisited() {
@@ -201,11 +184,20 @@ public:
 		}
 	}
 
+	double GetEstimatedRuntime() const {
+		double	total = 0;
+		for( auto node : allNodes )
+			if( node.second->Visited() ) {
+				total += node.second->GetRuntimeEstimate();
+			}
+		return total;
+	}
+
 	double GetRuntime() const {
 		double	total = 0;
 		for( auto node : allNodes )
 			if( node.second->Visited() )
-				total += node.second->GetRuntime();
+				total += node.second->GetRuntimeActual();
 		return total;
 	}
 };

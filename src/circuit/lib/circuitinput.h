@@ -88,9 +88,14 @@ class CircuitObject {
 	usint		ival = 0;
 	Plaintext	pt;
 	Ciphertext<Element> ct;
+
 	//	shared_ptr<RationalCiphertext<Element>> rct;
 	//	shared_ptr<Matrix<Ciphertext<Element>>> mct;
+
 	shared_ptr<Matrix<RationalCiphertext<Element>>> mrct;
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
+
 
 public:
 	CircuitObject() : t(UNKNOWN) {}
@@ -362,28 +367,45 @@ public:
 		return cc->EvalRightShift(this->GetCiphertextValue(), other.GetIntValue());
 	}
 
-	friend ostream& operator<<(ostream& out, const CircuitObject<Element>& e) {
-		LPPrivateKey<Element> key;
-		return e.Display(out, key);
-	}
-
-	ostream& Display(ostream& out, LPPrivateKey<Element>& key) const {
+	// decrypts any ciphertexts and saves the results
+	void Decrypt(LPPrivateKey<Element> key) {
 		switch( this->GetType() ) {
 		case PLAINTEXT:
-			out << this->GetPlaintextValue();
+		case INT:
 			break;
 
-		case INT:
-			out << this->GetIntValue();
+		case MATRIX_RAT: {
+			auto op1 = this->GetMatrixRtValue();
+			auto cc = (*op1)(0,0).GetCryptoContext();
+			cc->DecryptMatrix(key, this->GetMatrixRtValue(), &numerator, &denominator);
+		}
 			break;
 
 		case CIPHERTEXT: {
-			if( key ) {
-				auto ct = this->GetCiphertextValue();
-				auto cc = ct->GetCryptoContext();
-				Plaintext result;
-				cc->Decrypt(key, ct, &result);
-				out << result;
+			auto ct = this->GetCiphertextValue();
+			auto cc = ct->GetCryptoContext();
+			cc->Decrypt(key, ct, &pt);
+		}
+		break;
+
+		default:
+			break;
+		}
+	}
+
+	friend ostream& operator<<(ostream& out, const CircuitObject<Element>& e) {
+		switch( e.GetType() ) {
+		case PLAINTEXT:
+			out << e.GetPlaintextValue();
+			break;
+
+		case INT:
+			out << e.GetIntValue();
+			break;
+
+		case CIPHERTEXT: {
+			if( e.GetPlaintextValue() ) {
+				out << e.GetPlaintextValue();
 			}
 			else {
 				out << "CIPHERTEXT";
@@ -392,20 +414,15 @@ public:
 		break;
 
 		case MATRIX_RAT: {
-			if( key ) {
-				auto op1 = this->GetMatrixRtValue();
-				auto cc = (*op1)(0,0).GetCryptoContext();
-
-				shared_ptr<Matrix<Plaintext>> numerator;
-				shared_ptr<Matrix<Plaintext>> denominator;
-				cc->DecryptMatrix(key, this->GetMatrixRtValue(), &numerator, &denominator);
-
-				for( size_t r=0; r < this->GetMatrixRtValue()->GetRows(); r++ ) {
+			auto n = e.GetNumerator();
+			auto d = e.GetDenominator();
+			if( n ) {
+				for( size_t r=0; r < e.GetMatrixRtValue()->GetRows(); r++ ) {
 					out << "Row " << r << std::endl;
-					for( size_t c=0; c < this->GetMatrixRtValue()->GetCols(); c++ ) {
+					for( size_t c=0; c < e.GetMatrixRtValue()->GetCols(); c++ ) {
 						out << "Col " << c << " n/d = ";
-						out << (*numerator)(r,c) << " / ";
-						out << (*denominator)(r,c) << std::endl;
+						out << (*n)(r,c) << " / ";
+						out << (*d)(r,c) << std::endl;
 					}
 				}
 			}
@@ -416,7 +433,7 @@ public:
 		break;
 
 		default:
-			out << "<<<Don't know how to print a " << this->GetType() << ">>>";
+			out << "<<<Don't know how to print a " << e.GetType() << ">>>";
 			break;
 		}
 		return out;
@@ -426,6 +443,8 @@ public:
 	Plaintext GetPlaintextValue() const { return pt; }
 	Ciphertext<Element> GetCiphertextValue() const { return ct; }
 	shared_ptr<Matrix<RationalCiphertext<Element>>> GetMatrixRtValue() const { return mrct; }
+	shared_ptr<Matrix<Plaintext>> GetNumerator() const { return numerator; }
+	shared_ptr<Matrix<Plaintext>> GetDenominator() const { return denominator; }
 };
 
 }
