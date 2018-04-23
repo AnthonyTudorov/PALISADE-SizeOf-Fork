@@ -1,0 +1,106 @@
+#
+#Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+#All rights reserved.
+#Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+#met:
+#1. Redistributions of source code must retain the above copyright
+#notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#notice, this list of conditions and the following disclaimer in the
+#documentation and/or other materials provided with the distribution.
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+#IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#PARTICULAR PURPOSE ARE DISCLAIMED.
+#IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+################
+# Makefile.wip builds the wip components of the PALISADE library
+# Includes unit tests and demos
+################
+
+WIPSRCDIR := src/wip
+WIPBINDIR := $(BINDIR)/build/wip
+WIPTESTDIR := src/wip/unittest
+WIPDEMODIR := src/wip/demo
+
+##WIPSOURCES := $(wildcard $(WIPSRCDIR)/lib/*/*.cpp)
+WIPSOURCES := $(shell find $(WIPSRCDIR)/lib -name '*.cpp' ! -name '*-public.cpp')
+WIPUNITSOURCES := $(wildcard $(WIPSRCDIR)/unittest/*.cpp)
+WIPDEMOSOURCES := $(wildcard $(WIPSRCDIR)/demo/*.cpp)
+
+WIPOBJECTSALL = $(patsubst $(WIPSRCDIR)/%,$(WIPBINDIR)/%,$(patsubst %.cpp,%.o,$(WIPSOURCES)))
+##WIPOBJECTS = $(filter %-impl.o,$(WIPOBJECTSALL))
+WIPOBJECTS = $(patsubst $(WIPSRCDIR)/%,$(WIPBINDIR)/%,$(patsubst %.cpp,%.o,$(WIPSOURCES)))
+
+WIPUNITOBJECTS := $(patsubst $(WIPSRCDIR)/%,$(WIPBINDIR)/%,$(patsubst %.cpp,%.o,$(WIPUNITSOURCES)))
+WIPDEMOOBJECTS += $(patsubst $(WIPSRCDIR)/%,$(WIPBINDIR)/%,$(patsubst %.cpp,%.o,$(WIPDEMOSOURCES)))
+
+WIP_TEST_TARGET := $(EXTTESTDIR)/wip/tests$(EXESUFFIX)
+
+-include $(WIPOBJECTS:.o=.d)
+-include $(WIPUNITOBJECTS:.o=.d)
+-include $(WIPDEMOOBJECTS:.o=.d)
+
+.PHONY:allwip
+allwip: $(EXTLIBDIR)/$(PALISADEWIPLIB) $(WIP_TEST_TARGET) allwipdemos
+
+allwipdemos: $(patsubst $(WIPBINDIR)/demo/%,$(BINDIR)/demo/wip/%,$(patsubst %.o,%$(EXESUFFIX),$(WIPDEMOOBJECTS)))
+
+$(BINDIR)/demo/wip/%$(EXESUFFIX): $(WIPBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEWIPLIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
+	@mkdir -p $(@D)
+	$(CC) -o $@ $< $(EXTLIB) -lPALISADEwip -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
+
+#this builds the palisade library out of the objects
+$(EXTLIBDIR)/$(PALISADEWIPLIB): $(WIPOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(NTLLIB) $(GMPLIB)
+	@echo " -- wip:linking $@ from WIPOBJECTS"
+	@mkdir -p $(EXTLIBDIR)
+ifdef COVERAGE
+	$(LIBCMD) $@ $(WIPOBJECTS)
+else
+	$(LIBCMD) $@ $(WIPOBJECTS)  $(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
+endif
+
+### #this builds the individual objects that make up the library .
+.PRECIOUS: $(WIPBINDIR)/%
+$(WIPBINDIR)/%:
+	@if [ "$(suffix $@)" = ".o" ] ;   \
+	then  \
+		mkdir -p $(@D)  ;\
+		echo $(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(WIPBINDIR)/%,$(WIPSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+		$(CC) -MM $(CPPFLAGS) $(INC) $(patsubst $(WIPBINDIR)/%,$(WIPSRCDIR)/%,$(patsubst %.o,%.cpp,$@)) > $(patsubst %.o,%.d,$@) ;\
+		mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)  ;\
+		sed -e 's|.*\.o:|$(WIPBINDIR)/$*:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)  ;\
+		rm -f $(patsubst %.o,%.d.tmp,$@)  ; \
+		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(WIPBINDIR)/%,$(WIPSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
+	fi
+
+.PHONY: cleanwip
+
+#this target is used to cleanup, it is called from the top Makefile
+cleanwip:
+	$(RM) -fr $(WIPBINDIR) $(EXTLIBDIR)/$(PALISADEWIPLIB) `dirname $(WIP_TEST_TARGET)` $(BINDIR)/demo/wip
+
+# this links test executable  from objects in the test build directory
+$(WIP_TEST_TARGET): $(UNITTESTMAINOBJ) $(WIPUNITOBJECTS) $(EXTLIBDIR)/$(PALISADEWIPLIB) $(EXTLIBDIR)/$(PALISADEPKELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
+	@mkdir -p `dirname $(WIP_TEST_TARGET)`
+	$(CC) -o $(WIP_TEST_TARGET) $(UNITTESTMAINOBJ) $(WIPUNITOBJECTS) $(EXTLIB) -lPALISADEwip -lPALISADEpke -lPALISADEcore $(TEST_LIB) $(NTLLIB) $(GMPLIB)
+
+#used to run tests from make
+.PHONY: testwip
+testwip: $(WIP_TEST_TARGET)
+	$(WIP_TEST_TARGET)
+
+wipstrings:
+	@echo $(WIPSOURCES)
+	@echo $(WIPOBJECTS)
