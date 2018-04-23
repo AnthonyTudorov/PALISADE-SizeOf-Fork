@@ -104,5 +104,7 @@ cleanwrappers:
 	$(RM) -r  build/wrappers/java/PalisadeCryptoWrapper.o
 	$(RM) -r src/wrappers/java/PalisadeCrypto/src/com/palisade/*.class
 	$(RM) -r $(EXTLIBDIR)/$(JNILIB) $(EXTLIBDIR)/PalisadeCrypto.jar
-
+	$(RM) -r $(PYBINDIR)/*.o
+	$(RM) -r $(PYBINDIR)/*.d
+	$(RM) -r $(EXTLIBDIR)/$(PALISADEPYLIB)
 
