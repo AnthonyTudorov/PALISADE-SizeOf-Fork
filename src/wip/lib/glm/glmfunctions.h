@@ -8,7 +8,11 @@
 
 #include "cryptocontexthelper.h"
 
+//#include "encoding/byteplaintextencoding.h"
+//#include "encoding/packedintplaintextencoding.h"
+//#include "encoding/signedintplaintextencoding.h"
 #include "encoding/encodings.h"
+#include "encoding/decimalencoding.h"
 
 #include "../demo/Temp-matrixinverse.h"
 
