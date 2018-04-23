@@ -284,6 +284,9 @@ main(int argc, char *argv[])
 	// create a circuit with values from the graph
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
 
+	// create a circuit with values from the graph
+	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
+
 	if( print_input_graph ) {
 		cir.GetGraph().DisplayGraph(*inGraph);
 		if( inGF.is_open() )
@@ -420,8 +423,7 @@ main(int argc, char *argv[])
 
 	if( print_all_flag ) {
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			cout << "For node " << node.first << " Value: ";
-			node.second->getValue().Display(cout, kp.secretKey) << endl;
+			cout << "For node " << node.first << " Value: " << node.second->getValue() << endl;
 		}
 	}
 

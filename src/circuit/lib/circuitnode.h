@@ -374,61 +374,63 @@ public:
 
 class ConstInt : public CircuitNode {
 	int64_t val;
+
+protected:
+	void CopyValues(CircuitNode *n) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *n );
+		this->val = nn.val;
+		CircuitNode::CopyValues(n);
+	}
+
 public:
 	ConstInt(usint id, int64_t val) : CircuitNode(id), val(val) {
 		this->setAsInput();
-		this->runtime = new TimingStatistics(0,0,0,0);
 	}
 
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		if( !Visited() ) {
-			Visit();
-			noiseval = DEFAULTNOISEVAL;
-		}
-	}
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(const int)"; }
 	wire_type GetType() const { return INT; }
 	int64_t GetInt() const { return val; }
 };
 
 template<typename Element>
 class ConstIntWithValue : public CircuitNodeWithValue<Element> {
-	int64_t val;
 public:
-	ConstIntWithValue(ConstInt* in) : CircuitNodeWithValue<Element>(in), val(in->GetInt()) {
-		this->value = Value<Element>(in->GetInt());
+	ConstIntWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
+		this->value = Value<Element>(nn.GetInt());
 	}
-	int64_t GetInt() const { return val; }
+
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const int)"; }
 };
 
 class ConstPtxt : public CircuitNode {
 	int64_t val;
+
+protected:
+	void CopyValues(CircuitNode *n) {
+		ConstPtxt& nn = dynamic_cast<ConstPtxt&>( *n );
+		this->val = nn.val;
+		CircuitNode::CopyValues(n);
+	}
+
 public:
 	ConstPtxt(usint id, int64_t val) : CircuitNode(id),val(val) {
 		this->setAsInput();
-		this->runtime = new TimingStatistics(0,0,0,0);
 	}
 
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		if( !Visited() ) {
-			Visit();
-			noiseval = DEFAULTNOISEVAL;
-		}
-	}
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(const plaintext)"; }
 	wire_type GetType() const { return PLAINTEXT; }
 	int64_t GetInt() const { return val; }
 };
 
 template<typename Element>
 class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
-	int64_t val; // have to save the value because we need it at Eval time
 public:
-	ConstPtxtWithValue(ConstPtxt* in) : CircuitNodeWithValue<Element>(in), val(in->GetInt()) {}
-	int64_t GetValue() const { return val; }
-	void SetValue(const Value<Element>& v) { this->value = v; }
+	ConstPtxtWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
+		this->setValue(nn.GetInt());
+	}
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const plaintext)"; }
 };
 
 class ModReduceNode : public CircuitNode {
@@ -565,17 +567,19 @@ public:
 	EvalInnerProdNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	OpType OpTag() const { return OpEvalInnerProduct; }
-	string getNodeLabel() const { return "o"; }
 };
 
 template<typename Element>
 class EvalInnerProdNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	EvalInnerProdNodeWithValue(EvalInnerProdNode* node) : CircuitNodeWithValue<Element>(node) {}
+	EvalInnerProdNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
+
+	OpType OpTag() const { return OpEvalInnerProduct; }
+	string getNodeLabel() const { return "o"; }
+
+	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
+
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 
 	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
