@@ -209,8 +209,12 @@ main(int argc, char *argv[])
 
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
-			genCryptoContextBFVrns(ep,1.004,3.19,0,6,0,OPTIMIZED,2,30);
+			genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
 			//genCryptoContextNull(32, ep);
+
+	std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cc->GetRingDimension() << std::endl;
+	std::cout << "log2 q = " << log2(cc->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);

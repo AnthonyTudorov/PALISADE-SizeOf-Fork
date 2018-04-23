@@ -63,6 +63,7 @@ using namespace lbcrypto;
 
 void ArbBGVLinearRegressionPackedArray();
 void ArbBFVInnerProductPackedArray();
+void BFVrnsInnerProductPackedArray();
 
 int main() {
 
@@ -73,6 +74,10 @@ int main() {
 	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY)===============: " << std::endl;
 
 	ArbBFVInnerProductPackedArray();
+
+	std::cout << "\n===========BFV TESTS (INNER-PRODUCT-ARBITRARY - POWER OF TWO CYCLOTOMICS)===============: " << std::endl;
+
+	BFVrnsInnerProductPackedArray();
 
 	std::cout << "Please press any key to continue..." << std::endl;
 
@@ -268,6 +273,77 @@ void ArbBFVInnerProductPackedArray() {
 	////////////////////////////////////////////////////////////
 
 	auto result = cc->EvalLinRegressBatched(x, y, 8);
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	shared_ptr<Matrix<Plaintext>> numerator;
+	shared_ptr<Matrix<Plaintext>> denominator;
+
+	cc->DecryptMatrix(kp.secretKey, result, &numerator, &denominator);
+
+	std::cout << (*numerator)(0, 0)->GetPackedValue()[0] << "," << (*numerator)(1, 0)->GetPackedValue()[0] << std::endl;
+	std::cout << (*denominator)(0, 0)->GetPackedValue()[0] << "," << (*denominator)(1, 0)->GetPackedValue()[0] << std::endl;
+
+}
+
+void BFVrnsInnerProductPackedArray() {
+
+	const PlaintextModulus ptm = 1073872897;
+
+	EncodingParams ep( new EncodingParamsImpl(ptm) );
+
+	CryptoContext<DCRTPoly> cc =
+			CryptoContextFactory<DCRTPoly>::
+			genCryptoContextBFVrns(ep,1.004,3.19,0,3,0,OPTIMIZED,2,30);
+
+	ep->SetBatchSize(1024);
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	std::cout << "Starting key generation" << std::endl;
+
+	// Initialize the public key containers.
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+
+	// Compute evaluation keys
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp.secretKey);
+
+	auto zeroAlloc = [=]() { return cc->MakePackedPlaintext({0}); };
+
+	Matrix<Plaintext> xP = Matrix<Plaintext>(zeroAlloc, 1, 2);
+
+	xP(0, 0) = cc->MakePackedPlaintext({ 5, 1, 0, 0, 0, 0, 3, 4, 2, 0 });
+	xP(0, 1) = cc->MakePackedPlaintext({ 1, 3, 0, 5, 1, 5, 5, 4, 2, 1 });
+
+	std::cout << "Input array X0 \n\t" << xP(0, 0) << std::endl;
+	std::cout << "Input array X1 \n\t" << xP(0, 1) << std::endl;
+
+	Matrix<Plaintext> yP = Matrix<Plaintext>(zeroAlloc, 2, 1);
+
+	yP(0, 0) = cc->MakePackedPlaintext({ 3, 4, 5, 0, 5, 2, 0, 2, 2, 1 });
+	std::cout << "Input array Y \n\t" << yP(0, 0) << std::endl;
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Starting encryption of x" << std::endl;
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> x = cc->EncryptMatrix(kp.publicKey, xP);
+
+	std::cout << "Starting encryption of y" << std::endl;
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> y = cc->EncryptMatrix(kp.publicKey, yP);
+
+	////////////////////////////////////////////////////////////
+	//Linear Regression
+	////////////////////////////////////////////////////////////
+
+	auto result = cc->EvalLinRegressBatched(x, y, 16);
 
 	////////////////////////////////////////////////////////////
 	//Decryption
