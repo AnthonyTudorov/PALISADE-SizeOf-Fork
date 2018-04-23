@@ -19,7 +19,7 @@
 
 #include <boost/python.hpp>
 
-#include "wip/lib/glm/glmfunctions.h"
+#include "../../wip/lib/glm/glmfunctions.h"
 
 namespace glmcrypto {
 
