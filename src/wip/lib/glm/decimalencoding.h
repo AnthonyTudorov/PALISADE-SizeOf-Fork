@@ -31,8 +31,8 @@
 #include "inttypes.h"
 #include <vector>
 #include <initializer_list>
-#include "plaintext.h"
-#include "encodingparams.h"
+#include "encoding/plaintext.h"
+#include "encoding/encodingparams.h"
 #include <functional>
 #include <numeric>
 

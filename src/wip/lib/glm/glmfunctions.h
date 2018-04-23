@@ -9,6 +9,7 @@
 #include "cryptocontexthelper.h"
 
 #include "encoding/encodings.h"
+#include "decimalencoding.h"
 
 #include "../demo/Temp-matrixinverse.h"
 
