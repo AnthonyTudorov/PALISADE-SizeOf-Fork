@@ -149,6 +149,7 @@ include Makefile.core
 include Makefile.pke
 include Makefile.trapdoor
 include Makefile.circuit
+include Makefile.wip
 
 include Makefile.gmp
 include Makefile.ntl
