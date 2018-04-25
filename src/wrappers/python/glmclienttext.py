@@ -13,7 +13,7 @@ from decimal import *
 ##########################################################
 ##########################################################
 
-regSel = 2
+regSel = 3
 
 regAlg = ""
 MAXVALUE              = 0
@@ -70,7 +70,7 @@ elif regAlg == "POISSON":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 4
+    REGRLOOPCOUNT         = 12
 
     NUMTHREADS            = 8
     
@@ -104,7 +104,7 @@ ciphertextC1C2FileName = "ciphertext-C1C2"
 keyDir                  = "demoData/python/glm/client/keyDir"
 keyfileName             = "keyFileLinReg"
 plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
-plaintextDataFileName   = "fishData.csv"
+plaintextDataFileName   = "case3_poisson.csv"
 ciphertextDataDir       = "demoData/python/glm/client/ciphertextDataDir"
 ciphertextDataFileName  = "Vertical_Artifical_Data"
 ciphertextResultDir     = "demoData/python/glm/client/ciphertextResultDir" 
@@ -140,7 +140,7 @@ timing["Encrypt"] = timing["Encrypt"] + (t1-t0)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 ## Connect the socket to the port where the server is listening
-server_address = ('localhost', 1313)
+server_address = ('localhost', 1515)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
@@ -333,7 +333,7 @@ for loop in range(REGRLOOPCOUNT):
     print '################################'
     print '   Results for w - Iteration ', loop
     print '################################'  
-    print 'Comp:', regResults
+    print 'Comp: %.16f'% regResults
     # If the input data is fishData.csv display the real result
     if plaintextDataFileName == "fishData.csv":
         print 'Real:', realResults[loop]

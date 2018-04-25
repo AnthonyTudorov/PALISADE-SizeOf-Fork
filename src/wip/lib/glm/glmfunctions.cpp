@@ -217,6 +217,8 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
 		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
 		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
+
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -231,6 +233,9 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
 
 		LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(cc[k], pkFileName);
 		pk.push_back(pkt);
+
+		LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(cc[k], skFileName);
+		sk.push_back(skt);
 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
@@ -276,8 +281,8 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
     }
 
     auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
-
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C2;
+
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2t = MultiplyXAddYMu(cc[k], y[k], x[k], muC[k]);
 		C2.push_back(C2t);
@@ -940,8 +945,8 @@ vector<double> GLMClientRescaleRegressor(string keyDir,
 
     shared_ptr<Matrix<double>> C1C2PlaintextCRTDouble (new Matrix<double>(zeroAllocDouble, 1, numRegressors));
     ConvertUnsingedToSigned(*numeratorC1C2CRT, *C1C2PlaintextCRTDouble, primeList);
-
-//	PrintMatrixDouble(*C0C1C2PlaintextCRTDouble);
+//  cout << "LAST\n\n";
+//	PrintMatrixDouble(*C1C2PlaintextCRTDouble);
 
     shared_ptr<Matrix<double>> C1C2Fixed(new Matrix<double>(zeroAllocDouble, 1, numRegressors));
     DecimalDecrement(*C1C2PlaintextCRTDouble, *C1C2Fixed, params.PRECISIONDECIMALSIZE*2+params.PRECISIONDECIMALSIZEX, params);
