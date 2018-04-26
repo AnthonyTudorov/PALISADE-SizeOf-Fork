@@ -24,8 +24,7 @@ ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
 ciphertextWFileName    = "ciphertext-w"
 
-ciphertextXTXFileName  = "ciphertext-xTx"
-ciphertextXWFileName  = "ciphertext-xw"
+ciphertextXWFileName   = "ciphertext-xw"
 
 ciphertextMUFileName    = "ciphertext-mu"
 ciphertextSFileName     = "ciphertext-S"
@@ -33,7 +32,7 @@ ciphertextSInvFileName  = "ciphertext-SInv"
 ciphertextC0FileName    = "ciphertext-C0"
 ciphertextC1FileName    = "ciphertext-C1"
 ciphertextC2FileName    = "ciphertext-C2"
-ciphertextC1C2FileName = "ciphertext-C1C2"
+ciphertextC1C2FileName  = "ciphertext-C1C2"
 
 timing = {"RecvParam":0.0, "RecvKeyCrypt":0.0, "RecvXY":0.0, "RecvW":0.0, "ComputeStep1":0.0, 
           "SendXW":0.0, "RecvMuS":0.0, "SendXTSX":0.0, "ComputeStep2":0.0, "SendC1":0.0, 
@@ -188,7 +187,7 @@ for loop in range(REGRLOOPCOUNT):
  
     print 'Comp:   C1=X^T*S*X (Step-2)...',
     t0 = time.time()
-    glm.Step2ComputeXTSX(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextXTXFileName, 
+    glm.Step2ComputeXTSX(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, 
                         ciphertextSFileName, ciphertextXFileName, ciphertextC1FileName, GlmParamList)
     t1 = time.time()
     timing["ComputeStep2"] = timing["ComputeStep2"] + (t1-t0)

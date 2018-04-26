@@ -128,7 +128,6 @@ namespace glmcrypto {
 						  const string keyfileName,
 						  const string ciphertextDataDir,
 						  const string ciphertextDataFileName,
-						  const string ciphertextResultFileName,
 						  const string ciphertextSFileName,
 						  const string ciphertextXFileName,
 						  const string ciphertextC1FileName,

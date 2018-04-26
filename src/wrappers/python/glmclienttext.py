@@ -70,7 +70,7 @@ elif regAlg == "POISSON":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 12
+    REGRLOOPCOUNT         = 1
 
     NUMTHREADS            = 8
     
@@ -92,14 +92,13 @@ ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
 ciphertextWFileName    = "ciphertext-w"
 
-ciphertextXWFileName  = "ciphertext-xw"
+ciphertextXWFileName   = "ciphertext-xw"
 
 ciphertextMUFileName    = "ciphertext-mu"
 ciphertextSFileName     = "ciphertext-S"
-ciphertextC0FileName    = "ciphertext-C0"
 ciphertextC1FileName    = "ciphertext-C1"
 ciphertextC2FileName    = "ciphertext-C2"
-ciphertextC1C2FileName = "ciphertext-C1C2"
+ciphertextC1C2FileName  = "ciphertext-C1C2"
 
 keyDir                  = "demoData/python/glm/client/keyDir"
 keyfileName             = "keyFileLinReg"
@@ -333,7 +332,7 @@ for loop in range(REGRLOOPCOUNT):
     print '################################'
     print '   Results for w - Iteration ', loop
     print '################################'  
-    print 'Comp: %.16f'% regResults
+    print 'Comp:', regResults
     # If the input data is fishData.csv display the real result
     if plaintextDataFileName == "fishData.csv":
         print 'Real:', realResults[loop]

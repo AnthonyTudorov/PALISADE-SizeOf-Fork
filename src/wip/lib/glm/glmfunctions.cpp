@@ -354,7 +354,60 @@ usint ComputeCyclotomicRing( glmParams & params){
 
 	return cc->GetCyclotomicOrder();
 }
+/*
+void threadTest(CryptoContext<DCRTPoly> &cc, LPKeyPair<DCRTPoly> &kp){
 
+    std::vector<uint64_t> vectorOfInts1;
+//    for(size_t i=0; i<cc->GetRingDimension(); i++)
+    	vectorOfInts1.push_back(0);
+
+    Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+
+    vector<Ciphertext<DCRTPoly>> c1_;
+    vector<Ciphertext<DCRTPoly>> c2_;
+    vector<Ciphertext<DCRTPoly>> c3_;
+    vector<Plaintext> res_;
+
+    size_t M = 20;
+
+    for(size_t i=0; i<M; i++){
+    	Ciphertext<DCRTPoly> c1 = cc->Encrypt(kp.publicKey, intArray1);
+    	Ciphertext<DCRTPoly> c2 = cc->Encrypt(kp.publicKey, intArray1);
+
+    	c1_.push_back(c1);
+    	c2_.push_back(c2);
+
+//    	Ciphertext<DCRTPoly> c3(new CiphertextImpl<DCRTPoly>(cc));
+//   	c3_.push_back(c3);
+    }
+    Ciphertext<DCRTPoly> t  = cc->EvalMult(c1_[0], c2_[0]);
+#pragma omp parallel for shared(M, cc, c1_, c2_) num_threads(8)
+    for(size_t i=0; i<M; i++){
+    	Ciphertext<DCRTPoly> c3 = cc->EvalMult(c1_[i], c2_[i]);
+#pragma omp critical
+{
+    	c3_.push_back(c3);
+}
+    }
+
+    for(size_t i=0; i<M; i++){
+    	Plaintext res;
+    	cc->Decrypt(kp.secretKey, c3_[i], &res);
+    	res_.push_back(res);
+    }
+
+    for(size_t i=0; i<M; i++){
+    	cout << "Test " << i << endl;
+    	cout << res_[i] << endl;
+
+//    	if(intArray1 == res_[i])
+//    		cout << "Test-" << i << "\t\t" << endl;
+//    	else
+//    		cout << "Test-" << i << "\t\t0" << endl;
+
+    }
+}
+*/
 void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 
 	usint m = ComputeCyclotomicRing(params);
@@ -429,6 +482,8 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 		SerializeContext(cc, keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
+
+//		threadTest(cc, kp);
 	}
 
 }
@@ -1754,16 +1809,25 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransS(CryptoContext<D
 //	#pragma omp parallel for shared(x, SC, xTSt, numRegressors, cc) default(shared) num_threads(NUMTHREADS)
 	#pragma omp parallel for num_threads(NUMTHREAD)
 	#endif
+/*
+	Ciphertext<DCRTPoly> xi = (*x)(0, 0).GetNumerator();
+	Ciphertext<DCRTPoly> si = (*SC)(0,0).GetNumerator();
+
+	Ciphertext<DCRTPoly> result = cc->EvalMult(xi, si);
+*/
+//#pragma omp parallel for shared(x, SC, xTSt, dataMatrixRowSize, numRegressors) num_threads(8) collapse(2)
 	for(size_t row = 0; row < dataMatrixRowSize; row++) {
 		for(size_t col = 0; col < numRegressors; col++) {
+//			if(row!=0 && col!=0){
+				Ciphertext<DCRTPoly> xi = (*x)(row, col).GetNumerator();
+				Ciphertext<DCRTPoly> si = (*SC)(row,0).GetNumerator();
 
-			const Ciphertext<DCRTPoly> xi = (*x)(row, col).GetNumerator();
-			const Ciphertext<DCRTPoly> si = (*SC)(row,0).GetNumerator();
-			Ciphertext<DCRTPoly> result = cc->EvalMult(xi, si);
+				Ciphertext<DCRTPoly> result = cc->EvalMult(xi, si);
 
-			(*xTSt)(row, col).SetNumerator(result);
+				(*xTSt)(row, col).SetNumerator(result);
+			}
 		}
-	}
+//	}
 	return xTSt;
 }
 
