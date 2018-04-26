@@ -141,6 +141,7 @@ namespace glmcrypto{
 			string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 			string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 			string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+			string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 			// Deserialize the crypto context
 			CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -164,6 +165,9 @@ namespace glmcrypto{
 			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
 			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.y.push_back(yt);
+
+			LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(context.cc[k], pkFileName);
+			context.pk.push_back(pkt);
 		}
 
 		//This is to create a dummy computation to create multiplication tables for BFVrns.
