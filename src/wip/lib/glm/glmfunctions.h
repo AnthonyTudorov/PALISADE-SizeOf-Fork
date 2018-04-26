@@ -64,6 +64,12 @@ struct timingParams{
 };
 #endif
 
+struct GLMContext{
+	vector<CryptoContext<DCRTPoly>> cc;
+	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
+	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> y;
+};
+
 struct glmParams{
 	uint64_t MAXVALUE;
 	uint64_t PRECISION;
@@ -103,11 +109,11 @@ struct pathList{
 /////////                     SERVER                            /////////
 /////////////////////////////////////////////////////////////////////////
 
-void GLMServerXW(pathList &path, glmParams & params);
+void GLMServerXW(GLMContext &context, pathList &path, glmParams & params);
 
-void GLMServerXTSX(pathList &path, glmParams & params);
+void GLMServerXTSX(GLMContext &context, pathList &path, glmParams & params);
 
-void GLMServerComputeRegressor(pathList &path, glmParams & params);
+void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & params);
 
 /////////////////////////////////////////////////////////////////////////
 /////////                     CLIENT                            /////////

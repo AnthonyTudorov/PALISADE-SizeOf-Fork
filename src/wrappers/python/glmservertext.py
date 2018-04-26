@@ -131,6 +131,8 @@ timing["RecvXY"] = timing["RecvXY"] + (t1-t0)
 print 'Completed'
 
 ##########################################################
+
+glm.SetGLMContext()
     
 for loop in range(REGRLOOPCOUNT):    
     totalstart = time.time()

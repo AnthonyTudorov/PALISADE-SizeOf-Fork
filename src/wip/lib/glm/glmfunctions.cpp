@@ -36,10 +36,8 @@ timingParams timingServer;
 /////////////////////////////////////////  Server SIDE  /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GLMServerXW(pathList &path, glmParams & params) {
+void GLMServerXW(GLMContext &context, pathList &path, glmParams & params) {
 
-	vector<CryptoContext<DCRTPoly>> cc;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> beta;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xTb;
 #ifdef MEASURE_TIMING
@@ -47,7 +45,7 @@ void GLMServerXW(pathList &path, glmParams & params) {
 	start = currentDateTime();
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
@@ -71,9 +69,9 @@ void GLMServerXW(pathList &path, glmParams & params) {
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
-
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> bt = DeserializeCiphertext(cc[k], pathToFile);
+*/
+		string pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> bt = DeserializeCiphertext(context.cc[k], pathToFile);
 		beta.push_back(bt);
 	}
 #ifdef MEASURE_TIMING
@@ -86,7 +84,7 @@ void GLMServerXW(pathList &path, glmParams & params) {
 #endif
 
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-        shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTbt = MultiplyWTransX(cc[k], x[k], beta[k]);
+        shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTbt = MultiplyWTransX(context.cc[k], context.x[k], beta[k]);
         xTb.push_back(xTbt);
     }
 
@@ -109,10 +107,10 @@ void GLMServerXW(pathList &path, glmParams & params) {
 #endif
 }
 
-void GLMServerXTSX(pathList &path, glmParams & params){
+void GLMServerXTSX(GLMContext &context, pathList &path, glmParams & params){
 
-	vector<CryptoContext<DCRTPoly>> cc;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
+//	vector<CryptoContext<DCRTPoly>> cc;
+//	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> SC;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C0;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1;
@@ -122,11 +120,11 @@ void GLMServerXTSX(pathList &path, glmParams & params){
 	start = currentDateTime();
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+//		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -146,9 +144,9 @@ void GLMServerXTSX(pathList &path, glmParams & params){
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+ "-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
-
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextSFileName +"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = DeserializeCiphertext(cc[k], pathToFile);
+*/
+		string pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextSFileName +"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = DeserializeCiphertext(context.cc[k], pathToFile);
 		SC.push_back(SCt);
 	}
 #ifdef MEASURE_TIMING
@@ -160,12 +158,12 @@ void GLMServerXTSX(pathList &path, glmParams & params){
 	start = currentDateTime();
 #endif
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTSt = MultiplyXTransS(cc[k], x[k], SC[k]);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTSt = MultiplyXTransS(context.cc[k], context.x[k], SC[k]);
 		C0.push_back(xTSt);
 	}
 
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTSxt = MultiplyXTransSX(cc[k], x[k], C0[k]);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTSxt = MultiplyXTransSX(context.cc[k], context.x[k], C0[k]);
 		C1.push_back(xTSxt);
 	}
 #ifdef MEASURE_TIMING
@@ -188,18 +186,16 @@ void GLMServerXTSX(pathList &path, glmParams & params){
 
 }
 
-void GLMServerComputeRegressor(pathList &path, glmParams & params){
+void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & params){
 
-	vector<CryptoContext<DCRTPoly>> cc;
-	vector<LPPublicKey<DCRTPoly>> pk;
-	vector<LPPrivateKey<DCRTPoly>> sk;
+//	vector<CryptoContext<DCRTPoly>> cc;
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> w;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
+//	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> muC;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> y;
+//	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> y;
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1C2;
 
@@ -208,7 +204,7 @@ void GLMServerComputeRegressor(pathList &path, glmParams & params){
 	start = currentDateTime();
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
@@ -227,36 +223,30 @@ void GLMServerComputeRegressor(pathList &path, glmParams & params){
 		EncodingParams encodingParams = cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-		LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(cc[k], pkFileName);
-		pk.push_back(pkt);
-
-		LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(cc[k], skFileName);
-		sk.push_back(skt);
-
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
-
-		string pathToFile;
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> wt = DeserializeCiphertext(cc[k], pathToFile);
-		w.push_back(wt);
-
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], pathToFile);
-		C1.push_back(C1t);
 
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+"-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
 
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = DeserializeCiphertext(cc[k], pathToFile);
-		muC.push_back(muCt);
-
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextYFileName +"-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		y.push_back(yt);
 
+*/
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> wt = DeserializeCiphertext(context.cc[k], pathToFile);
+		w.push_back(wt);
+
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(context.cc[k], pathToFile);
+		C1.push_back(C1t);
+
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = DeserializeCiphertext(context.cc[k], pathToFile);
+		muC.push_back(muCt);
 	}
 #ifdef MEASURE_TIMING
     finish = currentDateTime();
@@ -268,25 +258,25 @@ void GLMServerComputeRegressor(pathList &path, glmParams & params){
 #endif
     vector<NativeInteger> primeList;
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		size_t m = cc[k]->GetCyclotomicOrder(); // params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); // params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	uint64_t prime = cc[k]->GetEncodingParams()->GetPlaintextModulus();
+    	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
 
-    auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
+    auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C2;
 
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2t = MultiplyXAddYMu(cc[k], y[k], x[k], muC[k]);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2t = MultiplyXAddYMu(context.cc[k], context.y[k], context.x[k], muC[k]);
 		C2.push_back(C2t);
 	}
 
 	for(size_t k=0; k<primeList.size(); k++){
 
-		auto zeroAllocRationalCiphertext = [=]() { return cc[k]; };
+		auto zeroAllocRationalCiphertext = [=]() { return context.cc[k]; };
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, 1, (*C1[k]).GetCols()));
 
 		for(size_t colIndex=0; colIndex<(*C1[k]).GetCols(); colIndex++){
@@ -296,11 +286,11 @@ void GLMServerComputeRegressor(pathList &path, glmParams & params){
 				const Ciphertext<DCRTPoly> c1 = (*C1[k])(colIndex, rowIndex).GetNumerator();
 				const Ciphertext<DCRTPoly> c2 = (*C2[k])(0, rowIndex).GetNumerator();
 
-				const Ciphertext<DCRTPoly> t = cc[k]->EvalMult(c1, c2);
+				const Ciphertext<DCRTPoly> t = context.cc[k]->EvalMult(c1, c2);
 				if(rowIndex == 0)
 					result = t;
 				else
-					result = cc[k]->EvalAdd(result, t);
+					result = context.cc[k]->EvalAdd(result, t);
 			}
 			(*C1C2t)(0, colIndex).SetNumerator(result);
 		}
@@ -308,7 +298,7 @@ void GLMServerComputeRegressor(pathList &path, glmParams & params){
 	}
 
 	for(size_t k=0; k<primeList.size(); k++){
-		C1C2[k] = cc[k]->EvalAddMatrix(C1C2[k], w[k]);
+		C1C2[k] = context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
 	}
 
 #ifdef MEASURE_TIMING

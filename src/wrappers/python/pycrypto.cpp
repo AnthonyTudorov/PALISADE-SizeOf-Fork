@@ -53,6 +53,7 @@ BOOST_PYTHON_MODULE(pycrypto) {
 			.def("PrintTimings", &glmcrypto::GLMClient::PrintTimings);
 
 	class_<glmcrypto::GLMServer >("GLMServer")
+			.def("SetGLMContext", &glmcrypto::GLMServer::SetGLMContext)
 			.def("SetGLMParams", &glmcrypto::GLMServer::SetGLMParams)
 			.def("SetFileNamesPaths", &glmcrypto::GLMServer::SetFileNamesPaths)
 			.def("Step1ComputeXW", &glmcrypto::GLMServer::Step1ComputeXW)

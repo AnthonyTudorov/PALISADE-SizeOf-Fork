@@ -93,6 +93,40 @@ namespace glmcrypto{
 ////////////////////////////   SERVER  //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
+	void GLMServer::SetGLMContext(){
+
+		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
+
+			string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+			string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+			string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+			string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+
+			// Deserialize the crypto context
+			CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
+			context.cc.push_back(cct);
+
+			context.cc[k]->Enable(ENCRYPTION);
+			context.cc[k]->Enable(SHE);
+
+			size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+			EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
+			PackedEncoding::SetParams(m, encodingParams);
+
+			DeserializeEvalSum(context.cc[k], esFileName);
+			DeserializeEvalMult(context.cc[k], emFileName);
+
+			string pathToFile;
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
+			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.x.push_back(xt);
+
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
+			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.y.push_back(yt);
+		}
+	}
+
 	void GLMServer::SetFileNamesPaths(const boost::python::list& pythonList){
 
 		vector<string> vecList = pythonListToCppStringVector(pythonList);
@@ -107,17 +141,17 @@ namespace glmcrypto{
 
 	void GLMServer::Step1ComputeXW(){
 
-		GLMServerXW(path, glmParam);
+		GLMServerXW(context, path, glmParam);
 	}
 
 	void GLMServer::Step2ComputeXTSX(){
 
-		GLMServerXTSX(path, glmParam);
+		GLMServerXTSX(context, path, glmParam);
 	}
 
 	void GLMServer::Step3ComputeRegressor(){
 
-		GLMServerComputeRegressor(path, glmParam);
+		GLMServerComputeRegressor(context, path, glmParam);
 	}
 
 	void GLMServer::PrintTimings(){

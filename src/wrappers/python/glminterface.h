@@ -91,6 +91,8 @@ namespace glmcrypto {
 			GLMServer() {};
 			~GLMServer() {};
 
+			void SetGLMContext();
+
 			void SetFileNamesPaths(const boost::python::list& pythonList);
 
 			void SetGLMParams(const boost::python::list& pythonList);
@@ -108,6 +110,8 @@ namespace glmcrypto {
 			pathList path;
 
 			glmParams glmParam;
+
+			GLMContext context;
 	};
 
 	vector<uint64_t> pythonListToCppIntVector(const boost::python::list& pythonList);
