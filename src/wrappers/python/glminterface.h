@@ -88,6 +88,9 @@ namespace glmcrypto {
 
 		public:
 
+			GLMServer() {};
+			~GLMServer() {};
+
 			void SetFileNamesPaths(const boost::python::list& pythonList);
 
 			void SetGLMParams(const boost::python::list& pythonList);
