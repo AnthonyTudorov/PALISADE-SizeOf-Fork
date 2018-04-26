@@ -165,6 +165,21 @@ namespace glmcrypto{
 			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.y.push_back(yt);
 		}
+
+		//This is to create a dummy computation to create multiplication tables for BFVrns.
+		//This prevents problems in OpenMP threading.
+		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
+
+			std::vector<uint64_t> vectorOfInts1;
+			vectorOfInts1.push_back(0);
+
+			Plaintext intArray1 = context.cc[k]->MakePackedPlaintext(vectorOfInts1);
+
+	    	Ciphertext<DCRTPoly> c1 = context.cc[k]->Encrypt(context.pk[k], intArray1);
+	    	Ciphertext<DCRTPoly> c2 = context.cc[k]->Encrypt(context.pk[k], intArray1);
+
+		    Ciphertext<DCRTPoly> t  = context.cc[k]->EvalMult(c1, c2);
+	    }
 	}
 
 	void GLMServer::SetFileNamesPaths(const boost::python::list& pythonList){
