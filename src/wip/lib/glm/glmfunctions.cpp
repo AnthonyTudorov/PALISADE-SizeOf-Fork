@@ -36,8 +36,7 @@ timingParams timingServer;
 /////////////////////////////////////////  Server SIDE  /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GLMServerXW(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-		string ciphertextXFileName, string ciphertextWFileName, string ciphertextResultFileName, glmParams & params) {
+void GLMServerXW(pathList &path, glmParams & params) {
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
@@ -49,10 +48,10 @@ void GLMServerXW(string keyDir, string keyfileName, string ciphertextDataDir, st
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -68,13 +67,13 @@ void GLMServerXW(string keyDir, string keyfileName, string ciphertextDataDir, st
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-" + ciphertextXFileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextWFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> bt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> bt = DeserializeCiphertext(cc[k], pathToFile);
 		beta.push_back(bt);
 	}
 #ifdef MEASURE_TIMING
@@ -101,7 +100,7 @@ void GLMServerXW(string keyDir, string keyfileName, string ciphertextDataDir, st
 #endif
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-    	string xTbPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextResultFileName+"-" + std::to_string(k) + ".txt";
+    	string xTbPath = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXWFileName+"-" + std::to_string(k) + ".txt";
     	SerializeCiphertext(xTb[k], xTbPath);
     }
 #ifdef MEASURE_TIMING
@@ -110,8 +109,7 @@ void GLMServerXW(string keyDir, string keyfileName, string ciphertextDataDir, st
 #endif
 }
 
-void GLMServerXTSX(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-					string ciphertextSFileName, string ciphertextXFileName, string ciphertextC1FileName, glmParams & params){
+void GLMServerXTSX(pathList &path, glmParams & params){
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
@@ -125,10 +123,10 @@ void GLMServerXTSX(string keyDir, string keyfileName, string ciphertextDataDir, 
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -144,13 +142,13 @@ void GLMServerXTSX(string keyDir, string keyfileName, string ciphertextDataDir, 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextXFileName+ "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+ "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ ciphertextSFileName +"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextSFileName +"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = DeserializeCiphertext(cc[k], pathToFile);
 		SC.push_back(SCt);
 	}
 #ifdef MEASURE_TIMING
@@ -180,7 +178,7 @@ void GLMServerXTSX(string keyDir, string keyfileName, string ciphertextDataDir, 
 #endif
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string C1Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1FileName+"-" + std::to_string(k) + ".txt";
+		string C1Path = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextC1FileName+"-" + std::to_string(k) + ".txt";
 		SerializeCiphertext(C1[k], C1Path);
     }
 #ifdef MEASURE_TIMING
@@ -190,9 +188,7 @@ void GLMServerXTSX(string keyDir, string keyfileName, string ciphertextDataDir, 
 
 }
 
-void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-					string ciphertextWFileName, string ciphertextXFileName, string ciphertextYFileName, string ciphertextMUFileName,
-					string ciphertextC1FileName, string ciphertextC1C2FileName, glmParams & params){
+void GLMServerComputeRegressor(pathList &path, glmParams & params){
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<LPPublicKey<DCRTPoly>> pk;
@@ -213,11 +209,11 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
 
 
 		// Deserialize the crypto context
@@ -240,25 +236,25 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextWFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> wt = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> wt = DeserializeCiphertext(cc[k], pathToFile);
 		w.push_back(wt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-" + ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], pathToFile);
 		C1.push_back(C1t);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextXFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(cc[k], pathToFile);
 		x.push_back(xt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = DeserializeCiphertext(cc[k], pathToFile);
 		muC.push_back(muCt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ ciphertextYFileName +"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextYFileName +"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		y.push_back(yt);
 
 	}
@@ -325,7 +321,7 @@ void GLMServerComputeRegressor(string keyDir, string keyfileName, string ciphert
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-    	string C1C2Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1C2FileName+"-" + std::to_string(k) + ".txt";
+    	string C1C2Path = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextC1C2FileName+"-" + std::to_string(k) + ".txt";
 		SerializeCiphertext(C1C2[k], C1C2Path);
     }
 #ifdef MEASURE_TIMING
@@ -408,7 +404,7 @@ void threadTest(CryptoContext<DCRTPoly> &cc, LPKeyPair<DCRTPoly> &kp){
     }
 }
 */
-void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
+void GLMKeyGen(pathList &path, glmParams & params) {
 
 	usint m = ComputeCyclotomicRing(params);
 
@@ -418,7 +414,7 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 	MessagePrimeListGen(primeList, m, params);
 
 	std::cout << "Writing Prime Space List to a file...";
-	WritePlaintextSpacePrimes(keyDir, keyfileName, primeList);
+	WritePlaintextSpacePrimes(path.keyDir, path.keyfileName, primeList);
 	std::cout << "Completed" << std::endl;
 
 	for (size_t k = 0; k < primeList.size(); k++) {
@@ -451,8 +447,8 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing public and private keys...";
-		SerializePublicKey(kp.publicKey, keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt");
-		SerializePrivateKey(kp.secretKey, keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt");
+		SerializePublicKey(kp.publicKey, path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt");
+		SerializePrivateKey(kp.secretKey, path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 		////////////////////////////////////////////////////////////
@@ -465,7 +461,7 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing multiplication evaluation key...";
-		SerializeMultEvalKey(cc, evalMultKey, keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt");
+		SerializeMultEvalKey(cc, evalMultKey, path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 		// EvalSumKey
@@ -475,11 +471,11 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing summation evaluation keys...";
-		SerializeSumEvalKey(cc, evalSumKey, keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt");
+		SerializeSumEvalKey(cc, evalSumKey, path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing CrytoContext...";
-		SerializeContext(cc, keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt");
+		SerializeContext(cc, path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 
@@ -488,18 +484,9 @@ void GLMKeyGen(string keyDir, string keyfileName, glmParams & params) {
 
 }
 
-void GLMEncrypt(string keyDir,
-             string keyfileName,
-             string plaintextDataDir,
-             string plaintextDataFileName,
-             string ciphertextDataDir,
-             string ciphertextDataFileName,
-			 string ciphertextXFileName,
-			 string ciphertextYFileName,
-			 string ciphertextWFileName,
-			 glmParams &params)
+void GLMEncrypt(pathList &path, glmParams &params)
 {
-    string dataFileName = plaintextDataDir+"/"+plaintextDataFileName;
+    string dataFileName = path.plaintextDataDir+"/"+path.plaintextDataFileName;
 
     vector<string> headers;
     vector<vector<double>> dataColumns;
@@ -512,12 +499,12 @@ void GLMEncrypt(string keyDir,
     std::cout << "Completed" << std::endl;
 
     cout << "Writing Meta Data file...";
-    string metaDataPath = ciphertextDataDir + "/lr_data_" + ciphertextDataFileName;
+    string metaDataPath = path.ciphertextDataDir + "/lr_data_" + path.ciphertextDataFileName;
     WriteMetaData(metaDataPath, headers, dataColumns);
     std::cout << "Completed" << std::endl;
 
     vector<BigInteger> primeList;
-    ReadPlaintextSpacePrimes(keyDir, keyfileName, primeList);
+    ReadPlaintextSpacePrimes(path.keyDir, path.keyfileName, primeList);
 
 	uint32_t numRegressors = headers.size()-1;
 //	cout<<"Num Regressors: " << numRegressors << endl;
@@ -539,11 +526,11 @@ void GLMEncrypt(string keyDir,
     for(size_t k = 0; k < primeList.size(); k++) {
 
 		std::cout << "\nDESERIALIZATION/ENCRYPTION FOR p #" << std::to_string(k + 1) << "\n" << std::endl;
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
-		string bkFileName = keyDir+"/"+keyfileName+"-beta" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
-		string ecFileName = keyDir+"/"+keyfileName+"-encoding" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+		string bkFileName = path.keyDir+"/"+path.keyfileName+"-beta" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+		string ecFileName = path.keyDir+"/"+path.keyfileName+"-encoding" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
@@ -607,22 +594,20 @@ void GLMEncrypt(string keyDir,
 		ctxtSer.SetObject();
 
 		std::cout << "Serializing Encrypted X...";
-		SerializeCiphertext(xC, ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextXFileName+"-" + std::to_string(k) + ".txt");
+		SerializeCiphertext(xC, path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+"-" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing Encrypted y...";
-		SerializeCiphertext(yC, ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextYFileName+"-" + std::to_string(k) + ".txt");
+		SerializeCiphertext(yC, path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 
 		std::cout << "Serializing Encrypted Beta...";
-		SerializeCiphertext(bC, ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextWFileName+"-" + std::to_string(k) + ".txt");
+		SerializeCiphertext(bC, path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt");
 		std::cout << "Completed" << std::endl;
 	}
 }
 
-void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-		string ciphertextMUFileName, string ciphertextSFileName, string ciphertextXWFileName, string ciphertextYFileName,
-		string regAlgorithm, glmParams & params){
+void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorithm){
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xw;
@@ -636,11 +621,11 @@ void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, 
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 
 		// Deserialize the crypto context
@@ -663,13 +648,13 @@ void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ ciphertextXWFileName+ "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xwt = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextXWFileName+ "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xwt = DeserializeCiphertext(cc[k], pathToFile);
 		xw.push_back(xwt);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-" + ciphertextYFileName +"-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextYFileName +"-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		yC.push_back(yt);
 	}
 #ifdef MEASURE_TIMING
@@ -724,7 +709,7 @@ void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, 
 
     size_t numCol;
     size_t numRow;
-    ReadMetaData(ciphertextDataDir, ciphertextDataFileName, numCol, numRow);
+    ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
 	LinkFunctionLogisticSigned(cc, *wTb, mu, S, numRow, primeList, regAlgorithm, params);
 
 	Matrix<BigInteger> muBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, cc[0]->GetRingDimension()));
@@ -770,10 +755,10 @@ void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, 
 		EncodingParams encodingParams = cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-		string muCPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
+		string muCPath = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
 		SerializeCiphertext(muC[k], muCPath);
 
-		string SCPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextSFileName+"-" + std::to_string(k) + ".txt";
+		string SCPath = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextSFileName+"-" + std::to_string(k) + ".txt";
 		SerializeCiphertext(SC[k], SCPath);
     }
 #ifdef MEASURE_TIMING
@@ -782,7 +767,7 @@ void GLMClientLink(string keyDir, string keyfileName, string ciphertextDataDir, 
 #endif
 }
 
-void GLMClientRescaleC1(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName, string ciphertextC1FileName, glmParams & params){
+void GLMClientRescaleC1(pathList &path, glmParams & params){
 
 
 	vector<CryptoContext<DCRTPoly>> cc;
@@ -798,11 +783,11 @@ void GLMClientRescaleC1(string keyDir, string keyfileName, string ciphertextData
 
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -824,14 +809,14 @@ void GLMClientRescaleC1(string keyDir, string keyfileName, string ciphertextData
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path = ciphertextDataDir+"/"+ciphertextDataFileName+"-" + ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], path);
+		string pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], pathToFile);
 		C1.push_back(C1t);
 	}
 
 	size_t numCol;
     size_t numRow;
-    ReadMetaData(ciphertextDataDir, ciphertextDataFileName, numCol, numRow);
+    ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
 
 #ifdef MEASURE_TIMING
     finish = currentDateTime();
@@ -903,7 +888,7 @@ void GLMClientRescaleC1(string keyDir, string keyfileName, string ciphertextData
 	start = currentDateTime();
 #endif
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-		string C1Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1FileName+"-" + std::to_string(k) + ".txt";
+		string C1Path = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextC1FileName+"-" + std::to_string(k) + ".txt";
 		SerializeCiphertext(C1C[k], C1Path);
     }
 #ifdef MEASURE_TIMING
@@ -912,13 +897,7 @@ void GLMClientRescaleC1(string keyDir, string keyfileName, string ciphertextData
 #endif
 }
 
-vector<double> GLMClientRescaleRegressor(string keyDir,
-				   string keyfileName,
-				   string ciphertextDataDir,
-				   string ciphertextDataFileName,
-				   string ciphertextC1C2FileName,
-				   string ciphertextWFileName,
-				   glmParams & params){
+vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<LPPublicKey<DCRTPoly>> pk;
@@ -931,11 +910,11 @@ vector<double> GLMClientRescaleRegressor(string keyDir,
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string emFileName = keyDir+"/"+keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
-		string esFileName = keyDir+"/"+keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
-		string pkFileName = keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -957,9 +936,9 @@ vector<double> GLMClientRescaleRegressor(string keyDir,
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+"-" + ciphertextC1C2FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1C2FileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t = DeserializeCiphertext(cc[k], pathToFile);
 		C1C2.push_back(C1C2t);
 
 	}
@@ -1034,7 +1013,7 @@ vector<double> GLMClientRescaleRegressor(string keyDir,
 	start = currentDateTime();
 #endif
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-    	string BetaPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextWFileName+"-" + std::to_string(k) + ".txt";
+    	string BetaPath = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextWFileName+"-" + std::to_string(k) + ".txt";
     	SerializeCiphertext(C1C2FixedC[k], BetaPath);
     }
 #ifdef MEASURE_TIMING
@@ -1045,8 +1024,7 @@ vector<double> GLMClientRescaleRegressor(string keyDir,
     return regResultRow;
 }
 
-double GLMClientComputeError(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-		string ciphertextMUFileName, string ciphertextYFileName, glmParams & params){
+double GLMClientComputeError(pathList &path, glmParams & params){
 
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  y;
@@ -1057,8 +1035,8 @@ double GLMClientComputeError(string keyDir, string keyfileName, string ciphertex
 
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		string ccFileName = keyDir+"/"+keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string skFileName = keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt";
+		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
 
 		// Deserialize the crypto context
 		CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
@@ -1074,19 +1052,19 @@ double GLMClientComputeError(string keyDir, string keyfileName, string ciphertex
 		LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(cc[k], skFileName);
 		sk.push_back(skt);
 
-		string path;
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+ "-" + ciphertextMUFileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> mut = DeserializeCiphertext(cc[k], path);
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+ "-" + path.ciphertextMUFileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> mut = DeserializeCiphertext(cc[k], pathToFile);
 		mu.push_back(mut);
 
-		path = ciphertextDataDir+"/"+ciphertextDataFileName+ "-" + ciphertextYFileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], path);
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+ "-" + path.ciphertextYFileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		y.push_back(yt);
 	}
 
 	size_t numCol;
     size_t numRow;
-    ReadMetaData(ciphertextDataDir, ciphertextDataFileName, numCol, numRow);
+    ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
 
 	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
 	auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };

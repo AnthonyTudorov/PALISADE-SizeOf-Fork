@@ -78,86 +78,52 @@ struct glmParams{
 	uint64_t NUMTHREADS;
 };
 
+struct pathList{
+	string keyDir;
+	string keyfileName;
+	string ciphertextDataDir;
+	string ciphertextDataFileName;
+	string plaintextDataDir;
+	string plaintextDataFileName;
+
+	string ciphertextXFileName;
+	string ciphertextYFileName;
+	string ciphertextWFileName;
+
+	string ciphertextXWFileName;
+
+	string ciphertextMUFileName;
+	string ciphertextSFileName;
+	string ciphertextC1FileName;
+	string ciphertextC2FileName;
+	string ciphertextC1C2FileName;
+};
+
 /////////////////////////////////////////////////////////////////////////
 /////////                     SERVER                            /////////
 /////////////////////////////////////////////////////////////////////////
 
-void GLMServerXW(string keyDir,
-				string keyfileName,
-				string ciphertextDataDir,
-				string ciphertextDataFileName,
-				string ciphertextXFileName,
-				string ciphertextWFileName,
-				string ciphertextResultFileName,
-				glmParams & params);
+void GLMServerXW(pathList &path, glmParams & params);
 
-void GLMServerXTSX(string keyDir,
-					string keyfileName,
-					string ciphertextDataDir,
-					string ciphertextDataFileName,
-					string ciphertextSFileName,
-					string ciphertextXFileName,
-					string ciphertextC1FileName,
-					glmParams & params);
+void GLMServerXTSX(pathList &path, glmParams & params);
 
-void GLMServerComputeRegressor(string keyDir,
-				   string keyfileName,
-				   string ciphertextDataDir,
-				   string ciphertextDataFileName,
-				   string ciphertextWFileName,
-				   string ciphertextXFileName,
-				   string ciphertextYFileName,
-				   string ciphertextMUFileName,
-				   string ciphertextC1FileName,
-				   string ciphertextC1C2FileName,
-				   glmParams & params);
+void GLMServerComputeRegressor(pathList &path, glmParams & params);
 
 /////////////////////////////////////////////////////////////////////////
 /////////                     CLIENT                            /////////
 /////////////////////////////////////////////////////////////////////////
 
-void GLMKeyGen(string keyDir, string keyfileName, glmParams &params);
+void GLMKeyGen(pathList &path, glmParams &params);
 
-void GLMEncrypt(string keyDir,
-             string keyfileName,
-             string plaintextDataDir,
-             string plaintextDataFileName,
-             string ciphertextDataDir,
-             string ciphertextDataFileName,
-			 string ciphertextXFileName,
-			 string ciphertextYFileName,
-			 string ciphertextWFileName,
+void GLMEncrypt(pathList &path, glmParams &params);
 
-			 glmParams &params);
+void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorithm);
 
-void GLMClientLink(string keyDir,
-				   string keyfileName,
-				   string ciphertextDataDir,
-				   string ciphertextDataFileName,
-				   string ciphertextMUFileName,
-				   string ciphertextSFileName,
-				   string ciphertextXWFileName,
-				   string ciphertextYFileName,
-				   string regAlgorithm,
-				   glmParams & params);
+void GLMClientRescaleC1(pathList &path, glmParams & params);
 
-void GLMClientRescaleC1(string keyDir,
-		 	 	 	 string keyfileName,
-					 string ciphertextDataDir,
-					 string ciphertextDataFileName,
-					 string ciphertextC1FileName,
-					 glmParams & params);
+vector<double> GLMClientRescaleRegressor(pathList &path,glmParams & params);
 
-vector<double> GLMClientRescaleRegressor(string keyDir,
-				   string keyfileName,
-				   string ciphertextDataDir,
-				   string ciphertextDataFileName,
-				   string ciphertextC1C2FileName,
-				   string ciphertextWFileName,
-				   glmParams & params);
-
-double GLMClientComputeError(string keyDir, string keyfileName, string ciphertextDataDir, string ciphertextDataFileName,
-		string ciphertextMUFileName, string ciphertextYFileName, glmParams & params);
+double GLMClientComputeError(pathList &path, glmParams & params);
 
 #ifdef MEASURE_TIMING
 void GLMPrintTimings(string sel);
