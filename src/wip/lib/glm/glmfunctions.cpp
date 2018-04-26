@@ -474,7 +474,7 @@ void GLMKeyGen(pathList &path, glmParams & params) {
 
 }
 
-void GLMEncrypt(pathList &path, glmParams &params)
+void GLMEncrypt(GLMContext &context, pathList &path, glmParams &params)
 {
     string dataFileName = path.plaintextDataDir+"/"+path.plaintextDataFileName;
 
@@ -517,8 +517,8 @@ void GLMEncrypt(pathList &path, glmParams &params)
 
 		std::cout << "\nDESERIALIZATION/ENCRYPTION FOR p #" << std::to_string(k + 1) << "\n" << std::endl;
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
-		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 		string bkFileName = path.keyDir+"/"+path.keyfileName+"-beta" + std::to_string(k) + ".txt";
+		string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
 		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
 		string ecFileName = path.keyDir+"/"+path.keyfileName+"-encoding" + std::to_string(k) + ".txt";
 
@@ -597,20 +597,20 @@ void GLMEncrypt(pathList &path, glmParams &params)
 	}
 }
 
-void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorithm){
+void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, const string &regAlgorithm){
 
-	vector<CryptoContext<DCRTPoly>> cc;
+//	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xw;
-	vector<LPPublicKey<DCRTPoly>> pk;
-	vector<LPPrivateKey<DCRTPoly>> sk;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  yC;
+//	vector<LPPublicKey<DCRTPoly>> pk;
+//	vector<LPPrivateKey<DCRTPoly>> sk;
+//	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  yC;
 
 #ifdef MEASURE_TIMING
 	double start, finish;
 	start = currentDateTime();
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
@@ -637,15 +637,16 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
-
+*/
 		string pathToFile;
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+ path.ciphertextXWFileName+ "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xwt = DeserializeCiphertext(cc[k], pathToFile);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xwt = DeserializeCiphertext(context.cc[k], pathToFile);
 		xw.push_back(xwt);
-
+/*
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextYFileName +"-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		yC.push_back(yt);
+*/
 	}
 #ifdef MEASURE_TIMING
 	finish = currentDateTime();
@@ -656,31 +657,31 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
     start = currentDateTime();
 #endif
 	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
-	auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
+	auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
 	size_t dataMatrixRowSize = (*xw[0]).GetRows();
 
     vector<Matrix<Plaintext>> xTbCRT;
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
     	shared_ptr<Matrix<Plaintext>> numeratorxTb (new Matrix<Plaintext>(zeroAllocPacking, dataMatrixRowSize, 1));
-    	cc[k]->DecryptMatrixNumerator(sk[k], xw[k], &numeratorxTb);
+    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], xw[k], &numeratorxTb);
     	xTbCRT.push_back(*numeratorxTb);
     }
 
     shared_ptr<Matrix<BigInteger>> wTb (new Matrix<BigInteger>(zeroAllocBigInteger));
-    (*wTb).SetSize(dataMatrixRowSize, cc[0]->GetRingDimension());
+    (*wTb).SetSize(dataMatrixRowSize, context.cc[0]->GetRingDimension());
 
     vector<NativeInteger> primeList;
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	uint64_t prime = cc[k]->GetEncodingParams()->GetPlaintextModulus();
+    	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
 
@@ -700,10 +701,10 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
     size_t numCol;
     size_t numRow;
     ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
-	LinkFunctionLogisticSigned(cc, *wTb, mu, S, numRow, primeList, regAlgorithm, params);
+	LinkFunctionLogisticSigned(context.cc, *wTb, mu, S, numRow, primeList, regAlgorithm, params);
 
-	Matrix<BigInteger> muBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, cc[0]->GetRingDimension()));
-	Matrix<BigInteger> yBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, cc[0]->GetRingDimension()));
+	Matrix<BigInteger> muBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, context.cc[0]->GetRingDimension()));
+	Matrix<BigInteger> yBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, context.cc[0]->GetRingDimension()));
 
 	vector<Matrix<Plaintext>> muP;
 	for(size_t i=0; i<mu.size(); i++){
@@ -714,20 +715,20 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
 	vector<Matrix<Plaintext>> y;
 	for(size_t k=0; k<primeList.size(); k++){
 		shared_ptr<Matrix<Plaintext>> yP (new Matrix<Plaintext>(zeroAllocPacking, dataMatrixRowSize, 1));
-		cc[k]->DecryptMatrixNumerator(sk[k], yC[k], &yP);
+		context.cc[k]->DecryptMatrixNumerator(context.sk[k], context.y[k], &yP);
 		y.push_back(*yP);
 	}
 	CRTInterpolateMatrixEntrySelect(y, yBigInteger, primeList, colIndex);
 
     for(size_t k = 0; k < primeList.size(); k++) {
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	auto zeroAllocRationalCiphertext = [=]() { return cc[k]; };
+    	auto zeroAllocRationalCiphertext = [=]() { return context.cc[k]; };
 
- 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = cc[k]->EncryptMatrix(pk[k], *(mu[k]));
-   		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = cc[k]->EncryptMatrix(pk[k], *(S[k]));
+ 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> muCt = context.cc[k]->EncryptMatrix(context.pk[k], *(mu[k]));
+   		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> SCt = context.cc[k]->EncryptMatrix(context.pk[k], *(S[k]));
 
     	muC.push_back(muCt);
     	SC.push_back(SCt);
@@ -741,8 +742,8 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
     start = currentDateTime();
 #endif
     for(size_t k = 0; k < primeList.size(); k++) {
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
 		string muCPath = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextMUFileName+"-" + std::to_string(k) + ".txt";
@@ -757,12 +758,11 @@ void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorith
 #endif
 }
 
-void GLMClientRescaleC1(pathList &path, glmParams & params){
+void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params){
 
-
-	vector<CryptoContext<DCRTPoly>> cc;
-	vector<LPPublicKey<DCRTPoly>> pk;
-	vector<LPPrivateKey<DCRTPoly>> sk;
+//	vector<CryptoContext<DCRTPoly>> cc;
+//	vector<LPPublicKey<DCRTPoly>> pk;
+//	vector<LPPrivateKey<DCRTPoly>> sk;
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1;
 
@@ -772,7 +772,7 @@ void GLMClientRescaleC1(pathList &path, glmParams & params){
 #endif
 
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
@@ -798,9 +798,9 @@ void GLMClientRescaleC1(pathList &path, glmParams & params){
 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
-
+*/
 		string pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(cc[k], pathToFile);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1t = DeserializeCiphertext(context.cc[k], pathToFile);
 		C1.push_back(C1t);
 	}
 
@@ -818,27 +818,27 @@ void GLMClientRescaleC1(pathList &path, glmParams & params){
 #endif
     vector<NativeInteger> primeList;
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	uint64_t prime = cc[k]->GetEncodingParams()->GetPlaintextModulus();
+    	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
 
     vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1L;
     vector<Matrix<Plaintext>> C1Plaintext;
 
-    auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
+    auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
     auto zeroAllocBigInteger = [=]() { return BigInteger(); };
 
     size_t numRegressors = (*C1[0]).GetCols();
-	size_t batchSize = cc[0]->GetRingDimension(); //params.ENTRYSIZE;
+	size_t batchSize = context.cc[0]->GetRingDimension(); //params.ENTRYSIZE;
 
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
 
     	shared_ptr<Matrix<Plaintext>> numeratorC1 (new Matrix<Plaintext>(zeroAllocPacking, numRegressors, numRegressors));
-    	cc[k]->DecryptMatrixNumerator(sk[k], C1[k], &numeratorC1);
+    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], C1[k], &numeratorC1);
     	C1Plaintext.push_back(*numeratorC1);
     }
 
@@ -861,12 +861,12 @@ void GLMClientRescaleC1(pathList &path, glmParams & params){
 	vector<shared_ptr<Matrix<Plaintext>>> C1P;
 
 	DecimalIncrement(*C1PlaintextCRTDoubleInverse, *C1PlaintextCRTDoubleInverse, params.PRECISIONDECIMALSIZE, params);
-	EncodeC1Matrix(cc, C1PlaintextCRTDoubleInverse, C1P, primeList, batchSize);
+	EncodeC1Matrix(context.cc, C1PlaintextCRTDoubleInverse, C1P, primeList, batchSize);
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1C;
 
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1Ct = cc[k]->EncryptMatrix(pk[k], *(C1P[k]));
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1Ct = context.cc[k]->EncryptMatrix(context.pk[k], *(C1P[k]));
 		C1C.push_back(C1Ct);
 	}
 #ifdef MEASURE_TIMING
@@ -887,19 +887,19 @@ void GLMClientRescaleC1(pathList &path, glmParams & params){
 #endif
 }
 
-vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
-
+vector<double> GLMClientRescaleRegressor(GLMContext &context, pathList &path, glmParams & params){
+/*
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<LPPublicKey<DCRTPoly>> pk;
 	vector<LPPrivateKey<DCRTPoly>> sk;
-
+*/
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1C2;
 #ifdef MEASURE_TIMING
 	double start, finish;
 	start = currentDateTime();
 #endif
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
 		string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
@@ -925,10 +925,10 @@ vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
 
 		DeserializeEvalSum(cc[k], esFileName);
 		DeserializeEvalMult(cc[k], emFileName);
-
+*/
 		string pathToFile;
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextC1C2FileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t = DeserializeCiphertext(cc[k], pathToFile);
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t = DeserializeCiphertext(context.cc[k], pathToFile);
 		C1C2.push_back(C1C2t);
 
 	}
@@ -942,25 +942,25 @@ vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
 #endif
     vector<NativeInteger> primeList;
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	uint64_t prime = cc[k]->GetEncodingParams()->GetPlaintextModulus();
+    	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
 
 	auto zeroAllocDouble = [=]() { return double(); };
 	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
-	auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
+	auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
 
 	size_t numRegressors = (*C1C2[0]).GetCols();
-	size_t batchSize = cc[0]->GetEncodingParams()->GetBatchSize();
+	size_t batchSize = context.cc[0]->GetEncodingParams()->GetBatchSize();
 
 	vector<Matrix<Plaintext>> numeratorC1C2;
 	for(size_t k=0; k<primeList.size(); k++){
 	    shared_ptr<Matrix<Plaintext>> numeratorC1C2t (new Matrix<Plaintext>(zeroAllocPacking, 1, numRegressors));
-		cc[k]->DecryptMatrixNumerator(sk[k], C1C2[k], &numeratorC1C2t);
+	    context.cc[k]->DecryptMatrixNumerator(context.sk[k], C1C2[k], &numeratorC1C2t);
 		numeratorC1C2.push_back(*numeratorC1C2t);
 	}
 
@@ -988,10 +988,10 @@ vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
 //    PrintMatrixDouble(*C0C1C2Fixed);
 
 //    EncodeC1Matrix(cc, C1C2Fixed, C1C2FixedP, primeList, batchSize);
-    EncodeC1Matrix(cc, numeratorC1C2CRT, C1C2FixedP, primeList, batchSize);
+    EncodeC1Matrix(context.cc, numeratorC1C2CRT, C1C2FixedP, primeList, batchSize);
 
     for(size_t k=0; k<primeList.size(); k++){
-    	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2Fixedt = cc[k]->EncryptMatrix(pk[k], *(C1C2FixedP[k]));
+    	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2Fixedt = context.cc[k]->EncryptMatrix(context.pk[k], *(C1C2FixedP[k]));
     	C1C2FixedC.push_back(C1C2Fixedt);
     }
 #ifdef MEASURE_TIMING
@@ -1014,17 +1014,17 @@ vector<double> GLMClientRescaleRegressor(pathList &path, glmParams & params){
     return regResultRow;
 }
 
-double GLMClientComputeError(pathList &path, glmParams & params){
+double GLMClientComputeError(GLMContext &context, pathList &path, glmParams & params){
 
-	vector<CryptoContext<DCRTPoly>> cc;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  y;
+//	vector<CryptoContext<DCRTPoly>> cc;
+//	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  y;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>>  mu;
 
-	vector<LPPublicKey<DCRTPoly>> pk;
-	vector<LPPrivateKey<DCRTPoly>> sk;
+//	vector<LPPublicKey<DCRTPoly>> pk;
+//	vector<LPPrivateKey<DCRTPoly>> sk;
 
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
-
+/*
 		string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
 		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
 
@@ -1042,14 +1042,14 @@ double GLMClientComputeError(pathList &path, glmParams & params){
 		LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(cc[k], skFileName);
 		sk.push_back(skt);
 
-		string pathToFile;
-		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+ "-" + path.ciphertextMUFileName + "-" + std::to_string(k) + ".txt";
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> mut = DeserializeCiphertext(cc[k], pathToFile);
-		mu.push_back(mut);
-
 		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+ "-" + path.ciphertextYFileName + "-" + std::to_string(k) + ".txt";
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(cc[k], pathToFile);
 		y.push_back(yt);
+*/
+		string pathToFile;
+		pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+ "-" + path.ciphertextMUFileName + "-" + std::to_string(k) + ".txt";
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> mut = DeserializeCiphertext(context.cc[k], pathToFile);
+		mu.push_back(mut);
 	}
 
 	size_t numCol;
@@ -1057,46 +1057,46 @@ double GLMClientComputeError(pathList &path, glmParams & params){
     ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
 
 	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
-	auto zeroAllocPacking = [=]() { return cc[0]->MakePackedPlaintext({0}); };
-	size_t dataMatrixRowSize = (*y[0]).GetRows();
+	auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
+	size_t dataMatrixRowSize = (*context.y[0]).GetRows();
 
     vector<Matrix<Plaintext>> yCRT;
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
     	shared_ptr<Matrix<Plaintext>> numeratory (new Matrix<Plaintext>(zeroAllocPacking, dataMatrixRowSize, 1));
-    	cc[k]->DecryptMatrixNumerator(sk[k], y[k], &numeratory);
+    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], context.y[k], &numeratory);
     	yCRT.push_back(*numeratory);
     }
 
     vector<Matrix<Plaintext>> muCRT;
     for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
     	shared_ptr<Matrix<Plaintext>> numeratormu (new Matrix<Plaintext>(zeroAllocPacking, dataMatrixRowSize, 1));
-    	cc[k]->DecryptMatrixNumerator(sk[k], mu[k], &numeratormu);
+    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], mu[k], &numeratormu);
     	muCRT.push_back(*numeratormu);
     }
 
     shared_ptr<Matrix<BigInteger>> yBigInt (new Matrix<BigInteger>(zeroAllocBigInteger));
     shared_ptr<Matrix<BigInteger>> muBigInt (new Matrix<BigInteger>(zeroAllocBigInteger));
 
-    (*yBigInt).SetSize(dataMatrixRowSize, cc[0]->GetRingDimension() /*params.ENTRYSIZE*/);
-    (*muBigInt).SetSize(dataMatrixRowSize, cc[0]->GetRingDimension() /*params.ENTRYSIZE*/);
+    (*yBigInt).SetSize(dataMatrixRowSize, context.cc[0]->GetRingDimension() /*params.ENTRYSIZE*/);
+    (*muBigInt).SetSize(dataMatrixRowSize, context.cc[0]->GetRingDimension() /*params.ENTRYSIZE*/);
 
     vector<NativeInteger> primeList;
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
-		size_t m = cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
-		EncodingParams encodingParams = cc[k]->GetEncodingParams();
+		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
 		PackedEncoding::SetParams(m, encodingParams);
 
-    	uint64_t prime = cc[k]->GetEncodingParams()->GetPlaintextModulus();
+    	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
 

@@ -58,6 +58,8 @@ namespace glmcrypto {
 			GLMClient() {};
 			~GLMClient() {};
 
+			void SetGLMContext();
+
 			void KeyGen();
 
 			void Encrypt();
@@ -82,6 +84,7 @@ namespace glmcrypto {
 
 			glmParams glmParam;
 
+			GLMContext context;
 	};
 
 	class GLMServer {

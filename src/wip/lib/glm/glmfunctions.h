@@ -68,6 +68,9 @@ struct GLMContext{
 	vector<CryptoContext<DCRTPoly>> cc;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> y;
+
+	vector<LPPublicKey<DCRTPoly>> pk;
+	vector<LPPrivateKey<DCRTPoly>> sk;
 };
 
 struct glmParams{
@@ -121,15 +124,15 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 
 void GLMKeyGen(pathList &path, glmParams &params);
 
-void GLMEncrypt(pathList &path, glmParams &params);
+void GLMEncrypt(GLMContext &context, pathList &path, glmParams &params);
 
-void GLMClientLink(pathList &path, glmParams & params, const string &regAlgorithm);
+void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, const string &regAlgorithm);
 
-void GLMClientRescaleC1(pathList &path, glmParams & params);
+void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params);
 
-vector<double> GLMClientRescaleRegressor(pathList &path,glmParams & params);
+vector<double> GLMClientRescaleRegressor(GLMContext &context, pathList &path,glmParams & params);
 
-double GLMClientComputeError(pathList &path, glmParams & params);
+double GLMClientComputeError(GLMContext &context, pathList &path, glmParams & params);
 
 #ifdef MEASURE_TIMING
 void GLMPrintTimings(string sel);

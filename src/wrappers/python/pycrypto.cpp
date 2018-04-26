@@ -42,6 +42,7 @@ BOOST_PYTHON_MODULE(pycrypto) {
 		.def("EvaluateClear", &pycrypto::Obfuscator::EvaluateClear);
 
 	class_<glmcrypto::GLMClient >("GLMClient")
+			.def("SetGLMContext", &glmcrypto::GLMClient::SetGLMContext)
 			.def("KeyGen", &glmcrypto::GLMClient::KeyGen)
 			.def("Encrypt", &glmcrypto::GLMClient::Encrypt)
 			.def("SetGLMParams", &glmcrypto::GLMClient::SetGLMParams)
