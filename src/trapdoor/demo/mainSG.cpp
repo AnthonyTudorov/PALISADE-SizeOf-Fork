@@ -36,21 +36,25 @@ int main(){
 
 	long u = 699211;
 
+	const size_t count = 10000;
+
 	TIC(t1); //start timer for total time
-	inv_g(b, q, u, k, output);
+	for (size_t i = 0; i<count; i++)
+		inv_g(b, q, u, k, output);
 	timeEval = TOC_US(t1);
 
-	std::cout << "Old impl sampling time: " << timeEval << " microseconds" << std::endl;
+	std::cout << "Old impl sampling time: " << timeEval/count << " microseconds" << std::endl;
 	
 	LatticeSubgaussianUtility<NativeInteger,NativeVector> sampler(b,q,k);
 
 	vector<int64_t> nativeOutput(k);
 
 	TIC(t1); //start timer for total time
-	sampler.InverseG(u, &nativeOutput);
+	for (size_t i = 0; i<count; i++)
+		sampler.InverseG(u, &nativeOutput);
 	timeEval = TOC_US(t1);
 
-	std::cout << "PALISADE impl sampling time: " << timeEval << " microseconds" << std::endl;
+	std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds" << std::endl;
 
 	NTL::RR a = NTL::RR(10.0/27); NTL::RR c = NTL::RR(19.0/27);
 
