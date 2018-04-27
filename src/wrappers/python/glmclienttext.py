@@ -70,7 +70,7 @@ elif regAlg == "POISSON":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 12
+    REGRLOOPCOUNT         = 1
 
     NUMTHREADS            = 8
     

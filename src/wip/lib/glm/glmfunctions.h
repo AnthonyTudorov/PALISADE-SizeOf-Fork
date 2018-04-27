@@ -227,6 +227,7 @@ void PrintMatrixDouble(const Matrix<double> &in);
 /////////                     Conversion Functions              /////////
 /////////////////////////////////////////////////////////////////////////
 void doubleToBigInteger(double &in, BigInteger &out);
+void doubleToBigInteger2(double &in, BigInteger &out);
 
 #endif /* SRC_WRAPPERS_PYTHON_GLMFUNCTIONS_H_ */
 

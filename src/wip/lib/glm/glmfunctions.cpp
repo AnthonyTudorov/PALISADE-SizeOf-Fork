@@ -835,34 +835,45 @@ void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params)
 
     size_t numRegressors = (*C1[0]).GetCols();
 	size_t batchSize = context.cc[0]->GetRingDimension(); //params.ENTRYSIZE;
-
+	start = currentDateTime();
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
 
     	shared_ptr<Matrix<Plaintext>> numeratorC1 (new Matrix<Plaintext>(zeroAllocPacking, numRegressors, numRegressors));
     	context.cc[k]->DecryptMatrixNumerator(context.sk[k], C1[k], &numeratorC1);
     	C1Plaintext.push_back(*numeratorC1);
     }
+    finish = currentDateTime();
+    cout << "Dec\t" <<(finish - start) << endl;
 
     vector<shared_ptr<Matrix<BigInteger>>> C0PlaintextCRTList;
 
+    start = currentDateTime();
     shared_ptr<Matrix<BigInteger>> C1PlaintextCRT (new Matrix<BigInteger>(zeroAllocBigInteger, numRegressors, numRegressors));
     CRTInterpolate(C1Plaintext, *C1PlaintextCRT, primeList);
-
+    finish = currentDateTime();
+    cout << "CRT\t" <<(finish - start) << endl;
     auto zeroAllocDouble = [=]() { return double(); };
 
+    start = currentDateTime();
     shared_ptr<Matrix<double>> C1PlaintextCRTDouble (new Matrix<double>(zeroAllocDouble, numRegressors, numRegressors));
     ConvertUnsingedToSigned( *C1PlaintextCRT, *C1PlaintextCRTDouble, primeList);
     DecimalDecrement(*C1PlaintextCRTDouble, *C1PlaintextCRTDouble, params.PRECISIONDECIMALSIZE+params.PRECISIONDECIMALSIZEX*2, params);
-
+    finish = currentDateTime();
+    cout << "Dec\t" <<(finish - start) << endl;
 //    PrintMatrixDouble(*C1PlaintextCRTDouble);
 
+    start = currentDateTime();
     shared_ptr<Matrix<double>> C1PlaintextCRTDoubleInverse(new Matrix<double>(zeroAllocDouble));
 	MatrixInverse(*C1PlaintextCRTDouble, *C1PlaintextCRTDoubleInverse);
+	finish = currentDateTime();
+	cout << "Inv\t" <<(finish - start) << endl;
 
 	vector<shared_ptr<Matrix<Plaintext>>> C1P;
-
+	start = currentDateTime();
 	DecimalIncrement(*C1PlaintextCRTDoubleInverse, *C1PlaintextCRTDoubleInverse, params.PRECISIONDECIMALSIZE, params);
 	EncodeC1Matrix(context.cc, C1PlaintextCRTDoubleInverse, C1P, primeList, batchSize);
+	finish = currentDateTime();
+	cout << "Enc\t" <<(finish - start) << endl;
 
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C1C;
 
@@ -1812,7 +1823,7 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransS(CryptoContext<D
 
 	return xTSt;
 }
-
+/*
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0){
 
 	size_t dataMatrixRowSize = (*x).GetRows();
@@ -1867,6 +1878,90 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 			(*xTSxt)(col1, col2).SetNumerator(t);
 		}
 	}
+
+	return xTSxt;
+}
+*/
+shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0){
+
+	size_t dataMatrixRowSize = (*x).GetRows();
+	size_t numRegressors = (*x).GetCols();
+	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTSxt(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, numRegressors, numRegressors));
+#ifdef OMPSECTION3
+//#pragma omp parallel for shared(xTSt, x, xTSxt, k, numRegressors, cc) default(shared) num_threads(NUMTHREADS) collapse(2)
+#pragma omp parallel for num_threads(NUMTHREAD) collapse(2)
+#endif
+
+	Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
+	for(size_t row = 0; row < 1; row++){
+		const Ciphertext<DCRTPoly> xTSk = (*C0)(0, 0).GetNumerator();
+		const Ciphertext<DCRTPoly> xk   = (*x)(0, 0).GetNumerator();
+
+		Ciphertext<DCRTPoly> temp = cc->EvalMult(xTSk, xk);
+
+		if(row == 0)
+			result = temp;
+		else
+			result = cc->EvalAdd(result, temp);
+	}
+	(*xTSxt)(0, 0).SetNumerator(result);
+
+
+	vector<size_t> cordX;
+	vector<size_t> cordY;
+
+	for(size_t col1 = 0; col1 < numRegressors; col1++) {
+		for(size_t col2 = 0; col2 <= col1; col2++){
+			cordX.push_back(col1);
+			cordY.push_back(col2);
+		}
+	}
+
+	cout << "Size X\t" << cordX.size() << endl;
+	cout << "Size Y\t" << cordY.size() << endl;
+
+//	for(col1 = 0; col1 < numRegressors; col1++) {
+//		for(col2 = 0; col2 < col1; col2++){
+	size_t loopCount = (numRegressors*numRegressors-numRegressors)/2;
+
+	cout << "Loop \t" << loopCount << endl;
+
+
+#pragma omp parallel for shared(cc, C0, x, xTSxt, dataMatrixRowSize, loopCount, cordX, cordY) num_threads(8)
+	for(size_t loop=0; loop<cordX.size(); loop++){
+
+			Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
+			for(size_t row = 0; row < dataMatrixRowSize; row++){
+				const Ciphertext<DCRTPoly> xTSk = (*C0)(row, cordX[loop]).GetNumerator();
+				const Ciphertext<DCRTPoly> xk   = (*x)(row, cordY[loop]).GetNumerator();
+
+				Ciphertext<DCRTPoly> temp = cc->EvalMult(xTSk, xk);
+
+				if(row == 0)
+					result = temp;
+				else
+					result = cc->EvalAdd(result, temp);
+			}
+			(*xTSxt)(cordX[loop], cordY[loop]).SetNumerator(result);
+	}
+
+#pragma omp parallel for shared(cc, x, xTSxt, loopCount, cordX, cordY) num_threads(8)
+	for(size_t loop=0; loop<cordX.size(); loop++){
+			Ciphertext<DCRTPoly> t = (*xTSxt)(cordX[loop], cordY[loop]).GetNumerator();
+			t = cc->EvalSum(t, cc->GetEncodingParams()->GetBatchSize());
+			(*xTSxt)(cordX[loop], cordY[loop]).SetNumerator(t);
+	}
+
+
+	for(size_t col1 = 0; col1 < numRegressors; col1++) {
+		for(size_t col2 = 0; col2 < col1; col2++){
+			(*xTSxt)(col2, col1).SetNumerator((*xTSxt)(col1, col2).GetNumerator());
+		}
+	}
+
+
 
 	return xTSxt;
 }
@@ -2628,7 +2723,89 @@ void doubleToBigInteger(double &in, BigInteger &out){
 			out = out*BigInteger(10) + BigInteger(atoi(temp.c_str()));
 		}
 	}
-
 }
+
+void doubleToBigInteger2(double &in, BigInteger &out){
+
+	vector<BigInteger> scale;
+
+	scale[0] = BigInteger(10);
+	for(size_t i=1; i<10; i++)
+		scale[i] = scale[i-1]*BigInteger(10);
+
+	string s, temp;
+
+	s = to_string(in);
+
+	size_t position = s.find(".");
+	s = s.substr(0, position);
+
+
+	size_t loopSize = s.length()/10;
+	if(s.length()%10 == 0)
+		loopSize++;
+
+	out = 0;
+	for(size_t i=0; i<loopSize; i++){
+
+		if(i == (loopSize-1)){
+			temp = s.substr(0, s.length()-1);
+			out = out*scale[s.length()-1] + BigInteger(atoi(temp.c_str()));
+		}
+		else{
+			temp = s.substr(0, 10);
+			out = out*scale[9] + BigInteger(atoi(temp.c_str()));
+		}
+
+		if(i != (loopSize-1))
+			s = s.substr(10, s.length()-1);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+	bool loop = true;
+
+	while(loop){
+
+		temp = s.substr(0, 10);
+
+		out = out*scale + BigInteger(atoi(temp.c_str()));
+
+
+	}
+
+*/
+
+/*
+	out = 0;
+	for(size_t i=0; i<s.size(); i++){
+
+		temp = s[i];
+		if(temp == ".")
+			break;
+		else{
+			out = out*BigInteger(10) + BigInteger(atoi(temp.c_str()));
+		}
+	}
+*/
+}
+
+
+
+
 
 
