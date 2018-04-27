@@ -70,7 +70,7 @@ elif regAlg == "POISSON":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 1
+    REGRLOOPCOUNT         = 12
 
     NUMTHREADS            = 8
     
@@ -146,7 +146,7 @@ glm.SetGLMContext()
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 ## Connect the socket to the port where the server is listening
-server_address = ('localhost', 1313)
+server_address = ('localhost', 1112)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
@@ -327,9 +327,10 @@ for loop in range(REGRLOOPCOUNT):
     print 'Completed' 
 
     ##########################################################
-    
+    t0 = time.time()
     print 'Error:', glm.ComputeError()
-
+    t1 = time.time()
+    print 'Error timing:\t', (t1-t0)     
     ##########################################################
     
     print '\n',

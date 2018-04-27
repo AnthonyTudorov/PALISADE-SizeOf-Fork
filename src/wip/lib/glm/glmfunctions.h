@@ -186,7 +186,7 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXAddYMu(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &y, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &muC);
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC0C1(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C1);
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC0C1C2(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0C1, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C2);
-
+shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC1C2(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C1, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C2);
 /////////////////////////////////////////////////////////////////////////
 /////////                     CRT/Encoding Functions            /////////
 /////////////////////////////////////////////////////////////////////////

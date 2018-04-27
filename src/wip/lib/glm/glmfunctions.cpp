@@ -268,7 +268,6 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 
     auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
 	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> C2;
-
 	for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2t = MultiplyXAddYMu(context.cc[k], context.y[k], context.x[k], muC[k]);
 		C2.push_back(C2t);
@@ -277,23 +276,7 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 	for(size_t k=0; k<primeList.size(); k++){
 
 		auto zeroAllocRationalCiphertext = [=]() { return context.cc[k]; };
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, 1, (*C1[k]).GetCols()));
-
-		for(size_t colIndex=0; colIndex<(*C1[k]).GetCols(); colIndex++){
-			Ciphertext<DCRTPoly> result;
-			for(size_t rowIndex=0; rowIndex<(*C1[k]).GetRows(); rowIndex++){
-
-				const Ciphertext<DCRTPoly> c1 = (*C1[k])(colIndex, rowIndex).GetNumerator();
-				const Ciphertext<DCRTPoly> c2 = (*C2[k])(0, rowIndex).GetNumerator();
-
-				const Ciphertext<DCRTPoly> t = context.cc[k]->EvalMult(c1, c2);
-				if(rowIndex == 0)
-					result = t;
-				else
-					result = context.cc[k]->EvalAdd(result, t);
-			}
-			(*C1C2t)(0, colIndex).SetNumerator(result);
-		}
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t = MultiplyC1C2(context.cc[k], C1[k], C2[k]);
 		C1C2.push_back(C1C2t);
 	}
 
@@ -654,7 +637,7 @@ void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, cons
 #endif
 
 #ifdef MEASURE_TIMING
-    start = currentDateTime();
+    double start2 = currentDateTime();
 #endif
 	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
 	auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
@@ -684,10 +667,11 @@ void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, cons
     	uint64_t prime = context.cc[k]->GetEncodingParams()->GetPlaintextModulus();
     	primeList.push_back(prime);
     }
-
+    start = currentDateTime();
     size_t colIndex = 0;
     CRTInterpolateMatrixEntrySelect(xTbCRT, *wTb, primeList, colIndex);
-
+    finish = currentDateTime();
+    cout << "CRT1\t" << finish-start << endl;
     vector<shared_ptr<Matrix<Plaintext>>> mu;
     vector<shared_ptr<Matrix<Plaintext>>> S;
     vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> muC;
@@ -697,11 +681,13 @@ void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, cons
     vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xTS;
     vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xTSx;
     vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> xwSyMu;
-
+    start = currentDateTime();
     size_t numCol;
     size_t numRow;
     ReadMetaData(path.ciphertextDataDir, path.ciphertextDataFileName, numCol, numRow);
 	LinkFunctionLogisticSigned(context.cc, *wTb, mu, S, numRow, primeList, regAlgorithm, params);
+    finish = currentDateTime();
+    cout << "Link\t" << finish-start << endl;
 
 	Matrix<BigInteger> muBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, context.cc[0]->GetRingDimension()));
 	Matrix<BigInteger> yBigInteger(Matrix<BigInteger>(zeroAllocBigInteger, dataMatrixRowSize, context.cc[0]->GetRingDimension()));
@@ -710,16 +696,28 @@ void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, cons
 	for(size_t i=0; i<mu.size(); i++){
 		muP.push_back(*mu[i]);
 	}
+	start = currentDateTime();
 	CRTInterpolateMatrixEntrySelect(muP, muBigInteger, primeList, colIndex);
+    finish = currentDateTime();
+    cout << "CRT2\t" << finish-start << endl;
 
+	start = currentDateTime();
 	vector<Matrix<Plaintext>> y;
 	for(size_t k=0; k<primeList.size(); k++){
 		shared_ptr<Matrix<Plaintext>> yP (new Matrix<Plaintext>(zeroAllocPacking, dataMatrixRowSize, 1));
 		context.cc[k]->DecryptMatrixNumerator(context.sk[k], context.y[k], &yP);
 		y.push_back(*yP);
 	}
-	CRTInterpolateMatrixEntrySelect(y, yBigInteger, primeList, colIndex);
+    finish = currentDateTime();
+    cout << "Dec\t" << finish-start << endl;
 
+	start = currentDateTime();
+	CRTInterpolateMatrixEntrySelect(y, yBigInteger, primeList, colIndex);
+    finish = currentDateTime();
+    cout << "CRT3\t" << finish-start << endl;
+
+
+	start = currentDateTime();
     for(size_t k = 0; k < primeList.size(); k++) {
 		size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
 		EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
@@ -733,9 +731,12 @@ void GLMClientLink(GLMContext &context, pathList &path, glmParams & params, cons
     	muC.push_back(muCt);
     	SC.push_back(SCt);
     }
-#ifdef MEASURE_TIMING
     finish = currentDateTime();
-    timingClient.process[0] = timingClient.process[0] + (finish - start);
+    cout << "Enc\t" << finish-start << endl;
+
+#ifdef MEASURE_TIMING
+    double finish2 = currentDateTime();
+    timingClient.process[0] = timingClient.process[0] + (finish2 - start2);
 #endif
 
 #ifdef MEASURE_TIMING
@@ -1714,7 +1715,15 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyWTransX(CryptoContext<D
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> result(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, dataMatrixRowSize, 1));
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xTbt(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, dataMatrixRowSize, numRegressors));
 
+	const Ciphertext<DCRTPoly> xi = (*x)(0, 0).GetNumerator();
+	const Ciphertext<DCRTPoly> bk = (*beta)(0, 0).GetNumerator();
+	Ciphertext<DCRTPoly> t = cc->EvalMult(xi, bk);
+
+	((*xTbt)(0, 0)).SetNumerator(t);
+
+
 //#pragma omp parallel for shared(beta, x, xTbt, dataMatrixRowSize, numRegressors, cc) default(shared) num_threads(8) collapse(2)
+#pragma omp parallel for shared(cc, x, beta, xTbt, dataMatrixRowSize, numRegressors) num_threads(8) collapse(2)
 	for(size_t row=0; row<dataMatrixRowSize; row++){
 		for(size_t col = 0; col < numRegressors; col++) {
 
@@ -1726,10 +1735,12 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyWTransX(CryptoContext<D
 		}
 	}
 
-	Ciphertext<DCRTPoly> tempSum(new CiphertextImpl<DCRTPoly>(cc));
+#pragma omp parallel for shared(cc, result, xTbt, dataMatrixRowSize, numRegressors) num_threads(8)
 	for(size_t row=0; row<dataMatrixRowSize; row++){
 
+		Ciphertext<DCRTPoly> tempSum(new CiphertextImpl<DCRTPoly>(cc));
 		tempSum = ((*xTbt)(row, 0)).GetNumerator();
+
 		for(size_t col = 1; col < numRegressors; col++) {
 
 			const Ciphertext<DCRTPoly> tm = ((*xTbt)(row, col)).GetNumerator();
@@ -1777,13 +1788,15 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransS(CryptoContext<D
 //	#pragma omp parallel for shared(x, SC, xTSt, numRegressors, cc) default(shared) num_threads(NUMTHREADS)
 	#pragma omp parallel for num_threads(NUMTHREAD)
 	#endif
-/*
+
 	Ciphertext<DCRTPoly> xi = (*x)(0, 0).GetNumerator();
 	Ciphertext<DCRTPoly> si = (*SC)(0,0).GetNumerator();
 
 	Ciphertext<DCRTPoly> result = cc->EvalMult(xi, si);
-*/
+
 //#pragma omp parallel for shared(x, SC, xTSt, dataMatrixRowSize, numRegressors) num_threads(8) collapse(2)
+
+#pragma omp parallel for shared(cc, x, SC, xTSt, dataMatrixRowSize, numRegressors) num_threads(8) collapse(2)
 	for(size_t row = 0; row < dataMatrixRowSize; row++) {
 		for(size_t col = 0; col < numRegressors; col++) {
 //			if(row!=0 && col!=0){
@@ -1796,6 +1809,7 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransS(CryptoContext<D
 			}
 		}
 //	}
+
 	return xTSt;
 }
 
@@ -1810,6 +1824,22 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 //#pragma omp parallel for shared(xTSt, x, xTSxt, k, numRegressors, cc) default(shared) num_threads(NUMTHREADS) collapse(2)
 #pragma omp parallel for num_threads(NUMTHREAD) collapse(2)
 #endif
+
+	Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
+	for(size_t row = 0; row < 1; row++){
+		const Ciphertext<DCRTPoly> xTSk = (*C0)(0, 0).GetNumerator();
+		const Ciphertext<DCRTPoly> xk   = (*x)(0, 0).GetNumerator();
+
+		Ciphertext<DCRTPoly> temp = cc->EvalMult(xTSk, xk);
+
+		if(row == 0)
+			result = temp;
+		else
+			result = cc->EvalAdd(result, temp);
+	}
+	(*xTSxt)(0, 0).SetNumerator(result);
+
+#pragma omp parallel for shared(cc, C0, x, xTSxt, dataMatrixRowSize, numRegressors) num_threads(8) collapse(2)
 	for(size_t col1 = 0; col1 < numRegressors; col1++) {
 		for(size_t col2 = 0; col2 < numRegressors; col2++){
 
@@ -1829,6 +1859,7 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 		}
 	}
 
+#pragma omp parallel for shared(cc, x, xTSxt, numRegressors) num_threads(8) collapse(2)
 	for(size_t col1 = 0; col1 < numRegressors; col1++) {
 		for(size_t col2 = 0; col2 < numRegressors; col2++){
 			Ciphertext<DCRTPoly> t = (*xTSxt)(col1, col2).GetNumerator();
@@ -1853,22 +1884,42 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXAddYMu(CryptoContext<D
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yMu = cc->EvalSubMatrix(y, muC);
 	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2t(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, 1, dataMatrixColSize));
 
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C2mid(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, dataMatrixRowSize, dataMatrixColSize));
+
+	const Ciphertext<DCRTPoly> c1 = (*x)(0, 0).GetNumerator();
+	const Ciphertext<DCRTPoly> c2 = (*yMu)(0, 0).GetNumerator();
+
+	const Ciphertext<DCRTPoly> t = cc->EvalMult(c1, c2);
+
+	(*C2mid)(0, 0).SetNumerator(t);
+
+#pragma omp parallel for shared(cc, x, yMu, C2mid, dataMatrixRowSize, dataMatrixColSize) num_threads(8) collapse(2)
 	for(size_t colIndex=0; colIndex<dataMatrixColSize; colIndex++){
-		Ciphertext<DCRTPoly> result;
 		for(size_t rowIndex=0; rowIndex<dataMatrixRowSize; rowIndex++){
 
 			const Ciphertext<DCRTPoly> c1 = (*x)(rowIndex, colIndex).GetNumerator();
 			const Ciphertext<DCRTPoly> c2 = (*yMu)(rowIndex, 0).GetNumerator();
 
 			const Ciphertext<DCRTPoly> t = cc->EvalMult(c1, c2);
-			if(rowIndex == 0)
-				result = t;
-			else
-				result = cc->EvalAdd(result, t);
+
+			(*C2mid)(rowIndex, colIndex).SetNumerator(t);
+		}
+	}
+
+#pragma omp parallel for shared(cc, C2t, C2mid, dataMatrixColSize, dataMatrixRowSize) num_threads(8)
+	for(size_t colIndex=0; colIndex<dataMatrixColSize; colIndex++){
+
+		Ciphertext<DCRTPoly> result = (*C2mid)(0, colIndex).GetNumerator();
+
+		for(size_t rowIndex=1; rowIndex<dataMatrixRowSize; rowIndex++){
+
+			const Ciphertext<DCRTPoly> t = (*C2mid)(rowIndex, colIndex).GetNumerator();
+			result = cc->EvalAdd(result, t);
 		}
 		(*C2t)(0, colIndex).SetNumerator(result);
 	}
 
+#pragma omp parallel for shared(cc, C2t, dataMatrixColSize) num_threads(8)
 	for(size_t colIndex=0; colIndex<dataMatrixColSize; colIndex++){
 
 		Ciphertext<DCRTPoly> t = (*C2t)(0, colIndex).GetNumerator();
@@ -1877,6 +1928,49 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXAddYMu(CryptoContext<D
 	}
 
 	return C2t;
+}
+
+shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC1C2(CryptoContext<DCRTPoly> &cc,
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C1,
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C2){
+
+	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2t(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, 1, (*C1).GetCols()));
+	shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> C1C2mid(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAllocRationalCiphertext, (*C1).GetRows(), (*C1).GetCols()));
+
+	const Ciphertext<DCRTPoly> c1 = (*C1)(0, 0).GetNumerator();
+	const Ciphertext<DCRTPoly> c2 = (*C2)(0, 0).GetNumerator();
+
+	const Ciphertext<DCRTPoly> t = cc->EvalMult(c1, c2);
+
+	(*C1C2mid)(0, 0).SetNumerator(t);
+
+#pragma omp parallel for shared(cc, C1, C2, C1C2mid) num_threads(8) collapse(2)
+	for(size_t colIndex=0; colIndex<(*C1).GetCols(); colIndex++){
+		for(size_t rowIndex=0; rowIndex<(*C1).GetRows(); rowIndex++){
+
+			const Ciphertext<DCRTPoly> c1 = (*C1)(colIndex, rowIndex).GetNumerator();
+			const Ciphertext<DCRTPoly> c2 = (*C2)(0, rowIndex).GetNumerator();
+
+			const Ciphertext<DCRTPoly> t = cc->EvalMult(c1, c2);
+
+			(*C1C2mid)(colIndex, rowIndex).SetNumerator(t);
+		}
+	}
+
+#pragma omp parallel for shared(cc, C1, C1C2mid, C1C2t) num_threads(8)
+	for(size_t colIndex=0; colIndex<(*C1).GetCols(); colIndex++){
+
+		Ciphertext<DCRTPoly> result = (*C1C2mid)(colIndex, 0).GetNumerator();
+
+		for(size_t rowIndex=1; rowIndex<(*C1).GetRows(); rowIndex++){
+			const Ciphertext<DCRTPoly> t = (*C1C2mid)(colIndex, rowIndex).GetNumerator();
+			result = cc->EvalAdd(result, t);
+		}
+		(*C1C2t)(0, colIndex).SetNumerator(result);
+	}
+
+	return C1C2t;
 }
 
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC0C1(CryptoContext<DCRTPoly> &cc,
@@ -1996,6 +2090,7 @@ void CRTInterpolateMatrixEntrySelect(const vector<Matrix<Plaintext>> &crtVector,
 	for (size_t i = 0; i < crtVector.size(); i++)
 		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
 
+#pragma omp parallel for shared(result, primeList, colIndex, qInverse, q, Q) num_threads(8) collapse(2)
 	for (size_t k = 0; k < result.GetRows(); k++){
 		for (size_t j = 0; j < result.GetCols(); j++){
 			BigInteger value = 0;
@@ -2028,6 +2123,7 @@ void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigI
 		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
 	}
 
+#pragma omp parallel for shared(result, primeList, crtVector, qInverse, q, Q) num_threads(8) collapse(2)
 	for (size_t k = 0; k < result.GetRows(); k++)
 	{
 		for (size_t j = 0; j < result.GetCols(); j++)
@@ -2328,6 +2424,7 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, shared_ptr<Matrix<doubl
 		auto zeroPackingAlloc = [=]() { return cc[k]->MakePackedPlaintext({0}); };
 		shared_ptr<Matrix<Plaintext>> CPt (new Matrix<Plaintext>(zeroPackingAlloc, (*CList).GetRows(), (*CList).GetCols()));
 
+#pragma omp parallel for shared(CList, CPt, cc, Q, primeList) private(temp, tempPushed) num_threads(8) collapse(2)
 		for(size_t i=0; i<(*CList).GetRows(); i++){
 			for(size_t j=0; j<(*CList).GetCols(); j++){
 				//FIXME: MAKE MORE EFFICIENT
