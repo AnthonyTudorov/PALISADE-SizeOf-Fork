@@ -60,7 +60,7 @@ CircuitGraphWithValues<Element>::Preprocess()
 		out->setOutputDepth(1);
 	}
 
-//	processNodeDepth();
+	processNodeDepth();
 }
 
 template<typename Element>
@@ -116,7 +116,7 @@ CircuitGraphWithValues<Element>::Execute(CryptoContext<Element> cc)
 {
 	for( int output : getOutputs() ) {
 		CircuitNodeWithValue<Element> *out = getNodeById(output);
-		out->eval(cc, *this);
+		out->Evaluate(Evaluate, cc, *this);
 	}
 }
 
@@ -124,6 +124,10 @@ template<typename Element>
 static void
 insertMRbetween(CircuitGraphWithValues<Element> *g, CircuitNodeWithValue<Element> *up, CircuitNodeWithValue<Element> *down)
 {
+	// FIXME - don't add M/R if it isn't supported in the scheme
+	return;
+
+
 	if( down->isModReduce() ) {
 		// just expand the thing
 		down->setInputDepth(up->getOutputDepth());

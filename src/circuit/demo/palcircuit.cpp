@@ -409,10 +409,10 @@ main(int argc, char *argv[])
 //		node.second->SetRuntime( times[s].timeval );
 //	}
 
-	if( print_all_flag || print_result_graph ) {
-		for( auto& node : cir.GetGraph().getAllNodes() ) {
+	// postprocess the nodes
+	for( auto& node : cir.GetGraph().getAllNodes() ) {
+		if( node.second->IsOutput() || print_all_flag || print_result_graph )
 			node.second->getValue().Decrypt(kp.secretKey);
-		}
 	}
 
 	if( print_all_flag ) {

@@ -77,14 +77,12 @@ void EvalAddNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, 
 }
 
 template<typename Element>
-Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
 
 	stringstream ss;
@@ -96,7 +94,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
-		Value<Element> v1( n1->eval(cc,cg) );
+		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
@@ -114,7 +112,7 @@ Value<Element> EvalAddNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	}
 
 	this->SetNoiseActual( noise );
-	return this->value;
+	return;
 }
 
 template<typename Element>
@@ -149,16 +147,14 @@ void EvalSubNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, 
 }
 
 template<typename Element>
-Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	stringstream ss;
 
 	if( this->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
-		Value<Element> v0( n0->eval(cc,cg) );
+		Value<Element> v0( n0->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -173,13 +169,13 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 			cout << ss.str() << endl;
 		}
 
-		return this->value;
+		return;
 	}
 
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
 
 	if( CircuitOpTrace ) {
@@ -190,7 +186,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
-		Value<Element> v1( n1->eval(cc,cg) );
+		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
@@ -208,7 +204,7 @@ Value<Element> EvalSubNodeWithValue<Element>::eval(CryptoContext<Element> cc, Ci
 	}
 
 	this->SetNoiseActual( noise );
-	return this->value;
+	return;
 }
 
 template<typename Element>
@@ -239,9 +235,7 @@ void EvalMultNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g,
 }
 
 template<typename Element>
-Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	stringstream ss;
 
@@ -257,7 +251,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 		for( auto nid : this->getInputs() ) {
 			auto n = cg.getNodeById(nid);
 			noiseTotal += n->GetNoiseActual();
-			Value<Element> v( n->eval(cc,cg) );
+			Value<Element> v( n->Evaluate(mode, cc, cg) );
 			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
 				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
@@ -272,8 +266,8 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 	else {
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		auto n1 = cg.getNodeById(this->getInputs()[1]);
-		Value<Element> v0( n0->eval(cc,cg) );
-		Value<Element> v1( n1->eval(cc,cg) );
+		Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -291,7 +285,7 @@ Value<Element> EvalMultNodeWithValue<Element>::eval(CryptoContext<Element> cc, C
 		cout << ss.str() << endl;
 	}
 
-	return this->value;
+	return;
 }
 
 template<typename Element>
@@ -312,21 +306,19 @@ void EvalRShiftNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& 
 }
 
 template<typename Element>
-Value<Element> EvalRShiftNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void EvalRShiftNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	if( this->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	auto n1 = cg.getNodeById(this->getInputs()[1]);
-	Value<Element> v0( n0->eval(cc,cg) );
-	Value<Element> v1( n1->eval(cc,cg) );
+	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+	Value<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 	this->value = v0 >> v1;
 
 	this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
-	return this->value;
+	return;
 }
 
 template<typename Element>
@@ -347,9 +339,7 @@ void EvalInnerProdNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element
 }
 
 template<typename Element>
-Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	if( this->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
@@ -383,7 +373,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 			}
 		}
 
-		Value<Element> v( cg.getNodeById(this->getInputs()[i])->eval(cc, cg) );
+		Value<Element> v( cg.getNodeById(this->getInputs()[i])->Evaluate(mode, cc, cg) );
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
@@ -393,7 +383,6 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 		}
 		vecp->push_back( v.GetCiphertextValue() );
 	}
-
 
 	auto arg1 = cc->EvalMerge(vec1);
 	auto arg2 = cc->EvalMerge(vec2);
@@ -410,7 +399,7 @@ Value<Element> EvalInnerProdNodeWithValue<Element>::eval(CryptoContext<Element> 
 	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	// FIXME this->SetNoise( ???? );
-	return this->value;
+	return;
 }
 
 template<typename Element>
@@ -429,14 +418,12 @@ void ModReduceNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g
 }
 
 template<typename Element>
-Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-	if( this->value.GetType() != UNKNOWN )
-		return this->value;
+void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	if( this->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->eval(cc,cg) );
+	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
 
 	switch( v0.GetType() ) {
 	case PLAINTEXT:
@@ -456,7 +443,7 @@ Value<Element> ModReduceNodeWithValue<Element>::eval(CryptoContext<Element> cc, 
 	}
 
 	this->SetNoiseActual( n0->GetNoiseActual() );
-	return this->value;
+	return;
 }
 
 #define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(n); }
