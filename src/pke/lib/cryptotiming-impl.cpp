@@ -47,7 +47,8 @@ struct FeatureMap {
 };
 
 static struct FeatureMap FeatureMap[] = {
-	{ OpNOOP, "NONE", ENCRYPTION },
+	{ OpNOOP, "No Op", ENCRYPTION },
+	{ OpUnknown, "Unknown", ENCRYPTION },
 	{ OpKeyGen, "KeyGen", ENCRYPTION },
 	{ OpMultiPartyKeyGenKey, "MultipartyKeyGen(key)", MULTIPARTY },
 	{ OpMultiPartyKeyGenKeyvec, "MultipartyKeyGen(vector<key>)", MULTIPARTY },
@@ -94,11 +95,14 @@ static struct FeatureMap FeatureMap[] = {
 	{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
 	{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
 	{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
-	{ OpEvalSum, "EvalSum", ENCRYPTION },
+	{ OpEvalSum, "EvalSum", SHE },
 	{ OpEvalAtIndex, "EvalAtIndex", SHE },
-	{ OpEvalInnerProduct, "EvalInnerProduct", ENCRYPTION },
-	{ OpEvalCrossCorrelation, "EvalCrossCorrelation", ENCRYPTION },
-	{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", ENCRYPTION }
+	{ OpEvalInnerProduct, "EvalInnerProduct", SHE },
+	{ OpEvalCrossCorrelation, "EvalCrossCorrelation", SHE },
+	{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", SHE },
+	{ OpEvalMerge, "EvalMerge", SHE },
+	{ OpEvalRightShift, "EvalRightShift", SHE }
+
 };
 
 map<OpType,string> OperatorName;

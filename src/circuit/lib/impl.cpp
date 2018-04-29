@@ -41,7 +41,7 @@ using namespace lbcrypto;
 #include "circuitnode.cpp"
 #include "circuitgraph.cpp"
 #include "palisadecircuit.cpp"
-#include "circuitinput.h"
+#include "circuitvalue.cpp"
 
 namespace lbcrypto {
 bool CircuitOpTrace;

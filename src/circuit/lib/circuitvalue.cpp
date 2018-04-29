@@ -1,5 +1,5 @@
 /**
- * @file value.h -- representation of a value in a circuit
+ * @file circuitinput.h -- Representation of objects into and out of a circuit
  * @author  TPOC: palisade@njit.edu
  *
  * @section LICENSE
@@ -26,18 +26,33 @@
  *
  * @section DESCRIPTION
  *
- * This code provides a representation for a value in a circuit
+ * This code provides support for input and output of a circuit
  *
  */
 
+#include "circuitvalue.h"
 
-#ifndef SRC_CIRCUIT_LIB_VALUE_H_
-#define SRC_CIRCUIT_LIB_VALUE_H_
+namespace lbcrypto {
 
-#include "palisade.h"
-#include "circuitinput.h"
-using namespace lbcrypto;
+// actual operations performed, based on types
+template<typename Element>
+map<OpKey,OpValue> CircuitValue<Element>::operations = {
+		{ OpKey(OpEvalAdd,CIPHERTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalAdd) },
+		{ OpKey(OpEvalAdd,PLAINTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalAddPlain) },
+		{ OpKey(OpEvalAdd,CIPHERTEXT,PLAINTEXT), OpValue(CIPHERTEXT,OpEvalAddPlain) },
+		{ OpKey(OpEvalAdd,MATRIX_RAT,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalAddMatrix) },
 
-template<typename Element> using Value = CircuitObject<Element>;
+		{ OpKey(OpEvalNeg,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalNeg) },
+		{ OpKey(OpEvalNeg,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalNegMatrix) },
 
-#endif /* SRC_CIRCUIT_LIB_VALUE_H_ */
+		{ OpKey(OpModReduce,CIPHERTEXT), OpValue(CIPHERTEXT,OpModReduce) },
+		{ OpKey(OpModReduce,MATRIX_RAT), OpValue(MATRIX_RAT,OpModReduceMatrix) },
+
+		{ OpKey(OpEvalMult,CIPHERTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalMult) },
+		{ OpKey(OpEvalMult,PLAINTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalMultPlain) },
+		{ OpKey(OpEvalMult,CIPHERTEXT,PLAINTEXT), OpValue(CIPHERTEXT,OpEvalMultPlain) },
+		{ OpKey(OpEvalMult,MATRIX_RAT,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalMultMatrix) },
+
+};
+
+}

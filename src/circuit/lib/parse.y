@@ -45,7 +45,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include "circuitinput.h"
+#include "circuitvalue.h"
 #include "circuitnode.h"
 
 class pdriver;

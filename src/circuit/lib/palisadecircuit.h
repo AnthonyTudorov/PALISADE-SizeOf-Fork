@@ -47,10 +47,10 @@ namespace lbcrypto {
 typedef	size_t CircuitKey;
 
 template<typename Element>
-using CircuitIOPair = pair<CircuitKey,const CircuitObject<Element>&>;
+using CircuitIOPair = pair<CircuitKey,const CircuitValue<Element>&>;
 
 template<typename Element>
-using CircuitInput = map<CircuitKey,CircuitObject<Element>>;
+using CircuitInput = map<CircuitKey,CircuitValue<Element>>;
 
 template<typename Element>
 using CircuitOutput = vector<CircuitIOPair<Element>>;

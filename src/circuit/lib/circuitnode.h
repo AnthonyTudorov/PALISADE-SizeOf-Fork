@@ -44,9 +44,9 @@
 #include <iomanip>
 using namespace std;
 
-#include "value.h"
 #include "palisade.h"
 #include "cryptocontext.h"
+#include "circuitvalue.h"
 
 namespace lbcrypto {
 
@@ -124,7 +124,8 @@ template<typename Element>
 class CircuitGraphWithValues;
 
 enum EvaluateMode {
-	Evaluate,	// actually perform the calculations
+	GetOperationsList,	// gather a list of operations that will be performed
+	Evaluate,			// actually perform the calculations
 };
 
 // we separate the implementation of the graph from the implementation of the values
@@ -135,9 +136,9 @@ private:
 	static vector<CircuitSimulation>	sim;
 
 protected:
-	Value<Element>	value;
+	CircuitValue<Element>	value;
 	usint			noiseval;
-	bool			visited;
+	bool				visited;
 	int				evalsequence;
 
 	usint			nodeInputDepth;
@@ -148,6 +149,8 @@ protected:
 	double			noisevalEstimate;
 	double			noisevalActual;
 
+	static	map<usint,map<OpType,int>>	opcountByNode;
+
 public:
 	CircuitNodeWithValue(CircuitNode *n) : CircuitNode(n) {
 		Reset();
@@ -156,6 +159,7 @@ public:
 	virtual ~CircuitNodeWithValue() {}
 
 	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
+	static const map<usint,map<OpType,int>>& GetOperationsMap() { return opcountByNode; }
 
 	wire_type GetType() const { return value.GetType(); }
 
@@ -178,9 +182,9 @@ public:
 	double GetRuntimeActual() const { return runtimeActual; }
 	void SetRuntimeActual(double n) { runtimeActual = n; }
 
-	Value<Element>& getValue() { return value; }
-	const Value<Element>& getValue() const { return value; }
-	void setValue(const Value<Element>& v) { value = v; }
+	CircuitValue<Element>& getValue() { return value; }
+	const CircuitValue<Element>& getValue() const { return value; }
+	void setValue(const CircuitValue<Element>& v) { value = v; }
 
 	// Each node needs to identify the operations that it performs,
 	// and in which order
@@ -190,8 +194,8 @@ public:
 	}
 
 	// this method is a wrapper for all of the operations that might be performed
-	// on this node. It allows for execution time measurements, gathering
-	Value<Element> Evaluate(
+	// on this node. The first argument determines the operation
+	CircuitValue<Element> Evaluate(
 			EvaluateMode mode,
 			CryptoContext<Element> cc,
 			CircuitGraphWithValues<Element>& cg) {
@@ -233,7 +237,7 @@ public:
 		visited = false;
 		evalsequence = -1;
 		if( IsInput() == false && value.GetType() != UNKNOWN ) {
-			value = Value<Element>();
+			value = CircuitValue<Element>();
 		}
 	}
 
@@ -261,7 +265,7 @@ public:
 		if( n.GetNoiseActual() != 0 )
 			out << "\\n(noise=" << n.GetNoiseActual() << ")\\n";
 
-		const Value<Element>& val = n.getValue();
+		const CircuitValue<Element>& val = n.getValue();
 		if( val.GetType() != UNKNOWN ) {
 			out << val;
 		}
@@ -279,6 +283,10 @@ public:
 
 template<typename Element>
 int	CircuitNodeWithValue<Element>::step;
+
+template<typename Element>
+map<usint,map<OpType,int>> CircuitNodeWithValue<Element>::opcountByNode;
+
 
 template<typename Element>
 vector<CircuitSimulation> CircuitNodeWithValue<Element>::sim;
@@ -367,7 +375,7 @@ class ConstIntWithValue : public CircuitNodeWithValue<Element> {
 public:
 	ConstIntWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
 		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
-		this->value = Value<Element>(nn.GetInt());
+		this->value = CircuitValue<Element>(nn.GetInt());
 	}
 
 	OpType OpTag() const { return OpNOOP; }

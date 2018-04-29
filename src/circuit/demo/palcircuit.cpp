@@ -48,20 +48,13 @@ void usage() {
 	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
 	cout << "-gproc[=file]  --  print a graph of the preprocessed input circuit, DOT format" << endl;
 	cout << "-gresult[=file]  --  print a graph of the result of executing the circuit, DOT format" << endl;
+	cout << "-econtext[=file] -- export a serialization of the context to file" << endl;
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
 	cout << "-printall  --  prints value of every node after evaluation" << endl;
 	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-h  --  this message" << endl;
-}
-
-void PrintOperationSet(ostream& out, vector<CircuitSimulation>& timings) {
-	map<OpType,bool> ops;
-	for( int i=0; i < timings.size(); i++ )
-		ops[ timings[i].op ] = true;
-	for( auto op : ops )
-		out << op.first << endl;
 }
 
 void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
@@ -87,12 +80,20 @@ main(int argc, char *argv[])
 	bool evaluation_list_mode = false;
 	bool evaluation_run_mode = false;
 	bool print_all_flag = false;
-	ofstream	evalListF;
-	ifstream	evalStatF;
+	bool print_context_flag = false;
+
+	ofstream contextF;
+	ostream *ctxStr = &cout;
+
+	ofstream evalListF;
+	ostream *elistStr = &cout;
+
+	ifstream evalStatF;
+
+	ofstream inGF, procGF, resultGF;
 	ostream	*inGraph = &cout;
 	ostream	*procGraph = &cout;
 	ostream	*resultGraph = &cout;
-	ofstream inGF, procGF, resultGF;
 
 	string inputfile;
 	string specfile;
@@ -160,14 +161,27 @@ main(int argc, char *argv[])
 			usage();
 			return 0;
 		}
+		else if( arg == "-econtext" ) {
+			print_context_flag = true;
+			if( argf.size() > 0 ) {
+				contextF.open(argf, ostream::out);
+				if( !contextF.is_open() ) {
+					cout << "Unable to open file " << argf << endl;
+					return 1;
+				}
+				ctxStr = &contextF;
+			}
+		}
 		else if( arg == "-elist" ) {
 			evaluation_list_mode = true;
-			evalListF.open(argf, ofstream::out);
-			if( !evalListF.is_open() ) {
-				cout << "Unable to open file " << argf << endl;
-				return 1;
+			if( argf.size() > 0 ) {
+				evalListF.open(argf, ofstream::out);
+				if( !evalListF.is_open() ) {
+					cout << "Unable to open file " << argf << endl;
+					return 1;
+				}
+				elistStr = &evalListF;
 			}
-			continue;
 		}
 		else if( arg == "-estats" ) {
 			evaluation_run_mode = true;
@@ -227,14 +241,14 @@ main(int argc, char *argv[])
 	ep->SetBatchSize(1024);
 
 	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
-	if( evaluation_list_mode ) {
+	if( print_context_flag ) {
 		Serialized serObj;
 		serObj.SetObject();
 		if( cc->Serialize(&serObj) == false ) {
 			cout << "Can't serialize CryptoContext" << endl;
 			return 1;
 		}
-		SerializableHelper::SerializationToStream(serObj, evalListF);
+		SerializableHelper::SerializationToStream(serObj, *ctxStr);
 	}
 
 	// when generating timing estimates, need to read in the Context and the timings
@@ -262,7 +276,7 @@ main(int argc, char *argv[])
 		evalStatF.close();
 	}
 
-	// PARSE THE GRAPH
+	// PARSE THE CIRCUIT
 	pdriver driver(debug_parse);
 
 	if( verbose ) {
@@ -284,7 +298,7 @@ main(int argc, char *argv[])
 	// create a circuit with values from the graph
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
 
-	// create a circuit with values from the graph
+	// From the parsed circuit, create a graph that can hold values
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
 
 	if( print_input_graph ) {
@@ -296,6 +310,9 @@ main(int argc, char *argv[])
 	// ASSIGN DEPTHS (and, eventually, optimize)
 	if( verbose ) cout << "Preprocessing" << endl;
 	cir.GetGraph().Preprocess();
+
+	if( verbose )
+		cout << "Maximum depth is " << cir.GetGraph().GetMaximumDepth() << endl;
 
 	if( print_preproc_graph ) {
 		cir.GetGraph().DisplayGraph(*procGraph);
@@ -314,7 +331,7 @@ main(int argc, char *argv[])
 	// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 	if( evaluation_run_mode ) {
 		vector<CircuitSimulation> opslist;
-		cir.GetGraph().GenerateOperationList(opslist);
+		cir.GetGraph().GenerateOperationList(cc);
 		cir.GetGraph().UpdateRuntimeEstimates(opslist, timings);
 		cir.GetGraph().PrintRuntimeEstimates(cout);
 	}

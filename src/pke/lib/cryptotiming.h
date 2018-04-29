@@ -40,6 +40,7 @@ namespace lbcrypto {
 // this enum is used to identify the various operations when doing timings
 enum OpType {
 	OpNOOP,
+	OpUnknown,
 	OpKeyGen,
 	OpMultiPartyKeyGenKey, OpMultiPartyKeyGenKeyvec,
 	OpMultiPartyDecryptLead, OpMultiPartyDecryptMain, OpMultiPartyDecryptFusion,

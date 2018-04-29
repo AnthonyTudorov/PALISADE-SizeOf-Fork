@@ -43,7 +43,7 @@ using namespace std;
 
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "circuitinput.h"
+#include "circuitvalue.h"
 #include "circuitnode.h"
 #include "palisadecircuit.h"
 
@@ -138,8 +138,6 @@ public:
 
 	int GenNodeNumber() { return allNodes.rbegin()->first + 1; }
 
-	LPPrivateKey<Element>	_graph_key;
-
 	const vector<usint>& getInputs() const { return g.getInputs(); }
 	const vector<usint>& getOutputs() const { return g.getOutputs(); }
 
@@ -154,13 +152,48 @@ public:
 	}
 
 	void Preprocess();
-	void GenerateOperationList(vector<CircuitSimulation>& ops);
+	void GenerateOperationList(CryptoContext<Element> cc);
+
+	void PrintOperationSet(ostream& out, bool verbose=false) {
+		const map<usint,map<OpType,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+		map<OpType,int> ops;
+
+		for( auto& it : opmap ) {
+			for( auto& iit : it.second ) {
+				ops[iit.first] += iit.second;
+			}
+		}
+
+		if( verbose ) {
+			for( auto& it : opmap ) {
+				out << "Node " << it.first << " ";
+				for( auto& iit : it.second ) {
+					out << iit.first << ":" << iit.second << " ";
+				}
+				out << endl;
+			}
+		}
+		else {
+			for( auto op : ops )
+				out << op.first << ":" << op.second << endl;
+		}
+	}
 
 	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
 	void PrintRuntimeEstimates(ostream& out);
 
 	void processNodeDepth();
 	void resetAllDepths();
+
+	int GetMaximumDepth() {
+		int answer = -1;
+
+		for( const auto& n : this->getAllNodes() )
+			if( n.second->getOutputDepth() > answer )
+				answer = n.second->getOutputDepth();
+		return answer;
+	}
+
 	void Execute(CryptoContext<Element> cc);
 
 	wire_type GetTypeForNode(usint id) {

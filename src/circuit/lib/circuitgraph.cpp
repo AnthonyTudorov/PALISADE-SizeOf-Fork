@@ -65,12 +65,12 @@ CircuitGraphWithValues<Element>::Preprocess()
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::GenerateOperationList(vector<CircuitSimulation>& ops)
+CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc)
 {
+	this->ClearVisited();
 	for( int output : getOutputs() ) {
 		auto out = getNodeById(output);
-		this->ClearVisited();
-		out->simeval(*this, ops);
+		out->Evaluate(GetOperationsList, cc, *this);
 	}
 }
 

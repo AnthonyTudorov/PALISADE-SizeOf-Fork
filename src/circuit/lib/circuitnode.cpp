@@ -49,9 +49,6 @@ void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>
 	return;
 }
 
-// note that for our purposes here, INT and VECTOR_INT can be considered the same thing
-// since an INT is simply a vector with one entry and the rest zeroes
-
 template<typename Element>
 void EvalAddNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
 	if( this->Visited() )
@@ -82,7 +79,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
 
 	stringstream ss;
@@ -94,15 +91,21 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
-		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
 		}
 
-		v0 = v0 + v1;
-
-		noise += n1->GetNoiseActual();
+		if( mode == GetOperationsList ) {
+			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
+			this->opcountByNode[this->GetId()][ov.GetOp()]++;
+			v0.SetType(ov.GetWire());
+		}
+		else if( mode == Evaluate ) {
+			v0 = v0 + v1;
+			noise += n1->GetNoiseActual();
+		}
 	}
 
 	this->value = v0;
@@ -154,7 +157,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( this->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
-		Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -162,8 +165,15 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			ss << this->getInputs()[0] << " (" << v0 << ")";
 		}
 
-		this->value = -v0;
-		this->SetNoiseActual( n0->GetNoiseActual() );
+		if( mode == GetOperationsList ) {
+			auto ov = CircuitValue<Element>::OperatorType(OpEvalNeg,v0);
+			this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
+			this->value.SetType(ov.GetWire());
+		}
+		else if( mode == Evaluate ) {
+			this->value = -v0;
+			this->SetNoiseActual( n0->GetNoiseActual() );
+		}
 
 		if( CircuitOpTrace ) {
 			cout << ss.str() << endl;
@@ -175,7 +185,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
 
 	if( CircuitOpTrace ) {
@@ -186,15 +196,21 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
-		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
 		}
 
-		v0 = v0 - v1;
-
-		noise += n1->GetNoiseActual();
+		if( mode == GetOperationsList ) {
+			auto ov = CircuitValue<Element>::OperatorType(OpEvalSub,v0,v1);
+			this->opcountByNode[this->GetId()][ov.GetOp()]++;
+			v0.SetType(ov.GetWire());
+		}
+		else if( mode == Evaluate ) {
+			v0 = v0 - v1;
+			noise += n1->GetNoiseActual();
+		}
 	}
 
 	this->value = v0;
@@ -251,7 +267,7 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 		for( auto nid : this->getInputs() ) {
 			auto n = cg.getNodeById(nid);
 			noiseTotal += n->GetNoiseActual();
-			Value<Element> v( n->Evaluate(mode, cc, cg) );
+			CircuitValue<Element> v( n->Evaluate(mode, cc, cg) );
 			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
 				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
@@ -259,15 +275,20 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			cvec.push_back( v.GetCiphertextValue() );
 		}
 
-		this->value = cc->EvalMultMany( cvec );
-
-		this->SetNoiseActual( noiseTotal );
+		if( mode == GetOperationsList ) {
+			this->opcountByNode[this->GetId()][OpEvalMultMany] = 1;
+			this->value.SetType(CIPHERTEXT);
+		}
+		else if( mode == Evaluate ) {
+			this->value = cc->EvalMultMany( cvec );
+			this->SetNoiseActual( noiseTotal );
+		}
 	}
 	else {
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		auto n1 = cg.getNodeById(this->getInputs()[1]);
-		Value<Element> v0( n0->Evaluate(mode, cc, cg) );
-		Value<Element> v1( n1->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -276,9 +297,15 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			ss << " and " << this->getInputs()[1] << " (" << v1 << ")";
 		}
 
-		this->value = v0 * v1;
-
-		this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
+		if( mode == GetOperationsList ) {
+			auto ov = CircuitValue<Element>::OperatorType(OpEvalMult,v0,v1);
+			this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
+			this->value.SetType(ov.GetWire());
+		}
+		else if( mode == Evaluate ) {
+			this->value = v0 * v1;
+			this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
+		}
 	}
 
 	if( CircuitOpTrace ) {
@@ -312,12 +339,18 @@ void EvalRShiftNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Ele
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	auto n1 = cg.getNodeById(this->getInputs()[1]);
-	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
-	Value<Element> v1( n1->Evaluate(mode, cc, cg) );
+	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
+	CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
 
-	this->value = v0 >> v1;
+	if( mode == GetOperationsList ) {
+		this->opcountByNode[this->GetId()][OpEvalRightShift] = 1;
+		this->value.SetType(CIPHERTEXT);
+	}
+	else if( mode == Evaluate ) {
+		this->value = v0 >> v1;
+		this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
+	}
 
-	this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
 	return;
 }
 
@@ -373,7 +406,7 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 			}
 		}
 
-		Value<Element> v( cg.getNodeById(this->getInputs()[i])->Evaluate(mode, cc, cg) );
+		CircuitValue<Element> v( cg.getNodeById(this->getInputs()[i])->Evaluate(mode, cc, cg) );
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
@@ -384,21 +417,30 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 		vecp->push_back( v.GetCiphertextValue() );
 	}
 
-	auto arg1 = cc->EvalMerge(vec1);
-	auto arg2 = cc->EvalMerge(vec2);
-
-	if( CircuitOpTrace ) {
-		ss << "}\nEvalInnerProduct of results, depth " << innerProdDepth;
+	if( mode == GetOperationsList ) {
+		this->opcountByNode[this->GetId()][OpEvalMerge] = 2;
+		this->opcountByNode[this->GetId()][OpEvalInnerProduct] = 1;
+		this->value.SetType(CIPHERTEXT);
 	}
+	else if( mode == Evaluate ) {
 
-	this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
+		auto arg1 = cc->EvalMerge(vec1);
+		auto arg2 = cc->EvalMerge(vec2);
 
-	if( CircuitOpTrace ) {
-		cout << ss.str() << endl;
+		if( CircuitOpTrace ) {
+			ss << "}\nEvalInnerProduct of results, depth " << innerProdDepth;
+		}
+
+		this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
+
+		if( CircuitOpTrace ) {
+			cout << ss.str() << endl;
+		}
+
+		// FIXME this->SetNoise( ???? );
 	}
 	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
-	// FIXME this->SetNoise( ???? );
 	return;
 }
 
@@ -423,26 +465,34 @@ void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elem
 	if( this->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	Value<Element> v0( n0->Evaluate(mode, cc, cg) );
+	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 
-	switch( v0.GetType() ) {
-	case PLAINTEXT:
-		this->value = v0;
-		break;
-
-	case CIPHERTEXT:
-		this->value = cc->ModReduce(v0.GetCiphertextValue());
-		break;
-
-	case MATRIX_RAT:
-		this->value = cc->ModReduceMatrix(v0.GetMatrixRtValue());
-		break;
-
-	default:
-		break;
+	if( mode == GetOperationsList ) {
+		auto ov = CircuitValue<Element>::OperatorType(OpModReduce,v0);
+		this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
+		v0.SetType(ov.GetWire());
 	}
+	else if( mode == Evaluate ) {
 
-	this->SetNoiseActual( n0->GetNoiseActual() );
+		switch( v0.GetType() ) {
+		case PLAINTEXT:
+			this->value = v0;
+			break;
+
+		case CIPHERTEXT:
+			this->value = cc->ModReduce(v0.GetCiphertextValue());
+			break;
+
+		case MATRIX_RAT:
+			this->value = cc->ModReduceMatrix(v0.GetMatrixRtValue());
+			break;
+
+		default:
+			break;
+		}
+
+		this->SetNoiseActual( n0->GetNoiseActual() );
+	}
 	return;
 }
 

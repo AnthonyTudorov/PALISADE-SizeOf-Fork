@@ -34,6 +34,7 @@
 #define SRC_CIRCUIT_CIRCUITINPUT_H_
 
 #include "palisade.h"
+#include "cryptotiming.h"
 #include <memory>
 #include <iostream>
 using std::shared_ptr;
@@ -82,8 +83,38 @@ inline std::ostream& operator<<(std::ostream& out, const wire_type& ty)
 
 namespace lbcrypto {
 
+class OpKey {
+	OpType		op;
+	wire_type	t1;
+	wire_type	t2;
+public:
+	OpKey(OpType op, wire_type t1, wire_type t2=UNKNOWN) : op(op), t1(t1), t2(t2) {}
+	bool operator<(const OpKey& k) const {
+		if( this->op < k.op )
+			return true;
+		if( this->op > k.op )
+			return false;
+		if( this->t1 < k.t1 )
+			return true;
+		if( this->t1 > k.t1 )
+			return false;
+		if( this->t2 < k.t2 )
+			return true;
+		return false;
+	}
+};
+
+class OpValue {
+	wire_type	t;
+	OpType		op;
+public:
+	OpValue(wire_type t, OpType op) : t(t), op(op) {}
+	wire_type GetWire() const { return t; }
+	OpType GetOp() const { return op; }
+};
+
 template<typename Element>
-class CircuitObject {
+class CircuitValue {
 	wire_type	t;
 	usint		ival = 0;
 	Plaintext	pt;
@@ -96,15 +127,24 @@ class CircuitObject {
 	shared_ptr<Matrix<Plaintext>> numerator;
 	shared_ptr<Matrix<Plaintext>> denominator;
 
+	static map<OpKey,OpValue> operations;
 
 public:
-	CircuitObject() : t(UNKNOWN) {}
-	CircuitObject(usint ival) : t(INT), ival(ival) {}
-	CircuitObject(const Plaintext pt) : t(PLAINTEXT), pt(pt) {}
-	CircuitObject(const Ciphertext<Element> ct) : t(CIPHERTEXT), ct(ct) {}
+	CircuitValue() : t(UNKNOWN) {}
+	CircuitValue(usint ival) : t(INT), ival(ival) {}
+	CircuitValue(const Plaintext pt) : t(PLAINTEXT), pt(pt) {}
+	CircuitValue(const Ciphertext<Element> ct) : t(CIPHERTEXT), ct(ct) {}
 	//	CircuitObject(const shared_ptr<RationalCiphertext<Element>> rct) : t(VECTOR_RAT), rct(rct) {}
 	//	CircuitObject(const shared_ptr<Matrix<Ciphertext<Element>>> mct) : t(MATRIX_INT), mct(mct) {}
-	CircuitObject(const shared_ptr<Matrix<RationalCiphertext<Element>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
+	CircuitValue(const shared_ptr<Matrix<RationalCiphertext<Element>>> mrct) : t(MATRIX_RAT), mrct(mrct) {}
+
+	static OpValue OperatorType(OpType op, const CircuitValue& v0, const CircuitValue& v1 = CircuitValue()) {
+		OpKey k(op, v0.GetType(), v1.GetType());
+		auto val = operations.find(k);
+		if( val == operations.end() )
+			return OpValue(UNKNOWN,OpUnknown);
+		return val->second;
+	}
 
 	wire_type GetType() const { return t; }
 
@@ -122,7 +162,7 @@ public:
 	}
 
 	// unary minus
-	CircuitObject<Element> operator-() const {
+	CircuitValue<Element> operator-() const {
 		switch( this->GetType() ) {
 		case CIPHERTEXT: {
 			auto op1 = this->GetCiphertextValue();
@@ -143,7 +183,7 @@ public:
 		}
 	}
 
-	CircuitObject<Element> operator+(const CircuitObject<Element>& other) const {
+	CircuitValue<Element> operator+(const CircuitValue<Element>& other) const {
 		switch( this->GetType() ) {
 		case PLAINTEXT:
 		case INT: {
@@ -214,7 +254,7 @@ public:
 		}
 	}
 
-	CircuitObject<Element> operator-(const CircuitObject<Element>& other) const {
+	CircuitValue<Element> operator-(const CircuitValue<Element>& other) const {
 		switch( this->GetType() ) {
 		case PLAINTEXT:
 		case INT: {
@@ -286,7 +326,7 @@ public:
 	}
 
 
-	CircuitObject<Element> operator*(const CircuitObject<Element>& other) const {
+	CircuitValue<Element> operator*(const CircuitValue<Element>& other) const {
 		switch( this->GetType() ) {
 		case PLAINTEXT:
 		case INT: {
@@ -357,7 +397,7 @@ public:
 		}
 	}
 
-	CircuitObject<Element> operator>>(const CircuitObject<Element>& other) const {
+	CircuitValue<Element> operator>>(const CircuitValue<Element>& other) const {
 		if( this->GetType() != CIPHERTEXT )
 			PALISADE_THROW(type_error, "Right shift operation not available for left-hand operand's type");
 		if( other.GetType() != INT )
@@ -379,7 +419,7 @@ public:
 			auto cc = (*op1)(0,0).GetCryptoContext();
 			cc->DecryptMatrix(key, this->GetMatrixRtValue(), &numerator, &denominator);
 		}
-			break;
+		break;
 
 		case CIPHERTEXT: {
 			auto ct = this->GetCiphertextValue();
@@ -393,7 +433,7 @@ public:
 		}
 	}
 
-	friend ostream& operator<<(ostream& out, const CircuitObject<Element>& e) {
+	friend ostream& operator<<(ostream& out, const CircuitValue<Element>& e) {
 		switch( e.GetType() ) {
 		case PLAINTEXT:
 			out << e.GetPlaintextValue();
