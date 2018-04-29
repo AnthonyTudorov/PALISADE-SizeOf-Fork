@@ -27,12 +27,12 @@ int main()
 
 
 	//KPABE_BenchmarkCircuitTestDCRT(4, 32);
-	if (TestDCRTVecDecompose<DCRTPoly, Poly>(16,51,32,1))
+	if (TestDCRTVecDecompose<DCRTPoly, Poly>(16,51,2048,1))
 		std::cout << "NAF digit decomposition test: SUCCESS" << std::endl;
 	else
 		std::cout << "NAF digit decomposition test: FAILURE" << std::endl;
 
-	if (TestDCRTVecDecompose<DCRTPoly, Poly>(17,51,32,2))
+	if (TestDCRTVecDecompose<DCRTPoly, Poly>(17,51,2048,2))
 		std::cout << "Randomized digit decomposition test: SUCCESS" << std::endl;
 	else
 		std::cout << "Randomized digit decomposition test: FAILURE" << std::endl;
