@@ -42,9 +42,11 @@ public:
 	LatticeSubgaussianUtility(const uint32_t &base, const Integer &modulus, const uint32_t &k) :
 		m_base(base), m_modulus(modulus), m_k(k) {Precompute();};
 
-	void InverseG(const Integer &u, vector<int64_t> *output);
+	void InverseG(const Integer &u, vector<int64_t> *output) const;
 
-	void BcBD(const vector<double> &target, vector<int64_t> *v);
+	void BcBD(const vector<double> &target, vector<int64_t> *v) const;
+
+	const uint32_t GetK() const {return m_k;}
 
 private:
 
@@ -60,6 +62,8 @@ private:
 	vector<double> m_d;
 
 };
+
+void InverseRingVector(const LatticeSubgaussianUtility<BigInteger,BigVector> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB, Matrix<Poly> *psi);
 
 }
 

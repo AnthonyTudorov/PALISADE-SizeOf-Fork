@@ -55,7 +55,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::InverseG(const Integer &u, vector<int64_t> *output) {
+	void LatticeSubgaussianUtility<Integer,Vector>::InverseG(const Integer &u, vector<int64_t> *output) const{
 
 		//create a decomposition vector for the target and the modulus q
 
@@ -98,7 +98,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const vector<double> &target, vector<int64_t> *v) {
+	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const vector<double> &target, vector<int64_t> *v) const{
 
 		std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
@@ -141,6 +141,45 @@ namespace lbcrypto {
 				//cout<<"bottom plane"<<endl;
 			}
 			//cout<<v[i]<<endl;
+		}
+
+	}
+
+	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger,BigVector> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB, Matrix<Poly> *psi){
+
+		usint n = ilParams->GetCyclotomicOrder() >> 1;
+		usint m = pubElemB.GetCols();
+		BigInteger q = ilParams->GetModulus();
+
+		uint32_t k = util.GetK();
+
+		vector<int64_t> digits(k);
+
+		for (usint i=0; i<m; i++) {
+			auto tB = pubElemB(0, i);
+
+			// make sure the transform ring elements are in coefficient domain
+			if(tB.GetFormat() != COEFFICIENT){
+				tB.SwitchFormat();
+			}
+
+			for(size_t j=0; j<n; j++) {
+
+				util.InverseG(tB[j],&digits);
+
+				/*std::cout << tB[j] << std::endl;
+				std::cout << digits<< std::endl;
+				std::cin.get();*/
+
+				for(size_t p=0; p<k; p++) {
+					if (digits[p] > 0)
+						(*psi)(p,i)[j] = digits[p];
+					else
+						(*psi)(p,i)[j] = q - BigInteger(-digits[p]);
+				}
+
+			}
+
 		}
 
 	}

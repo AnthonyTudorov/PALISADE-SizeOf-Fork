@@ -31,7 +31,7 @@ int main(){
 
 	double timeEval;
 
-	long b = 257; long q = 10000000; long k = (long)ceil(log2(q)/log2(b)); 
+	long b = 17; long q = 10000000; long k = (long)ceil(log2(q)/log2(b));
 	NTL::Vec<long> output; output.SetLength(k);
 
 	long u = 699211;
@@ -79,6 +79,32 @@ cout<<"********************** output = "<<endl;
 	}
 
 cout<<"g^t * output 2 = "<<test1<<endl;
+
+BigInteger bigModulus = BigInteger("3079705401285115676503558331198");
+long kBig = (long)ceil(log2(bigModulus.ConvertToDouble())/log2(b));
+
+LatticeSubgaussianUtility<BigInteger,BigVector> samplerBig(b,bigModulus,kBig);
+
+vector<int64_t> nativeOutputBig(kBig);
+
+TIC(t1); //start timer for total time
+for (size_t i = 0; i<count; i++)
+	samplerBig.InverseG(bigModulus>>2, &nativeOutputBig);
+timeEval = TOC_US(t1);
+
+std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds" << std::endl;
+
+//test the output
+BigInteger testBig1 = 0; BigInteger bBig_i1 = 1;
+cout<<"********************** output = "<<endl;
+	for(int i = 0; i<kBig; i++){
+		testBig1 +=nativeOutputBig[i]*bBig_i1;
+		bBig_i1 = bBig_i1*b;
+		std::cout<<nativeOutputBig[i]<<std::endl;
+	}
+
+cout<<"g^t * output 2 = "<<testBig1<<endl;
+
 return 0;
 }
 
