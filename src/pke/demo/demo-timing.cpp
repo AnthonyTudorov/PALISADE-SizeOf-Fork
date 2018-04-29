@@ -37,316 +37,13 @@ using namespace lbcrypto;
 using std::cout;
 
 #include <fstream>
-#include <set>
+#include <unordered_set>
 using std::istream;
 using std::ostream;
-using std::set;
-
-int MaxIterations = 100;
-unsigned int NumInputs = 10;
-bool PrintSizes = false;
-string progname;
-
-vector<PKESchemeFeature> features( {ENCRYPTION, PRE, SHE, FHE, LEVELEDSHE, MULTIPARTY} );
-
-
-template<typename Element>
-int generateTimings(bool verbose, CryptoContext<Element> cc, usint emask=(ENCRYPTION|PRE|SHE|FHE|LEVELEDSHE|MULTIPARTY)) {
-
-	// enable all the features I was asked to enable
-	// remember the ones that were successfully enabled in tmask
-	// be silent about failures
-	usint tmask = 0;
-	for( auto f : features ) {
-		try {
-			if( emask & f ) {
-				cc->Enable(f);
-				tmask |= f;
-			}
-		} catch(...) {}
-	}
-
-	cout << *cc->GetCryptoParameters() << endl;
-
-	// make NumInputs random vectors
-	Plaintext inputs[NumInputs];
-	{
-		auto maxval = cc->GetCryptoParameters()->GetPlaintextModulus() / 2;
-		vector<int64_t> vec;
-		auto maxentry = cc->GetRingDimension();
-
-		for( size_t i=0; i<NumInputs; i++ ) {
-			vec.clear();
-			for( size_t n=0; n<maxentry; n++ )
-				vec.push_back( (rand() % maxval) * ((rand() % 1) > 0 ? 1 : -1) );
-			inputs[i] = cc->MakeCoefPackedPlaintext(vec);
-		}
-	}
-
-	// note we can NOT use the TimingInfo on a Windows platform because
-	// of clock granularity (or lack thereof)
-	// Therefore we simply repeat the calls and calculate an average
-	//	vector<TimingInfo>	times;
-	//	cc->StartTiming(&times);
-
-	// container for timing statistics
-	map<OpType,TimingStatistics*> stats;
-	TimeVar t;
-	double span;
-
-	// ENCRYPTION: KeyGen, Encrypt (2 kinds) and Decrypt
-
-	if( verbose )
-		cerr << "ENCRYPTION" << endl;
-
-	LPKeyPair<Element> kp;
-	Ciphertext<Element> crypt;
-
-	if( tmask & ENCRYPTION ) {
-		TIC(t);
-		for( int reps=0; reps < MaxIterations; reps++ ) {
-			kp = cc->KeyGen();
-		}
-		span = TOC_MS(t);
-		stats[OpKeyGen] = new TimingStatistics(OpKeyGen, MaxIterations, span);
-
-		Plaintext decrypted;
-
-		crypt = cc->Encrypt(kp.publicKey, inputs[0]);
-		TIC(t);
-		for( int reps=0; reps < MaxIterations; reps++ ) {
-			crypt = cc->Encrypt(kp.publicKey, inputs[0]);
-		}
-		span = TOC_MS(t);
-		stats[OpEncryptPub] = new TimingStatistics(OpType::OpEncryptPub, MaxIterations, span);
-
-		if( PrintSizes ) {
-
-		}
-
-		auto crypt2 = cc->Encrypt(kp.publicKey, inputs[0]);
-		TIC(t);
-		for( int reps=0; reps < MaxIterations; reps++ ) {
-			crypt2 = cc->Encrypt(kp.secretKey, inputs[0]);
-		}
-		span = TOC_MS(t);
-		stats[OpEncryptPriv] = new TimingStatistics(OpType::OpEncryptPriv, MaxIterations, span);
-
-		TIC(t);
-		for( int reps=0; reps < MaxIterations; reps++ ) {
-			cc->Decrypt(kp.secretKey, crypt, &decrypted);
-		}
-		span = TOC_MS(t);
-		stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
-	}
-
-	// PKE: ReKeyGen and ReEncrypt
-
-	if( verbose )
-		cerr << "PRE" << endl;
-
-	Ciphertext<Element> recrypt;
-	LPEvalKey<Element> rekey1, rekey2;
-
-	if( tmask & PRE ) {
-		bool runPubPri = true, runPriPri = true;
-		LPKeyPair<Element> kp1 = cc->KeyGen();
-		LPKeyPair<Element> kp2 = cc->KeyGen();
-
-		crypt = cc->Encrypt(kp1.publicKey, inputs[0]);
-
-		Plaintext decrypted;
-
-		try {
-			rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
-			recrypt = cc->ReEncrypt(rekey1, crypt);
-		} catch(exception& e) {
-			cout << e.what() << endl;
-			runPubPri = false;
-		}
-
-		try {
-			rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
-			recrypt = cc->ReEncrypt(rekey2, crypt);
-		} catch(exception& e) {
-			cout << e.what() << endl;
-			runPriPri = false;
-		}
-
-		if( runPubPri ) {
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
-			}
-			span = TOC_MS(t);
-			stats[OpReKeyGenPubPri] = new TimingStatistics(OpType::OpReKeyGenPubPri, MaxIterations, span);
-
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				recrypt = cc->ReEncrypt(rekey1, crypt);
-			}
-			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, MaxIterations, span);
-
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
-			}
-			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
-		}
-
-		if( runPriPri ) {
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
-			}
-			span = TOC_MS(t);
-			stats[OpReKeyGenPriPri] = new TimingStatistics(OpType::OpReKeyGenPriPri, MaxIterations, span);
-
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				recrypt = cc->ReEncrypt(rekey2, crypt);
-			}
-			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, MaxIterations, span);
-
-			TIC(t);
-			for( int reps=0; reps < MaxIterations; reps++ ) {
-				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
-			}
-			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, MaxIterations, span);
-		}
-	}
-
-	// SHE: EvalAdd/Sub/Neg/Mult; binary with ciphers and one cipher one pre
-
-	if( verbose )
-		cerr << "SHE" << endl;
-
-	if( tmask & SHE ) {
-		LPKeyPair<Element> kp = cc->KeyGen();
-		try {
-			cc->EvalMultKeyGen(kp.secretKey);
-
-			auto crypt0 = cc->Encrypt(kp.publicKey, inputs[0]);
-			auto crypt1 = cc->Encrypt(kp.publicKey, inputs[1]);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalAdd(crypt0, crypt1);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalAdd] = new TimingStatistics(OpType::OpEvalAdd, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalAdd(crypt0, inputs[1]);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalAddPlain] = new TimingStatistics(OpType::OpEvalAddPlain, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalSub(crypt0, crypt1);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalSub] = new TimingStatistics(OpType::OpEvalSub, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalSub(crypt0, inputs[1]);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalSubPlain] = new TimingStatistics(OpType::OpEvalSubPlain, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalMult(crypt0, crypt1);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalMult] = new TimingStatistics(OpType::OpEvalMult, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalMult(crypt0, inputs[1]);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalMultPlain] = new TimingStatistics(OpType::OpEvalMultPlain, MaxIterations, span);
-
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				cc->EvalNegate(crypt0);
-			}
-			span = TOC_MS(t);
-			stats[OpEvalNeg] = new TimingStatistics(OpType::OpEvalNeg, MaxIterations, span);
-
-			bool hasMR = true;
-			TIC(t);
-			for (int reps = 0; reps < MaxIterations; reps++) {
-				try {
-					cc->ModReduce(crypt0);
-				} catch( exception& e ) {
-					cout << e.what() << endl;
-					hasMR = false;
-					break;
-				}
-			}
-			if( hasMR ) {
-				span = TOC_MS(t);
-				stats[OpModReduce] = new TimingStatistics(OpType::OpModReduce, MaxIterations, span);
-			}
-		} catch(exception& e) {
-			cout << e.what() << endl;
-		}
-	}
-
-	// FHE: bootstrap, nothing yet
-
-	// LEVELEDSHE
-
-	// MULTIPARTY
-
-	if( verbose )
-		cerr << "Results:" << endl;
-
-	// read them out
-	for( auto &tstat : stats ) {
-		cout << tstat.second->operation << ": " << tstat.second->average << "ms" <<endl;
-	}
-
-	Serialized ser;
-	string str;
-
-#define PSSIZE(msg,x) { \
-		Serialized ser; string str; \
-		if( (x)->Serialize(&ser) ) {\
-			SerializableHelper::SerializationToString(ser, str); \
-			cout << (msg) << str.length() << endl; \
-		} \
-}
-
-	if( PrintSizes ) {
-		cout << endl;
-		cout << "Plaintext: array of " << cc->GetRingDimension() << " "
-				<< (sizeof(int64_t) * 8) << " bit integers: "
-				<< cc->GetRingDimension()*sizeof(int64_t) << endl;
-
-		//cout << "Plaintext size: " << sizeof( *inputs[0] ) << endl;
-		PSSIZE("Public key size: ", kp.publicKey );
-		PSSIZE("Private key size: ", kp.secretKey );
-		PSSIZE("Ciphertext size : ", crypt );
-		if( rekey1 ) PSSIZE("PRE Key 1 size: ", rekey1 );
-		if( rekey2 ) PSSIZE("PRE Key 2 size: ", rekey2 );
-	}
-
-
-	return 0;
-}
+using std::unordered_set;
 
 void
-usage(const string& msg = "") {
+usage(string progname, const string& msg = "") {
 	if( msg.length() > 0 ) {
 		cerr << msg << endl;
 	}
@@ -360,9 +57,10 @@ usage(const string& msg = "") {
 int
 main(int argc, char *argv[])
 {
-	progname = argv[0];
-
 	bool verbose = false;
+	bool printsizes = false;
+	int MaxIterations = 100;
+
 	enum Element { POLY, DCRT, NATIVE } element = POLY;
 	string ctxtFile;
 	string ctxtName;
@@ -379,7 +77,7 @@ main(int argc, char *argv[])
 		else if( arg == "-native" )
 			element = NATIVE;
 		else if( arg == "-printsizes" )
-			PrintSizes = true;
+			printsizes = true;
 		else if( arg == "-i" ) {
 			if( i+1 == argc ) {
 				usage("Filename missing after -cfile");
@@ -402,7 +100,7 @@ main(int argc, char *argv[])
 			ctxtName = argv[++i];
 		}
 		else {
-			usage("Unrecognized argument " + arg);
+			usage(argv[0], "Unrecognized argument " + arg);
 			return 1;
 		}
 	}
@@ -412,12 +110,12 @@ main(int argc, char *argv[])
 	CryptoContext<NativePoly> ncc;
 
 	if( ctxtFile.length() == 0 && ctxtName.length() == 0 ) {
-		usage("Must specify -cfile or -cpre");
+		usage(argv[0], "Must specify -cfile or -cpre");
 		return 1;
 	}
 
 	if( ctxtFile.length() > 0 && ctxtName.length() > 0 ) {
-		usage("Must specify -cfile or -cpre, not both!");
+		usage(argv[0], "Must specify -cfile or -cpre, not both!");
 		return 1;
 	}
 
@@ -430,7 +128,7 @@ main(int argc, char *argv[])
 
 		Serialized serObj;
 		if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
-			cout << "Input file does not begin with a serialization" << endl;
+			cout << "Input file could not be deserialized" << endl;
 			return 1;
 		}
 
@@ -450,8 +148,6 @@ main(int argc, char *argv[])
 			return 1;
 		}
 
-		cout << "Crypto context: " << ctxtName << endl;
-
 		if( element == POLY )
 			cc = CryptoContextHelper::getNewContext(ctxtName);
 		else if( element == DCRT )
@@ -466,10 +162,27 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	if( element == POLY )
-		return generateTimings(verbose, cc);
-	else if( element == DCRT )
-		return generateTimings(verbose, dcc);
-	else
-		return generateTimings(verbose, ncc);
+	map<OpType,TimingStatistics*> stats;
+
+	if( element == POLY ) {
+		generateTimings(verbose, stats, cc, CoefPacked, MaxIterations, printsizes);
+		cout << cc->GetElementParams() << endl;
+		cout << cc->GetEncodingParams() << endl;
+	}
+	else if( element == DCRT ) {
+		generateTimings(verbose, stats, dcc, CoefPacked, MaxIterations, printsizes);
+		cout << dcc->GetElementParams() << endl;
+		cout << dcc->GetEncodingParams() << endl;
+	}
+	else {
+		generateTimings(verbose, stats, ncc, CoefPacked, MaxIterations, printsizes);
+		cout << ncc->GetElementParams() << endl;
+		cout << ncc->GetEncodingParams() << endl;
+	}
+
+	// read them out
+	for( auto &tstat : stats ) {
+		cout << tstat.second->operation << ": " << tstat.second->average << "ms" <<endl;
+	}
+
 }

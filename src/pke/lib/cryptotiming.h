@@ -37,7 +37,7 @@
 
 namespace lbcrypto {
 
-// these variables are used to track timings
+// this enum is used to identify the various operations when doing timings
 enum OpType {
 	OpNOOP,
 	OpKeyGen,
@@ -65,6 +65,13 @@ enum OpType {
 	OpEvalMerge,
 };
 
+extern std::map<OpType,string> OperatorName;
+extern std::map<OpType,PKESchemeFeature> OperatorFeat;
+extern std::map<string,OpType> OperatorType;
+
+extern std::ostream& operator<<(std::ostream& out, const OpType& op);
+
+// this class represents a timing sample
 class TimingInfo {
 public:
 	OpType	operation;
@@ -72,12 +79,18 @@ public:
 	TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
 };
 
+inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
+	out << t.operation << ": " << t.timeval;
+	return out;
+}
+
+// timing samples are collected into a TimingStatistics
 class TimingStatistics {
 public:
 	OpType	operation;
 	usint	samples;
 	double	startup;
-	bool	wasCalled;
+	bool		wasCalled;
 	double	min;
 	double	max;
 	double	average;
@@ -103,6 +116,7 @@ public:
 		return startup;
 	}
 
+	// collect a vector of samples into a map of statistics
 	static void GenStatisticsMap( vector<TimingInfo>& times, map<OpType,TimingStatistics>& stats ) {
 		for( TimingInfo& sample : times ) {
 			TimingStatistics& st = stats[ sample.operation ];
@@ -129,21 +143,26 @@ public:
 
 };
 
-extern std::map<OpType,string> OperatorName;
-extern std::map<OpType,PKESchemeFeature> OperatorFeat;
-extern std::map<string,OpType> OperatorType;
-
-extern std::ostream& operator<<(std::ostream& out, const OpType& op);
-
-inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
-	out << t.operation << ": " << t.timeval;
-	return out;
-}
-
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
 	out << "(count=" << t.samples << ",startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
 	return out;
 }
+
+// this method is used to make a sample plaintext of a given encoding type, for
+// use in statistics and benchmarking tools
+
+template<typename Element>
+extern Plaintext
+MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte);
+
+template<typename Element>
+extern void
+generateTimings(bool verbose,
+		map<OpType,TimingStatistics*>& stats,
+		CryptoContext<Element> cc,
+		PlaintextEncodings pte,
+		int maxIterations,
+		bool PrintSizes);
 
 }
 
