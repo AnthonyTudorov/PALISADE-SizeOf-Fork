@@ -76,37 +76,16 @@ CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats)
+CircuitGraphWithValues<Element>::ApplyRuntimeEstimates(map<OpType,double>& stats)
 {
-	// first make sure we have estimates for every operation performed
-	set<OpType> ops;
-	for( auto &s : steps ) {
-		ops.insert( s.op );
-	}
-
-	for( OpType o : ops ) {
-		if( stats.find(o) == stats.end() ) {
-			cout << "WARNING there are no measurements for " << o << endl;
+	map<usint,map<OpType,int>>& opsmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+	for( auto& node : this->getAllNodes() ) {
+		double est = 0;
+		for( auto& nodeops : opsmap[node.first] ) {
+			est += stats[nodeops.first] * nodeops.second;
 		}
-	}
 
-	// mark each of the nodes with a time estimate
-	for( size_t i=0; i<steps.size(); i++ ) {
-		auto node = getNodeById(steps[i].nodeId);
-		TimingStatistics& this_est = stats[ steps[i].op ];
-		node->SetRuntimeEstimate(this_est.average);
-	}
-}
-
-template<typename Element>
-void
-CircuitGraphWithValues<Element>::PrintRuntimeEstimates(ostream& out)
-{
-	for( int output : getOutputs() ) {
-		auto o = getNodeById(output);
-		ClearVisited();
-		o->CircuitVisit(*this);
-		out << "RUNTIME ESTIMATE FOR Output " << output << " " << GetRuntime() << endl;
+		node.second->SetRuntimeEstimate(est);
 	}
 }
 

@@ -133,7 +133,6 @@ template<typename Element>
 class CircuitNodeWithValue : public CircuitNode {
 private:
 	static	int							step;
-	static vector<CircuitSimulation>	sim;
 
 protected:
 	CircuitValue<Element>	value;
@@ -159,7 +158,7 @@ public:
 	virtual ~CircuitNodeWithValue() {}
 
 	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
-	static const map<usint,map<OpType,int>>& GetOperationsMap() { return opcountByNode; }
+	static map<usint,map<OpType,int>>& GetOperationsMap() { return opcountByNode; }
 
 	wire_type GetType() const { return value.GetType(); }
 
@@ -248,10 +247,6 @@ public:
 	void CircuitVisit(CircuitGraphWithValues<Element>& cg);
 
 	int GetEvalSequenceNumber() const { return evalsequence; }
-
-	static const vector<CircuitSimulation>& GetSimulationItems() {
-		return sim;
-	}
 
 	friend ostream& operator<<(ostream& out, CircuitNodeWithValue<Element>& n) {
 		out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";

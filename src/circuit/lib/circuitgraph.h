@@ -179,8 +179,7 @@ public:
 		}
 	}
 
-	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
-	void PrintRuntimeEstimates(ostream& out);
+	void ApplyRuntimeEstimates(map<OpType,double>& stats);
 
 	void processNodeDepth();
 	void resetAllDepths();
@@ -204,7 +203,6 @@ public:
 	}
 
 	void DisplayGraph(ostream& f) const;
-	void DisplayDecryptedGraph(ostream& f, LPPrivateKey<Element> k) const;
 
 	void ClearVisited() {
 		for( auto node : allNodes )
@@ -215,23 +213,6 @@ public:
 		for( auto node : allNodes ) {
 			node.second->Reset();
 		}
-	}
-
-	double GetEstimatedRuntime() const {
-		double	total = 0;
-		for( auto node : allNodes )
-			if( node.second->Visited() ) {
-				total += node.second->GetRuntimeEstimate();
-			}
-		return total;
-	}
-
-	double GetRuntime() const {
-		double	total = 0;
-		for( auto node : allNodes )
-			if( node.second->Visited() )
-				total += node.second->GetRuntimeActual();
-		return total;
 	}
 };
 

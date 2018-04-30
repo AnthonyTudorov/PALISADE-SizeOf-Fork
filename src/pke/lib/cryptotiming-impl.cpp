@@ -222,6 +222,10 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
 		return cc->MakeIntegerPlaintext(randomInt());
 	}
 
+	case Fractional: {
+		return cc->MakeFractionalPlaintext(randomInt());
+	}
+
 	case CoefPacked: {
 		randomIntVec();
 		return cc->MakeCoefPackedPlaintext(vec);
@@ -244,10 +248,10 @@ template Plaintext MakeRandomPlaintext(CryptoContext<NativePoly> cc, PlaintextEn
 
 template<typename Element>
 void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(map<OpType,TimingStatistics*>& stats,
 		CryptoContext<Element> cc,
 		PlaintextEncodings pte,
+		bool verbose,
 		int maxIterations,
 		bool PrintSizes) {
 
@@ -410,7 +414,7 @@ generateTimings(bool verbose,
 	if( tmask & SHE ) {
 		LPKeyPair<Element> kp = cc->KeyGen();
 		try {
-			vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
+			vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15, -16};
 			cc->EvalMultKeyGen(kp.secretKey);
 			cc->EvalSumKeyGen(kp.secretKey);
 			cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
@@ -543,29 +547,29 @@ generateTimings(bool verbose,
 
 template
 void
-generateTimings(bool verbose,
+generateTimings(
 		map<OpType,TimingStatistics*>& stats,
 		CryptoContext<Poly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 template
 void
-generateTimings(bool verbose,
+generateTimings(
 		map<OpType,TimingStatistics*>& stats,
 		CryptoContext<DCRTPoly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 template
 void
-generateTimings(bool verbose,
+generateTimings(
 		map<OpType,TimingStatistics*>& stats,
 		CryptoContext<NativePoly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 }

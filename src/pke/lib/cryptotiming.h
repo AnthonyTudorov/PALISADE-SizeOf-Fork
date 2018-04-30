@@ -158,12 +158,12 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte);
 
 template<typename Element>
 extern void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(map<OpType,TimingStatistics*>& stats,
 		CryptoContext<Element> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
-		bool PrintSizes);
+		bool verbose = false,
+		int maxIterations = 100,
+		bool PrintSizes = false);
 
 }
 

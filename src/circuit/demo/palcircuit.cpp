@@ -57,12 +57,6 @@ void usage() {
 	cout << "-h  --  this message" << endl;
 }
 
-void PrintLog(ostream& out, vector<CircuitSimulation>& timings) {
-	out << timings.size() << " steps" << endl;
-	for( int i=0; i < timings.size(); i++ )
-		out << i << ": " << timings[i] << endl;
-}
-
 Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 	return cc->MakePackedPlaintext({(uint64_t)val});
 }
@@ -190,7 +184,6 @@ main(int argc, char *argv[])
 				cout << "Unable to open file " << argf << endl;
 				return 1;
 			}
-			continue;
 		}
 		else if( arg[0] == '-' ) { // an unrecognized flag
 			usage();
@@ -224,7 +217,7 @@ main(int argc, char *argv[])
 	CryptoContext<DCRTPoly> cc =
 			CryptoContextFactory<DCRTPoly>::
 			genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
-			//genCryptoContextNull(32, ep);
+	//genCryptoContextNull(32, ep);
 
 	std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cc->GetRingDimension() << std::endl;
@@ -328,12 +321,37 @@ main(int argc, char *argv[])
 			cout << "Circuit parsed" << endl;
 		}
 
-	// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
+	// when generating timing estimates, need to read in the Context and the timings
+	map<OpType,double> timings;
 	if( evaluation_run_mode ) {
-		vector<CircuitSimulation> opslist;
-		cir.GetGraph().GenerateOperationList(cc);
-		cir.GetGraph().UpdateRuntimeEstimates(opslist, timings);
-		cir.GetGraph().PrintRuntimeEstimates(cout);
+		Serialized serObj;
+		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
+			cout << "Input file does not begin with a serialization" << endl;
+			return 1;
+		}
+
+		// FIXME check for match
+//		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
+//			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
+//			evalStatF.close();
+//			return 1;
+//		}
+
+		string inLine;
+		while( getline(evalStatF, inLine) ) {
+			auto cPos = inLine.find(':');
+			if( cPos == string::npos ) continue;
+			string operation(inLine.substr(0,cPos));
+			auto op = OperatorType.find(operation);
+			if( op == OperatorType.end() ) continue;
+			double value = stod( inLine.substr(cPos+1) );
+			timings[ op->second ] = value;
+		}
+		evalStatF.close();
+
+		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
+		cir.GetGraph().GenerateOperationList(cc); // FIXME needed??
+		cir.GetGraph().ApplyRuntimeEstimates(timings);
 	}
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
@@ -392,11 +410,11 @@ main(int argc, char *argv[])
 			auto ctxt = cc->Encrypt(kp.publicKey, p);
 			inputs[wire] = ctxt;
 		}
-			break;
+		break;
 
-//		case MATRIX_RAT:
-//			inputs[wire] = emat;
-//			break;
+		//		case MATRIX_RAT:
+		//			inputs[wire] = emat;
+		//			break;
 
 		default:
 			throw std::logic_error("type not supported");
@@ -414,17 +432,13 @@ main(int argc, char *argv[])
 
 	CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
 
-	//FIXME old
-//	if( verbose )
-//		CircuitNodeWithValue<DCRTPoly>::PrintLog(cout);
-
 	// apply the actual timings to the circuit
 	// FIXME
-//	for( auto& node : cir.GetGraph().getAllNodes() ) {
-//		int s = node.second->GetEvalSequenceNumber();
-//		if( s < 0 ) continue;
-//		node.second->SetRuntime( times[s].timeval );
-//	}
+	//	for( auto& node : cir.GetGraph().getAllNodes() ) {
+	//		int s = node.second->GetEvalSequenceNumber();
+	//		if( s < 0 ) continue;
+	//		node.second->SetRuntime( times[s].timeval );
+	//	}
 
 	// postprocess the nodes
 	for( auto& node : cir.GetGraph().getAllNodes() ) {
@@ -434,7 +448,7 @@ main(int argc, char *argv[])
 
 	if( print_all_flag ) {
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			cout << "For node " << node.first << " Value: " << node.second->getValue() << endl;
+			cout << "For node " << node.first << " Value: " << node.second->getValue() << " runtime " << node.second->GetRuntimeActual() << endl;
 		}
 	}
 
@@ -455,14 +469,20 @@ main(int argc, char *argv[])
 			resultGF.close();
 	}
 
-	// we have the times for each node, now sum up for each output
-	// FIXME
-//	for( auto& out : cir.GetGraph().getOutputs() ) {
-//		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
-//		cir.GetGraph().ClearVisited();
-//		n->CircuitVisit(cir.GetGraph());
-//		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
-//	}
+	double totalEstimate = 0, totalActual = 0;
+	for( auto& out : cir.GetGraph().getOutputs() ) {
+		auto n = cir.GetGraph().getNodeById(out);
+		totalEstimate += n->GetRuntimeEstimate();
+		totalActual += n->GetRuntimeActual();
+		cout << "RUNTIME for output " << out << " " << n->GetRuntimeActual() << endl;
+		auto est = n->GetRuntimeEstimate();
+		if( est != 0 )
+			cout << "RUNTIME estimate for output " << out << " " << est << endl;
+	}
+	// print time for each node's output and total time
+	cout << "Total execution time " << totalActual << endl;
+	if( totalEstimate != 0 )
+		cout << "Total execution estimate " << totalEstimate << endl;
 
 	// we have the times for each node, now sum up for each output
 	for( auto& out : cir.GetGraph().getOutputs() ) {
