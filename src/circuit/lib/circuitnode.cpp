@@ -98,8 +98,17 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		}
 
 		if( mode == GetOperationsList ) {
+			cout << "Op List For + at node " << this->GetId() << endl;
+			cout << (void *)&CircuitNodeWithValue<Element>::GetOperationsMap() << endl;
+			cout << (void *)&this->opcountByNode << endl;
+
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
-			this->opcountByNode[this->GetId()][ov.GetOp()]++;
+			cout << ov.GetOp() << endl;
+			cout << this->opcountByNode.size() << endl;
+			CircuitNodeWithValue<Element>::GetOperationsMap()[this->GetId()][ov.GetOp()]++;
+			cout << this->opcountByNode.size() << endl;
+			cout << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
+
 			v0.SetType(ov.GetWire());
 		}
 		else if( mode == Evaluate ) {

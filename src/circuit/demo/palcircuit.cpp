@@ -350,8 +350,19 @@ main(int argc, char *argv[])
 		evalStatF.close();
 
 		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
-		cir.GetGraph().GenerateOperationList(cc); // FIXME needed??
+		cout << "calling gen op list ... " << endl;
+		cout << (void *)&CircuitNodeWithValue<DCRTPoly>::GetOperationsMap() << endl;
+		cout << "map size " << CircuitNodeWithValue<DCRTPoly>::GetOperationsMap().size() << endl;
+		cir.GenerateOperationList();
+		cout << "map size " << CircuitNodeWithValue<DCRTPoly>::GetOperationsMap().size() << endl;
+		for( auto& ol : CircuitNodeWithValue<DCRTPoly>::GetOperationsMap() ) {
+			cout << "node " << ol.first << endl;
+			for( auto& oc : ol.second ) {
+				cout << oc.first << " : " << oc.second << endl;
+			}
+		}
 		cir.GetGraph().ApplyRuntimeEstimates(timings);
+		return 0;
 	}
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
@@ -431,14 +442,6 @@ main(int argc, char *argv[])
 	cc->StartTiming(&times);
 
 	CircuitOutput<DCRTPoly> outputs = cir.CircuitEval(inputs, verbose);
-
-	// apply the actual timings to the circuit
-	// FIXME
-	//	for( auto& node : cir.GetGraph().getAllNodes() ) {
-	//		int s = node.second->GetEvalSequenceNumber();
-	//		if( s < 0 ) continue;
-	//		node.second->SetRuntime( times[s].timeval );
-	//	}
 
 	// postprocess the nodes
 	for( auto& node : cir.GetGraph().getAllNodes() ) {

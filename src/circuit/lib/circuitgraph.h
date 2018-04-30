@@ -155,7 +155,7 @@ public:
 	void GenerateOperationList(CryptoContext<Element> cc);
 
 	void PrintOperationSet(ostream& out, bool verbose=false) {
-		const map<usint,map<OpType,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+		map<usint,map<OpType,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
 		map<OpType,int> ops;
 
 		for( auto& it : opmap ) {

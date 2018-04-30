@@ -199,7 +199,7 @@ public:
 			CryptoContext<Element> cc,
 			CircuitGraphWithValues<Element>& cg) {
 
-		if( Visited() || value.GetType() != UNKNOWN )
+		if( Visited() )
 			return value;
 		Visit();
 

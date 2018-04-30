@@ -68,10 +68,12 @@ void
 CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc)
 {
 	this->ClearVisited();
+	cout << "gen " << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
 	for( int output : getOutputs() ) {
 		auto out = getNodeById(output);
 		out->Evaluate(GetOperationsList, cc, *this);
 	}
+	cout << "end " << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
 }
 
 template<typename Element>

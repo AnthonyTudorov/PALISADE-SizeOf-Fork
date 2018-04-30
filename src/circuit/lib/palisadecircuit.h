@@ -73,9 +73,6 @@ public:
 
 	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false );
 
-	void CircuitDump() {
-
-	}
 };
 
 }

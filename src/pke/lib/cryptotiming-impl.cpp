@@ -240,6 +240,8 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
 		return cc->MakeStringPlaintext(randomString());
 	}
 	}
+
+	return Plaintext();
 }
 
 template Plaintext MakeRandomPlaintext(CryptoContext<Poly> cc, PlaintextEncodings pte);
