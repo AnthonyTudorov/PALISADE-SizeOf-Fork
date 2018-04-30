@@ -836,11 +836,23 @@ void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params)
     size_t numRegressors = (*C1[0]).GetCols();
 	size_t batchSize = context.cc[0]->GetRingDimension(); //params.ENTRYSIZE;
 	start = currentDateTime();
+
+//#pragma omp parallel for shared(context, C1, C1Plaintext, zeroAllocPacking, numRegressors) num_threads(8) ordered
     for(size_t k=0; k<params.PLAINTEXTPRIMESIZE; k++){
 
     	shared_ptr<Matrix<Plaintext>> numeratorC1 (new Matrix<Plaintext>(zeroAllocPacking, numRegressors, numRegressors));
-    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], C1[k], &numeratorC1);
-    	C1Plaintext.push_back(*numeratorC1);
+//    	context.cc[k]->DecryptMatrixNumerator(context.sk[k], C1[k], &numeratorC1);
+
+    	for(size_t i=0; i<numRegressors; i++)
+    		for(size_t j=0; j<numRegressors; j++)
+    			context.cc[k]->Decrypt(context.sk[k], (*C1[k])(i,j).GetNumerator(), &(*numeratorC1)(i,j));
+
+
+//		#pragma omp ordered
+//    	{
+    		cout << k << endl;
+    		C1Plaintext.push_back(*numeratorC1);
+//    	}
     }
     finish = currentDateTime();
     cout << "Dec\t" <<(finish - start) << endl;
@@ -1623,6 +1635,10 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 		S.push_back(St);
 	}
 
+	double start, finish;
+
+	start = currentDateTime();
+
 	size_t counter = 0;
 	bool isSizeMax = false;
 	for(size_t j=0; (j<wTb.GetRows()) && !isSizeMax; j++){
@@ -1669,6 +1685,10 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 		}
 	}
 
+	finish = currentDateTime();
+	cout << "Link-1\t" << finish-start << endl;
+
+	start = currentDateTime();
 	size_t entrySizeForRow;
 	size_t entrySize = meanList.size();
 	size_t matrixRowSize = entrySize/cc[0]->GetRingDimension(); //params.ENTRYSIZE;
@@ -1713,6 +1733,10 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 			(*(S[k]))(l, 0) = cc[k]->MakePackedPlaintext(vectorOfS);
 		}
 	}
+
+	finish = currentDateTime();
+	cout << "Link-1\t" << finish-start << endl;
+
 }
 
 shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyWTransX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &beta){
@@ -1894,18 +1918,18 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 #pragma omp parallel for num_threads(NUMTHREAD) collapse(2)
 #endif
 
-	Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
-	for(size_t row = 0; row < 1; row++){
+//	Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
+//	for(size_t row = 0; row < 1; row++){
 		const Ciphertext<DCRTPoly> xTSk = (*C0)(0, 0).GetNumerator();
 		const Ciphertext<DCRTPoly> xk   = (*x)(0, 0).GetNumerator();
 
-		Ciphertext<DCRTPoly> temp = cc->EvalMult(xTSk, xk);
+		Ciphertext<DCRTPoly> result = cc->EvalMult(xTSk, xk);
 
-		if(row == 0)
-			result = temp;
-		else
-			result = cc->EvalAdd(result, temp);
-	}
+//		if(row == 0)
+//			result = temp;
+//		else
+//			result = cc->EvalAdd(result, temp);
+//	}
 	(*xTSxt)(0, 0).SetNumerator(result);
 
 
@@ -1919,17 +1943,9 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 		}
 	}
 
-	cout << "Size X\t" << cordX.size() << endl;
-	cout << "Size Y\t" << cordY.size() << endl;
+//	size_t loopCount = (numRegressors*numRegressors-numRegressors)/2;
 
-//	for(col1 = 0; col1 < numRegressors; col1++) {
-//		for(col2 = 0; col2 < col1; col2++){
-	size_t loopCount = (numRegressors*numRegressors-numRegressors)/2;
-
-	cout << "Loop \t" << loopCount << endl;
-
-
-#pragma omp parallel for shared(cc, C0, x, xTSxt, dataMatrixRowSize, loopCount, cordX, cordY) num_threads(8)
+#pragma omp parallel for shared(cc, C0, x, xTSxt, dataMatrixRowSize, cordX, cordY) schedule(dynamic) num_threads(8)
 	for(size_t loop=0; loop<cordX.size(); loop++){
 
 			Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
@@ -1947,7 +1963,7 @@ shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<
 			(*xTSxt)(cordX[loop], cordY[loop]).SetNumerator(result);
 	}
 
-#pragma omp parallel for shared(cc, x, xTSxt, loopCount, cordX, cordY) num_threads(8)
+#pragma omp parallel for shared(cc, x, xTSxt, cordX, cordY) schedule(dynamic) num_threads(8)
 	for(size_t loop=0; loop<cordX.size(); loop++){
 			Ciphertext<DCRTPoly> t = (*xTSxt)(cordX[loop], cordY[loop]).GetNumerator();
 			t = cc->EvalSum(t, cc->GetEncodingParams()->GetBatchSize());
@@ -2169,7 +2185,8 @@ void CRTInterpolateMatrix(const vector<Matrix<Plaintext>> &crtVector, Matrix<Big
 }
 
 void CRTInterpolateMatrixEntrySelect(const vector<Matrix<Plaintext>> &crtVector, Matrix<BigInteger> &result, const vector<NativeInteger> &primeList, const size_t &colIndex) {
-
+	double start, finish;
+start = currentDateTime();
    	BigInteger Q(1);
    	BigInteger temp;
    	vector<BigInteger> q;
@@ -2185,18 +2202,32 @@ void CRTInterpolateMatrixEntrySelect(const vector<Matrix<Plaintext>> &crtVector,
 	for (size_t i = 0; i < crtVector.size(); i++)
 		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
 
-#pragma omp parallel for shared(result, primeList, colIndex, qInverse, q, Q) num_threads(8) collapse(2)
+	std::vector<BigInteger> qI;
+	for (size_t i = 0; i < crtVector.size(); i++)
+		qI.push_back((Q/q[i]));
+
+
+finish = currentDateTime();
+cout << "Setup\t" << finish-start << endl;
+
+start = currentDateTime();
+
+#pragma omp parallel for shared(result, primeList, colIndex, qInverse, q, Q, qI) num_threads(8) collapse(2)
 	for (size_t k = 0; k < result.GetRows(); k++){
 		for (size_t j = 0; j < result.GetCols(); j++){
 			BigInteger value = 0;
+
 			for (size_t i = 0; i < primeList.size(); i++)
-				value += ((BigInteger(crtVector[i](k, colIndex)->GetPackedValue()[j])*qInverse[i]).Mod(q[i])*(Q/q[i])).Mod(Q);
+				value += ((BigInteger(crtVector[i](k, colIndex)->GetPackedValue()[j])*qInverse[i]).Mod(q[i])*(qI[i]));//.Mod(Q);
 
 			value = value.Mod(Q);
-			result(k, j).SetValue(value.ToString());
+			result(k, j) = (value);
 
 		}
 	}
+	finish = currentDateTime();
+	cout << "CRTInter\t" << finish-start << endl;
+
 }
 
 void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigInteger> &result, const vector<NativeInteger> &primeList) {
@@ -2213,22 +2244,24 @@ void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigI
 
 	std::vector<BigInteger> qInverse;
 
-	for (size_t i = 0; i < crtVector.size(); i++) {
-
+	for (size_t i = 0; i < crtVector.size(); i++)
 		qInverse.push_back((Q/q[i]).ModInverse(q[i]));
-	}
 
-#pragma omp parallel for shared(result, primeList, crtVector, qInverse, q, Q) num_threads(8) collapse(2)
+	std::vector<BigInteger> qI;
+	for (size_t i = 0; i < crtVector.size(); i++)
+		qI.push_back((Q/q[i]));
+
+#pragma omp parallel for shared(result, primeList, crtVector, qInverse, q, Q, qI) num_threads(8) collapse(2)
 	for (size_t k = 0; k < result.GetRows(); k++)
 	{
 		for (size_t j = 0; j < result.GetCols(); j++)
 		{
 			BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++)
-				value += ((BigInteger(crtVector[i](k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*(Q/q[i])).Mod(Q);
+				value += ((BigInteger(crtVector[i](k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*(qI[i])); //.Mod(Q);
 
 			value = value.Mod(Q);
-			result(k, j).SetValue(value.ToString());
+			result(k, j) = value; //SetValue(value.ToString());
 		}
 	}
 
@@ -2519,23 +2552,24 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, shared_ptr<Matrix<doubl
 		auto zeroPackingAlloc = [=]() { return cc[k]->MakePackedPlaintext({0}); };
 		shared_ptr<Matrix<Plaintext>> CPt (new Matrix<Plaintext>(zeroPackingAlloc, (*CList).GetRows(), (*CList).GetCols()));
 
-#pragma omp parallel for shared(CList, CPt, cc, Q, primeList) private(temp, tempPushed) num_threads(8) collapse(2)
+//#pragma omp parallel for shared(CList, CPt, cc, Q, primeList) private(temp, tempPushed) num_threads(8) collapse(2)
 		for(size_t i=0; i<(*CList).GetRows(); i++){
 			for(size_t j=0; j<(*CList).GetCols(); j++){
-				//FIXME: MAKE MORE EFFICIENT
-				std::vector<uint64_t> vectorOfInts1;
-				for(size_t l=0; l<batchSize; l++){
-					if((*CList)(i, j)<0){
-						double  negT = (*CList)(i, j)*(-1);
-						doubleToBigInteger(negT, temp);
-						temp = Q-temp;
-					}
-					else{
-						double  negT = (*CList)(i, j);
-						doubleToBigInteger(negT, temp);
-					}
 
-					tempPushed = (temp.Mod(primeList[k])).ConvertToInt();
+				std::vector<uint64_t> vectorOfInts1;
+
+				if((*CList)(i, j)<0){
+					double  negT = (*CList)(i, j)*(-1);
+					doubleToBigInteger2(negT, temp);
+					temp = Q-temp;
+				}
+				else{
+					double  negT = (*CList)(i, j);
+					doubleToBigInteger2(negT, temp);
+				}
+				tempPushed = (temp.Mod(primeList[k])).ConvertToInt();
+
+				for(size_t l=0; l<batchSize; l++){
 					vectorOfInts1.push_back(tempPushed);
 				}
 				(*CPt)(i, j) = cc[k]->MakePackedPlaintext(vectorOfInts1);
@@ -2727,6 +2761,32 @@ void doubleToBigInteger(double &in, BigInteger &out){
 
 void doubleToBigInteger2(double &in, BigInteger &out){
 
+	uint64_t castDouble, exp, sign, fraction;
+	memcpy(&castDouble, &in, sizeof(in));
+
+	exp = castDouble >> 52;
+
+	sign = exp >> 11;
+	exp  = exp & 0x7F;
+
+	fraction = castDouble & 0xFFFFFFFFFFFFF;
+	fraction = fraction | (1UL << 52);
+
+	exp = exp - 1023;
+	exp = 52 - exp;
+
+	fraction = fraction >> exp;
+
+	out = BigInteger(fraction);
+	if(sign == 1)
+		out = out*(-1);
+
+
+//	cout << in << endl;
+//	cout << out << endl;
+
+
+/*
 	vector<BigInteger> scale;
 
 	scale[0] = BigInteger(10);
@@ -2762,7 +2822,7 @@ void doubleToBigInteger2(double &in, BigInteger &out){
 	}
 
 
-
+*/
 
 
 
