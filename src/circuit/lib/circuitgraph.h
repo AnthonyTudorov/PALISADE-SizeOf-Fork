@@ -208,12 +208,6 @@ public:
 		for( auto node : allNodes )
 			node.second->ClearVisit();
 	}
-
-	void Reset() {
-		for( auto node : allNodes ) {
-			node.second->Reset();
-		}
-	}
 };
 
 }

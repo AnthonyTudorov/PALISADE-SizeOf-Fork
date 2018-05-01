@@ -166,18 +166,18 @@ main(int argc, char *argv[])
 
 	if( element == POLY ) {
 		generateTimings(stats, cc, CoefPacked, verbose, MaxIterations, printsizes);
-		cout << cc->GetElementParams() << endl;
-		cout << cc->GetEncodingParams() << endl;
+		cout << *cc->GetElementParams() << endl;
+		cout << *cc->GetEncodingParams() << endl;
 	}
 	else if( element == DCRT ) {
 		generateTimings(stats, dcc, CoefPacked, verbose, MaxIterations, printsizes);
-		cout << dcc->GetElementParams() << endl;
-		cout << dcc->GetEncodingParams() << endl;
+		cout << *dcc->GetElementParams() << endl;
+		cout << *dcc->GetEncodingParams() << endl;
 	}
 	else {
 		generateTimings(stats, ncc, CoefPacked, verbose, MaxIterations, printsizes);
-		cout << ncc->GetElementParams() << endl;
-		cout << ncc->GetEncodingParams() << endl;
+		cout << *ncc->GetElementParams() << endl;
+		cout << *ncc->GetEncodingParams() << endl;
 	}
 
 	// read them out

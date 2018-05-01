@@ -350,19 +350,14 @@ main(int argc, char *argv[])
 		evalStatF.close();
 
 		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
-		cout << "calling gen op list ... " << endl;
-		cout << (void *)&CircuitNodeWithValue<DCRTPoly>::GetOperationsMap() << endl;
-		cout << "map size " << CircuitNodeWithValue<DCRTPoly>::GetOperationsMap().size() << endl;
 		cir.GenerateOperationList();
-		cout << "map size " << CircuitNodeWithValue<DCRTPoly>::GetOperationsMap().size() << endl;
-		for( auto& ol : CircuitNodeWithValue<DCRTPoly>::GetOperationsMap() ) {
-			cout << "node " << ol.first << endl;
-			for( auto& oc : ol.second ) {
-				cout << oc.first << " : " << oc.second << endl;
-			}
+		cir.ApplyRuntimeEstimates(timings);
+
+		for( auto n : cir.GetGraph().getAllNodes() ) {
+			cout << "Node " << n.first;
+			cout << " node est " << n.second->GetRuntimeEstimateNode();
+			cout << " node cum " << n.second->GetRuntimeEstimate() << endl;
 		}
-		cir.GetGraph().ApplyRuntimeEstimates(timings);
-		return 0;
 	}
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};

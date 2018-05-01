@@ -1,0 +1,15 @@
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"5","Members":{"0":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470260412417","RootOfUnity":"113189367538287910","BigCtModulus":"0","BigRootOfUnity":"0"}},"1":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470260805633","RootOfUnity":"513897243068686053","BigCtModulus":"0","BigRootOfUnity":"0"}},"2":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470261493761","RootOfUnity":"1019641038601318194","BigCtModulus":"0","BigRootOfUnity":"0"}},"3":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470261821441","RootOfUnity":"724216698004167825","BigCtModulus":"0","BigRootOfUnity":"0"}},"4":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470262968321","RootOfUnity":"501897734551962001","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"1073872897","PlaintextRootOfUnity":"72658942","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"1024"}},"DistributionParameter":"3.190000","AssuranceMeasure":"9.000000","SecurityLevel":"1.004000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"1073872897"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"5"}}KeyGen:21.04
+ReKeyGen(privkey,privkey):174.03
+EncryptPub:24.66
+EncryptPriv:21.81
+Decrypt:9.31
+ReEncrypt:71.58
+EvalAdd:0.82
+EvalAddPlain:1
+EvalSub:1.25
+EvalSubPlain:1.18
+EvalMult:222.05
+EvalMultPlain:3.7
+EvalNeg:2.87
+EvalInnerProduct:624.94
+EvalMerge:1200.18

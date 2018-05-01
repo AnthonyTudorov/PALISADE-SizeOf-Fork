@@ -124,8 +124,9 @@ template<typename Element>
 class CircuitGraphWithValues;
 
 enum EvaluateMode {
-	GetOperationsList,	// gather a list of operations that will be performed
-	Evaluate,			// actually perform the calculations
+	GetOperationsList,			// gather a list of operations that will be performed
+	Evaluate,					// actually perform the calculations
+	CalculateRuntimeEstimates,	// sum up estimates up the chain
 };
 
 // we separate the implementation of the graph from the implementation of the values
@@ -143,7 +144,8 @@ protected:
 	usint			nodeInputDepth;
 	usint			nodeOutputDepth;
 
-	double			runtimeEstimate;
+	double			runtimeEstimateNode;
+	double			runtimeEstimateCumulative;
 	double			runtimeActual;
 	double			noisevalEstimate;
 	double			noisevalActual;
@@ -158,7 +160,7 @@ public:
 	virtual ~CircuitNodeWithValue() {}
 
 	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
-	static map<usint,map<OpType,int>>& GetOperationsMap() { return opcountByNode; }
+	static map<usint,map<OpType,int>>& GetOperationsMap();
 
 	wire_type GetType() const { return value.GetType(); }
 
@@ -176,10 +178,11 @@ public:
 	double GetNoiseActual() const { return noisevalActual; }
 	void SetNoiseActual(double n) { noisevalActual = n; }
 
-	double GetRuntimeEstimate() const { return runtimeEstimate; }
-	void SetRuntimeEstimate(double n) { runtimeEstimate = n; }
+	double GetRuntimeEstimateNode() const { return runtimeEstimateNode; }
+	void SetRuntimeEstimateNode(double n) { runtimeEstimateNode = n; }
+	double GetRuntimeEstimate() const { return runtimeEstimateCumulative; }
+	void SetRuntimeEstimate(double n) { runtimeEstimateCumulative = n; }
 	double GetRuntimeActual() const { return runtimeActual; }
-	void SetRuntimeActual(double n) { runtimeActual = n; }
 
 	CircuitValue<Element>& getValue() { return value; }
 	const CircuitValue<Element>& getValue() const { return value; }
@@ -207,7 +210,8 @@ public:
 		TimeVar t;
 		TIC(t);
 		this->eval(mode,cc,cg);
-		this->runtimeActual = TOC_MS(t);
+		if( mode == EvaluateMode::Evaluate )
+			this->runtimeActual = TOC_MS(t);
 
 		return value;
 	}
@@ -228,10 +232,11 @@ public:
 
 	virtual bool isModReduce() const { return false; }
 
+private:
 	void Reset() {
 		noisevalEstimate = 0;
 		noisevalActual = DEFAULTNOISEVAL;
-		runtimeEstimate = runtimeActual = 0;
+		runtimeEstimateNode = runtimeEstimateCumulative = runtimeActual = 0;
 		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		visited = false;
 		evalsequence = -1;
@@ -240,11 +245,10 @@ public:
 		}
 	}
 
+public:
 	bool Visited() const { return visited; }
 	const void Visit() { visited = true; }
 	const void ClearVisit() { visited = false; }
-
-	void CircuitVisit(CircuitGraphWithValues<Element>& cg);
 
 	int GetEvalSequenceNumber() const { return evalsequence; }
 

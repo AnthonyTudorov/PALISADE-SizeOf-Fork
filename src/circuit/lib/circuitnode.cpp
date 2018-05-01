@@ -36,18 +36,13 @@
 namespace lbcrypto {
 
 template<typename Element>
-void CircuitNodeWithValue<Element>::CircuitVisit(CircuitGraphWithValues<Element>& g) {
-	if( this->Visited() )
-		return;
+int	CircuitNodeWithValue<Element>::step;
 
-	for( usint in : this->getInputs() ) {
-		CircuitNodeWithValue<Element> *n = g.getNodeById(in);
-		n->CircuitVisit(g);
-	}
+template<typename Element>
+map<usint,map<OpType,int>> CircuitNodeWithValue<Element>::opcountByNode;
 
-	this->Visit();
-	return;
-}
+template<typename Element>
+map<usint,map<OpType,int>>& CircuitNodeWithValue<Element>::GetOperationsMap() { return opcountByNode; }
 
 template<typename Element>
 void EvalAddNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
@@ -81,6 +76,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
+	double runEst = n0->GetRuntimeEstimate();
 
 	stringstream ss;
 	if( CircuitOpTrace ) {
@@ -98,18 +94,13 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		}
 
 		if( mode == GetOperationsList ) {
-			cout << "Op List For + at node " << this->GetId() << endl;
-			cout << (void *)&CircuitNodeWithValue<Element>::GetOperationsMap() << endl;
-			cout << (void *)&this->opcountByNode << endl;
-
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
-			cout << ov.GetOp() << endl;
-			cout << this->opcountByNode.size() << endl;
-			CircuitNodeWithValue<Element>::GetOperationsMap()[this->GetId()][ov.GetOp()]++;
-			cout << this->opcountByNode.size() << endl;
-			cout << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
-
+			this->opcountByNode[this->GetId()][ov.GetOp()]++;
 			v0.SetType(ov.GetWire());
+		}
+		else if( mode == CalculateRuntimeEstimates ) {
+			runEst += n1->GetRuntimeEstimate();
+			runEst += this->GetRuntimeEstimateNode();
 		}
 		else if( mode == Evaluate ) {
 			v0 = v0 + v1;
@@ -117,7 +108,13 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		}
 	}
 
-	this->value = v0;
+	if( mode == Evaluate ) {
+		this->value = v0;
+	}
+
+	if( mode == CalculateRuntimeEstimates ) {
+		this->SetRuntimeEstimate(runEst);
+	}
 
 	if( CircuitOpTrace ) {
 		cout << ss.str() << endl;
@@ -167,6 +164,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
+		double runEst = n0->GetRuntimeEstimate();
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -178,6 +176,10 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalNeg,v0);
 			this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
 			this->value.SetType(ov.GetWire());
+		}
+		else if( mode == CalculateRuntimeEstimates ) {
+			runEst += this->GetRuntimeEstimateNode();
+			this->SetRuntimeEstimate(runEst);
 		}
 		else if( mode == Evaluate ) {
 			this->value = -v0;
@@ -196,6 +198,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
+	double runEst = n0->GetRuntimeEstimate();
 
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
@@ -216,13 +219,23 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			this->opcountByNode[this->GetId()][ov.GetOp()]++;
 			v0.SetType(ov.GetWire());
 		}
+		else if( mode == CalculateRuntimeEstimates ) {
+			runEst += n1->GetRuntimeEstimate();
+			runEst += this->GetRuntimeEstimateNode();
+		}
 		else if( mode == Evaluate ) {
 			v0 = v0 - v1;
 			noise += n1->GetNoiseActual();
 		}
 	}
 
-	this->value = v0;
+	if( mode == Evaluate ) {
+		this->value = v0;
+	}
+
+	if( mode == CalculateRuntimeEstimates ) {
+		this->SetRuntimeEstimate(runEst);
+	}
 
 	if( CircuitOpTrace ) {
 		cout << ss.str() << endl;
@@ -266,6 +279,7 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 
 	if( this->getInputs().size() > 2 ) {
 		usint noiseTotal = 0;
+		double runEst = 0;
 		vector<Ciphertext<Element>> cvec;
 
 		if( CircuitOpTrace ) {
@@ -277,6 +291,7 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			auto n = cg.getNodeById(nid);
 			noiseTotal += n->GetNoiseActual();
 			CircuitValue<Element> v( n->Evaluate(mode, cc, cg) );
+			runEst += n->GetRuntimeEstimate();
 			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
 				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
@@ -287,6 +302,10 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 		if( mode == GetOperationsList ) {
 			this->opcountByNode[this->GetId()][OpEvalMultMany] = 1;
 			this->value.SetType(CIPHERTEXT);
+		}
+		else if( mode == CalculateRuntimeEstimates ) {
+			runEst += this->GetRuntimeEstimateNode();
+			this->SetRuntimeEstimate(runEst);
 		}
 		else if( mode == Evaluate ) {
 			this->value = cc->EvalMultMany( cvec );
@@ -310,6 +329,9 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalMult,v0,v1);
 			this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
 			this->value.SetType(ov.GetWire());
+		}
+		else if( mode == CalculateRuntimeEstimates ) {
+			this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + n1->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
 		}
 		else if( mode == Evaluate ) {
 			this->value = v0 * v1;
@@ -354,6 +376,9 @@ void EvalRShiftNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Ele
 	if( mode == GetOperationsList ) {
 		this->opcountByNode[this->GetId()][OpEvalRightShift] = 1;
 		this->value.SetType(CIPHERTEXT);
+	}
+	else if( mode == CalculateRuntimeEstimates ) {
+		this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + n1->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
 	}
 	else if( mode == Evaluate ) {
 		this->value = v0 >> v1;
@@ -407,6 +432,7 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 		ss << "EvalMerge: {\n";
 	}
 
+	double runEst = 0;
 	for( auto i = 0; i < this->getInputs().size(); i++ ) {
 		if( i == vecsize ) {
 			vecp = &vec2;
@@ -415,10 +441,12 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 			}
 		}
 
-		CircuitValue<Element> v( cg.getNodeById(this->getInputs()[i])->Evaluate(mode, cc, cg) );
+		auto n = cg.getNodeById(this->getInputs()[i]);
+		CircuitValue<Element> v( n->Evaluate(mode, cc, cg) );
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
+		runEst += n->GetRuntimeEstimate();
 
 		if( CircuitOpTrace ) {
 			ss << this->getInputs()[i] << " (" << v << ")\n";
@@ -430,6 +458,10 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 		this->opcountByNode[this->GetId()][OpEvalMerge] = 2;
 		this->opcountByNode[this->GetId()][OpEvalInnerProduct] = 1;
 		this->value.SetType(CIPHERTEXT);
+	}
+	else if( mode == CalculateRuntimeEstimates ) {
+		runEst += this->GetRuntimeEstimateNode();
+		this->SetRuntimeEstimate(runEst);
 	}
 	else if( mode == Evaluate ) {
 
@@ -480,6 +512,9 @@ void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elem
 		auto ov = CircuitValue<Element>::OperatorType(OpModReduce,v0);
 		this->opcountByNode[this->GetId()][ov.GetOp()] = 1;
 		v0.SetType(ov.GetWire());
+	}
+	else if( mode == CalculateRuntimeEstimates ) {
+		this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
 	}
 	else if( mode == Evaluate ) {
 

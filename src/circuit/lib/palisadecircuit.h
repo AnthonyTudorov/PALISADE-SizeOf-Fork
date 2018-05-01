@@ -68,8 +68,8 @@ public:
 	PalisadeCircuit(CryptoContext<Element> cc, CircuitGraph& cg, EF<Element> EncodeFunction = 0);
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
-	void SetDecryptionKey(LPPrivateKey<Element> k) { g._graph_key = k; }
-	LPPrivateKey<Element> GetDecryptionKey() const { return g._graph_key; }
+	void GenerateOperationList() { g.GenerateOperationList(cc); }
+	void ApplyRuntimeEstimates(map<OpType,double>& stats) { g.ApplyRuntimeEstimates(stats); }
 
 	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false );
 

@@ -68,12 +68,11 @@ void
 CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc)
 {
 	this->ClearVisited();
-	cout << "gen " << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
+	CircuitNodeWithValue<Element>::GetOperationsMap().clear();
 	for( int output : getOutputs() ) {
 		auto out = getNodeById(output);
 		out->Evaluate(GetOperationsList, cc, *this);
 	}
-	cout << "end " << CircuitNodeWithValue<Element>::GetOperationsMap().size() << endl;
 }
 
 template<typename Element>
@@ -87,7 +86,13 @@ CircuitGraphWithValues<Element>::ApplyRuntimeEstimates(map<OpType,double>& stats
 			est += stats[nodeops.first] * nodeops.second;
 		}
 
-		node.second->SetRuntimeEstimate(est);
+		node.second->SetRuntimeEstimateNode(est);
+	}
+
+	this->ClearVisited();
+	for( int output : getOutputs() ) {
+		CircuitNodeWithValue<Element> *out = getNodeById(output);
+		out->Evaluate(CalculateRuntimeEstimates, 0, *this);
 	}
 }
 

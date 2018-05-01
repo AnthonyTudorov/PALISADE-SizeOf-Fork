@@ -60,7 +60,7 @@ PalisadeCircuit<Element>::PalisadeCircuit(CryptoContext<Element> cc, CircuitGrap
 template<typename Element>
 CircuitOutput<Element>
 PalisadeCircuit<Element>::CircuitEval(const CircuitInput<Element>& inputs, bool verbose ) {
-	g.Reset();
+	g.ClearVisited();
 
 	if( verbose ) cout << "Setting inputs" << endl;
 	auto circuitInputs = g.getInputs();
