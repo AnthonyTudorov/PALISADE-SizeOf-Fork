@@ -30,127 +30,79 @@
 
 #include "palisade.h"
 #include "cryptocontexthelper.h"
+#include "cryptocontextgen.h"
 
 using namespace std;
 using namespace lbcrypto;
 
+/*
 template<typename Element>
-void GenContexts(EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist, string nameroot) {
+inline CryptoContext<Element>
+GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
+	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params>(ORDER, bits, towers);
+	CryptoContext<Element> cc;
 
-	string fn;
-	usint m;
+	if( name == "Null" ) {
+		cc = CryptoContextFactory<Element>::genCryptoContextNull(ORDER, ptm);
+	}
+	else if( name == "LTV" )
+		cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);
+	else if( name == "StSt" )
+		cc = CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
+	else if( name == "BGV_rlwe" )
+		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, RLWE);
+	else if( name == "BGV_opt" )
+		cc = CryptoContextFactory<Element>::genCryptoContextBGV(p, ptm, 1, 4, OPTIMIZED);
+	else if( name == "BFV_rlwe" )
+		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, RLWE);
+	else if( name == "BFV_opt" )
+		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, OPTIMIZED);
+	else if( name == "BFVrns_rlwe" )
+		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
+	else if( name == "BFVrns_opt" )
+		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
+ */
 
-//	cout << "Trying LTV" << endl;
-//	try {
-//		Serialized ser;
-//		auto cc = CryptoContextFactory<Element>::genCryptoContextLTV(
-//				encodingParams, securityLevel, relinWindow, dist,
-//				0, 2, 0);
-//
-//		if( cc ) {
-//			if( cc->Serialize(&ser) ) {
-//				fn = nameroot+"LTV";
-//				cout << "Generating " << fn << endl;
-//				SerializableHelper::WriteSerializationToFile(ser, fn);
-//			}
-//			else {
-//				cout << "No serialization" << endl;
-//			}
-//		}
-//		else {
-//			cout << "No context" << endl;
-//		}
-//	} catch(...) {}
+vector<string> ctxts = { "Null", "LTV", "StSt", "BGV_rlwe", "BGV_opt", "BFV_rlwe", /*"BFV_opt",*/ "BFVrns_rlwe", "BFVrns_opt" };
 
-	cout << "Trying BFV" << endl;
-	try {
-		Serialized ser;
-		auto cc = CryptoContextFactory<Element>::genCryptoContextBFV(
-				encodingParams, securityLevel, relinWindow, dist,
-				0, 4, 0);
+template<typename Element>
+void GenContexts(usint ORDER, PlaintextModulus ptm, string nameroot) {
 
-		if( cc ) {
-			if( cc->Serialize(&ser) ) {
-				fn = nameroot+"BFV";
-				cout << "Generating " << fn << endl;
-				SerializableHelper::WriteSerializationToFile(ser, fn);
-				m = cc->GetCyclotomicOrder();
+	string fn = nameroot + to_string(ORDER) + "-";
+
+	for( string cx : ctxts ) {
+		cout << "Trying " << cx << endl;
+
+		try {
+			Serialized ser;
+			auto cc = GenTestCryptoContext<Element>(cx, ORDER, ptm);
+
+			if( cc ) {
+				if( cc->Serialize(&ser) ) {
+					string tfn = fn+cx;
+					cout << "Generating " << tfn << endl;
+					SerializableHelper::WriteSerializationToFile(ser, tfn);
+				}
+				else {
+					cout << "No serialization" << endl;
+				}
 			}
 			else {
-				cout << "No serialization" << endl;
+				cout << "No context" << endl;
 			}
-		}
-		else {
-			cout << "No context" << endl;
-		}
-	} catch(...) {}
-
-	cout << "Trying BFVrns" << endl;
-	try {
-		Serialized ser;
-		auto cc = CryptoContextFactory<Element>::genCryptoContextBFVrns(
-				encodingParams, securityLevel, dist,
-				0, 4, 0, OPTIMIZED, 2,
-				relinWindow);
-
-		if( cc ) {
-			if( cc->Serialize(&ser) ) {
-				fn = nameroot+"BFVrns";
-				cout << "Generating " << fn << endl;
-				SerializableHelper::WriteSerializationToFile(ser, fn);
-				m = cc->GetCyclotomicOrder();
-			}
-			else {
-				cout << "No serialization" << endl;
-			}
-		}
-		else {
-			cout << "No context" << endl;
-		}
-	} catch(...) {}
-
-	//	static CryptoContext<Element> genCryptoContextBGV(shared_ptr<typename Element::Params> params,
-	//		EncodingParams encodingParams,
-	//		usint relinWindow, float stDev,
-	//		MODE mode = RLWE, int depth = 1);
-	//
-	//	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
-	//		EncodingParams encodingParams,
-	//		usint relinWindow, float stDev, float stDevStSt, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
-
-	cout << "Trying Null" << endl;
-	try {
-		Serialized ser;
-		auto cc = CryptoContextFactory<Element>::genCryptoContextNull(m, encodingParams);
-
-		if( cc ) {
-			if( cc->Serialize(&ser) ) {
-				fn = nameroot+"Null";
-				cout << "Generating " << fn << endl;
-				SerializableHelper::WriteSerializationToFile(ser, fn);
-			}
-			else {
-				cout << "No serialization" << endl;
-			}
-		}
-		else {
-			cout << "No context" << endl;
-		}
-	} catch(...) {}
-
+		} catch(...) {}
+	}
 }
 
 int
 main(int argc, char *argv[]) {
 
 	const PlaintextModulus ptm = 1073872897;
-	EncodingParams ep(new EncodingParamsImpl(ptm));
-	double rootHermiteFactor = 1.004;
-	usint relinWindow = 8;
-	double sigma = 3.2;
 
-	GenContexts<Poly>(ep, rootHermiteFactor, relinWindow, sigma, "CTX-POLY-");
-	GenContexts<DCRTPoly>(ep, rootHermiteFactor, relinWindow, sigma, "CTX-DCRT-");
+	for( usint ORDER = 2048; ORDER < 8192; ORDER *= 2 ) {
+		GenContexts<Poly>(ORDER, ptm, "CTX-POLY-");
+		GenContexts<DCRTPoly>(ORDER, ptm, "CTX-DCRT-");
+	}
 
 	return 0;
 }

@@ -1,8 +1,14 @@
 prog=bin/demo/pke/demo-timing 
 
-$prog -dcrt -cfile CIRCUITCONTEXT
-$prog -dcrt -cfile CTX-DCRT-BFVrns
-$prog -dcrt -cfile CTX-DCRT-Null
-$prog -cfile CTX-POLY-BFV
-$prog -cfile CTX-POLY-BFVrns
-$prog -cfile CTX-POLY-Null
+for i in `ls CTX-* | grep POLY`;
+do
+	echo $i:
+	$prog -cfile $i
+done
+
+for i in `ls CTX-* | grep DCRT`;
+do
+	echo $i:
+	$prog -dcrt -cfile $i
+done
+

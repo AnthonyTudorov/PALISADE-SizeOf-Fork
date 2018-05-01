@@ -1,0 +1,16 @@
+awk '
+$1 ~ /CTX-/ {
+print
+	split($1,parts,"-")
+	el=parts[2]
+	m=parts[3]
+	sub(":","",parts[4])
+	scheme=parts[4]
+	print scheme,el,m
+}
+$2 ~ /[0-9]ms/ {
+	sub(":","",$1)
+	sub("ms","",$2)
+	print scheme,el,m,$1,$2
+}
+' Samples-Output-30Apr
