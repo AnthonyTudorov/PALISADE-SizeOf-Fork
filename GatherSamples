@@ -1,0 +1,8 @@
+prog=bin/demo/pke/demo-timing 
+
+$prog -dcrt -cfile CIRCUITCONTEXT
+$prog -dcrt -cfile CTX-DCRT-BFVrns
+$prog -dcrt -cfile CTX-DCRT-Null
+$prog -cfile CTX-POLY-BFV
+$prog -cfile CTX-POLY-BFVrns
+$prog -cfile CTX-POLY-Null
