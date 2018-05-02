@@ -216,14 +216,9 @@ public:
 		return value;
 	}
 
-	virtual void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops) {
-		if( !Visited() ) {
-			Visit();
-			SetNoiseEstimate(DEFAULTNOISEVAL);
-		}
-	}
-
 	virtual void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		if( mode == CalculateRuntimeEstimates )
+			SetNoiseEstimate(DEFAULTNOISEVAL);
 		return;
 	}
 
@@ -492,7 +487,6 @@ public:
 	OpType OpTag() const { return OpModReduce; }
 	string getNodeLabel() const { return "M/R"; }
 
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
@@ -520,8 +514,6 @@ public:
 	OpType OpTag() const { return OpEvalAdd; }
 	string getNodeLabel() const { return "+"; }
 
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
-
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
@@ -545,8 +537,6 @@ public:
 	OpType OpTag() const { return OpEvalSub; }
 	string getNodeLabel() const { return "-"; }
 
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
-
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
@@ -569,8 +559,6 @@ public:
 
 	OpType OpTag() const { return OpEvalMult; }
 	string getNodeLabel() const { return "*"; }
-
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
 
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 
@@ -597,8 +585,6 @@ public:
 	OpType OpTag() const { return OpEvalRightShift; }
 	string getNodeLabel() const { return ">>"; }
 
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
-
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
@@ -623,8 +609,6 @@ public:
 
 	OpType OpTag() const { return OpEvalInnerProduct; }
 	string getNodeLabel() const { return "o"; }
-
-	void simeval(CircuitGraphWithValues<Element>& cg, vector<CircuitSimulation>& ops);
 
 	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 

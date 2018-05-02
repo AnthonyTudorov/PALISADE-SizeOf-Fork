@@ -331,11 +331,11 @@ main(int argc, char *argv[])
 		}
 
 		// FIXME check for match
-//		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
-//			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
-//			evalStatF.close();
-//			return 1;
-//		}
+		//		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
+		//			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
+		//			evalStatF.close();
+		//			return 1;
+		//		}
 
 		string inLine;
 		while( getline(evalStatF, inLine) ) {
@@ -353,11 +353,12 @@ main(int argc, char *argv[])
 		cir.GenerateOperationList();
 		cir.ApplyRuntimeEstimates(timings);
 
-		for( auto n : cir.GetGraph().getAllNodes() ) {
-			cout << "Node " << n.first;
-			cout << " node est " << n.second->GetRuntimeEstimateNode();
-			cout << " node cum " << n.second->GetRuntimeEstimate() << endl;
-		}
+		if( verbose )
+			for( auto n : cir.GetGraph().getAllNodes() ) {
+				cout << "Node " << n.first;
+				cout << " node est " << n.second->GetRuntimeEstimateNode();
+				cout << " node cum " << n.second->GetRuntimeEstimate() << endl;
+			}
 	}
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};

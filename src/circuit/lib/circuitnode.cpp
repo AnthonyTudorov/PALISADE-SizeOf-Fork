@@ -45,30 +45,6 @@ template<typename Element>
 map<usint,map<OpType,int>>& CircuitNodeWithValue<Element>::GetOperationsMap() { return opcountByNode; }
 
 template<typename Element>
-void EvalAddNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-
-	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
-
-	auto n0 = g.getNodeById(this->getInputs()[0]);
-	n0->simeval(g, ops);
-	usint noise = n0->GetNoiseEstimate();
-
-	for( size_t i=1; i < this->getInputs().size(); i++ ) {
-		auto n1 = g.getNodeById(this->getInputs()[i]);
-		n1->simeval(g, ops);
-
-		noise += n1->GetNoiseEstimate();
-	}
-
-	this->SetNoiseEstimate( noise );
-	return;
-}
-
-template<typename Element>
 void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
@@ -76,7 +52,14 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
-	double runEst = n0->GetRuntimeEstimate();
+	double runEst = 0;
+	usint noiseEst = 0;
+
+	if( mode == CalculateRuntimeEstimates ) {
+		noiseEst = n0->GetNoiseEstimate();
+		runEst = n0->GetRuntimeEstimate();
+		cout << "EvalAdd, node " << this->GetId() << " input 0 " <<  this->getInputs()[0] << " runEst is now " << runEst << endl;
+	}
 
 	stringstream ss;
 	if( CircuitOpTrace ) {
@@ -99,8 +82,11 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			v0.SetType(ov.GetWire());
 		}
 		else if( mode == CalculateRuntimeEstimates ) {
+			noise += n1->GetNoiseEstimate();
 			runEst += n1->GetRuntimeEstimate();
+			cout << "EvalAdd, node " << this->GetId() << " input " << i << " " << this->getInputs()[i] << " runEst is now " << runEst << endl;
 			runEst += this->GetRuntimeEstimateNode();
+			cout << "EvalAdd, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 		}
 		else if( mode == Evaluate ) {
 			v0 = v0 + v1;
@@ -113,6 +99,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	}
 
 	if( mode == CalculateRuntimeEstimates ) {
+		this->SetNoiseEstimate(noiseEst);
 		this->SetRuntimeEstimate(runEst);
 	}
 
@@ -125,46 +112,16 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 }
 
 template<typename Element>
-void EvalSubNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-
-	if( this->getInputs().size() == 1 ) {
-		auto n0 = g.getNodeById(this->getInputs()[0]);
-		n0->simeval(g,ops);
-		this->SetNoiseEstimate( n0->GetNoiseEstimate() );
-		return;
-	}
-
-	if( this->getInputs().size() < 2 ) throw std::logic_error("Sub requires at least 2 inputs");
-
-	auto n0 = g.getNodeById(this->getInputs()[0]);
-	n0->simeval(g,ops);
-	usint noise = n0->GetNoiseEstimate();
-
-	for( size_t i=1; i < this->getInputs().size(); i++ ) {
-		auto n1 = g.getNodeById(this->getInputs()[i]);
-		n1->simeval(g,ops);
-
-		noise += n1->GetNoiseEstimate();
-	}
-
-	this->SetNoiseEstimate( noise );
-	return;
-}
-
-template<typename Element>
 void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	stringstream ss;
+	double runEst = 0;
+	usint noiseEst = 0;
 
 	if( this->getInputs().size() == 1 ) {
 		// EvalNegate
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
-		double runEst = n0->GetRuntimeEstimate();
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -178,7 +135,11 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			this->value.SetType(ov.GetWire());
 		}
 		else if( mode == CalculateRuntimeEstimates ) {
+			this->SetNoiseEstimate( n0->GetNoiseEstimate() );
+			runEst = n0->GetRuntimeEstimate();
+			cout << "EvalNegate, node " << this->GetId() << " runEst is now " << runEst << endl;
 			runEst += this->GetRuntimeEstimateNode();
+			cout << "EvalNegate, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 			this->SetRuntimeEstimate(runEst);
 		}
 		else if( mode == Evaluate ) {
@@ -198,7 +159,11 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
 	usint noise = n0->GetNoiseActual();
-	double runEst = n0->GetRuntimeEstimate();
+	if( mode == CalculateRuntimeEstimates ) {
+		noiseEst = n0->GetNoiseEstimate();
+		runEst = n0->GetRuntimeEstimate();
+		cout << "EvalSub, node " << this->GetId() << " input 0 " <<  this->getInputs()[0] << " runEst is now " << runEst << endl;
+	}
 
 	if( CircuitOpTrace ) {
 		ss << "Node " << this->GetId() << ": ";
@@ -220,8 +185,11 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			v0.SetType(ov.GetWire());
 		}
 		else if( mode == CalculateRuntimeEstimates ) {
+			noiseEst += n1->GetNoiseEstimate();
 			runEst += n1->GetRuntimeEstimate();
+			cout << "EvalSub, node " << this->GetId() << " input " << i << " " << this->getInputs()[i] << " runEst is now " << runEst << endl;
 			runEst += this->GetRuntimeEstimateNode();
+			cout << "EvalSub, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 		}
 		else if( mode == Evaluate ) {
 			v0 = v0 - v1;
@@ -234,6 +202,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	}
 
 	if( mode == CalculateRuntimeEstimates ) {
+		this->SetNoiseEstimate(noiseEst);
 		this->SetRuntimeEstimate(runEst);
 	}
 
@@ -246,40 +215,14 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 }
 
 template<typename Element>
-void EvalMultNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-	if( this->getInputs().size() > 2 ) {
-		usint noiseTotal = 0;
-		for( auto nid : this->getInputs() ) {
-			auto n = g.getNodeById(nid);
-			n->simeval(g, ops);
-			noiseTotal += n->GetNoiseEstimate();
-		}
-
-		this->SetNoiseEstimate( noiseTotal );
-	}
-	else {
-		auto n0 = g.getNodeById(this->getInputs()[0]);
-		auto n1 = g.getNodeById(this->getInputs()[1]);
-		n0->simeval(g,ops);
-		n1->simeval(g,ops);
-
-		this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
-	}
-	return;
-}
-
-template<typename Element>
 void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
 
 	stringstream ss;
+	double runEst = 0;
+	usint noiseEst = 0;
 
 	if( this->getInputs().size() > 2 ) {
 		usint noiseTotal = 0;
-		double runEst = 0;
 		vector<Ciphertext<Element>> cvec;
 
 		if( CircuitOpTrace ) {
@@ -291,7 +234,11 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			auto n = cg.getNodeById(nid);
 			noiseTotal += n->GetNoiseActual();
 			CircuitValue<Element> v( n->Evaluate(mode, cc, cg) );
-			runEst += n->GetRuntimeEstimate();
+			if( mode == CalculateRuntimeEstimates ) {
+				noiseEst += n->GetNoiseEstimate();
+				runEst += n->GetRuntimeEstimate();
+				cout << "EvalMultMany, node " << this->GetId() << " input " << nid << " runEst is now " << runEst << endl;
+			}
 			ss << nid << " (" << v << ") ";
 			if( v.GetType() != CIPHERTEXT ) {
 				PALISADE_THROW(type_error, "One of the operands to EvalMultMany is not a Ciphertext");
@@ -304,7 +251,9 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			this->value.SetType(CIPHERTEXT);
 		}
 		else if( mode == CalculateRuntimeEstimates ) {
+			this->SetNoiseEstimate(noiseEst);
 			runEst += this->GetRuntimeEstimateNode();
+			cout << "EvalMultMany, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 			this->SetRuntimeEstimate(runEst);
 		}
 		else if( mode == Evaluate ) {
@@ -331,7 +280,14 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 			this->value.SetType(ov.GetWire());
 		}
 		else if( mode == CalculateRuntimeEstimates ) {
-			this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + n1->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
+			this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
+			runEst = n0->GetRuntimeEstimate();
+			cout << "EvalMult, node " << this->GetId() << " input 0 runEst is now " << runEst << endl;
+			runEst += n1->GetRuntimeEstimate();
+			cout << "EvalMult, node " << this->GetId() << " input 1 runEst is now " << runEst << endl;
+			runEst += this->GetRuntimeEstimateNode();
+			cout << "EvalMult, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
+			this->SetRuntimeEstimate( runEst );
 		}
 		else if( mode == Evaluate ) {
 			this->value = v0 * v1;
@@ -343,23 +299,6 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 		cout << ss.str() << endl;
 	}
 
-	return;
-}
-
-template<typename Element>
-void EvalRShiftNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-	if( this->getInputs().size() != 2 ) throw std::logic_error("RShift requires 2 inputs");
-
-	auto n0 = g.getNodeById(this->getInputs()[0]);
-	auto n1 = g.getNodeById(this->getInputs()[1]);
-	n0->simeval(g,ops);
-	n1->simeval(g,ops);
-
-	this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 	return;
 }
 
@@ -378,30 +317,20 @@ void EvalRShiftNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Ele
 		this->value.SetType(CIPHERTEXT);
 	}
 	else if( mode == CalculateRuntimeEstimates ) {
-		this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + n1->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
+		this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
+		double runEst = n0->GetRuntimeEstimate();
+		cout << "EvalRShift, node " << this->GetId() << " input 0 runEst is now " << runEst << endl;
+		runEst += n1->GetRuntimeEstimate();
+		cout << "EvalRShift, node " << this->GetId() << " input 1 runEst is now " << runEst << endl;
+		runEst += this->GetRuntimeEstimateNode();
+		cout << "EvalRShift, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
+		this->SetRuntimeEstimate( runEst );
 	}
 	else if( mode == Evaluate ) {
 		this->value = v0 >> v1;
 		this->SetNoiseActual( n0->GetNoiseActual() * n1->GetNoiseActual() );
 	}
 
-	return;
-}
-
-template<typename Element>
-void EvalInnerProdNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-	if( this->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
-
-	auto n0 = g.getNodeById(this->getInputs()[0]);
-	auto n1 = g.getNodeById(this->getInputs()[1]);
-	n0->simeval(g,ops);
-	n1->simeval(g,ops);
-
-	this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 	return;
 }
 
@@ -433,6 +362,7 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 	}
 
 	double runEst = 0;
+	usint noiseEst = 0;
 	for( auto i = 0; i < this->getInputs().size(); i++ ) {
 		if( i == vecsize ) {
 			vecp = &vec2;
@@ -446,7 +376,11 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 		if( v.GetType() != CIPHERTEXT ) {
 			throw std::logic_error("InnerProduct only works on ciphertexts");
 		}
-		runEst += n->GetRuntimeEstimate();
+		if( mode == CalculateRuntimeEstimates ) {
+			noiseEst += n->GetNoiseEstimate();
+			runEst += n->GetRuntimeEstimate();
+			cout << "EvalInnerProduct, node " << this->GetId() << " input, runEst is now " << runEst << endl;
+		}
 
 		if( CircuitOpTrace ) {
 			ss << this->getInputs()[i] << " (" << v << ")\n";
@@ -461,7 +395,9 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 	}
 	else if( mode == CalculateRuntimeEstimates ) {
 		runEst += this->GetRuntimeEstimateNode();
+		cout << "EvalInnerProduct, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 		this->SetRuntimeEstimate(runEst);
+		this->SetNoiseEstimate(noiseEst);
 	}
 	else if( mode == Evaluate ) {
 
@@ -478,25 +414,10 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 			cout << ss.str() << endl;
 		}
 
-		// FIXME this->SetNoise( ???? );
+		// FIXME this->SetNoiseActual( ???? );
 	}
 	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
-	return;
-}
-
-template<typename Element>
-void ModReduceNodeWithValue<Element>::simeval(CircuitGraphWithValues<Element>& g, vector<CircuitSimulation>& ops) {
-	if( this->Visited() )
-		return; // visit only once!
-
-	this->Visit();
-	if( this->getInputs().size() != 1 ) throw std::logic_error("ModReduce must have one input");
-
-	auto n0 = g.getNodeById(this->getInputs()[0]);
-	n0->simeval(g,ops);
-
-	this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 	return;
 }
 
@@ -514,7 +435,12 @@ void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elem
 		v0.SetType(ov.GetWire());
 	}
 	else if( mode == CalculateRuntimeEstimates ) {
-		this->SetRuntimeEstimate(n0->GetRuntimeEstimate() + this->GetRuntimeEstimateNode());
+		double runEst = n0->GetRuntimeEstimate();
+		cout << "ModReduce, node " << this->GetId() << " input runEst is now " << runEst << endl;
+		runEst += this->GetRuntimeEstimateNode();
+		cout << "ModReduce, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
+		this->SetRuntimeEstimate( runEst );
+		this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 	}
 	else if( mode == Evaluate ) {
 
