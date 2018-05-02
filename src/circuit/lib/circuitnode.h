@@ -203,17 +203,17 @@ public:
 			CircuitGraphWithValues<Element>& cg) {
 
 		if( Visited() )
-			return value;
+			return this->value;
 		Visit();
 
-		evalsequence = ++step;
+		this->evalsequence = ++step;
 		TimeVar t;
 		TIC(t);
 		this->eval(mode,cc,cg);
 		if( mode == EvaluateMode::Evaluate )
 			this->runtimeActual = TOC_MS(t);
 
-		return value;
+		return this->value;
 	}
 
 	virtual void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) = 0;

@@ -42,6 +42,11 @@ map<OpKey,OpValue> CircuitValue<Element>::operations = {
 		{ OpKey(OpEvalAdd,CIPHERTEXT,PLAINTEXT), OpValue(CIPHERTEXT,OpEvalAddPlain) },
 		{ OpKey(OpEvalAdd,MATRIX_RAT,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalAddMatrix) },
 
+		{ OpKey(OpEvalSub,CIPHERTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalSub) },
+		{ OpKey(OpEvalSub,PLAINTEXT,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalSubPlain) },
+		{ OpKey(OpEvalSub,CIPHERTEXT,PLAINTEXT), OpValue(CIPHERTEXT,OpEvalSubPlain) },
+		{ OpKey(OpEvalSub,MATRIX_RAT,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalSubMatrix) },
+
 		{ OpKey(OpEvalNeg,CIPHERTEXT), OpValue(CIPHERTEXT,OpEvalNeg) },
 		{ OpKey(OpEvalNeg,MATRIX_RAT), OpValue(MATRIX_RAT,OpEvalNegMatrix) },
 

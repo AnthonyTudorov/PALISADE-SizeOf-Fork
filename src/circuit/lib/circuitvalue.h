@@ -141,8 +141,11 @@ public:
 	static OpValue OperatorType(OpType op, const CircuitValue& v0, const CircuitValue& v1 = CircuitValue()) {
 		OpKey k(op, v0.GetType(), v1.GetType());
 		auto val = operations.find(k);
-		if( val == operations.end() )
-			return OpValue(UNKNOWN,OpUnknown);
+		if( val == operations.end() ) {
+			stringstream ss;
+			ss << "Missing entry for " << op << "," << v0.GetType() << "," << v1.GetType();
+			PALISADE_THROW(not_implemented_error, ss.str());
+		}
 		return val->second;
 	}
 
