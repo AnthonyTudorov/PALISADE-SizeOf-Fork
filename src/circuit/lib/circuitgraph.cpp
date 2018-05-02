@@ -72,6 +72,11 @@ CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc
 	for( int output : getOutputs() ) {
 		auto out = getNodeById(output);
 		out->Evaluate(GetOperationsList, cc, *this);
+
+		cout << output << endl;
+		for( auto x : out->GetOperationsMap()[output] ) {
+			cout << x.first << ":" << x.second << endl;
+		}
 	}
 }
 
@@ -86,6 +91,7 @@ CircuitGraphWithValues<Element>::ApplyRuntimeEstimates(map<OpType,double>& stats
 			est += stats[nodeops.first] * nodeops.second;
 		}
 
+		cout << "node " << node.first << " est " << est << endl;
 		node.second->SetRuntimeEstimateNode(est);
 	}
 

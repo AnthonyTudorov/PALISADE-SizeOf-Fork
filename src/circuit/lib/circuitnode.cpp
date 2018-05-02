@@ -58,6 +58,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( mode == CalculateRuntimeEstimates ) {
 		noiseEst = n0->GetNoiseEstimate();
 		runEst = n0->GetRuntimeEstimate();
+		cout << v0.GetType() << endl;
 		cout << "EvalAdd, node " << this->GetId() << " input 0 " <<  this->getInputs()[0] << " runEst is now " << runEst << endl;
 	}
 
@@ -77,6 +78,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		}
 
 		if( mode == GetOperationsList ) {
+			cout << v0.GetType() << " " << v1.GetType() << endl;
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
 			this->opcountByNode[this->GetId()][ov.GetOp()]++;
 			v0.SetType(ov.GetWire());

@@ -346,13 +346,14 @@ main(int argc, char *argv[])
 			if( op == OperatorType.end() ) continue;
 			double value = stod( inLine.substr(cPos+1) );
 			timings[ op->second ] = value;
+
+			cout << op->second << " " << value << endl;
 		}
 		evalStatF.close();
 
 		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 		cir.GenerateOperationList();
 		cir.ApplyRuntimeEstimates(timings);
-
 		if( verbose )
 			for( auto n : cir.GetGraph().getAllNodes() ) {
 				cout << "Node " << n.first;

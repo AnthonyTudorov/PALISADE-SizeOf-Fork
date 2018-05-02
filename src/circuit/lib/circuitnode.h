@@ -141,8 +141,8 @@ protected:
 	bool				visited;
 	int				evalsequence;
 
-	usint			nodeInputDepth;
-	usint			nodeOutputDepth;
+	int			nodeInputDepth;
+	int			nodeOutputDepth;
 
 	double			runtimeEstimateNode;
 	double			runtimeEstimateCumulative;
@@ -164,8 +164,8 @@ public:
 
 	wire_type GetType() const { return value.GetType(); }
 
-	const usint getInputDepth() const { return nodeInputDepth; }
-	const usint getOutputDepth() const { return nodeOutputDepth; }
+	const int getInputDepth() const { return nodeInputDepth; }
+	const int getOutputDepth() const { return nodeOutputDepth; }
 	void resetDepth() { this->nodeInputDepth = this->nodeOutputDepth = 0; }
 	void setInputDepth(int newDepth) { nodeInputDepth = newDepth; }
 	void setOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
@@ -216,11 +216,7 @@ public:
 		return value;
 	}
 
-	virtual void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-		if( mode == CalculateRuntimeEstimates )
-			SetNoiseEstimate(DEFAULTNOISEVAL);
-		return;
-	}
+	virtual void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) = 0;
 
 	virtual OpType OpTag() const = 0;
 	virtual string getNodeLabel() const { return ""; }
@@ -343,6 +339,13 @@ public:
 
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(input)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		cout << "InputWithValue type is " << this->value.GetType() << endl;
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
+	}
 };
 
 class ConstInt : public CircuitNode {
@@ -374,6 +377,13 @@ public:
 
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const int)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		cout << "ConstIntWithValue type is " << this->value.GetType() << endl;
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
+	}
 };
 
 class ConstPtxt : public CircuitNode {
@@ -465,6 +475,13 @@ public:
 	}
 	OpType OpTag() const { return OpNOOP; }
 	string getNodeLabel() const { return "(const plaintext)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		cout << "ConstPtxtWithValue type is " << this->value.GetType() << endl;
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
+	}
 };
 
 class ModReduceNode : public CircuitNode {

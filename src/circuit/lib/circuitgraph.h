@@ -187,9 +187,10 @@ public:
 	int GetMaximumDepth() {
 		int answer = -1;
 
-		for( const auto& n : this->getAllNodes() )
-			if( n.second->getOutputDepth() > answer )
-				answer = n.second->getOutputDepth();
+		for( const auto& n : this->getAllNodes() ) {
+			if( n.second->getInputDepth() > answer )
+				answer = n.second->getInputDepth();
+		}
 		return answer;
 	}
 
