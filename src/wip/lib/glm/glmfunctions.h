@@ -52,7 +52,7 @@ using namespace lbcrypto;
 #include <iterator>
 #include <math.h>
 
-#define MEASURE_TIMING
+//#define MEASURE_TIMING
 //#define OMPSECTION3
 //#define NUMTHREAD 8
 
