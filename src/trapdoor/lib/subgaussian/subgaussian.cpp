@@ -55,7 +55,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::InverseG(const Integer &u, vector<int64_t> *output) const{
+	void LatticeSubgaussianUtility<Integer,Vector>::InverseG(const Integer &u, std::mt19937 &prng, vector<int64_t> *output) const{
 
 		//create a decomposition vector for the target and the modulus q
 
@@ -86,7 +86,7 @@ namespace lbcrypto {
 		//x is the coefficients in the sample in basis
 
 		vector<int64_t> x(m_k);
-		BcBD(target, &x);//x is the outputs coefficients in the basis
+		BcBD(target, prng, &x);//x is the outputs coefficients in the basis
 
 		//Compute S x + u.
 
@@ -98,7 +98,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const vector<float> &target, vector<int64_t> *x) const{
+	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const vector<float> &target, std::mt19937 &prng, vector<int64_t> *x) const{
 
 		std::uniform_real_distribution<float> distribution(0.0, 1.0);
 
@@ -111,7 +111,7 @@ namespace lbcrypto {
 		int64_t zk = floor(c);
 		float prob = c - float(zk);
 
-		if(distribution(PseudoRandomNumberGenerator::GetPRNG()) <= prob){
+		if(distribution(prng) <= prob){
 			(*x)[m_k-1] = zk + 1;
 		}
 		else{
@@ -130,7 +130,7 @@ namespace lbcrypto {
 			zi = (int64_t)(floor(ti));//upper plane number
 			float prob = ti - float(zi);
 
-			if(distribution(PseudoRandomNumberGenerator::GetPRNG()) <= prob){
+			if(distribution(prng) <= prob){
 				(*x)[i] = zi + 1;
 				//cout<<"top plane"<<endl;
 			}
@@ -143,7 +143,12 @@ namespace lbcrypto {
 
 	}
 
-	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger,BigVector> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB, Matrix<Poly> *psi){
+	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger,BigVector> &util, const shared_ptr<ILParams> ilParams,
+			const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<Poly> *psi){
+
+		std::shared_ptr<std::mt19937> prng;
+
+		prng.reset(new std::mt19937(seed));
 
 		usint n = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = pubElemB.GetCols();
@@ -155,6 +160,14 @@ namespace lbcrypto {
 
 		//int Max = 0;
 
+		for(usint i=0; i<m; i++)
+			for(usint j=0; j<m; j++) {
+				(*psi)(j, i).SetValuesToZero();
+				if ((*psi)(j, i).GetFormat() != COEFFICIENT){
+					(*psi)(j, i).SwitchFormat();
+				}
+			}
+
 		for (usint i=0; i<m; i++) {
 			auto tB = pubElemB(0, i);
 
@@ -165,7 +178,7 @@ namespace lbcrypto {
 
 			for(size_t j=0; j<n; j++) {
 
-				util.InverseG(tB[j],&digits);
+				util.InverseG(tB[j], *prng, &digits);
 
 				/*std::cout << tB[j] << std::endl;
 				std::cout << digits<< std::endl;

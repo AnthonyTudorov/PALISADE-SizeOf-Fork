@@ -51,7 +51,7 @@ int main(){
 
 	TIC(t1); //start timer for total time
 	for (size_t i = 0; i<count; i++)
-		sampler.InverseG(u, &nativeOutput);
+		sampler.InverseG(u, PseudoRandomNumberGenerator::GetPRNG(),&nativeOutput);
 	timeEval = TOC_US(t1);
 
 	std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds" << std::endl;
@@ -89,7 +89,7 @@ vector<int64_t> nativeOutputBig(kBig);
 
 TIC(t1); //start timer for total time
 for (size_t i = 0; i<count; i++)
-	samplerBig.InverseG(bigModulus>>2, &nativeOutputBig);
+	samplerBig.InverseG(bigModulus>>2, PseudoRandomNumberGenerator::GetPRNG(), &nativeOutputBig);
 timeEval = TOC_US(t1);
 
 std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds" << std::endl;
