@@ -44,7 +44,7 @@ public:
 
 	void InverseG(const Integer &u, vector<int64_t> *output) const;
 
-	void BcBD(const vector<double> &target, vector<int64_t> *v) const;
+	void BcBD(const vector<float> &target, vector<int64_t> *x) const;
 
 	const uint32_t GetK() const {return m_k;}
 
@@ -59,7 +59,7 @@ private:
 
 	// precomputed tables
 	vector<int64_t> m_qvec;
-	vector<double> m_d;
+	vector<float> m_d;
 
 };
 
