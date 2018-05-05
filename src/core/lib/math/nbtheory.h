@@ -42,6 +42,7 @@
 #include <string>
 #include <random>
 #include <stdexcept>
+#include <memory>
 #include "../utils/inttypes.h"
 
 /**
@@ -175,6 +176,20 @@ namespace lbcrypto {
 		return  64 - (sizeof(unsigned long) == 8 ? __builtin_clzl(x) : __builtin_clzll(x));
 #endif
 	}
+
+	template<typename IntType>
+	std::shared_ptr<std::vector<int64_t>> GetDigits(const IntType &u, uint64_t base, uint32_t k)
+	{
+		std::shared_ptr<std::vector<int64_t>> u_vec(new std::vector<int64_t>(k));
+		//if (!(base & (base - 1)))
+		IntType uu = u;
+		for(size_t i = 0; i<k; i++){// ****************4/1/2018 This loop is correct.
+			(*u_vec)[i] = uu.Mod(base).ConvertToInt();
+			uu = (uu - (*u_vec)[i])/base;
+		}
+		return u_vec;
+	}
+
 
 	/**
 	 * Return greatest common divisor of two big binary integers.

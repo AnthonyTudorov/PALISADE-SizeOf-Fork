@@ -58,7 +58,11 @@ void KPABE<Element, Element2>::Setup(
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+
+		if (m_mode == NAF)
+			m_k = (usint)floor(logTwo) + 1;
+		else
+			m_k = (long)ceil(log2(val)/log2(base));
 
 		m_m = m_k + 2;
 
@@ -94,7 +98,11 @@ void KPABE<Element, Element2>::Setup(
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+
+		if (m_mode == NAF)
+			m_k = (usint)floor(logTwo) + 1;
+		else
+			m_k = (long)ceil(log2(val)/log2(base));
 
 		m_m = m_k + 2;
 

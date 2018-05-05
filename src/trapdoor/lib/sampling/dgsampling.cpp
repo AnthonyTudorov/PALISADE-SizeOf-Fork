@@ -48,10 +48,10 @@ namespace lbcrypto {
 		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
 
-		std::vector<int64_t> m_digits(k);
-		for(size_t i=1;i<=k;i++){
-			m_digits[i-1] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
-		}
+		std::vector<int64_t> m_digits = *(GetDigits(modulus,base,k));
+		//for(size_t i=1;i<=k;i++){
+		//	m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
+		//}
 
 		// main diagonal of matrix L
 		std::vector<double> l(k);
@@ -89,10 +89,11 @@ namespace lbcrypto {
 			LatticeGaussSampUtility<Element>::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
 			Matrix<double> a([]() { return 0.0; }, k, 1);
-			std::vector<int64_t> v_digits(k);
-			for(size_t i=1;i<=k;i++){
-				v_digits[i-1] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
-			}
+
+			std::vector<int64_t> v_digits = *(GetDigits(v,base,k));
+			//for(size_t i=1;i<=k;i++){
+			//	v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
+			//}
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
 			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
@@ -131,10 +132,11 @@ namespace lbcrypto {
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
-		std::vector<int64_t> m_digits(k);
-		for(size_t i=1;i<=k;i++){
-			m_digits[i-1] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
-		}
+
+		std::vector<int64_t> m_digits = *(GetDigits(modulus,base,k));
+		//for(size_t i=1;i<=k;i++){
+		//	m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
+		//}
 		// main diagonal of matrix L
 		std::vector<double> l(k);
 		//upper diagonal of matrix L
@@ -165,10 +167,11 @@ namespace lbcrypto {
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
 			typename Element::Integer v(u.at(j));
-			std::vector<int64_t> v_digits(k);
-			for(size_t i=1;i<=k;i++){
-			 v_digits[i-1] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
-			}
+
+			std::vector<int64_t> v_digits = *(GetDigits(v,base,k));;
+			//for(size_t i=1;i<=k;i++){
+			// v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
+			//}
 
 			vector<double> p(k);
 

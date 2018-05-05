@@ -43,21 +43,21 @@ int main()
 
 	//KPABEBenchMarkCircuit(2, 51, 2048, 100);
 
-	std::cout << "NAF Poly test" << std::endl;
+	std::cout << "\nNAF Poly test" << std::endl;
 
 	KPABE_NANDGATE(32,51,2048);
 
-	std::cout << "SUBGAUSSIAN Poly test" << std::endl;
+	std::cout << "\nSUBGAUSSIAN Poly test" << std::endl;
 
 	KPABE_NANDGATE_RANDOM(33,51,2048);
 
-	std::cout << "NAF DCRTPoly test" << std::endl;
+	std::cout << "\nNAF DCRTPoly test" << std::endl;
 
 	KPABE_NANDGATEDCRT(16, 8, 2048);
 
-	std::cout << "SUBGAUSSIAN DCRTPoly test" << std::endl;
+	std::cout << "\nSUBGAUSSIAN DCRTPoly test" << std::endl;
 
-	KPABE_NANDGATEDCRT_RANDOM(16, 8, 2048);
+	KPABE_NANDGATEDCRT_RANDOM(17, 8, 2048);
 
 	//KPABEANDGate(32,51,2048);
 	//KPABEANDGateDCRT(16, 8, 2048);
@@ -551,7 +551,8 @@ void KPABE_NANDGATE_RANDOM(int32_t base, usint k, usint ringDimension){
 
 			double val = q.ConvertToDouble();
 			double logTwo = log(val-1.0)/log(base)+1.0;
-			size_t k_ = (usint) floor(logTwo) + 1;
+
+			size_t k_ = (long)ceil(log2(q.ConvertToDouble())/log2(base));
 
 			usint m = k_+2;
 
@@ -568,7 +569,7 @@ void KPABE_NANDGATE_RANDOM(int32_t base, usint k, usint ringDimension){
 			ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
 
 			// Trapdoor Generation
-			std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
+			std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, false);
 
 			Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -616,12 +617,15 @@ void KPABE_NANDGATE_RANDOM(int32_t base, usint k, usint ringDimension){
 			pkg.KeyGen(ilParams, A.first, pubElemBf, pubElemBeta, A.second, dgg, &sk);
 
 			receiver.Decrypt(ilParams, sk, ctCA, ctCf, c1, &dtext);
+
 			receiver.Decode(&dtext);
 
 			ptext.SwitchFormat();
 			if(ptext.GetValues() ==  dtext.GetValues()){
 				std::cout << "Success" << std::endl;
 			}
+			else
+				std::cout << "Failure" << std::endl;
 			delete[] x;
 }
 
@@ -828,7 +832,7 @@ void KPABE_NANDGATEDCRT_RANDOM(int32_t base, usint k, usint ringDimension){
 		DCRTPoly::DugType dug = DCRTPoly::DugType();
 
 		// Trapdoor Generation
-		std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
+		std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base); // A.first is the public element
 
 		DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
@@ -885,6 +889,8 @@ void KPABE_NANDGATEDCRT_RANDOM(int32_t base, usint k, usint ringDimension){
 		if(ptext1.GetValues() ==  dtextPoly.GetValues()){
 			std::cout << "Success" << std::endl;
 		}
+		else
+			std::cout << "Failure" << std::endl;
 		delete[] x;
 }
 
