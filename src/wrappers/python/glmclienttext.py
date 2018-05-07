@@ -217,7 +217,7 @@ for loop in range(REGRLOOPCOUNT):
     print '         Iteration ', loop
     print '########################################################'
 
-    
+    totaltimestart = time.time()
     print 'Send:   W...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
@@ -332,7 +332,7 @@ for loop in range(REGRLOOPCOUNT):
     t1 = time.time()
     print 'Error timing:\t', (t1-t0)     
     ##########################################################
-    
+    totaltimefinish = time.time()
     print '\n',
     print '################################'
     print '   Results for w - Iteration ', loop
@@ -344,6 +344,8 @@ for loop in range(REGRLOOPCOUNT):
     print '################################'
     
     regResultList[loop] = regResults
+    
+    print 'Time for Loop', loop,':', (totaltimefinish-totaltimestart)
 
 sock.close()
 
