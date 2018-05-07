@@ -52,6 +52,7 @@ void usage() {
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
+	cout << "-null  --  use the null scheme" << endl;
 	cout << "-printall  --  prints value of every node after evaluation" << endl;
 	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-h  --  this message" << endl;
@@ -75,6 +76,7 @@ main(int argc, char *argv[])
 	bool evaluation_run_mode = false;
 	bool print_all_flag = false;
 	bool print_context_flag = false;
+	bool use_null = false;
 
 	ofstream contextF;
 	ostream *ctxStr = &cout;
@@ -111,6 +113,9 @@ main(int argc, char *argv[])
 		}
 		else if( arg == "-otrace" ){
 			lbcrypto::CircuitOpTrace = true;
+		}
+		else if( arg == "-null" ){
+			use_null = true;
 		}
 		else if( arg == "-ginput" ) {
 			print_input_graph = true;
@@ -214,10 +219,9 @@ main(int argc, char *argv[])
 
 	EncodingParams ep( new EncodingParamsImpl(ptm) );
 
-	CryptoContext<DCRTPoly> cc =
-			CryptoContextFactory<DCRTPoly>::
-			genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
-	//genCryptoContextNull(32, ep);
+	CryptoContext<DCRTPoly> cc = use_null ?
+			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
+			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
 
 	std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cc->GetRingDimension() << std::endl;
