@@ -98,7 +98,9 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 			v0.SetType(ov.GetWire());
 		}
 		else if( mode == Evaluate ) {
+			TimeVar t; TIC(t);
 			v0 = v0 + v1;
+			cout << "adding is " << TOC_MS(t) << "ms" << endl;
 			noise += n1->GetNoiseActual();
 		}
 	}
