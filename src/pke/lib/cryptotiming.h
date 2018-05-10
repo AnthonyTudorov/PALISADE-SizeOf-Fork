@@ -37,7 +37,7 @@
 
 namespace lbcrypto {
 
-// these variables are used to track timings
+// this enum is used to identify the various operations when doing timings
 enum OpType {
 	OpNOOP,
 	OpKeyGen,
@@ -65,6 +65,13 @@ enum OpType {
 	OpEvalMerge,
 };
 
+extern std::map<OpType,string> OperatorName;
+extern std::map<OpType,PKESchemeFeature> OperatorFeat;
+extern std::map<string,OpType> OperatorType;
+
+extern std::ostream& operator<<(std::ostream& out, const OpType& op);
+
+// this class represents a timing sample
 class TimingInfo {
 public:
 	OpType	operation;
@@ -72,53 +79,90 @@ public:
 	TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
 };
 
-class TimingStatistics {
-public:
-	OpType	operation;
-	usint	samples;
-	double	startup;
-	bool	wasCalled;
-	double	min;
-	double	max;
-	double	average;
-
-	TimingStatistics() : operation(OpNOOP), samples(0), startup(0), wasCalled(false),
-			min(std::numeric_limits<double>::max()),
-			max(std::numeric_limits<double>::min()), average(0) {}
-	TimingStatistics(double startup, double min, double max, double average) : operation(OpNOOP), samples(0),
-			startup(startup), wasCalled(false),
-			min(min), max(max), average(average) {}
-	bool Serialize(Serialized* serObj) const;
-	bool Deserialize(const Serialized& serObj);
-	const TimingStatistics operator+(const TimingStatistics& op) const {
-		return TimingStatistics( startup, min + op.min, max + op.max, average + op.average);
-	}
-	TimingStatistics& operator+=(const TimingStatistics& op) {
-		startup = op.startup, min += op.min, max += op.max, average += op.average;
-		return *this;
-	}
-	double GetEstimate() {
-		if( wasCalled ) return average;
-		wasCalled = true;
-		return startup;
-	}
-};
-
-extern std::map<OpType,string> OperatorName;
-extern std::map<OpType,PKESchemeFeature> OperatorFeat;
-extern std::map<string,OpType> OperatorType;
-
-extern std::ostream& operator<<(std::ostream& out, const OpType& op);
-
 inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
 	out << t.operation << ": " << t.timeval;
 	return out;
 }
 
+// timing samples are collected into a TimingStatistics
+class TimingStatistics {
+public:
+	OpType	operation;
+	usint	samples;
+	double	startup;
+	bool		wasCalled;
+	double	min;
+	double	max;
+	double	average;
+
+	TimingStatistics() :
+		operation(OpNOOP), samples(0), startup(0), wasCalled(false), min(0), max(0), average(0) {}
+	TimingStatistics(usint samples, double startup, double min, double max, double average) :
+		operation(OpNOOP), samples(samples), startup(startup), wasCalled(false),
+		min(min), max(max), average(average) {}
+	TimingStatistics(OpType op, usint samples, double total) {
+		this->operation = op;
+		this->samples = samples;
+		this->startup = this->min = this->max = 0;
+		this->wasCalled = true;
+		this->average = total/samples;
+	}
+	bool Serialize(Serialized* serObj) const;
+	bool Deserialize(const Serialized& serObj);
+
+	double GetEstimate() {
+		if( wasCalled ) return average;
+		wasCalled = true;
+		return startup;
+	}
+
+	// collect a vector of samples into a map of statistics
+	static void GenStatisticsMap( vector<TimingInfo>& times, map<OpType,TimingStatistics>& stats ) {
+		for( TimingInfo& sample : times ) {
+			TimingStatistics& st = stats[ sample.operation ];
+			if( st.operation == OpNOOP ) {
+				st.operation = sample.operation;
+				st.startup = sample.timeval;
+
+				st.min = sample.timeval;
+				st.max = sample.timeval;
+				st.average = sample.timeval;
+				st.samples = 1;
+			} else {
+				if( sample.timeval < st.min )
+					st.min = sample.timeval;
+				if( sample.timeval > st.max )
+					st.max = sample.timeval;
+
+				st.average = ((st.average * st.samples) + sample.timeval)/(st.samples + 1);
+				st.samples++;
+			}
+		}
+	}
+
+
+};
+
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
-	out << "(startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
+	out << "(count=" << t.samples << ",startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
 	return out;
 }
+
+// this method is used to make a sample plaintext of a given encoding type, for
+// use in statistics and benchmarking tools
+
+template<typename Element>
+extern Plaintext
+MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte);
+
+template<typename Element>
+extern void
+generateTimings(bool verbose,
+		map<OpType,TimingStatistics*>& stats,
+		CryptoContext<Element> cc,
+		PlaintextEncodings pte,
+		int maxIterations,
+		bool PrintSizes);
 
 }
 

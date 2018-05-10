@@ -535,11 +535,11 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> KeyGen() {
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->KeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), false);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpKeyGen, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpKeyGen, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -551,11 +551,11 @@ public:
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
 		const LPPublicKey<Element> pk, bool makeSparse=false, bool pre=false) {
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), pk, makeSparse, pre);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKey, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKey, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -567,11 +567,11 @@ public:
 	*/
 	LPKeyPair<Element> MultipartyKeyGen(
 		const vector<LPPrivateKey<Element>>& secretKeys) {
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r =  GetEncryptionAlgorithm()->MultipartyKeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), secretKeys, false);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKeyvec, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpMultiPartyKeyGenKeyvec, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -593,8 +593,8 @@ public:
 
         vector<Ciphertext<Element>> newCiphertext;
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		for( size_t i = 0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
 				throw std::logic_error("A ciphertext passed to MultipartyDecryptLead was not generated with this crypto context");
@@ -604,7 +604,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptLead, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptLead, TOC_US(t)) );
 		}
 
 		return newCiphertext;
@@ -627,8 +627,8 @@ public:
 
 		vector<Ciphertext<Element>> newCiphertext;
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		for( size_t i = 0; i < ciphertext.size(); i++ ) {
 			if( ciphertext[i] == NULL || Mismatched(ciphertext[i]->GetCryptoContext()) )
@@ -638,7 +638,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptMain, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptMain, TOC_US(t)) );
 		}
 
 		return newCiphertext;
@@ -665,8 +665,8 @@ public:
 		if ( last_ciphertext < 1 )
 			return result;
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		for( size_t i = 0; i < last_ciphertext; i++ ) {
 			if (partialCiphertextVec[i] == NULL || Mismatched(partialCiphertextVec[i]->GetCryptoContext()))
@@ -686,7 +686,7 @@ public:
 		*plaintext = decrypted;
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptFusion, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpMultiPartyDecryptFusion, TOC_US(t)) );
 		}
 		return result;
 	}
@@ -698,11 +698,11 @@ public:
 	* @return a public/secret key pair
 	*/
 	LPKeyPair<Element> SparseKeyGen() {
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->KeyGen(CryptoContextFactory<Element>::GetContextForPointer(this), true);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpSparseKeyGen, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpSparseKeyGen, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -722,11 +722,11 @@ public:
 				Mismatched(oldKey->GetCryptoContext()) )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpReKeyGenPubPri, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpReKeyGenPubPri, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -746,11 +746,11 @@ public:
 				Mismatched(oldKey->GetCryptoContext()) )
 			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -799,11 +799,11 @@ public:
 				Mismatched(key2->GetCryptoContext()) )
 			throw std::logic_error("Keys passed to KeySwitchGen were not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto r = GetEncryptionAlgorithm()->KeySwitchGen(key1, key2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpKeySwitchGen, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpKeySwitchGen, TOC_US(t)) );
 		}
 		return r;
 	}
@@ -827,8 +827,8 @@ public:
 		if( Mismatched(publicKey->GetCryptoContext()) )
 			throw std::logic_error("key passed to Encrypt was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetEncodedElement<Element>());
 
@@ -837,7 +837,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncryptPub, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEncryptPub, TOC_US(t)) );
 		}
 		return ciphertext;
 	}
@@ -857,8 +857,8 @@ public:
 		if( plaintext == NULL )
 			throw std::logic_error("null plaintext passed to Encrypt");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetEncodedElement<Element>());
 
@@ -867,7 +867,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncryptPriv, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEncryptPriv, TOC_US(t)) );
 		}
 		return ciphertext;
 	}
@@ -891,8 +891,8 @@ public:
 		shared_ptr<Matrix<RationalCiphertext<Element>>> cipherResults(new Matrix<RationalCiphertext<Element>>
 			(zeroAlloc, plaintext.GetRows(), plaintext.GetCols()));
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		for (size_t row = 0; row < plaintext.GetRows(); row++)
 		{
 			for (size_t col = 0; col < plaintext.GetCols(); col++)
@@ -911,7 +911,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEncryptMatrixPlain, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPlain, TOC_US(t)) );
 		}
 		return cipherResults;
 	}
@@ -1090,8 +1090,8 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to Decrypt was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		// determine which type of plaintext that you need to decrypt into
 		Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
@@ -1102,7 +1102,7 @@ public:
 		decrypted->Decode();
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpDecrypt, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpDecrypt, TOC_US(t)) );
 		}
 
 		*plaintext = decrypted;
@@ -1139,8 +1139,8 @@ public:
 		*numerator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 		*denominator = shared_ptr<Matrix<Plaintext>>( new Matrix<Plaintext>(zeroPackingAlloc, ciphertext->GetRows(), ciphertext->GetCols()) );
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
@@ -1182,7 +1182,7 @@ public:
 		}
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, TOC_US(t)) );
 		}
 		return DecryptResult((**numerator)((*numerator)->GetRows()-1,(*numerator)->GetCols()-1)->GetLength());
 
@@ -1207,8 +1207,8 @@ public:
 		if (privateKey == NULL || Mismatched(privateKey->GetCryptoContext()))
 			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
 
-		double start = 0;
-		if (doTiming) start = currentDateTime();
+		TimeVar t;
+		if (doTiming) TIC(t);
 
 		//force all precomputations to take place in advance
 		if( Mismatched((*ciphertext)(0, 0).GetCryptoContext()) )
@@ -1254,7 +1254,7 @@ public:
 		}
 
 		if (doTiming) {
-			timeSamples->push_back(TimingInfo(OpDecryptMatrixPacked, currentDateTime() - start));
+			timeSamples->push_back(TimingInfo(OpDecryptMatrixPacked, TOC_US(t)));
 		}
 		return DecryptResult((**numerator)((*numerator)->GetRows() - 1, (*numerator)->GetCols() - 1)->GetLength());
 
@@ -1330,13 +1330,13 @@ public:
 		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("The ciphertext passed to ReEncrypt was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		Ciphertext<Element> newCiphertext = GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext);
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpReEncrypt, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpReEncrypt, TOC_US(t)) );
 		}
 
 		return newCiphertext;
@@ -1391,11 +1391,11 @@ public:
 	{
 		TypeCheck(ct1, ct2);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ct1, ct2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAdd, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAdd, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1411,11 +1411,11 @@ public:
 	{
 		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		Matrix<RationalCiphertext<Element>> rv = *ct1 + *ct2;
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAddMatrix, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAddMatrix, TOC_US(t)) );
 		}
 		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
 		return a;
@@ -1432,11 +1432,11 @@ public:
 	{
 		TypeCheck(ct1, ct2);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalSub, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalSub, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1452,11 +1452,11 @@ public:
 	{
 		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		Matrix<RationalCiphertext<Element>> rv = *ct1 - *ct2;
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, TOC_US(t)) );
 		}
 		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
 		return a;
@@ -1473,11 +1473,11 @@ public:
 	{
 		TypeCheck(ciphertext, plaintext);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, plaintext);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAddPlain, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAddPlain, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1493,11 +1493,11 @@ public:
 	{
 		TypeCheck(ciphertext, plaintext);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalSub(ciphertext, plaintext);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalSubPlain, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalSubPlain, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1515,11 +1515,11 @@ public:
 
 		auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek[0]);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1535,11 +1535,11 @@ public:
 	{
 		TypeCheck(ct1, ct2);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1559,11 +1559,11 @@ public:
 
 		const auto ek = GetEvalMultKeyVector(ct[0]->GetKeyTag());
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMultMany(ct, ek);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
 		return rv;
 
@@ -1583,11 +1583,11 @@ public:
 
 		const auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMultAndRelinearize(ct1, ct2, ek);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
 		return rv;
 
@@ -1616,11 +1616,11 @@ public:
 	{
 		TypeCheck(ct1, pt2);
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, pt2);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1636,11 +1636,11 @@ public:
 	{
 		TypeCheck((*ct1)(0,0), (*ct2)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		Matrix<RationalCiphertext<Element>> rv = *ct1 * *ct2;
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMultMatrix, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalMultMatrix, TOC_US(t)) );
 		}
 		shared_ptr<Matrix<RationalCiphertext<Element>>> a(new Matrix<RationalCiphertext<Element>>(rv));
 		return a;
@@ -1657,11 +1657,11 @@ public:
 		if (ct == NULL || Mismatched(ct->GetCryptoContext()) )
 			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalNegate(ct);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalNeg, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalNeg, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1677,15 +1677,15 @@ public:
 		if (ct == NULL || Mismatched((*ct)(0,0).GetCryptoContext()) )
 			throw std::logic_error("Information passed to EvalNegateMatrix was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
 				new Matrix<RationalCiphertext<Element>>(ct->GetAllocator(), ct->GetRows(), ct->GetCols()));
 		for( size_t r = 0; r < m->GetRows(); r++ )
 			for( size_t c = 0; c < m->GetCols(); c++ )
 				(*m)(r,c) = -((*ct)(r,c));
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalNegMatrix, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalNegMatrix, TOC_US(t)) );
 		}
 		return m;
 	}
@@ -1708,11 +1708,11 @@ public:
 		if( publicKey->GetCryptoContext() != origPrivateKey->GetCryptoContext() )
 			PALISADE_THROW( type_error, "Keys were not created in the same CryptoContextImpl");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(publicKey, origPrivateKey, indexList);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAutomorphismKeyGen, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismKeyGen, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1743,11 +1743,11 @@ public:
 		if( ciphertext->GetKeyTag() != tk->GetKeyTag() )
 			PALISADE_THROW( type_error, "Items were not encrypted with same keys" );
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalAutomorphism(ciphertext, i, evalKeys);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAutomorphismI, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismI, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1767,11 +1767,11 @@ public:
 		if( privateKey->GetCryptoContext().get() != this )
 			PALISADE_THROW( type_error, "Key was not created in this CryptoContextImpl");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalAutomorphismKeyGen(privateKey, indexList);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalAutomorphismK, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpEvalAutomorphismK, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1901,11 +1901,11 @@ public:
 	{
 		TypeCheck((*x)(0,0), (*y)(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalLinRegression(x, y);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpLinRegression, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpLinRegression, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1926,11 +1926,11 @@ public:
 		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("Ciphertext passed to KeySwitch was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->KeySwitch(keySwitchHint, ciphertext);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpKeySwitch, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpKeySwitch, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1944,11 +1944,11 @@ public:
 		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->ModReduce(ciphertext);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpModReduce, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1960,12 +1960,12 @@ public:
 	 */
 	RationalCiphertext<Element> ModReduceRational(RationalCiphertext<Element> ciphertext) const {
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		Ciphertext<Element> n = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetNumerator());
 		Ciphertext<Element> d = GetEncryptionAlgorithm()->ModReduce(ciphertext.GetDenominator());
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpModReduce, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpModReduce, TOC_US(t)) );
 		}
 		return RationalCiphertext<Element>(n,d);
 	}
@@ -1978,15 +1978,15 @@ public:
 	shared_ptr<Matrix<RationalCiphertext<Element>>> ModReduceMatrix(shared_ptr<Matrix<RationalCiphertext<Element>>> ciphertext) const {
 		// needs context check
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		shared_ptr<Matrix<RationalCiphertext<Element>>> m(
 				new Matrix<RationalCiphertext<Element>>(ciphertext->GetAllocator(), ciphertext->GetRows(), ciphertext->GetCols()));
 		for( size_t r = 0; r < m->GetRows(); r++ )
 			for( size_t c = 0; c < m->GetCols(); c++ )
 				(*m)(r,c) = ModReduceRational((*ciphertext)(r,c));
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpModReduceMatrix, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpModReduceMatrix, TOC_US(t)) );
 		}
 		return m;
 	}
@@ -2006,11 +2006,11 @@ public:
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpLevelReduce, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpLevelReduce, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -2035,13 +2035,13 @@ public:
 
 		Ciphertext<Element> newCiphertext;
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 
 		newCiphertext = GetEncryptionAlgorithm()->RingReduce(ciphertext, keySwitchHint);
 
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpRingReduce, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpRingReduce, TOC_US(t)) );
 		}
 		return newCiphertext;
 	}
@@ -2063,11 +2063,11 @@ public:
 
 		auto ek = GetEvalMultKeyVector(ciphertext1->GetKeyTag());
 
-		double start = 0;
-		if( doTiming ) start = currentDateTime();
+		TimeVar t;
+		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->ComposedEvalMult(ciphertext1, ciphertext2, ek[0]);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpComposedEvalMult, currentDateTime() - start) );
+			timeSamples->push_back( TimingInfo(OpComposedEvalMult, TOC_US(t)) );
 		}
 		return rv;
 	}

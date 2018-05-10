@@ -253,7 +253,7 @@ class ConstInput : public CircuitNode {
 	usint val;
 public:
 	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {
-		this->runtime = new TimingStatistics(0,0,0,0);
+		this->runtime = new TimingStatistics();
 	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
@@ -280,7 +280,7 @@ class Input : public CircuitNode {
 public:
 	Input(usint id, wire_type type) : CircuitNode(id), type(type) {
 		this->setAsInput();
-		this->runtime = new TimingStatistics(0,0,0,0);
+		this->runtime = new TimingStatistics();
 	}
 
 	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
