@@ -206,7 +206,7 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
 	};
 
 	switch(pte) {
-	case Unknown:
+	default:
 		throw std::logic_error("Unknown plaintext encoding type");
 
 	case Scalar: {
