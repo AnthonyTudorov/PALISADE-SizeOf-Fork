@@ -100,10 +100,10 @@ class PlaintextImpl
 protected:
 	bool						isEncoded;
 	PtxtPolyType				typeFlag;
-	EncodingParams			encodingParams;
-	Poly						encodedVector;
-	NativePoly				encodedNativeVector;
-	DCRTPoly					encodedVectorDCRT;
+	EncodingParams				encodingParams;
+	mutable Poly				encodedVector;
+	mutable NativePoly			encodedNativeVector;
+	mutable DCRTPoly			encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
@@ -172,7 +172,7 @@ public:
 	 *
 	 * @param fmt
 	 */
-	void SetFormat(Format fmt) {
+	void SetFormat(Format fmt) const {
 		if( typeFlag == IsPoly )
 			encodedVector.SetFormat(fmt);
 		else if( typeFlag == IsNativePoly )

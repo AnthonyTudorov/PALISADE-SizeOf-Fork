@@ -1523,6 +1523,8 @@ public:
 
 		TimeVar t;
 		if( doTiming ) TIC(t);
+		plaintext->SetFormat(EVALUATION);
+
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, plaintext);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalAddPlain, TOC_US(t)) );
