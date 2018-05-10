@@ -341,7 +341,6 @@ public:
 	string getNodeLabel() const { return "(input)"; }
 
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-		cout << "InputWithValue type is " << this->value.GetType() << endl;
 		if( mode == CalculateRuntimeEstimates )
 			this->SetNoiseEstimate(DEFAULTNOISEVAL);
 		return;
@@ -379,7 +378,6 @@ public:
 	string getNodeLabel() const { return "(const int)"; }
 
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-		cout << "ConstIntWithValue type is " << this->value.GetType() << endl;
 		if( mode == CalculateRuntimeEstimates )
 			this->SetNoiseEstimate(DEFAULTNOISEVAL);
 		return;
@@ -477,7 +475,6 @@ public:
 	string getNodeLabel() const { return "(const plaintext)"; }
 
 	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-		cout << "ConstPtxtWithValue type is " << this->value.GetType() << endl;
 		if( mode == CalculateRuntimeEstimates )
 			this->SetNoiseEstimate(DEFAULTNOISEVAL);
 		return;

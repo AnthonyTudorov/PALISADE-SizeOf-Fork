@@ -72,11 +72,6 @@ CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc
 	for( int output : getOutputs() ) {
 		auto out = getNodeById(output);
 		out->Evaluate(GetOperationsList, cc, *this);
-
-		cout << output << endl;
-		for( auto x : out->GetOperationsMap()[output] ) {
-			cout << x.first << ":" << x.second << endl;
-		}
 	}
 }
 

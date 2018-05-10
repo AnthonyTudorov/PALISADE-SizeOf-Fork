@@ -47,62 +47,61 @@ struct FeatureMap {
 };
 
 static struct FeatureMap FeatureMap[] = {
-	{ OpNOOP, "No Op", ENCRYPTION },
-	{ OpUnknown, "Unknown", ENCRYPTION },
-	{ OpKeyGen, "KeyGen", ENCRYPTION },
-	{ OpMultiPartyKeyGenKey, "MultipartyKeyGen(key)", MULTIPARTY },
-	{ OpMultiPartyKeyGenKeyvec, "MultipartyKeyGen(vector<key>)", MULTIPARTY },
-	{ OpMultiPartyDecryptLead, "MultiPartyDecryptLead", MULTIPARTY },
-	{ OpMultiPartyDecryptMain, "MultiPartyDecryptMain", MULTIPARTY },
-	{ OpMultiPartyDecryptFusion, "MultiPartyDecryptFusion", MULTIPARTY },
-	{ OpSparseKeyGen, "SparseKeyGen", ENCRYPTION },
-	{ OpReKeyGenPubPri, "ReKeyGen(pubkey,privkey)", PRE },
-	{ OpReKeyGenPriPri, "ReKeyGen(privkey,privkey)", PRE },
-	{ OpEvalMultKeyGen, "EvalMultKeyGen", SHE },
-	{ OpEncryptPub, "EncryptPub", ENCRYPTION },
-	{ OpEncryptPriv, "EncryptPriv", ENCRYPTION },
-	{ OpEncryptPlain, "EncryptPlain", ENCRYPTION },
-	{ OpEncrypt, "Encrypt", ENCRYPTION },
-	{ OpEncryptMatrixPlain, "EncryptMatrix(intplaintext)", ENCRYPTION },
-	{ OpEncryptMatrixPacked, "EncryptMatrix(packedintplaintext)", ENCRYPTION },
-	{ OpDecrypt, "Decrypt", ENCRYPTION },
-	{ OpDecryptMatrixPlain, "DecryptMatrix(intplaintext)", ENCRYPTION },
-	{ OpDecryptMatrixPacked, "DecryptMatrix(packedintplaintext)", ENCRYPTION },
-	{ OpReEncrypt, "ReEncrypt", PRE },
-	{ OpEvalAdd, "EvalAdd", SHE },
-	{ OpEvalAddMatrix, "EvalAddMatrix", SHE },
-	{ OpEvalAddPlain, "EvalAddPlain", SHE },
-	{ OpEvalNeg, "EvalNeg", SHE },
-	{ OpEvalNegMatrix, "EvalNegMatrix", SHE },
-	{ OpEvalSub, "EvalSub", SHE },
-	{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
-	{ OpEvalSubPlain, "EvalSubPlain", SHE },
-	{ OpEvalMult, "EvalMult", SHE },
-	{ OpEvalMultMany, "EvalMultMany", SHE },
-	{ OpEvalMultMatrix, "EvalMultMatrix", SHE },
-	{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
-	{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
-	{ OpEvalAutomorphismK, "EvalAutomorphism(K)", SHE },
-	{ OpEvalMultPlain, "EvalMultPlain", SHE },
-	{ OpLinRegression, "LinRegression", SHE },
-	{ OpKeySwitch, "KeySwitch", SHE },
-	{ OpKeySwitchGen, "KeySwitchGen", SHE },
-	{ OpModReduce, "ModReduce", LEVELEDSHE },
-	{ OpModReduceRational, "ModReduceRational", LEVELEDSHE },
-	{ OpModReduceMatrix, "ModReduceMatrix", LEVELEDSHE },
-	{ OpLevelReduce, "LevelReduce", LEVELEDSHE },
-	{ OpRingReduce, "RingReduce", LEVELEDSHE },
-	{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
-	{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
-	{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
-	{ OpEvalSum, "EvalSum", SHE },
-	{ OpEvalAtIndex, "EvalAtIndex", SHE },
-	{ OpEvalInnerProduct, "EvalInnerProduct", SHE },
-	{ OpEvalCrossCorrelation, "EvalCrossCorrelation", SHE },
-	{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", SHE },
-	{ OpEvalMerge, "EvalMerge", SHE },
-	{ OpEvalRightShift, "EvalRightShift", SHE }
-
+		{ OpNOOP, "No Op", ENCRYPTION },
+		{ OpUnknown, "Unknown", ENCRYPTION },
+		{ OpKeyGen, "KeyGen", ENCRYPTION },
+		{ OpMultiPartyKeyGenKey, "MultipartyKeyGen(key)", MULTIPARTY },
+		{ OpMultiPartyKeyGenKeyvec, "MultipartyKeyGen(vector<key>)", MULTIPARTY },
+		{ OpMultiPartyDecryptLead, "MultiPartyDecryptLead", MULTIPARTY },
+		{ OpMultiPartyDecryptMain, "MultiPartyDecryptMain", MULTIPARTY },
+		{ OpMultiPartyDecryptFusion, "MultiPartyDecryptFusion", MULTIPARTY },
+		{ OpSparseKeyGen, "SparseKeyGen", ENCRYPTION },
+		{ OpReKeyGenPubPri, "ReKeyGen(pubkey,privkey)", PRE },
+		{ OpReKeyGenPriPri, "ReKeyGen(privkey,privkey)", PRE },
+		{ OpEvalMultKeyGen, "EvalMultKeyGen", SHE },
+		{ OpEncryptPub, "EncryptPub", ENCRYPTION },
+		{ OpEncryptPriv, "EncryptPriv", ENCRYPTION },
+		{ OpEncryptPlain, "EncryptPlain", ENCRYPTION },
+		{ OpEncrypt, "Encrypt", ENCRYPTION },
+		{ OpEncryptMatrixPlain, "EncryptMatrix(intplaintext)", ENCRYPTION },
+		{ OpEncryptMatrixPacked, "EncryptMatrix(packedintplaintext)", ENCRYPTION },
+		{ OpDecrypt, "Decrypt", ENCRYPTION },
+		{ OpDecryptMatrixPlain, "DecryptMatrix(intplaintext)", ENCRYPTION },
+		{ OpDecryptMatrixPacked, "DecryptMatrix(packedintplaintext)", ENCRYPTION },
+		{ OpReEncrypt, "ReEncrypt", PRE },
+		{ OpEvalAdd, "EvalAdd", SHE },
+		{ OpEvalAddMatrix, "EvalAddMatrix", SHE },
+		{ OpEvalAddPlain, "EvalAddPlain", SHE },
+		{ OpEvalNeg, "EvalNeg", SHE },
+		{ OpEvalNegMatrix, "EvalNegMatrix", SHE },
+		{ OpEvalSub, "EvalSub", SHE },
+		{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
+		{ OpEvalSubPlain, "EvalSubPlain", SHE },
+		{ OpEvalMult, "EvalMult", SHE },
+		{ OpEvalMultMany, "EvalMultMany", SHE },
+		{ OpEvalMultMatrix, "EvalMultMatrix", SHE },
+		{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
+		{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
+		{ OpEvalAutomorphismK, "EvalAutomorphism(K)", SHE },
+		{ OpEvalMultPlain, "EvalMultPlain", SHE },
+		{ OpLinRegression, "LinRegression", SHE },
+		{ OpKeySwitch, "KeySwitch", SHE },
+		{ OpKeySwitchGen, "KeySwitchGen", SHE },
+		{ OpModReduce, "ModReduce", LEVELEDSHE },
+		{ OpModReduceRational, "ModReduceRational", LEVELEDSHE },
+		{ OpModReduceMatrix, "ModReduceMatrix", LEVELEDSHE },
+		{ OpLevelReduce, "LevelReduce", LEVELEDSHE },
+		{ OpRingReduce, "RingReduce", LEVELEDSHE },
+		{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
+		{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
+		{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
+		{ OpEvalSum, "EvalSum", SHE },
+		{ OpEvalAtIndex, "EvalAtIndex", SHE },
+		{ OpEvalInnerProduct, "EvalInnerProduct", SHE },
+		{ OpEvalCrossCorrelation, "EvalCrossCorrelation", SHE },
+		{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", SHE },
+		{ OpEvalMerge, "EvalMerge", SHE },
+		{ OpEvalRightShift, "EvalRightShift", SHE }
 };
 
 map<OpType,string> OperatorName;
@@ -136,8 +135,6 @@ bool TimingStatistics::Serialize(Serialized *serObj) const {
 	statMap.AddMember("operation", OperatorName[operation], serObj->GetAllocator());
 	statMap.AddMember("samples", std::to_string(samples), serObj->GetAllocator());
 	statMap.AddMember("startup", std::to_string(startup), serObj->GetAllocator());
-	statMap.AddMember("min", std::to_string(min), serObj->GetAllocator());
-	statMap.AddMember("max", std::to_string(max), serObj->GetAllocator());
 	statMap.AddMember("average", std::to_string(average), serObj->GetAllocator());
 
 	serObj->AddMember("TimingStatistics", statMap.Move(), serObj->GetAllocator());
@@ -160,12 +157,6 @@ bool TimingStatistics::Deserialize(const Serialized& serObj) {
 	if( (pIt = mIter->value.FindMember("startup")) == mIter->value.MemberEnd() )
 		return false;
 	startup = std::stod( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("min")) == mIter->value.MemberEnd() )
-		return false;
-	min = std::stod( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("max")) == mIter->value.MemberEnd() )
-		return false;
-	max = std::stod( pIt->value.GetString() );
 	if( (pIt = mIter->value.FindMember("average")) == mIter->value.MemberEnd() )
 		return false;
 	average = std::stod( pIt->value.GetString() );
@@ -416,7 +407,10 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 	if( tmask & SHE ) {
 		LPKeyPair<Element> kp = cc->KeyGen();
 		try {
-			vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15, -16};
+			vector<int32_t> indexList;
+			for( int ii = 1; ii <= 32; ii++ )
+				indexList.push_back( -ii );
+
 			cc->EvalMultKeyGen(kp.secretKey);
 			cc->EvalSumKeyGen(kp.secretKey);
 			cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
@@ -474,16 +468,22 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 			stats[OpEvalNeg] = new TimingStatistics(OpType::OpEvalNeg, maxIterations, span);
 
 			vector<Ciphertext<Element>> ciphers;
-			for(unsigned int i=0; i<NumInputs; i++)
-				ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
+			Ciphertext<Element> merged;
+			for( int nct : vector<int>({2,4,8,16}) ) {
+				cout << "Num Ciphertexts " << nct << endl;
 
-			auto merged = cc->EvalMerge(ciphers);
-			TIC(t);
-			for (int reps = 0; reps < maxIterations; reps++) {
-				cc->EvalMerge(ciphers);
+				for(unsigned int i=0; i<nct; i++)
+					ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
+
+				merged = cc->EvalMerge(ciphers);
+				TIC(t);
+				for (int reps = 0; reps < maxIterations; reps++) {
+					cc->EvalMerge(ciphers);
+				}
+				span = TOC_MS(t);
+				stats[OpEvalMerge] = new TimingStatistics(OpType::OpEvalMerge, maxIterations, span);
+				cout << "Eval Merge " << stats[OpEvalMerge]->average << endl;
 			}
-			span = TOC_MS(t);
-			stats[OpEvalMerge] = new TimingStatistics(OpType::OpEvalMerge, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {

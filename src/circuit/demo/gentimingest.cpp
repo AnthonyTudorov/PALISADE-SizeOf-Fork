@@ -44,7 +44,7 @@ using std::set;
 
 void usage(string msg) {
 	cout << "usage is" << endl;
-	cout << msg << " [-poly|-dcrt] context-serialization inputfile outputfile" << endl;
+	cout << msg << " [-poly|-dcrt] context-serialization outputfile" << endl;
 	cout << "   -poly is default" << endl;
 
 }
@@ -54,13 +54,13 @@ main(int argc, char *argv[])
 {
 	enum Element { POLY, DCRT } element = POLY;
 
-	if( argc != 4 && argc != 5 ) {
+	if( argc != 3 && argc != 4 ) {
 		usage(argv[0]);
 		return 1;
 	}
 
 	int aidx = 1;
-	if( argc == 5 ) {
+	if( argc == 4 ) {
 		aidx = 2;
 		string arg( argv[1] );
 
@@ -97,14 +97,6 @@ main(int argc, char *argv[])
 
 	++aidx;
 
-	ifstream in(argv[aidx]);
-	if( !in.is_open() ) {
-		cout << "Cannot open input file " << argv[aidx] << endl;
-		return 1;
-	}
-
-	++aidx;
-
 	ofstream out(argv[aidx]);
 	if( !out.is_open() ) {
 		cout << "Cannot open output file " << argv[aidx] << endl;
@@ -113,19 +105,6 @@ main(int argc, char *argv[])
 
 	// save the context with the data
 	SerializableHelper::SerializationToStream(serObj, out);
-
-
-//	string operation;
-//	set<OpType> operations;
-//	while( in >> operation ) {
-//		auto fop = OperatorType.find(operation);
-//		if( fop == OperatorType.end() ) {
-//			cout << "Unrecognized op " << operation << endl;
-//			return 1;
-//		}
-//		operations.insert(fop->second);
-//	}
-	in.close();
 
 	map<OpType,TimingStatistics*> stats;
 	PlaintextEncodings pte = Packed;
@@ -140,7 +119,7 @@ main(int argc, char *argv[])
 	for( auto &tstat : stats ) {
 		auto ts = tstat.second;
 
-		cout << tstat.first << ':' << ts->average << endl;
+		cout << tstat.first << ':' << ts->average << "ms" << endl;
 		out << tstat.first << ':' << ts->average << endl;
 	}
 

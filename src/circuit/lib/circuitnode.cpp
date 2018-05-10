@@ -50,10 +50,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Add requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	cout << "***** " "ADD 0 evaluating " << *n0 << endl;
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
-	cout << "***** " "ADD 0 evaluated " << *n0 << endl;
-	cout << "***** " << v0 << endl;
 	usint noise = n0->GetNoiseActual();
 	double runEst = 0;
 	usint noiseEst = 0;
@@ -61,7 +58,6 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( mode == CalculateRuntimeEstimates ) {
 		noiseEst = n0->GetNoiseEstimate();
 		runEst = n0->GetRuntimeEstimate();
-		cout << "EvalAdd, node " << this->GetId() << " input 0 " <<  this->getInputs()[0] << " runEst is now " << runEst << endl;
 	}
 
 	stringstream ss;
@@ -80,8 +76,6 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		}
 
 		if( mode == GetOperationsList ) {
-			cout << v0.GetType() << " " << v1.GetType() << endl;
-
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
 			v0.SetType(ov.GetWire());
 
@@ -90,17 +84,12 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		else if( mode == CalculateRuntimeEstimates ) {
 			noise += n1->GetNoiseEstimate();
 			runEst += n1->GetRuntimeEstimate();
-			cout << "EvalAdd, node " << this->GetId() << " input " << i << " " << this->getInputs()[i] << " runEst is now " << runEst << endl;
-			runEst += this->GetRuntimeEstimateNode();
-			cout << "EvalAdd, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalAdd,v0,v1);
 			v0.SetType(ov.GetWire());
 		}
 		else if( mode == Evaluate ) {
-			TimeVar t; TIC(t);
 			v0 = v0 + v1;
-			cout << "adding is " << TOC_MS(t) << "ms" << endl;
 			noise += n1->GetNoiseActual();
 		}
 	}
@@ -109,6 +98,7 @@ void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 
 	if( mode == CalculateRuntimeEstimates ) {
 		this->SetNoiseEstimate(noiseEst);
+		runEst += this->GetRuntimeEstimateNode();
 		this->SetRuntimeEstimate(runEst);
 	}
 
@@ -146,9 +136,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		else if( mode == CalculateRuntimeEstimates ) {
 			this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 			runEst = n0->GetRuntimeEstimate();
-			cout << "EvalNegate, node " << this->GetId() << " runEst is now " << runEst << endl;
 			runEst += this->GetRuntimeEstimateNode();
-			cout << "EvalNegate, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 			this->SetRuntimeEstimate(runEst);
 
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalNeg,v0);
@@ -169,14 +157,11 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	if( this->getInputs().size() < 2 ) throw std::logic_error("Subtract requires at least 2 inputs");
 
 	auto n0 = cg.getNodeById(this->getInputs()[0]);
-	cout << "***** " "SUB 0 evaluating " << *n0 << endl;
 	CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
-	cout << "***** " "SUB 0 evaluated " << *n0 << endl;
 	usint noise = n0->GetNoiseActual();
 	if( mode == CalculateRuntimeEstimates ) {
 		noiseEst = n0->GetNoiseEstimate();
 		runEst = n0->GetRuntimeEstimate();
-		cout << "EvalSub, node " << this->GetId() << " input 0 " <<  this->getInputs()[0] << " runEst is now " << runEst << endl;
 	}
 
 	if( CircuitOpTrace ) {
@@ -188,10 +173,6 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 	for( size_t i=1; i < this->getInputs().size(); i++ ) {
 		auto n1 = cg.getNodeById(this->getInputs()[i]);
 		CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
-		cout << "***** " "SUB 1 evaluated " << *n1 << endl;
-
-		cout << v0 << endl;
-		cout << v1 << endl;
 
 		if( CircuitOpTrace ) {
 			ss << " and " << this->getInputs()[i] << " (" << v1 << ")";
@@ -205,13 +186,9 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 		else if( mode == CalculateRuntimeEstimates ) {
 			noiseEst += n1->GetNoiseEstimate();
 			runEst += n1->GetRuntimeEstimate();
-			cout << "EvalSub, node " << this->GetId() << " input " << i << " " << this->getInputs()[i] << " runEst is now " << runEst << endl;
-			runEst += this->GetRuntimeEstimateNode();
-			cout << "EvalSub, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalSub,v0,v1);
 			v0.SetType(ov.GetWire());
-			cout << v0 << endl;
 		}
 		else if( mode == Evaluate ) {
 			v0 = v0 - v1;
@@ -223,6 +200,7 @@ void EvalSubNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elemen
 
 	if( mode == CalculateRuntimeEstimates ) {
 		this->SetNoiseEstimate(noiseEst);
+		runEst += this->GetRuntimeEstimateNode();
 		this->SetRuntimeEstimate(runEst);
 	}
 
@@ -286,13 +264,8 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 	else {
 		auto n0 = cg.getNodeById(this->getInputs()[0]);
 		auto n1 = cg.getNodeById(this->getInputs()[1]);
-		cout << "***** " "MULT 0 evaluating " << *n0 << endl;
 		CircuitValue<Element> v0( n0->Evaluate(mode, cc, cg) );
-		cout << "***** " "MULT 0 evaluated " << *n0 << endl;
-		cout << v0 << endl;
 		CircuitValue<Element> v1( n1->Evaluate(mode, cc, cg) );
-		cout << "***** " "MULT 1 evaluated " << *n1 << endl;
-		cout << v1 << endl;
 
 		if( CircuitOpTrace ) {
 			ss << "Node " << this->GetId() << ": ";
@@ -309,11 +282,8 @@ void EvalMultNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Eleme
 		else if( mode == CalculateRuntimeEstimates ) {
 			this->SetNoiseEstimate( n0->GetNoiseEstimate() + n1->GetNoiseEstimate() );
 			runEst = n0->GetRuntimeEstimate();
-			cout << "EvalMult, node " << this->GetId() << " input 0 runEst is now " << runEst << endl;
 			runEst += n1->GetRuntimeEstimate();
-			cout << "EvalMult, node " << this->GetId() << " input 1 runEst is now " << runEst << endl;
 			runEst += this->GetRuntimeEstimateNode();
-			cout << "EvalMult, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 			this->SetRuntimeEstimate( runEst );
 
 			auto ov = CircuitValue<Element>::OperatorType(OpEvalMult,v0,v1);
@@ -435,14 +405,21 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 	}
 	else if( mode == Evaluate ) {
 
+		TimeVar t;
+		TIC(t);
 		auto arg1 = cc->EvalMerge(vec1);
+		cout << "first merge of " << vecsize << " takes " << TOC_MS(t) << endl;
+		TIC(t);
 		auto arg2 = cc->EvalMerge(vec2);
+		cout << "second merge of " << vecsize << " takes " << TOC_MS(t) << endl;
 
 		if( CircuitOpTrace ) {
 			ss << "}\nEvalInnerProduct of results, depth " << innerProdDepth;
 		}
 
+		TIC(t);
 		this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
+		cout << "inner prod takes " << TOC_MS(t) << endl;
 
 		if( CircuitOpTrace ) {
 			cout << ss.str() << endl;
@@ -470,9 +447,7 @@ void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elem
 	}
 	else if( mode == CalculateRuntimeEstimates ) {
 		double runEst = n0->GetRuntimeEstimate();
-		cout << "ModReduce, node " << this->GetId() << " input runEst is now " << runEst << endl;
 		runEst += this->GetRuntimeEstimateNode();
-		cout << "ModReduce, node " << this->GetId() << " adding local cost, runEst is now " << runEst << endl;
 		this->SetRuntimeEstimate( runEst );
 		this->SetNoiseEstimate( n0->GetNoiseEstimate() );
 

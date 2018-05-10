@@ -132,33 +132,11 @@ int main() {
 
 	// time to assemble timing statistics
 	map<OpType,TimingStatistics> stats;
-	for( TimingInfo& sample : times ) {
-		TimingStatistics& st = stats[ sample.operation ];
-		if( st.operation == OpNOOP ) {
-			st.operation = sample.operation;
-			st.startup = sample.timeval;
-		} else {
-			st.samples++;
-			st.average += sample.timeval;
-			if( sample.timeval < st.min )
-				st.min = sample.timeval;
-			if( sample.timeval > st.max )
-				st.max = sample.timeval;
-		}
-	}
+	TimingStatistics::GenStatisticsMap(times,stats);
 
 	// read them out
 	for( auto &tstat : stats ) {
-		auto ts = tstat.second;
-		ts.average /= ts.samples;
-
-		cout << tstat.first << ':' << ts << endl;
-
-		Serialized ser;
-		if( ts.Serialize(&ser) == false ) {
-			cout << "Cannot serialize a measurement for " << ts.operation << endl;
-			return 1;
-		}
+		cout << tstat.first << ':' << tstat.second << endl;
 	}
 
 	return 0;

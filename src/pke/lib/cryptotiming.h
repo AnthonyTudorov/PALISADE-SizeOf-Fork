@@ -92,19 +92,17 @@ public:
 	usint	samples;
 	double	startup;
 	bool		wasCalled;
-	double	min;
-	double	max;
 	double	average;
 
 	TimingStatistics() :
-		operation(OpNOOP), samples(0), startup(0), wasCalled(false), min(0), max(0), average(0) {}
-	TimingStatistics(usint samples, double startup, double min, double max, double average) :
+		operation(OpNOOP), samples(0), startup(0), wasCalled(false), average(0) {}
+	TimingStatistics(usint samples, double startup, double average) :
 		operation(OpNOOP), samples(samples), startup(startup), wasCalled(false),
-		min(min), max(max), average(average) {}
+		average(average) {}
 	TimingStatistics(OpType op, usint samples, double total) {
 		this->operation = op;
 		this->samples = samples;
-		this->startup = this->min = this->max = 0;
+		this->startup = 0;
 		this->wasCalled = true;
 		this->average = total/samples;
 	}
@@ -125,16 +123,9 @@ public:
 				st.operation = sample.operation;
 				st.startup = sample.timeval;
 
-				st.min = sample.timeval;
-				st.max = sample.timeval;
 				st.average = sample.timeval;
 				st.samples = 1;
 			} else {
-				if( sample.timeval < st.min )
-					st.min = sample.timeval;
-				if( sample.timeval > st.max )
-					st.max = sample.timeval;
-
 				st.average = ((st.average * st.samples) + sample.timeval)/(st.samples + 1);
 				st.samples++;
 			}
@@ -145,7 +136,7 @@ public:
 };
 
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
-	out << "(count=" << t.samples << ",startup=" << t.startup << ",min=" << t.min << ",max=" << t.max << ",avg=" << t.average << ")";
+	out << "(count=" << t.samples << ",startup=" << t.startup << ",avg=" << t.average << ")";
 	return out;
 }
 
