@@ -246,159 +246,159 @@ namespace lbcrypto {
 
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> result(new Matrix<Element>(zero_alloc, k + 2, 1));
-
 		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, result);
 
 		return result;
-
 	}
-
-	template <class Element>
-	void RLWETrapdoorUtility<Element>::ZSampleSigmaP(size_t n, double s, double sigma,
-		const RLWETrapdoorPair<Element>& Tprime,
-		const typename Element::DggType &dgg, const typename Element::DggType &dggLargeSigma,
-		shared_ptr<Matrix<Element>> perturbationVector) {
+	template<>
+	inline void RLWETrapdoorUtility<DCRTPoly>::ZSampleSigmaP(size_t n, double s, double sigma,
+			const RLWETrapdoorPair<DCRTPoly> &Tprime,
+			const DCRTPoly::DggType& dgg, const DCRTPoly::DggType& dggLargeSigma,
+			shared_ptr<Matrix<DCRTPoly>> perturbationVector){
 		bool dbg_flag = false;
 		TimeVar t1, t2, t3, t1_tot, t2_tot, t3_tot;
 
 		TIC(t1);
 		TIC(t1_tot);
-		Matrix<Element> Tprime0 = Tprime.m_e;
-		Matrix<Element> Tprime1 = Tprime.m_r;
-
+		Matrix<DCRTPoly> Tprime0 = Tprime.m_e;
+		Matrix<DCRTPoly> Tprime1 = Tprime.m_r;
 		// k is the bit length
 		size_t k = Tprime0.GetCols();
 
-		const shared_ptr<typename Element::Params> params = Tprime0(0, 0).GetParams();
-		DEBUG("z1a: "<<TOC(t1)); //0
-		TIC(t1);
-		// all three Polynomials are initialized with "0" coefficients
-		Element va(params, EVALUATION, 1);
-		Element vb(params, EVALUATION, 1);
-		Element vd(params, EVALUATION, 1);
-
-		for (size_t i = 0; i < k; i++) {
-			va = va + Tprime0(0, i)*Tprime0(0, i).Transpose();
-			vb = vb + Tprime1(0, i)*Tprime0(0, i).Transpose();
-			vd = vd + Tprime1(0, i)*Tprime1(0, i).Transpose();
-		}
-		DEBUG("z1b: "<<TOC(t1)); //9
-		TIC(t1);
-
-		//Switch the ring elements (Polynomials) to coefficient representation
-		va.SwitchFormat();
-		vb.SwitchFormat();
-		vd.SwitchFormat();
-
-		DEBUG("z1c: "<<TOC(t1));  //5
-		TIC(t1);
+			const shared_ptr<DCRTPoly::Params> params = Tprime0(0, 0).GetParams();
+			//NativePoly::Params nParams(params->GetCyclotomicOrder(), params->GetModulus(), params->GetRootOfUnity(), params->GetBigModulus(), params->GetBigRootOfUnity());
 
 
-		//Create field elements from ring elements
-		Field2n a(va), b(vb), d(vd);
+			DEBUG("z1a: "<<TOC(t1)); //0
+			TIC(t1);
+			// all three Polynomials are initialized with "0" coefficients
+			NativePoly va((*params)[0], EVALUATION, 1);
+			NativePoly vb((*params)[0], EVALUATION, 1);
+			NativePoly vd((*params)[0], EVALUATION, 1);
 
-		double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
-
-		a = a.ScalarMult(scalarFactor);
-		b = b.ScalarMult(scalarFactor);
-		d = d.ScalarMult(scalarFactor);
-
-		a = a + s*s;
-		d = d + s*s;
-		DEBUG("z1d: "<<TOC(t1)); //0
-		TIC(t1);
-
-		//converts the field elements to DFT representation
-		a.SwitchFormat();
-		b.SwitchFormat();
-		d.SwitchFormat();
-		DEBUG("z1e: "<<TOC(t1)); //0
-		TIC(t1);
-
-		Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, 1);
-
-		double sigmaLarge = sqrt(s * s - sigma * sigma);
-
-		// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
-		// otherwise, use Karney's method
-		if (sigmaLarge > 3e5) {
-
-			//Karney rejection method
-			for (size_t i = 0; i < n * k; i++) {
-				p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+			for (size_t i = 0; i < k; i++) {
+				va += (NativePoly)Tprime0(0, i).GetElementAtIndex(0)*Tprime0(0, i).Transpose().GetElementAtIndex(0);
+				vb += (NativePoly)Tprime1(0, i).GetElementAtIndex(0)*Tprime0(0, i).Transpose().GetElementAtIndex(0);
+				vd += (NativePoly)Tprime1(0, i).GetElementAtIndex(0)*Tprime1(0, i).Transpose().GetElementAtIndex(0);
 			}
-		}
-		else
-		{
+			DEBUG("z1b: "<<TOC(t1)); //9
+			TIC(t1);
 
-			//Peikert's inversion method
-			std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+			//Switch the ring elements (Polynomials) to coefficient representation
+			va.SwitchFormat();
+			vb.SwitchFormat();
+			vd.SwitchFormat();
 
-			for (size_t i = 0; i < n * k; i++) {
-				p2ZVector(i, 0) = (dggVector.get())[i];
+			DEBUG("z1c: "<<TOC(t1));  //5
+			TIC(t1);
+
+
+			//Create field elements from ring elements
+			Field2n a(va), b(vb), d(vd);
+
+			double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
+
+			a = a.ScalarMult(scalarFactor);
+			b = b.ScalarMult(scalarFactor);
+			d = d.ScalarMult(scalarFactor);
+
+			a = a + s*s;
+			d = d + s*s;
+			DEBUG("z1d: "<<TOC(t1)); //0
+			TIC(t1);
+
+			//converts the field elements to DFT representation
+			a.SwitchFormat();
+			b.SwitchFormat();
+			d.SwitchFormat();
+			DEBUG("z1e: "<<TOC(t1)); //0
+			TIC(t1);
+
+			Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, 1);
+
+			double sigmaLarge = sqrt(s * s - sigma * sigma);
+
+			// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+			// otherwise, use Karney's method
+			if (sigmaLarge > 3e5) {
+
+				//Karney rejection method
+				for (size_t i = 0; i < n * k; i++) {
+					p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+				}
+			}
+			else
+			{
+
+				//Peikert's inversion method
+				std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+
+				for (size_t i = 0; i < n * k; i++) {
+					p2ZVector(i, 0) = (dggVector.get())[i];
+				}
+
+			}
+			DEBUG("z1f1: "<<TOC(t1));
+			TIC(t1);
+
+			//create k ring elements in coefficient representation
+			Matrix<DCRTPoly> p2 = SplitInt64IntoElements<DCRTPoly>(p2ZVector, n, params);
+			DEBUG("z1f2: "<<TOC(t1));
+			TIC(t1);
+
+			//now converting to evaluation representation before multiplication
+			p2.SwitchFormat();
+
+			DEBUG("z1g: "<<TOC(t1));  //17
+			TIC(t1);
+
+			//Matrix<DCRTPoly> TprimeMatrix = Tprime0.VStack(Tprime1);
+			DEBUG("z1h1: "<<TOC(t1));
+			TIC(t1);
+
+			auto zero_alloc = NativePoly::Allocator((*params)[0], EVALUATION);
+			Matrix<NativePoly> Tp2(zero_alloc, 2, 1);
+			for(unsigned int i=0;i<k;i++){
+				Tp2(0,0)+= Tprime0(0,i).GetElementAtIndex(0) * (NativePoly)p2(i,0).GetElementAtIndex(0);
+				Tp2(1,0)+= Tprime1(0,i).GetElementAtIndex(0) * (NativePoly)p2(i,0).GetElementAtIndex(0);
 			}
 
+			DEBUG("z1h2: "<<TOC(t1));
+			TIC(t1);
+			//change to coefficient representation before converting to field elements
+			Tp2.SwitchFormat();
+			DEBUG("z1h3: "<<TOC(t1));
+			TIC(t1);
+
+			Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
+
+			c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+			c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+
+			shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2, 1));
+			DEBUG("z1i: "<<TOC(t1));
+			TIC(t1);
+
+			LatticeGaussSampUtility<DCRTPoly>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
+			DEBUG("z1j1: "<<TOC(t1)); //14
+			TIC(t1);
+
+			//create 2 ring elements in coefficient representation
+			Matrix<DCRTPoly> p1 = SplitInt64IntoElements<DCRTPoly>(*p1ZVector, n, params);
+			DEBUG("z1j2: "<<TOC(t1));
+			TIC(t1);
+
+			//Converts p1 to Evaluation representation
+			p1.SwitchFormat();
+			DEBUG("z1j3: "<<TOC(t1));
+			TIC(t1);
+
+			*perturbationVector = p1.VStack(p2);
+			DEBUG("z1j4: "<<TOC(t1));
+			TIC(t1);
+			DEBUG("z1tot: "<<TOC(t1_tot));
 		}
-		DEBUG("z1f1: "<<TOC(t1));
-		TIC(t1);
-
-		//create k ring elements in coefficient representation
-		Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
-		DEBUG("z1f2: "<<TOC(t1));
-		TIC(t1);
-
-		//now converting to evaluation representation before multiplication
-		p2.SwitchFormat();
-
-		DEBUG("z1g: "<<TOC(t1));  //17
-		TIC(t1);
-
-		Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
-		DEBUG("z1h1: "<<TOC(t1));
-		TIC(t1);
-
-		//the dimension is 2x1 - a vector of 2 ring elements
-		Matrix<Element> Tp2 = TprimeMatrix * p2;
-
-		DEBUG("z1h2: "<<TOC(t1));
-		TIC(t1);
-		//change to coefficient representation before converting to field elements
-		Tp2.SwitchFormat();
-		DEBUG("z1h3: "<<TOC(t1));
-		TIC(t1);
-
-		Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
-
-		c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-		c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-
-		shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2, 1));
-		DEBUG("z1i: "<<TOC(t1));
-		TIC(t1);
-
-		LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
-		DEBUG("z1j1: "<<TOC(t1)); //14
-		TIC(t1);
-
-		//create 2 ring elements in coefficient representation
-		Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
-		DEBUG("z1j2: "<<TOC(t1));
-		TIC(t1);
-
-		//Converts p1 to Evaluation representation
-		p1.SwitchFormat();
-		DEBUG("z1j3: "<<TOC(t1));
-		TIC(t1);
-
-		*perturbationVector = p1.VStack(p2);
-		DEBUG("z1j4: "<<TOC(t1));
-		TIC(t1);
-		DEBUG("z1tot: "<<TOC(t1_tot));
-
-
-	}
 
 
 } //end namespace crypto
-
 #endif
