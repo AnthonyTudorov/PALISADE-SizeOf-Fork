@@ -198,6 +198,8 @@ TEST_F(UTEncoding,fractional_encoding) {
 
 	FractionalEncoding psn(lp, ep, sv);
 	FractionalEncoding pst(lp, ep, sv, 4);
+	cout << psn << endl;
+	cout << pst << endl;
 	psn.Encode();
 	pst.Encode();
 	psn.Decode();
