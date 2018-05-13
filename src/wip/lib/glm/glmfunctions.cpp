@@ -513,12 +513,14 @@ void GLMEncrypt(string keyDir,
         std::cout << "Completed" << std::endl;
 
 	    std::vector<uint64_t> vectorOfInts1;
-	    for(size_t i=0; i<cc->GetRingDimension(); i++)
+	    for(size_t i=0; i<cc->GetRingDimension(); i++){
 	    	vectorOfInts1.push_back(0);
+	    }
 
 		Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
-	    for(size_t j=0; j<numRegressors; j++)
+	    for(size_t j=0; j<numRegressors; j++){
 	    	bP(0, j) = intArray1;
+	    }
 
 		// Deserialize the public key
 		std::cout << "Deserializing the public key...";
