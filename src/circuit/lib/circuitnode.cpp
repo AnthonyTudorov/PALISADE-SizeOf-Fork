@@ -39,10 +39,10 @@ template<typename Element>
 int	CircuitNodeWithValue<Element>::step;
 
 template<typename Element>
-map<usint,map<OpType,int>> CircuitNodeWithValue<Element>::opcountByNode;
+map<usint,map<TimingStatisticsKey,int>> CircuitNodeWithValue<Element>::opcountByNode;
 
 template<typename Element>
-map<usint,map<OpType,int>>& CircuitNodeWithValue<Element>::GetOperationsMap() { return opcountByNode; }
+map<usint,map<TimingStatisticsKey,int>>& CircuitNodeWithValue<Element>::GetOperationsMap() { return opcountByNode; }
 
 template<typename Element>
 void EvalAddNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {

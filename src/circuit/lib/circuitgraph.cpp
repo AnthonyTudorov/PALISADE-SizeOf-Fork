@@ -77,16 +77,15 @@ CircuitGraphWithValues<Element>::GenerateOperationList(CryptoContext<Element> cc
 
 template<typename Element>
 void
-CircuitGraphWithValues<Element>::ApplyRuntimeEstimates(map<OpType,double>& stats)
+CircuitGraphWithValues<Element>::ApplyRuntimeEstimates(TimingStatisticsMap& stats)
 {
-	map<usint,map<OpType,int>>& opsmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+	map<usint,map<TimingStatisticsKey,int>>& opsmap = CircuitNodeWithValue<Element>::GetOperationsMap();
 	for( auto& node : this->getAllNodes() ) {
 		double est = 0;
 		for( auto& nodeops : opsmap[node.first] ) {
-			est += stats[nodeops.first] * nodeops.second;
+			est += stats[nodeops.first].average * nodeops.second;
 		}
 
-		cout << "node " << node.first << " est " << est << endl;
 		node.second->SetRuntimeEstimateNode(est);
 	}
 

@@ -162,7 +162,7 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	map<OpType,TimingStatistics*> stats;
+	TimingStatisticsMap stats;
 
 	if( element == POLY ) {
 		generateTimings(stats, cc, CoefPacked, verbose, MaxIterations, printsizes);
@@ -182,7 +182,8 @@ main(int argc, char *argv[])
 
 	// read them out
 	for( auto &tstat : stats ) {
-		cout << tstat.second->operation << ": " << tstat.second->average << "ms" <<endl;
+		cout << tstat.second << endl;
+		cout << tstat.second.operation << ": " << tstat.second.average <<endl;
 	}
 
 }

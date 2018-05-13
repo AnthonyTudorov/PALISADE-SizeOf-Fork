@@ -155,8 +155,8 @@ public:
 	void GenerateOperationList(CryptoContext<Element> cc);
 
 	void PrintOperationSet(ostream& out, bool verbose=false) {
-		map<usint,map<OpType,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
-		map<OpType,int> ops;
+		map<usint,map<TimingStatisticsKey,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+		map<TimingStatisticsKey,int> ops;
 
 		for( auto& it : opmap ) {
 			for( auto& iit : it.second ) {
@@ -179,7 +179,7 @@ public:
 		}
 	}
 
-	void ApplyRuntimeEstimates(map<OpType,double>& stats);
+	void ApplyRuntimeEstimates(TimingStatisticsMap& stats);
 
 	void processNodeDepth();
 	void resetAllDepths();

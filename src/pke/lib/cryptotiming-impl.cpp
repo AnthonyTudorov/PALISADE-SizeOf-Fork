@@ -108,6 +108,7 @@ map<OpType,string> OperatorName;
 map<OpType,PKESchemeFeature> OperatorFeat;
 map<string,OpType> OperatorType;
 
+// this class has a single static instance whose constructor makes the maps declared just above
 class FeatureMapBuilder {
 public:
 	FeatureMapBuilder() {
@@ -134,7 +135,7 @@ bool TimingStatistics::Serialize(Serialized *serObj) const {
 
 	statMap.AddMember("operation", OperatorName[operation], serObj->GetAllocator());
 	statMap.AddMember("samples", std::to_string(samples), serObj->GetAllocator());
-	statMap.AddMember("startup", std::to_string(startup), serObj->GetAllocator());
+	statMap.AddMember("argcnt", std::to_string(argcnt), serObj->GetAllocator());
 	statMap.AddMember("average", std::to_string(average), serObj->GetAllocator());
 
 	serObj->AddMember("TimingStatistics", statMap.Move(), serObj->GetAllocator());
@@ -154,9 +155,9 @@ bool TimingStatistics::Deserialize(const Serialized& serObj) {
 	if( (pIt = mIter->value.FindMember("samples")) == mIter->value.MemberEnd() )
 		return false;
 	samples = std::stoi( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("startup")) == mIter->value.MemberEnd() )
+	if( (pIt = mIter->value.FindMember("argcnt")) == mIter->value.MemberEnd() )
 		return false;
-	startup = std::stod( pIt->value.GetString() );
+	argcnt = std::stod( pIt->value.GetString() );
 	if( (pIt = mIter->value.FindMember("average")) == mIter->value.MemberEnd() )
 		return false;
 	average = std::stod( pIt->value.GetString() );
@@ -241,7 +242,7 @@ template Plaintext MakeRandomPlaintext(CryptoContext<NativePoly> cc, PlaintextEn
 
 template<typename Element>
 void
-generateTimings(map<OpType,TimingStatistics*>& stats,
+generateTimings(TimingStatisticsMap& stats,
 		CryptoContext<Element> cc,
 		PlaintextEncodings pte,
 		bool verbose,
@@ -291,7 +292,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 			kp = cc->KeyGen();
 		}
 		span = TOC_MS(t);
-		stats[OpKeyGen] = new TimingStatistics(OpKeyGen, maxIterations, span);
+		stats[TimingStatisticsKey(OpKeyGen)] = TimingStatistics(OpKeyGen, maxIterations, span);
 
 		Plaintext decrypted;
 
@@ -301,7 +302,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 			crypt = cc->Encrypt(kp.publicKey, inputs[0]);
 		}
 		span = TOC_MS(t);
-		stats[OpEncryptPub] = new TimingStatistics(OpType::OpEncryptPub, maxIterations, span);
+		stats[TimingStatisticsKey(OpEncryptPub)] = TimingStatistics(OpType::OpEncryptPub, maxIterations, span);
 
 		auto crypt2 = cc->Encrypt(kp.publicKey, inputs[0]);
 		TIC(t);
@@ -309,14 +310,14 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 			crypt2 = cc->Encrypt(kp.secretKey, inputs[0]);
 		}
 		span = TOC_MS(t);
-		stats[OpEncryptPriv] = new TimingStatistics(OpType::OpEncryptPriv, maxIterations, span);
+		stats[TimingStatisticsKey(OpEncryptPriv)] = TimingStatistics(OpType::OpEncryptPriv, maxIterations, span);
 
 		TIC(t);
 		for( int reps=0; reps < maxIterations; reps++ ) {
 			cc->Decrypt(kp.secretKey, crypt, &decrypted);
 		}
 		span = TOC_MS(t);
-		stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+		stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 	}
 
 	// PKE: ReKeyGen and ReEncrypt
@@ -358,21 +359,21 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 				rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
 			}
 			span = TOC_MS(t);
-			stats[OpReKeyGenPubPri] = new TimingStatistics(OpType::OpReKeyGenPubPri, maxIterations, span);
+			stats[TimingStatisticsKey(OpReKeyGenPubPri)] = TimingStatistics(OpType::OpReKeyGenPubPri, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				recrypt = cc->ReEncrypt(rekey1, crypt);
 			}
 			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpReEncrypt)] = TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
 			}
 			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 		}
 
 		if( runPriPri ) {
@@ -381,21 +382,21 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 				rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
 			}
 			span = TOC_MS(t);
-			stats[OpReKeyGenPriPri] = new TimingStatistics(OpType::OpReKeyGenPriPri, maxIterations, span);
+			stats[TimingStatisticsKey(OpReKeyGenPriPri)] = TimingStatistics(OpType::OpReKeyGenPriPri, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				recrypt = cc->ReEncrypt(rekey2, crypt);
 			}
 			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpReEncrypt)] = TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
 			}
 			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 		}
 	}
 
@@ -423,55 +424,53 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 				cc->EvalAdd(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalAdd] = new TimingStatistics(OpType::OpEvalAdd, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalAdd)] = TimingStatistics(OpType::OpEvalAdd, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalAdd(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalAddPlain] = new TimingStatistics(OpType::OpEvalAddPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalAddPlain)] = TimingStatistics(OpType::OpEvalAddPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalSub(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalSub] = new TimingStatistics(OpType::OpEvalSub, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalSub)] = TimingStatistics(OpType::OpEvalSub, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalSub(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalSubPlain] = new TimingStatistics(OpType::OpEvalSubPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalSubPlain)] = TimingStatistics(OpType::OpEvalSubPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalMult(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalMult] = new TimingStatistics(OpType::OpEvalMult, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalMult)] = TimingStatistics(OpType::OpEvalMult, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalMult(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalMultPlain] = new TimingStatistics(OpType::OpEvalMultPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalMultPlain)] = TimingStatistics(OpType::OpEvalMultPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalNegate(crypt0);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalNeg] = new TimingStatistics(OpType::OpEvalNeg, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalNeg)] = TimingStatistics(OpType::OpEvalNeg, maxIterations, span);
 
 			vector<Ciphertext<Element>> ciphers;
 			Ciphertext<Element> merged;
 			for( int nct : vector<int>({2,4,8,16}) ) {
-				cout << "Num Ciphertexts " << nct << endl;
-
 				for(unsigned int i=0; i<nct; i++)
 					ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
 
@@ -481,8 +480,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 					cc->EvalMerge(ciphers);
 				}
 				span = TOC_MS(t);
-				stats[OpEvalMerge] = new TimingStatistics(OpType::OpEvalMerge, maxIterations, span);
-				cout << "Eval Merge " << stats[OpEvalMerge]->average << endl;
+				stats[TimingStatisticsKey(OpEvalMerge,nct)] = TimingStatistics(OpType::OpEvalMerge, maxIterations, span, nct);
 			}
 
 			TIC(t);
@@ -490,7 +488,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 				cc->EvalInnerProduct(merged,merged,NumInputs);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalInnerProduct] = new TimingStatistics(OpType::OpEvalInnerProduct, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalInnerProduct)] = TimingStatistics(OpType::OpEvalInnerProduct, maxIterations, span);
 
 			bool hasMR = true;
 			TIC(t);
@@ -505,7 +503,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 			}
 			if( hasMR ) {
 				span = TOC_MS(t);
-				stats[OpModReduce] = new TimingStatistics(OpType::OpModReduce, maxIterations, span);
+				stats[TimingStatisticsKey(OpModReduce)] = TimingStatistics(OpType::OpModReduce, maxIterations, span);
 			}
 		} catch(exception& e) {
 			cout << e.what() << endl;
@@ -550,7 +548,7 @@ generateTimings(map<OpType,TimingStatistics*>& stats,
 template
 void
 generateTimings(
-		map<OpType,TimingStatistics*>& stats,
+		TimingStatisticsMap& stats,
 		CryptoContext<Poly> cc,
 		PlaintextEncodings pte,
 		bool verbose, int maxIterations,
@@ -559,7 +557,7 @@ generateTimings(
 template
 void
 generateTimings(
-		map<OpType,TimingStatistics*>& stats,
+		TimingStatisticsMap& stats,
 		CryptoContext<DCRTPoly> cc,
 		PlaintextEncodings pte,
 		bool verbose, int maxIterations,
@@ -568,7 +566,7 @@ generateTimings(
 template
 void
 generateTimings(
-		map<OpType,TimingStatistics*>& stats,
+		TimingStatisticsMap& stats,
 		CryptoContext<NativePoly> cc,
 		PlaintextEncodings pte,
 		bool verbose, int maxIterations,

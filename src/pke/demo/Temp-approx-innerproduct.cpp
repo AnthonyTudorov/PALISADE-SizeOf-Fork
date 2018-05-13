@@ -131,12 +131,12 @@ int main() {
 	cc->StopTiming();
 
 	// time to assemble timing statistics
-	map<OpType,TimingStatistics> stats;
+	TimingStatisticsMap stats;
 	TimingStatistics::GenStatisticsMap(times,stats);
 
 	// read them out
 	for( auto &tstat : stats ) {
-		cout << tstat.first << ':' << tstat.second << endl;
+		cout << tstat.second << endl;
 	}
 
 	return 0;

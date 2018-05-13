@@ -106,7 +106,7 @@ main(int argc, char *argv[])
 	// save the context with the data
 	SerializableHelper::SerializationToStream(serObj, out);
 
-	map<OpType,TimingStatistics*> stats;
+	TimingStatisticsMap stats;
 	PlaintextEncodings pte = Packed;
 	if( element == POLY ) {
 		generateTimings(stats, cc, pte);
@@ -119,8 +119,10 @@ main(int argc, char *argv[])
 	for( auto &tstat : stats ) {
 		auto ts = tstat.second;
 
-		cout << tstat.first << ':' << ts->average << "ms" << endl;
-		out << tstat.first << ':' << ts->average << endl;
+		cout << ts << endl;
+		Serialized mSer;
+		ts.Serialize(&mSer);
+		SerializableHelper::SerializationToStream(mSer, out);
 	}
 
 	out.close();

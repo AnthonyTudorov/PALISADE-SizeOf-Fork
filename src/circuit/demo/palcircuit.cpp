@@ -326,7 +326,7 @@ main(int argc, char *argv[])
 		}
 
 	// when generating timing estimates, need to read in the Context and the timings
-	map<OpType,double> timings;
+	TimingStatisticsMap timings;
 	if( evaluation_run_mode ) {
 		Serialized serObj;
 		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
@@ -341,22 +341,38 @@ main(int argc, char *argv[])
 		//			return 1;
 		//		}
 
-		string inLine;
-		while( getline(evalStatF, inLine) ) {
-			auto cPos = inLine.find(':');
-			if( cPos == string::npos ) continue;
-			string operation(inLine.substr(0,cPos));
-			auto op = OperatorType.find(operation);
-			if( op == OperatorType.end() ) continue;
-			double value = stod( inLine.substr(cPos+1) );
-			timings[ op->second ] = value;
+		do {
+			serObj.SetObject();
+			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false )
+				break;
+			TimingStatistics s;
+			s.Deserialize(serObj);
+			timings[TimingStatisticsKey(s.operation,s.argcnt)] = s;
+		} while( true );
 
-			cout << op->second << " " << value << endl;
-		}
 		evalStatF.close();
+
+		if( verbose ) {
+			cout << endl;
+			for( const auto& t : timings )
+				cout << t.second << endl;
+			cout << endl;
+		}
 
 		// to calculate a runtime estimate, apply the estimates and determine how long the circuit's outputs should take to evaluate
 		cir.GenerateOperationList();
+
+		if( verbose ) {
+			map<usint,map<TimingStatisticsKey,int>>& opsmap = CircuitNodeWithValue<DCRTPoly>::GetOperationsMap();
+			for( auto& opentry : opsmap ) {
+				cout << "node " << opentry.first << ":" << endl;
+
+				for( auto& nodeops : opentry.second ) {
+					cout << "   " << nodeops.first << " * " << nodeops.second << endl;
+				}
+			}
+		}
+
 		cir.ApplyRuntimeEstimates(timings);
 		if( verbose )
 			for( auto n : cir.GetGraph().getAllNodes() ) {
@@ -473,16 +489,31 @@ main(int argc, char *argv[])
 			resultGF.close();
 	}
 
+	if( verbose ) {
+		double totalEstimate = 0, totalActual = 0;
+		for( auto& nod : cir.GetGraph().getAllNodes() ) {
+			totalEstimate += nod.second->GetRuntimeEstimate();
+			totalActual += nod.second->GetRuntimeActual();
+			auto est = nod.second->GetRuntimeEstimate();
+			auto act = nod.second->GetRuntimeActual();
+			cout << "RUNTIME for " << nod.first << " " << act << endl;
+			if( est != 0 )
+				cout << "RUNTIME estimate for output " << nod.first << " " << est << endl;
+		}
+	}
+
 	double totalEstimate = 0, totalActual = 0;
 	for( auto& out : cir.GetGraph().getOutputs() ) {
 		auto n = cir.GetGraph().getNodeById(out);
 		totalEstimate += n->GetRuntimeEstimate();
 		totalActual += n->GetRuntimeActual();
-		cout << "RUNTIME for output " << out << " " << n->GetRuntimeActual() << endl;
 		auto est = n->GetRuntimeEstimate();
+		auto act = n->GetRuntimeActual();
+		cout << "RUNTIME for output " << out << " " << act << endl;
 		if( est != 0 )
 			cout << "RUNTIME estimate for output " << out << " " << est << endl;
 	}
+
 	// print time for each node's output and total time
 	cout << "Total execution time " << totalActual << endl;
 	if( totalEstimate != 0 )

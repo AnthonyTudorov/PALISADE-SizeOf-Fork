@@ -69,7 +69,7 @@ public:
 
 	CircuitGraphWithValues<Element>&  GetGraph() { return g; }
 	void GenerateOperationList() { g.GenerateOperationList(cc); }
-	void ApplyRuntimeEstimates(map<OpType,double>& stats) { g.ApplyRuntimeEstimates(stats); }
+	void ApplyRuntimeEstimates(TimingStatisticsMap& stats) { g.ApplyRuntimeEstimates(stats); }
 
 	CircuitOutput<Element>	CircuitEval(const CircuitInput<Element>& inputs, bool verbose=false );
 

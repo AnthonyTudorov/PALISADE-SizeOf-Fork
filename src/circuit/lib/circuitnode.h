@@ -150,7 +150,7 @@ protected:
 	double			noisevalEstimate;
 	double			noisevalActual;
 
-	static	map<usint,map<OpType,int>>	opcountByNode;
+	static	map<usint,map<TimingStatisticsKey,int>>	opcountByNode;
 
 public:
 	CircuitNodeWithValue(CircuitNode *n) : CircuitNode(n) {
@@ -160,7 +160,7 @@ public:
 	virtual ~CircuitNodeWithValue() {}
 
 	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
-	static map<usint,map<OpType,int>>& GetOperationsMap();
+	static map<usint,map<TimingStatisticsKey,int>>& GetOperationsMap();
 
 	wire_type GetType() const { return value.GetType(); }
 

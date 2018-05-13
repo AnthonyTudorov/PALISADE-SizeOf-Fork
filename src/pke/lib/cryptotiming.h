@@ -76,67 +76,81 @@ extern std::ostream& operator<<(std::ostream& out, const OpType& op);
 class TimingInfo {
 public:
 	OpType	operation;
+	usint	numArgs;
 	double	timeval;
-	TimingInfo(OpType o, double t) : operation(o), timeval(t) {}
+	TimingInfo(OpType o, double t, usint na=2) : operation(o), numArgs(na), timeval(t) {}
 };
 
 inline std::ostream& operator<<(std::ostream& out, const TimingInfo& t) {
-	out << t.operation << ": " << t.timeval;
+	out << t.operation << "(" << t.numArgs << "): " << t.timeval;
 	return out;
 }
+
+class TimingStatisticsKey {
+public:
+	OpType	operation;
+	usint	argcnt;
+
+	TimingStatisticsKey(OpType op, usint argcnt = 2) {
+		this->operation = op;
+		this->argcnt = argcnt;
+	}
+
+	bool operator<(const TimingStatisticsKey& k2) const {
+		if( operation < k2.operation ) return true;
+		else if( operation == k2.operation ) {
+			if( argcnt < k2.argcnt ) return true;
+		}
+		return false;
+	}
+
+	friend inline ostream& operator<<(ostream& out, const TimingStatisticsKey& k) {
+		return out << k.operation << "(" << k.argcnt << ")";
+	}
+};
+
+class TimingStatistics;
+typedef map<TimingStatisticsKey,TimingStatistics> TimingStatisticsMap;
+
 
 // timing samples are collected into a TimingStatistics
 class TimingStatistics {
 public:
 	OpType	operation;
 	usint	samples;
-	double	startup;
-	bool		wasCalled;
 	double	average;
+	usint	argcnt;
 
 	TimingStatistics() :
-		operation(OpNOOP), samples(0), startup(0), wasCalled(false), average(0) {}
-	TimingStatistics(usint samples, double startup, double average) :
-		operation(OpNOOP), samples(samples), startup(startup), wasCalled(false),
-		average(average) {}
-	TimingStatistics(OpType op, usint samples, double total) {
+		operation(OpNOOP), samples(0), average(0), argcnt(0) {}
+	TimingStatistics(OpType op, usint samples, double total, usint argcnt = 2) {
 		this->operation = op;
 		this->samples = samples;
-		this->startup = 0;
-		this->wasCalled = true;
 		this->average = total/samples;
+		this->argcnt = argcnt;
 	}
 	bool Serialize(Serialized* serObj) const;
 	bool Deserialize(const Serialized& serObj);
 
-	double GetEstimate() {
-		if( wasCalled ) return average;
-		wasCalled = true;
-		return startup;
-	}
-
 	// collect a vector of samples into a map of statistics
-	static void GenStatisticsMap( vector<TimingInfo>& times, map<OpType,TimingStatistics>& stats ) {
+	static void GenStatisticsMap( vector<TimingInfo>& times, TimingStatisticsMap& stats ) {
 		for( TimingInfo& sample : times ) {
-			TimingStatistics& st = stats[ sample.operation ];
+			TimingStatistics& st = stats[ TimingStatisticsKey(sample.operation,sample.numArgs) ];
 			if( st.operation == OpNOOP ) {
 				st.operation = sample.operation;
-				st.startup = sample.timeval;
-
 				st.average = sample.timeval;
 				st.samples = 1;
+				st.argcnt = sample.numArgs;
 			} else {
 				st.average = ((st.average * st.samples) + sample.timeval)/(st.samples + 1);
 				st.samples++;
 			}
 		}
 	}
-
-
 };
 
 inline std::ostream& operator<<(std::ostream& out, const TimingStatistics& t) {
-	out << "(count=" << t.samples << ",startup=" << t.startup << ",avg=" << t.average << ")";
+	out << "[" << t.operation << "(" << t.argcnt << "), count=" << t.samples << ",avg=" << t.average << "ms]";
 	return out;
 }
 
@@ -149,7 +163,7 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte);
 
 template<typename Element>
 extern void
-generateTimings(map<OpType,TimingStatistics*>& stats,
+generateTimings(TimingStatisticsMap& stats,
 		CryptoContext<Element> cc,
 		PlaintextEncodings pte,
 		bool verbose = false,
