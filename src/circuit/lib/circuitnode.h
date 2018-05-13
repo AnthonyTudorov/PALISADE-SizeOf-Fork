@@ -440,24 +440,12 @@ public:
 		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
 		this->value = Value<Element>(nn.GetInt());
 	}
-
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(const int)"; }
 };
 
-class ConstPtxt : public CircuitNode {
-	int64_t val;
-
-protected:
-	void CopyValues(CircuitNode *n) {
-		ConstPtxt& nn = dynamic_cast<ConstPtxt&>( *n );
-		this->val = nn.val;
-		CircuitNode::CopyValues(n);
-	}
-
+class ModReduceNode : public CircuitNode {
 public:
-	ConstPtxt(usint id, int64_t val) : CircuitNode(id),val(val) {
-		this->setAsInput();
+	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
+		this->inputs = inputs;
 	}
 
 	wire_type GetType() const { return PLAINTEXT; }
@@ -465,7 +453,7 @@ public:
 };
 
 template<typename Element>
-class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
+class ModReduceNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
 	ConstPtxtWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
 		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
