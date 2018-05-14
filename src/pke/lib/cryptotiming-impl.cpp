@@ -471,7 +471,7 @@ generateTimings(TimingStatisticsMap& stats,
 			vector<Ciphertext<Element>> ciphers;
 			Ciphertext<Element> merged;
 			for( int nct : vector<int>({2,4,8,16}) ) {
-				for(unsigned int i=0; i<nct; i++)
+				for(int i=0; i<nct; i++)
 					ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
 
 				merged = cc->EvalMerge(ciphers);
