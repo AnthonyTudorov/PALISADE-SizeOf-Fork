@@ -83,11 +83,10 @@ public:
 		double decimal = prec;
 		for(uint64_t i=1; i<decimalSize; i++)
 			decimal = decimal*prec;
-/*
+
 		for(uint64_t i=0; i<inMat.GetRows(); i++)
 			for(uint64_t j=0; j<inMat.GetCols(); j++)
 				outMat(i, j) = inMat(i, j)/decimal;
-*/
 	}
 
 	/**
