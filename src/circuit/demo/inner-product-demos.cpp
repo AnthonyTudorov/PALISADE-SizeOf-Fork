@@ -41,16 +41,6 @@ using namespace lbcrypto;
 #include <fstream>
 using namespace std;
 
-#include "circuitnode.cpp"
-#include "circuitgraph.cpp"
-#include "circuitinput.cpp"
-
-namespace lbcrypto {
-template class CircuitGraphWithValues<Poly>;
-template class CircuitNodeWithValue<Poly>;
-template class CircuitObject<Poly>;
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -139,19 +129,19 @@ main(int argc, char *argv[])
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, scalarMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<Poly> inputs;
+		CircuitInput<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
+		CircuitOutput<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 
 		for( auto& out : outputs ) {
-			auto m = out.second.GetIntMatValue();
+			auto m = out.second.GetMatrixRtValue();
 			shared_ptr<Matrix<Plaintext>> numerator;
 			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);
@@ -220,19 +210,19 @@ main(int argc, char *argv[])
 		shared_ptr<Matrix<RationalCiphertext<Poly>>> B = cc->EncryptMatrix(kp.publicKey, bitMatrix2);
 
 		// evaluate in a circuit
-		CircuitIO<Poly> inputs;
+		CircuitInput<Poly> inputs;
 		inputs[0] = A;
 		inputs[1] = B;
 
 		vector<TimingInfo>	times;
 		cc->StartTiming(&times);
 
-		CircuitIO<Poly> outputs = cir.CircuitEval(inputs);
+		CircuitOutput<Poly> outputs = cir.CircuitEval(inputs);
 
 		cc->StopTiming();
 
 		for( auto& out : outputs ) {
-			auto m = out.second.GetIntMatValue();
+			auto m = out.second.GetMatrixRtValue();
 			shared_ptr<Matrix<Plaintext>> numerator;
 			shared_ptr<Matrix<Plaintext>> denominator;
 			cc->DecryptMatrix(kp.secretKey, m, &numerator, &denominator);

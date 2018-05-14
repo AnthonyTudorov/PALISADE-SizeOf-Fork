@@ -6,23 +6,38 @@
  */
 
 #include "palisade.h"
+#include "cryptocontext.h"
+using namespace lbcrypto;
 
 int
 main()
 {
-	NativeInteger a(100);
-	NativeInteger b(100);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,256);
+	cc->Enable(ENCRYPTION | SHE );
+	auto kp = cc->KeyGen();
 
-	cout << sizeof(a) << endl;
+	int inputs[] = { 1, 2, 3, 4 };
+	Plaintext ptxt[4];
+	Ciphertext<Poly> ctxt[4];
 
-	NativeInteger c = a.Plus(b);
+	for( int i=0; i<4; i++ ) {
+		ptxt[i] = cc->MakeIntegerPlaintext( inputs[i] );
+		cout << inputs[i] << " " << ptxt[i]->GetEncodedElement<Poly>() << endl;
+		ctxt[i] = cc->Encrypt(kp.publicKey, ptxt[i]);
+	}
 
-//	uint64_t x;
-	//unsigned __int128 y;
+	auto d1 = ctxt[0] - ctxt[1];
+	auto d2 = ctxt[2] - ctxt[3];
 
-	a += b;
+	cout << "d1 " << d1 << endl;
+	cout << "d2 " << d2 << endl;
 
-	cout << a << " " << b << " " << c;
+	Plaintext p1, p2;
+	cc->Decrypt(kp.secretKey, d1, &p1);
+	cc->Decrypt(kp.secretKey, d2, &p2);
+
+	cout << p1 << endl;
+	cout << p2 << endl;
 	return 0;
 }
 

@@ -262,8 +262,10 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 
 		friend ostream& operator<<(ostream& out, const CiphertextImpl<Element>& c) {
 			out << "enc=" << c.encodingType << " depth=" << c.m_depth << endl;
-			for( size_t i=0; i<c.m_elements.size(); i++ )
-				out << i << ": " << c.m_elements[i] << endl;
+			for( size_t i=0; i<c.m_elements.size(); i++ ) {
+				if( i != 0 ) out << endl;
+				out << "Element " << i << ": " << c.m_elements[i];
+			}
 			return out;
 		}
 

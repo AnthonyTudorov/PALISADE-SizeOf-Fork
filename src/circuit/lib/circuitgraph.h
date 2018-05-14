@@ -43,8 +43,9 @@ using namespace std;
 
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "circuitinput.h"
+#include "circuitvalue.h"
 #include "circuitnode.h"
+#include "palisadecircuit.h"
 
 namespace lbcrypto {
 
@@ -56,7 +57,7 @@ class CircuitNodeWithValue;
 class CircuitGraph {
 	map<usint,CircuitNode*>			allNodes;
 	vector<usint>					inputs;
-	set<usint>						outputs;
+	vector<usint>					outputs;
 
 	bool nodeExists(int id) {
 		return allNodes.find(id) != allNodes.end();
@@ -68,40 +69,13 @@ class CircuitGraph {
 				std::find(inputs.begin(), inputs.end(), id) == inputs.end();
 	}
 
-	void processNodeDepth(CircuitNode *n, queue<CircuitNode*>&);
-
 public:
 	CircuitGraph() {}
 	virtual ~CircuitGraph() {}
 
-	int GenNodeNumber() { return allNodes.size(); }
+	int GenNodeNumber() { return allNodes.rbegin()->first + 1; }
 
 	const map<usint,CircuitNode*>& getAllNodes() const { return allNodes; }
-
-	void processNodeDepth();
-
-	void DisplayGraph(ostream* f) const;
-
-	void Preprocess();
-
-	void GenerateOperationList(vector<CircuitSimulation>& ops);
-
-	void UpdateRuntimeEstimates(vector<CircuitSimulation>& steps, map<OpType,TimingStatistics>& stats);
-	void PrintRuntimeEstimates(ostream& out);
-
-	void ClearVisited() {
-		for( auto node : allNodes )
-			node.second->ClearVisit();
-	}
-
-	double GetRuntime() const {
-		double	total = 0;
-		for( auto node : allNodes )
-			if( node.second->Visited() ) {
-				total += node.second->GetEstimate();
-			}
-		return total;
-	}
 
 	CircuitNode *getNodeById(usint id) {
 		auto it = allNodes.find(id);
@@ -134,13 +108,11 @@ public:
 	}
 
 	void addOutput(int n) {
-		outputs.insert(n);
+		outputs.push_back(n);
 	}
 
 	const vector<usint>& getInputs() const { return inputs; }
-	const set<usint>& getOutputs() const { return outputs; }
-
-	void resetAllDepths();
+	const vector<usint>& getOutputs() const { return outputs; }
 };
 
 template<typename Element>
@@ -148,12 +120,15 @@ class CircuitGraphWithValues {
 	CircuitGraph&								g;
 	map<usint,CircuitNodeWithValue<Element>*>	allNodes;
 
+	void processNodeDepth(CircuitNodeWithValue<Element> *n, queue<CircuitNodeWithValue<Element>*>&);
+
 public:
 	CircuitGraphWithValues(CircuitGraph& cg) : g(cg) {
 		for( map<usint,CircuitNode*>::const_iterator it = cg.getAllNodes().begin(); it != cg.getAllNodes().end(); it++ ) {
-			allNodes[ it->first ] = ValueNodeFactory<Element>( it->second );
+			allNodes[ it->first ] = CircuitNodeWithValue<Element>::ValueNodeFactory( it->second );
 		}
 	}
+
 	virtual ~CircuitGraphWithValues() {
 		for( typename map<usint,CircuitNodeWithValue<Element>*>::iterator it = allNodes.begin(); it != allNodes.end(); it++ ) {
 			delete ( it->second );
@@ -161,12 +136,10 @@ public:
 		allNodes.clear();
 	}
 
-	// these two statics are used by operator<< as a hack to display values
-	static CryptoContext<Element>	_graph_cc;
-	static LPPrivateKey<Element>	_graph_key;
+	int GenNodeNumber() { return allNodes.rbegin()->first + 1; }
 
 	const vector<usint>& getInputs() const { return g.getInputs(); }
-	const set<usint>& getOutputs() const { return g.getOutputs(); }
+	const vector<usint>& getOutputs() const { return g.getOutputs(); }
 
 	map<usint,CircuitNodeWithValue<Element>*>& getAllNodes() { return allNodes; }
 
@@ -178,39 +151,64 @@ public:
 		return it->second;
 	}
 
+	void Preprocess();
+	void GenerateOperationList(CryptoContext<Element> cc);
+
+	void PrintOperationSet(ostream& out, bool verbose=false) {
+		map<usint,map<TimingStatisticsKey,int>>& opmap = CircuitNodeWithValue<Element>::GetOperationsMap();
+		map<TimingStatisticsKey,int> ops;
+
+		for( auto& it : opmap ) {
+			for( auto& iit : it.second ) {
+				ops[iit.first] += iit.second;
+			}
+		}
+
+		if( verbose ) {
+			for( auto& it : opmap ) {
+				out << "Node " << it.first << " ";
+				for( auto& iit : it.second ) {
+					out << iit.first << ":" << iit.second << " ";
+				}
+				out << endl;
+			}
+		}
+		else {
+			for( auto op : ops )
+				out << op.first << ":" << op.second << endl;
+		}
+	}
+
+	void ApplyRuntimeEstimates(TimingStatisticsMap& stats);
+
+	void processNodeDepth();
+	void resetAllDepths();
+
+	int GetMaximumDepth() {
+		int answer = -1;
+
+		for( const auto& n : this->getAllNodes() ) {
+			if( n.second->getInputDepth() > answer )
+				answer = n.second->getInputDepth();
+		}
+		return answer;
+	}
+
 	void Execute(CryptoContext<Element> cc);
 
-	const vector<wire_type> GetInputTypes();
+	wire_type GetTypeForNode(usint id) {
+		auto np = getNodeById(id);
+		if( np )
+			return np->GetType();
+		return UNKNOWN;
+	}
 
-	void DisplayGraph(ostream* f) const;
-	void DisplayDecryptedGraph(ostream* f, CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
+	void DisplayGraph(ostream& f) const;
 
 	void ClearVisited() {
 		for( auto node : allNodes )
 			node.second->ClearVisit();
 	}
-
-	void Reset() {
-		for( auto node : allNodes ) {
-			node.second->Reset();
-		}
-	}
-
-	double GetRuntime() const {
-		double	total = 0;
-		for( auto node : allNodes )
-			if( node.second->Visited() )
-				total += node.second->GetRuntime();
-		return total;
-	}
-
-	/**
-	 * SetStreamKey causes the graph creator to decrypt each available Value in the graph and display them
-	 *
-	 * @param cc - CryptoContext in use
-	 * @param k - private key for decryption
-	 */
-	void SetStreamKey(CryptoContext<Element> cc, LPPrivateKey<Element> k) const;
 };
 
 }

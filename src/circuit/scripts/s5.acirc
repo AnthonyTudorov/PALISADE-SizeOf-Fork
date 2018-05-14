@@ -1,0 +1,15 @@
+v0.1
+0 input 0 @ ciphertext
+1 input 1 @ ciphertext
+2 input 2 @ ciphertext
+3 input 3 @ ciphertext
+4 input 4 @ ciphertext
+5 input 5 @ ciphertext
+6 const @ Integer 2
+7 >> 0 6
+8 >> 1 6
+9 >> 2 6
+10 >> 3 6
+11 >> 4 6
+12 >> 5 6
+:outputs 10 11 0 1 2 3 12 4 5 7 8 9 

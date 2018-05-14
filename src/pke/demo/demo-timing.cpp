@@ -162,27 +162,28 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	map<OpType,TimingStatistics*> stats;
+	TimingStatisticsMap stats;
 
 	if( element == POLY ) {
-		generateTimings(verbose, stats, cc, CoefPacked, MaxIterations, printsizes);
-		cout << cc->GetElementParams() << endl;
-		cout << cc->GetEncodingParams() << endl;
+		generateTimings(stats, cc, CoefPacked, verbose, MaxIterations, printsizes);
+		cout << *cc->GetElementParams() << endl;
+		cout << *cc->GetEncodingParams() << endl;
 	}
 	else if( element == DCRT ) {
-		generateTimings(verbose, stats, dcc, CoefPacked, MaxIterations, printsizes);
-		cout << dcc->GetElementParams() << endl;
-		cout << dcc->GetEncodingParams() << endl;
+		generateTimings(stats, dcc, CoefPacked, verbose, MaxIterations, printsizes);
+		cout << *dcc->GetElementParams() << endl;
+		cout << *dcc->GetEncodingParams() << endl;
 	}
 	else {
-		generateTimings(verbose, stats, ncc, CoefPacked, MaxIterations, printsizes);
-		cout << ncc->GetElementParams() << endl;
-		cout << ncc->GetEncodingParams() << endl;
+		generateTimings(stats, ncc, CoefPacked, verbose, MaxIterations, printsizes);
+		cout << *ncc->GetElementParams() << endl;
+		cout << *ncc->GetEncodingParams() << endl;
 	}
 
 	// read them out
 	for( auto &tstat : stats ) {
-		cout << tstat.second->operation << ": " << tstat.second->average << "ms" <<endl;
+		cout << tstat.second << endl;
+		cout << tstat.second.operation << ": " << tstat.second.average <<endl;
 	}
 
 }

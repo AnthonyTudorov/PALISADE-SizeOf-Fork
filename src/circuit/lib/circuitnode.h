@@ -44,9 +44,9 @@
 #include <iomanip>
 using namespace std;
 
-#include "value.h"
 #include "palisade.h"
 #include "cryptocontext.h"
+#include "circuitvalue.h"
 
 namespace lbcrypto {
 
@@ -66,16 +66,16 @@ static const usint DEFAULTNOISEVAL = 3;
 
 class CircuitGraph;
 
-// This class is used to represent a node in a circuit
-// the node can have several inputs, and it has one output
-// nodes are identified by a node id
+extern bool CircuitOpTrace;
+
+// A CircuitNode represents a node in a circuit
+// Each node may have several inputs, and has one output
+// Nodes are identified by a node id
 class CircuitNode {
 public:
 	CircuitNode(usint nodeID) {
 		this->nodeId = nodeID;
-		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		is_input = is_output = false;
-		Reset();
 	}
 	virtual ~CircuitNode() {}
 
@@ -85,9 +85,13 @@ public:
 	int getInput(usint i) { return inputs[i]; }
 	void setInput(usint inputIdx, usint nodeId) { inputs[inputIdx] = nodeId; }
 
-	const set<usint>& getOutputs() const { return outputs; }
-	void addOutput(usint n) { outputs.insert(n); }
-	void delOutput(usint n) { outputs.erase(n); }
+	const vector<usint>& getOutputs() const { return outputs; }
+	void addOutput(usint n) { outputs.push_back(n); }
+	void delOutput(usint n) {
+		auto it = std::find( outputs.begin(), outputs.end(), n);
+		if( it != outputs.end() )
+			outputs.erase(it);
+	}
 
 	void setAsOutput() { is_output = true; }
 	void unsetAsOutput() { is_output = false; }
@@ -97,208 +101,282 @@ public:
 	void unsetAsInput() { is_input = false; }
 	bool IsInput() const { return is_input; }
 
-	const usint getInputDepth() const { return nodeInputDepth; }
-	const usint getOutputDepth() const { return nodeOutputDepth; }
+protected:
+	CircuitNode(CircuitNode *n) { CopyValues(n); }
+
+	virtual void CopyValues(CircuitNode *n) {
+		this->is_input = n->is_input;
+		this->is_output = n->is_output;
+		this->nodeId = n->nodeId;
+		this->inputs = n->inputs;
+		this->outputs = n->outputs;
+	}
+
+	bool				is_input;
+	bool				is_output;
+	usint			nodeId;
+
+	vector<usint>	inputs;
+	vector<usint>	outputs;
+};
+
+template<typename Element>
+class CircuitGraphWithValues;
+
+enum EvaluateMode {
+	GetOperationsList,			// gather a list of operations that will be performed
+	Evaluate,					// actually perform the calculations
+	CalculateRuntimeEstimates,	// sum up estimates up the chain
+};
+
+// we separate the implementation of the graph from the implementation of the values
+template<typename Element>
+class CircuitNodeWithValue : public CircuitNode {
+private:
+	static	int							step;
+
+protected:
+	CircuitValue<Element>	value;
+	usint			noiseval;
+	bool				visited;
+	int				evalsequence;
+
+	int			nodeInputDepth;
+	int			nodeOutputDepth;
+
+	double			runtimeEstimateNode;
+	double			runtimeEstimateCumulative;
+	double			runtimeActual;
+	double			noisevalEstimate;
+	double			noisevalActual;
+
+	static	map<usint,map<TimingStatisticsKey,int>>	opcountByNode;
+
+public:
+	CircuitNodeWithValue(CircuitNode *n) : CircuitNode(n) {
+		Reset();
+	}
+
+	virtual ~CircuitNodeWithValue() {}
+
+	static CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
+	static map<usint,map<TimingStatisticsKey,int>>& GetOperationsMap();
+
+	wire_type GetType() const { return value.GetType(); }
+
+	const int getInputDepth() const { return nodeInputDepth; }
+	const int getOutputDepth() const { return nodeOutputDepth; }
 	void resetDepth() { this->nodeInputDepth = this->nodeOutputDepth = 0; }
 	void setInputDepth(int newDepth) { nodeInputDepth = newDepth; }
 	void setOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
 	void resetOutputDepth(int newDepth) { nodeOutputDepth = newDepth; }
 
 	virtual void setBottomUpDepth() { nodeInputDepth = nodeOutputDepth; } // by default, nodeOutputDepth does not change
+
+	double GetNoiseEstimate() const { return noisevalEstimate; }
+	void SetNoiseEstimate(double n) { noisevalEstimate = n; }
+	double GetNoiseActual() const { return noisevalActual; }
+	void SetNoiseActual(double n) { noisevalActual = n; }
+
+	double GetRuntimeEstimateNode() const { return runtimeEstimateNode; }
+	void SetRuntimeEstimateNode(double n) { runtimeEstimateNode = n; }
+	double GetRuntimeEstimate() const { return runtimeEstimateCumulative; }
+	void SetRuntimeEstimate(double n) { runtimeEstimateCumulative = n; }
+	double GetRuntimeActual() const { return runtimeActual; }
+
+	CircuitValue<Element>& getValue() { return value; }
+	const CircuitValue<Element>& getValue() const { return value; }
+	void setValue(const CircuitValue<Element>& v) { value = v; }
+
+	// Each node needs to identify the operations that it performs,
+	// and in which order
+	virtual const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> empty;
+		return empty;
+	}
+
+	// this method is a wrapper for all of the operations that might be performed
+	// on this node. The first argument determines the operation
+	CircuitValue<Element> Evaluate(
+			EvaluateMode mode,
+			CryptoContext<Element> cc,
+			CircuitGraphWithValues<Element>& cg) {
+
+		if( Visited() )
+			return this->value;
+		Visit();
+
+		this->evalsequence = ++step;
+		TimeVar t;
+		TIC(t);
+		this->eval(mode,cc,cg);
+		if( mode == EvaluateMode::Evaluate )
+			this->runtimeActual = TOC_MS(t);
+
+		return this->value;
+	}
+
+	virtual void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) = 0;
+
+	virtual OpType OpTag() const = 0;
+	virtual string getNodeLabel() const { return ""; }
+
 	virtual bool isModReduce() const { return false; }
 
-	virtual string getNodeLabel() const = 0;
-	virtual OpType OpTag() const = 0;
-
-	double GetEstimate() const { return estimatedRun; }
-	void SetRuntimeEstimate(TimingStatistics* n) { runtime = n; }
-	void MarkEstimate() { estimatedRun = runtime->GetEstimate(); }
-
-	void Reset() {
-		noiseval = 0;
-		visited = false;
-		runtime = 0;
-		estimatedRun = 0;
-	}
-
-	bool Visited() const { return visited; }
-	const void Visit() { visited = true; }
-	const void ClearVisit() { visited = false; }
-
-	void CircuitVisit(CircuitGraph& cg);
-
-	usint GetNoise() const { return noiseval; }
-	void SetNoise(usint n) { noiseval = n; }
-
-	friend ostream& operator<<(ostream& out, const CircuitNode& n);
-
-	virtual void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops) = 0;
-
-	static void Log(vector<CircuitSimulation>& ops, usint id, OpType t) {
-		ops.push_back( CircuitSimulation(id, t) );
-	}
-
-protected:
-	bool			is_input;
-	bool			is_output;
-	usint			nodeId;
-
-	vector<usint>	inputs;
-	set<usint>		outputs;
-	usint			nodeInputDepth;
-	usint			nodeOutputDepth;
-
-	// in CircuitNode, these are estimates
-	TimingStatistics		*runtime;
-	bool					visited;
-	double					estimatedRun;
-	usint					noiseval;
-};
-
-template<typename Element>
-class CircuitGraphWithValues;
-
-// we separate the implementation of the graph from the implementation of the values
-template<typename Element>
-class CircuitNodeWithValue {
 private:
-	static	int							step;
-	static vector<CircuitSimulation>	sim;
-
-protected:
-	CircuitNode		*node;
-	Value<Element>	value;
-	usint			noiseval;
-	double			runtime;
-	bool			visited;
-	int				evalsequence;
-
-public:
-	CircuitNodeWithValue(CircuitNode *n) : node(n) { Reset(); }
-	virtual ~CircuitNodeWithValue() {}
-
-	wire_type GetType() const { return value.GetType(); }
-
-	usint GetNoise() const { return noiseval; }
-	void SetNoise(usint n) { noiseval = n; }
-
-	CircuitNode *getNode() const { return node; }
-	Value<Element>& getValue() { return value; }
-	const Value<Element>& getValue() const { return value; }
-	void setValue(const Value<Element>& v) { value = v; }
-
-	usint GetId() const { return node->GetId(); }
-	string getNodeLabel() const { return node->getNodeLabel(); }
-	OpType OpTag() const { return node->OpTag(); }
-	bool isModReduce() const { return node->isModReduce(); }
-
-	bool IsOutput() const { return node->IsOutput(); }
-	bool IsInput() const { return node->IsInput(); }
-
-	virtual Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
-		return value;
-	}
-
 	void Reset() {
-		noiseval = DEFAULTNOISEVAL;
-		runtime = 0;
+		noisevalEstimate = 0;
+		noisevalActual = DEFAULTNOISEVAL;
+		runtimeEstimateNode = runtimeEstimateCumulative = runtimeActual = 0;
+		this->nodeInputDepth = this->nodeOutputDepth = 0;
 		visited = false;
 		evalsequence = -1;
 		if( IsInput() == false && value.GetType() != UNKNOWN ) {
-			value = Value<Element>();
+			value = CircuitValue<Element>();
 		}
-		node->Reset();
 	}
 
-	const double& GetRuntime() const { return runtime; }
-	void SetRuntime(double& n) { runtime = n; }
-
+public:
 	bool Visited() const { return visited; }
 	const void Visit() { visited = true; }
 	const void ClearVisit() { visited = false; }
 
-	void CircuitVisit(CircuitGraphWithValues<Element>& cg);
-
 	int GetEvalSequenceNumber() const { return evalsequence; }
 
-	void Log() {
-		sim.push_back( CircuitSimulation(node->GetId(), node->OpTag()) );
-		evalsequence = step++;
-	}
-
-	static void PrintLog(ostream& out) {
-		out << step << " steps" << endl;
-		for( int i=0; i < step; i++ )
-			out << i << ": " << sim[i] << endl;
-	}
-
-	static const vector<CircuitSimulation>& GetSimulationItems() {
-		return sim;
-	}
-};
-
-template<typename Element>
-extern ostream& operator<<(ostream& out, const CircuitNodeWithValue<Element>& n);
-
-template<typename Element>
-int	CircuitNodeWithValue<Element>::step;
-
-template<typename Element>
-vector<CircuitSimulation> CircuitNodeWithValue<Element>::sim;
-
-template<typename Element>
-extern CircuitNodeWithValue<Element> *ValueNodeFactory( CircuitNode *n );
-
-class ConstInput : public CircuitNode {
-	usint val;
-public:
-	ConstInput(usint id, usint value) : CircuitNode(id), val(value) {
-		this->runtime = new TimingStatistics();
-	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		if( !Visited() ) {
-			Visit();
-			noiseval = DEFAULTNOISEVAL;
+	friend ostream& operator<<(ostream& out, CircuitNodeWithValue<Element>& n) {
+		out << n.GetId() << "  [label=\"" << n.GetId() << "\\n";
+		if( n.getInputDepth() != 0 )
+			out << "(d=" << n.getInputDepth() << ")\\n";
+		out << n.getNodeLabel();
+		if( n.IsOutput() ) {
+			out << "(output)\\n";
 		}
-	}
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(const)"; }
-	usint GetVal() const { return val; }
-};
 
-template<typename Element>
-class ConstInputWithValue : public CircuitNodeWithValue<Element> {
-public:
-	ConstInputWithValue(ConstInput* ci) : CircuitNodeWithValue<Element>(ci) {
-		this->value = BigInteger(ci->GetVal());
+		if( n.GetNoiseActual() != 0 )
+			out << "\\n(noise=" << n.GetNoiseActual() << ")\\n";
+
+		const CircuitValue<Element>& val = n.getValue();
+		if( val.GetType() != UNKNOWN ) {
+			out << val;
+		}
+
+		out << "\"]; ";
+
+		const vector<usint>& nodeInputs = n.getInputs();
+		for( usint input : nodeInputs )
+			out << input << " -> " << n.GetId() << "; ";
+
+		return out;
 	}
+
 };
 
 class Input : public CircuitNode {
 	wire_type type;
+
+protected:
+	void CopyValues(CircuitNode *n) {
+		Input& nn = dynamic_cast<Input&>( *n );
+		this->type = nn.type;
+		CircuitNode::CopyValues(n);
+	}
+
 public:
 	Input(usint id, wire_type type) : CircuitNode(id), type(type) {
 		this->setAsInput();
-		this->runtime = new TimingStatistics();
 	}
 
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>&) {
-		if( !Visited() ) {
-			Visit();
-			noiseval = DEFAULTNOISEVAL;
-		}
-	}
-	OpType OpTag() const { return OpNOOP; }
-	string getNodeLabel() const { return "(input)"; }
 	wire_type GetType() const { return type; }
 };
 
 template<typename Element>
 class InputWithValue : public CircuitNodeWithValue<Element> {
 public:
-	InputWithValue(Input* in) : CircuitNodeWithValue<Element>(in) {
-		this->value.SetType(in->GetType());
+	InputWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
+		Input& nn = dynamic_cast<Input&>( *in );
+		this->value.SetType(nn.GetType());
+	}
+
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(input)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
+	}
+};
+
+class ConstInt : public CircuitNode {
+	int64_t val;
+
+protected:
+	void CopyValues(CircuitNode *n) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *n );
+		this->val = nn.val;
+		CircuitNode::CopyValues(n);
+	}
+
+public:
+	ConstInt(usint id, int64_t val) : CircuitNode(id), val(val) {
+		this->setAsInput();
+	}
+
+	wire_type GetType() const { return INT; }
+	int64_t GetInt() const { return val; }
+};
+
+template<typename Element>
+class ConstIntWithValue : public CircuitNodeWithValue<Element> {
+public:
+	ConstIntWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
+		this->value = CircuitValue<Element>(nn.GetInt());
+	}
+
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const int)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
+	}
+};
+
+class ConstPtxt : public CircuitNode {
+	int64_t val;
+
+protected:
+	void CopyValues(CircuitNode *n) {
+		ConstPtxt& nn = dynamic_cast<ConstPtxt&>( *n );
+		this->val = nn.val;
+		CircuitNode::CopyValues(n);
+	}
+
+public:
+	ConstPtxt(usint id, int64_t val) : CircuitNode(id),val(val) {
+		this->setAsInput();
+	}
+
+	wire_type GetType() const { return PLAINTEXT; }
+	int64_t GetInt() const { return val; }
+};
+
+template<typename Element>
+class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
+public:
+	ConstPtxtWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
+		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
+		this->setValue(nn.GetInt());
+	}
+	OpType OpTag() const { return OpNOOP; }
+	string getNodeLabel() const { return "(const plaintext)"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg) {
+		if( mode == CalculateRuntimeEstimates )
+			this->SetNoiseEstimate(DEFAULTNOISEVAL);
+		return;
 	}
 };
 
@@ -307,39 +385,26 @@ public:
 	ModReduceNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	OpType OpTag() const { return OpModReduce; }
-	string getNodeLabel() const { return "M/R"; }
-	bool isModReduce() const { return true; }
 };
 
 template<typename Element>
 class ModReduceNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	ModReduceNodeWithValue(ModReduceNode* node) : CircuitNodeWithValue<Element>(node) {}
+	ModReduceNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
-};
-
-class EvalNegNode : public CircuitNode {
-public:
-	EvalNegNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
-		this->inputs = inputs;
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpModReduce});
+		return ops;
 	}
 
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	OpType OpTag() const { return OpEvalNeg; }
-	string getNodeLabel() const { return "-"; }
-};
+	OpType OpTag() const { return OpModReduce; }
+	string getNodeLabel() const { return "M/R"; }
 
-template<typename Element>
-class EvalNegNodeWithValue : public CircuitNodeWithValue<Element> {
-public:
-	EvalNegNodeWithValue(EvalNegNode* node) : CircuitNodeWithValue<Element>(node) {}
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
 
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+
+	bool isModReduce() const { return true; }
 };
 
 class EvalAddNode : public CircuitNode {
@@ -347,18 +412,22 @@ public:
 	EvalAddNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	OpType OpTag() const { return OpEvalAdd; }
-	string getNodeLabel() const { return "+"; }
 };
 
 template<typename Element>
 class EvalAddNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	EvalAddNodeWithValue(EvalAddNode* node) : CircuitNodeWithValue<Element>(node) {}
+	EvalAddNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpEvalAdd});
+		return ops;
+	}
+
+	OpType OpTag() const { return OpEvalAdd; }
+	string getNodeLabel() const { return "+"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalSubNode : public CircuitNode {
@@ -366,18 +435,22 @@ public:
 	EvalSubNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	OpType OpTag() const { return OpEvalSub; }
-	string getNodeLabel() const { return "-"; }
 };
 
 template<typename Element>
 class EvalSubNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	EvalSubNodeWithValue(EvalSubNode* node) : CircuitNodeWithValue<Element>(node) {}
+	EvalSubNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpEvalSub});
+		return ops;
+	}
+
+	OpType OpTag() const { return OpEvalSub; }
+	string getNodeLabel() const { return "-"; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 class EvalMultNode : public CircuitNode {
@@ -385,19 +458,74 @@ public:
 	EvalMultNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
 		this->inputs = inputs;
 	}
-
-	void simeval(CircuitGraph& cg, vector<CircuitSimulation>& ops);
-	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
-	OpType OpTag() const { return OpEvalMult; }
-	string getNodeLabel() const { return "*"; }
 };
 
 template<typename Element>
 class EvalMultNodeWithValue : public CircuitNodeWithValue<Element> {
 public:
-	EvalMultNodeWithValue(EvalMultNode* node) : CircuitNodeWithValue<Element>(node) {}
+	EvalMultNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
 
-	Value<Element> eval(CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpEvalMult});
+		return ops;
+	}
+
+	OpType OpTag() const { return OpEvalMult; }
+	string getNodeLabel() const { return "*"; }
+
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+};
+
+class EvalRShiftNode : public CircuitNode {
+public:
+	EvalRShiftNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
+		this->inputs = inputs;
+	}
+};
+
+template<typename Element>
+class EvalRShiftNodeWithValue : public CircuitNodeWithValue<Element> {
+public:
+	EvalRShiftNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
+
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpEvalRightShift});
+		return ops;
+	}
+
+	OpType OpTag() const { return OpEvalRightShift; }
+	string getNodeLabel() const { return ">>"; }
+
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
+};
+
+class EvalInnerProdNode : public CircuitNode {
+public:
+	EvalInnerProdNode(usint id, const vector<usint>& inputs) : CircuitNode(id) {
+		this->inputs = inputs;
+	}
+};
+
+template<typename Element>
+class EvalInnerProdNodeWithValue : public CircuitNodeWithValue<Element> {
+public:
+	EvalInnerProdNodeWithValue(CircuitNode* node) : CircuitNodeWithValue<Element>(node) {}
+
+	const vector<OpType>& GetOperationsSequence() const {
+		static vector<OpType> ops({OpEvalMerge,OpEvalMerge,OpEvalInnerProduct});
+		return ops;
+	}
+
+	OpType OpTag() const { return OpEvalInnerProduct; }
+	string getNodeLabel() const { return "o"; }
+
+	void setBottomUpDepth() { this->nodeInputDepth = this->nodeOutputDepth + 1; }
+
+	void eval(EvaluateMode mode, CryptoContext<Element> cc, CircuitGraphWithValues<Element>& cg);
 };
 
 }

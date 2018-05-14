@@ -47,63 +47,68 @@ struct FeatureMap {
 };
 
 static struct FeatureMap FeatureMap[] = {
-	{ OpNOOP, "NONE", ENCRYPTION },
-	{ OpKeyGen, "KeyGen", ENCRYPTION },
-	{ OpMultiPartyKeyGenKey, "MultipartyKeyGen(key)", MULTIPARTY },
-	{ OpMultiPartyKeyGenKeyvec, "MultipartyKeyGen(vector<key>)", MULTIPARTY },
-	{ OpMultiPartyDecryptLead, "MultiPartyDecryptLead", MULTIPARTY },
-	{ OpMultiPartyDecryptMain, "MultiPartyDecryptMain", MULTIPARTY },
-	{ OpMultiPartyDecryptFusion, "MultiPartyDecryptFusion", MULTIPARTY },
-	{ OpSparseKeyGen, "SparseKeyGen", ENCRYPTION },
-	{ OpReKeyGenPubPri, "ReKeyGen(pubkey,privkey)", PRE },
-	{ OpReKeyGenPriPri, "ReKeyGen(privkey,privkey)", PRE },
-	{ OpEvalMultKeyGen, "EvalMultKeyGen", SHE },
-	{ OpEncryptPub, "EncryptPub", ENCRYPTION },
-	{ OpEncryptPriv, "EncryptPriv", ENCRYPTION },
-	{ OpEncryptPlain, "EncryptPlain", ENCRYPTION },
-	{ OpEncrypt, "Encrypt", ENCRYPTION },
-	{ OpEncryptMatrixPlain, "EncryptMatrix(intplaintext)", ENCRYPTION },
-	{ OpEncryptMatrixPacked, "EncryptMatrix(packedintplaintext)", ENCRYPTION },
-	{ OpDecrypt, "Decrypt", ENCRYPTION },
-	{ OpDecryptMatrixPlain, "DecryptMatrix(intplaintext)", ENCRYPTION },
-	{ OpDecryptMatrixPacked, "DecryptMatrix(packedintplaintext)", ENCRYPTION },
-	{ OpReEncrypt, "ReEncrypt", PRE },
-	{ OpEvalAdd, "EvalAdd", SHE },
-	{ OpEvalAddMatrix, "EvalAddMatrix", SHE },
-	{ OpEvalAddPlain, "EvalAddPlain", SHE },
-	{ OpEvalNeg, "EvalNeg", SHE },
-	{ OpEvalNegMatrix, "EvalNegMatrix", SHE },
-	{ OpEvalSub, "EvalSub", SHE },
-	{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
-	{ OpEvalSubPlain, "EvalSubPlain", SHE },
-	{ OpEvalMult, "EvalMult", SHE },
-	{ OpEvalMultMatrix, "EvalMultMatrix", SHE },
-	{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
-	{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
-	{ OpEvalAutomorphismK, "EvalAutomorphism(K)", SHE },
-	{ OpEvalMultPlain, "EvalMultPlain", SHE },
-	{ OpLinRegression, "LinRegression", SHE },
-	{ OpKeySwitch, "KeySwitch", SHE },
-	{ OpKeySwitchGen, "KeySwitchGen", SHE },
-	{ OpModReduce, "ModReduce", LEVELEDSHE },
-	{ OpModReduceRational, "ModReduceRational", LEVELEDSHE },
-	{ OpModReduceMatrix, "ModReduceMatrix", LEVELEDSHE },
-	{ OpLevelReduce, "LevelReduce", LEVELEDSHE },
-	{ OpRingReduce, "RingReduce", LEVELEDSHE },
-	{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
-	{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
-	{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
-	{ OpEvalSum, "EvalSum", ENCRYPTION },
-	{ OpEvalAtIndex, "EvalAtIndex", SHE },
-	{ OpEvalInnerProduct, "EvalInnerProduct", ENCRYPTION },
-	{ OpEvalCrossCorrelation, "EvalCrossCorrelation", ENCRYPTION },
-	{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", ENCRYPTION }
+		{ OpNOOP, "No Op", ENCRYPTION },
+		{ OpUnknown, "Unknown", ENCRYPTION },
+		{ OpKeyGen, "KeyGen", ENCRYPTION },
+		{ OpMultiPartyKeyGenKey, "MultipartyKeyGen(key)", MULTIPARTY },
+		{ OpMultiPartyKeyGenKeyvec, "MultipartyKeyGen(vector<key>)", MULTIPARTY },
+		{ OpMultiPartyDecryptLead, "MultiPartyDecryptLead", MULTIPARTY },
+		{ OpMultiPartyDecryptMain, "MultiPartyDecryptMain", MULTIPARTY },
+		{ OpMultiPartyDecryptFusion, "MultiPartyDecryptFusion", MULTIPARTY },
+		{ OpSparseKeyGen, "SparseKeyGen", ENCRYPTION },
+		{ OpReKeyGenPubPri, "ReKeyGen(pubkey,privkey)", PRE },
+		{ OpReKeyGenPriPri, "ReKeyGen(privkey,privkey)", PRE },
+		{ OpEvalMultKeyGen, "EvalMultKeyGen", SHE },
+		{ OpEncryptPub, "EncryptPub", ENCRYPTION },
+		{ OpEncryptPriv, "EncryptPriv", ENCRYPTION },
+		{ OpEncryptPlain, "EncryptPlain", ENCRYPTION },
+		{ OpEncrypt, "Encrypt", ENCRYPTION },
+		{ OpEncryptMatrixPlain, "EncryptMatrix(intplaintext)", ENCRYPTION },
+		{ OpEncryptMatrixPacked, "EncryptMatrix(packedintplaintext)", ENCRYPTION },
+		{ OpDecrypt, "Decrypt", ENCRYPTION },
+		{ OpDecryptMatrixPlain, "DecryptMatrix(intplaintext)", ENCRYPTION },
+		{ OpDecryptMatrixPacked, "DecryptMatrix(packedintplaintext)", ENCRYPTION },
+		{ OpReEncrypt, "ReEncrypt", PRE },
+		{ OpEvalAdd, "EvalAdd", SHE },
+		{ OpEvalAddMatrix, "EvalAddMatrix", SHE },
+		{ OpEvalAddPlain, "EvalAddPlain", SHE },
+		{ OpEvalNeg, "EvalNeg", SHE },
+		{ OpEvalNegMatrix, "EvalNegMatrix", SHE },
+		{ OpEvalSub, "EvalSub", SHE },
+		{ OpEvalSubMatrix, "EvalSubMatrix", SHE },
+		{ OpEvalSubPlain, "EvalSubPlain", SHE },
+		{ OpEvalMult, "EvalMult", SHE },
+		{ OpEvalMultMany, "EvalMultMany", SHE },
+		{ OpEvalMultMatrix, "EvalMultMatrix", SHE },
+		{ OpEvalAutomorphismKeyGen, "EvalAutomorphismKeyGen", SHE },
+		{ OpEvalAutomorphismI, "EvalAutomorphism(I,K)", SHE },
+		{ OpEvalAutomorphismK, "EvalAutomorphism(K)", SHE },
+		{ OpEvalMultPlain, "EvalMultPlain", SHE },
+		{ OpLinRegression, "LinRegression", SHE },
+		{ OpKeySwitch, "KeySwitch", SHE },
+		{ OpKeySwitchGen, "KeySwitchGen", SHE },
+		{ OpModReduce, "ModReduce", LEVELEDSHE },
+		{ OpModReduceRational, "ModReduceRational", LEVELEDSHE },
+		{ OpModReduceMatrix, "ModReduceMatrix", LEVELEDSHE },
+		{ OpLevelReduce, "LevelReduce", LEVELEDSHE },
+		{ OpRingReduce, "RingReduce", LEVELEDSHE },
+		{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
+		{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
+		{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },
+		{ OpEvalSum, "EvalSum", SHE },
+		{ OpEvalAtIndex, "EvalAtIndex", SHE },
+		{ OpEvalInnerProduct, "EvalInnerProduct", SHE },
+		{ OpEvalCrossCorrelation, "EvalCrossCorrelation", SHE },
+		{ OpEvalLinRegressionBatched, "EvalLinRegressionBatched", SHE },
+		{ OpEvalMerge, "EvalMerge", SHE },
+		{ OpEvalRightShift, "EvalRightShift", SHE }
 };
 
 map<OpType,string> OperatorName;
 map<OpType,PKESchemeFeature> OperatorFeat;
 map<string,OpType> OperatorType;
 
+// this class has a single static instance whose constructor makes the maps declared just above
 class FeatureMapBuilder {
 public:
 	FeatureMapBuilder() {
@@ -130,9 +135,7 @@ bool TimingStatistics::Serialize(Serialized *serObj) const {
 
 	statMap.AddMember("operation", OperatorName[operation], serObj->GetAllocator());
 	statMap.AddMember("samples", std::to_string(samples), serObj->GetAllocator());
-	statMap.AddMember("startup", std::to_string(startup), serObj->GetAllocator());
-	statMap.AddMember("min", std::to_string(min), serObj->GetAllocator());
-	statMap.AddMember("max", std::to_string(max), serObj->GetAllocator());
+	statMap.AddMember("argcnt", std::to_string(argcnt), serObj->GetAllocator());
 	statMap.AddMember("average", std::to_string(average), serObj->GetAllocator());
 
 	serObj->AddMember("TimingStatistics", statMap.Move(), serObj->GetAllocator());
@@ -152,15 +155,9 @@ bool TimingStatistics::Deserialize(const Serialized& serObj) {
 	if( (pIt = mIter->value.FindMember("samples")) == mIter->value.MemberEnd() )
 		return false;
 	samples = std::stoi( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("startup")) == mIter->value.MemberEnd() )
+	if( (pIt = mIter->value.FindMember("argcnt")) == mIter->value.MemberEnd() )
 		return false;
-	startup = std::stod( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("min")) == mIter->value.MemberEnd() )
-		return false;
-	min = std::stod( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("max")) == mIter->value.MemberEnd() )
-		return false;
-	max = std::stod( pIt->value.GetString() );
+	argcnt = std::stod( pIt->value.GetString() );
 	if( (pIt = mIter->value.FindMember("average")) == mIter->value.MemberEnd() )
 		return false;
 	average = std::stod( pIt->value.GetString() );
@@ -217,6 +214,10 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
 		return cc->MakeIntegerPlaintext(randomInt());
 	}
 
+	case Fractional: {
+		return cc->MakeFractionalPlaintext(randomInt());
+	}
+
 	case CoefPacked: {
 		randomIntVec();
 		return cc->MakeCoefPackedPlaintext(vec);
@@ -231,6 +232,8 @@ MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
 		return cc->MakeStringPlaintext(randomString());
 	}
 	}
+
+	return Plaintext();
 }
 
 template Plaintext MakeRandomPlaintext(CryptoContext<Poly> cc, PlaintextEncodings pte);
@@ -239,10 +242,10 @@ template Plaintext MakeRandomPlaintext(CryptoContext<NativePoly> cc, PlaintextEn
 
 template<typename Element>
 void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(TimingStatisticsMap& stats,
 		CryptoContext<Element> cc,
 		PlaintextEncodings pte,
+		bool verbose,
 		int maxIterations,
 		bool PrintSizes) {
 
@@ -289,7 +292,7 @@ generateTimings(bool verbose,
 			kp = cc->KeyGen();
 		}
 		span = TOC_MS(t);
-		stats[OpKeyGen] = new TimingStatistics(OpKeyGen, maxIterations, span);
+		stats[TimingStatisticsKey(OpKeyGen)] = TimingStatistics(OpKeyGen, maxIterations, span);
 
 		Plaintext decrypted;
 
@@ -299,7 +302,7 @@ generateTimings(bool verbose,
 			crypt = cc->Encrypt(kp.publicKey, inputs[0]);
 		}
 		span = TOC_MS(t);
-		stats[OpEncryptPub] = new TimingStatistics(OpType::OpEncryptPub, maxIterations, span);
+		stats[TimingStatisticsKey(OpEncryptPub)] = TimingStatistics(OpType::OpEncryptPub, maxIterations, span);
 
 		auto crypt2 = cc->Encrypt(kp.publicKey, inputs[0]);
 		TIC(t);
@@ -307,14 +310,14 @@ generateTimings(bool verbose,
 			crypt2 = cc->Encrypt(kp.secretKey, inputs[0]);
 		}
 		span = TOC_MS(t);
-		stats[OpEncryptPriv] = new TimingStatistics(OpType::OpEncryptPriv, maxIterations, span);
+		stats[TimingStatisticsKey(OpEncryptPriv)] = TimingStatistics(OpType::OpEncryptPriv, maxIterations, span);
 
 		TIC(t);
 		for( int reps=0; reps < maxIterations; reps++ ) {
 			cc->Decrypt(kp.secretKey, crypt, &decrypted);
 		}
 		span = TOC_MS(t);
-		stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+		stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 	}
 
 	// PKE: ReKeyGen and ReEncrypt
@@ -356,21 +359,21 @@ generateTimings(bool verbose,
 				rekey1 = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
 			}
 			span = TOC_MS(t);
-			stats[OpReKeyGenPubPri] = new TimingStatistics(OpType::OpReKeyGenPubPri, maxIterations, span);
+			stats[TimingStatisticsKey(OpReKeyGenPubPri)] = TimingStatistics(OpType::OpReKeyGenPubPri, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				recrypt = cc->ReEncrypt(rekey1, crypt);
 			}
 			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpReEncrypt)] = TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
 			}
 			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 		}
 
 		if( runPriPri ) {
@@ -379,21 +382,21 @@ generateTimings(bool verbose,
 				rekey2 = cc->ReKeyGen(kp2.secretKey, kp1.secretKey);
 			}
 			span = TOC_MS(t);
-			stats[OpReKeyGenPriPri] = new TimingStatistics(OpType::OpReKeyGenPriPri, maxIterations, span);
+			stats[TimingStatisticsKey(OpReKeyGenPriPri)] = TimingStatistics(OpType::OpReKeyGenPriPri, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				recrypt = cc->ReEncrypt(rekey2, crypt);
 			}
 			span = TOC_MS(t);
-			stats[OpReEncrypt] = new TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpReEncrypt)] = TimingStatistics(OpType::OpReEncrypt, maxIterations, span);
 
 			TIC(t);
 			for( int reps=0; reps < maxIterations; reps++ ) {
 				cc->Decrypt(kp2.secretKey, recrypt, &decrypted);
 			}
 			span = TOC_MS(t);
-			stats[OpDecrypt] = new TimingStatistics(OpType::OpDecrypt, maxIterations, span);
+			stats[TimingStatisticsKey(OpDecrypt)] = TimingStatistics(OpType::OpDecrypt, maxIterations, span);
 		}
 	}
 
@@ -405,7 +408,10 @@ generateTimings(bool verbose,
 	if( tmask & SHE ) {
 		LPKeyPair<Element> kp = cc->KeyGen();
 		try {
-			vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
+			vector<int32_t> indexList;
+			for( int ii = 1; ii <= 32; ii++ )
+				indexList.push_back( -ii );
+
 			cc->EvalMultKeyGen(kp.secretKey);
 			cc->EvalSumKeyGen(kp.secretKey);
 			cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
@@ -418,68 +424,71 @@ generateTimings(bool verbose,
 				cc->EvalAdd(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalAdd] = new TimingStatistics(OpType::OpEvalAdd, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalAdd)] = TimingStatistics(OpType::OpEvalAdd, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalAdd(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalAddPlain] = new TimingStatistics(OpType::OpEvalAddPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalAddPlain)] = TimingStatistics(OpType::OpEvalAddPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalSub(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalSub] = new TimingStatistics(OpType::OpEvalSub, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalSub)] = TimingStatistics(OpType::OpEvalSub, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalSub(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalSubPlain] = new TimingStatistics(OpType::OpEvalSubPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalSubPlain)] = TimingStatistics(OpType::OpEvalSubPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalMult(crypt0, crypt1);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalMult] = new TimingStatistics(OpType::OpEvalMult, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalMult)] = TimingStatistics(OpType::OpEvalMult, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalMult(crypt0, inputs[1]);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalMultPlain] = new TimingStatistics(OpType::OpEvalMultPlain, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalMultPlain)] = TimingStatistics(OpType::OpEvalMultPlain, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalNegate(crypt0);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalNeg] = new TimingStatistics(OpType::OpEvalNeg, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalNeg)] = TimingStatistics(OpType::OpEvalNeg, maxIterations, span);
 
 			vector<Ciphertext<Element>> ciphers;
-			for(unsigned int i=0; i<NumInputs; i++)
-				ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
+			Ciphertext<Element> merged;
+			for( int nct : vector<int>({2,4,8,16}) ) {
+				for(int i=0; i<nct; i++)
+					ciphers.push_back( cc->Encrypt(kp.publicKey, inputs[i]) );
 
-			auto merged = cc->EvalMerge(ciphers);
-			TIC(t);
-			for (int reps = 0; reps < maxIterations; reps++) {
-				cc->EvalMerge(ciphers);
+				merged = cc->EvalMerge(ciphers);
+				TIC(t);
+				for (int reps = 0; reps < maxIterations; reps++) {
+					cc->EvalMerge(ciphers);
+				}
+				span = TOC_MS(t);
+				stats[TimingStatisticsKey(OpEvalMerge,nct)] = TimingStatistics(OpType::OpEvalMerge, maxIterations, span, nct);
 			}
-			span = TOC_MS(t);
-			stats[OpEvalMerge] = new TimingStatistics(OpType::OpEvalMerge, maxIterations, span);
 
 			TIC(t);
 			for (int reps = 0; reps < maxIterations; reps++) {
 				cc->EvalInnerProduct(merged,merged,NumInputs);
 			}
 			span = TOC_MS(t);
-			stats[OpEvalInnerProduct] = new TimingStatistics(OpType::OpEvalInnerProduct, maxIterations, span);
+			stats[TimingStatisticsKey(OpEvalInnerProduct)] = TimingStatistics(OpType::OpEvalInnerProduct, maxIterations, span);
 
 			bool hasMR = true;
 			TIC(t);
@@ -494,7 +503,7 @@ generateTimings(bool verbose,
 			}
 			if( hasMR ) {
 				span = TOC_MS(t);
-				stats[OpModReduce] = new TimingStatistics(OpType::OpModReduce, maxIterations, span);
+				stats[TimingStatisticsKey(OpModReduce)] = TimingStatistics(OpType::OpModReduce, maxIterations, span);
 			}
 		} catch(exception& e) {
 			cout << e.what() << endl;
@@ -538,29 +547,29 @@ generateTimings(bool verbose,
 
 template
 void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(
+		TimingStatisticsMap& stats,
 		CryptoContext<Poly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 template
 void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(
+		TimingStatisticsMap& stats,
 		CryptoContext<DCRTPoly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 template
 void
-generateTimings(bool verbose,
-		map<OpType,TimingStatistics*>& stats,
+generateTimings(
+		TimingStatisticsMap& stats,
 		CryptoContext<NativePoly> cc,
 		PlaintextEncodings pte,
-		int maxIterations,
+		bool verbose, int maxIterations,
 		bool PrintSizes);
 
 }

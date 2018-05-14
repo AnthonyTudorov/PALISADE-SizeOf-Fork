@@ -45,7 +45,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include "circuitinput.h"
+#include "circuitvalue.h"
 #include "circuitnode.h"
 
 class pdriver;
@@ -83,16 +83,19 @@ class pdriver;
 %define api.token.prefix {TOK_}
 %token END 0
 %token ENDL
-%token INPUT CONST OUTPUTS
+%token INPUT CONST OUTPUTS INTEGER RATIONAL PLAINTEXT CIPHERTEXT RATIONALCIPHERTEXT
 %token TYPEOF
 %token LEFT_BRACK
 %token RIGHT_BRACK
 %token ADD
 %token SUB
 %token MUL
+%token RSHIFT
+%token DOTPROD
+%token WIRE
 %token  <std::string>           	VERSION
 %token  <std::string>           	COMMAND
-%token  <usint>           			NUM
+%token  <int64_t>           			NUM
 %token  <std::string>           	STR
 %type   <std::vector<usint>>		numlist
 %type   <std::vector<std::string>>	strlist
@@ -103,15 +106,19 @@ class pdriver;
 
 %%
 
-toplevel :      version prog
+toplevel :      ENDLS version prog | version prog
                 ;
 
 prog:
-        |       line prog
+        |       ENDLS line prog | line prog
                 ;
 
 line:           command
 				{
+				}
+		|		WIRE NUM TYPEOF type numlist ENDLS
+				{
+					driver.inputwires[$2] = $5; // fix: should be by type?
 				}
 		| 		input
 				{
@@ -153,9 +160,18 @@ input:          NUM INPUT NUM TYPEOF type ENDLS
                 {
                 	//std::cout << "Adding input #" << $3 << " of type " << $5 << std::endl;
                 	
-                	$$ = new Input($1, $5);
+                		$$ = new Input($1, $5);
                 }
 
+const:          NUM CONST TYPEOF INTEGER NUM ENDLS
+                {
+                    $$ = new ConstInt($1, $5);
+                }
+                | NUM CONST TYPEOF PLAINTEXT NUM ENDLS
+                {
+                    $$ = new ConstPtxt($1, $5);
+                }
+                
 type:           basic_type 
 				{
 					$$ = $1;
@@ -166,42 +182,43 @@ type:           basic_type
 				}
 				;
 
-basic_type:		STR
+basic_type:		INTEGER
+				{
+					$$ = INT;
+				}
+				| RATIONAL
+				{
+					$$ = RAT;
+				}
+				| PLAINTEXT
+				{
+					$$ = PLAINTEXT;
+				}
+				| CIPHERTEXT
+				{
+					$$ = CIPHERTEXT;
+				}
+				| RATIONALCIPHERTEXT
+				{
+					$$ = RATIONALCIPHERTEXT;
+				}
+				
+agg_type:		LEFT_BRACK INTEGER RIGHT_BRACK
                 {
-                    if ($1 == "Integer") {
-                      $$ = INT;
-                    } else if ($1 == "Rational") {
-                      $$ = RATIONAL;
-                    } else {
-                      syntax_error(@1, string("Unknown type ") + $1);
-                      YYERROR;
-                    }
-                }
-agg_type:		LEFT_BRACK basic_type RIGHT_BRACK
+					$$ = VECTOR_INT;
+				}
+				| LEFT_BRACK RATIONAL RIGHT_BRACK
                 {
-                    if ($2 == INT) {
-                      $$ = VECTOR_INT;
-                    } else if ($2 == RATIONAL) {
-                      $$ = VECTOR_RAT;
-                    }
+					$$ = VECTOR_RAT;
                 }
-    |           LEFT_BRACK LEFT_BRACK basic_type RIGHT_BRACK RIGHT_BRACK
+				| LEFT_BRACK LEFT_BRACK INTEGER RIGHT_BRACK RIGHT_BRACK
                 {
-                    if ($3 == INT) {
-                      $$ = MATRIX_INT;
-                    } else if ($3 == RATIONAL) {
-                      $$ = MATRIX_RAT;
-                    }
+					$$ = MATRIX_INT;
+				}
+				| LEFT_BRACK LEFT_BRACK RATIONAL RIGHT_BRACK RIGHT_BRACK
+				{
+					$$ = MATRIX_RAT;
                 }
-    ;
-
-
-const:          NUM CONST NUM ENDLS
-                {
-                    //std::cout << "Adding the constant " << $3 << std::endl;
-                    $$ = new ConstInput($1, $3);
-                }
-        ;
 
 strlist:        /* empty */
                 {
@@ -225,19 +242,26 @@ numlist:       /* empty */
                 }
                 ;
 
-gate:           NUM ADD numlist ENDLS
+gate:			NUM ADD numlist ENDLS
                 {
                     $$ = new EvalAddNode($1, $3);
                 }
-        |       NUM SUB numlist ENDLS
+        |		NUM SUB numlist ENDLS
                 {
                     $$ = new EvalSubNode($1, $3);
                 }
-        |       NUM MUL numlist ENDLS
+        |		NUM MUL numlist ENDLS
                 {
                     $$ = new EvalMultNode($1, $3);
                 }
-                ;
+        |		NUM RSHIFT numlist ENDLS
+				{
+        				$$ = new EvalRShiftNode($1, $3);
+				}
+		|		NUM DOTPROD numlist ENDLS
+				{
+					$$ = new EvalInnerProdNode($1, $3);
+				}
 
 ENDLS:          ENDLS ENDL | ENDL
         ;

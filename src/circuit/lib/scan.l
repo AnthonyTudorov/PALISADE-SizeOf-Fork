@@ -34,15 +34,24 @@ static yy::location loc;
   loc.step ();
 %}
 
-input       { return yy::parser::make_INPUT(loc); }
+[iI]nput       { return yy::parser::make_INPUT(loc); }
 const       { return yy::parser::make_CONST(loc); }
+[iI]nteger     { return yy::parser::make_INTEGER(loc); }
+[rR]ational    { return yy::parser::make_RATIONAL(loc); }
+[pP]laintext	{ return yy::parser::make_PLAINTEXT(loc); }
+[cC]iphertext	{ return yy::parser::make_CIPHERTEXT(loc); }
+[rR]ationalciphertext { return yy::parser::make_RATIONALCIPHERTEXT(loc); }
+
 :outputs	{ return yy::parser::make_OUTPUTS(loc); }
+:wire		{ return yy::parser::make_WIRE(loc); }
 @           { return yy::parser::make_TYPEOF(loc); }
 \[          { return yy::parser::make_LEFT_BRACK(loc); }
 \]          { return yy::parser::make_RIGHT_BRACK(loc); }
 \+			{ return yy::parser::make_ADD(loc); }
 \-			{ return yy::parser::make_SUB(loc); }
 \*			{ return yy::parser::make_MUL(loc); }
+o		{ return yy::parser::make_DOTPROD(loc); }
+\>\>		{ return yy::parser::make_RSHIFT(loc); }
 
 \n       { return yy::parser::make_ENDL(loc); }
 [ \r\t]+                        /* ignore whitespace */
@@ -50,7 +59,7 @@ const       { return yy::parser::make_CONST(loc); }
 
 v[0-9]+.[0-9]+ { return yy::parser::make_VERSION(yytext,loc); }
 
-[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext), loc); }
+-?[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext), loc); }
 [a-zA-Z]+   { return yy::parser::make_STR(yytext, loc); }
 :[a-zA-Z]+  { BEGIN(command); return yy::parser::make_COMMAND(yytext,loc); }
 
@@ -68,6 +77,8 @@ void
 pdriver::scan_begin ()
 {
   yy_flex_debug = trace_scanning;
+  YY_FLUSH_BUFFER;
+  BEGIN(0);
   if (file.empty () || file == "-")
     yyin = stdin;
   else if (!(yyin = fopen (file.c_str (), "r")))

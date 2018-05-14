@@ -51,8 +51,9 @@ public:
   pdriver (bool trace=false);
   virtual ~pdriver ();
 
-  std::map<std::string, int> variables;
-  lbcrypto::CircuitGraph	graph;
+  std::map<std::string, int>		variables;
+  lbcrypto::CircuitGraph			graph;
+  std::map<usint,vector<usint>>		inputwires;
 
   // Handling the scanner.
   void scan_begin ();
@@ -62,8 +63,6 @@ public:
   // Run the parser on file F.
   // Return 0 on success.
   int parse (const std::string& f);
-
-  int parse (istream& in);
 
   // The name of the file being parsed.
   // Used later to pass the file name to the location tracker.

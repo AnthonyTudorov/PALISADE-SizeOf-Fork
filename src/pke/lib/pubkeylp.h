@@ -1318,7 +1318,23 @@ namespace lbcrypto {
 		* @param *newCiphertext the new resulting ciphertext.
 		*/
 		virtual Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
-				const vector<LPEvalKey<Element>> &evalKeys) const = 0;
+				const vector<LPEvalKey<Element>> &evalKeys) const {
+			// default implementation if you don't have one in your scheme
+
+			vector<Ciphertext<Element>> workarea;
+			workarea = cipherTextList;
+			size_t size = workarea.size();
+
+			for( size_t nextop = 1; nextop < size; nextop *= 2 ) {
+				for( size_t i = 0; i < size; i += (nextop*2)) {
+					if( i+nextop < size ) {
+						workarea[i] = this->EvalMult(workarea[i], workarea[i+nextop]);
+					}
+				}
+			}
+
+			return workarea[0];
+		}
 
 		/**
 		* Virtual function to define the interface for multiplicative homomorphic evaluation of ciphertext using the evaluation key.

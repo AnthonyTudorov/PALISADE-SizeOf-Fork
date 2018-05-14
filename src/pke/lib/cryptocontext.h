@@ -110,13 +110,18 @@ private:
 		if( a == NULL || b == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( a->GetCryptoContext().get() != this )
-			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
 		if( a->GetCryptoContext() != b->GetCryptoContext() )
-			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContextImpl");
+			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContext");
 		if( a->GetKeyTag() != b->GetKeyTag() )
 			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
-		if( a->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+		if( a->GetEncodingType() != b->GetEncodingType() ) {
+			stringstream ss;
+			ss << "Ciphertext encoding types " << a->GetEncodingType();
+			ss << " and " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
@@ -130,9 +135,14 @@ private:
 		if( b == NULL )
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a->GetCryptoContext().get() != this )
-			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
-		if( a->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a->GetEncodingType() != b->GetEncodingType() ) {
+			stringstream ss;
+			ss << "Ciphertext encoding type " << a->GetEncodingType();
+			ss << " and Plaintext encoding type " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
@@ -147,8 +157,13 @@ private:
 			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContextImpl");
 		if( a.GetKeyTag() != b.GetKeyTag() )
 			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
-		if( a.GetNumerator()->GetEncodingType() != b.GetNumerator()->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext encoding types do not match");
+		if( a.GetNumerator()->GetEncodingType() != b.GetNumerator()->GetEncodingType() ) {
+			stringstream ss;
+			ss << "RationalCiphertext encoding types " << a.GetNumerator()->GetEncodingType();
+			ss << " and " << b.GetNumerator()->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	/**
@@ -161,8 +176,13 @@ private:
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a.GetCryptoContext().get() != this )
 			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContextImpl");
-		if( a.GetNumerator()->GetEncodingType() != b->GetEncodingType() )
-			PALISADE_THROW( type_error, "Ciphertext and Plaintext encoding types do not match");
+		if( a.GetNumerator()->GetEncodingType() != b->GetEncodingType() ){
+			stringstream ss;
+			ss << "RationalCiphertext encoding type " << a.GetNumerator()->GetEncodingType();
+			ss << " and Plaintext encoding type " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
 	}
 
 	bool Mismatched(const CryptoContext<Element> a) const {
@@ -1001,7 +1021,16 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeIntegerPlaintext(int64_t value) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value) );
+	}
+
+	/**
+	 * MakeIntegerPlaintext constructs a FractionalEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
+		return Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
 	}
 
 	/**
@@ -1067,6 +1096,9 @@ private:
 			break;
 		case String:
 			pt.reset( new StringEncoding(vp,ep) );
+			break;
+		case Fractional:
+			pt.reset( new FractionalEncoding(vp,ep) );
 			break;
 		}
 
@@ -1482,6 +1514,12 @@ public:
 		return rv;
 	}
 
+	Ciphertext<Element>
+	EvalAdd(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	{
+		return EvalAdd(ciphertext, plaintext);
+	}
+
 	/**
 	* EvalSubPlain - PALISADE EvalSub method for a ciphertext and plaintext
 	* @param ciphertext
@@ -1500,6 +1538,12 @@ public:
 			timeSamples->push_back( TimingInfo(OpEvalSubPlain, TOC_US(t)) );
 		}
 		return rv;
+	}
+
+	Ciphertext<Element>
+	EvalSub(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	{
+		return EvalSub(ciphertext, plaintext);
 	}
 
 	/**
@@ -1563,7 +1607,7 @@ public:
 		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMultMany(ct, ek);
 		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
+			timeSamples->push_back( TimingInfo(OpEvalMultMany, TOC_US(t)) );
 		}
 		return rv;
 
@@ -1603,6 +1647,33 @@ public:
 	EvalMult(const Plaintext pt2, const Ciphertext<Element> ct1) const
 	{
 		return EvalMult(ct1, pt2);
+	}
+
+	/**
+	 * EvalShiftRight - works only for Integer Encoding
+	 * @param pt2
+	 * @param ct1
+	 * @return new ciphertext for ct1 * pt2
+	 */
+	Ciphertext<Element>
+	EvalRightShift(const Ciphertext<Element> ct1, size_t divisor) const
+	{
+		if( ct1 && ct1->GetEncodingType() != Fractional ) {
+			stringstream ss;
+			ss << "A " << Fractional << " encoded ciphertext is required for the EvalRightShift operation";
+			PALISADE_THROW( type_error, ss.str() );
+		}
+
+		Plaintext plaintextShift = MakeFractionalPlaintext(0,divisor);
+		TypeCheck(ct1, plaintextShift);
+
+		double start = 0;
+		if( doTiming ) start = currentDateTime();
+		auto rv = EvalMult(ct1, plaintextShift);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalRightShift, currentDateTime() - start) );
+		}
+		return rv;
 	}
 
 	/**

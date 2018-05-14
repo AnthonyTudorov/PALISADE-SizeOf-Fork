@@ -1,0 +1,77 @@
+v1.0
+2 input 0 @ ciphertext
+3 input 1 @ ciphertext
+4 input 2 @ ciphertext
+5 input 3 @ ciphertext
+6 input 4 @ ciphertext
+7 input 5 @ ciphertext
+8 input 6 @ ciphertext
+9 input 7 @ ciphertext
+10 input 8 @ ciphertext
+11 input 9 @ ciphertext
+12 input 10 @ ciphertext
+13 input 11 @ ciphertext
+14 input 12 @ ciphertext
+15 input 13 @ ciphertext
+16 input 14 @ ciphertext
+17 input 15 @ ciphertext
+18 input 16 @ ciphertext
+19 input 17 @ ciphertext
+20 input 18 @ ciphertext
+21 input 19 @ ciphertext
+22 input 20 @ ciphertext
+23 input 21 @ ciphertext
+24 input 22 @ ciphertext
+25 input 23 @ ciphertext
+26 input 24 @ ciphertext
+27 input 25 @ ciphertext
+28 input 26 @ ciphertext
+29 input 27 @ ciphertext
+30 input 28 @ ciphertext
+31 input 29 @ ciphertext
+32 input 30 @ ciphertext
+33 input 31 @ ciphertext
+34 input 32 @ ciphertext
+35 input 33 @ ciphertext
+36 input 34 @ ciphertext
+37 input 35 @ ciphertext
+38 input 36 @ ciphertext
+39 input 37 @ ciphertext
+40 input 38 @ ciphertext
+41 input 39 @ ciphertext
+42 input 40 @ ciphertext
+43 input 41 @ ciphertext
+44 input 42 @ ciphertext
+45 input 43 @ ciphertext
+46 input 44 @ ciphertext
+47 input 45 @ ciphertext
+48 input 46 @ ciphertext
+49 input 47 @ ciphertext
+50 input 48 @ ciphertext
+51 input 49 @ ciphertext
+53 o 2 3 4 5 6 27 28 29 30 31
+55 o 7 8 9 10 11 27 28 29 30 31
+57 o 12 13 14 15 16 27 28 29 30 31
+59 o 17 18 19 20 21 27 28 29 30 31
+61 o 22 23 24 25 26 27 28 29 30 31
+63 o 2 3 4 5 6 32 33 34 35 36
+65 o 7 8 9 10 11 32 33 34 35 36
+67 o 12 13 14 15 16 32 33 34 35 36
+69 o 17 18 19 20 21 32 33 34 35 36
+71 o 22 23 24 25 26 32 33 34 35 36
+73 o 2 3 4 5 6 37 38 39 40 41
+75 o 7 8 9 10 11 37 38 39 40 41
+77 o 12 13 14 15 16 37 38 39 40 41
+79 o 17 18 19 20 21 37 38 39 40 41
+81 o 22 23 24 25 26 37 38 39 40 41
+83 o 2 3 4 5 6 42 43 44 45 46
+85 o 7 8 9 10 11 42 43 44 45 46
+87 o 12 13 14 15 16 42 43 44 45 46
+89 o 17 18 19 20 21 42 43 44 45 46
+91 o 22 23 24 25 26 42 43 44 45 46
+93 o 2 3 4 5 6 47 48 49 50 51
+95 o 7 8 9 10 11 47 48 49 50 51
+97 o 12 13 14 15 16 47 48 49 50 51
+99 o 17 18 19 20 21 47 48 49 50 51
+101 o 22 23 24 25 26 47 48 49 50 51
+:outputs 53 55 57 59 61 63 65 67 69 71 73 75 77 79 81 83 85 87 89 91 93 95 97 99 101

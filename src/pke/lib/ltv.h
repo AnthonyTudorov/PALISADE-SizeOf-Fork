@@ -559,19 +559,6 @@ public:
 	}
 
 	/**
-	* Unimplemented function to support multiplication of a list of ciphertexts with depth larger than 2 for the LTV scheme.
-	*
-	* @param cipherTextList is the input ciphertexts.
-	* @param evalKey is the evaluation keys input.
-	* @return A shared pointer to the ciphertext which is the result of the multiplication.
-	*/
-	Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
-			const vector<LPEvalKey<Element>> &evalKeys) const {
-		std::string errMsg = "LPAlgorithmLTV::EvalMultMany is not implemented for the LTV Scheme.";
-		throw std::runtime_error(errMsg);
-	}
-
-	/**
 	* Function for homomorphic negation of ciphertexts.
 	* At a high level, this operation substracts the plaintext value encrypted in the ciphertext from the
 	* plaintext modulus p.
