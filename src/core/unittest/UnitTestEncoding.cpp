@@ -195,17 +195,19 @@ TEST_F(UTEncoding,fractional_encoding) {
 	EncodingParams ep( new EncodingParamsImpl(ptm) );
 
 	int64_t sv = 42;
+	int64_t sv0 = 0;
 
+	// encodes 42
 	FractionalEncoding psn(lp, ep, sv);
-	FractionalEncoding pst(lp, ep, sv, 4);
-	cout << psn << endl;
-	cout << pst << endl;
+	// encodes 1/2^4
+	FractionalEncoding pst(lp, ep, sv0, 4);
+
 	psn.Encode();
 	pst.Encode();
 	psn.Decode();
 	pst.Decode();
 
-	EXPECT_EQ( psn.GetIntegerValue(), 0) << "small no trunc";
-	EXPECT_EQ( pst.GetIntegerValue(), 0) << "small trunc";
+	EXPECT_EQ( psn.GetIntegerValue(), sv) << "small no trunc";
+	EXPECT_EQ( pst.GetIntegerValue(), sv0) << "small trunc";
 }
 
