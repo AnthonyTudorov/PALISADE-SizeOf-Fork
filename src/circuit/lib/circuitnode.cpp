@@ -427,7 +427,6 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 
 		// FIXME this->SetNoiseActual( ???? );
 	}
-	cout << "node " << this->getNode()->GetId() << " type now " << this->value.GetType() << endl;
 
 	return;
 }

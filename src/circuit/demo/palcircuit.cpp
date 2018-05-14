@@ -248,31 +248,6 @@ main(int argc, char *argv[])
 		SerializableHelper::SerializationToStream(serObj, *ctxStr);
 	}
 
-	// when generating timing estimates, need to read in the Context and the timings
-	map<OpType,TimingStatistics> timings;
-	if( evaluation_run_mode ) {
-		Serialized serObj;
-		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
-			cout << "Input file does not begin with a serialization" << endl;
-			return 1;
-		}
-
-		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
-			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
-			evalStatF.close();
-			return 1;
-		}
-		evalStatF.close();
-	}
-
-		while( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == true ) {
-			TimingStatistics stat;
-			stat.Deserialize(serObj);
-			timings[ stat.operation ] = stat;
-		}
-		evalStatF.close();
-	}
-
 	// PARSE THE CIRCUIT
 	pdriver driver(debug_parse);
 
@@ -290,10 +265,9 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-		string specfile( argv[i] );
-
-	// create a circuit with values from the graph
-	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
+	if( verbose ) {
+		cout << "Circuit parsed" << endl;
+	}
 
 	// From the parsed circuit, create a graph that can hold values
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
@@ -319,11 +293,11 @@ main(int argc, char *argv[])
 
 	// to do estimates we need to know what functions we called; write them out and finish up
 	if( evaluation_list_mode ) {
-		vector<CircuitSimulation> opslist;
-		cir.GetGraph().GenerateOperationList(opslist);
-		if( verbose ) {
-			cout << "Circuit parsed" << endl;
-		}
+		cir.GenerateOperationList();
+		cir.GetGraph().PrintOperationSet(*elistStr, verbose);
+		evalListF.close();
+		return 0;
+	}
 
 	// when generating timing estimates, need to read in the Context and the timings
 	TimingStatisticsMap timings;
@@ -384,24 +358,10 @@ main(int argc, char *argv[])
 
 	vector<int32_t> indexList = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10};
 
-	if( print_preproc_graph ) {
-		driver.graph.DisplayGraph(procGraph);
-		if( procGF.is_open() )
-			procGF.close();
-	}
-
-	// to do estimates we need to know what functions we called; write them out and finish up
-	if( evaluation_list_mode ) {
-		vector<CircuitSimulation> opslist;
-		driver.graph.GenerateOperationList(opslist);
-		if( verbose ) {
-			cout << "The operations used are:" << endl;
-			PrintOperationSet(cout, opslist);
-		}
-		PrintOperationSet(evalListF, opslist);
-		evalListF.close();
-		return 0;
-	}
+	LPKeyPair<DCRTPoly> kp = cc->KeyGen();
+	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
 
 	CircuitInput<DCRTPoly> inputs;
 
@@ -411,7 +371,10 @@ main(int argc, char *argv[])
 	}
 	bool input_mapping_error = false;
 
-		CircuitInput<DCRTPoly> inputs;
+	for( auto wire : inwires ) {
+		auto type = cir.GetGraph().GetTypeForNode(wire);
+		if( verbose )
+			cout << "input " << wire << ": type " << type << endl;
 
 		auto iv = driver.inputwires.find(wire);
 		if( iv == driver.inputwires.end() ) {
@@ -451,9 +414,6 @@ main(int argc, char *argv[])
 
 	if( input_mapping_error )
 		return 1;
-
-	vector<TimingInfo>	times;
-	cc->StartTiming(&times);
 
 	vector<TimingInfo>	times;
 	cc->StartTiming(&times);
@@ -518,14 +478,6 @@ main(int argc, char *argv[])
 	cout << "Total execution time " << totalActual << endl;
 	if( totalEstimate != 0 )
 		cout << "Total execution estimate " << totalEstimate << endl;
-
-	// we have the times for each node, now sum up for each output
-	for( auto& out : cir.GetGraph().getOutputs() ) {
-		CircuitNodeWithValue<DCRTPoly> *n = cir.GetGraph().getNodeById(out);
-		cir.GetGraph().ClearVisited();
-		n->CircuitVisit(cir.GetGraph());
-		cout << "RUNTIME ACTUAL FOR Output " << out << " " << cir.GetGraph().GetRuntime() << endl;
-	}
 
 	if( verbose ) {
 		cout << "Timing Information:" << endl;
