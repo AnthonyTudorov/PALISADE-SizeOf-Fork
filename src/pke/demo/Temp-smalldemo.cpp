@@ -22,7 +22,7 @@ main()
 
 	for( int i=0; i<4; i++ ) {
 		ptxt[i] = cc->MakeIntegerPlaintext( inputs[i] );
-		cout << inputs[i] << " " << ptxt[i]->GetEncodedElement<Poly>() << endl;
+		cout << inputs[i] << " " << ptxt[i]->GetElement<Poly>() << endl;
 		ctxt[i] = cc->Encrypt(kp.publicKey, ptxt[i]);
 	}
 
