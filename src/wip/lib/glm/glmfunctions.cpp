@@ -639,7 +639,14 @@ void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params)
 
     shared_ptr<Matrix<double>> C1PlaintextCRTDoubleInverse(new Matrix<double>(zeroAllocDouble));
 	MatrixInverse(*C1PlaintextCRTDouble, *C1PlaintextCRTDoubleInverse);
+/*
+	cout << "\n\n";
+	PrintMatrixDouble(*C1PlaintextCRTDouble);
+	cout << "\n\n";
 
+	PrintMatrixDouble(*C1PlaintextCRTDoubleInverse);
+	cout << "\n\n";
+*/
 	vector<shared_ptr<Matrix<Plaintext>>> C1P;
 	DecimalIncrement(*C1PlaintextCRTDoubleInverse, *C1PlaintextCRTDoubleInverse, params.PRECISIONDECIMALSIZE, params);
 	EncodeC1Matrix(context.cc, C1PlaintextCRTDoubleInverse, C1P, primeList, batchSize);
