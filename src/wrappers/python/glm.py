@@ -5,9 +5,9 @@ def writeCSV2Mat(path):
     mat = np.genfromtxt(path, delimiter=',')
     return mat
 
-plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
-plaintextDataFileName   = "rev_10k_poisson.csv"
-regAlg = "Poisson"
+#plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
+#plaintextDataFileName   = "rev_10k_poisson.csv"
+#regAlg = "Poisson"
 
 def Compute(filePath, matW, regAlg):
 
@@ -28,23 +28,24 @@ def Compute(filePath, matW, regAlg):
 
     [row, col] = matX.shape
 
-    #matW = [0.0 for x in range(col)]
-    matW = np.mat(matW)
-    #matW = matW.transpose()
+    if matW == []:
+        matW = [0.0 for x in range(col)]
+        matW = np.mat(matW)
+        matW = matW.transpose()
 
-    for loop in range(8):
+    for loop in range(1):
         matZ = matW.transpose() * matX.transpose()
 
         matMU = []
         matS = []
 
-        if regAlg == "Normal":
+        if regAlg == "NORMAL":
             matMU = matZ
             matS  = [1.0 for x in range(row)]
-        elif regAlg == "Poisson":
+        elif regAlg == "POISSON":
             matMU = np.exp(matZ)
             matS  = matMU
-        elif regAlg == "Logistic":
+        elif regAlg == "LOGISTIC":
             matMU = 1/(1+np.exp(matZ))
             matS  = np.multiply(matMU, np.ones(len(matMU))-matMU)#[matMU[x] for x in range(row)]
 
