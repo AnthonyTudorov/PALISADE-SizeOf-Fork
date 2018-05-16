@@ -261,13 +261,13 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(
 }
 
 template <>
-DecryptResult LPAlgorithmMultipartyBFVrns<Poly>::MultipartyDecryptFusion(const vector<ConstCiphertext<Poly>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFVrns<Poly>::MultipartyDecryptFusion(const vector<Ciphertext<Poly>>& ciphertextVec,
 		NativePoly *plaintext) const {
 	NOPOLY
 }
 
 template <>
-DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(const vector<ConstCiphertext<NativePoly>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(const vector<Ciphertext<NativePoly>>& ciphertextVec,
 		NativePoly *plaintext) const {
 	NONATIVEPOLY
 }

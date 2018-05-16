@@ -413,7 +413,7 @@ public:
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-	DecryptResult MultipartyDecryptFusion(const vector<ConstCiphertext<Element>>& ciphertextVec,
+	DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const {
 		Element b = ciphertextVec[0]->GetElement();
 		const auto ptm = ciphertextVec[0]->GetCryptoContext()->GetCryptoParameters()->GetPlaintextModulus();

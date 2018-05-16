@@ -742,7 +742,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptMain(con
 
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const vector<ConstCiphertext<Element>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 

@@ -476,7 +476,7 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext list.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalMultMany(const vector<ConstCiphertext<Element>>& cipherTextList, const vector<LPEvalKey<Element>> &evalKeys) const;
+		Ciphertext<Element> EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList, const vector<LPEvalKey<Element>> &evalKeys) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -732,7 +732,7 @@ namespace lbcrypto {
 		 * @param *plaintext the plaintext output.
 		 * @return the decoding result.
 		 */
-		virtual DecryptResult MultipartyDecryptFusion(const vector<ConstCiphertext<Element>>& ciphertextVec,
+		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
 
 	};

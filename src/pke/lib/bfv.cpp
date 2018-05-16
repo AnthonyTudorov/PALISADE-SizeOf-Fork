@@ -810,23 +810,25 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(ConstCiphertext<Element
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<ConstCiphertext<Element>>& cipherTextList,
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
 		const vector<LPEvalKey<Element>> &evalKeys) const {
 
-	vector<Ciphertext<Element>> cipherTextListTemp;
-	cipherTextListTemp.resize(cipherTextList.size()*2-1);
-	for(size_t i=0; i<cipherTextList.size(); i++){
-		cipherTextListTemp.at(i) = cipherTextList.at(i);
+	const size_t inSize = cipherTextList.size();
+	const size_t lim = inSize * 2 - 1;
+	vector<Ciphertext<Element>> cipherTextResults;
+	cipherTextResults.resize(inSize - 1);
+	size_t ctrIndex = 0;
+
+	for(size_t i=0; i < lim; i = i + 2) {
+		cout << lim << ":" << inSize << "::" << i << "," << i+1 << "->" << ctrIndex << endl;
+		cout << (i < inSize ? i : i - inSize) << "..." << (i+1 < inSize ? i+1 : i + 1 - inSize) << endl;
+		cipherTextResults[ctrIndex++] = this->EvalMultAndRelinearize(
+				i   < inSize ? cipherTextList[i]   : cipherTextResults[i - inSize],
+				i+1 < inSize ? cipherTextList[i+1] : cipherTextResults[i + 1 - inSize],
+				evalKeys);
 	}
 
-	size_t resultIndex = cipherTextList.size();
-	for(size_t i=0; i<cipherTextListTemp.size()-1; i=i+2){
-		cipherTextListTemp.at(resultIndex) = (this->EvalMultAndRelinearize(cipherTextListTemp.at(i), cipherTextListTemp.at(i+1), evalKeys));
-		resultIndex++;
-	}
-
-	return cipherTextListTemp.at(cipherTextListTemp.size()-1);
-
+	return cipherTextResults.back();
 }
 
 template <class Element>
@@ -1241,7 +1243,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptLead(con
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptFusion(const vector<ConstCiphertext<Element>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 

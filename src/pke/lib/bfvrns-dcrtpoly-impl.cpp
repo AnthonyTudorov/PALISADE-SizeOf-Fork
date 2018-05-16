@@ -934,7 +934,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(Cons
 }
 
 template <>
-DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(const vector<ConstCiphertext<DCRTPoly>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(const vector<Ciphertext<DCRTPoly>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 

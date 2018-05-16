@@ -825,7 +825,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(ConstCiphertext<Elem
 }
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<ConstCiphertext<Element>> &ciphertextVector) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const vector<Ciphertext<Element>> &ciphertextVector) const {
 
 	if( ciphertextVector[0] == NULL || Mismatched(ciphertextVector[0]->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalMerge was not generated with this crypto context");

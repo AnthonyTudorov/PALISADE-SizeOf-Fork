@@ -227,7 +227,7 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalSub(
 
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	plaintext->SetFormat(EVALUATION);
 
 	Element cResult = ciphertext->GetElement() - plaintext->GetElement<Element>();
 
@@ -280,7 +280,7 @@ Ciphertext<Element> LPAlgorithmSHELTV<Element>::EvalMult(
 {
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
-	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	plaintext->SetFormat(EVALUATION);
 
 	if (ciphertext->GetElement().GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT ) {
 		throw std::runtime_error("EvalMult cannot multiply in COEFFICIENT domain.");
@@ -529,7 +529,7 @@ Ciphertext<Element> LPAlgorithmPRELTV<Element>::ReEncrypt(const LPEvalKey<Elemen
 * ModReduce is written for DCRTPoly and it drops the last tower while updating the necessary parameters.
 */
 template<class Element> inline
-Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(Ciphertext<Element> cipherText) const {
+Ciphertext<Element> LPLeveledSHEAlgorithmLTV<Element>::ModReduce(ConstCiphertext<Element> cipherText) const {
 
 	Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
 
