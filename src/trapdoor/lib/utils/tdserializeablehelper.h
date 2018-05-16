@@ -37,15 +37,6 @@
 // serializable helper for trapdoor objects
 #include "utils/serializable.h"
 
-#include "utils/rapidjson/document.h"
-#include "utils/rapidjson/pointer.h"
-#include "utils/rapidjson/reader.h"
-#include "utils/rapidjson/writer.h"
-#include "utils/rapidjson/filereadstream.h"
-#include "utils/rapidjson/filewritestream.h"
-#include "utils/rapidjson/error/en.h"
-#include "utils/rapidjson/prettywriter.h"
-#include "utils/rapidjson/stringbuffer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

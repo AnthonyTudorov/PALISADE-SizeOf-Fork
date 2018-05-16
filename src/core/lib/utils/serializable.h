@@ -31,12 +31,15 @@
 #include <string>
 #include <iomanip>
 #ifndef RAPIDJSON_HAS_STDSTRING
-#define RAPIDJSON_HAS_STDSTRING
+#define RAPIDJSON_HAS_STDSTRING 1
 #endif
 #ifndef RAPIDJSON_HAS_CXX11_RVALUE_REFS
-#define RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
 #endif
+
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #include "rapidjson/document.h"
+#pragma GCC diagnostic pop
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
 #include "rapidjson/error/en.h"
