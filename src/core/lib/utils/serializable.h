@@ -37,13 +37,13 @@
 #define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
 #endif
 
-#ifdef __GNUCC__
+#ifdef __GNUC__
 #if __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 #endif
 #include "rapidjson/document.h"
-#ifdef __GNUCC__
+#ifdef __GNUC__
 #if __GNUC__ >= 8
 #pragma GCC diagnostic pop
 #endif
