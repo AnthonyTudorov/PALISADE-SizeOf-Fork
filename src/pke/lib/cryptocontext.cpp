@@ -623,7 +623,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(const Ciphertext<Element> ciphertext, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(ConstCiphertext<Element> ciphertext, usint batchSize) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalSum was not generated with this crypto context");
@@ -809,7 +809,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(const Serialized
 }
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(const Ciphertext<Element> ciphertext, int32_t index) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(ConstCiphertext<Element> ciphertext, int32_t index) const {
 
 	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalAtIndex was not generated with this crypto context");
@@ -825,7 +825,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalAtIndex(const Ciphertext<Ele
 }
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<Ciphertext<Element>> &ciphertextVector) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<ConstCiphertext<Element>> &ciphertextVector) const {
 
 	if( ciphertextVector[0] == NULL || Mismatched(ciphertextVector[0]->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalMerge was not generated with this crypto context");
@@ -841,7 +841,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const std::vector<Ciph
 }
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || ct1->GetKeyTag() != ct2->GetKeyTag() ||
 			Mismatched(ct1->GetCryptoContext()) )
@@ -860,7 +860,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertex
 }
 
 template <typename Element>
-Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(const Ciphertext<Element> ct1, const Plaintext ct2, usint batchSize) const {
+Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(ConstCiphertext<Element> ct1, ConstPlaintext ct2, usint batchSize) const {
 
 	if( ct1 == NULL || ct2 == NULL || Mismatched(ct1->GetCryptoContext()) )
 		throw std::logic_error("Information passed to EvalInnerProduct was not generated with this crypto context");

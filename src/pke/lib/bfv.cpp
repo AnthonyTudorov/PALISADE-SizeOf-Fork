@@ -470,7 +470,7 @@ Ciphertext<Element> LPAlgorithmBFV<Element>::Encrypt(const LPPrivateKey<Element>
 
 template <class Element>
 DecryptResult LPAlgorithmBFV<Element>::Decrypt(const LPPrivateKey<Element> privateKey,
-		const Ciphertext<Element> ciphertext,
+		ConstCiphertext<Element> ciphertext,
 		NativePoly *plaintext) const
 {
 	const shared_ptr<LPCryptoParametersBFV<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersBFV<Element>>(privateKey->GetCryptoParameters());
@@ -585,8 +585,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAdd(ConstCiphertext<Element>
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(ConstCiphertext<Element> ciphertext1,
+	ConstCiphertext<Element> ciphertext2) const {
 
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFV::EvalSub crypto parameters are not the same";
@@ -634,8 +634,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element> ciphertext,
-	const Plaintext plaintext) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(ConstCiphertext<Element> ciphertext,
+	ConstPlaintext plaintext) const {
 
 //	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 //		std::string errMsg = "LPAlgorithmSHEBFV::EvalSub crypto parameters are not the same";
@@ -647,7 +647,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element
 
 	const std::vector<Element> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	plaintext->SetFormat(EVALUATION);
 	const Element& ptElement = plaintext->GetElement<Element>();
 
 	std::vector<Element> c(cipherTextElements.size());
@@ -668,7 +668,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalSub(const Ciphertext<Element
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalNegate(const Ciphertext<Element> ciphertext) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalNegate(ConstCiphertext<Element> ciphertext) const {
 
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
@@ -682,8 +682,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalNegate(const Ciphertext<Elem
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(ConstCiphertext<Element> ciphertext1,
+	ConstCiphertext<Element> ciphertext2) const {
 
 	bool isCiphertext1FormatCoeff = false;
 	bool isCiphertext2FormatCoeff = false;
@@ -787,13 +787,13 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Elemen
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Element> ciphertext,
-	const Plaintext plaintext) const {
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(ConstCiphertext<Element> ciphertext,
+	ConstPlaintext plaintext) const {
 
 	Ciphertext<Element> newCiphertext = ciphertext->CloneEmpty();
 
 	std::vector<Element> cipherTextElements = ciphertext->GetElements();
-	plaintext->GetElement<Element>().SetFormat(EVALUATION);
+	plaintext->SetFormat(EVALUATION);
 	const Element& ptElement = plaintext->GetElement<Element>();
 
 	if (ciphertext->GetElements()[0].GetFormat() == Format::COEFFICIENT || plaintext->GetElement<Element>().GetFormat() == Format::COEFFICIENT) {
@@ -810,7 +810,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Elemen
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<Ciphertext<Element>>& cipherTextList,
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<ConstCiphertext<Element>>& cipherTextList,
 		const vector<LPEvalKey<Element>> &evalKeys) const {
 
 	vector<Ciphertext<Element>> cipherTextListTemp;
@@ -831,7 +831,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<Cipher
 
 template <class Element>
 Ciphertext<Element> LPAlgorithmSHEBFV<Element>::KeySwitch(const LPEvalKey<Element> ek,
-	const Ciphertext<Element> cipherText) const
+	ConstCiphertext<Element> cipherText) const
 {
 	
 	Ciphertext<Element> newCiphertext = cipherText->CloneEmpty();
@@ -883,8 +883,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::KeySwitch(const LPEvalKey<Elemen
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2,
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(ConstCiphertext<Element> ciphertext1,
+	ConstCiphertext<Element> ciphertext2,
 	const LPEvalKey<Element> ek) const {
 
 	Ciphertext<Element> newCiphertext = this->EvalMult(ciphertext1, ciphertext2);
@@ -894,8 +894,8 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMult(const Ciphertext<Elemen
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
-	const Ciphertext<Element> ciphertext2,
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultAndRelinearize(ConstCiphertext<Element> ciphertext1,
+	ConstCiphertext<Element> ciphertext2,
 	const vector<LPEvalKey<Element>> &ek) const {
 
 	// FIXME add a plaintext method for this
@@ -1020,7 +1020,7 @@ vector<LPEvalKey<Element>> LPAlgorithmSHEBFV<Element>::EvalMultKeysGen(
 }
 
 template <class Element>
-Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
+Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAutomorphism(ConstCiphertext<Element> ciphertext, usint i,
 	const std::map<usint, LPEvalKey<Element>> &evalKeys) const
 {
 
@@ -1091,7 +1091,7 @@ LPEvalKey<Element> LPAlgorithmPREBFV<Element>::ReKeyGen(const LPPrivateKey<Eleme
 //Function for re-encypting ciphertext using the arrays generated by ReKeyGen
 template <class Element>
 Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Element> EK,
-	const Ciphertext<Element> ciphertext) const
+	ConstCiphertext<Element> ciphertext) const
 {
 	return ciphertext->GetCryptoContext()->GetEncryptionAlgorithm()->KeySwitch(EK, ciphertext);
 }
@@ -1202,7 +1202,7 @@ LPKeyPair<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyKeyGen(CryptoCon
 
 template <class Element>
 Ciphertext<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptMain(const LPPrivateKey<Element> privateKey,
-		const Ciphertext<Element> ciphertext) const
+		ConstCiphertext<Element> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -1222,7 +1222,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptMain(con
 
 template <class Element>
 Ciphertext<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptLead(const LPPrivateKey<Element> privateKey,
-		const Ciphertext<Element> ciphertext) const
+		ConstCiphertext<Element> ciphertext) const
 {
 	const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
 	const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
@@ -1241,7 +1241,7 @@ Ciphertext<Element> LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptLead(con
 }
 
 template <class Element>
-DecryptResult LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptFusion(const vector<ConstCiphertext<Element>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 

@@ -524,7 +524,7 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRT
 
 template <>
 DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> privateKey,
-		const Ciphertext<DCRTPoly> ciphertext,
+		ConstCiphertext<DCRTPoly> ciphertext,
 		NativePoly *plaintext) const
 {
 	//TimeVar t_total;
@@ -633,15 +633,15 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalAdd(ConstCiphertext<DCR
 }
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(const Ciphertext<DCRTPoly> ciphertext,
-	const Plaintext plaintext) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(ConstCiphertext<DCRTPoly> ciphertext,
+	ConstPlaintext plaintext) const{
 
 	Ciphertext<DCRTPoly> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetElement<DCRTPoly>().SetFormat(EVALUATION);
+	plaintext->SetFormat(EVALUATION);
 	const DCRTPoly& ptElement = plaintext->GetElement<DCRTPoly>();
 
 	std::vector<DCRTPoly> c(cipherTextElements.size());
@@ -664,8 +664,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalSub(const Ciphertext<DC
 
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
-	const Ciphertext<DCRTPoly> ciphertext2) const {
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(ConstCiphertext<DCRTPoly> ciphertext1,
+	ConstCiphertext<DCRTPoly> ciphertext2) const {
 
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFVrns::EvalMult crypto parameters are not the same";
@@ -837,7 +837,7 @@ LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const LPPrivate
 
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<DCRTPoly> ek,
-	const Ciphertext<DCRTPoly> cipherText) const
+	ConstCiphertext<DCRTPoly> cipherText) const
 {
 
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
@@ -892,8 +892,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitch(const LPEvalKey<D
 }
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(const Ciphertext<DCRTPoly> ciphertext1,
-	const Ciphertext<DCRTPoly> ciphertext2, const vector<LPEvalKey<DCRTPoly>> &ek) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(ConstCiphertext<DCRTPoly> ciphertext1,
+	ConstCiphertext<DCRTPoly> ciphertext2, const vector<LPEvalKey<DCRTPoly>> &ek) const{
 
 	Ciphertext<DCRTPoly> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 
@@ -934,7 +934,7 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMultAndRelinearize(cons
 }
 
 template <>
-DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(const vector<Ciphertext<DCRTPoly>>& ciphertextVec,
+DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(const vector<ConstCiphertext<DCRTPoly>>& ciphertextVec,
 		NativePoly *plaintext) const
 {
 
