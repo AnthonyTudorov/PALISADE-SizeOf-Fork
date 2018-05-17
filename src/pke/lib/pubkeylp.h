@@ -1318,19 +1318,19 @@ namespace lbcrypto {
 				const vector<LPEvalKey<Element>> &evalKeys) const {
 			// default implementation if you don't have one in your scheme
 
-			vector<Ciphertext<Element>> workarea(cipherTextList.size());
-			size_t size = workarea.size();
+			const size_t inSize = cipherTextList.size();
+			const size_t lim = inSize * 2 - 2;
+			vector<Ciphertext<Element>> cipherTextResults;
+			cipherTextResults.resize(inSize - 1);
+			size_t ctrIndex = 0;
 
-			for( size_t nextop = 1; nextop < size; nextop *= 2 ) {
-				for( size_t i = 0; i < size; i += (nextop*2)) {
-					if( i+nextop < size ) {
-						workarea[i] = this->EvalMult(workarea[i] ? workarea[i] : cipherTextList[i],
-													workarea[i+nextop] ? workarea[i+nextop] : cipherTextList[i+nextop]);
-					}
-				}
+			for(size_t i=0; i < lim; i = i + 2) {
+				cipherTextResults[ctrIndex++] = this->EvalMult(
+						i   < inSize ? cipherTextList[i]   : cipherTextResults[i - inSize],
+						i+1 < inSize ? cipherTextList[i+1] : cipherTextResults[i + 1 - inSize]);
 			}
 
-			return workarea[0];
+			return cipherTextResults.back();
 		}
 
 		/**

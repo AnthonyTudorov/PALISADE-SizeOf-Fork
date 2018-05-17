@@ -814,14 +814,12 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalMultMany(const vector<Cipher
 		const vector<LPEvalKey<Element>> &evalKeys) const {
 
 	const size_t inSize = cipherTextList.size();
-	const size_t lim = inSize * 2 - 1;
+	const size_t lim = inSize * 2 - 2;
 	vector<Ciphertext<Element>> cipherTextResults;
 	cipherTextResults.resize(inSize - 1);
 	size_t ctrIndex = 0;
 
 	for(size_t i=0; i < lim; i = i + 2) {
-		cout << lim << ":" << inSize << "::" << i << "," << i+1 << "->" << ctrIndex << endl;
-		cout << (i < inSize ? i : i - inSize) << "..." << (i+1 < inSize ? i+1 : i + 1 - inSize) << endl;
 		cipherTextResults[ctrIndex++] = this->EvalMultAndRelinearize(
 				i   < inSize ? cipherTextList[i]   : cipherTextResults[i - inSize],
 				i+1 < inSize ? cipherTextList[i+1] : cipherTextResults[i + 1 - inSize],
