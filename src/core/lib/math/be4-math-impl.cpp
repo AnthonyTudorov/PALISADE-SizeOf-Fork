@@ -32,6 +32,7 @@
 #include "../math/discreteuniformgenerator.cpp"
 #include "../math/discretegaussiangenerator.cpp"
 #include "../math/nbtheory.cpp"
+#include "../math/transfrm.cpp"
 
 namespace lbcrypto {
 
@@ -39,6 +40,8 @@ template class DiscreteGaussianGeneratorImpl<M4Vector>;
 template class BinaryUniformGeneratorImpl<M4Vector>;
 template class TernaryUniformGeneratorImpl<M4Vector>;
 template class DiscreteUniformGeneratorImpl<M4Vector>;
+template class ChineseRemainderTransformFTT<M4Integer,M4Vector>;
+template class ChineseRemainderTransformArb<M4Integer,M4Vector>;
 
 template M4Integer RootOfUnity<M4Integer>(usint m, const M4Integer& modulo);
 template std::vector<M4Integer> RootsOfUnity(usint m, const std::vector<M4Integer> moduli);

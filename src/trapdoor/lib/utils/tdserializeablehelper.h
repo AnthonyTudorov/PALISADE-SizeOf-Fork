@@ -47,9 +47,8 @@
 #include <algorithm>
 
 #include "math/backend.h"
+#include "lattice/backend.h"
 #include "math/matrix.h"
-#include "lattice/poly.h"
-#include "lattice/dcrtpoly.h"
 #include "sampling/trapdoor.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE

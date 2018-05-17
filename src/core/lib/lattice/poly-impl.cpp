@@ -26,10 +26,11 @@
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
-#include "../math/discretegaussiangenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
-#include "../math/binaryuniformgenerator.cpp"
-#include "../math/ternaryuniformgenerator.cpp"
+//#include "../math/discretegaussiangenerator.cpp"
+//#include "../math/discreteuniformgenerator.cpp"
+//#include "../math/binaryuniformgenerator.cpp"
+//#include "../math/ternaryuniformgenerator.cpp"
+//#include "../math/transfrm.cpp"
 #include "poly.cpp"
 
 namespace lbcrypto {

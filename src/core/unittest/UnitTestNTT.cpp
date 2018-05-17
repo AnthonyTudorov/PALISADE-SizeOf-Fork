@@ -36,14 +36,9 @@ Test cases in this file make the following assumptions:
 #include <iostream>
 
 #include "math/backend.h"
+#include "lattice/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-#include "lattice/poly.h"
-#include "lattice/dcrtpoly.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 

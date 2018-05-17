@@ -30,6 +30,7 @@
 #include "include/gtest/gtest-all.cc"
 
 #include "math/backend.h"
+#include "lattice/backend.h"
 #include "utils/inttypes.h"
 #include "math/nbtheory.h"
 #include "lattice/elemparams.h"
@@ -37,8 +38,6 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "math/distrgen.h"
-#include "lattice/poly.h"
-#include "lattice/dcrtpoly.h"
 #include "utils/utilities.h"
 
 using namespace std;

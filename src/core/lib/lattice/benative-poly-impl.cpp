@@ -25,6 +25,7 @@
  */
 
 #include "../math/backend.h"
+#include "../lattice/backend.h"
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"

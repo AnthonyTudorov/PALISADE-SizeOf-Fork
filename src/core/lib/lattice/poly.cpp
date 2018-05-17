@@ -24,7 +24,7 @@
  *
  */
 
-#include "poly.h"
+#include "../lattice/backend.h"
 #include <fstream>
 #include <cmath>
 

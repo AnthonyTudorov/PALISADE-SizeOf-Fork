@@ -34,14 +34,10 @@
 #include <iostream>
 
 #include "math/backend.h"
+#include "lattice/backend.h"
 #include "utils/inttypes.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
-#include "lattice/poly.h"
 #include "math/nbtheory.h"
-#include "lattice/elemparams.h"
-#include "lattice/ilelement.h"
 #include "utils/utilities.h"
 #include "utils/debug.h"
 

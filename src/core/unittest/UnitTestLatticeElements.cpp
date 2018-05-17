@@ -32,12 +32,9 @@
 #include <vector>
 
 #include "math/backend.h"
+#include "lattice/backend.h"
 #include "utils/inttypes.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
 #include "math/distrgen.h"
-#include "lattice/poly.h"
-#include "lattice/dcrtpoly.h"
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
 

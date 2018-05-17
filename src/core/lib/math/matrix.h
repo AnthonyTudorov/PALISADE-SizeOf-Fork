@@ -35,10 +35,9 @@
 //using std::function;
 
 #include "../math/backend.h"
+#include "../lattice/backend.h"
 #include "../math/nbtheory.h"
 #include "../math/distrgen.h"
-#include "../lattice/poly.h"
-#include "../lattice/dcrtpoly.h"
 #include "../encoding/encodings.h"
 #include "../utils/inttypes.h"
 #include "../utils/utilities.h"
