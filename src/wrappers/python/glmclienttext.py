@@ -14,7 +14,7 @@ from decimal import *
 ##########################################################
 ##########################################################
 
-regSel = 3
+regSel = 2
 
 regAlg = ""
 MAXVALUE              = 0
@@ -47,7 +47,7 @@ if regAlg == "NORMAL":
     PLAINTEXTPRIMESIZE    = 6
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 2
+    REGRLOOPCOUNT         = 15
 
     NUMTHREADS            = 1
 elif regAlg == "LOGISTIC":
@@ -59,9 +59,9 @@ elif regAlg == "LOGISTIC":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 10
+    REGRLOOPCOUNT         = 15
 
-    NUMTHREADS            = 1
+    NUMTHREADS            = 8
 elif regAlg == "POISSON":
     MAXVALUE              = 10
     PRECISION             = 10
@@ -71,7 +71,7 @@ elif regAlg == "POISSON":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 8
+    REGRLOOPCOUNT         = 15
 
     NUMTHREADS            = 8
 
@@ -94,7 +94,7 @@ keyfileName             = "keyFileLinReg"
 ciphertextDataDir       = "demoData/python/glm/client/ciphertextDataDir"
 ciphertextDataFileName  = "Vertical_Artifical_Data"
 plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
-plaintextDataFileName   = "rev_10k_poisson.csv"
+plaintextDataFileName   = "rev_50k_logistic.csv"
 
 ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
@@ -342,14 +342,14 @@ for loop in range(REGRLOOPCOUNT):
     print '################################'
     print 'Comp:', regResults
     # If the input data is fishData.csv display the real result
-    if plaintextDataFileName == "fishData.csv":
-        print 'Real:', realResults[loop]
-    print '################################'
+#    if plaintextDataFileName == "fishData.csv":
+#        print 'Real:', realResults[loop]
+#    print '################################'
 
     matW = g.Compute(plaintextDataDir+"/"+plaintextDataFileName, matW, regAlg)
 
-    print '######### Python Comp  ##############'
-    print matW.transpose()
+#    print '######### Python Comp  ##############'
+    print 'Real:', matW.transpose()
     print '################################'
 
 

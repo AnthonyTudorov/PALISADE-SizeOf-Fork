@@ -46,7 +46,7 @@ def Compute(filePath, matW, regAlg):
             matMU = np.exp(matZ)
             matS  = matMU
         elif regAlg == "LOGISTIC":
-            matMU = 1/(1+np.exp(matZ))
+            matMU = 1/(1+np.exp(-matZ))
             matS  = np.multiply(matMU, np.ones(len(matMU))-matMU)#[matMU[x] for x in range(row)]
 
         matC1 = []
