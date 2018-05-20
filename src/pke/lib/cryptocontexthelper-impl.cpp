@@ -29,7 +29,7 @@
 #include "cryptocontext.h"
 #include "cryptocontexthelper.h"
 #include "utils/parmfactory.h"
-#include "utils/rapidjson/filewritestream.h"
+#include "rapidjson/filewritestream.h"
 
 namespace lbcrypto {
 

@@ -386,10 +386,10 @@ bool CryptoContextImpl<Element>::DeserializeEvalMultKey(const Serialized& ser) {
 			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(oneSer);
 		}
 
-		Serialized::MemberIterator kIter;
+		//Serialized::MemberIterator kIter;
 
 		// now, find and deserialize all keys
-		for( kIter = serPtr->MemberBegin(); kIter != serPtr->MemberEnd(); ) {
+		for( auto kIter = serPtr->MemberBegin(); kIter != serPtr->MemberEnd(); ) {
 			if( kIter->name.GetString() != string("EvalMultKeys") ) {
 				kIter = serPtr->RemoveMember(kIter);
 				continue;

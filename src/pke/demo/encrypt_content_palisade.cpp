@@ -7,9 +7,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "../lib/utils/rapidjson/filewritestream.h"
-#include "../lib/utils/rapidjson/rapidjson.h"
-
 #include "../lib/cryptocontext.h"
 #include "../lib/cryptocontexthelper.h"
 #include "../lib/cryptocontexthelper-impl.cpp"
@@ -226,9 +223,9 @@ int encrypt_content( string& content_file ) {
 	
 	ww.StartArray();
 
-	Serialized serial;
-	SerialItem a(kArrayType);
-	Serialized::AllocatorType& allocator = serial.GetAllocator();
+//	Serialized serial;
+//	SerialItem a(kArrayType);
+//	Serialized::AllocatorType& allocator = serial.GetAllocator();
 	
 	if ( !file.good() ) {
 		cerr << "Failed to open input plaintext file" << endl;
@@ -259,7 +256,7 @@ int encrypt_content( string& content_file ) {
 			//cSer.Accept(ww);
 			SerializableHelper::SerializationToString(cSer,str);
 			ww.String(str);
-			a.PushBack(cSer, allocator);
+//			a.PushBack(cSer, allocator);
 		} else {
 			cerr << "Error serializing ciphertext" << endl;
 			return 0;
