@@ -1645,7 +1645,7 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 		for(size_t l = 0; l < matrixRowSize; l++) {
 			vector<uint64_t> vectorOfMu, vectorOfS;
 
-			if((l == matrixRowSize-1)){
+			if(l == matrixRowSize-1){
 				if((entrySize%cc[0]->GetRingDimension()/*params.ENTRYSIZE*/) != 0)
 					entrySizeForRow = entrySize%cc[0]->GetRingDimension()/*params.ENTRYSIZE*/;
 				else
@@ -2160,7 +2160,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
 			vector<uint64_t> vectorOfX;
 
 			//Set Entry Size of each rowws in the matrix
-			if((k == matrixRowSize-1)){
+			if(k == matrixRowSize-1){
 				if((entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/) != 0)
 					entrySizeForRow = entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/;
 				else
@@ -2186,7 +2186,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
     	for(size_t k = 0; k < matrixRowSize; k++) {
     		vector<uint64_t> vectorOfX;
     			//Set Entry Size of each rowws in the matrix
-   			if((k == matrixRowSize-1)){
+   			if(k == matrixRowSize-1){
    				if((entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/) != 0)
    					entrySizeForRow = entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/;
    				else
@@ -2213,7 +2213,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
 			vector<uint64_t> vectorOfY;
 
 			//Set Entry Size of each rowws in the matrix
-			if((k == matrixRowSize-1)){
+			if(k == matrixRowSize-1){
 				if((entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/) != 0)
 					entrySizeForRow = entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/;
 				else

@@ -92,7 +92,7 @@ HDREXT := h
 
 $(objects) : %.o : %.cpp
 
-THIRDPARTYINCLUDE := -I third-party/include
+THIRDPARTYINCLUDE := -I third-party/include -I third-party/include/rapidjson
 
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
