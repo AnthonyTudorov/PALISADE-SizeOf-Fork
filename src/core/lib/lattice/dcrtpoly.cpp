@@ -1079,7 +1079,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			// We assume that that the value of p is smaller than 64 bits (like 58)
 			// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 			//curIntSum += xi.ModMul(alpha[vi],p);
-			curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+			curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
 			curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*beta[vi];
 		}
@@ -1148,7 +1148,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
 
 			//computes [xi (q/qi)^{-1}]_qi
-			xInvVector[vIndex] = xi.ModMulFastNTL(qInvModqi[vIndex],qi);
+			xInvVector[vIndex] = xi.ModMulFastOptimized(qInvModqi[vIndex],qi);
 
 			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
 			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
@@ -1166,14 +1166,14 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			// TODO YSP Change this code to lazy reduction
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-				curValue += xInvVector[vIndex].ModMulPreconNTL(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
+				curValue += xInvVector[vIndex].ModMulPreconOptimized(qDivqiModsi[newvIndex][vIndex],si,qDivqiModsiPrecon[newvIndex][vIndex]);
 			}
 
 			// Since we let current value to exceed si to avoid extra modulo reductions, we have to apply mod si now
 			curValue = curValue.Mod(si);
 
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFastNTL(qModsi[newvIndex],si),si);
+			ans.m_vectors[newvIndex].at(rIndex) = curValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si),si);
 
 		}
 
@@ -1285,18 +1285,18 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					//curValue += alpha[vIndex][newvIndex].ModMulFast(xi,si);
-					curValue += xi.ModMulPreconNTL(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
+					curValue += xi.ModMulPreconOptimized(alpha[vIndex][newvIndex],si,alphaPrecon[vIndex][newvIndex]);
 
 				}
 
 				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
 
-				curValue += xi.ModMulPreconNTL(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
+				curValue += xi.ModMulPreconOptimized(alpha[sizeQ][newvIndex],si,alphaPrecon[sizeQ][newvIndex]);
 
 				// Since we let current value to exceed si to avoid extra modulo reductions, we have apply mod si now
 				curValue = curValue.Mod(si);
 
-				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFastNTL(rounded,si);
+				ans.m_vectors[newvIndex].at(rIndex) = curValue.ModAddFastOptimized(rounded,si);
 
 			}
 

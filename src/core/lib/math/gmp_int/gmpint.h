@@ -320,8 +320,8 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	myZZ ModMulPreconNTL(const myZZ& b, const myZZ& modulus, const myZZ& bInv) const {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 6");
+	myZZ ModMulPreconOptimized(const myZZ& b, const myZZ& modulus, const myZZ& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconOptimized is not implemented for backend 6");
 	}
 
 	/**
@@ -332,8 +332,8 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const myZZ& ModMulPreconNTLEq(const myZZ& b, const myZZ& modulus, const myZZ& bInv) {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 6");
+	const myZZ& ModMulPreconOptimizedEq(const myZZ& b, const myZZ& modulus, const myZZ& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconOptimized is not implemented for backend 6");
 	}
 
 	myZZ MultiplyAndRound(const myZZ &p, const myZZ &q) const;

@@ -518,7 +518,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
-	NativeInteger ModAddFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
+	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -537,7 +537,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
-	const NativeInteger& ModAddFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
 #if NTL_BITS_PER_LONG==64
 		this->m_value = (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -752,7 +752,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	NativeInteger ModMulFastNTL(const NativeInteger& b, const NativeInteger& modulus) const {
+	NativeInteger ModMulFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -787,7 +787,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const NativeInteger& ModMulFastNTLEq(const NativeInteger& b, const NativeInteger& modulus) {
+	const NativeInteger& ModMulFastEqOptimized(const NativeInteger& b, const NativeInteger& modulus) {
 #if NTL_BITS_PER_LONG==64
 		this->m_value = (uint_type)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
 #else
@@ -807,7 +807,7 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	NativeInteger ModMulPreconNTL(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
+	NativeInteger ModMulPreconOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
@@ -826,7 +826,7 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const NativeInteger& ModMulPreconNTLEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
+	const NativeInteger& ModMulPreconOptimizedEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
 #if NTL_BITS_PER_LONG==64
 		this->m_value = (uint_type)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
@@ -845,7 +845,7 @@ public:
 	 * @param modulus is the modulus to perform operations with.
 	 * @return the precomputed factor
 	 */
-	const NativeInteger PrepModMulPreconNTL(const NativeInteger& modulus) const {
+	const NativeInteger PrepModMulPreconOptimized(const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
 		return (uint_type)NTL::PrepMulModPrecon(this->m_value,modulus.m_value);
 #else
