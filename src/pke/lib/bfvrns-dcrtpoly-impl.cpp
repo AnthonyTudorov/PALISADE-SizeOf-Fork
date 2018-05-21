@@ -112,7 +112,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger divBy = modulusQ / qi;
 		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(GetPlaintextModulus())/qi;
 		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
-		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconNTL(GetPlaintextModulus());
+		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconOptimized(GetPlaintextModulus());
 	}
 
 	m_CRTDecryptionIntTable = qDecryptionInt;
@@ -153,7 +153,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
 			BigInteger divBy = modulusQ / qi;
 			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
-			qDivqiModsiPrecon[newvIndex].push_back(qDivqiModsi[newvIndex][vIndex].PrepModMulPreconNTL(si.ConvertToInt()));
+			qDivqiModsiPrecon[newvIndex].push_back(qDivqiModsi[newvIndex][vIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 		}
 	}
 
@@ -198,13 +198,13 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
 			BigInteger divBy = num / qi;
 			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
-			multIntPrecon[vIndex].push_back(multInt[vIndex][newvIndex].PrepModMulPreconNTL(si.ConvertToInt()));
+			multIntPrecon[vIndex].push_back(multInt[vIndex][newvIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 		}
 
 		BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(si)).ModInverse(si));
 		BigInteger divBy = num / si;
 		multInt[size].push_back(divBy.Mod(si).ConvertToInt());
-		multIntPrecon[size].push_back(multInt[size][newvIndex].PrepModMulPreconNTL(si.ConvertToInt()));
+		multIntPrecon[size].push_back(multInt[size][newvIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 	}
 
 	m_CRTMultIntTable = multInt;
@@ -231,7 +231,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
 			BigInteger divBy = modulusS / si;
 			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
-			sDivsiModqiPrecon[newvIndex].push_back(sDivsiModqi[newvIndex][vIndex].PrepModMulPreconNTL(qi.ConvertToInt()));
+			sDivsiModqiPrecon[newvIndex].push_back(sDivsiModqi[newvIndex][vIndex].PrepModMulPreconOptimized(qi.ConvertToInt()));
 		}
 	}
 

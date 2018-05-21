@@ -245,7 +245,7 @@ namespace lbcrypto {
 								if (oddVal == IntType(1))
 									omegaFactor = omega;
 								else
-									omegaFactor = oddVal.ModMulPreconNTL(omega,modulus,preconOmega);
+									omegaFactor = oddVal.ModMulPreconOptimized(omega,modulus,preconOmega);
 
 								butterflyPlus = (*result)[indexEven];
 								butterflyPlus += omegaFactor;

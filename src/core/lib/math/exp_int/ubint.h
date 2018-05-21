@@ -680,8 +680,8 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-    ubint ModMulPreconNTL(const ubint& b, const ubint& modulus, const ubint& bInv) const {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 4");
+    ubint ModMulPreconOptimized(const ubint& b, const ubint& modulus, const ubint& bInv) const {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconOptimized is not implemented for backend 4");
 	}
 
 	/**
@@ -692,8 +692,8 @@ public:
 	 * @param &bInv NTL precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const ubint& ModMulPreconNTLEq(const ubint& b, const ubint& modulus, const ubint& bInv) {
-		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconNTL is not implemented for backend 4");
+	const ubint& ModMulPreconOptimizedEq(const ubint& b, const ubint& modulus, const ubint& bInv) {
+		PALISADE_THROW( lbcrypto::math_error, "ModMulPreconOptimized is not implemented for backend 4");
 	}
 
 	/**
