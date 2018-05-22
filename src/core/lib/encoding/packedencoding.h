@@ -166,7 +166,17 @@ public:
 	static void Destroy();
 
 	void PrintValue(std::ostream& out) const {
-		out << value[0];
+		// for sanity's sake, trailing zeros get elided into "..."
+		out << "(";
+		size_t i = value.size();
+		while( --i > 0 )
+			if( value[i] != 0 )
+				break;
+
+		for( size_t j = 0; j <= i; j++ )
+			out << ' ' << value[j];
+
+		out << " ... )";
 	}
 
 private:
