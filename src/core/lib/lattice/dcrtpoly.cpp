@@ -1090,7 +1090,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
 		}
 	}
-	else if (m_vectors[0].GetModulus().GetMSB() < 58)
+	else if (m_vectors[0].GetModulus().GetMSB() < 62)
 	{
 #ifdef OMP
 #pragma omp parallel for
