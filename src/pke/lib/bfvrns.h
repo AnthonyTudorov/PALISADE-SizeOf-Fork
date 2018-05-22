@@ -248,7 +248,7 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			const std::vector<double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
+			const std::vector<long double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
 
 			/**
 			* Gets the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
@@ -350,7 +350,7 @@ namespace lbcrypto {
 			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
 
 			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			std::vector<double> m_CRTMultFloatTable;
+			std::vector<long double> m_CRTMultFloatTable;
 
 			// Stores a precomputed table of (S/si)^{-1} mod si
 			std::vector<NativeInteger> m_CRTSInverseTable;

@@ -226,7 +226,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the [p*S*(Q*S/vi)^{-1}]_vi / vi table - used for homomorphic multiplication
 
-	std::vector<double> precomputedDCRTMultFloatTable(size);
+	std::vector<long double> precomputedDCRTMultFloatTable(size);
 
 	const BigInteger modulusS = m_paramsS->GetModulus();
 	const BigInteger modulusQS = m_paramsQS->GetModulus();
@@ -236,7 +236,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	for (size_t i = 0; i < size; i++){
 		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
 		precomputedDCRTMultFloatTable[i] =
-				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+				(long double)((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToInt()/(long double)qi.ConvertToInt();
 	}
 
 	m_CRTMultFloatTable = precomputedDCRTMultFloatTable;

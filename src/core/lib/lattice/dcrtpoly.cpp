@@ -1716,7 +1716,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 template<typename ModType, typename IntType, typename VecType, typename ParmType>
 DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-		const std::vector<double> &beta, const std::vector<DoubleNativeInteger> &siModulimu) const {
+		const std::vector<long double> &beta, const std::vector<DoubleNativeInteger> &siModulimu) const {
 
 		DCRTPolyType ans(params,m_format,true);
 
@@ -1730,7 +1730,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 #endif
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
-			double curFloat = 0.0;
+			long double curFloat = 0.0;
 
 			for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 

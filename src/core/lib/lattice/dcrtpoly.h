@@ -853,7 +853,7 @@ public:
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
-			const std::vector<double> &beta,
+			const std::vector<long double> &beta,
 			const std::vector<DoubleNativeInteger> &siModulimu) const;
 
 	/**
