@@ -95,14 +95,14 @@ void SHERun() {
 	double diff, start, finish;
 
 	usint ptm = 2;
-	double sigma = 3.2;
-	double rootHermiteFactor = 1.004;
+	double sigma = 3.19;
+	double rootHermiteFactor = 1.0048;
 
 	size_t count = 100;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 20, 0, OPTIMIZED,3);
+			ptm, rootHermiteFactor, sigma, 0, 20, 0, OPTIMIZED,3,0,60);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
