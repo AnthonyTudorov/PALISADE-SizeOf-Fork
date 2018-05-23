@@ -1090,7 +1090,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
 		}
 	}
-	else if (m_vectors[0].GetModulus().GetMSB() < 62)
+	else if (m_vectors[0].GetModulus().GetMSB() < 58)
 	{
 #ifdef OMP
 #pragma omp parallel for
@@ -1117,6 +1117,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 #ifdef OMP
 #pragma omp parallel for
 #endif
+		QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			QuadFloat curFloatSum = QuadFloat(0);
 			typename PolyType::Integer curIntSum = 0;
@@ -1131,7 +1132,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 				curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
 			}
 
-			coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
+			coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p);
 		}
 	}
 

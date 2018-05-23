@@ -53,6 +53,7 @@ using namespace lbcrypto;
 
 //Poly tests
 void PKE();
+void PKELargeQ();
 void SHETestCoeff();
 void SHETestPacked();
 void SHETestPackedRelin();
@@ -70,10 +71,11 @@ size_t COUNTER = 0;
 
 int main() {
 
-	PKE();
+	//PKE();
 	//SHETestCoeff();
-	SHETestPacked();
-	SHETestPackedRelin();
+	//SHETestPacked();
+	//SHETestPackedRelin();
+	PKELargeQ();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
@@ -190,6 +192,115 @@ void PKE() {
 	cout << plaintextDec << endl;
 
 	cout << "\n";
+
+
+}
+
+void PKELargeQ() {
+
+	std::cout << "\n===========TESTING PKE===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	usint ptm = 1<<31;
+	double sigma = 3.19;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, 35, 0, OPTIMIZED,2,0,60);
+
+	std::cout << "ran context gen" << std::endl;
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	std::vector<int64_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
+	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	//start = currentDateTime();
+
+	for (size_t i = 0; i < 50; i++)
+
+	{
+
+		auto ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext);
+
+		//finish = currentDateTime();
+		//diff = finish - start;
+		//cout << "Encryption time: " << "\t" << diff << " ms" << endl;
+
+		////////////////////////////////////////////////////////////
+		//Decryption of Ciphertext
+		////////////////////////////////////////////////////////////
+
+		Plaintext plaintextDec;
+
+		//start = currentDateTime();
+
+		cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec);
+
+		//finish = currentDateTime();
+		//diff = finish - start;
+		//cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+		//std::cin.get();
+
+		plaintextDec->SetLength(plaintext->GetLength());
+
+		if (plaintext!=plaintextDec) {
+			cout << "error" << std::endl;
+			cout << "\n Original Plaintext: \n";
+			cout << plaintext << endl;
+
+			cout << "\n Resulting Decryption of Ciphertext: \n";
+			cout << plaintextDec << endl;
+			return;
+		}
+		else
+			cout << "success" << std::endl;
+
+	}
 
 
 }

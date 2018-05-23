@@ -130,7 +130,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		}
 		m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
 	}
-	else if (moduli[0].GetMSB() < 62)
+	else if (moduli[0].GetMSB() < 58)
 	{
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<long double> CRTDecryptionExtFloatTable(size);
