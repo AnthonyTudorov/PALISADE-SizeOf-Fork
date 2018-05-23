@@ -333,7 +333,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(1.5*n)); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(2*sqrt(n)); };
 
 	//norm of fresh ciphertext polynomial
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
@@ -350,7 +350,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n) -> ExtendedDouble { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+		auto qBFV = [&](uint32_t n) -> ExtendedDouble { return p*(4*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
 
 		//initial value
 		q = qBFV(n);
@@ -385,7 +385,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 			w = pow(2, relinWindow);
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(4*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr) + p);  };
 
 		//initial values
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
@@ -440,16 +440,16 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 			w = pow(2, relinWindow);
 
 		//function used in the EvalMult constraint
-		auto epsilon1 = [&](uint32_t n) -> ExtendedDouble { return 4 / (delta(n)*Bkey);  };
+		auto epsilon1 = [&](uint32_t n) -> ExtendedDouble { return 5 / (delta(n)*Bkey);  };
 
 		//function used in the EvalMult constraint
 		auto C1 = [&](uint32_t n) -> ExtendedDouble { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
 
 		//function used in the EvalMult constraint
-		auto C2 = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr;  };
+		auto C2 = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return delta(n)*delta(n)*Bkey*((1+0.5)*Bkey + p*p) + delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr;  };
 
 		//main correctness constraint
-		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(2 * (power(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*power(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(4 * (power(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*power(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
 
 		//initial values
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
@@ -518,7 +518,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	return cryptoParamsBFVrns->PrecomputeCRTTables();
 
 }
-
 
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRTPoly> publicKey,

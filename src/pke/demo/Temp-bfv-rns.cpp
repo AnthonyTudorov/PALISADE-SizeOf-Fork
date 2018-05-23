@@ -71,11 +71,11 @@ size_t COUNTER = 0;
 
 int main() {
 
-	//PKE();
+	PKE();
 	//SHETestCoeff();
-	//SHETestPacked();
-	//SHETestPackedRelin();
-	PKELargeQ();
+	SHETestPacked();
+	SHETestPackedRelin();
+	//PKELargeQ();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
