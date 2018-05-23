@@ -1117,22 +1117,44 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 #ifdef OMP
 #pragma omp parallel for
 #endif
-		QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
-		for( usint ri = 0; ri < ringDimension; ri++ ) {
-			QuadFloat curFloatSum = QuadFloat(0);
-			typename PolyType::Integer curIntSum = 0;
-			for( usint vi = 0; vi < nTowers; vi++ ) {
-				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+		if (nTowers > 16) // handles the case when curFloatSum exceeds 2^63 (causing an an overflow in int)
+			{
+			QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
+			for( usint ri = 0; ri < ringDimension; ri++ ) {
+				QuadFloat curFloatSum = QuadFloat(0);
+				typename PolyType::Integer curIntSum = 0;
+				for( usint vi = 0; vi < nTowers; vi++ ) {
+					const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 
-				// We assume that that the value of p is smaller than 64 bits (like 58)
-				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
-				//curIntSum += xi.ModMul(alpha[vi],p);
-				curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+					// We assume that that the value of p is smaller than 64 bits (like 58)
+					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+					//curIntSum += xi.ModMul(alpha[vi],p);
+					curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
 
-				curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+				}
+
+				coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p);
 			}
+		}
+		else
+		{
+			for( usint ri = 0; ri < ringDimension; ri++ ) {
+				QuadFloat curFloatSum = QuadFloat(0);
+				typename PolyType::Integer curIntSum = 0;
+				for( usint vi = 0; vi < nTowers; vi++ ) {
+					const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
 
-			coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p);
+					// We assume that that the value of p is smaller than 64 bits (like 58)
+					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
+					//curIntSum += xi.ModMul(alpha[vi],p);
+					curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+
+					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+				}
+
+				coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
+			}
 		}
 	}
 
