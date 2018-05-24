@@ -22,14 +22,6 @@ using namespace std;
 using namespace lbcrypto;
 
 
-bool replace(std::string& str, const std::string& from, const std::string& to) {
-    size_t start_pos = str.find(from);
-    if(start_pos == std::string::npos)
-        return false;
-    str.replace(start_pos, from.length(), to);
-    return true;
-}
-
 class MTest : public ::testing::Test {
 protected:
     void SetUp() {
@@ -136,7 +128,6 @@ TEST_F(MTest, ciphertext_deserialze_failure){
     SerializableHelper::SerializationToString(ser, ct);
     cerr << ct << endl << endl;
 
-//    replace(ct, "Params", "");
     ct = regex_replace(ct, regex("KeyTag"), "");
     cerr << ct << endl;
     SerializableHelper::StringToSerialization(ct, &ser);
