@@ -950,7 +950,7 @@ public:
 		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
-		auto zeroAlloc = [=]() { return Ciphertext<Element>(); };
+		auto zeroAlloc = [=]() { return Ciphertext<Element>(new CiphertextImpl<Element>(publicKey->GetCryptoContext())); };
 
 		Matrix<Ciphertext<Element>> cipherResults(zeroAlloc, plaintext.GetRows(), plaintext.GetCols());
 
