@@ -937,6 +937,49 @@ public:
 	}
 
 	/**
+	* Encrypt a matrix of Plaintext
+	* @param publicKey - for encryption
+	* @param plaintext - to encrypt
+	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
+	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
+	*/
+	Matrix<Ciphertext<Element>> EncryptMatrixC(
+		const LPPublicKey<Element> publicKey,
+		Matrix<Plaintext> &plaintext)
+	{
+		if (publicKey == NULL || Mismatched(publicKey->GetCryptoContext()))
+			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
+
+		auto zeroAlloc = [=]() { return Ciphertext<Element>(); };
+
+		Matrix<Ciphertext<Element>> cipherResults(zeroAlloc, plaintext.GetRows(), plaintext.GetCols());
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		for (size_t row = 0; row < plaintext.GetRows(); row++)
+		{
+			for (size_t col = 0; col < plaintext.GetCols(); col++)
+			{
+				if( plaintext(row,col)->Encode() == false )
+					throw std::logic_error("Plaintext is not encoded");
+
+				Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext(row,col)->GetElement<Element>());
+
+				if (ciphertext) {
+					ciphertext->SetEncodingType( plaintext(row,col)->GetEncodingType() );
+				}
+
+				cipherResults(row, col) = (ciphertext);
+			}
+		}
+
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEncryptMatrixPlain, TOC_US(t)) );
+		}
+		return cipherResults;
+	}
+
+	/**
 	* Perform an encryption by reading plaintext from a stream, serializing each piece of ciphertext,
 	* and writing the serializations to an output stream
 	* @param publicKey - the encryption key in use
