@@ -55,10 +55,11 @@ class GSWCryptoParameters
 {
 public:
 	GSWCryptoParameters() : m_n(0), m_l(0), m_m(0), m_base(0), m_modulus(Integer(0)) {;}
-	GSWCryptoParameters(uint32_t n, int64_t base, uint32_t m, const Integer &q, double std) : m_n(n),  m_base(base), m_m(m), m_modulus(q) {
+	GSWCryptoParameters(uint32_t n, int64_t base, const Integer &q, double std) : m_n(n),  m_base(base), m_modulus(q) {
 		m_dgg.SetStd(std);
 		m_dug.SetModulus(q);
 		m_l = std::ceil(q.GetMSB()/log2(base));
+		m_m = m_n*m_l;
 	}
 
 	const DiscreteGaussianGeneratorImpl<Integer,Vector> &GetDgg() const{
@@ -103,8 +104,8 @@ template <class Integer,class Vector>
 class GSWScheme
 {
 public:
-	void Setup(uint32_t n, uint32_t l, uint32_t m, const Integer &q, double std) {
-		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,l,m,q,std);
+	void Setup(uint32_t n, uint32_t base, const Integer &q, double std) {
+		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,base,q,std);
 	}
 
 	shared_ptr<GSWSecretKey<Integer>> SecretKeyGen() const;

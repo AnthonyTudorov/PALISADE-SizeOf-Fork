@@ -39,21 +39,22 @@ namespace lbcrypto {
 	template <class Integer,class Vector>
 	shared_ptr<GSWSecretKey<Integer>> GSWScheme<Integer,Vector>::SecretKeyGen() const
 	{
-		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>([&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, m_cryptoParams.Getn(), 1));
+		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>([&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, m_cryptoParams.Getn()-1, 1));
 		return sk;
 	}
 
 	template <class Integer,class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
-		Matrix<Integer> cbar([&](){return m_cryptoParams.GetDug().GenerateInteger();}, m_cryptoParams.Getn()-1, m_cryptoParams.Getn()*m_cryptoParams.Getl());
+		Matrix<Integer> cbar([&](){return m_cryptoParams.GetDug().GenerateInteger();}, m_cryptoParams.Getn()-1, m_cryptoParams.Getm());
 		Matrix<Integer> et([&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, 1,m_cryptoParams.Getm());
 		Matrix<Integer> skt = sk->Transpose();
 		Matrix<Integer> bt = et - skt.Mult(cbar);
 		Matrix<Integer> cStack = cbar.VStack(bt);
-		Matrix<Integer> g([&](){return Integer(0);}, m_cryptoParams.Getn(),m_cryptoParams.Getn()*m_cryptoParams.Getl());
+		Matrix<Integer> g([&](){return Integer(0);}, m_cryptoParams.Getn(),m_cryptoParams.Getm());
 		g = g.GadgetVector(m_cryptoParams.GetBase());
 		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>(cStack + g.ScalarMult(plaintext)));
+		std::cout << cStack << std::endl;
 		return c;
 	}
 
