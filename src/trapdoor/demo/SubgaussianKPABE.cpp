@@ -410,7 +410,7 @@ bool TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension, size_t typ
 	}
 	else {
 		int64_t digitCount = (long)ceil(log2(bigModulus.ConvertToDouble())/log2(base));
-		LatticeSubgaussianUtility<BigInteger,BigVector> sampler(base,bigModulus,digitCount);
+		LatticeSubgaussianUtility<BigInteger> sampler(base,bigModulus,digitCount);
 		TIC(t1);
 		InverseRingVector(sampler, ilParams, matrixDecomposePoly,1, &psi);
 		timeEval = TOC(t1);

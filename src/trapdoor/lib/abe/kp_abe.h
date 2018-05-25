@@ -544,7 +544,7 @@ enum GaussianMode{ SUBGAUSSIAN=0, NAF=1};
 		int32_t m_base; //base, a power of two
 
 		GaussianMode m_mode;
-		LatticeSubgaussianUtility<typename Element2::Integer,typename Element2::Vector> m_util;
+		LatticeSubgaussianUtility<typename Element2::Integer> m_util;
 	};
 
 }

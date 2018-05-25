@@ -1,8 +1,10 @@
 /**
- * @file subgaussian.h Provides implementation of subgaussian sampling algorithms
+ * @file gsw.cpp Provides implementation of the GSW variant described in
+ * https://eprint.iacr.org/2014/094
+ *
  * @author  TPOC: palisade@njit.edu
  *
- * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2018, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -24,47 +26,18 @@
  *
  */
 
-#include <random>
-#include "math/matrix.h"
+#ifndef _LBCRYPTO_SUBGAUSSIAN_GSW_CPP
+#define _LBCRYPTO_SUBGAUSSIAN_GSW_CPP
 
-#ifndef LBCRYPTO_LATTICE_SUBGAUSSIAN_H
-#define LBCRYPTO_LATTICE_SUBGAUSSIAN_H
+#include "gsw.h"
 
 namespace lbcrypto {
 
-template <class Integer>
-class LatticeSubgaussianUtility
+template <class Integer, class Vector>
+shared_ptr<GSWSecretKey<Integer,Vector>> GSWScheme<Integer,Vector>::SecretKeyGen() const
 {
-public:
-
-	LatticeSubgaussianUtility() : m_base(2), m_modulus(1), m_k(1) {};
-
-	LatticeSubgaussianUtility(const uint32_t &base, const Integer &modulus, const uint32_t &k) :
-		m_base(base), m_modulus(modulus), m_k(k) {Precompute();};
-
-	void InverseG(const Integer &u, std::mt19937 &prng, vector<int64_t> *output) const;
-
-	void BcBD(const vector<float> &target, std::mt19937 &prng, vector<int64_t> *x) const;
-
-	const uint32_t GetK() const {return m_k;}
-
-private:
-
-	void Precompute();
-
-	// input parameters
-	uint32_t m_base;
-	Integer m_modulus;
-	uint32_t m_k;
-
-	// precomputed tables
-	vector<int64_t> m_qvec;
-	vector<float> m_d;
-
-};
-
-void InverseRingVector(const LatticeSubgaussianUtility<BigInteger> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB,
-		uint32_t seed, Matrix<Poly> *psi);
+	std::cout << "Starting to generate the keys" << std::endl;
+}
 
 }
 

@@ -45,7 +45,7 @@ int main(){
 
 	std::cout << "Old impl sampling time: " << timeEval/count << " microseconds" << std::endl;
 	
-	LatticeSubgaussianUtility<NativeInteger,NativeVector> sampler(b,q,k);
+	LatticeSubgaussianUtility<NativeInteger> sampler(b,q,k);
 
 	vector<int64_t> nativeOutput(k);
 
@@ -83,7 +83,7 @@ cout<<"g^t * output 2 = "<<test1<<endl;
 BigInteger bigModulus = BigInteger("3079705401285115676503558331198");
 long kBig = (long)ceil(log2(bigModulus.ConvertToDouble())/log2(b));
 
-LatticeSubgaussianUtility<BigInteger,BigVector> samplerBig(b,bigModulus,kBig);
+LatticeSubgaussianUtility<BigInteger> samplerBig(b,bigModulus,kBig);
 
 vector<int64_t> nativeOutputBig(kBig);
 

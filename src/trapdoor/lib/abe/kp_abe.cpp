@@ -68,7 +68,7 @@ void KPABE<Element, Element2>::Setup(
 
 		m_ell = ell;
 
-		m_util = LatticeSubgaussianUtility<typename Element2::Integer,typename Element2::Vector>(m_base,q,m_k);
+		m_util = LatticeSubgaussianUtility<typename Element2::Integer>(m_base,q,m_k);
 
 		for (usint i = 0; i < (*pubElemB).GetRows(); i++)
 			for (usint j = 0; j < (*pubElemB).GetCols(); j++) {
@@ -108,7 +108,7 @@ void KPABE<Element, Element2>::Setup(
 
 		m_ell = ell;
 
-		m_util = LatticeSubgaussianUtility<typename Element2::Integer,typename Element2::Vector>(m_base,q,m_k);
+		m_util = LatticeSubgaussianUtility<typename Element2::Integer>(m_base,q,m_k);
 
 	}
 

@@ -32,8 +32,8 @@
 
 namespace lbcrypto {
 
-	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::Precompute() {
+	template <class Integer>
+	void LatticeSubgaussianUtility<Integer>::Precompute() {
 
 		m_qvec = vector<int64_t>(m_k);
 
@@ -54,8 +54,8 @@ namespace lbcrypto {
 
 	}
 
-	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::InverseG(const Integer &u, std::mt19937 &prng, vector<int64_t> *output) const{
+	template <class Integer>
+	void LatticeSubgaussianUtility<Integer>::InverseG(const Integer &u, std::mt19937 &prng, vector<int64_t> *output) const{
 
 		//create a decomposition vector for the target and the modulus q
 
@@ -97,8 +97,8 @@ namespace lbcrypto {
 		(*output)[m_k-1] = m_qvec[m_k-1]*x[m_k-1] - x[m_k-2] + uvec[m_k-1];
 	}
 
-	template <class Integer, class Vector>
-	void LatticeSubgaussianUtility<Integer,Vector>::BcBD(const vector<float> &target, std::mt19937 &prng, vector<int64_t> *x) const{
+	template <class Integer>
+	void LatticeSubgaussianUtility<Integer>::BcBD(const vector<float> &target, std::mt19937 &prng, vector<int64_t> *x) const{
 
 		std::uniform_real_distribution<float> distribution(0.0, 1.0);
 
@@ -143,7 +143,7 @@ namespace lbcrypto {
 
 	}
 
-	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger,BigVector> &util, const shared_ptr<ILParams> ilParams,
+	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger> &util, const shared_ptr<ILParams> ilParams,
 			const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<Poly> *psi){
 
 		std::shared_ptr<std::mt19937> prng;
