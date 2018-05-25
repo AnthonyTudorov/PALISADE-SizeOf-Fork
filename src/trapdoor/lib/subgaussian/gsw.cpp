@@ -33,8 +33,8 @@
 
 namespace lbcrypto {
 
-template <class Integer, class Vector>
-shared_ptr<GSWSecretKey<Integer,Vector>> GSWScheme<Integer,Vector>::SecretKeyGen() const
+template <class Integer>
+shared_ptr<GSWSecretKey<Integer>> GSWScheme<Integer>::SecretKeyGen() const
 {
 	std::cout << "Starting to generate the keys" << std::endl;
 }

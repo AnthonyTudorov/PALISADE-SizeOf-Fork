@@ -34,22 +34,22 @@
 namespace lbcrypto {
 
 // dimension Z_q^n
-template <class Integer, class Vector>
+template <class Integer>
 using GSWSecretKey = Matrix<Integer>;
 
 // dimension Z_q^m \times n
-template <class Integer, class Vector>
+template <class Integer>
 using GSWPublicKey = Matrix<Integer> ;
 
 // dimension Z_q^n \times n l
-template <class Integer, class Vector>
+template <class Integer>
 using GSWCiphertext = Matrix<Integer>;
 
 // dimension Z_q
-template <class Integer, class Vector>
+template <class Integer>
 using GSWPlaintext = Integer;
 
-template <class Integer, class Vector>
+template <class Integer>
 class GSWCryptoParameters
 {
 public:
@@ -62,24 +62,24 @@ private:
 	Integer m_q;
 };
 
-template <class Integer, class Vector>
+template <class Integer>
 class GSWScheme
 {
 public:
 	void Setup(uint32_t n, uint32_t l, uint32_t m, const Integer &q) {
-		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,l,m,q);
+		m_cryptoParams = GSWCryptoParameters<Integer>(n,l,m,q);
 	}
 
-	shared_ptr<GSWSecretKey<Integer,Vector>> SecretKeyGen() const;
-	shared_ptr<GSWPublicKey<Integer,Vector>> PublicKeyGen(const shared_ptr<GSWSecretKey<Integer,Vector>>) const;
-	shared_ptr<GSWCiphertext<Integer,Vector>> Encrypt(const GSWPlaintext<Integer,Vector> &plaintext, const shared_ptr<GSWSecretKey<Integer,Vector>>) const;
-	GSWPlaintext<Integer,Vector> Decrypt(const GSWCiphertext<Integer,Vector> &ciphertext, const shared_ptr<GSWSecretKey<Integer,Vector>>) const;
+	shared_ptr<GSWSecretKey<Integer>> SecretKeyGen() const;
+	shared_ptr<GSWPublicKey<Integer>> PublicKeyGen(const shared_ptr<GSWSecretKey<Integer>>) const;
+	shared_ptr<GSWCiphertext<Integer>> Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>>) const;
+	GSWPlaintext<Integer> Decrypt(const GSWCiphertext<Integer> &ciphertext, const shared_ptr<GSWSecretKey<Integer>>) const;
 
-	shared_ptr<GSWCiphertext<Integer,Vector>> EvalAdd(const shared_ptr<GSWCiphertext<Integer,Vector>>, const shared_ptr<GSWCiphertext<Integer,Vector>>);
-	shared_ptr<GSWCiphertext<Integer,Vector>> EvalMult(const shared_ptr<GSWCiphertext<Integer,Vector>>, const shared_ptr<GSWCiphertext<Integer,Vector>>);
+	shared_ptr<GSWCiphertext<Integer>> EvalAdd(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
+	shared_ptr<GSWCiphertext<Integer>> EvalMult(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
 
 private:
-	GSWCryptoParameters<Integer,Vector> m_cryptoParams;
+	GSWCryptoParameters<Integer> m_cryptoParams;
 
 };
 

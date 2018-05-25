@@ -16,7 +16,7 @@ using namespace lbcrypto;
 int main()
 {
 
-	GSWScheme<NativeInteger,NativeVector> scheme;
+	GSWScheme<NativeInteger> scheme;
 
 	uint32_t n = 512;
 	uint32_t m = 100;
