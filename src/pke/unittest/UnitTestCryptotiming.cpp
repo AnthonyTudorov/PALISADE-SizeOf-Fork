@@ -11,12 +11,13 @@
 #include "utils/serializablehelper.h"
 
 
-class UTPKECryptotiming : public ::testing::Test {
+class UTCryptotiming : public ::testing::Test {
 protected:
     void SetUp() {
     }
 
     void TearDown() {
+        //TODO EXAMINE NEEDED RELEASES HERE
         CryptoContextFactory<Poly>::ReleaseAllContexts();
         CryptoContextImpl<Poly>::ClearEvalMultKeys();
     }
@@ -25,27 +26,93 @@ protected:
 using namespace std;
 using namespace lbcrypto;
 
-TEST_F(UTPKECryptotiming, timing_util_functions){
+TEST_F(UTCryptotiming, timing_util_functions){
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
+    cc->Enable(ENCRYPTION);
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
-    cc->Enable(ENCRYPTION);
-    cc->KeyGen();
-    ASSERT_TRUE(1 == times.size()) << "StartTiming failed to initialize timing procedures";
+    Ciphertext<Poly> ciphertext;
+    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    // PErform 3 operations assuming that at least one of them will successfully push to vector
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    ciphertext = cc->Encrypt(kp.secretKey, plaintext);
+    cc->Decrypt(kp.secretKey, ciphertext, &plaintext);
 
+    ASSERT_TRUE(0 < times.size()) << "StartTiming failed to initialize timing procedures, or many operations failed to push to vector";
+    uint len = (uint)times.size();
     cc->StopTiming();
     cc->KeyGen();
-    ASSERT_TRUE(1 == times.size()) << "StopTiming did not stop timing procedures";
+    ASSERT_TRUE(len == times.size()) << "StopTiming did not stop timing procedures";
 
     cc->ResumeTiming();
     cc->KeyGen();
-    ASSERT_TRUE(2 == times.size()) << "ResumeTiming did not resume timing procedures";
+    ASSERT_TRUE(len+1 == times.size()) << "ResumeTiming did not resume timing procedures";
 
     cc->ResetTiming();
     ASSERT_TRUE(0 == times.size()) << "ResetTiming did not reset timing vector";
+
+    cc->KeyGen();
+    ASSERT_TRUE(times.size() == 1) << "KeyGen op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpKeyGen) << "KeyGen op applied an incorrect optype to its data";
+
 }
 
-TEST_F(UTPKECryptotiming, PRE_timing){
+TEST_F(UTCryptotiming, scalar_encrypt_decrypt){
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
+    cc->Enable(ENCRYPTION);
+    vector<TimingInfo>	times;
+    cc->StartTiming(&times);
+    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    uint len = (uint)times.size();
+
+    cc->Encrypt(kp.publicKey, plaintext);
+    ASSERT_TRUE(times.size()== len+1) << "Pub Encrypt op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpEncryptPub) << "Pub Encrypt op applied an incorrect optype to its data:";
+    if(times.size() == len+1) { len++; }
+
+    Ciphertext<Poly> ciphertext;
+    ciphertext = cc->Encrypt(kp.secretKey, plaintext);
+    ASSERT_TRUE(times.size()== len+1) << "Private Encrypt op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpEncryptPriv) << "Private Encrypt op applied an incorrect optype to its data:";
+    if(times.size() == len+1) { len++; }
+
+    cc->Decrypt(kp.secretKey, ciphertext, &plaintext);
+    ASSERT_TRUE(times.size()== len+1) << "Decrypt op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpDecrypt) << "Decrypt op applied an incorrect optype to its data:";
+    if(times.size() == len+1) { len++; }
+
+}
+
+TEST_F(UTCryptotiming, stream_encrypt_decrypt){}
+
+TEST_F(UTCryptotiming, Automorphism_timing){
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
+    cc->Enable(ENCRYPTION|SHE);
+    vector<TimingInfo>	times;
+    cc->StartTiming(&times);
+
+    LPKeyPair<Poly> kp = cc->KeyGen();
+
+    Ciphertext<Poly> ciphertext;
+    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    ciphertext = cc->Encrypt(kp.publicKey, plaintext);
+    uint len = (uint)times.size();
+
+    auto evalKeys = cc->EvalAutomorphismKeyGen(kp.publicKey, kp.secretKey, std::vector<usint>{1,2,3,4});
+    ASSERT_TRUE(times.size()== len+1) << "EvalAutomorphismKeyGen op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpEvalAutomorphismKeyGen) << "EvalAutomorphismKeyGen op applied an incorrect optype to its data:";
+    if(times.size() == len+1) { len++; }
+
+    cc->EvalAutomorphism(ciphertext, 1, *evalKeys);
+    ASSERT_TRUE(times.size()== len+1) << "EvalAutomorphismI op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpEvalAutomorphismI) << "EvalAutomorphismI op applied an incorrect optype to its data:";
+    if(times.size() == len+1) { len++; }
+
+}
+
+TEST_F(UTCryptotiming, PRE_timing){
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
     vector<TimingInfo>	times;
     uint len = 0;
@@ -54,14 +121,8 @@ TEST_F(UTPKECryptotiming, PRE_timing){
     Plaintext plaintext( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming") );
 
     LPKeyPair<Poly> kp = cc->KeyGen();
-    ASSERT_TRUE(times.size() == len+1) << "KeyGen op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpKeyGen) << "KeyGen op applied an incorrect optype to its data";
-    if(times.size() == len+1) { len++; }
-
     LPKeyPair<Poly> kp2 = cc->KeyGen();
-    ASSERT_TRUE(times.size() == len+1) << "KeyGen op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpKeyGen) << "KeyGen op applied an incorrect optype to its data";
-    if(times.size() == len+1) { len++; }
+    len = (uint)times.size();
 
     LPEvalKey<Poly> evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
     ASSERT_TRUE(times.size() == len+1) << "ReKeyGenPubPri op failed to push to timing vector";
@@ -74,20 +135,17 @@ TEST_F(UTPKECryptotiming, PRE_timing){
     if(times.size() == len+1) { len++; }
 
     Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
-    ASSERT_TRUE(times.size() == len+1) << "Pub Encrypt op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpEncryptPub) << "Pub Encrypt op applied an incorrect optype to its data:";
-    if(times.size() == len+1) { len++; }
+    len = (uint)times.size();
 
     cc->ReEncrypt(evalKey, ciphertext);
     ASSERT_TRUE(times.size() == len+1) << "ReEncrypt op failed to push to timing vector";
     ASSERT_TRUE(times.back().operation == OpReEncrypt) << "ReEncrypt op applied an incorrect optype to its data:";
+    sleep(15000);
 
 }
 
 
-
-
-TEST_F(UTPKECryptotiming, timing_keygen){ //TODO delete variable storage of key pairs that are unecessary, after transferring them to
+TEST_F(UTCryptotiming, timing_keygen){ //TODO delete variable storage of key pairs that are unecessary, after transferring them
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
     vector<TimingInfo>	times;
     uint len = 0;
@@ -114,47 +172,4 @@ TEST_F(UTPKECryptotiming, timing_keygen){ //TODO delete variable storage of key 
     ASSERT_TRUE(times.size() == len+1) << "MultiPartyKeyGenKeyvec op failed to push to timing vector";
     ASSERT_TRUE(times.back().operation == OpSparseKeyGen) << "MultiPartyKeyGenKeyvec op applied an incorrect optype to its data";
     if(times.size() == len+1) { len++; }
-}
-
-
-TEST_F(UTPKECryptotiming, cryptotiming_null){
-    usint m = 0;
-    PlaintextModulus p = 256;
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(m, p);
-    string pct = "testing cryptotiming";
-    vector<TimingInfo>	times;
-    Ciphertext<Poly> ciphertext;
-    uint len = 0;
-    cc->StartTiming(&times);
-    cc->Enable(ENCRYPTION);
-    Plaintext plaintext = cc->MakeStringPlaintext(pct);
-//    cerr<<times.size()<<endl;
-
-    LPKeyPair<Poly> kp = cc->KeyGen();
-    ASSERT_TRUE(times.size() == len+1) << "KeyGen op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpKeyGen) << "KeyGen op applied an incorrect optype to its data";
-    if(times.size() == len+1) { len++; }
-
-    cc->Encrypt(kp.publicKey, plaintext);
-    ASSERT_TRUE(times.size()== len+1) << "Pub Encrypt op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpEncryptPub) << "Pub Encrypt op applied an incorrect optype to its data:";
-    if(times.size() == len+1) { len++; }
-
-    ciphertext = cc->Encrypt(kp.secretKey, plaintext);
-    ASSERT_TRUE(times.size()== len+1) << "Private Encrypt op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpEncryptPriv) << "Private Encrypt op applied an incorrect optype to its data:";
-    if(times.size() == len+1) { len++; }
-
-    cc->Decrypt(kp.secretKey, ciphertext, &plaintext);
-    ASSERT_TRUE(times.size()== len+1) << "Decrypt op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpDecrypt) << "Decrypt op applied an incorrect optype to its data:";
-    if(times.size() == len+1) { len++; }
-
-
-
-    Serialized ser;
-    ciphertext->Serialize(&ser);
-
-    sleep(15000);
-
 }
