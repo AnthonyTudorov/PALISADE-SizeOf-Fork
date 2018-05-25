@@ -27,6 +27,7 @@
  */
 
 #include "math/matrix.h"
+#include "math/discretegaussiangenerator.h"
 
 #ifndef LBCRYPTO_SUBGAUSSIAN_GSW_H
 #define LBCRYPTO_SUBGAUSSIAN_GSW_H
@@ -49,37 +50,77 @@ using GSWCiphertext = Matrix<Integer>;
 template <class Integer>
 using GSWPlaintext = Integer;
 
-template <class Integer>
+template <class Integer, class Vector>
 class GSWCryptoParameters
 {
 public:
-	GSWCryptoParameters() : m_n(0), m_l(0), m_m(0), m_q(Integer(0)) {;}
-	GSWCryptoParameters(uint32_t n, uint32_t l, uint32_t m, const Integer &q) : m_n(n), m_l(l), m_m(m), m_q(q) {;}
+	GSWCryptoParameters() : m_n(0), m_l(0), m_m(0), m_base(0), m_modulus(Integer(0)) {;}
+	GSWCryptoParameters(uint32_t n, int64_t base, uint32_t m, const Integer &q, double std) : m_n(n),  m_base(base), m_m(m), m_modulus(q) {
+		m_dgg.SetStd(std);
+		m_dug.SetModulus(q);
+		m_l = std::ceil(q.GetMSB()/log2(base));
+	}
+
+	const DiscreteGaussianGeneratorImpl<Integer,Vector> &GetDgg() const{
+		return m_dgg;
+	}
+
+	const DiscreteUniformGeneratorImpl<Integer,Vector> &GetDug() const{
+		return m_dug;
+	}
+
+	uint32_t Getn() const{
+		return m_n;
+	}
+
+	uint32_t Getl() const{
+		return m_l;
+	}
+
+	uint32_t Getm() const{
+		return m_m;
+	}
+
+	int64_t GetBase() const{
+		return m_base;
+	}
+
+	const Integer &GetModulus() const{
+		return m_modulus;
+	}
+
 private:
 	uint32_t m_n;
 	uint32_t m_l;
 	uint32_t m_m;
-	Integer m_q;
+	int64_t m_base;
+	Integer m_modulus;
+	DiscreteGaussianGeneratorImpl<Integer,Vector> m_dgg;
+	DiscreteUniformGeneratorImpl<Integer,Vector> m_dug;
 };
 
-template <class Integer>
+template <class Integer,class Vector>
 class GSWScheme
 {
 public:
-	void Setup(uint32_t n, uint32_t l, uint32_t m, const Integer &q) {
-		m_cryptoParams = GSWCryptoParameters<Integer>(n,l,m,q);
+	void Setup(uint32_t n, uint32_t l, uint32_t m, const Integer &q, double std) {
+		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,l,m,q,std);
 	}
 
 	shared_ptr<GSWSecretKey<Integer>> SecretKeyGen() const;
+
 	shared_ptr<GSWPublicKey<Integer>> PublicKeyGen(const shared_ptr<GSWSecretKey<Integer>>) const;
+
 	shared_ptr<GSWCiphertext<Integer>> Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>>) const;
+
 	GSWPlaintext<Integer> Decrypt(const GSWCiphertext<Integer> &ciphertext, const shared_ptr<GSWSecretKey<Integer>>) const;
 
 	shared_ptr<GSWCiphertext<Integer>> EvalAdd(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
+
 	shared_ptr<GSWCiphertext<Integer>> EvalMult(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
 
 private:
-	GSWCryptoParameters<Integer> m_cryptoParams;
+	GSWCryptoParameters<Integer,Vector> m_cryptoParams;
 
 };
 
