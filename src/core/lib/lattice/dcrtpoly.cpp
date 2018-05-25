@@ -1114,12 +1114,14 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 	}
 	else
 	{
-#ifdef OMP
-#pragma omp parallel for
-#endif
+
 		if (nTowers > 16) // handles the case when curFloatSum exceeds 2^63 (causing an an overflow in int)
 			{
 			QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
 				typename PolyType::Integer curIntSum = 0;
@@ -1139,6 +1141,9 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 		}
 		else
 		{
+#ifdef OMP
+#pragma omp parallel for
+#endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
 				typename PolyType::Integer curIntSum = 0;
@@ -1927,3 +1932,4 @@ bool DCRTPolyImpl<ModType,IntType,VecType,ParmType>::Deserialize(const Serialize
 
 
 } // namespace lbcrypto ends
+
