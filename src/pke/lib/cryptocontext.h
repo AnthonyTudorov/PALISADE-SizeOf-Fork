@@ -1280,6 +1280,64 @@ public:
 	}
 
 	/**
+	* Decrypt method for a matrix of ciphertexts
+	* @param privateKey - for decryption
+	* @param ciphertext - matrix of encrypted ciphertexts
+	* @param plaintext - pointer to the destination martrix of plaintexts
+	* @return size of plaintext
+	*/
+	DecryptResult DecryptMatrix(
+		const LPPrivateKey<Element> privateKey,
+		const Matrix<Ciphertext<Element>> ciphertext,
+		Matrix<Plaintext> *numerator) const
+	{
+
+		// edge case
+		if ((ciphertext.GetCols()== 0) && (ciphertext.GetRows() == 0))
+			return DecryptResult();
+
+		if (privateKey == NULL || Mismatched(privateKey->GetCryptoContext()))
+			throw std::runtime_error("Information passed to DecryptMatrix was not generated with this crypto context");
+
+		const Ciphertext<Element> ctN = (ciphertext)(0, 0);
+
+		// need to build matrices for the result
+		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		auto zeroPackingAlloc = [=]() { return Plaintext(ptx); };
+		numerator = new Matrix<Plaintext>(zeroPackingAlloc, ciphertext.GetRows(), ciphertext.GetCols());
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		for (size_t row = 0; row < ciphertext.GetRows(); row++)
+		{
+			for (size_t col = 0; col < ciphertext.GetCols(); col++)
+			{
+				if (Mismatched( (ciphertext(row, col))->GetCryptoContext() ))
+					throw std::runtime_error("A ciphertext passed to DecryptMatrix was not generated with this crypto context");
+
+				const Ciphertext<Element> ctN = (ciphertext)(row, col);
+
+				// determine which type of plaintext that you need to decrypt into
+				Plaintext decryptedNumerator = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+				DecryptResult resultN = GetEncryptionAlgorithm()->Decrypt(privateKey, ctN, &decryptedNumerator->GetElement<NativePoly>());
+
+				if (resultN.isValid == false) return resultN;
+
+				(*numerator)(row,col) = decryptedNumerator;
+
+				(*numerator)(row,col)->Decode();
+
+			}
+		}
+
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpDecryptMatrixPlain, TOC_US(t)) );
+		}
+		return DecryptResult((*numerator)( numerator->GetRows()-1, numerator->GetCols()-1)->GetLength());
+
+	}
+
+	/**
 	* Decrypt method for numerators in a matrix of ciphertexts (packed encoding)
 	* @param privateKey - for decryption
 	* @param ciphertext - matrix of encrypted ciphertexts
