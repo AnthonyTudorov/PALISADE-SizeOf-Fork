@@ -146,6 +146,20 @@ public:
 	}
 
 	/**
+	 * In-place modulo reduction
+	 *
+	 * @return the resulting matrix
+	 */
+	Matrix<Element>& ModEq(const Element &modulus);
+
+	/**
+	 * modular subtraction
+	 *
+	 * @return the resulting matrix
+	 */
+	Matrix<Element>& ModSubEq(Matrix<Element> const& b, const Element &modulus);
+
+	/**
 	 * Fill matrix using the same element
 	 *
 	 * @param &val the element the matrix is filled by

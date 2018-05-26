@@ -46,16 +46,42 @@ namespace lbcrypto {
 	template <class Integer,class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
+		const Integer &modulus = m_cryptoParams.GetModulus();
 		Matrix<Integer> cbar([&](){return m_cryptoParams.GetDug().GenerateInteger();}, m_cryptoParams.Getn()-1, m_cryptoParams.Getm());
-		Matrix<Integer> et([&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, 1,m_cryptoParams.Getm());
+		Matrix<Integer> et([&](){return m_cryptoParams.GetDgg().GenerateInteger(modulus);}, 1,m_cryptoParams.Getm());
+		//Matrix<Integer> et([&](){return Integer(0);}, 1,m_cryptoParams.Getm());
 		Matrix<Integer> skt = sk->Transpose();
-		Matrix<Integer> bt = et - skt.Mult(cbar);
+		Matrix<Integer> bt = et.ModSubEq((skt.Mult(cbar)).ModEq(modulus),modulus);
 		Matrix<Integer> cStack = cbar.VStack(bt);
 		Matrix<Integer> g([&](){return Integer(0);}, m_cryptoParams.Getn(),m_cryptoParams.Getm());
 		g = g.GadgetVector(m_cryptoParams.GetBase());
-		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>(cStack + g.ScalarMult(plaintext)));
-		std::cout << cStack << std::endl;
+		//std::cout << g << std::endl;
+		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((cStack + (g.ScalarMult(plaintext)).ModEq(modulus)).ModEq(modulus)));
 		return c;
+	}
+
+	template <class Integer,class Vector>
+	GSWPlaintext<Integer> GSWScheme<Integer,Vector>::Decrypt(const shared_ptr<GSWCiphertext<Integer>> ciphertext, const shared_ptr<GSWSecretKey<Integer>> sk) const
+	{
+		const Integer &modulus = m_cryptoParams.GetModulus();
+		GSWPlaintext<Integer> mu = Integer(0);
+		for (size_t i = 0; i <  m_cryptoParams.Getn()-1; i++)
+		{
+			mu += ((*sk)(i,0)*(*ciphertext)(i,m_cryptoParams.Getm()-2)).ModEq(modulus);
+		}
+		mu += ((*ciphertext)(m_cryptoParams.Getn()-1,m_cryptoParams.Getm()-2));
+
+		mu.ModEq(modulus);
+
+		std::cout << mu << std::endl;
+
+		Integer half = modulus >> 1;
+		if (mu > half)
+			mu = modulus - mu;
+
+		return mu.MultiplyAndRound(m_cryptoParams.GetBase(),m_cryptoParams.GetModulus());
+
+		//return mu;
 	}
 
 }

@@ -31,10 +31,10 @@ int main(){
 
 	double timeEval;
 
-	long b = 17; long q = 1073741827; long k = (long)ceil(log2(q)/log2(b));
+	long b = 3; long q = 1073741827; long k = (long)ceil(log2(q)/log2(b));
 	NTL::Vec<long> output; output.SetLength(k);
 
-	long u = 536870923;
+	long u = pow(3,5);
 
 	const size_t count = 10000;
 

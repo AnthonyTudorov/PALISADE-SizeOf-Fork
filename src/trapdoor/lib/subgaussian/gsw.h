@@ -34,7 +34,7 @@
 
 namespace lbcrypto {
 
-// dimension Z_q^n
+// dimension Z_q^n-1
 template <class Integer>
 using GSWSecretKey = Matrix<Integer>;
 
@@ -110,11 +110,11 @@ public:
 
 	shared_ptr<GSWSecretKey<Integer>> SecretKeyGen() const;
 
-	shared_ptr<GSWPublicKey<Integer>> PublicKeyGen(const shared_ptr<GSWSecretKey<Integer>>) const;
+	//shared_ptr<GSWPublicKey<Integer>> PublicKeyGen(const shared_ptr<GSWSecretKey<Integer>>) const;
 
 	shared_ptr<GSWCiphertext<Integer>> Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>>) const;
 
-	GSWPlaintext<Integer> Decrypt(const GSWCiphertext<Integer> &ciphertext, const shared_ptr<GSWSecretKey<Integer>>) const;
+	GSWPlaintext<Integer> Decrypt(const shared_ptr<GSWCiphertext<Integer>> ciphertext, const shared_ptr<GSWSecretKey<Integer>>) const;
 
 	shared_ptr<GSWCiphertext<Integer>> EvalAdd(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
 

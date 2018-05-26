@@ -47,6 +47,61 @@ namespace lbcrypto {
   ONES_FOR_TYPE(int64_t)
   ONES_FOR_TYPE(Field2n)
 
+#define MODEQ_FOR_TYPE(T)			\
+  template<>					\
+  Matrix<T>& Matrix<T>::ModEq(const T &element) {		\
+    for (size_t row = 0; row < rows; ++row) {	\
+      for (size_t col = 0; col < cols; ++col) { \
+    	  	  data[row][col].ModEq(element);			\
+      }						\
+    }						\
+    return *this;				\
+  }
+
+  MODEQ_FOR_TYPE(NativeInteger)
+  MODEQ_FOR_TYPE(BigInteger)
+
+#define MODSUBEQ_FOR_TYPE(T)			\
+  template<>					\
+  Matrix<T>& Matrix<T>::ModSubEq(Matrix<T> const& b, const T &element) {		\
+    for (size_t row = 0; row < rows; ++row) {	\
+      for (size_t col = 0; col < cols; ++col) { \
+    	  	  data[row][col].ModSubEq(b.data[row][col],element);			\
+      }						\
+    }						\
+    return *this;				\
+  }
+
+  MODSUBEQ_FOR_TYPE(NativeInteger)
+  MODSUBEQ_FOR_TYPE(BigInteger)
+
+//template<>
+//Matrix<Plaintext>& Matrix<Plaintext>::Ones() {
+//	Plaintext One( { 1 } );
+//    for (size_t row = 0; row < rows; ++row) {
+//        for (size_t col = 0; col < cols; ++col) {
+//            *data[row][col] = One;
+//        }
+//    }
+//    return *this;
+//}
+
+#define IDENTITY_FOR_TYPE(T)			\
+  template<>					\
+  Matrix<T>& Matrix<T>::Identity() {		\
+    for (size_t row = 0; row < rows; ++row) {	\
+      for (size_t col = 0; col < cols; ++col) { \
+	if (row == col) {			\
+	  data[row][col] = 1;			\
+	} else {				\
+	  data[row][col] = 0;			\
+	}					\
+      }						\
+    }						\
+    return *this;				\
+  }
+
+  IDENTITY_FOR_TYPE(int32_t)
   IDENTITY_FOR_TYPE(double)
   IDENTITY_FOR_TYPE(int)
   IDENTITY_FOR_TYPE(int64_t)
