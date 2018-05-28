@@ -1644,7 +1644,7 @@ public:
 
 		TimeVar t;
 		if( doTiming ) TIC(t);
-		Matrix<RationalCiphertext<Element>> rv = ct1 - ct2;
+		Matrix<Ciphertext<Element>> rv = ct1 - ct2;
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, TOC_US(t)) );
 		}
