@@ -943,7 +943,7 @@ public:
 	* @param doEncryption encrypts if true, embeds (encodes) the plaintext into cryptocontext if false
 	* @return a vector of pointers to Ciphertexts created by encrypting the plaintext
 	*/
-	Matrix<Ciphertext<Element>> EncryptMatrixC(
+	Matrix<Ciphertext<Element>> EncryptMatrixCiphertext(
 		const LPPublicKey<Element> publicKey,
 		Matrix<Plaintext> &plaintext)
 	{
@@ -951,7 +951,6 @@ public:
 			throw std::logic_error("key passed to EncryptMatrix was not generated with this crypto context");
 
 		auto zeroAlloc = [=]() { return Ciphertext<Element>(new CiphertextImpl<Element>(publicKey->GetCryptoContext())); };
-
 		Matrix<Ciphertext<Element>> cipherResults(zeroAlloc, plaintext.GetRows(), plaintext.GetCols());
 
 		TimeVar t;
@@ -1286,7 +1285,7 @@ public:
 	* @param plaintext - pointer to the destination martrix of plaintexts
 	* @return size of plaintext
 	*/
-	DecryptResult DecryptMatrix(
+	DecryptResult DecryptMatrixCiphertext(
 		const LPPrivateKey<Element> privateKey,
 		const Matrix<Ciphertext<Element>> ciphertext,
 		Matrix<Plaintext> *numerator) const
@@ -1302,9 +1301,9 @@ public:
 		const Ciphertext<Element> ctN = (ciphertext)(0, 0);
 
 		// need to build matrices for the result
-		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
-		auto zeroPackingAlloc = [=]() { return Plaintext(ptx); };
-		numerator = new Matrix<Plaintext>(zeroPackingAlloc, ciphertext.GetRows(), ciphertext.GetCols());
+//		Plaintext ptx = GetPlaintextForDecrypt(ctN->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+//		auto zeroPackingAlloc = [=]() { return Plaintext(ptx); };
+//		numerator = new Matrix<Plaintext>(zeroPackingAlloc, ciphertext.GetRows(), ciphertext.GetCols());
 
 		TimeVar t;
 		if( doTiming ) TIC(t);
