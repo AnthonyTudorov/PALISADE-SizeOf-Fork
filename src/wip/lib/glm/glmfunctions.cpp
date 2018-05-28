@@ -1454,13 +1454,13 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 Matrix<Ciphertext<DCRTPoly>> MultiplyWTransX(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x, Matrix<Ciphertext<DCRTPoly>> &beta){
 
 	auto zeroAllocPacking = [=]() { return cc->MakePackedPlaintext({0}); };
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 
 	size_t dataMatrixRowSize = x.GetRows();
 	size_t numRegressors = x.GetCols();
 
-	Matrix<Ciphertext<DCRTPoly>> result(zeroAllocRationalCiphertext, dataMatrixRowSize, 1);
-	Matrix<Ciphertext<DCRTPoly>> xTbt(zeroAllocRationalCiphertext, dataMatrixRowSize, numRegressors);
+	Matrix<Ciphertext<DCRTPoly>> result(zeroAllocCiphertext, dataMatrixRowSize, 1);
+	Matrix<Ciphertext<DCRTPoly>> xTbt(zeroAllocCiphertext, dataMatrixRowSize, numRegressors);
 
 	const Ciphertext<DCRTPoly> xi = x(0, 0);
 	const Ciphertext<DCRTPoly> bk = beta(0, 0);
@@ -1504,12 +1504,12 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyWTransX(CryptoContext<DCRTPoly> &cc, Matrix
 Matrix<Ciphertext<DCRTPoly>> MultiplyXTransX(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x){
 
 	auto zeroAllocPacking = [=]() { return cc->MakePackedPlaintext({0}); };
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 
 	size_t rowSize = x.GetRows();
 	size_t colSize = x.GetCols();
 
-	Matrix<Ciphertext<DCRTPoly>> xTbt(zeroAllocRationalCiphertext, rowSize, colSize);
+	Matrix<Ciphertext<DCRTPoly>> xTbt(zeroAllocCiphertext, rowSize, colSize);
 	Ciphertext<DCRTPoly> result(new CiphertextImpl<DCRTPoly>(cc));
 
 	#ifdef OMPSECTION1
@@ -1529,9 +1529,10 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyXTransS(CryptoContext<DCRTPoly> &cc, Matrix
 
 	size_t dataMatrixRowSize = x.GetRows();
 	size_t numRegressors = x.GetCols();
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 
-	Matrix<Ciphertext<DCRTPoly>> xTSt(zeroAllocRationalCiphertext, dataMatrixRowSize, numRegressors);
+
+	Matrix<Ciphertext<DCRTPoly>> xTSt(zeroAllocCiphertext, dataMatrixRowSize, numRegressors);
 
 	Ciphertext<DCRTPoly> xi = x(0, 0);
 	Ciphertext<DCRTPoly> si = SC(0,0);
@@ -1559,9 +1560,9 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyXTransSX(CryptoContext<DCRTPoly> &cc, Matri
 
 	size_t dataMatrixRowSize = x.GetRows();
 	size_t numRegressors = x.GetCols();
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 
-	Matrix<Ciphertext<DCRTPoly>> xTSxt(zeroAllocRationalCiphertext, numRegressors, numRegressors);
+	Matrix<Ciphertext<DCRTPoly>> xTSxt(zeroAllocCiphertext, numRegressors, numRegressors);
 
 	const Ciphertext<DCRTPoly> xTSk = C0(0, 0);
 	const Ciphertext<DCRTPoly> xk   = x(0, 0);
@@ -1621,15 +1622,16 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyXAddYMu(CryptoContext<DCRTPoly> &cc,
 		Matrix<Ciphertext<DCRTPoly>> &x,
 		Matrix<Ciphertext<DCRTPoly>> &muC){
 
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
+
 	size_t dataMatrixRowSize = x.GetRows();
 	size_t dataMatrixColSize = x.GetCols();
 
 	Ciphertext<DCRTPoly> xwSyMu(new CiphertextImpl<DCRTPoly>(cc));
 	Matrix<Ciphertext<DCRTPoly>> yMu = cc->EvalSubMatrix(y, muC);
-	Matrix<Ciphertext<DCRTPoly>> C2t(zeroAllocRationalCiphertext, 1, dataMatrixColSize);
+	Matrix<Ciphertext<DCRTPoly>> C2t(zeroAllocCiphertext, 1, dataMatrixColSize);
 
-	Matrix<Ciphertext<DCRTPoly>> C2mid(zeroAllocRationalCiphertext, dataMatrixRowSize, dataMatrixColSize);
+	Matrix<Ciphertext<DCRTPoly>> C2mid(zeroAllocCiphertext, dataMatrixRowSize, dataMatrixColSize);
 
 	const Ciphertext<DCRTPoly> c1 = x(0, 0);
 	const Ciphertext<DCRTPoly> c2 = yMu(0, 0);
@@ -1685,9 +1687,10 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyC1C2(CryptoContext<DCRTPoly> &cc,
 		Matrix<Ciphertext<DCRTPoly>> &C1,
 		Matrix<Ciphertext<DCRTPoly>> &C2){
 
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
-	Matrix<Ciphertext<DCRTPoly>> C1C2t(zeroAllocRationalCiphertext, 1, C1.GetCols());
-	Matrix<Ciphertext<DCRTPoly>> C1C2mid(zeroAllocRationalCiphertext, C1.GetRows(), C1.GetCols());
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
+
+	Matrix<Ciphertext<DCRTPoly>> C1C2t(zeroAllocCiphertext, 1, C1.GetCols());
+	Matrix<Ciphertext<DCRTPoly>> C1C2mid(zeroAllocCiphertext, C1.GetRows(), C1.GetCols());
 
 	const Ciphertext<DCRTPoly> c1 = C1(0, 0);
 	const Ciphertext<DCRTPoly> c2 = C2(0, 0);
@@ -1735,8 +1738,9 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyC0C1(CryptoContext<DCRTPoly> &cc,
 	size_t dataMatrixRowSize = C0.GetRows();
 	size_t numRegressors = C0.GetCols();
 
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
-    Matrix<Ciphertext<DCRTPoly>> C0C1t(zeroAllocRationalCiphertext, dataMatrixRowSize, numRegressors);
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
+
+    Matrix<Ciphertext<DCRTPoly>> C0C1t(zeroAllocCiphertext, dataMatrixRowSize, numRegressors);
 
 	for(size_t row=0; row<dataMatrixRowSize; row++){
 		for(size_t col=0; col<numRegressors; col++){
@@ -1763,8 +1767,10 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyC0C1C2(CryptoContext<DCRTPoly> &cc,
 
 	size_t dataMatrixRowSize = C0C1.GetRows();
 	size_t numRegressors = C0C1.GetCols();
-	auto zeroAllocRationalCiphertext = [=]() { return cc; };
-	Matrix<Ciphertext<DCRTPoly>> C0C1C2t(zeroAllocRationalCiphertext, 1, numRegressors);
+
+	auto zeroAllocCiphertext = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
+
+	Matrix<Ciphertext<DCRTPoly>> C0C1C2t(zeroAllocCiphertext, 1, numRegressors);
 
 	for(size_t col=0; col<numRegressors; col++){
 		Ciphertext<DCRTPoly> result;
