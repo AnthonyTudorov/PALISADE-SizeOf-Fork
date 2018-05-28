@@ -1632,6 +1632,28 @@ public:
 	}
 
 	/**
+	 * EvalSubMatrix - PALISADE EvalSub method for a pair of matrices of ciphertexts
+	 * @param ct1
+	 * @param ct2
+	 * @return new matrix for ct1 + ct2
+	 */
+	Matrix<Ciphertext<Element>>
+	EvalSubMatrix(const Matrix<Ciphertext<Element>> &ct1, const Matrix<Ciphertext<Element>> &ct2) const
+	{
+		TypeCheck(ct1(0,0), ct2(0,0)); // TODO only checking one; when Matrix is refactored, this should be revisited
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		Matrix<RationalCiphertext<Element>> rv = ct1 - ct2;
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubMatrix, TOC_US(t)) );
+		}
+		Matrix<Ciphertext<Element>> a(rv);
+		return a;
+	}
+
+
+	/**
 	* EvalAdd - PALISADE EvalAdd method for a ciphertext and plaintext
 	* @param ciphertext
 	* @param plaintext
