@@ -74,8 +74,8 @@ struct timingParams{
 
 struct GLMContext{
 	vector<CryptoContext<DCRTPoly>> cc;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> x;
-	vector<shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>>> y;
+	vector<Matrix<Ciphertext<DCRTPoly>>> x;
+	vector<Matrix<Ciphertext<DCRTPoly>>> y;
 
 	vector<LPPublicKey<DCRTPoly>> pk;
 	vector<LPPrivateKey<DCRTPoly>> sk;
@@ -169,13 +169,13 @@ void ParseData(vector<vector<double>> &dataColumns, vector<vector<double>> &xPDo
 CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName);
 LPPublicKey<DCRTPoly> DeserializePublicKey(CryptoContext<DCRTPoly> &cc, const string& pkFileName);
 LPPrivateKey<DCRTPoly> DeserializePrivateKey(CryptoContext<DCRTPoly> &cc, const string& pkFileName);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> DeserializeCiphertext(CryptoContext<DCRTPoly> &cc, const string &path);
+Matrix<Ciphertext<DCRTPoly>> DeserializeCiphertext(CryptoContext<DCRTPoly> &cc, const string &path);
 void DeserializeEvalMult(CryptoContext<DCRTPoly> &cc, const string& emFileName);
 void DeserializeEvalSum(CryptoContext<DCRTPoly> &cc, const string& esFileName);
 void SerializeContext(CryptoContext<DCRTPoly> &cc, const string &xFileName);
 void SerializePublicKey(LPPublicKey<DCRTPoly> &C, const string &xFileName);
 void SerializePrivateKey(LPPrivateKey<DCRTPoly> &C, const string &xFileName);
-void SerializeCiphertext(shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C, const string &xFileName);
+void SerializeCiphertext(Matrix<Ciphertext<DCRTPoly>> &C, const string &xFileName);
 void SerializeMultEvalKey(CryptoContext<DCRTPoly> &cc, const vector<LPEvalKey<DCRTPoly>> &evalMultKey, const string &xFileName);
 void SerializeSumEvalKey(CryptoContext<DCRTPoly> &cc, const std::map<usint, LPEvalKey<DCRTPoly>>& evalSumKey, const string &xFileName);
 
@@ -183,18 +183,18 @@ void SerializeSumEvalKey(CryptoContext<DCRTPoly> &cc, const std::map<usint, LPEv
 /////////                     Arithmetic Functions              /////////
 /////////////////////////////////////////////////////////////////////////
 double ComputeError(Matrix<BigInteger> &mu, Matrix<BigInteger> &y, size_t size, glmParams &params);
-void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc, const Matrix<BigInteger> &wTb, vector<shared_ptr<Matrix<Plaintext>>> &mu,
-								vector<shared_ptr<Matrix<Plaintext>>> &S, const size_t dataEntrySize,
+void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc, const Matrix<BigInteger> &wTb, vector<Matrix<Plaintext>> &mu,
+								vector<Matrix<Plaintext>> &S, const size_t dataEntrySize,
 								const vector<NativeInteger> &primeList, string regAlgorithm, glmParams &params);
 
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyWTransX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &beta);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransS(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &SC);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXTransSX(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyXAddYMu(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &y, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &x, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &muC);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC0C1(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C1);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC0C1C2(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C0C1, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C2);
-shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> MultiplyC1C2(CryptoContext<DCRTPoly> &cc, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C1, shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> &C2);
+Matrix<Ciphertext<DCRTPoly>> MultiplyWTransX(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x, Matrix<Ciphertext<DCRTPoly>> &beta);
+Matrix<Ciphertext<DCRTPoly>> MultiplyXTransX(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x);
+Matrix<Ciphertext<DCRTPoly>> MultiplyXTransS(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x, Matrix<Ciphertext<DCRTPoly>> &SC);
+Matrix<Ciphertext<DCRTPoly>> MultiplyXTransSX(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &x, Matrix<Ciphertext<DCRTPoly>> &C0);
+Matrix<Ciphertext<DCRTPoly>> MultiplyXAddYMu(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &y, Matrix<Ciphertext<DCRTPoly>> &x, Matrix<Ciphertext<DCRTPoly>> &muC);
+Matrix<Ciphertext<DCRTPoly>> MultiplyC0C1(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &C0, Matrix<Ciphertext<DCRTPoly>> &C1);
+Matrix<Ciphertext<DCRTPoly>> MultiplyC0C1C2(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &C0C1, Matrix<Ciphertext<DCRTPoly>> &C2);
+Matrix<Ciphertext<DCRTPoly>> MultiplyC1C2(CryptoContext<DCRTPoly> &cc, Matrix<Ciphertext<DCRTPoly>> &C1, Matrix<Ciphertext<DCRTPoly>> &C2);
 /////////////////////////////////////////////////////////////////////////
 /////////                     CRT/Encoding Functions            /////////
 /////////////////////////////////////////////////////////////////////////
@@ -211,10 +211,10 @@ void ConvertPlaintextEncodingToMatrixBigInteger(const CryptoContext<DCRTPoly> &c
 
 void DataToCRT(vector<vector<double>> &xPVecDouble, vector<Matrix<BigInteger>> &xPMatVec, vector<BigInteger> &primeList, uint64_t &decimalInc, glmParams &params);
 void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& dataColumns, Matrix<Plaintext>& x, Matrix<Plaintext>& y, glmParams &params);
-void EncodeC0Matrix(vector<CryptoContext<DCRTPoly>> &cc, vector<shared_ptr<Matrix<double>>> &CList, vector<shared_ptr<Matrix<Plaintext>>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
-void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, shared_ptr<Matrix<double>> &CList, vector<shared_ptr<Matrix<Plaintext>>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
-void EncodeC2Matrix(vector<CryptoContext<DCRTPoly>> &cc, shared_ptr<Matrix<double>> &CList, vector<shared_ptr<Matrix<Plaintext>>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
-void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, shared_ptr<Matrix<BigInteger>> &CList, vector<shared_ptr<Matrix<Plaintext>>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
+void EncodeC0Matrix(vector<CryptoContext<DCRTPoly>> &cc, vector<Matrix<double>> &CList, vector<Matrix<Plaintext>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
+void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<double> &CList, vector<Matrix<Plaintext>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
+void EncodeC2Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<double> &CList, vector<Matrix<Plaintext>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
+void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<BigInteger> &CList, vector<Matrix<Plaintext>> &CP, vector<NativeInteger> &primeList, size_t &batchSize);
 
 /////////////////////////////////////////////////////////////////////////
 /////////                     Decimal Scaling Functions         /////////
@@ -223,8 +223,8 @@ void DecimalIncrement(const Matrix<double> &in, Matrix<double> &out, size_t deci
 void DecimalDecrement(const Matrix<double> &in, Matrix<double> &out, size_t decimalSize, glmParams &params);
 void DecimalIncrement(const double &in, double &out, size_t decimalSize, glmParams &params);
 void DecimalDecrement(const double &in, double &out, size_t decimalSize, glmParams &params);
-void DecimalIncrement(const vector<shared_ptr<Matrix<double>>> &in, vector<shared_ptr<Matrix<double>>> &out, size_t decimalSize, glmParams &params);
-void DecimalDecrement(const vector<shared_ptr<Matrix<double>>> &in, vector<shared_ptr<Matrix<double>>> &out, size_t decimalSize, glmParams &params);
+void DecimalIncrement(const vector<Matrix<double>> &in, vector<Matrix<double>> &out, size_t decimalSize, glmParams &params);
+void DecimalDecrement(const vector<Matrix<double>> &in, vector<Matrix<double>> &out, size_t decimalSize, glmParams &params);
 
 /////////////////////////////////////////////////////////////////////////
 /////////                     Printing Functions                /////////
