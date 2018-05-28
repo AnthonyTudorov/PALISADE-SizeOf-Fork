@@ -79,11 +79,11 @@ namespace glmcrypto{
 
 			string pathToFile;
 			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
-			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
+			Matrix<Ciphertext<DCRTPoly>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.x.push_back(xt);
 
 			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
-			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
+			Matrix<Ciphertext<DCRTPoly>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.y.push_back(yt);
 
 			LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(context.cc[k], pkFileName);
@@ -159,11 +159,11 @@ namespace glmcrypto{
 
 			string pathToFile;
 			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
-			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
+			Matrix<Ciphertext<DCRTPoly>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.x.push_back(xt);
 
 			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
-			shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
+			Matrix<Ciphertext<DCRTPoly>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
 			context.y.push_back(yt);
 
 			LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(context.cc[k], pkFileName);
