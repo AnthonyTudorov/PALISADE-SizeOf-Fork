@@ -194,7 +194,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
 		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
-		qInvPrecon[vi] = qInv[vi].PrepModMulPreconNTL(qi.ConvertToInt());
+		qInvPrecon[vi] = qInv[vi].PrepModMulPreconOptimized(qi.ConvertToInt());
 	}
 
 	m_CRTInverseTable = qInv;
@@ -268,7 +268,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
 		BigInteger divBy = modulusS / si;
 		sInv[vi] = divBy.ModInverse(si).Mod(si).ConvertToInt();
-		sInvPrecon[vi] = sInv[vi].PrepModMulPreconNTL(si.ConvertToInt());
+		sInvPrecon[vi] = sInv[vi].PrepModMulPreconOptimized(si.ConvertToInt());
 	}
 
 	m_CRTSInverseTable = sInv;
@@ -497,7 +497,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	//makes sure the first integer is less than 2^60-1 to take advantage of NTL optimizations
 	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
 	firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(dcrtBits/3));
 	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);

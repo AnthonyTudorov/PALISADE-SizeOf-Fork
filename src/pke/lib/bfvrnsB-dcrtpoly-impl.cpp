@@ -90,7 +90,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger divBy = modulusQ / qi;
 		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(GetPlaintextModulus())/qi;
 		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
-		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconNTL(GetPlaintextModulus());
+		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconOptimized(GetPlaintextModulus());
 	}
 	m_CRTDecryptionIntTable = qDecryptionInt;
 	m_CRTDecryptionIntPreconTable = qDecryptionIntPrecon;
@@ -190,7 +190,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		tqDivqi = tqDivqi.ModInverse( moduli[i] );
 		tqDivqi = tqDivqi.ModMul( t.ConvertToInt() , moduli[i] );
 		m_tqDivqiModqiTable[i] = tqDivqi.ConvertToInt();
-		m_tqDivqiModqiPreconTable[i] = m_tqDivqiModqiTable[i].PrepModMulPreconNTL( moduli[i] );
+		m_tqDivqiModqiPreconTable[i] = m_tqDivqiModqiTable[i].PrepModMulPreconOptimized( moduli[i] );
 	}
 
 	// Populate q/qi mod Bj table where Bj \in {Bsk U mtilde}
@@ -219,14 +219,14 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		qDivqi = qDivqi * m_mtilde;
 		qDivqi = qDivqi.Mod(moduli[i]);
 		m_mtildeqDivqiTable[i] = qDivqi.ConvertToInt();
-		m_mtildeqDivqiPreconTable[i] = m_mtildeqDivqiTable[i].PrepModMulPreconNTL( moduli[i] );
+		m_mtildeqDivqiPreconTable[i] = m_mtildeqDivqiTable[i].PrepModMulPreconOptimized( moduli[i] );
 	}
 
 	// Populate -1/q mod mtilde
 	BigInteger negqInvModmtilde = ((m_mtilde-1) * q.ModInverse(m_mtilde));
 	negqInvModmtilde = negqInvModmtilde.Mod(m_mtilde);
 	m_negqInvModmtilde = negqInvModmtilde.ConvertToInt();
-	m_negqInvModmtildePrecon = m_negqInvModmtilde.PrepModMulPreconNTL(m_mtilde);
+	m_negqInvModmtildePrecon = m_negqInvModmtilde.PrepModMulPreconOptimized(m_mtilde);
 
 	// Populate q mod Bski
 	m_qModBskiTable.resize(m_numB + 1);
@@ -236,7 +236,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	{
 		BigInteger qModBski = q.Mod(m_BskModuli[i]);
 		m_qModBskiTable[i] = qModBski.ConvertToInt();
-		m_qModBskiPreconTable[i] = m_qModBskiTable[i].PrepModMulPreconNTL(m_BskModuli[i]);
+		m_qModBskiPreconTable[i] = m_qModBskiTable[i].PrepModMulPreconOptimized(m_BskModuli[i]);
 	}
 
 	// Populate mtilde^-1 mod Bski
@@ -247,7 +247,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger mtildeInvModBski = m_mtilde % m_BskModuli[i];
 		mtildeInvModBski = mtildeInvModBski.ModInverse(m_BskModuli[i]);
 		m_mtildeInvModBskiTable[i] = mtildeInvModBski.ConvertToInt();
-		m_mtildeInvModBskiPreconTable[i] = m_mtildeInvModBskiTable[i].PrepModMulPreconNTL(m_BskModuli[i]);
+		m_mtildeInvModBskiPreconTable[i] = m_mtildeInvModBskiTable[i].PrepModMulPreconOptimized(m_BskModuli[i]);
 	}
 
 	// Populate q^-1 mod Bski
@@ -258,7 +258,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	{
 		BigInteger qInvModBski = q.ModInverse(m_BskModuli[i]);
 		m_qInvModBskiTable[i] = qInvModBski.ConvertToInt();
-		m_qInvModBskiPreconTable[i] = m_qInvModBskiTable[i].PrepModMulPreconNTL( m_BskModuli[i] );
+		m_qInvModBskiPreconTable[i] = m_qInvModBskiTable[i].PrepModMulPreconOptimized( m_BskModuli[i] );
 	}
 
 	// Populate (B/Bi)^-1 mod Bi
@@ -272,7 +272,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		BDivBi = BDivBi.Mod(m_BModuli[i]);
 		BDivBi = BDivBi.ModInverse( m_BModuli[i] );
 		m_BDivBiModBiTable[i] = BDivBi.ConvertToInt();
-		m_BDivBiModBiPreconTable[i] = m_BDivBiModBiTable[i].PrepModMulPreconNTL(m_BModuli[i]);
+		m_BDivBiModBiPreconTable[i] = m_BDivBiModBiTable[i].PrepModMulPreconOptimized(m_BModuli[i]);
 	}
 
 	// Populate B/Bi mod qj table (Matrix) where Bj \in {q}
@@ -298,7 +298,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 
 	// Populate B^-1 mod msk
 	m_BInvModmsk = (B.ModInverse(m_msk)).ConvertToInt();
-	m_BInvModmskPrecon = m_BInvModmsk.PrepModMulPreconNTL( m_msk );
+	m_BInvModmskPrecon = m_BInvModmsk.PrepModMulPreconOptimized( m_msk );
 
 	// Populate B mod qi
 	m_BModqiTable.resize(m_numq);
@@ -306,7 +306,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	for (uint32_t i = 0; i < m_BModqiTable.size(); i++)
 	{
 		m_BModqiTable[i] = (B.Mod( moduli[i] )).ConvertToInt();
-		m_BModqiPreconTable[i] = m_BModqiTable[i].PrepModMulPreconNTL( moduli[i] );
+		m_BModqiPreconTable[i] = m_BModqiTable[i].PrepModMulPreconOptimized( moduli[i] );
 	}
 
 	// Populate Decrns lookup tables
@@ -314,7 +314,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_gamma = NextPrime<NativeInteger>(m_mtilde, 2 * n);
 
 	m_gammaInvModt = m_gamma.ModInverse(t.ConvertToInt());
-	m_gammaInvModtPrecon = m_gammaInvModt.PrepModMulPreconNTL( t.ConvertToInt() );
+	m_gammaInvModtPrecon = m_gammaInvModt.PrepModMulPreconOptimized( t.ConvertToInt() );
 
 	BigInteger negqModt = ((t-BigInteger(1)) * q.ModInverse(t));
 	BigInteger negqModgamma = ((m_gamma-1) * q.ModInverse(m_gamma));
@@ -322,10 +322,10 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_negqInvModtgammaPreconTable.resize(2);
 
 	m_negqInvModtgammaTable[0] = negqModt.Mod(t).ConvertToInt();
-	m_negqInvModtgammaPreconTable[0] = m_negqInvModtgammaTable[0].PrepModMulPreconNTL( t.ConvertToInt() );
+	m_negqInvModtgammaPreconTable[0] = m_negqInvModtgammaTable[0].PrepModMulPreconOptimized( t.ConvertToInt() );
 
 	m_negqInvModtgammaTable[1] = negqModgamma.Mod(m_gamma).ConvertToInt();
-	m_negqInvModtgammaPreconTable[1] = m_negqInvModtgammaTable[1].PrepModMulPreconNTL(m_gamma);
+	m_negqInvModtgammaPreconTable[1] = m_negqInvModtgammaTable[1].PrepModMulPreconOptimized(m_gamma);
 
 	// Populate q/qi mod mj table where mj \in {t U gamma}
 	m_qDivqiModtgammaTable.resize(m_numq);
@@ -339,11 +339,11 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 
 		BigInteger qDivqiModt = qDivqi.Mod(t);
 		m_qDivqiModtgammaTable[i][0] = qDivqiModt.ConvertToInt();
-		m_qDivqiModtgammaPreconTable[i][0] = m_qDivqiModtgammaTable[i][0].PrepModMulPreconNTL( t.ConvertToInt() );
+		m_qDivqiModtgammaPreconTable[i][0] = m_qDivqiModtgammaTable[i][0].PrepModMulPreconOptimized( t.ConvertToInt() );
 
 		BigInteger qDivqiModgamma = qDivqi.Mod(m_gamma);
 		m_qDivqiModtgammaTable[i][1] = qDivqiModgamma.ConvertToInt();
-		m_qDivqiModtgammaPreconTable[i][1] = m_qDivqiModtgammaTable[i][1].PrepModMulPreconNTL( m_gamma );
+		m_qDivqiModtgammaPreconTable[i][1] = m_qDivqiModtgammaTable[i][1].PrepModMulPreconOptimized( m_gamma );
 
 	}
 
@@ -358,7 +358,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		BigInteger gammaqDivqi = (qDivqi*m_gamma) % moduli[i];
 		BigInteger tgammaqDivqi = (gammaqDivqi*t) % moduli[i];
 		m_tgammaqDivqiModqiTable[i] = tgammaqDivqi.ConvertToInt();
-		m_tgammaqDivqiModqiPreconTable[i] = m_tgammaqDivqiModqiTable[i].PrepModMulPreconNTL( moduli[i] );
+		m_tgammaqDivqiModqiPreconTable[i] = m_tgammaqDivqiModqiTable[i].PrepModMulPreconOptimized( moduli[i] );
 	}
 
 	return true;
@@ -561,7 +561,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	//makes sure the first integer is less than 2^60-1 to take advantage of NTL optimizations
 	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
 	firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(dcrtBits/3));
 	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);

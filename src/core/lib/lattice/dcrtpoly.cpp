@@ -1104,7 +1104,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 				// We assume that that the value of p is smaller than 64 bits (like 58)
 				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 				//curIntSum += xi.ModMul(alpha[vi],p);
-				curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+				curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
 				curFloatSum += (long double)(xi.ConvertToInt())*extBeta[vi];
 			}
@@ -1131,7 +1131,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 					// We assume that that the value of p is smaller than 64 bits (like 58)
 					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 					//curIntSum += xi.ModMul(alpha[vi],p);
-					curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+					curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
 					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
 				}
@@ -1153,7 +1153,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(const typename Pol
 					// We assume that that the value of p is smaller than 64 bits (like 58)
 					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
 					//curIntSum += xi.ModMul(alpha[vi],p);
-					curIntSum += xi.ModMulPreconNTL(alpha[vi],p,alphaPrecon[vi]);
+					curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
 					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
 				}
@@ -1247,7 +1247,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			const typename PolyType::Integer &curNativeValue = typename PolyType::Integer(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
 			//second round - remove q-overflows
-			ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastNTL(qModsi[newvIndex],si),si);
+			ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si),si);
 
 		}
 
@@ -1351,25 +1351,25 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 			const typename PolyType::Integer &qi = qModuliTable[i];
 			const typename PolyType::Integer &xi = m_vectors[i].at(k);
 			tmp = xi;
-			tmp.ModMulPreconNTLEq( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
+			tmp.ModMulPreconOptimizedEq( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
 
-			tmpt = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][0], t, qDivqiModtgammaPreconTable[i][0] ); // mod t
-			tmpgamma = tmp.ModMulPreconNTL( qDivqiModtgammaTable[i][1], gamma, qDivqiModtgammaPreconTable[i][1] ); // mod gamma
+			tmpt = tmp.ModMulPreconOptimized( qDivqiModtgammaTable[i][0], t, qDivqiModtgammaPreconTable[i][0] ); // mod t
+			tmpgamma = tmp.ModMulPreconOptimized( qDivqiModtgammaTable[i][1], gamma, qDivqiModtgammaPreconTable[i][1] ); // mod gamma
 
-			st.ModAddFastNTLEq( tmpt, t );
-			sgamma.ModAddFastNTLEq( tmpgamma, gamma );
+			st.ModAddFastOptimizedEq( tmpt, t );
+			sgamma.ModAddFastOptimizedEq( tmpgamma, gamma );
 		}
 
 		// mul by -q^-1
-		st.ModMulPreconNTLEq(negqInvModtgammaTable[0], t, negqInvModtgammaPreconTable[0]);
-		sgamma.ModMulPreconNTLEq( negqInvModtgammaTable[1], gamma, negqInvModtgammaPreconTable[1] );
+		st.ModMulPreconOptimizedEq(negqInvModtgammaTable[0], t, negqInvModtgammaPreconTable[0]);
+		sgamma.ModMulPreconOptimizedEq( negqInvModtgammaTable[1], gamma, negqInvModtgammaPreconTable[1] );
 
 		if ( sgamma > (gamma >> 1) )
 			sgamma = sgamma.ModSubFast( gamma, t );
 
 		tmp = st.ModSub( sgamma, t );
 
-		coefficients[k] = tmp.ModMulPreconNTL( gammaInvModt, t, gammaInvModtPrecon );
+		coefficients[k] = tmp.ModMulPreconOptimized( gammaInvModt, t, gammaInvModtPrecon );
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive
@@ -1439,7 +1439,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-        	ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulPreconNTL( currentmtildeqDivqiModqi, qModuli[i], currentmtildeqDivqiModqiPrecon);
+        	ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulPreconOptimized( currentmtildeqDivqiModqi, qModuli[i], currentmtildeqDivqiModqiPrecon);
         }
     }
 
@@ -1490,10 +1490,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     		// collapsing
     		const typename PolyType::Integer &c_mtilde = m_vectors[numq+numBsk].at(k);
     		typename PolyType::Integer rmtilde = c_mtilde; // c``_mtilde
-    		rmtilde.ModMulPreconNTLEq(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
-    		rmtilde.ModMulPreconNTLEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
-    		rmtilde.ModAddFastNTLEq( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
-    		m_vectors[numq+i].at(k) = rmtilde.ModMulPreconNTL( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) * mtilde mod Bski
+    		rmtilde.ModMulPreconOptimizedEq(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
+    		rmtilde.ModMulPreconOptimizedEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
+    		rmtilde.ModAddFastOptimizedEq( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
+    		m_vectors[numq+i].at(k) = rmtilde.ModMulPreconOptimized( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) * mtilde mod Bski
 		}
     }
 
@@ -1570,7 +1570,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		for (uint32_t k = 0; k < n; k++)
 		{
 			// multiply by t*(q/qi)^-1 mod qi
-			m_vectors[i].at(k).ModMulPreconNTLEq(currenttqDivqiModqi, qModuli[i], currenttqDivqiModqiPrecon);
+			m_vectors[i].at(k).ModMulPreconOptimizedEq(currenttqDivqiModqi, qModuli[i], currenttqDivqiModqiPrecon);
 		}
 	}
 
@@ -1606,7 +1606,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
         	// Not worthy to use lazy reduction here
         	m_vectors[i+numq].at(k).ModMulFastEq(t, BskModuli[i]);
         	m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
-        	m_vectors[i+numq].at(k).ModMulPreconNTLEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
+        	m_vectors[i+numq].at(k).ModMulPreconOptimizedEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
         }
     }
 	delete[] txiqiDivqModqi;
@@ -1653,7 +1653,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-            m_vectors[numq+i].at(k).ModMulPreconNTLEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
+            m_vectors[numq+i].at(k).ModMulPreconOptimizedEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
         }
     }
 
@@ -1701,7 +1701,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	{
     	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
     			, BskModuli[numBsk-1]);
-    	alphaskxVector[k].ModMulPreconNTLEq( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
+    	alphaskxVector[k].ModMulPreconOptimizedEq( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
 	}
 
     // do (m_vector - alphaskx*M) mod q
@@ -1720,7 +1720,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			if (alphaskBModqi > mskDivTwo)
 				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
 
-			alphaskBModqi.ModMulPreconNTLEq( currentBModqi, qModuli[i], currentBModqiPrecon );
+			alphaskBModqi.ModMulPreconOptimizedEq( currentBModqi, qModuli[i], currentBModqiPrecon );
 			m_vectors[i].at(k) = m_vectors[i].at(k).ModSubFast( alphaskBModqi, qModuli[i] );
 		}
 	}
