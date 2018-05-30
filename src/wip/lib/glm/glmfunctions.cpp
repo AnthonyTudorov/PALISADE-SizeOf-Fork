@@ -194,8 +194,11 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 		C1C2.push_back(C1C2t);
 	}
 
+
+	vector<Matrix<Ciphertext<DCRTPoly>>> C1C2addW;
 	for(size_t k=0; k<primeList.size(); k++){
-		C1C2[k] = C1C2[k] + w[k];//context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
+		Matrix<Ciphertext<DCRTPoly>> t = context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
+		C1C2addW.push_back(t);
 	}
 
 #ifdef MEASURE_TIMING
@@ -209,7 +212,7 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 	for(size_t k = 0; k < params.PLAINTEXTPRIMESIZE; k++) {
 
     	string C1C2Path = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextC1C2FileName+"-" + std::to_string(k) + ".txt";
-		SerializeCiphertext(C1C2[k], C1C2Path);
+		SerializeCiphertext(C1C2addW[k], C1C2Path);
     }
 #ifdef MEASURE_TIMING
     finish = currentDateTime();
