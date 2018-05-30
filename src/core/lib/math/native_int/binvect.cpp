@@ -55,7 +55,7 @@ NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus
 }
 
 template<class IntegerType>
-NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
+NativeVector<IntegerType>::NativeVector(usint length, const IntegerType& modulus, std::initializer_list<uint64_t> rhs){
 	this->m_modulus = modulus;
 	this->m_data.resize(length);
 	usint len = rhs.size();

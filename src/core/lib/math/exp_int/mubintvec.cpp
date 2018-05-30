@@ -106,7 +106,7 @@ namespace exp_int {
   // Basic constructor for specifying the length of the vector and modulus with initializer list of usint
 
   template<class ubint_el_t>
-  mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<usint>rhs){
+  mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<uint64_t>rhs){
     bool dbg_flag = false;
     this->m_data.resize(length);
     m_modulus = modulus;
