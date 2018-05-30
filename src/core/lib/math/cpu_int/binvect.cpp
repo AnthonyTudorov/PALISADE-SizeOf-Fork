@@ -53,7 +53,7 @@ BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modul
 }
 
 template<class IntegerType>
-BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs){
+BigVectorImpl<IntegerType>::BigVectorImpl(usint length, const IntegerType& modulus, std::initializer_list<uint64_t> rhs){
 	this->m_length = length;
 	this->m_modulus = modulus;
 	this->m_data = new IntegerType[m_length] ();

@@ -89,7 +89,7 @@ public:
 	 * @param modulus is the modulus of the ring.
 	 * @param rhs is an initializer list of usint
 	 */
-	NativeVector(usint length, const IntegerType& modulus, std::initializer_list<usint> rhs);
+	NativeVector(usint length, const IntegerType& modulus, std::initializer_list<uint64_t> rhs);
 
 	/**
 	 * Basic constructor for specifying the length of the vector
