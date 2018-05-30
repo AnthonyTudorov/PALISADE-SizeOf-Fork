@@ -195,7 +195,7 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 	}
 
 	for(size_t k=0; k<primeList.size(); k++){
-		C1C2[k] = context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
+		C1C2[k] = C1C2[k] + w[k];//context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
 	}
 
 #ifdef MEASURE_TIMING
@@ -639,14 +639,14 @@ void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params)
 
     Matrix<double> C1PlaintextCRTDoubleInverse(zeroAllocDouble);
 	MatrixInverse(C1PlaintextCRTDouble, C1PlaintextCRTDoubleInverse);
-/*
+
 	cout << "\n\n";
-	PrintMatrixDouble(*C1PlaintextCRTDouble);
+	PrintMatrixDouble(C1PlaintextCRTDouble);
 	cout << "\n\n";
 
-	PrintMatrixDouble(*C1PlaintextCRTDoubleInverse);
+	PrintMatrixDouble(C1PlaintextCRTDoubleInverse);
 	cout << "\n\n";
-*/
+
 	vector<Matrix<Plaintext>> C1P;
 	DecimalIncrement(C1PlaintextCRTDoubleInverse, C1PlaintextCRTDoubleInverse, params.PRECISIONDECIMALSIZE, params);
 	EncodeC1Matrix(context.cc, C1PlaintextCRTDoubleInverse, C1P, primeList, batchSize);
@@ -727,11 +727,11 @@ vector<double> GLMClientRescaleRegressor(GLMContext &context, pathList &path, gl
 
     Matrix<double> C1C2PlaintextCRTDouble (zeroAllocDouble, 1, numRegressors);
     ConvertUnsingedToSigned(numeratorC1C2CRT, C1C2PlaintextCRTDouble, primeList);
-//	PrintMatrixDouble(*C1C2PlaintextCRTDouble);
+	PrintMatrixDouble(C1C2PlaintextCRTDouble);
 
     Matrix<double> C1C2Fixed(zeroAllocDouble, 1, numRegressors);
     DecimalDecrement(C1C2PlaintextCRTDouble, C1C2Fixed, params.PRECISIONDECIMALSIZE*2+params.PRECISIONDECIMALSIZEX, params);
-//    PrintMatrixDouble(*C0C1C2Fixed);
+    PrintMatrixDouble(C1C2Fixed);
 
     vector<double> regResultRow;
     for(size_t i=0; i< C1C2Fixed.GetCols(); i++)
@@ -1628,7 +1628,7 @@ Matrix<Ciphertext<DCRTPoly>> MultiplyXAddYMu(CryptoContext<DCRTPoly> &cc,
 	size_t dataMatrixColSize = x.GetCols();
 
 	Ciphertext<DCRTPoly> xwSyMu(new CiphertextImpl<DCRTPoly>(cc));
-	Matrix<Ciphertext<DCRTPoly>> yMu = cc->EvalSubMatrix(y, muC);
+	Matrix<Ciphertext<DCRTPoly>> yMu = y-muC;//cc->EvalSubMatrix(y, muC);
 	Matrix<Ciphertext<DCRTPoly>> C2t(zeroAllocCiphertext, 1, dataMatrixColSize);
 
 	Matrix<Ciphertext<DCRTPoly>> C2mid(zeroAllocCiphertext, dataMatrixRowSize, dataMatrixColSize);

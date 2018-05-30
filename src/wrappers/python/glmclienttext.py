@@ -14,7 +14,7 @@ from decimal import *
 ##########################################################
 ##########################################################
 
-regSel = 2
+regSel = 3
 
 regAlg = ""
 MAXVALUE              = 0
@@ -94,7 +94,7 @@ keyfileName             = "keyFileLinReg"
 ciphertextDataDir       = "demoData/python/glm/client/ciphertextDataDir"
 ciphertextDataFileName  = "Vertical_Artifical_Data"
 plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
-plaintextDataFileName   = "rev_50k_logistic.csv"
+plaintextDataFileName   = "rev_10k_poisson.csv"
 
 ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
@@ -149,7 +149,7 @@ glm.SetGLMContext()
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 ## Connect the socket to the port where the server is listening
-server_address = ('localhost', 1212)
+server_address = ('localhost', 2222)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
