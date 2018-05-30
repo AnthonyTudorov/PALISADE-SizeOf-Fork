@@ -2,11 +2,11 @@
 
 PALISADE v1.1.1 includes bug fixes and minor optimizations:
 
-Fixes minor bugs in NativeInteger and multiprecision backends (BigInteger)
-Deals properly with a low-probability rounding error in BFVrns
-Fixes a compilation error on some CentOS systems
-Improves the performance of NativeInteger
-Fixes a couple of other minor bugs
+* Fixes minor bugs in NativeInteger and multiprecision backends (BigInteger)
+* Deals properly with a low-probability rounding error in BFVrns
+* Fixes a compilation error on some CentOS systems
+* Improves the performance of NativeInteger
+* Fixes a couple of other minor bugs
 
 12/29/2017: PALISADE v1.1 is released
 
