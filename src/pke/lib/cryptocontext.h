@@ -1586,8 +1586,8 @@ public:
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalAddMatrix, TOC_US(t)) );
 		}
-		Matrix<Ciphertext<Element>> a(rv);
-		return a;
+//		Matrix<Ciphertext<Element>> a(rv);
+		return rv;
 	}
 
 	/**

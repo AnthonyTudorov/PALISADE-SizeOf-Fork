@@ -136,6 +136,51 @@ void GLMServerXTSX(GLMContext &context, pathList &path, glmParams & params){
 
 }
 
+void Decryption(GLMContext &context, glmParams & params,  pathList &path, vector<NativeInteger> &primeList, vector<Matrix<Ciphertext<DCRTPoly>>> &C1C2){
+
+	vector<LPPrivateKey<DCRTPoly>> sk;
+	for(size_t k = 0; k < primeList.size(); k++) {
+
+		string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+		std::cout << "Deserializing the private key...";
+		LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(context.cc[k], skFileName);
+		std::cout << "Completed" << std::endl;
+
+		sk.push_back(skt);
+	}
+
+
+	auto zeroAllocDouble = [=]() { return double(); };
+	auto zeroAllocBigInteger = [=]() { return BigInteger(); };
+	auto zeroAllocPacking = [=]() { return context.cc[0]->MakePackedPlaintext({0}); };
+
+	size_t numRegressors = C1C2[0].GetCols();
+//	size_t batchSize = context.cc[0]->GetEncodingParams()->GetBatchSize();
+	cout << "1" << endl;
+	vector<Matrix<Plaintext>> numeratorC1C2;
+	for(size_t k=0; k<primeList.size(); k++){
+	    Matrix<Plaintext> numeratorC1C2t (zeroAllocPacking, 1, numRegressors);
+	    context.cc[k]->DecryptMatrixCiphertext(sk[k], C1C2[k], &numeratorC1C2t);
+		numeratorC1C2.push_back(numeratorC1C2t);
+	}
+	cout << "2" << endl;
+
+	Matrix<BigInteger> numeratorC1C2CRT (zeroAllocBigInteger, 1, numRegressors);
+	CRTInterpolate(numeratorC1C2, numeratorC1C2CRT, primeList);
+	cout << "3" << endl;
+
+    Matrix<double> C1C2PlaintextCRTDouble (zeroAllocDouble, 1, numRegressors);
+    ConvertUnsingedToSigned(numeratorC1C2CRT, C1C2PlaintextCRTDouble, primeList);
+	PrintMatrixDouble(C1C2PlaintextCRTDouble);
+	cout << "4" << endl;
+
+    Matrix<double> C1C2Fixed(zeroAllocDouble, 1, numRegressors);
+    DecimalDecrement(C1C2PlaintextCRTDouble, C1C2Fixed, params.PRECISIONDECIMALSIZE*2+params.PRECISIONDECIMALSIZEX, params);
+    PrintMatrixDouble(C1C2Fixed);
+
+
+}
+
 void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & params){
 
 	vector<Matrix<Ciphertext<DCRTPoly>>> w;
@@ -197,9 +242,26 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 
 	vector<Matrix<Ciphertext<DCRTPoly>>> C1C2addW;
 	for(size_t k=0; k<primeList.size(); k++){
-		Matrix<Ciphertext<DCRTPoly>> t = context.cc[k]->EvalAddMatrix(C1C2[k], w[k]);
+		Matrix<Ciphertext<DCRTPoly>> t = context.cc[k]->EvalAddMatrix(w[k], C1C2[k]);
 		C1C2addW.push_back(t);
 	}
+
+	cout << "C1C2" << endl;
+	Decryption(context, params, path, primeList, C1C2);
+	cout << "W" << endl;
+	Decryption(context, params, path, primeList, w);
+
+/*
+	cout << "w" << endl;
+	cout << w[0](0,0) << endl;
+
+	cout << "c1c2" << endl;
+	cout << C1C2[0](0,0) << endl;
+
+	cout << "C1C2addW" << endl;
+	cout << C1C2addW[0](0,0) << endl;
+*/
+
 
 #ifdef MEASURE_TIMING
     finish = currentDateTime();
@@ -1360,6 +1422,7 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 
 			}
 	}
+
 #ifdef OMP_CLIENT_SECTION1
 #pragma omp parallel for shared(coordX, coordY, wTb, Q, params, meanList, weightList) private(yTilde, mean, weight) default(shared) num_threads(NUM_THREAD) ordered
 #endif
@@ -1397,6 +1460,7 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 			//Weight function
 			weight = 0;
 		}
+
 #ifdef OMP_CLIENT_SECTION1
 #pragma omp ordered
 {
@@ -2245,12 +2309,17 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<BigInteger> &CLi
 		auto zeroPackingAlloc = [=]() { return cc[k]->MakePackedPlaintext({0}); };
 		Matrix<Plaintext> CPt (zeroPackingAlloc, CList.GetRows(), CList.GetCols());
 
+		cout << "Coeffs" << endl;
+
 		for(size_t i=0; i< CList.GetRows(); i++){
 			for(size_t j=0; j< CList.GetCols(); j++){
 				//FIXME: MAKE MORE EFFICIENT
 				std::vector<uint64_t> vectorOfInts1;
 
 				temp = CList(i, j);
+
+				cout << temp << endl;
+
 				tempPushed = (temp.Mod(primeList[k])).ConvertToInt();
 
 				for(size_t l=0; l<batchSize; l++)
