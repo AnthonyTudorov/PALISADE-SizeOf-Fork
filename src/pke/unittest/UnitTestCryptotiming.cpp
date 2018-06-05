@@ -9,7 +9,7 @@
 #include "cryptotiming.h"
 #include "utils/parmfactory.h"
 #include "utils/serializablehelper.h"
-
+#include "lattice/elemparamfactory.h"
 
 class UTCryptotiming : public ::testing::Test {
 protected:
@@ -61,7 +61,7 @@ TEST_F(UTCryptotiming, timing_util_functions){
 
 }
 
-TEST_F(UTCryptotiming, scalar_encrypt_decrypt){
+TEST_F(UTCryptotiming, encrypt_decrypt){
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
     cc->Enable(ENCRYPTION);
     vector<TimingInfo>	times;
@@ -89,21 +89,35 @@ TEST_F(UTCryptotiming, scalar_encrypt_decrypt){
 
 }
 
-TEST_F(UTCryptotiming, mod_reduce){
-    usint m = 8;
-    usint numOfTower = 3;
-    PlaintextModulus plaintextModulus = 8;
-    float stdDev = 4;
-
-    shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams<BigInteger>(m, numOfTower, 48);
-
-    CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(params, plaintextModulus, m, stdDev);
-    cc->Enable(ENCRYPTION|SHE|LEVELEDSHE);
+TEST_F(UTCryptotiming, key_switch){
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8, 256);
+    cc->Enable(ENCRYPTION|SHE);
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
 
-    LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-    Ciphertext<DCRTPoly> ct = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4));
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    LPKeyPair<Poly> kp2 = cc->KeyGen();
+    Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(0));
+    uint len = (uint)times.size();
+
+    auto swk = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+    ASSERT_TRUE(times.size() > len) << "KeySwitchGen op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpKeySwitchGen) << "KeySwitchGen op applied an incorrect optype to its data:";
+    if(times.size() > len) { len = times.size(); }
+
+    cc->KeySwitch(swk, ct1);
+    ASSERT_TRUE(times.size() > len) << "KeySwitch op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpKeySwitch) << "KeySwitch op applied an incorrect optype to its data:";
+}
+
+TEST_F(UTCryptotiming, mod_reduce){
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8, 256);
+    cc->Enable(ENCRYPTION|LEVELEDSHE);
+    vector<TimingInfo>	times;
+    cc->StartTiming(&times);
+
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    Ciphertext<Poly> ct = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4));
     uint len = (uint)times.size();
 
     cc->ModReduce(ct);
@@ -112,23 +126,16 @@ TEST_F(UTCryptotiming, mod_reduce){
 }
 
 TEST_F(UTCryptotiming, eval_merge){
-    usint m = 3;
-    usint numOfTower = 3;
-    PlaintextModulus plaintextModulus = 256;
-    float stdDev = 4;
-
-    shared_ptr<ILDCRTParams<BigInteger>> params = GenerateDCRTParams<BigInteger>(m, numOfTower, 48);
-
-    CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGV(params, plaintextModulus, m, stdDev);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,257);
     cc->Enable(ENCRYPTION|SHE);
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
 
-    LPKeyPair<DCRTPoly> kp = cc->KeyGen();
-    vector<Ciphertext<DCRTPoly>> ciphers = { cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4)), cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)), cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)),
-                                             cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)) };
-    auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, std::vector<usint>{1});
-    cc->InsertEvalAutomorphismKey(evalKeys);
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    vector<Ciphertext<Poly>> ciphers = { cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4)), cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)),
+                                         cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)) };
+
+    cc->EvalAtIndexKeyGen(kp.secretKey, vector<int32_t>{-1});
     uint len = (uint)times.size();
 
     cc->EvalMerge(ciphers);
@@ -137,13 +144,7 @@ TEST_F(UTCryptotiming, eval_merge){
 }
 
 TEST_F(UTCryptotiming, eval_add){
-    int relWindow = 1;
-    int plaintextModulus = 256;
-    double sigma = 4;
-    double rootHermiteFactor = 1.03;
-
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
-            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,256);
     cc->Enable(ENCRYPTION|SHE);
 
     vector<TimingInfo>	times;
@@ -164,13 +165,7 @@ TEST_F(UTCryptotiming, eval_add){
 }
 
 TEST_F(UTCryptotiming, eval_sub){
-    int relWindow = 1;
-    int plaintextModulus = 256;
-    double sigma = 4;
-    double rootHermiteFactor = 1.03;
-
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
-            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,256);
     cc->Enable(ENCRYPTION|SHE);
 
     vector<TimingInfo>	times;
@@ -209,13 +204,7 @@ TEST_F(UTCryptotiming, eval_negate){
 }
 
 TEST_F(UTCryptotiming, eval_rightshift){
-    int relWindow = 1;
-    int plaintextModulus = 256;
-    double sigma = 4;
-    double rootHermiteFactor = 1.03;
-
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
-            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,256);
     cc->Enable(ENCRYPTION|SHE);
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
@@ -355,6 +344,47 @@ TEST_F(UTCryptotiming, eval_mult_many){
     ASSERT_TRUE(times.back().operation == OpEvalMultMany) << "EvalMultMany op applied an incorrect optype to its data:";
 }
 
+TEST_F(UTCryptotiming, eval_index){
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(8,257);
+    cc->Enable(ENCRYPTION|SHE);
+    vector<TimingInfo>	times;
+    cc->StartTiming(&times);
+
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    int32_t n = cc->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder()/2;
+
+    cc->EvalAtIndexKeyGen(kp.secretKey, vector<int32_t>{2});
+    std::vector<uint64_t> vectorOfInts = {1};
+    vectorOfInts.resize(n);
+
+
+    auto ciphertext = cc->Encrypt(kp.publicKey, cc->MakePackedPlaintext(vectorOfInts));
+
+    cc->EvalAtIndex(ciphertext, 2);
+
+}
+
+TEST_F(UTCryptotiming, ring_reduce){
+    usint m = 16;
+    float stdDev = 4;
+    shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params>(m);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
+    cc->Enable(ENCRYPTION|LEVELEDSHE|SHE);
+    vector<TimingInfo>	times;
+    cc->StartTiming(&times);
+
+    LPKeyPair<Poly> kp = cc->KeyGen();
+    LPKeyPair<Poly> kp2 = cc->SparseKeyGen();// TODO ADD test for this keygen, or determine if it best falls here
+    Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(0));
+    auto swk = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
+    uint len = (uint)times.size();
+
+    cc->RingReduce(ct1, swk);
+    ASSERT_TRUE(times.size() > len) << "RingReduce op failed to push to timing vector";
+    ASSERT_TRUE(times.back().operation == OpRingReduce) << "RingReduce op applied an incorrect optype to its data:";
+
+}
+
 TEST_F(UTCryptotiming, automorphism){
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
     cc->Enable(ENCRYPTION|SHE);
@@ -415,34 +445,3 @@ TEST_F(UTCryptotiming, PRE){
 
 }
 
-
-TEST_F(UTCryptotiming, timing_keygen){ //TODO delete variable storage of key pairs that are unecessary, after transferring them
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
-    vector<TimingInfo>	times;
-    uint len = 0;
-    cc->StartTiming(&times);
-    cc->Enable(ENCRYPTION|MULTIPARTY);
-
-    LPKeyPair<Poly> kp = cc->KeyGen();
-    ASSERT_TRUE(times.size() > len) << "KeyGen op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpKeyGen) << "KeyGen op applied an incorrect optype to its data";
-    if(times.size() > len) { len = times.size(); }
-
-    LPKeyPair<Poly> mpkp = cc->MultipartyKeyGen(kp.publicKey);
-    ASSERT_TRUE(times.size() > len) << "MultiPartyKeyGenKey op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpMultiPartyKeyGenKey) << "MultiPartyKeyGenKey op applied an incorrect optype to its data";
-    if(times.size() > len) { len = times.size(); }
-
-    const vector<LPPrivateKey<Poly>> skv{kp.secretKey, mpkp.secretKey};
-    LPKeyPair<Poly> mpskp = cc->MultipartyKeyGen(skv);
-    ASSERT_TRUE(times.size() > len) << "MultiPartyKeyGenKeyvec op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpMultiPartyKeyGenKeyvec) << "MultiPartyKeyGenKeyvec op applied an incorrect optype to its data";
-    if(times.size() > len) { len = times.size(); }
-
-    LPKeyPair<Poly> skp = cc->SparseKeyGen();
-    ASSERT_TRUE(times.size() > len) << "MultiPartyKeyGenKeyvec op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpSparseKeyGen) << "MultiPartyKeyGenKeyvec op applied an incorrect optype to its data";
-    if(times.size() > len) { len = times.size(); }
-
-    sleep(15000);
-}
