@@ -1479,6 +1479,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     const typename PolyType::Integer &mtilde = BskmtildeModuli[numBsk];
 
     typename PolyType::Integer *r_m_tildes = new typename PolyType::Integer[n];
+
+#ifdef OMP
+#pragma omp parallel for
+#endif
     for ( uint32_t k = 0; k < n; k++ )
 	{
     	r_m_tildes[k] = m_vectors[numq+numBsk][k]; // c``_mtilde
