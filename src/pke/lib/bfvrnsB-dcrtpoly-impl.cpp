@@ -111,14 +111,16 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	// find the a suitable size of B
 	m_numq = size;
 
+	// find m_tilde [we need to ensure that m_tilde is < Bsk moduli to avoid one extra modulo in Small_Montgomery_Reduction]
+	m_mtilde = NextPrime<NativeInteger>(moduli[m_numq-1], 2 * n);
+
 	BigInteger t = BigInteger(GetPlaintextModulus());
 	BigInteger q(GetElementParams()->GetModulus());
 
 	BigInteger B = 1;
 	BigInteger maxConvolutionValue = BigInteger(4) * BigInteger(n) * q * q * t;
 
-	m_BModuli.push_back( NextPrime<NativeInteger>(moduli[m_numq-1], 2 * n) );
-
+	m_BModuli.push_back( NextPrime<NativeInteger>(m_mtilde, 2 * n) );
 	m_BskRoots.push_back( RootOfUnity<NativeInteger>(2 * n, m_BModuli[0]) );
 	B = B * m_BModuli[0];
 
@@ -145,9 +147,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsBsk = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, m_BskModuli, m_BskRoots));
 
-	// find m_tilde
-	m_mtilde = NextPrime<NativeInteger>(m_msk, 2 * n);
-
+	// finally add m_tilde as last modulus in the chain
 	m_BskmtildeModuli.push_back( m_mtilde );
 
 	// populate Barrett constant for m_BskmtildeModuli

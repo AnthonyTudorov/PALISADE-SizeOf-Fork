@@ -1349,7 +1349,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType>::ScaleAndRound(
 		for (usint i = 0; i < numq; i++)
 		{
 			const typename PolyType::Integer &qi = qModuliTable[i];
-			const typename PolyType::Integer &xi = m_vectors[i].at(k);
+			const typename PolyType::Integer &xi = m_vectors[i][k];
 			tmp = xi;
 			tmp.ModMulPreconOptimizedEq( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
 
@@ -1469,7 +1469,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
     			result += Mul128( ximtildeqiDivqModqi[i*n+k].ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
     		}
-    		m_vectors[numq+j].at(k) = BarrettUint128ModUint64( result, BskmtildeModuli[j].ConvertToInt(), BskmtildeModulimu[j] );
+    		m_vectors[numq+j][k] = BarrettUint128ModUint64( result, BskmtildeModuli[j].ConvertToInt(), BskmtildeModulimu[j] );
     	}
     }
 
@@ -1477,6 +1477,14 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     // next we perform Small Motgomery Reduction mod q
     // ----------------------- step 1 -----------------------
     const typename PolyType::Integer &mtilde = BskmtildeModuli[numBsk];
+
+    typename PolyType::Integer *r_m_tildes = new typename PolyType::Integer[n];
+    for ( uint32_t k = 0; k < n; k++ )
+	{
+    	r_m_tildes[k] = m_vectors[numq+numBsk][k]; // c``_mtilde
+		r_m_tildes[k].ModMulPreconOptimizedEq(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
+	}
+
     for (uint32_t i = 0; i < numBsk; i++)
     {
     	const typename PolyType::Integer &currentqModBski = qModBski[i];
@@ -1488,12 +1496,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
     	for ( uint32_t k = 0; k < n; k++ )
 		{
     		// collapsing
-    		const typename PolyType::Integer &c_mtilde = m_vectors[numq+numBsk].at(k);
-    		typename PolyType::Integer rmtilde = c_mtilde; // c``_mtilde
-    		rmtilde.ModMulPreconOptimizedEq(negqInvModmtilde, mtilde, negqInvModmtildePrecon); // c``_mtilde*-1/q mod mtilde
-    		rmtilde.ModMulPreconOptimizedEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (c``_mtilde*-1/q mod mtilde) * q mod Bski
-    		rmtilde.ModAddFastOptimizedEq( m_vectors[numq+i].at(k), BskmtildeModuli[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) mod Bski
-    		m_vectors[numq+i].at(k) = rmtilde.ModMulPreconOptimized( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + ((r_mtilde*-1/q mod mtilde) * q)) * mtilde mod Bski
+    		typename PolyType::Integer r_m_tilde = r_m_tildes[k]; // m_tilde < than all Bsk_i
+    		r_m_tilde.ModMulPreconOptimizedEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (r_mtilde) * q mod Bski
+    		r_m_tilde.ModAddFastOptimizedEq( m_vectors[numq+i][k], BskmtildeModuli[i] ); // (c``_m + (r_mtilde* q)) mod Bski
+    		m_vectors[numq+i][k] = r_m_tilde.ModMulPreconOptimized( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + (r_mtilde* q)) * mtilde mod Bski
 		}
     }
 
@@ -1523,7 +1529,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvqToBskMontgomer
 
     m_format = EVALUATION;
 
+    delete[] r_m_tildes;
     delete[] ximtildeqiDivqModqi;
+    r_m_tildes = nullptr;
     ximtildeqiDivqModqi = nullptr;
 }
 
@@ -1570,7 +1578,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 		for (uint32_t k = 0; k < n; k++)
 		{
 			// multiply by t*(q/qi)^-1 mod qi
-			m_vectors[i].at(k).ModMulPreconOptimizedEq(currenttqDivqiModqi, qModuli[i], currenttqDivqiModqiPrecon);
+			m_vectors[i][k].ModMulPreconOptimizedEq(currenttqDivqiModqi, qModuli[i], currenttqDivqiModqiPrecon);
 		}
 	}
 
@@ -1585,7 +1593,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
 			for (uint32_t i = 0; i < numq; i++)
 			{
 				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-				typename PolyType::Integer &xi = m_vectors[i].at(k);
+				typename PolyType::Integer &xi = m_vectors[i][k];
 				aq += Mul128( xi.ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
 			}
 			txiqiDivqModqi[j*n + k] = BarrettUint128ModUint64( aq, BskModuli[j].ConvertToInt(), BskModulimu[j] );
@@ -1604,9 +1612,9 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastRNSFloorq(
         for (uint32_t k = 0; k < n; k++)
         {
         	// Not worthy to use lazy reduction here
-        	m_vectors[i+numq].at(k).ModMulFastEq(t, BskModuli[i]);
-        	m_vectors[i+numq].at(k).ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
-        	m_vectors[i+numq].at(k).ModMulPreconOptimizedEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
+        	m_vectors[i+numq][k].ModMulFastEq(t, BskModuli[i]);
+        	m_vectors[i+numq][k].ModSubEq( txiqiDivqModqi[i*n+k], BskModuli[i] );
+        	m_vectors[i+numq][k].ModMulPreconOptimizedEq( currentqInvModBski, BskModuli[i], currentqInvModBskiPrecon );
         }
     }
 	delete[] txiqiDivqModqi;
@@ -1653,7 +1661,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
         for (uint32_t k = 0; k < n; k++)
         {
-            m_vectors[numq+i].at(k).ModMulPreconOptimizedEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
+            m_vectors[numq+i][k].ModMulPreconOptimizedEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
         }
     }
 
@@ -1669,10 +1677,10 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
 				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
-				const typename PolyType::Integer &xi = m_vectors[numq+i].at(k);
+				const typename PolyType::Integer &xi = m_vectors[numq+i][k];
 				result += Mul128( xi.ConvertToInt(), currentBDivBiModqj.ConvertToInt() );
 			}
-			m_vectors[j].at(k) = BarrettUint128ModUint64( result, qModuli[j].ConvertToInt(), qModulimu[j] );
+			m_vectors[j][k] = BarrettUint128ModUint64( result, qModuli[j].ConvertToInt(), qModulimu[j] );
 		}
 	}
 
@@ -1688,7 +1696,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
         	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
-        	result += Mul128( m_vectors[numq+i].at(k).ConvertToInt(), currentBDivBiModmsk.ConvertToInt() );
+        	result += Mul128( m_vectors[numq+i][k].ConvertToInt(), currentBDivBiModmsk.ConvertToInt() );
         }
         alphaskxVector[k] = BarrettUint128ModUint64( result, BskModuli[numBsk-1].ConvertToInt(), BskModulimu[numBsk-1] );
     }
@@ -1699,7 +1707,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 #endif
     for (uint32_t k = 0; k < n; k++)
 	{
-    	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1].at(k)
+    	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1][k]
     			, BskModuli[numBsk-1]);
     	alphaskxVector[k].ModMulPreconOptimizedEq( BInvModmsk, BskModuli[numBsk-1], BInvModmskPrecon);
 	}
@@ -1721,7 +1729,7 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
 
 			alphaskBModqi.ModMulPreconOptimizedEq( currentBModqi, qModuli[i], currentBModqiPrecon );
-			m_vectors[i].at(k) = m_vectors[i].at(k).ModSubFast( alphaskBModqi, qModuli[i] );
+			m_vectors[i][k] = m_vectors[i][k].ModSubFast( alphaskBModqi, qModuli[i] );
 		}
 	}
 

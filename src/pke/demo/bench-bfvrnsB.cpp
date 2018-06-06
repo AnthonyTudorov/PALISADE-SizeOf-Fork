@@ -57,9 +57,9 @@ using namespace lbcrypto;
 void SHERun(usint inRunsCount, usint inPtm, double inSigma, double inRootHermiteFactor, usint level, usint runIdx);
 
 
-const usint RUNS_COUNT = 5;
+const usint RUNS_COUNT = 10;
 const int NUM_POLYNOMIAL_DEGREES = 6; // number of experiments (different parameters settings to test)
-const size_t CRT_SIZE_BITS = 60; // CRT moduli size
+const size_t CRT_SIZE_BITS = 30; // CRT moduli size
 
 // statistics buffers
 double decPerfAvg[NUM_POLYNOMIAL_DEGREES];
@@ -114,13 +114,34 @@ int main() {
 
 	// ======================================= Multiplication Experiment======================================
 	// Multiplication Experiment
-	// Multiplication Experiment
 	int ptmArr[NUM_POLYNOMIAL_DEGREES] = {2, 2, 2, 2, 2, 2};
 	double sigmaArr[NUM_POLYNOMIAL_DEGREES] = {3.2, 3.2, 3.2, 3.2, 72, 102};
 	double rootHermiteFactorArr[NUM_POLYNOMIAL_DEGREES] = {1.0048, 1.0048, 1.0048, 1.0048, 1.0048, 1.0048};
 
 //	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {1, 5, 19, 33, 54, 97}; // t = 2; 30-bit
-	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {0, 3, 17, 29, 51, 95}; // t = 2; 60-bit
+//	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {0, 3, 17, 29, 51, 95}; // t = 2; 60-bit
+
+	int levelsArr[NUM_POLYNOMIAL_DEGREES];
+	if ( CRT_SIZE_BITS == 30 )
+	{
+		//{1, 5, 19, 33, 54, 97};
+		levelsArr[0] = 1;
+		levelsArr[1] = 5;
+		levelsArr[2] = 19;
+		levelsArr[3] = 33;
+		levelsArr[4] = 54;
+		levelsArr[5] = 97;
+	}
+	else // 60
+	{
+		//{0, 3, 17, 29, 51, 95};
+		levelsArr[0] = 0;
+		levelsArr[1] = 3;
+		levelsArr[2] = 17;
+		levelsArr[3] = 29;
+		levelsArr[4] = 51;
+		levelsArr[5] = 95;
+	}
 
 
 	//	int ptmArr[NUM_POLYNOMIAL_DEGREES] = {2};
@@ -148,7 +169,14 @@ int main() {
 		cout << "==========================================================\n";
 
 
-		SHERun(RUNS_COUNT, ptm, sigma, rootHermiteFactor, level, i);
+		if ( i >= 4) // large settings too slow
+		{
+			SHERun(RUNS_COUNT/10, ptm, sigma, rootHermiteFactor, level, i);
+		}
+		else
+		{
+			SHERun(RUNS_COUNT, ptm, sigma, rootHermiteFactor, level, i);
+		}
 	}
 
 	cout << "--------------------------------------- RESULTS ------------------------------- " << endl << endl;
@@ -261,7 +289,6 @@ void SHERun(usint inRunsCount, usint inPtm, double inSigma, double inRootHermite
 		cout << "n: " << ringDimensions[runIdx] << endl;
 		cout << "logq: " << logq[runIdx] << endl;
 	}
-
 
 	// Initialize Public Key Containers
 	LPKeyPair<DCRTPoly> keyPair;

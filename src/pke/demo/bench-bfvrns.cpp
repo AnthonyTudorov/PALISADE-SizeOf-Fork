@@ -57,9 +57,9 @@ using namespace lbcrypto;
 void SHERun(usint inRunsCount, usint inPtm, double inSigma, double inRootHermiteFactor, usint level, usint runIdx);
 
 
-const usint RUNS_COUNT = 5;
+const usint RUNS_COUNT = 10;
 const int NUM_POLYNOMIAL_DEGREES = 6; // number of experiments (different parameters settings to test)
-const size_t CRT_SIZE_BITS = 60; // CRT moduli size
+const size_t CRT_SIZE_BITS = 30; // CRT moduli size
 
 // statistics buffers
 double decPerfAvg[NUM_POLYNOMIAL_DEGREES];
@@ -113,9 +113,31 @@ int main() {
 	double sigmaArr[NUM_POLYNOMIAL_DEGREES] = {3.2, 3.2, 3.2, 3.2, 72, 102};
 	double rootHermiteFactorArr[NUM_POLYNOMIAL_DEGREES] = {1.0048, 1.0048, 1.0048, 1.0048, 1.0048, 1.0048};
 
-//	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {1, 4, 18, 31, 51, 90}; // t = 2; 30-bit
-	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {0, 3, 17, 29, 49, 88}; // t = 2; 60-bit
 
+	//	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {1, 4, 18, 31, 51, 90}; // t = 2; 30-bit
+	//	int levelsArr[NUM_POLYNOMIAL_DEGREES] = {0, 3, 17, 29, 49, 88}; // t = 2; 60-bit
+
+	int levelsArr[NUM_POLYNOMIAL_DEGREES];
+	if ( CRT_SIZE_BITS == 30 )
+	{
+		//{1, 4, 18, 31, 51, 90};
+		levelsArr[0] = 1;
+		levelsArr[1] = 4;
+		levelsArr[2] = 18;
+		levelsArr[3] = 31;
+		levelsArr[4] = 51;
+		levelsArr[5] = 90;
+	}
+	else // 60
+	{
+		//{0, 3, 17, 29, 49, 88}
+		levelsArr[0] = 0;
+		levelsArr[1] = 3;
+		levelsArr[2] = 17;
+		levelsArr[3] = 29;
+		levelsArr[4] = 49;
+		levelsArr[5] = 88;
+	}
 
 
 	//int levelsArr[NUM_POLYNOMIAL_DEGREES] = {0, 2, 9, 16, 28, 51}; // t = 65537;
@@ -141,7 +163,14 @@ int main() {
 		cout << "==========================================================\n";
 
 
-		SHERun(RUNS_COUNT, ptm, sigma, rootHermiteFactor, level, i);
+		if ( i >= 4) // large settings too slow
+		{
+			SHERun(RUNS_COUNT/10, ptm, sigma, rootHermiteFactor, level, i);
+		}
+		else
+		{
+			SHERun(RUNS_COUNT, ptm, sigma, rootHermiteFactor, level, i);
+		}
 	}
 
 	cout << "--------------------------------------- RESULTS ------------------------------- " << endl << endl;
