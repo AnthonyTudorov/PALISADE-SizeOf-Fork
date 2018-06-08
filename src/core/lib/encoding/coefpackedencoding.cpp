@@ -89,7 +89,7 @@ inline static void fillVec(const P& poly, const PlaintextModulus& mod, vector<in
 	for( size_t i = 0; i < poly.GetLength(); i++ ) {
 		int64_t val;
 		if (poly[i] > qHalf)
-			val = (-(q-poly[i]).ConvertToInt())%mod;
+			val = (-(q-poly[i]).ConvertToInt());
 		else
 			val = poly[i].ConvertToInt();
 		if( val > half )
