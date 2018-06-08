@@ -33,6 +33,8 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 
 	poly.SetValuesToZero();
 
+	const typename P::Integer &q = poly.GetModulus();
+
 	for( size_t i=0; i < value.size() && i < poly.GetLength(); i++ ) {
 		if( value[i] > INT32_MAX || value[i] < INT32_MIN ) {
 			PALISADE_THROW( config_error, "Cannot encode a coefficient larger than 32 bits");
@@ -43,9 +45,11 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 					" at position " + std::to_string(i) +
 					" because it is out of range of plaintext modulus " + std::to_string(mod) );
 
-		uint64_t entry = value[i];
+		typename P::Integer entry = value[i];
 		if( value[i] < 0 ) {
-			entry += mod;
+			//It is more efficient to encode negative numbers using the ciphertext modulus
+			//no noise growth occurs
+			entry += q;
 		}
 
 		poly[i] = entry;
