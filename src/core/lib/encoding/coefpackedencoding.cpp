@@ -46,13 +46,15 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 					" because it is out of range of plaintext modulus " + std::to_string(mod) );
 
 		typename P::Integer entry = value[i];
+
 		if( value[i] < 0 ) {
 			//It is more efficient to encode negative numbers using the ciphertext modulus
 			//no noise growth occurs
-			entry += q;
+			entry = q - typename P::Integer(abs(value[i]));
 		}
 
 		poly[i] = entry;
+
 	}
 }
 
