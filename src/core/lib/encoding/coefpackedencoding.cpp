@@ -50,7 +50,7 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 		if( value[i] < 0 ) {
 			//It is more efficient to encode negative numbers using the ciphertext modulus
 			//no noise growth occurs
-			entry = q - typename P::Integer(abs(value[i]));
+			entry = q - typename P::Integer(llabs(value[i]));
 		}
 
 		poly[i] = entry;
@@ -83,9 +83,15 @@ inline static void fillVec(const P& poly, const PlaintextModulus& mod, vector<in
 	value.clear();
 
 	int64_t half = int64_t(mod)/2;
+	const typename P::Integer &q = poly.GetModulus();
+	typename P::Integer qHalf = q>>1;
 
 	for( size_t i = 0; i < poly.GetLength(); i++ ) {
-		int64_t val = poly[i].ConvertToInt();
+		int64_t val;
+		if (poly[i] > qHalf)
+			val = (-(q-poly[i]).ConvertToInt())%mod;
+		else
+			val = poly[i].ConvertToInt();
 		if( val > half )
 			val -= mod;
 		value.push_back(val);
