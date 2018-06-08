@@ -49,6 +49,8 @@ using namespace lbcrypto;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 void Sharpen();
 void KeyGen();
@@ -71,7 +73,7 @@ int main(int argc, char **argv) {
 		{"encrypt",   no_argument,     &operation_flag, 2},
 		{"evaluate",   no_argument,     &operation_flag, 3},
 		{"decrypt",   no_argument,     &operation_flag, 4},
-		/* These options don’t set a flag.
+		/* These options donï¿½t set a flag.
 		   We distinguish them by their indices. */
 		{"size",  	required_argument, 			0, 's'},
 		{"help",    no_argument, 0, 'h'},
@@ -334,6 +336,7 @@ void Encrypt(size_t size) {
 	const char *pathc = path.c_str();
 
 	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
+	cout << width << ":" << height << ":" << bpp << endl;
 
 	std::cout << "Input 2D array" << std::endl;
 
@@ -609,6 +612,19 @@ void Decrypt(size_t size) {
 
 	std::cout << "Completed" << std::endl;
 
+	int bpp = 0;
+	string path = "demoData/BaboonOUT" + to_string(size) + ".png";
+	const char *pathc = path.c_str();
+	char *data = new char[height*width];
+	for(int i = 0; i < height; i++)
+	{
+		for(int k = 0; k < width; k++) {
+			data[i*width + k] = result[i][k]->GetIntegerValue() & 0xff;
+		}
+	}
+	delete[] data;
+
+	stbi_write_png( pathc, width, height, bpp, data, 1 );
 	std::cout << "The result is" << std::endl;
 
 	for(int i = 0; i < height; i++)
