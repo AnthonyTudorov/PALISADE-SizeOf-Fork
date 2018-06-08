@@ -612,7 +612,7 @@ void Decrypt(size_t size) {
 
 	std::cout << "Completed" << std::endl;
 
-	int bpp = 0;
+	int bpp = 3;
 	string path = "demoData/BaboonOUT" + to_string(size) + ".png";
 	const char *pathc = path.c_str();
 	char *data = new char[height*width];

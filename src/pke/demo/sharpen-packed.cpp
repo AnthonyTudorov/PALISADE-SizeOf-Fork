@@ -388,7 +388,7 @@ void Encrypt(size_t size) {
 
 	vector<Ciphertext<DCRTPoly>> image(plaintext.size());
 
-	for(int i = 0; i < plaintext.size(); i++){
+	for(size_t i = 0; i < plaintext.size(); i++){
 
 		TIC(t1);
 		image[i] = cryptoContext->Encrypt(pk, plaintext[i]);
@@ -445,8 +445,8 @@ void Evaluate(size_t size)
 	const auto encodingParams = cryptoParams->GetEncodingParams();
 	uint32_t batchSize = encodingParams->GetBatchSize();
 
-    int height = size;
-    int width = size;
+	size_t height = size;
+	size_t width = size;
 
     int ciphertextCount;
 
@@ -501,7 +501,7 @@ void Evaluate(size_t size)
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
 	vector<uint64_t> mask(batchSize);
-	for (int i = 0; i < batchSize; i++)
+	for (size_t)
 	{
 		if ((i>width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=width-1))
 			mask[i]=1;
@@ -511,8 +511,8 @@ void Evaluate(size_t size)
 	vector<Ciphertext<DCRTPoly>> pixel_value(image.size());
 	vector<Ciphertext<DCRTPoly>> image2(image.size());
 
-	for (int k = 0; k < image.size(); k++) {
-		for(int i = 0; i < indexList.size(); i++) {
+	for (size_t k = 0; k < image.size(); k++) {
+		for(size_t i = 0; i < indexList.size(); i++) {
 			if (i == 0) {
 				pixel_value[k] = cryptoContext->EvalAtIndex(image[k],indexList[i]);
 			}
@@ -589,8 +589,8 @@ void Decrypt(size_t size) {
 	uint32_t batchSize = encodingParams->GetBatchSize();
 	usint ptm = cryptoParams->GetPlaintextModulus();
 
-    int height = size;
-    int width = size;
+	size_t height = size;
+	size_t width = size;
 
 	string privKeyLoc = "demoData/PRI.txt";
 	Serialized kser;
@@ -645,7 +645,7 @@ void Decrypt(size_t size) {
 
 	TIC(t1);
 
-	for(int i = 0; i < image2.size(); i++)
+	for(size_t i = 0; i < image2.size(); i++)
 	{
 		cryptoContext->Decrypt(sk, image2[i],&result[i]);
 	}
@@ -656,14 +656,14 @@ void Decrypt(size_t size) {
 
 	std::cout << "The result is" << std::endl;
 
-	for(int i = 0; i < result.size(); i++)
+	for(size_t i = 0; i < result.size(); i++)
 	{
 		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
 
 		usint half = ptm >> 1;
 
 		std::cout << " [ ";
-		for(int k = 0; k < std::min((int)batchSize,width*height); k++) {
+		for(size_t k = 0; k < std::min(batchSize,width*height); k++) {
 			if (vectorRes[k] > half )
 				std::cout << std::floor((int)(vectorRes[k]-ptm)/2) << " ";
 			else
