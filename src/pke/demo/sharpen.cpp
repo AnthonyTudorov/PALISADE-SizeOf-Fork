@@ -336,7 +336,10 @@ void Encrypt(size_t size) {
 	const char *pathc = path.c_str();
 
 	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
-	cout << width << ":" << height << ":" << bpp << endl;
+	cout << width << "," << height << "," << bpp << endl;
+
+	string path2 = "demoData/Baboon" + to_string(size) + "COPY.png";
+	stbi_write_png(path2.c_str(), width, height, 1, data, width*1);
 
 	std::cout << "Input 2D array" << std::endl;
 
@@ -347,7 +350,7 @@ void Encrypt(size_t size) {
 		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
 			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
-			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
+			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)data[i*width + k]));
 		}
 		std::cout << " ] " << std::endl;
 	}
@@ -612,19 +615,29 @@ void Decrypt(size_t size) {
 
 	std::cout << "Completed" << std::endl;
 
-	int bpp = 3;
-	string path = "demoData/BaboonOUT" + to_string(size) + ".png";
+	string path = "demoData/Baboon" + to_string(size) + "OUT.png";
 	const char *pathc = path.c_str();
-	char *data = new char[height*width];
+	unsigned char *data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)
 	{
 		for(int k = 0; k < width; k++) {
 			data[i*width + k] = result[i][k]->GetIntegerValue() & 0xff;
 		}
 	}
+
+//	for(int i = 0; i < height; i++)
+//	{
+//		std::cout << " [ ";
+//		for(int k = 0; k < width; k++) {
+//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
+//			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
+//		}
+//		std::cout << " ] " << std::endl;
+//	}
+	stbi_write_png( pathc, width, height, 1, data, width*1 );
 	delete[] data;
 
-	stbi_write_png( pathc, width, height, bpp, data, 1 );
+	cout << width << "," << height << endl;
 	std::cout << "The result is" << std::endl;
 
 	for(int i = 0; i < height; i++)
@@ -632,6 +645,11 @@ void Decrypt(size_t size) {
 		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
 			std::cout << result[i][k] << " ";
+		}
+		std::cout << " ] " << std::endl;
+		std::cout << " [ ";
+		for(int k = 0; k < width; k++) {
+			std::cout << (result[i][k]->GetIntegerValue() & 0xff) << " ";
 		}
 		std::cout << " ] " << std::endl;
 	}

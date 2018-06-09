@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 		{"encrypt",   no_argument,     &operation_flag, 2},
 		{"evaluate",   no_argument,     &operation_flag, 3},
 		{"decrypt",   no_argument,     &operation_flag, 4},
-		/* These options don’t set a flag.
+		/* These options donï¿½t set a flag.
 		   We distinguish them by their indices. */
 		{"size",  	required_argument, 			0, 's'},
 		{"help",    no_argument, 0, 'h'},
@@ -445,8 +445,8 @@ void Evaluate(size_t size)
 	const auto encodingParams = cryptoParams->GetEncodingParams();
 	uint32_t batchSize = encodingParams->GetBatchSize();
 
-	size_t height = size;
-	size_t width = size;
+	int height = size;
+	int width = size;
 
     int ciphertextCount;
 
@@ -501,7 +501,7 @@ void Evaluate(size_t size)
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
 	vector<uint64_t> mask(batchSize);
-	for (size_t)
+	for (size_t i=0; i < batchSize; i++)
 	{
 		if ((i>width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=width-1))
 			mask[i]=1;
@@ -586,7 +586,7 @@ void Decrypt(size_t size) {
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cryptoContext->GetCryptoParameters();
 	const auto encodingParams = cryptoParams->GetEncodingParams();
-	uint32_t batchSize = encodingParams->GetBatchSize();
+	size_t batchSize = encodingParams->GetBatchSize();
 	usint ptm = cryptoParams->GetPlaintextModulus();
 
 	size_t height = size;
@@ -605,9 +605,9 @@ void Decrypt(size_t size) {
     int ciphertextCount;
 
     if (width*height < batchSize)
-    	ciphertextCount = 1;
+    		ciphertextCount = 1;
     else
-    	ciphertextCount = ceil((double)batchSize/((double)(height+2)*width));
+    		ciphertextCount = ceil((double)batchSize/((double)(height+2)*width));
 
     std::cout << "Deserializing ciphertexts..." ;
 
