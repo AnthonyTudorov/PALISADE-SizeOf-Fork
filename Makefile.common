@@ -96,7 +96,7 @@ THIRDPARTYINCLUDE := -I third-party/include -I third-party/include/rapidjson
 
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
-INC := -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I src/wip/lib -I src/circuit/lib -I test $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
+INC := -I src -I src/core/lib -I src/pke/lib -I src/trapdoor/lib -I src/wip/lib -I src/circuit/lib -I test $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
