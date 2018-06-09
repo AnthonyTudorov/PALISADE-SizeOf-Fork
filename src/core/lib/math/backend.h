@@ -28,6 +28,8 @@
 #ifndef LBCRYPTO_MATH_BACKEND_H
 #define LBCRYPTO_MATH_BACKEND_H
 
+#include "version.h"
+
 #include "utils/inttypes.h"
 
  

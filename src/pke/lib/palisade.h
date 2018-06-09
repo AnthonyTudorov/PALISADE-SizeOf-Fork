@@ -27,6 +27,8 @@
 #ifndef SRC_LIB_PALISADE_H_
 #define SRC_LIB_PALISADE_H_
 
+#include "version.h"
+
 #include <initializer_list>
 
 #include <string>
@@ -66,7 +68,7 @@ using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "lattice/poly.h"
-#include "../../core/lib/lattice/dcrtpoly.h"
+#include "lattice/dcrtpoly.h"
 
 #include "encoding/encodings.h"
 
