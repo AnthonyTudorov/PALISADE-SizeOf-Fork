@@ -49,6 +49,8 @@ using namespace lbcrypto;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 void Sharpen();
 void KeyGen(size_t size);
@@ -673,6 +675,28 @@ void Decrypt(size_t size) {
 	}
 
 	timeTotal = TOC(t_total);
+
+	string path = "demoData/Baboon" + to_string(size) + "OUT.png";
+	const char *pathc = path.c_str();
+	unsigned char *data = new unsigned char[height*width];
+	for(int i = 0; i < height; i++)
+	{
+		for(int k = 0; k < width; k++) {
+			data[i*width + k] = result[i][k]->GetIntegerValue() & 0xff;
+		}
+	}
+
+//	for(int i = 0; i < height; i++)
+//	{
+//		std::cout << " [ ";
+//		for(int k = 0; k < width; k++) {
+//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
+//			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
+//		}
+//		std::cout << " ] " << std::endl;
+//	}
+	stbi_write_png( pathc, width, height, 1, data, width*1 );
+	delete[] data;
 
 	std::cout << "Number of ciphertexts: " << result.size() << std::endl;
 
