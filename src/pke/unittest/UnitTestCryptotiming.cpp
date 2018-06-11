@@ -56,7 +56,8 @@ TEST_F(UTCryptotiming, timing_util_functions){
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
     Ciphertext<Poly> ciphertext;
-    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    Plaintext plaintext = cc->MakeStringPlaintext("cryptotiming");
+
     // PErform 3 operations assuming that at least one of them will successfully push to vector
     LPKeyPair<Poly> kp = cc->KeyGen();
     ciphertext = cc->Encrypt(kp.secretKey, plaintext);
@@ -88,7 +89,7 @@ TEST_F(UTCryptotiming, encrypt_decrypt){
     cc->Enable(ENCRYPTION);
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
-    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    Plaintext plaintext = cc->MakeStringPlaintext("cryptotiming");
 
     LPKeyPair<Poly> kp = cc->KeyGen();
     auto len = times.size();
@@ -216,7 +217,7 @@ TEST_F(UTCryptotiming, eval_negate){
     LPKeyPair<Poly> kp = cc->KeyGen();
 
     Ciphertext<Poly> ct;
-    Plaintext pt = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    Plaintext pt = cc->MakeStringPlaintext("cryptotiming");
     ct = cc->Encrypt(kp.publicKey, pt);
     auto len = times.size();
 
@@ -416,7 +417,7 @@ TEST_F(UTCryptotiming, automorphism){
     LPKeyPair<Poly> kp = cc->KeyGen();
 
     Ciphertext<Poly> ciphertext;
-    Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
+    Plaintext plaintext = cc->MakeStringPlaintext("cryptotiming");
     ciphertext = cc->Encrypt(kp.publicKey, plaintext);
     auto len = times.size();
 
@@ -441,7 +442,7 @@ TEST_F(UTCryptotiming, PRE){
     vector<TimingInfo>	times;
     cc->StartTiming(&times);
     cc->Enable(ENCRYPTION|PRE);
-    Plaintext plaintext( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming") );
+    Plaintext plaintext = cc->MakeStringPlaintext("cryptotiming");
 
     LPKeyPair<Poly> kp = cc->KeyGen();
     LPKeyPair<Poly> kp2 = cc->KeyGen();
