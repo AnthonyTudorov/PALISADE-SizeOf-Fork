@@ -62,6 +62,16 @@ protected:
 /*	TESTING METHODS OF BININT CLASS		*/
 /************************************************/
 
+TEST(UTBinInt,assign) {
+	BigInteger v;
+	vector<uint64_t> vals( {27, uint64_t(1)<<10, uint64_t(1)<<25, uint64_t(1)<<35, uint64_t(1)<<55, } );
+
+	for( auto tv : vals ) {
+		v = uint64_t(tv);
+		EXPECT_EQ(v.ConvertToInt(), tv);
+	}
+}
+
 inline void identity_test(BigInteger& a) {
 	BigInteger ZERO(0);
 	BigInteger ONE(1);
