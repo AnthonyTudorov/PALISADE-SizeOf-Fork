@@ -1,8 +1,30 @@
-//
-// Created by matt_t on 5/24/18.
-//
+/*
+ * @file UnitTestCryptotiming for the timing routines inside of the cryptocontext
+ * @author  TPOC: palisade@njit.edu
+ *
+ * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
-#include "../../test/include/gtest/gtest.h" //FIXME include/gtest/gtest.h
+#include "include/gtest/gtest.h"
 #include "palisade.h"
 #include "cryptocontext.h"
 #include "ciphertext.cpp"
@@ -41,7 +63,7 @@ TEST_F(UTCryptotiming, timing_util_functions){
     cc->Decrypt(kp.secretKey, ciphertext, &plaintext);
 
     ASSERT_TRUE(0 < times.size()) << "StartTiming failed to initialize timing procedures, or many operations failed to push to vector";
-    uint len = (uint)times.size();
+    auto len = times.size();
     cc->StopTiming();
     cc->KeyGen();
     ASSERT_TRUE(len == times.size()) << "StopTiming did not stop timing procedures";
@@ -69,7 +91,7 @@ TEST_F(UTCryptotiming, encrypt_decrypt){
     Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
 
     LPKeyPair<Poly> kp = cc->KeyGen();
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->Encrypt(kp.publicKey, plaintext);
     ASSERT_TRUE(times.size() > len) << "EncryptPub op failed to push to timing vector";
@@ -98,7 +120,7 @@ TEST_F(UTCryptotiming, key_switch){
     LPKeyPair<Poly> kp = cc->KeyGen();
     LPKeyPair<Poly> kp2 = cc->KeyGen();
     Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(0));
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     auto swk = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
     ASSERT_TRUE(times.size() > len) << "KeySwitchGen op failed to push to timing vector";
@@ -118,7 +140,7 @@ TEST_F(UTCryptotiming, mod_reduce){
 
     LPKeyPair<Poly> kp = cc->KeyGen();
     Ciphertext<Poly> ct = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4));
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->ModReduce(ct);
     ASSERT_TRUE(times.size() > len) << "ModReduce op failed to push to timing vector";
@@ -136,7 +158,7 @@ TEST_F(UTCryptotiming, eval_merge){
                                          cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(3)) };
 
     cc->EvalAtIndexKeyGen(kp.secretKey, vector<int32_t>{-1});
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalMerge(ciphers);
     ASSERT_TRUE(times.size() > len) << "EvalMerge op failed to push to timing vector";
@@ -152,12 +174,12 @@ TEST_F(UTCryptotiming, eval_add){
     LPKeyPair<Poly> kp = cc->KeyGen();
     Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4));
     Ciphertext<Poly> ct2 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(7));
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalAdd(ct1, ct2);
     ASSERT_TRUE(times.size() > len) << "EvalAdd op failed to push to timing vector";
     ASSERT_TRUE(times.back().operation == OpEvalAdd) << "EvalAdd op applied an incorrect optype to its data:";
-    if (times.size() > len) { len = (uint)times.size(); }
+    if (times.size() > len) { len = times.size(); }
 
     cc->EvalAdd(ct1, cc->MakeIntegerPlaintext(7));
     ASSERT_TRUE(times.size() > len) << "EvalAddPlain op failed to push to timing vector";
@@ -173,12 +195,12 @@ TEST_F(UTCryptotiming, eval_sub){
     LPKeyPair<Poly> kp = cc->KeyGen();
     Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(4));
     Ciphertext<Poly> ct2 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(7));
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalSub(ct1, ct2);
     ASSERT_TRUE(times.size() > len) << "EvalSub op failed to push to timing vector";
     ASSERT_TRUE(times.back().operation == OpEvalSub) << "EvalSub op applied an incorrect optype to its data:";
-    if (times.size() > len) { len = (uint)times.size(); }
+    if (times.size() > len) { len = times.size(); }
 
     cc->EvalSub(ct1, cc->MakeIntegerPlaintext(7));
     ASSERT_TRUE(times.size() > len) << "EvalSubPlain op failed to push to timing vector";
@@ -196,7 +218,7 @@ TEST_F(UTCryptotiming, eval_negate){
     Ciphertext<Poly> ct;
     Plaintext pt = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
     ct = cc->Encrypt(kp.publicKey, pt);
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalNegate(ct);
     ASSERT_TRUE(times.size() > len) << "EvalNeg op failed to push to timing vector";
@@ -212,7 +234,7 @@ TEST_F(UTCryptotiming, eval_rightshift){
     LPKeyPair<Poly> kp = cc->KeyGen();
 
     Ciphertext<Poly> ct =  cc->Encrypt(kp.publicKey, cc->MakeFractionalPlaintext(4));
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalRightShift(ct, 1);
     // EvalRightShift calls EvalMult, so if both timing functions work, the method pushes two objects to the vector
@@ -256,7 +278,7 @@ TEST_F(UTCryptotiming, eval_sum) {
     Plaintext intArray = cc->MakePackedPlaintext(std::vector<uint64_t>{1,2});
 
     ciphertext = cc->Encrypt(kp.publicKey, intArray);
-    uint len = (uint) times.size();
+    auto len = times.size();
 
     cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
     ASSERT_TRUE(times.size() > len) << "EvalSumKeyGen op failed to push to timing vector";
@@ -287,7 +309,7 @@ TEST_F(UTCryptotiming, eval_mult){
     Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeScalarPlaintext(1));
     Ciphertext<Poly> ct2 = cc->Encrypt(kp.publicKey, cc->MakeScalarPlaintext(1));
 
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalMultKeysGen(kp.secretKey);
     ASSERT_TRUE(times.size() > len) << "EvalMultKeyGen op failed to push to timing vector";
@@ -337,7 +359,7 @@ TEST_F(UTCryptotiming, eval_mult_many){
     Ciphertext<Poly> ct2 = cc->Encrypt(kp.publicKey, cc->MakeScalarPlaintext(1));
     vector<Ciphertext<Poly>> cipherTextList = {ct1, ct2};
     cc->EvalMultKeysGen(kp.secretKey);
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->EvalMultMany(cipherTextList);
     ASSERT_TRUE(times.size() > len) << "EvalMultMany op failed to push to timing vector";
@@ -377,7 +399,7 @@ TEST_F(UTCryptotiming, ring_reduce){
     LPKeyPair<Poly> kp2 = cc->SparseKeyGen();// TODO ADD test for this keygen, or determine if it best falls here
     Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(0));
     auto swk = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     cc->RingReduce(ct1, swk);
     ASSERT_TRUE(times.size() > len) << "RingReduce op failed to push to timing vector";
@@ -396,7 +418,7 @@ TEST_F(UTCryptotiming, automorphism){
     Ciphertext<Poly> ciphertext;
     Plaintext plaintext = Plaintext( new StringEncoding( cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming" ) );
     ciphertext = cc->Encrypt(kp.publicKey, plaintext);
-    uint len = (uint)times.size();
+    auto len = times.size();
 
     auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, std::vector<usint>{1,2,3,4});
     ASSERT_TRUE(times.size() > len) << "EvalAutomorphismK op failed to push to timing vector";
@@ -417,14 +439,13 @@ TEST_F(UTCryptotiming, automorphism){
 TEST_F(UTCryptotiming, PRE){
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextNull(0, 256);
     vector<TimingInfo>	times;
-    uint len = 0;
     cc->StartTiming(&times);
     cc->Enable(ENCRYPTION|PRE);
     Plaintext plaintext( new StringEncoding(cc->GetElementParams(), cc->GetEncodingParams(), "cryptotiming") );
 
     LPKeyPair<Poly> kp = cc->KeyGen();
     LPKeyPair<Poly> kp2 = cc->KeyGen();
-    len = (uint)times.size();
+    auto len = times.size();
 
     LPEvalKey<Poly> evalKey = cc->ReKeyGen(kp2.publicKey, kp.secretKey);
     ASSERT_TRUE(times.size() > len) << "ReKeyGenPubPri op failed to push to timing vector";
@@ -437,7 +458,7 @@ TEST_F(UTCryptotiming, PRE){
     if(times.size() > len) { len = times.size(); }
 
     Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintext);
-    len = (uint)times.size();
+    len = times.size();
 
     cc->ReEncrypt(evalKey, ciphertext);
     ASSERT_TRUE(times.size() > len) << "ReEncrypt op failed to push to timing vector";
