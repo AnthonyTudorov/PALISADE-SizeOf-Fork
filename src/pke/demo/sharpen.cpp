@@ -621,7 +621,10 @@ void Decrypt(size_t size) {
 	for(int i = 0; i < height; i++)
 	{
 		for(int k = 0; k < width; k++) {
-			data[i*width + k] = result[i][k]->GetIntegerValue() & 0xff;
+			auto v = result[i][k]->GetIntegerValue();
+			if( v < 0 ) v = 0;
+			else if( v > 0xff ) v = 0xff;
+			data[i*width + k] = v;
 		}
 	}
 

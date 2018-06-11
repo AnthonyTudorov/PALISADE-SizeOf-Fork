@@ -445,7 +445,7 @@ void Evaluate(size_t size)
 
 	const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cryptoContext->GetCryptoParameters();
 	const auto encodingParams = cryptoParams->GetEncodingParams();
-	uint32_t batchSize = encodingParams->GetBatchSize();
+	int batchSize = encodingParams->GetBatchSize();
 
 	int height = size;
 	int width = size;
@@ -503,7 +503,7 @@ void Evaluate(size_t size)
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
 	vector<uint64_t> mask(batchSize);
-	for (size_t i=0; i < batchSize; i++)
+	for (int i=0; i < batchSize; i++)
 	{
 		if ((i>width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=width-1))
 			mask[i]=1;
@@ -658,11 +658,10 @@ void Decrypt(size_t size) {
 
 	std::cout << "The result is" << std::endl;
 
+	usint half = ptm >> 1;
 	for(size_t i = 0; i < result.size(); i++)
 	{
 		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
-
-		usint half = ptm >> 1;
 
 		std::cout << " [ ";
 		for(size_t k = 0; k < std::min(batchSize,width*height); k++) {
@@ -679,10 +678,14 @@ void Decrypt(size_t size) {
 	string path = "demoData/Baboon" + to_string(size) + "OUT.png";
 	const char *pathc = path.c_str();
 	unsigned char *data = new unsigned char[height*width];
-	for(int i = 0; i < height; i++)
+	for(size_t i = 0; i < height; i++)
 	{
-		for(int k = 0; k < width; k++) {
-			data[i*width + k] = result[i][k]->GetIntegerValue() & 0xff;
+		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
+		for(size_t k = 0; k < width; k++) {
+			if( vectorRes[k] > half )
+				data[i*width + k] = std::floor((int)(vectorRes[k]-ptm)/2);
+			else
+				data[i*width + k] = std::floor(vectorRes[k]/2);
 		}
 	}
 
@@ -782,7 +785,7 @@ void Sharpen() {
 
 	vector<Ciphertext<DCRTPoly>> image(plaintext.size());
 
-	for(int i = 0; i < plaintext.size(); i++)
+	for(size_t i = 0; i < plaintext.size(); i++)
 		image[i] = cryptoContext->Encrypt(keyPair.publicKey, plaintext[i]);
 
 	vector<uint64_t> eight(batchSize,8);
@@ -795,9 +798,9 @@ void Sharpen() {
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
 	vector<uint64_t> mask(batchSize);
-	for (int i = 0; i < batchSize; i++)
+	for (size_t i = 0; i < batchSize; i++)
 	{
-		if ((i>width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=width-1))
+		if ((i>(size_t)width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=(size_t)width-1))
 			mask[i]=1;
 	}
 	Plaintext ptxtMask = cryptoContext->MakePackedPlaintext(mask);
@@ -805,8 +808,8 @@ void Sharpen() {
 	vector<Ciphertext<DCRTPoly>> pixel_value(image.size());
 	vector<Ciphertext<DCRTPoly>> image2(image.size());
 
-	for (int k = 0; k < image.size(); k++) {
-		for(int i = 0; i < indexList.size(); i++) {
+	for (size_t k = 0; k < image.size(); k++) {
+		for(size_t i = 0; i < indexList.size(); i++) {
 			if (i == 0) {
 				pixel_value[k] = cryptoContext->EvalAtIndex(image[k],indexList[i]);
 			}
@@ -822,21 +825,21 @@ void Sharpen() {
 
 	vector<Plaintext> result(image2.size());
 
-	for(int i = 0; i < image2.size(); i++)
+	for(size_t i = 0; i < image2.size(); i++)
 	{
 		cryptoContext->Decrypt(keyPair.secretKey, image2[i],&result[i]);
 	}
 
 	std::cout << "The result is" << std::endl;
 
-	for(int i = 0; i < result.size(); i++)
+	for(size_t i = 0; i < result.size(); i++)
 	{
 		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
 
 		usint half = ptm >> 1;
 
 		std::cout << " [ ";
-		for(int k = 0; k < std::min((int)batchSize,width*height); k++) {
+		for(size_t k = 0; k < (size_t)std::min((int)batchSize,width*height); k++) {
 			if (vectorRes[k] > half )
 				std::cout << std::floor((int)(vectorRes[k]-ptm)/2) << " ";
 			else
