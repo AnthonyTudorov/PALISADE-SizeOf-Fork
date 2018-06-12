@@ -1,5 +1,5 @@
 /*
-* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
+* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the HPS variant of the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -530,13 +530,6 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRT
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
 	ptxt.SwitchFormat();
-/*
-	const std::vector<NativeInteger> &dTable = cryptoParams->GetCRTDeltaTable();
-	Poly dTable2(elementParams, EVALUATION, true);
-	for( size_t i=0; i<dTable.size(); i++ )
-		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
-	DCRTPoly deltaTable( dTable2, elementParams );
-*/
 
 	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 

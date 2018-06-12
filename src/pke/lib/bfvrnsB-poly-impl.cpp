@@ -38,22 +38,22 @@ namespace lbcrypto {
 		throw std::runtime_error(errMsg);
 
 template <>
-LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB(){
+LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB() : m_numq(0), m_numB(0) {
 	NOPOLY
 }
 
 template <>
-LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(){
+LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(): m_numq(0), m_numB(0) {
 	NONATIVEPOLY
 }
 
 template <>
-LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs){
+LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs): m_numq(0), m_numB(0) {
 	NOPOLY
 }
 
 template <>
-LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs){
+LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs): m_numq(0), m_numB(0) {
 	NONATIVEPOLY
 }
 
@@ -66,7 +66,7 @@ LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB(shared_ptr<typename P
 		usint relinWindow,
 		MODE mode,
 		int depth,
-		int maxDepth){
+		int maxDepth): m_numq(0), m_numB(0) {
 	NOPOLY
 }
 
@@ -79,7 +79,7 @@ LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(shared_ptr<type
 		usint relinWindow,
 		MODE mode,
 		int depth,
-		int maxDepth){
+		int maxDepth): m_numq(0), m_numB(0) {
 	NONATIVEPOLY
 }
 
@@ -92,7 +92,7 @@ LPCryptoParametersBFVrnsB<Poly>::LPCryptoParametersBFVrnsB(shared_ptr<typename P
 		usint relinWindow,
 		MODE mode,
 		int depth,
-		int maxDepth){
+		int maxDepth): m_numq(0), m_numB(0) {
 	NOPOLY
 }
 
@@ -105,7 +105,7 @@ LPCryptoParametersBFVrnsB<NativePoly>::LPCryptoParametersBFVrnsB(shared_ptr<type
 		usint relinWindow,
 		MODE mode,
 		int depth,
-		int maxDepth){
+		int maxDepth): m_numq(0), m_numB(0) {
 	NONATIVEPOLY
 }
 

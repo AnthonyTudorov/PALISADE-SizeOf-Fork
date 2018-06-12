@@ -1,5 +1,5 @@
 /*
-* @file bfvrnsB-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme using approximatation techniques.
+* @file bfvrnsB-dcrtpoly-impl.cpp - dcrtpoly implementation for the BEHZ variant of the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -56,6 +56,22 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		m_qModuli[i] = moduli[i];
 	}
 
+	//compute the CRT delta table floor(Q/p) mod qi - used for encryption
+
+	const BigInteger modulusQ = GetElementParams()->GetModulus();
+
+	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
+
+	std::vector<NativeInteger> CRTDeltaTable(size);
+
+	for (size_t i = 0; i < size; i++){
+		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+		BigInteger deltaI = deltaBig.Mod(qi);
+		CRTDeltaTable[i] = NativeInteger(deltaI.ConvertToInt());
+	}
+
+	m_CRTDeltaTable = CRTDeltaTable;
+
 	m_qModulimu.resize(size);
 	for (uint32_t i = 0; i< m_qModulimu.size(); i++ )
 	{
@@ -68,42 +84,6 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	}
 
 	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
-
-	//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
-	std::vector<QuadFloat> CRTDecryptionFloatTable(size);
-
-	const BigInteger modulusQ = GetElementParams()->GetModulus();
-
-	for (size_t i = 0; i < size; i++){
-		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
-		int64_t denominator = moduli[i].ConvertToInt();
-		CRTDecryptionFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
-	}
-	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
-
-	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
-	std::vector<NativeInteger> qDecryptionInt(size);
-	std::vector<NativeInteger> qDecryptionIntPrecon(size);
-	for( usint vi = 0 ; vi < size; vi++ ) {
-		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
-		BigInteger divBy = modulusQ / qi;
-		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(GetPlaintextModulus())/qi;
-		qDecryptionInt[vi] = quotient.Mod(GetPlaintextModulus()).ConvertToInt();
-		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconOptimized(GetPlaintextModulus());
-	}
-	m_CRTDecryptionIntTable = qDecryptionInt;
-	m_CRTDecryptionIntPreconTable = qDecryptionIntPrecon;
-
-	//compute the CRT delta table floor(Q/p) mod qi - used for encryption
-	const BigInteger deltaBig = modulusQ.DividedBy(GetPlaintextModulus());
-	std::vector<NativeInteger> CRTDeltaTable(size);
-	for (size_t i = 0; i < size; i++){
-		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		BigInteger deltaI = deltaBig.Mod(qi);
-		CRTDeltaTable[i] = NativeInteger(deltaI.ConvertToInt());
-	}
-	m_CRTDeltaTable = CRTDeltaTable;
 
 	// Compute Bajard's et al. RNS variant lookup tables
 
@@ -146,6 +126,8 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	m_BskmtildeModuli = m_BskModuli;
 
 	m_paramsBsk = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, m_BskModuli, m_BskRoots));
+
+	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(m_BskRoots, 2 * n, m_BskModuli);
 
 	// finally add m_tilde as last modulus in the chain
 	m_BskmtildeModuli.push_back( m_mtilde );
@@ -595,13 +577,6 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrnsB<DCRTPoly>::Encrypt(const LPPublicKey<DCR
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
 	ptxt.SwitchFormat();
-/*
-	const std::vector<NativeInteger> &dTable = cryptoParams->GetCRTDeltaTable();
-	Poly dTable2(elementParams, EVALUATION, true);
-	for( size_t i=0; i<dTable.size(); i++ )
-		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
-	DCRTPoly deltaTable( dTable2, elementParams );
-*/
 
 	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 

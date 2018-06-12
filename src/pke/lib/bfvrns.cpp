@@ -1,5 +1,5 @@
 /*
-* @file bfvrns.cpp - implementation of the BFVrns scheme.
+* @file bfvrns.cpp - implementation of the BFVrns (HPS variant of BFV) scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -36,6 +36,8 @@ The BFV scheme is introduced in the following papers:
    - Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
    - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
    - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca (2016). A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive, Report 2016/510. (https://eprint.iacr.org/2016/510)
+   - Ahmad Al Badawi and Yuriy Polyakov and Khin Mi Mi Aung and Bharadwaj Veeravalli and Kurt Rohloff (2018). Implementation and Performance Evaluation of RNS Variants of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/589. {https://eprint.iacr.org/2018/589}
+
 
 License Information:
 

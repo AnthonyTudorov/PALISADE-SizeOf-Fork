@@ -1,5 +1,5 @@
 /*
-* @file bfvrnsB.cpp - implementation of the BFVrns scheme using approximation techniques.
+* @file bfvrnsB.cpp - implementation of the BEHZ variant of BFVrns.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -33,9 +33,10 @@ The BFV scheme is introduced in the following papers:
    - Junfeng Fan and Frederik Vercauteren (2012). Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
 
  Our implementation builds from the designs here:
-   - Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
    - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
    - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca (2016). A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive, Report 2016/510. (https://eprint.iacr.org/2016/510)
+   - Ahmad Al Badawi and Yuriy Polyakov and Khin Mi Mi Aung and Bharadwaj Veeravalli and Kurt Rohloff (2018). Implementation and Performance Evaluation of RNS Variants of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/589. {https://eprint.iacr.org/2018/589}
+
 
 License Information:
 
@@ -58,10 +59,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace lbcrypto {
 
 template <class Element>
-LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB() : LPCryptoParametersRLWE<Element>() {}
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB() : LPCryptoParametersRLWE<Element>(), m_numq(0), m_numB(0) {}
 
 template <class Element>
-LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs) : LPCryptoParametersRLWE<Element>(rhs), m_numq(0), m_numB(0) {}
 
 template <class Element>
 LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typename Element::Params> params,
@@ -81,7 +82,7 @@ LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typenam
 				relinWindow,
 				depth,
 				maxDepth,
-				mode) {
+				mode), m_numq(0), m_numB(0) {
 	}
 
 template <class Element>
@@ -102,7 +103,7 @@ LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typenam
 			relinWindow,
 			depth,
 			maxDepth,
-			mode) {
+			mode), m_numq(0), m_numB(0) {
 	}
 
 template <class Element>
