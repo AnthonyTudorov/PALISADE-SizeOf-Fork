@@ -611,14 +611,14 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrnsB<DCRTPoly>::Encrypt(const LPPublicKey<DCR
 
  template <>
 DecryptResult LPAlgorithmBFVrnsB<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> privateKey,
-		const Ciphertext<DCRTPoly> ciphertext,
+		ConstCiphertext<DCRTPoly> ciphertext,
 		NativePoly *plaintext) const
 {
 	//TimeVar t_total;
 
 	//TIC(t_total);
 
-	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsBFVrnsB =
+	 const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsBFVrnsB =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(privateKey->GetCryptoParameters());
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrnsB->GetElementParams();
 
@@ -658,8 +658,6 @@ DecryptResult LPAlgorithmBFVrnsB<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly>
 	const std::vector<NativeInteger> &paramstgammaqDivqiModqiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiPreconTable();
 	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaTable();
 	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaPreconTable();
-
-
 
 	// this is the resulting vector of coefficients;
 	*plaintext = b.ScaleAndRound(paramsqModuliTable,
@@ -772,8 +770,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalSub(ConstCiphertext<DC
 }
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(const Ciphertext<DCRTPoly> ciphertext1,
-	const Ciphertext<DCRTPoly> ciphertext2) const {
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMult(ConstCiphertext<DCRTPoly> ciphertext1,
+	ConstCiphertext<DCRTPoly> ciphertext2) const {
 
 	if (!(ciphertext1->GetCryptoParameters() == ciphertext2->GetCryptoParameters())) {
 		std::string errMsg = "LPAlgorithmSHEBFVrnsB::EvalMult crypto parameters are not the same";
@@ -1042,7 +1040,7 @@ LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::KeySwitchGen(const LPPrivat
 
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::KeySwitch(const LPEvalKey<DCRTPoly> ek,
-	const Ciphertext<DCRTPoly> cipherText) const
+	ConstCiphertext<DCRTPoly> cipherText) const
 {
 
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
@@ -1098,8 +1096,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::KeySwitch(const LPEvalKey<
 
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMultAndRelinearize(const Ciphertext<DCRTPoly> ciphertext1,
-	const Ciphertext<DCRTPoly> ciphertext2, const vector<LPEvalKey<DCRTPoly>> &ek) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMultAndRelinearize(ConstCiphertext<DCRTPoly> ciphertext1,
+	ConstCiphertext<DCRTPoly> ciphertext2, const vector<LPEvalKey<DCRTPoly>> &ek) const{
 
 	Ciphertext<DCRTPoly> cipherText = this->EvalMult(ciphertext1, ciphertext2);
 

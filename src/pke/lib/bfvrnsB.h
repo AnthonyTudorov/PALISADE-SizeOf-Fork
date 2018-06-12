@@ -431,7 +431,7 @@ namespace lbcrypto {
 		* @return the decrypted plaintext returned.
 		*/
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
-			const Ciphertext<Element> ciphertext,
+			ConstCiphertext<Element> ciphertext,
 			NativePoly *plaintext) const;
 
 
@@ -480,8 +480,8 @@ namespace lbcrypto {
 		* @param ciphertext2 second input ciphertext.
 		* @return resulting EvalMult ciphertext.
 		*/
-		Ciphertext<Element> EvalMult(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct2) const;
+		Ciphertext<Element> EvalMult(ConstCiphertext<Element> ct1,
+				ConstCiphertext<Element> ct2) const;
 
 		/**
 		* Method for generating a KeySwitchHint using RLWE relinearization
@@ -501,7 +501,7 @@ namespace lbcrypto {
 		* @return new ciphertext
 		*/
 		Ciphertext<Element> KeySwitch(const LPEvalKey<Element> keySwitchHint,
-			const Ciphertext<Element> cipherText) const;
+			ConstCiphertext<Element> cipherText) const;
 
 		/**
 		* Function for evaluating multiplication on ciphertext followed by relinearization operation.
@@ -513,8 +513,8 @@ namespace lbcrypto {
 		*  decryptable by the same secret key as that of ciphertext1 and ciphertext2.
 		* @return new ciphertext
 		*/
-		Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
+		Ciphertext<Element> EvalMultAndRelinearize(ConstCiphertext<Element> ct1,
+			ConstCiphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
 
 
 	};

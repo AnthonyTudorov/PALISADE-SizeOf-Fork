@@ -208,12 +208,12 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, OPTIMIZED);
 	else if( name == "BFVrns_rlwe" )
 		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
+	else if( name == "BFVrns_opt" )
+		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
+	else if( name == "BFVrnsB_rlwe" )
+		cc = GenCryptoContextBFVrnsB<Element>(ptm, RLWE);
 	else if( name == "BFVrnsB_opt" )
 		cc = GenCryptoContextBFVrnsB<Element>(ptm, OPTIMIZED);
-	else if( name == "BFVrnsB_rlwe" )
-		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
-	else if( name == "BFVrnsB_opt" )
-		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
 	else {
 		cout << "nothing for " << name << endl;
 		PALISADE_THROW(not_available_error, "No generator for " + name);

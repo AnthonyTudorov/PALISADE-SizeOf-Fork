@@ -160,7 +160,7 @@ Ciphertext<NativePoly> LPAlgorithmBFVrnsB<NativePoly>::Encrypt(const LPPublicKey
 
 template <>
 DecryptResult LPAlgorithmBFVrnsB<Poly>::Decrypt(const LPPrivateKey<Poly> privateKey,
-		const Ciphertext<Poly> ciphertext,
+		ConstCiphertext<Poly> ciphertext,
 		NativePoly *plaintext) const
 {
 	NOPOLY
@@ -168,7 +168,7 @@ DecryptResult LPAlgorithmBFVrnsB<Poly>::Decrypt(const LPPrivateKey<Poly> private
 
 template <>
 DecryptResult LPAlgorithmBFVrnsB<NativePoly>::Decrypt(const LPPrivateKey<NativePoly> privateKey,
-		const Ciphertext<NativePoly> ciphertext,
+		ConstCiphertext<NativePoly> ciphertext,
 		NativePoly *plaintext) const
 {
 	NONATIVEPOLY
@@ -189,14 +189,14 @@ Ciphertext<NativePoly> LPAlgorithmBFVrnsB<NativePoly>::Encrypt(const LPPrivateKe
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalMult(const Ciphertext<Poly> ciphertext1,
-	const Ciphertext<Poly> ciphertext2) const {
+Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalMult(ConstCiphertext<Poly> ciphertext1,
+	ConstCiphertext<Poly> ciphertext2) const {
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalMult(const Ciphertext<NativePoly> ciphertext1,
-	const Ciphertext<NativePoly> ciphertext2) const {
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalMult(ConstCiphertext<NativePoly> ciphertext1,
+	ConstCiphertext<NativePoly> ciphertext2) const {
 	NONATIVEPOLY
 }
 
@@ -238,25 +238,25 @@ LPEvalKey<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::KeySwitchGen(const LPPr
 
 template <>
 Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::KeySwitch(const LPEvalKey<Poly> keySwitchHint,
-	const Ciphertext<Poly> cipherText) const{
+	ConstCiphertext<Poly> cipherText) const{
 	NOPOLY
 }
 
 template <>
 Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::KeySwitch(const LPEvalKey<NativePoly> keySwitchHint,
-	const Ciphertext<NativePoly> cipherText) const{
+	ConstCiphertext<NativePoly> cipherText) const{
 	NONATIVEPOLY
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalMultAndRelinearize(const Ciphertext<Poly> ct1,
-	const Ciphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalMultAndRelinearize(ConstCiphertext<Poly> ct1,
+	ConstCiphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalMultAndRelinearize(const Ciphertext<NativePoly> ct1,
-	const Ciphertext<NativePoly> ct, const vector<LPEvalKey<NativePoly>> &ek) const{
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalMultAndRelinearize(ConstCiphertext<NativePoly> ct1,
+	ConstCiphertext<NativePoly> ct, const vector<LPEvalKey<NativePoly>> &ek) const{
 	NONATIVEPOLY
 }
 
