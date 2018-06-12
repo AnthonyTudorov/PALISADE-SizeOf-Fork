@@ -1042,7 +1042,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::EvalAutomorphism(const Ciphertex
 		PALISADE_THROW(config_error, "Could not find an EvalKey for index " + to_string(i));
 	}
 
-	return this->KeySwitch(evalKeys.find(i)->second, permutedCiphertext);
+	return this->KeySwitch(fk->second, permutedCiphertext);
 
 }
 
