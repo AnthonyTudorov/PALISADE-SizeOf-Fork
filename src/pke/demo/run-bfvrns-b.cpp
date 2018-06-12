@@ -85,7 +85,7 @@ void SHERun() {
 		}
 	}
 
-	std::cout << "\n===========BENCHMARKING FOR BFVRNS===============: " << std::endl;
+	std::cout << "\n===========BENCHMARKING FOR BFVRNS-B===============: " << std::endl;
 
 	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;

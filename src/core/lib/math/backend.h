@@ -98,7 +98,7 @@ typedef uint32_t integral_dtype;
 	**/
 
 #ifndef BigIntegerBitLength
-#define BigIntegerBitLength 6000 //for documentation on tests
+#define BigIntegerBitLength 1500 //for documentation on tests
 #endif
 
 #if BigIntegerBitLength < 600

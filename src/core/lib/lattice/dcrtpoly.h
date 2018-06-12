@@ -751,9 +751,13 @@ public:
 	 * @param gamma: redundant modulus
 	 * @param t: plaintext modulus
 	 * @param gammaInvModt
+	 * @param gammaInvModtPrecon - table for gammaInvModt used in preconditioned modular reduction
 	 * @param negqInvModtgammaTable: -1/q mod {t U gamma}
-	 * @param qDivqiModqiTable: (q/qi)^-1 mod qi
-	 * @param qDivqiModtgammaTable (q/qi) mod {t U gamma}
+	 * @param negqInvModtgammaPreconTable - used in preconditioned modular reduction
+	 * @param tgammaqDivqiModqiTable
+	 * @param tgammaqDivqiModqiPreconTable
+	 * @param qDivqiModtgammaTable
+	 * @param qDivqiModtgammaPreconTable
 	 * @return
 	 */
 	PolyType ScaleAndRound(
@@ -775,10 +779,14 @@ public:
 	 * @param qModuli: basis q = q1 * q2 * ...
 	 * @param BskmtildeModuli: basis {Bsk U mtilde} ...
 	 * @param mtildeqDivqiModqi: mtilde*(q/qi)^-1 (mod qi)
+	 * @param mtildeqDivqiModqiPrecon
 	 * @param qDivqiModBj: q/qi mod {Bsk U mtilde}
 	 * @param qModBski: q mod {Bsk}
+	 * @param qModBskiPrecon
 	 * @param negqInvModmtilde: -1/q mod mtilde
+	 * @param negqInvModmtildePrecon
 	 * @param mtildeInvModBskiTable: mtilde^-1 mod {Bsk}
+	 * @param mtildeInvModBskiPreconTable
 	 */
 	void FastBaseConvqToBskMontgomery(
 			const shared_ptr<ParmType> paramsBsk,
@@ -794,14 +802,17 @@ public:
 			const typename PolyType::Integer &negqInvModmtildePrecon,
 			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable,
 			const std::vector<typename PolyType::Integer> &mtildeInvModBskiPreconTable);
+
 	/**
 	 * @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
 	 * @param t: plaintext modulus
 	 * @param qModuli: basis q = q1 * q2 * ...
 	 * @param BskModuli: Bsk basis
 	 * @param qDivqiModqi: (q/qi)^-1 mod qi
+	 * @param tqDivqiModqiPrecon
 	 * @param qDivqiModBj: (q/qi) mod {Bsk}
 	 * @param qInvModBi: q^-1 mod {Bsk}
+	 * @param qInvModBiPrecon
 	 */
 	void FastRNSFloorq(
 			const typename PolyType::Integer &t,
@@ -819,10 +830,13 @@ public:
 	 * @param qModuli: basis q = q1 * q2 * ...
 	 * @param BskModuli: Bsk basis
 	 * @param BDivBiModBi: (B/Bi)^-1 mod Bi, where B = m1 * m2 * ... (without msk). Note in the source paper, B is referred to by M.
+	 * @param BDivBiModBiPrecon
 	 * @param BDivBiModmsk: B/Bi mod msk
 	 * @param BInvModmsk: B^-1 mod msk
+	 * @param BInvModmskPrecon
 	 * @param BDivBiModqj: B/Bi mod {q}
 	 * @param BModqi: B mod {q}
+	 * @param BModqiPrecon
 	 */
 	void FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,

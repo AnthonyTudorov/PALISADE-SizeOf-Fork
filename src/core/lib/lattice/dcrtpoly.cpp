@@ -1216,7 +1216,7 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
 		std::vector<typename PolyType::Integer> xInvVector(nTowers);
-		double lyam = 0.0;
+		double nu = 0.0;
 
 		// Compute alpha and vector of x_i terms
 		for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
@@ -1227,11 +1227,11 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 			xInvVector[vIndex] = xi.ModMulPreconOptimized(qInvModqi[vIndex],qi,qInvModqiPrecon[vIndex]);
 
 			//computes [xi (q/qi)^{-1}]_qi / qi to keep track of the number of q-overflows
-			lyam += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
+			nu += (double)xInvVector[vIndex].ConvertToInt()/(double)qi.ConvertToInt();
 		}
 
 		// alpha corresponds to the number of overflows
-		typename PolyType::Integer alpha = std::llround(lyam);
+		typename PolyType::Integer alpha = std::llround(nu);
 
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
@@ -1770,17 +1770,17 @@ DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyImpl<ModType,IntType,VecT
 #endif
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
-			long double curFloat = 0.0;
+			long double nu = 0.0;
 
 			for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 
 				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
 
-				curFloat += beta[vIndex]*xi.ConvertToInt();
+				nu += beta[vIndex]*xi.ConvertToInt();
 
 			}
 
-			typename PolyType::Integer rounded = std::llround(curFloat);
+			typename PolyType::Integer rounded = std::llround(nu);
 
 			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
 
