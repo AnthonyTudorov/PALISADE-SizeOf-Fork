@@ -106,7 +106,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const Ciphertext<Element> a, const Ciphertext<Element> b) const {
+	void TypeCheck(ConstCiphertext<Element> a, ConstCiphertext<Element> b) const {
 		if( a == NULL || b == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( a->GetCryptoContext().get() != this )
@@ -129,7 +129,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const Ciphertext<Element> a, const Plaintext b) const {
+	void TypeCheck(ConstCiphertext<Element> a, ConstPlaintext b) const {
 		if( a == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( b == NULL )
@@ -171,7 +171,7 @@ private:
 	 * @param a
 	 * @param b
 	 */
-	void TypeCheck(const RationalCiphertext<Element>& a, const Plaintext b) const {
+	void TypeCheck(const RationalCiphertext<Element>& a, ConstPlaintext b) const {
 		if( b == NULL )
 			PALISADE_THROW( type_error, "Null Plaintext");
 		if( a.GetCryptoContext().get() != this )
@@ -850,7 +850,7 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetEncodedElement<Element>());
+		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, plaintext->GetElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -880,7 +880,7 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetEncodedElement<Element>());
+		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(privateKey, plaintext->GetElement<Element>());
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
@@ -973,7 +973,7 @@ public:
 				padded = true;
 			}
 
-			Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetEncodedElement<Element>());
+			Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
 			if (!ciphertext) {
 				break;
 			}
@@ -1003,7 +1003,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeScalarPlaintext(int64_t value) const {
-		return Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1012,7 +1014,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeStringPlaintext(const string& str) const {
-		return Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
+		auto p = Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1021,7 +1025,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeIntegerPlaintext(int64_t value) const {
-		return Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value) );
+		auto p = Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1030,7 +1036,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
-		return Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
+		auto p =  Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1040,7 +1048,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1050,7 +1060,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
-		return Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1059,7 +1071,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakePackedPlaintext(const vector<uint64_t>& value) const {
-		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 	/**
@@ -1068,7 +1082,9 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakePackedPlaintext(const std::initializer_list<uint64_t>& value) const {
-		return Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
+		p->Encode();
+		return p;
 	}
 
 private:
@@ -1116,7 +1132,7 @@ public:
 	 */
 	DecryptResult Decrypt(
 			const LPPrivateKey<Element> privateKey,
-			const Ciphertext<Element> ciphertext,
+			ConstCiphertext<Element> ciphertext,
 			Plaintext* plaintext)
 	{
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
@@ -1354,7 +1370,7 @@ public:
 	*/
 	Ciphertext<Element> ReEncrypt(
 		LPEvalKey<Element> evalKey,
-		Ciphertext<Element> ciphertext) const
+		ConstCiphertext<Element> ciphertext) const
 	{
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
@@ -1419,7 +1435,7 @@ public:
 	 * @return new ciphertext for ct1 + ct2
 	 */
 	Ciphertext<Element>
-	EvalAdd(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2) const
+	EvalAdd(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const
 	{
 		TypeCheck(ct1, ct2);
 
@@ -1460,7 +1476,7 @@ public:
 	 * @return new ciphertext for ct1 - ct2
 	 */
 	Ciphertext<Element>
-	EvalSub(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2) const
+	EvalSub(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const
 	{
 		TypeCheck(ct1, ct2);
 
@@ -1501,12 +1517,14 @@ public:
 	* @return new ciphertext for ciphertext + plaintext 
 	*/
 	Ciphertext<Element>
-	EvalAdd(const Ciphertext<Element> ciphertext, const Plaintext plaintext) const
+	EvalAdd(ConstCiphertext<Element> ciphertext, ConstPlaintext plaintext) const
 	{
 		TypeCheck(ciphertext, plaintext);
 
 		TimeVar t;
 		if( doTiming ) TIC(t);
+		plaintext->SetFormat(EVALUATION);
+
 		auto rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, plaintext);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalAddPlain, TOC_US(t)) );
@@ -1514,8 +1532,8 @@ public:
 		return rv;
 	}
 
-	Ciphertext<Element>
-	EvalAdd(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	inline Ciphertext<Element>
+	EvalAdd(ConstPlaintext plaintext, ConstCiphertext<Element> ciphertext) const
 	{
 		return EvalAdd(ciphertext, plaintext);
 	}
@@ -1527,7 +1545,7 @@ public:
 	* @return new ciphertext for ciphertext - plaintext
 	*/
 	Ciphertext<Element>
-	EvalSub(const Ciphertext<Element> ciphertext, const Plaintext plaintext) const
+	EvalSub(ConstCiphertext<Element> ciphertext, ConstPlaintext plaintext) const
 	{
 		TypeCheck(ciphertext, plaintext);
 
@@ -1540,8 +1558,8 @@ public:
 		return rv;
 	}
 
-	Ciphertext<Element>
-	EvalSub(const Plaintext plaintext, const Ciphertext<Element> ciphertext) const
+	inline Ciphertext<Element>
+	EvalSub(ConstPlaintext plaintext, ConstCiphertext<Element> ciphertext) const
 	{
 		return EvalSub(ciphertext, plaintext);
 	}
@@ -1553,7 +1571,7 @@ public:
 	 * @return new ciphertext for ct1 * ct2
 	 */
 	Ciphertext<Element>
-	EvalMult(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2) const
+	EvalMult(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const
 	{
 		TypeCheck(ct1, ct2);
 
@@ -1575,7 +1593,7 @@ public:
 	 * @return new ciphertext for ct1 * ct2
 	 */
 	Ciphertext<Element>
-	EvalMultNoRelin(const Ciphertext<Element> ct1, const Ciphertext<Element> ct2) const
+	EvalMultNoRelin(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const
 	{
 		TypeCheck(ct1, ct2);
 
@@ -1622,8 +1640,7 @@ public:
 	*
 	* @return new ciphertext
 	*/
-	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ct1,
-			const Ciphertext<Element> ct2) const{
+	Ciphertext<Element> EvalMultAndRelinearize(ConstCiphertext<Element> ct1, ConstCiphertext<Element> ct2) const {
 
 		const auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
 
@@ -1643,8 +1660,8 @@ public:
 	 * @param ct1
 	 * @return new ciphertext for ct1 * pt2
 	 */
-	Ciphertext<Element>
-	EvalMult(const Plaintext pt2, const Ciphertext<Element> ct1) const
+	inline Ciphertext<Element>
+	EvalMult(ConstPlaintext pt2, ConstCiphertext<Element> ct1) const
 	{
 		return EvalMult(ct1, pt2);
 	}
@@ -1656,7 +1673,7 @@ public:
 	 * @return new ciphertext for ct1 * pt2
 	 */
 	Ciphertext<Element>
-	EvalRightShift(const Ciphertext<Element> ct1, size_t divisor) const
+	EvalRightShift(ConstCiphertext<Element> ct1, size_t divisor) const
 	{
 		if( ct1 && ct1->GetEncodingType() != Fractional ) {
 			stringstream ss;
@@ -1683,7 +1700,7 @@ public:
 	 * @return new ciphertext for ct1 * pt2
 	 */
 	Ciphertext<Element>
-	EvalMult(const Ciphertext<Element> ct1, const Plaintext pt2) const
+	EvalMult(ConstCiphertext<Element> ct1, ConstPlaintext pt2) const
 	{
 		TypeCheck(ct1, pt2);
 
@@ -1723,7 +1740,7 @@ public:
 	* @return new ciphertext -ct
 	*/
 	Ciphertext<Element>
-	EvalNegate(const Ciphertext<Element> ct) const
+	EvalNegate(ConstCiphertext<Element> ct) const
 	{
 		if (ct == NULL || Mismatched(ct->GetCryptoContext()) )
 			throw std::logic_error("Information passed to EvalNegate was not generated with this crypto context");
@@ -1798,7 +1815,7 @@ public:
 	* @param &evalKeys - reference to the vector of evaluation keys generated by EvalAutomorphismKeyGen.
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalAutomorphism(const Ciphertext<Element> ciphertext, usint i,
+	Ciphertext<Element> EvalAutomorphism(ConstCiphertext<Element> ciphertext, usint i,
 		const std::map<usint, LPEvalKey<Element>> &evalKeys) const {
 
 		auto mf = evalKeys.begin();
@@ -1873,7 +1890,7 @@ public:
 	* @param batchSize size of the batch
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalSum(const Ciphertext<Element> ciphertext, usint batchSize) const;
+	Ciphertext<Element> EvalSum(ConstCiphertext<Element> ciphertext, usint batchSize) const;
 
 	/**
 	* EvalSumKeyGen Generates the key map to be used by evalsum
@@ -1893,7 +1910,7 @@ public:
 	* @param &evalKeys - reference to the map of evaluation keys generated by EvalAutomorphismKeyGen.
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalMerge(const std::vector<Ciphertext<Element>> &ciphertextVector) const;
+	Ciphertext<Element> EvalMerge(const vector<Ciphertext<Element>> &ciphertextVector) const;
 
 	/**
 	 * GetEvalAutomorphismKey  returns the map
@@ -1911,7 +1928,7 @@ public:
 	* @param i the index.
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalAtIndex(const Ciphertext<Element> ciphertext, int32_t index) const;
+	Ciphertext<Element> EvalAtIndex(ConstCiphertext<Element> ciphertext, int32_t index) const;
 
 	/**
 	* Evaluates inner product in batched encoding
@@ -1921,7 +1938,7 @@ public:
 	* @param batchSize size of the batch to be summed up
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalInnerProduct(const Ciphertext<Element> ciphertext1, const Ciphertext<Element> ciphertext2, usint batchSize) const;
+	Ciphertext<Element> EvalInnerProduct(ConstCiphertext<Element> ciphertext1, ConstCiphertext<Element> ciphertext2, usint batchSize) const;
 
 	/**
 	* Evaluates inner product in batched encoding
@@ -1931,7 +1948,7 @@ public:
 	* @param batchSize size of the batch to be summed up
 	* @return resulting ciphertext
 	*/
-	Ciphertext<Element> EvalInnerProduct(const Ciphertext<Element> ciphertext1, const Plaintext ciphertext2, usint batchSize) const;
+	Ciphertext<Element> EvalInnerProduct(ConstCiphertext<Element> ciphertext1, ConstPlaintext ciphertext2, usint batchSize) const;
 
 	/**
 	* EvalCrossCorrelation - Computes the sliding sum of inner products (known as
@@ -1989,7 +2006,7 @@ public:
 	*/
 	Ciphertext<Element> KeySwitch(
 		const LPEvalKey<Element> keySwitchHint,
-		const Ciphertext<Element> ciphertext) const
+		ConstCiphertext<Element> ciphertext) const
 	{
 		if( keySwitchHint == NULL || Mismatched(keySwitchHint->GetCryptoContext()) )
 			throw std::logic_error("Key passed to KeySwitch was not generated with this crypto context");
@@ -2011,7 +2028,7 @@ public:
 	 * @param ciphertext - vector of ciphertext
 	 * @return vector of mod reduced ciphertext
 	 */
-	Ciphertext<Element> ModReduce(Ciphertext<Element> ciphertext) const {
+	Ciphertext<Element> ModReduce(ConstCiphertext<Element> ciphertext) const {
 		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ModReduce was not generated with this crypto context");
 
@@ -2068,7 +2085,7 @@ public:
 	* @param linearKeySwitchHint
 	* @return vector of level reduced ciphertext
 	*/
-	Ciphertext<Element> LevelReduce(const Ciphertext<Element> cipherText1,
+	Ciphertext<Element> LevelReduce(ConstCiphertext<Element> cipherText1,
 		const LPEvalKeyNTRU<Element> linearKeySwitchHint) const {
 
 		if( cipherText1 == NULL || linearKeySwitchHint == NULL ||
@@ -2094,7 +2111,7 @@ public:
 	*/
 
 	Ciphertext<Element> RingReduce(
-		Ciphertext<Element> ciphertext,
+		ConstCiphertext<Element> ciphertext,
 		const LPEvalKey<Element> keySwitchHint) const
 	{
 		if( keySwitchHint == NULL ||
@@ -2104,12 +2121,10 @@ public:
 		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
 			throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
 
-		Ciphertext<Element> newCiphertext;
-
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		newCiphertext = GetEncryptionAlgorithm()->RingReduce(ciphertext, keySwitchHint);
+		auto newCiphertext = GetEncryptionAlgorithm()->RingReduce(ciphertext, keySwitchHint);
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpRingReduce, TOC_US(t)) );
@@ -2125,8 +2140,8 @@ public:
 	* return vector of resulting ciphertext
 	*/
 	Ciphertext<Element> ComposedEvalMult(
-		const Ciphertext<Element> ciphertext1,
-		const Ciphertext<Element> ciphertext2) const
+		ConstCiphertext<Element> ciphertext1,
+		ConstCiphertext<Element> ciphertext2) const
 	{
 		if( ciphertext1 == NULL || ciphertext2 == NULL || ciphertext1->GetKeyTag() != ciphertext2->GetKeyTag() ||
 				Mismatched(ciphertext1->GetCryptoContext()) )

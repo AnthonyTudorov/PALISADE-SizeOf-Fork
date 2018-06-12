@@ -81,6 +81,7 @@ inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
 
 class PlaintextImpl;
 typedef shared_ptr<PlaintextImpl> Plaintext;
+typedef shared_ptr<const PlaintextImpl> ConstPlaintext;
 
 /**
  * @class PlaintextImpl
@@ -99,10 +100,10 @@ class PlaintextImpl
 protected:
 	bool						isEncoded;
 	PtxtPolyType				typeFlag;
-	EncodingParams			encodingParams;
-	Poly						encodedVector;
-	NativePoly				encodedNativeVector;
-	DCRTPoly					encodedVectorDCRT;
+	EncodingParams				encodingParams;
+	mutable Poly				encodedVector;
+	mutable NativePoly			encodedNativeVector;
+	mutable DCRTPoly			encodedVectorDCRT;
 
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
@@ -171,7 +172,7 @@ public:
 	 *
 	 * @param fmt
 	 */
-	void SetFormat(Format fmt) {
+	void SetFormat(Format fmt) const {
 		if( typeFlag == IsPoly )
 			encodedVector.SetFormat(fmt);
 		else if( typeFlag == IsNativePoly )
@@ -180,12 +181,13 @@ public:
 			encodedVectorDCRT.SetFormat(fmt);
 	}
 
-	template<typename Element>
-	Element& GetEncodedElement() {
-		if( !isEncoded )
-			this->Encode();
-		return GetElement<Element>();
-	}
+//	template<typename Element>
+//	const Element& GetElement() const {
+//		if( !isEncoded )
+//			PALISADE_THROW(type_error,"Element for this plaintext is not encoded");
+//			//this->Encode();
+//		return GetElement<Element>();
+//	}
 
 	/**
 	 * GetElement
@@ -193,6 +195,9 @@ public:
 	 */
 	template <typename Element>
 	Element& GetElement();
+
+	template <typename Element>
+	const Element& GetElement() const;
 
 	/**
 	 * GetElementRingDimension
@@ -290,6 +295,11 @@ inline bool operator!=(const Plaintext p1, const Plaintext p2) { return *p1 != *
  * @return the Polynomial that the element was encoded into
  */
 template <>
+inline const Poly& PlaintextImpl::GetElement<Poly>() const {
+	return encodedVector;
+}
+
+template <>
 inline Poly& PlaintextImpl::GetElement<Poly>() {
 	return encodedVector;
 }
@@ -299,6 +309,11 @@ inline Poly& PlaintextImpl::GetElement<Poly>() {
  * @return the NativePolynomial that the element was encoded into
  */
 template <>
+inline const NativePoly& PlaintextImpl::GetElement<NativePoly>() const {
+	return encodedNativeVector;
+}
+
+template <>
 inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
 	return encodedNativeVector;
 }
@@ -307,6 +322,11 @@ inline NativePoly& PlaintextImpl::GetElement<NativePoly>() {
  * GetElement
  * @return the DCRTPolynomial that the element was encoded into
  */
+template <>
+inline const DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() const {
+	return encodedVectorDCRT;
+}
+
 template <>
 inline DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() {
 	return encodedVectorDCRT;

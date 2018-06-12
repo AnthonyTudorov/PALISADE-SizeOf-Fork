@@ -35,9 +35,6 @@ namespace lbcrypto {
 template<typename Element>
 class CiphertextImpl;
 
-template<typename Element>
-using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
-
 /**
 	* @brief CiphertextImpl
 	*

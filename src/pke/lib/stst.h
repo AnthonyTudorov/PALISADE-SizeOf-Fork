@@ -363,8 +363,8 @@ public:
 	* @param evalKey The evaluation key input.
 	* @return A shared pointer to the ciphertext which is the EvalMult of the two inputs.
 	*/
-	Ciphertext<Element> EvalMultAndRelinearize(const Ciphertext<Element> ciphertext1,
-		const Ciphertext<Element> ciphertext2,
+	Ciphertext<Element> EvalMultAndRelinearize(ConstCiphertext<Element> ciphertext1,
+		ConstCiphertext<Element> ciphertext2,
 		const vector<LPEvalKey<Element>> &ek) const {
 		std::string errMsg = "LPAlgorithmStSt::EvalMultAndRelinearize is not implemented for the Stehle-Steinfeld Scheme.";
 		throw std::runtime_error(errMsg);
