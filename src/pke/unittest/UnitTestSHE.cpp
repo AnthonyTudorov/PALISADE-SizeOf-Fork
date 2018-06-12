@@ -114,29 +114,47 @@ static void UnitTest_Add_Packed(const CryptoContext<Element> cc, const string& f
 	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
-	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
-
+	Ciphertext<Element> cResult;
 	Plaintext results;
-	cc->Decrypt(kp.secretKey, cResult, &results);
 
+	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextAdd->GetLength());
 	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalAdd fails";
 
-	cResult = cc->EvalSub(ciphertext1, ciphertext2);
-
+	cResult = ciphertext1 + ciphertext2;
 	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(plaintextAdd->GetLength());
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator+ fails";
 
+	Ciphertext<Element> caddInplace(ciphertext1);
+	caddInplace += ciphertext2;
+	cc->Decrypt(kp.secretKey, caddInplace, &results);
+	results->SetLength(plaintextAdd->GetLength());
+	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator+= fails";
+
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextSub->GetLength());
 	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub fails";
 
-	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+	cResult = ciphertext1 - ciphertext2;
+	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(plaintextSub->GetLength());
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator- fails";
 
+	Ciphertext<Element> csubInplace(ciphertext1);
+	csubInplace -= ciphertext2;
+	cc->Decrypt(kp.secretKey, csubInplace, &results);
+	results->SetLength(plaintextSub->GetLength());
+	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator-= fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextAdd->GetLength());
 	EXPECT_EQ(plaintextAdd->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalAdd Ct and Pt fails";
 
 	cResult = cc->EvalSub(ciphertext1, plaintext2);
-
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(plaintextSub->GetLength());
 	EXPECT_EQ(plaintextSub->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalSub Ct and Pt fails";
@@ -159,29 +177,41 @@ static void UnitTest_Add_Scalar(const CryptoContext<Element> cc, const string& f
 	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
-	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
-
+	Ciphertext<Element> cResult;
 	Plaintext results;
-	cc->Decrypt(kp.secretKey, cResult, &results);
 
+	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalAdd fails";
 
-	cResult = cc->EvalSub(ciphertext1, ciphertext2);
-
+	cResult = ciphertext1 + ciphertext2;
 	cc->Decrypt(kp.secretKey, cResult, &results);
+	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " operator+ fails";
 
+	Ciphertext<Element> caddInplace(ciphertext1);
+	caddInplace += ciphertext2;
+	cc->Decrypt(kp.secretKey, caddInplace, &results);
+	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " operator+= fails";
+
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalSub fails";
 
-	cResult = cc->EvalAdd(ciphertext1, plaintext2);
-
+	cResult = ciphertext1 - ciphertext2;
 	cc->Decrypt(kp.secretKey, cResult, &results);
+	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " operator- fails";
 
+	Ciphertext<Element> csubInplace(ciphertext1);
+	csubInplace -= ciphertext2;
+	cc->Decrypt(kp.secretKey, csubInplace, &results);
+	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " operator-= fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextAdd->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalAdd Ct and Pt fails";
 
 	cResult = cc->EvalSub(ciphertext1, plaintext2);
-
 	cc->Decrypt(kp.secretKey, cResult, &results);
-
 	EXPECT_EQ(plaintextSub->GetScalarValue(), results->GetScalarValue()) << failmsg << " EvalSub Ct and Pt fails";
 }
 
@@ -202,29 +232,41 @@ static void UnitTest_Add_Integer(const CryptoContext<Element> cc, const string& 
 	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, plaintext1);
 	Ciphertext<Element> ciphertext2 = cc->Encrypt(kp.publicKey, plaintext2);
 
-	Ciphertext<Element> cResult = cc->EvalAdd(ciphertext1, ciphertext2);
-
+	Ciphertext<Element> cResult;
 	Plaintext results;
-	cc->Decrypt(kp.secretKey, cResult, &results);
 
+	cResult = cc->EvalAdd(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalAdd fails";
 
-	cResult = cc->EvalSub(ciphertext1, ciphertext2);
-
+	cResult = ciphertext1 + ciphertext2;
 	cc->Decrypt(kp.secretKey, cResult, &results);
+	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " operator+ fails";
 
+	Ciphertext<Element> caddInplace(ciphertext1);
+	caddInplace += ciphertext2;
+	cc->Decrypt(kp.secretKey, caddInplace, &results);
+	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " operator+= fails";
+
+	cResult = cc->EvalSub(ciphertext1, ciphertext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalSub fails";
 
-	cResult = cc->EvalAdd(ciphertext1, plaintext2);
-
+	cResult = ciphertext1 - ciphertext2;
 	cc->Decrypt(kp.secretKey, cResult, &results);
+	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " operator- fails";
 
+	Ciphertext<Element> csubInplace(ciphertext1);
+	csubInplace -= ciphertext2;
+	cc->Decrypt(kp.secretKey, csubInplace, &results);
+	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " operator-= fails";
+
+	cResult = cc->EvalAdd(ciphertext1, plaintext2);
+	cc->Decrypt(kp.secretKey, cResult, &results);
 	EXPECT_EQ(plaintextAdd->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalAdd Ct and Pt fails";
 
 	cResult = cc->EvalSub(ciphertext1, plaintext2);
-
 	cc->Decrypt(kp.secretKey, cResult, &results);
-
 	EXPECT_EQ(plaintextSub->GetIntegerValue(), results->GetIntegerValue()) << failmsg << " EvalSub Ct and Pt fails";
 }
 
@@ -258,17 +300,26 @@ static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg
 
 	cc->EvalMultKeyGen(kp.secretKey);
 
-	Ciphertext<Element> cResult = cc->EvalMult(ciphertext1, ciphertext2);
-
+	Ciphertext<Element> cResult;
 	Plaintext results;
 
+	cResult = cc->EvalMult(ciphertext1, ciphertext2);
 	cc->Decrypt(kp.secretKey, cResult, &results);
-
 	results->SetLength(intArrayExpected->GetLength());
 	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalMult fails";
 
-	cResult = cc->EvalMult(ciphertext1, plaintext2);
+	cResult = ciphertext1 * ciphertext2;
+	cc->Decrypt(kp.secretKey, cResult, &results);
+	results->SetLength(intArrayExpected->GetLength());
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator* fails";
 
+	Ciphertext<Element> cmulInplace(ciphertext1);
+	cmulInplace += ciphertext2;
+	cc->Decrypt(kp.secretKey, cmulInplace, &results);
+	results->SetLength(intArrayExpected->GetLength());
+	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator*= fails";
+
+	cResult = cc->EvalMult(ciphertext1, plaintext2);
 	cc->Decrypt(kp.secretKey, cResult, &results);
 	results->SetLength(intArrayExpected->GetLength());
 	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " EvalMult Ct and Pt fails";
