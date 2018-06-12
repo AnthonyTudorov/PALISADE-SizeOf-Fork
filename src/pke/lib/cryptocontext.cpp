@@ -984,6 +984,9 @@ static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(string& parmst
 	else if (parmstype == "LPCryptoParametersBFVrns") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrns<Element>());
 	}
+	else if (parmstype == "LPCryptoParametersBFVrnsB") {
+		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrnsB<Element>());
+	}
 	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersStehleSteinfeld<Element>());
 	}
@@ -1009,6 +1012,9 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 	}
 	else if (parmstype == "LPCryptoParametersBFVrns") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrns<Element>());
+	}
+	else if (parmstype == "LPCryptoParametersBFVrnsB") {
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrnsB<Element>());
 	}
 	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>());
