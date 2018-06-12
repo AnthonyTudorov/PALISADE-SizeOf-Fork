@@ -713,16 +713,15 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrnsB<DCRTPoly>::Encrypt(const LPPrivateKey<DC
 }
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalAdd(const Ciphertext<DCRTPoly> ciphertext,
-	const Plaintext plaintext) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalAdd(ConstCiphertext<DCRTPoly> ciphertext,
+		ConstPlaintext plaintext) const{
 
 	Ciphertext<DCRTPoly> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetEncodedElement<DCRTPoly>().SetFormat(EVALUATION);
-	const DCRTPoly& ptElement = plaintext->GetEncodedElement<DCRTPoly>();
+	const DCRTPoly& ptElement = plaintext->GetElement<DCRTPoly>();
 
 	std::vector<DCRTPoly> c(cipherTextElements.size());
 
@@ -743,16 +742,16 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalAdd(const Ciphertext<D
 }
 
 template <>
-Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalSub(const Ciphertext<DCRTPoly> ciphertext,
-	const Plaintext plaintext) const{
+Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalSub(ConstCiphertext<DCRTPoly> ciphertext,
+	ConstPlaintext plaintext) const{
 
 	Ciphertext<DCRTPoly> newCiphertext = ciphertext->CloneEmpty();
 	newCiphertext->SetDepth(ciphertext->GetDepth());
 
 	const std::vector<DCRTPoly> &cipherTextElements = ciphertext->GetElements();
 
-	plaintext->GetEncodedElement<DCRTPoly>().SetFormat(EVALUATION);
-	const DCRTPoly& ptElement = plaintext->GetEncodedElement<DCRTPoly>();
+	plaintext->SetFormat(EVALUATION);
+	const DCRTPoly& ptElement = plaintext->GetElement<DCRTPoly>();
 
 	std::vector<DCRTPoly> c(cipherTextElements.size());
 

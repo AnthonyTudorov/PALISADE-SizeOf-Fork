@@ -201,26 +201,26 @@ Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalMult(const Ciphert
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalAdd(const Ciphertext<Poly> ct,
-	const Plaintext pt) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalAdd(ConstCiphertext<Poly> ct,
+		ConstPlaintext pt) const{
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalAdd(const Ciphertext<NativePoly> ct,
-	const Plaintext pt) const{
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalAdd(ConstCiphertext<NativePoly> ct,
+		ConstPlaintext pt) const{
 	NONATIVEPOLY
 }
 
 template <>
-Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalSub(const Ciphertext<Poly> ct,
-	const Plaintext pt) const{
+Ciphertext<Poly> LPAlgorithmSHEBFVrnsB<Poly>::EvalSub(ConstCiphertext<Poly> ct,
+	ConstPlaintext pt) const{
 	NOPOLY
 }
 
 template <>
-Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalSub(const Ciphertext<NativePoly> ct,
-	const Plaintext pt) const{
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrnsB<NativePoly>::EvalSub(ConstCiphertext<NativePoly> ct,
+	ConstPlaintext pt) const{
 	NONATIVEPOLY
 }
 
