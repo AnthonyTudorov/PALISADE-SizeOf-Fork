@@ -379,9 +379,9 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(sqrt(1.5*n)); };
+	// We use the worst-case bound as the central limit theorem cannot be applied in this case
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(n); };
 
-	//norm of fresh ciphertext polynomial
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
 	//RLWE security constraint
@@ -1145,11 +1145,9 @@ DecryptResult LPAlgorithmMultipartyBFVrnsB<DCRTPoly>::MultipartyDecryptFusion(co
 		NativePoly *plaintext) const
 {
 
-	/*const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParams =
+	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsBFVrnsB =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(ciphertextVec[0]->GetCryptoParameters());
-	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
-
-	const auto &p = cryptoParams->GetPlaintextModulus();
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsBFVrnsB->GetElementParams();
 
 	const std::vector<DCRTPoly> &cElem = ciphertextVec[0]->GetElements();
 	DCRTPoly b = cElem[0];
@@ -1160,14 +1158,34 @@ DecryptResult LPAlgorithmMultipartyBFVrnsB<DCRTPoly>::MultipartyDecryptFusion(co
 		b += c2[0];
 	}
 
-	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
-	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
-	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();*/
+	auto &t = cryptoParamsBFVrnsB->GetPlaintextModulus();
 
-	//TODO YSP This needs to be implemented using the Bajard et al. division and rounding
+	// Invoke BFVrnsB DecRNS
+
+	const std::vector<NativeInteger> &paramsqModuliTable = cryptoParamsBFVrnsB->GetDCRTParamsqModuli();
+	const NativeInteger &paramsgamma = cryptoParamsBFVrnsB->GetDCRTParamsgamma();
+	const NativeInteger &paramsgammaInvModt = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModt();
+	const NativeInteger &paramsgammaInvModtPrecon = cryptoParamsBFVrnsB->GetDCRTParamsgammaInvModtPrecon();
+	const std::vector<NativeInteger> &paramsnegqInvModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaTable();
+	const std::vector<NativeInteger> &paramsnegqInvModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsnegqInvModtgammaPreconTable();
+	const std::vector<NativeInteger> &paramstgammaqDivqiModqiTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiTable();
+	const std::vector<NativeInteger> &paramstgammaqDivqiModqiPreconTable = cryptoParamsBFVrnsB->GetDCRTParamstgammaqDivqiModqiPreconTable();
+	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaTable();
+	const std::vector<std::vector<NativeInteger>> &paramsqDivqiModtgammaPreconTable = cryptoParamsBFVrnsB->GetDCRTParamsqDivqiModtgammaPreconTable();
 
 	// this is the resulting vector of coefficients;
-	//*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;
+	*plaintext = b.ScaleAndRound(paramsqModuliTable,
+			paramsgamma,
+			t,
+			paramsgammaInvModt,
+			paramsgammaInvModtPrecon,
+			paramsnegqInvModtgammaTable,
+			paramsnegqInvModtgammaPreconTable,
+			paramstgammaqDivqiModqiTable,
+			paramstgammaqDivqiModqiPreconTable,
+			paramsqDivqiModtgammaTable,
+			paramsqDivqiModtgammaPreconTable);
+
 
 	return DecryptResult(plaintext->GetLength());
 
