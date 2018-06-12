@@ -280,34 +280,41 @@ class CiphertextImpl;
 		PlaintextEncodings	encodingType;	/*!< how was this Ciphertext encoded? */
 	};
 
+	// FIXME the op= are not doing the work in-place, and should be updated
+
 	/**
-	* Addition operator overload.  Performs EvalAdd.
+	* operator+ overload for Ciphertexts.  Performs EvalAdd.
 	*
 	* @tparam Element a ring element.
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a ciphertext operand
+	* @param &b ciphertext operand
 	*
 	* @return The result of addition.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator+(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+	Ciphertext<Element> operator+(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalAdd(a,b);
 	}
 
 	/**
-	 * += for ciphertexts
-	 * FIXME to make this more efficient
-	 */
+	* operator+= overload for Ciphertexts.  Performs EvalAdd.
+	*
+	* @tparam Element a ring element.
+	* @param &a ciphertext to be added to
+	* @param &b ciphertext to add to &a
+	*
+	* @return &a
+	*/
 	template <class Element>
-	const Ciphertext<Element>& operator+=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+	ConstCiphertext<Element>& operator+=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalAdd(a, b);
 	}
 
 	/**
 	* Unary negation operator.
 	*
-	* @param &other is the ciphertext to add with.
-	* @return the result of the addition.
+	* @param &a ciphertext operand
+	* @return the result of the negation.
 	*/
 	template <class Element>
 	Ciphertext<Element> operator-(Ciphertext<Element> a) {
@@ -315,48 +322,58 @@ class CiphertextImpl;
 	}
 
 	/**
-	* Subtraction operator overload.  Performs EvalSub.
+	* operator- overload.  Performs EvalSub.
 	*
 	* @tparam Element a ring element.
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a ciphertext operand
+	* @param &b ciphertext operand
 	*
 	* @return The result of subtraction.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator-(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+	Ciphertext<Element> operator-(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalSub(a, b);
 	}
 
 	/**
-	 * -= for ciphertexts
-	 * FIXME to make this more efficient
-	 */
+	* operator-= overload for Ciphertexts.  Performs EvalAdd.
+	*
+	* @tparam Element a ring element.
+	* @param &a ciphertext to be subtracted from
+	* @param &b ciphertext to subtract from &a
+	*
+	* @return &a
+	*/
 	template <class Element>
-	const Ciphertext<Element>& operator-=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+	ConstCiphertext<Element>& operator-=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalSub(a, b);
 	}
 
 	/**
-	* Multiplication operator overload.  Performs EvalMult.
+	* operator* overload.  Performs EvalMult.
 	*
 	* @tparam Element a ring element.
-	* @param &a the first parameter.
-	* @param &b the first parameter.
+	* @param &a ciphertext operand
+	* @param &b ciphertext operand
 	*
 	* @return The result of multiplication.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator*(const Ciphertext<Element> a, const Ciphertext<Element> b) {
+	Ciphertext<Element> operator*(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalMult(a, b);
 	}
 
 	/**
-	 * *= for ciphertexts
-	 * FIXME to make this more efficient
-	 */
+	* operator*= overload for Ciphertexts.  Performs EvalMult.
+	*
+	* @tparam Element a ring element.
+	* @param &a ciphertext to be multiplied
+	* @param &b ciphertext to multiply by &a
+	*
+	* @return &a
+	*/
 	template <class Element>
-	const Ciphertext<Element>& operator*=(Ciphertext<Element> a, const Ciphertext<Element> b) {
+	ConstCiphertext<Element>& operator*=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalMult(a, b);
 	}
 

@@ -314,7 +314,7 @@ static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg
 	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator* fails";
 
 	Ciphertext<Element> cmulInplace(ciphertext1);
-	cmulInplace += ciphertext2;
+	cmulInplace *= ciphertext2;
 	cc->Decrypt(kp.secretKey, cmulInplace, &results);
 	results->SetLength(intArrayExpected->GetLength());
 	EXPECT_EQ(intArrayExpected->GetCoefPackedValue(), results->GetCoefPackedValue()) << failmsg << " operator*= fails";
