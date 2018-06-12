@@ -158,6 +158,35 @@ GenCryptoContextBFVrns(PlaintextModulus ptm, MODE mode) {
 
 template<typename Element>
 inline CryptoContext<Element>
+GenCryptoContextBFVrnsB(PlaintextModulus ptm, MODE mode=RLWE);
+
+template<>
+inline CryptoContext<Poly>
+GenCryptoContextBFVrnsB(PlaintextModulus ptm, MODE mode) {
+
+	PALISADE_THROW(not_available_error, "Poly is not supported for BFVrnsB");
+}
+
+template<>
+inline CryptoContext<NativePoly>
+GenCryptoContextBFVrnsB(PlaintextModulus ptm, MODE mode) {
+
+	PALISADE_THROW(not_available_error, "NativePoly is not supported for BFVrnsB");
+}
+
+template<>
+inline CryptoContext<DCRTPoly>
+GenCryptoContextBFVrnsB(PlaintextModulus ptm, MODE mode) {
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrnsB(ptm, 1.006, 4, 0, 2, 0, mode, 2, 30, 60);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+	cc->Enable(MULTIPARTY);
+	return cc;
+}
+
+template<typename Element>
+inline CryptoContext<Element>
 GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usint bits=DefaultQbits, usint towers=DefaultT) {
 	shared_ptr<typename Element::Params> p = ElemParamFactory::GenElemParams<typename Element::Params>(ORDER, bits, towers);
 	CryptoContext<Element> cc;
@@ -179,7 +208,11 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = GenCryptoContextBFV<Element>(ORDER, ptm, bits, towers, OPTIMIZED);
 	else if( name == "BFVrns_rlwe" )
 		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
-	else if( name == "BFVrns_opt" )
+	else if( name == "BFVrnsB_opt" )
+		cc = GenCryptoContextBFVrnsB<Element>(ptm, OPTIMIZED);
+	else if( name == "BFVrnsB_rlwe" )
+		cc = GenCryptoContextBFVrns<Element>(ptm, RLWE);
+	else if( name == "BFVrnsB_opt" )
 		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
 	else {
 		cout << "nothing for " << name << endl;

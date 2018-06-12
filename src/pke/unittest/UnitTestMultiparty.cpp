@@ -215,6 +215,24 @@ TEST_F(UTMultiparty, BFVrns2_OPTIMIZED_DCRTPoly_Multiparty_pri) {
 	UnitTestMultiparty<DCRTPoly>(cc);
 }
 
+TEST_F(UTMultiparty, BFVrnsB_RLWE_DCRTPoly_Multiparty_pri) {
+	CryptoContext<DCRTPoly> cc = GenCryptoContextBFVrnsB<DCRTPoly>(4, RLWE);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
+	UnitTestMultiparty<DCRTPoly>(cc);
+}
+
+TEST_F(UTMultiparty, BFVrnsB2_OPTIMIZED_DCRTPoly_Multiparty_pri) {
+	CryptoContext<DCRTPoly> cc = GenCryptoContextBFVrnsB<DCRTPoly>(16, OPTIMIZED);
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+	cc->Enable(PRE);
+	cc->Enable(MULTIPARTY);
+	UnitTestMultiparty<DCRTPoly>(cc);
+}
+
 static inline void RunTestUsingContext(const string& input) {
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(input);
 	cc->Enable(ENCRYPTION);
