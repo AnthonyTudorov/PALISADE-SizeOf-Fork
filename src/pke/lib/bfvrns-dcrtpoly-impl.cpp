@@ -1,5 +1,5 @@
 /*
-* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
+* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the HPS variant of the BFV scheme.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -88,20 +88,74 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsQS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliExpanded, rootsExpanded));
 
-	//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used in decryption
+	const BigInteger BarrettBase128Bit("340282366920938463463374607431768211456"); // 2^128
+	const BigInteger TwoPower64("18446744073709551616"); // 2^64
 
-	std::vector<QuadFloat> CRTDecryptionFloatTable(size);
+	// Precomputations for Barrett modulo reduction
+	m_qModulimu.resize(size);
+	for (uint32_t i = 0; i< moduli.size(); i++ )
+	{
+		BigInteger mu = BarrettBase128Bit/moduli[i];
+		uint64_t val[2];
+		val[0] = (mu % TwoPower64).ConvertToInt();
+		val[1] = mu.RShift(64).ConvertToInt();
+
+		memcpy(&m_qModulimu[i], val, sizeof(DoubleNativeInteger));
+	}
+
+	// Precomputations for Barrett modulo reduction
+	m_sModulimu.resize(sizeS);
+	for (uint32_t i = 0; i< moduliS.size(); i++ )
+	{
+		BigInteger mu = BarrettBase128Bit/moduliS[i];
+		uint64_t val[2];
+		val[0] = (mu % TwoPower64).ConvertToInt();
+		val[1] = mu.RShift(64).ConvertToInt();
+
+		memcpy(&m_sModulimu[i], val, sizeof(DoubleNativeInteger));
+	}
 
 	const BigInteger modulusQ = GetElementParams()->GetModulus();
 
-	for (size_t i = 0; i < size; i++){
-		BigInteger qi = BigInteger(moduli[i].ConvertToInt());
-		int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
-		int64_t denominator = moduli[i].ConvertToInt();
-		CRTDecryptionFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
-	}
+	if (moduli[0].GetMSB() < 45)
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<double> CRTDecryptionFloatTable(size);
 
-	m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionFloatTable[i] = (double)numerator/(double)denominator;
+		}
+		m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+	}
+	else if (moduli[0].GetMSB() < 58)
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<long double> CRTDecryptionExtFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionExtFloatTable[i] = (long double)numerator/(long double)denominator;
+		}
+		m_CRTDecryptionExtFloatTable = CRTDecryptionExtFloatTable;
+	}
+	else
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((modulusQ.DividedBy(qi)).ModInverse(qi) * BigInteger(GetPlaintextModulus())).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionQuadFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
+		}
+		m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+	}
 
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
 
@@ -135,30 +189,30 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	//compute the (Q/qi)^{-1} mod qi table - used for homomorphic multiplication and key switching
 
 	std::vector<NativeInteger> qInv(size);
+	std::vector<NativeInteger> qInvPrecon(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
 		BigInteger divBy = modulusQ / qi;
 		qInv[vi] = divBy.ModInverse(qi).Mod(qi).ConvertToInt();
+		qInvPrecon[vi] = qInv[vi].PrepModMulPreconOptimized(qi.ConvertToInt());
 	}
 
 	m_CRTInverseTable = qInv;
+	m_CRTInversePreconTable = qInvPrecon;
 
 	// compute the (Q/qi) mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> qDivqiModsi(sizeS);
-	std::vector<std::vector<NativeInteger>> qDivqiModsiPrecon(sizeS);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
 			BigInteger qi = BigInteger(moduli[vIndex].ConvertToInt());
 			BigInteger divBy = modulusQ / qi;
 			qDivqiModsi[newvIndex].push_back(divBy.Mod(si).ConvertToInt());
-			qDivqiModsiPrecon[newvIndex].push_back(qDivqiModsi[newvIndex][vIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 		}
 	}
 
 	m_CRTqDivqiModsiTable = qDivqiModsi;
-	m_CRTqDivqiModsiPreconTable = qDivqiModsiPrecon;
 
 	// compute the Q mod si table - used for homomorphic multiplication
 
@@ -172,7 +226,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	// compute the [p*S*(Q*S/vi)^{-1}]_vi / vi table - used for homomorphic multiplication
 
-	std::vector<double> precomputedDCRTMultFloatTable(size);
+	std::vector<long double> precomputedDCRTMultFloatTable(size);
 
 	const BigInteger modulusS = m_paramsS->GetModulus();
 	const BigInteger modulusQS = m_paramsQS->GetModulus();
@@ -182,7 +236,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	for (size_t i = 0; i < size; i++){
 		BigInteger qi = BigInteger(moduliExpanded[i].ConvertToInt());
 		precomputedDCRTMultFloatTable[i] =
-				((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToDouble()/qi.ConvertToDouble();
+				(long double)((modulusQS.DividedBy(qi)).ModInverse(qi)*modulusS*modulusP).Mod(qi).ConvertToInt()/(long double)qi.ConvertToInt();
 	}
 
 	m_CRTMultFloatTable = precomputedDCRTMultFloatTable;
@@ -190,7 +244,6 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	// compute the floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si table - used for homomorphic multiplication
 
 	std::vector<std::vector<NativeInteger>> multInt(size+1);
-	std::vector<std::vector<NativeInteger>> multIntPrecon(size+1);
 	for( usint newvIndex = 0 ; newvIndex < sizeS; newvIndex++ ) {
 		BigInteger si = BigInteger(moduliS[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < size; vIndex++ ) {
@@ -198,48 +251,43 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(qi)).ModInverse(qi));
 			BigInteger divBy = num / qi;
 			multInt[vIndex].push_back(divBy.Mod(si).ConvertToInt());
-			multIntPrecon[vIndex].push_back(multInt[vIndex][newvIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 		}
 
 		BigInteger num = modulusP*modulusS*((modulusQS.DividedBy(si)).ModInverse(si));
 		BigInteger divBy = num / si;
 		multInt[size].push_back(divBy.Mod(si).ConvertToInt());
-		multIntPrecon[size].push_back(multInt[size][newvIndex].PrepModMulPreconOptimized(si.ConvertToInt()));
 	}
 
 	m_CRTMultIntTable = multInt;
-	m_CRTMultIntPreconTable = multIntPrecon;
 
 	// compute the (S/si)^{-1} mod si table - used for homomorphic multiplication
 
 	std::vector<NativeInteger> sInv(sizeS);
+	std::vector<NativeInteger> sInvPrecon(sizeS);
 	for( usint vi = 0 ; vi < sizeS; vi++ ) {
 		BigInteger si = BigInteger(moduliS[vi].ConvertToInt());
 		BigInteger divBy = modulusS / si;
 		sInv[vi] = divBy.ModInverse(si).Mod(si).ConvertToInt();
+		sInvPrecon[vi] = sInv[vi].PrepModMulPreconOptimized(si.ConvertToInt());
 	}
 
 	m_CRTSInverseTable = sInv;
+	m_CRTSInversePreconTable = sInvPrecon;
 
 	// compute (S/si) mod qi table - used for homomorphic multiplication
-
 	std::vector<std::vector<NativeInteger>> sDivsiModqi(size);
-	std::vector<std::vector<NativeInteger>> sDivsiModqiPrecon(size);
 	for( usint newvIndex = 0 ; newvIndex < size; newvIndex++ ) {
 		BigInteger qi = BigInteger(moduli[newvIndex].ConvertToInt());
 		for( usint vIndex = 0 ; vIndex < sizeS; vIndex++ ) {
 			BigInteger si = BigInteger(moduliS[vIndex].ConvertToInt());
 			BigInteger divBy = modulusS / si;
 			sDivsiModqi[newvIndex].push_back(divBy.Mod(qi).ConvertToInt());
-			sDivsiModqiPrecon[newvIndex].push_back(sDivsiModqi[newvIndex][vIndex].PrepModMulPreconOptimized(qi.ConvertToInt()));
 		}
 	}
 
 	m_CRTsDivsiModqiTable = sDivsiModqi;
-	m_CRTsDivsiModqiPreconTable = sDivsiModqiPrecon;
 
 	// compute S mod qi table - used for homomorphic multiplication
-
 	std::vector<NativeInteger> sModqi(size);
 	for( usint vi = 0 ; vi < size; vi++ ) {
 		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
@@ -266,17 +314,17 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsBFVrns = std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(cryptoParams);
 
-	double sigma = cryptoParamsBFVrns->GetDistributionParameter();
-	double alpha = cryptoParamsBFVrns->GetAssuranceMeasure();
-	double hermiteFactor = cryptoParamsBFVrns->GetSecurityLevel();
-	double p = cryptoParamsBFVrns->GetPlaintextModulus();
+	ExtendedDouble sigma = ExtendedDouble(cryptoParamsBFVrns->GetDistributionParameter());
+	ExtendedDouble alpha = ExtendedDouble(cryptoParamsBFVrns->GetAssuranceMeasure());
+	ExtendedDouble hermiteFactor = ExtendedDouble(cryptoParamsBFVrns->GetSecurityLevel());
+	ExtendedDouble p = ExtendedDouble(cryptoParamsBFVrns->GetPlaintextModulus());
 	uint32_t relinWindow = cryptoParamsBFVrns->GetRelinWindow();
 
 	//Bound of the Gaussian error polynomial
-	double Berr = sigma*sqrt(alpha);
+	ExtendedDouble Berr = sigma*sqrt(alpha);
 
 	//Bound of the key polynomial
-	double Bkey;
+	ExtendedDouble Bkey;
 
 	//supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
 	if (cryptoParamsBFVrns->GetMode() == RLWE)
@@ -285,24 +333,24 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> double { return sqrt(n); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(2*sqrt(n)); };
 
 	//norm of fresh ciphertext polynomial
-	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*delta(n)*Bkey);  };
+	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
 	//RLWE security constraint
-	auto nRLWE = [&](double q) -> double { return log2(q / sigma) / (4 * log2(hermiteFactor));  };
+	auto nRLWE = [&](ExtendedDouble q) -> ExtendedDouble { return log(q / sigma) / (ExtendedDouble(4) * log(hermiteFactor));  };
 
 	//initial values
 	uint32_t n = 512;
-	double q = 0;
+	ExtendedDouble q = ExtendedDouble(0);
 
 	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
 	//the correctness constraint from section 3.5 of https://eprint.iacr.org/2014/062.pdf is used
 	if ((evalMultCount == 0) && (keySwitchCount == 0)) {
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n) -> double { return p*(2*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
+		auto qBFV = [&](uint32_t n) -> ExtendedDouble { return p*(4*((evalAddCount+1)*Vnorm(n) + evalAddCount*p) + p);  };
 
 		//initial value
 		q = qBFV(n);
@@ -314,15 +362,15 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 		// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-		int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+		int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-		double qCeil = pow(2,k*dcrtBits);
+		ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 
 		while (nRLWE(qCeil) > n) {
 			n = 2 * n;
 			q = qBFV(n);
-			k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-			qCeil = pow(2,k*dcrtBits);
+			k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+			qCeil = power((ExtendedDouble)2,k*dcrtBits);
 		}
 
 	}
@@ -330,17 +378,17 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
 
 		//base for relinearization
-		double w;
+		ExtendedDouble w;
 		if (relinWindow == 0)
 			w = pow(2, dcrtBits);
 		else
 			w = pow(2, relinWindow);
 
 		//Correctness constraint
-		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(4*(Vnorm(n) + keySwitchCount*delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr) + p);  };
 
 		//initial values
-		double qPrev = 1e6;
+		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
 
@@ -356,23 +404,23 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			q = qBFV(n, qPrev);
 
-			while (std::abs(q - qPrev) > 0.001*q) {
+			while (fabs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qBFV(n, qPrev);
 			}
 
 			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+			int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-			double qCeil = pow(2,k*dcrtBits);
+			ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 			qPrev = qCeil;
 
 			while (nRLWE(qCeil) > n) {
 				n = 2 * n;
 				q = qBFV(n, qPrev);
-				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-				qCeil = pow(2,k*dcrtBits);
+				k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+				qCeil = power((ExtendedDouble)2,k*dcrtBits);
 				qPrev = qCeil;
 			}
 
@@ -385,26 +433,26 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	{
 
 		//base for relinearization
-		double w;
+		ExtendedDouble w;
 		if (relinWindow == 0)
 			w = pow(2, dcrtBits);
 		else
 			w = pow(2, relinWindow);
 
 		//function used in the EvalMult constraint
-		auto epsilon1 = [&](uint32_t n) -> double { return 4 / (delta(n)*Bkey);  };
+		auto epsilon1 = [&](uint32_t n) -> ExtendedDouble { return 5 / (delta(n)*Bkey);  };
 
 		//function used in the EvalMult constraint
-		auto C1 = [&](uint32_t n) -> double { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
+		auto C1 = [&](uint32_t n) -> ExtendedDouble { return (1 + epsilon1(n))*delta(n)*delta(n)*p*Bkey;  };
 
 		//function used in the EvalMult constraint
-		auto C2 = [&](uint32_t n, double qPrev) -> double { return delta(n)*delta(n)*Bkey*(Bkey + p*p) + delta(n)*(floor(log2(qPrev) / dcrtBits) + 1)*w*Berr;  };
+		auto C2 = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return delta(n)*delta(n)*Bkey*((1+0.5)*Bkey + p*p) + delta(n)*(floor(log(qPrev) / (log(2)*dcrtBits)) + 1)*w*Berr;  };
 
 		//main correctness constraint
-		auto qBFV = [&](uint32_t n, double qPrev) -> double { return p*(2 * (pow(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*pow(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
+		auto qBFV = [&](uint32_t n, ExtendedDouble qPrev) -> ExtendedDouble { return p*(4 * (power(C1(n), evalMultCount)*Vnorm(n) + evalMultCount*power(C1(n), evalMultCount - 1)*C2(n, qPrev)) + p);  };
 
 		//initial values
-		double qPrev = 1e6;
+		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
 
@@ -420,23 +468,23 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 			q = qBFV(n, qPrev);
 
-			while (std::abs(q - qPrev) > 0.001*q) {
+			while (fabs(q - qPrev) > 0.001*q) {
 				qPrev = q;
 				q = qBFV(n, qPrev);
 			}
 
 			// this code updates n and q to account for the discrete size of CRT moduli = dcrtBits
 
-			int32_t k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+			int32_t k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
-			double qCeil = pow(2,k*dcrtBits);
+			ExtendedDouble qCeil = power((ExtendedDouble)2,k*dcrtBits);
 			qPrev = qCeil;
 
 			while (nRLWE(qCeil) > n) {
 				n = 2 * n;
 				q = qBFV(n, qPrev);
-				k = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
-				qCeil = pow(2,k*dcrtBits);
+				k = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
+				qCeil = power((ExtendedDouble)2,k*dcrtBits);
 				qPrev = qCeil;
 			}
 
@@ -444,12 +492,12 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	}
 
-	size_t size = ceil((ceil(log2(q)) + 1.0) / (double)dcrtBits);
+	size_t size = to_long(ceil((ceil(log(q)/(ExtendedDouble)log(2)) + ExtendedDouble(1.0)) / (ExtendedDouble)dcrtBits));
 
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
 
-	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	//makes sure the first integer is less than 2^60-1 to take advantage of NTL optimizations
 	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
 	firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(dcrtBits/3));
 	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
@@ -471,7 +519,6 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 }
 
-
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRTPoly> publicKey,
 		DCRTPoly ptxt) const
@@ -483,13 +530,6 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrns<DCRTPoly>::Encrypt(const LPPublicKey<DCRT
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
 	ptxt.SwitchFormat();
-/*
-	const std::vector<NativeInteger> &dTable = cryptoParams->GetCRTDeltaTable();
-	Poly dTable2(elementParams, EVALUATION, true);
-	for( size_t i=0; i<dTable.size(); i++ )
-		dTable2.at(i) = Poly::Integer(dTable.at(i).ConvertToInt());
-	DCRTPoly deltaTable( dTable2, elementParams );
-*/
 
 	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 
@@ -559,12 +599,14 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	auto &p = cryptoParams->GetPlaintextModulus();
 
-	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
+	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	//std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
@@ -702,12 +744,12 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(ConstCiphertext<DC
 	for(size_t i=0; i<cipherText1ElementsSize; i++)
 		cipherText1Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+				cryptoParamsBFVrns->GetDCRTParamsSModulimu(),cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	for(size_t i=0; i<cipherText2ElementsSize; i++)
 		cipherText2Elements[i].ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
 				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+				cryptoParamsBFVrns->GetDCRTParamsSModulimu(),cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	// Performs the multiplication itself
 	// Karatsuba technique is currently slower so it is commented out
@@ -750,11 +792,11 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::EvalMult(ConstCiphertext<DC
 		c[i].SwitchFormat();
 		// Performs the scaling by p/q followed by rounding; the result is in the CRT basis S
 		c[i] = c[i].ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
-				cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+				cryptoParamsBFVrns->GetDCRTParamsSModulimu());
 		// Converts from the CRT basis S to Q
 		c[i] = c[i].SwitchCRTBasis(elementParams, cryptoParamsBFVrns->GetCRTSInverseTable(),
 					cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),
-					cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
+					cryptoParamsBFVrns->GetDCRTParamsQModulimu(),cryptoParamsBFVrns->GetCRTSInversePreconTable());
 	}
 
 	newCiphertext->SetElements(c);
@@ -953,12 +995,14 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 		b += c2[0];
 	}
 
-	const std::vector<QuadFloat> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
+	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
+	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
-	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable);;
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return DecryptResult(plaintext->GetLength());
 

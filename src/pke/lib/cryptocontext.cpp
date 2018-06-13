@@ -984,6 +984,9 @@ static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(string& parmst
 	else if (parmstype == "LPCryptoParametersBFVrns") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrns<Element>());
 	}
+	else if (parmstype == "LPCryptoParametersBFVrnsB") {
+		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrnsB<Element>());
+	}
 	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersStehleSteinfeld<Element>());
 	}
@@ -1009,6 +1012,9 @@ static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& 
 	}
 	else if (parmstype == "LPCryptoParametersBFVrns") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrns<Element>());
+	}
+	else if (parmstype == "LPCryptoParametersBFVrnsB") {
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrnsB<Element>());
 	}
 	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
 		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>());
@@ -1417,7 +1423,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 			ep,
 			EncodingParams(new EncodingParamsImpl(plaintextModulus)),
 			dist,
-			9.0,
+			36.0,
 			securityLevel,
 			relinWindow,
 			mode,
@@ -1454,7 +1460,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 				ep,
 				encodingParams,
 				dist,
-				9.0,
+				36.0,
 				securityLevel,
 				relinWindow,
 				mode,
@@ -1462,6 +1468,80 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 				maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrns<T>());
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
+
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrnsB(
+		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+		uint32_t relinWindow, size_t dcrtBits)
+{
+	int nonZeroCount = 0;
+
+	if( numAdds > 0 ) nonZeroCount++;
+	if( numMults > 0 ) nonZeroCount++;
+	if( numKeyswitches > 0 ) nonZeroCount++;
+
+	if( nonZeroCount > 1 )
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsB context constructor");
+
+	shared_ptr<typename T::Params> ep( new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)) );
+
+	shared_ptr<LPCryptoParametersBFVrnsB<T>> params( new LPCryptoParametersBFVrnsB<T>(
+			ep,
+			EncodingParams(new EncodingParamsImpl(plaintextModulus)),
+			dist,
+			36.0,
+			securityLevel,
+			relinWindow,
+			mode,
+			1,
+			maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsB<T>() );
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
+
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrnsB(
+	EncodingParams encodingParams, float securityLevel, float dist,
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+	uint32_t relinWindow, size_t dcrtBits)
+{
+	int nonZeroCount = 0;
+
+	if (numAdds > 0) nonZeroCount++;
+	if (numMults > 0) nonZeroCount++;
+	if (numKeyswitches > 0) nonZeroCount++;
+
+	if (nonZeroCount > 1)
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsB context constructor");
+
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
+
+	shared_ptr<LPCryptoParametersBFVrnsB<T>> params(
+			new LPCryptoParametersBFVrnsB<T>(
+				ep,
+				encodingParams,
+				dist,
+				36.0,
+				securityLevel,
+				relinWindow,
+				mode,
+				1,
+				maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsB<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 

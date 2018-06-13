@@ -85,7 +85,7 @@ void SHERun() {
 		}
 	}
 
-	std::cout << "\n===========BENCHMARKING FOR BFVRNS===============: " << std::endl;
+	std::cout << "\n===========BENCHMARKING FOR BFVRNS-B===============: " << std::endl;
 
 	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
@@ -95,14 +95,14 @@ void SHERun() {
 	double diff, start, finish;
 
 	usint ptm = 2;
-	double sigma = 3.19;
-	double rootHermiteFactor = 1.0048;
+	double sigma = 3.2;
+	double rootHermiteFactor = 1.004;
 
 	size_t count = 100;
 
 	//Set Crypto Parameters
-	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 20, 0, OPTIMIZED,3,0,60);
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrnsB(
+			ptm, rootHermiteFactor, sigma, 0, 20, 0, OPTIMIZED,3);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);

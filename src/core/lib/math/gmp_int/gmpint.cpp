@@ -296,7 +296,7 @@ namespace NTL {
     s>>result;
 
     if ((this->GetMSB() >= (sizeof(uint64_t)*8)) ||
-	(this->GetMSB() >= NTL_ZZ_NBITS)) {
+	(this->GetMSB() > NTL_ZZ_NBITS)) {
       std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
       std::cerr<<"input  "<< *this<<std::endl;			
       std::cerr<<"result  "<< result<<std::endl;			

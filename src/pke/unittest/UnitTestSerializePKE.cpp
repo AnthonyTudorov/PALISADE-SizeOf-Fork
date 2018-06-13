@@ -166,6 +166,11 @@ TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
+TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
+}
+
 // REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, Keys_and_ciphertext) {
         bool dbg_flag = false;

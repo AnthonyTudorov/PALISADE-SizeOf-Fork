@@ -29,9 +29,11 @@
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
 #include <NTL/quad_float.h>
+#include <NTL/xdouble.h>
 
 ///////// definition of the quad-precision floating-point data type
 typedef NTL::quad_float QuadFloat;
+typedef NTL::xdouble ExtendedDouble;
 
 namespace lbcrypto {
 

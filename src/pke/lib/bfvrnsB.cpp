@@ -1,5 +1,5 @@
 /*
-* @file bfvrns.cpp - implementation of the BFVrns (HPS variant of BFV) scheme.
+* @file bfvrnsB.cpp - implementation of the BEHZ variant of BFVrns.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -33,7 +33,6 @@ The BFV scheme is introduced in the following papers:
    - Junfeng Fan and Frederik Vercauteren (2012). Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
 
  Our implementation builds from the designs here:
-   - Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
    - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
    - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca (2016). A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive, Report 2016/510. (https://eprint.iacr.org/2016/510)
    - Ahmad Al Badawi and Yuriy Polyakov and Khin Mi Mi Aung and Bharadwaj Veeravalli and Kurt Rohloff (2018). Implementation and Performance Evaluation of RNS Variants of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/589. {https://eprint.iacr.org/2018/589}
@@ -50,23 +49,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
  */
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNS_C
-#define LBCRYPTO_CRYPTO_BFVRNS_C
+#ifndef LBCRYPTO_CRYPTO_BFVRNS_B_C
+#define LBCRYPTO_CRYPTO_BFVRNS_B_C
 
-#include "bfvrns.h"
+#include "bfvrnsB.h"
 #include <iostream>
 #include <fstream>
 
 namespace lbcrypto {
 
 template <class Element>
-LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns() : LPCryptoParametersRLWE<Element>() {}
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB() : LPCryptoParametersRLWE<Element>(), m_numq(0), m_numB(0) {}
 
 template <class Element>
-LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs) : LPCryptoParametersRLWE<Element>(rhs) {}
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs) : LPCryptoParametersRLWE<Element>(rhs), m_numq(0), m_numB(0) {}
 
 template <class Element>
-LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typename Element::Params> params,
 		const PlaintextModulus &plaintextModulus,
 		float distributionParameter,
 		float assuranceMeasure,
@@ -83,11 +82,11 @@ LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename 
 				relinWindow,
 				depth,
 				maxDepth,
-				mode) {
+				mode), m_numq(0), m_numB(0) {
 	}
 
 template <class Element>
-LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typename Element::Params> params,
 		EncodingParams encodingParams,
 		float distributionParameter,
 		float assuranceMeasure,
@@ -104,11 +103,11 @@ LPCryptoParametersBFVrns<Element>::LPCryptoParametersBFVrns(shared_ptr<typename 
 			relinWindow,
 			depth,
 			maxDepth,
-			mode) {
+			mode), m_numq(0), m_numB(0) {
 	}
 
 template <class Element>
-bool LPCryptoParametersBFVrns<Element>::Serialize(Serialized* serObj) const {
+bool LPCryptoParametersBFVrnsB<Element>::Serialize(Serialized* serObj) const {
 	if (!serObj->IsObject())
 		return false;
 
@@ -116,15 +115,15 @@ bool LPCryptoParametersBFVrns<Element>::Serialize(Serialized* serObj) const {
 	if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
 		return false;
 
-	serObj->AddMember("LPCryptoParametersBFVrns", cryptoParamsMap.Move(), serObj->GetAllocator());
-	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBFVrns", serObj->GetAllocator());
+	serObj->AddMember("LPCryptoParametersBFVrnsB", cryptoParamsMap.Move(), serObj->GetAllocator());
+	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBFVrnsB", serObj->GetAllocator());
 
 	return true;
 }
 
 template <class Element>
-bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBFVrns");
+bool LPCryptoParametersBFVrnsB<Element>::Deserialize(const Serialized& serObj) {
+	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBFVrnsB");
 	if (mIter == serObj.MemberEnd()) return false;
 
 	if (this->DeserializeRLWE(mIter) == false)
@@ -137,47 +136,47 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 
 // Enable for LPPublicKeyEncryptionSchemeBFV
 template <class Element>
-void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature) {
+void LPPublicKeyEncryptionSchemeBFVrnsB<Element>::Enable(PKESchemeFeature feature) {
 	switch (feature)
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption = new LPAlgorithmBFVrnsB<Element>();
 		break;
 	case SHE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption = new LPAlgorithmBFVrnsB<Element>();
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrns<Element>();
+			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
 		break;
 	case PRE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption = new LPAlgorithmBFVrnsB<Element>();
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrns<Element>();
+			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPREBFVrns<Element>();
+			this->m_algorithmPRE = new LPAlgorithmPREBFVrnsB<Element>();
 		break; 
 	case MULTIPARTY:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption = new LPAlgorithmBFVrnsB<Element>();
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPREBFVrns<Element>();
+			this->m_algorithmPRE = new LPAlgorithmPREBFVrnsB<Element>();
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrns<Element>();
+			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
 		if (this->m_algorithmMultiparty == NULL)
-			this->m_algorithmMultiparty = new LPAlgorithmMultipartyBFVrns<Element>();
+			this->m_algorithmMultiparty = new LPAlgorithmMultipartyBFVrnsB<Element>();
 		break; 
 	case FHE:
-		throw std::logic_error("FHE feature not supported for BFVrns scheme");
+		throw std::logic_error("FHE feature not supported for BFVrnsB scheme");
 	case LEVELEDSHE:
-		throw std::logic_error("LEVELEDSHE feature not supported for BFVrns scheme");
+		throw std::logic_error("LEVELEDSHE feature not supported for BFVrnsB scheme");
 	}
 }
 
 template <class Element>
-LPPublicKeyEncryptionSchemeBFVrns<Element>::LPPublicKeyEncryptionSchemeBFVrns() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFVrns<Element>();
+LPPublicKeyEncryptionSchemeBFVrnsB<Element>::LPPublicKeyEncryptionSchemeBFVrnsB() : LPPublicKeyEncryptionScheme<Element>() {
+			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFVrnsB<Element>();
 		}
 
 

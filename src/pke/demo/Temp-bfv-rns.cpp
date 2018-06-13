@@ -53,6 +53,7 @@ using namespace lbcrypto;
 
 //Poly tests
 void PKE();
+void PKELargeQ();
 void SHETestCoeff();
 void SHETestPacked();
 void SHETestPackedRelin();
@@ -74,6 +75,7 @@ int main() {
 	//SHETestCoeff();
 	SHETestPacked();
 	SHETestPackedRelin();
+	//PKELargeQ();
 	//SHERunMultiplication();
 	//for (size_t i = 0; i < 10; i++)
 	//SHETestCoefAll();
@@ -190,6 +192,115 @@ void PKE() {
 	cout << plaintextDec << endl;
 
 	cout << "\n";
+
+
+}
+
+void PKELargeQ() {
+
+	std::cout << "\n===========TESTING PKE===============: " << std::endl;
+
+	std::cout << "\nThis code demonstrates the use of the BFV-RNS scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
+	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
+
+	//Generate parameters.
+	double diff, start, finish;
+
+	usint ptm = 1<<31;
+	double sigma = 3.19;
+	double rootHermiteFactor = 1.006;
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, 35, 0, OPTIMIZED,2,0,60);
+
+	std::cout << "ran context gen" << std::endl;
+
+	// enable features that you wish to use
+	cryptoContext->Enable(ENCRYPTION);
+	cryptoContext->Enable(SHE);
+
+	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+
+	// Initialize Public Key Containers
+	LPKeyPair<DCRTPoly> keyPair;
+
+	////////////////////////////////////////////////////////////
+	// Perform Key Generation Operation
+	////////////////////////////////////////////////////////////
+
+	std::cout << "Running key generation (used for source data)..." << std::endl;
+
+	start = currentDateTime();
+
+	keyPair = cryptoContext->KeyGen();
+
+	finish = currentDateTime();
+	diff = finish - start;
+	cout << "Key generation time: " << "\t" << diff << " ms" << endl;
+
+	if( !keyPair.good() ) {
+		std::cout << "Key generation failed!" << std::endl;
+		exit(1);
+	}
+
+	////////////////////////////////////////////////////////////
+	// Encode source data
+	////////////////////////////////////////////////////////////
+
+	std::vector<int64_t> vectorOfInts = {1<<28,(1<<28)-1,1<<30,202,301,302,1<<30,402,501,502,601,602};
+	Plaintext plaintext = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts);
+
+	////////////////////////////////////////////////////////////
+	// Encryption
+	////////////////////////////////////////////////////////////
+
+	//start = currentDateTime();
+
+	for (size_t i = 0; i < 50; i++)
+
+	{
+
+		auto ciphertext = cryptoContext->Encrypt(keyPair.publicKey, plaintext);
+
+		//finish = currentDateTime();
+		//diff = finish - start;
+		//cout << "Encryption time: " << "\t" << diff << " ms" << endl;
+
+		////////////////////////////////////////////////////////////
+		//Decryption of Ciphertext
+		////////////////////////////////////////////////////////////
+
+		Plaintext plaintextDec;
+
+		//start = currentDateTime();
+
+		cryptoContext->Decrypt(keyPair.secretKey, ciphertext, &plaintextDec);
+
+		//finish = currentDateTime();
+		//diff = finish - start;
+		//cout << "Decryption time: " << "\t" << diff << " ms" << endl;
+
+		//std::cin.get();
+
+		plaintextDec->SetLength(plaintext->GetLength());
+
+		if (plaintext!=plaintextDec) {
+			cout << "error" << std::endl;
+			cout << "\n Original Plaintext: \n";
+			cout << plaintext << endl;
+
+			cout << "\n Resulting Decryption of Ciphertext: \n";
+			cout << plaintextDec << endl;
+			return;
+		}
+		else
+			cout << "success" << std::endl;
+
+	}
 
 
 }
@@ -533,14 +644,14 @@ void SHETestPackedRelin() {
 	//Generate parameters.
 	double diff, start, finish;
 
-	usint ptm = 65537;
+	usint ptm = 786433;
 	double sigma = 3.2;
 	double rootHermiteFactor = 1.006;
-	uint32_t relinWindow = 30;
+	uint32_t relinWindow = 0;
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 3, 0, OPTIMIZED,3,relinWindow,60);
+			ptm, rootHermiteFactor, sigma, 0, 7, 0, OPTIMIZED,3,relinWindow,30);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -548,7 +659,8 @@ void SHETestPackedRelin() {
 
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+	std::cout << "k = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetParams().size() << std::endl;
 
 	// Initialize Public Key Containers
 	LPKeyPair<DCRTPoly> keyPair;
@@ -1198,7 +1310,8 @@ void SwitchCRT() {
 	std::cout << "Starting CRT Basis switch" << std::endl;
 
 	const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInversePreconTable());
 
 	std::cout << "a mod s0 = " << resultA.at(0).Mod(BigInteger(paramsS->GetParams()[0]->GetModulus().ConvertToInt())) << " modulus " << paramsS->GetParams()[0]->GetModulus() << std::endl;
 	std::cout << "b mod s0 = " << b.GetElementAtIndex(0).at(0) << " modulus = " << b.GetElementAtIndex(0).GetModulus() << std::endl;
@@ -1258,7 +1371,8 @@ void SwitchCRTSingleTests() {
 		Poly resultA = a.CRTInterpolate();
 
 		const DCRTPoly b = a.SwitchCRTBasis(paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+				cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+				cryptoParamsBFVrns->GetCRTInverseTable());
 
 		Poly resultB = b.CRTInterpolate();
 
@@ -1370,10 +1484,12 @@ void Multiply() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1427,7 +1543,7 @@ void Multiply() {
 		std::cout << "result C: " << resultC.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
-			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+			cryptoParamsBFVrns->GetDCRTParamsSModulimu());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -1437,7 +1553,8 @@ void Multiply() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1515,10 +1632,12 @@ void MultiplyTwo() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1620,7 +1739,7 @@ void MultiplyTwo() {
 		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
-			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+			cryptoParamsBFVrns->GetDCRTParamsSModulimu());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -1630,7 +1749,8 @@ void MultiplyTwo() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1709,10 +1829,12 @@ void MultiplyThree() {
 	std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -1814,7 +1936,7 @@ void MultiplyThree() {
 		std::cout << "result multiprecision C: " << cPoly.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
-			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+			cryptoParamsBFVrns->GetDCRTParamsSModulimu());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 
@@ -1824,7 +1946,8 @@ void MultiplyThree() {
 		std::cout << "result: " << resultRounded.at(0) << std::endl;
 
 	DCRTPoly roundedQ = rounded.SwitchCRTBasis(params, cryptoParamsBFVrns->GetCRTSInverseTable(),
-			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetCRTsDivsiModqiPreconTable());
+			cryptoParamsBFVrns->GetCRTsDivsiModqiTable(), cryptoParamsBFVrns->GetCRTsModqiTable(),cryptoParamsBFVrns->GetDCRTParamsQModulimu(),
+			cryptoParamsBFVrns->GetCRTSInverseTable());
 
 	Poly resultRoundedQ = roundedQ.CRTInterpolate();
 
@@ -1903,10 +2026,12 @@ void ScaleAndRound() {
 	//std::cout << "Starting CRT Expansion" << std::endl;
 
 	a.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	b.ExpandCRTBasis(paramsQS, paramsS, cryptoParamsBFVrns->GetCRTInverseTable(),
-			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetCRTqDivqiModsiPreconTable());
+			cryptoParamsBFVrns->GetCRTqDivqiModsiTable(), cryptoParamsBFVrns->GetCRTqModsiTable(),cryptoParamsBFVrns->GetDCRTParamsSModulimu(),
+			cryptoParamsBFVrns->GetCRTInverseTable());
 
 	a.SwitchFormat();
 
@@ -2013,7 +2138,7 @@ void ScaleAndRound() {
 		std::cout << "result of multiplication - MP: " << cPoly.at(0) << std::endl;
 
 	DCRTPoly rounded = c.ScaleAndRound(paramsS,cryptoParamsBFVrns->GetCRTMultIntTable(),cryptoParamsBFVrns->GetCRTMultFloatTable(),
-			cryptoParamsBFVrns->GetCRTMultIntPreconTable());
+			cryptoParamsBFVrns->GetDCRTParamsSModulimu());
 
 	Poly resultRounded = rounded.CRTInterpolate();
 

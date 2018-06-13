@@ -31,7 +31,7 @@ namespace lbcrypto {
 
 const QuadFloat HALF_QUADFLOAT = quadFloatFromInt64(1)/quadFloatFromInt64(2);
 
-static void normalize(QuadFloat& z, const double& xhi, const double& xlo);
+//static void normalize(QuadFloat& z, const double& xhi, const double& xlo);
 
 int64_t quadFloatRound(const QuadFloat& input)
 {
@@ -66,20 +66,22 @@ QuadFloat quadFloatFromInt64(const long long int n){
    // Because we are assuming 2's compliment integer
    // arithmetic, the following prevents (long long)(xhi) from overflowing.
 
-   if (n > 0)
+   //if (n > 0)
 	  xlo = NTL::TrueDouble(n+(long long)(-xhi));
-   else
-	  xlo = NTL::TrueDouble(n-(long long)(xhi));
+   //else
+   //	  xlo = NTL::TrueDouble(n-(long long)(xhi));
 
    // renormalize...just to be safe
 
-   QuadFloat z;
-   normalize(z, xhi, xlo);
-   return z;
+   //QuadFloat z;
+   //normalize(z, xhi, xlo);
+   //return z;
+
+   return NTL::quad_float(xhi,xlo);
 
 }
 
-static void normalize(QuadFloat& z, const double& xhi, const double& xlo){
+/*static void normalize(QuadFloat& z, const double& xhi, const double& xlo){
 
    double u, v;
 
@@ -90,6 +92,6 @@ static void normalize(QuadFloat& z, const double& xhi, const double& xlo){
    z.hi = u;
    z.lo = v;
 
-}
+}*/
 
 } // namespace lbcrypto ends

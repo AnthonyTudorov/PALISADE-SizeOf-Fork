@@ -1,5 +1,5 @@
 /**
- * @file bfvrns.h -- Operations for the HPS RNS variant of the BFV cryptoscheme.
+ * @file bfvrnsB.h -- Operations for the BEHZ variant of BFV.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,45 +25,45 @@
  */
  /*
  *
- * This code implements a RNS variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.  This scheme is also referred to as the FV scheme.
+ * This code implements the BEHZ variant of the Brakerski-Fan-Vercauteren (BFV) homomorphic encryption scheme.  This scheme is also referred to as the FV scheme.
  *
  * The BFV scheme is introduced in the following papers:
  *   - Zvika Brakerski (2012). Fully Homomorphic Encryption without Modulus Switching from Classical GapSVP. Cryptology ePrint Archive, Report 2012/078. (https://eprint.iacr.org/2012/078)
  *   - Junfeng Fan and Frederik Vercauteren (2012). Somewhat Practical Fully Homomorphic Encryption.  Cryptology ePrint Archive, Report 2012/144. (https://eprint.iacr.org/2012/144.pdf)
  *
  * Our implementation builds from the designs here:
- *   - Halevi S., Polyakov Y., and Shoup V. An Improved RNS Variant of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/117. (https://eprint.iacr.org/2018/117)
- *   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
  *	 - Jean-Claude Bajard and Julien Eynard and Anwar Hasan and Vincent Zucca (2016). A Full RNS Variant of FV like Somewhat Homomorphic Encryption Schemes. Cryptology ePrint Archive, Report 2016/510. (https://eprint.iacr.org/2016/510)
- *	 - Ahmad Al Badawi and Yuriy Polyakov and Khin Mi Mi Aung and Bharadwaj Veeravalli and Kurt Rohloff (2018). Implementation and Performance Evaluation of RNS Variants of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/589. {https://eprint.iacr.org/2018/589}
- */
+ *   - Lepoint T., Naehrig M. (2014) A Comparison of the Homomorphic Encryption Schemes FV and YASHE. In: Pointcheval D., Vergnaud D. (eds) Progress in Cryptology – AFRICACRYPT 2014. AFRICACRYPT 2014. Lecture Notes in Computer Science, vol 8469. Springer, Cham. (https://eprint.iacr.org/2014/062.pdf)
+ *   - Ahmad Al Badawi and Yuriy Polyakov and Khin Mi Mi Aung and Bharadwaj Veeravalli and Kurt Rohloff (2018). Implementation and Performance Evaluation of RNS Variants of the BFV Homomorphic Encryption Scheme. Cryptology ePrint Archive, Report 2018/589. {https://eprint.iacr.org/2018/589}
+ *
+  */
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNS_H
-#define LBCRYPTO_CRYPTO_BFVRNS_H
+#ifndef LBCRYPTO_CRYPTO_BFVRNS_B_H
+#define LBCRYPTO_CRYPTO_BFVRNS_B_H
 
 #include "palisade.h"
 
 namespace lbcrypto {
 
 	/**
- 	* @brief This is the parameters class for the BFVrns encryption scheme.  This scheme is also referred to as the FVrns scheme.
+ 	* @brief This is the parameters class for the BFVrnsB encryption scheme.  This scheme is also referred to as the FVrns scheme.
  	*
  	* @tparam Element a ring element type.
  	*/
 	template <class Element>
-	class LPCryptoParametersBFVrns : public LPCryptoParametersRLWE<Element> {
+	class LPCryptoParametersBFVrnsB : public LPCryptoParametersRLWE<Element> {
 
 		public:
 			/**
 			 * Default constructor.
 			 */
-			LPCryptoParametersBFVrns();
+			LPCryptoParametersBFVrnsB();
 
 			/**
 		 	 * Copy constructor.
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs);
+			LPCryptoParametersBFVrnsB(const LPCryptoParametersBFVrnsB &rhs);
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
 			 * infeasible for actual use.  There are fewer degrees of freedom than parameters provided.  Typically one
@@ -82,7 +82,7 @@ namespace lbcrypto {
 			 * @param depth Depth is the depth of computation supported which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
 			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
-			LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+			LPCryptoParametersBFVrnsB(shared_ptr<typename Element::Params> params,
 				const PlaintextModulus &plaintextModulus,
 				float distributionParameter, 
 				float assuranceMeasure, 
@@ -105,7 +105,7 @@ namespace lbcrypto {
 			* @param depth depth which is set to 1.
 			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
-			LPCryptoParametersBFVrns(shared_ptr<typename Element::Params> params,
+			LPCryptoParametersBFVrnsB(shared_ptr<typename Element::Params> params,
 				EncodingParams encodingParams,
 				float distributionParameter,
 				float assuranceMeasure,
@@ -118,7 +118,7 @@ namespace lbcrypto {
 			/**
 			* Destructor
 			*/
-			virtual ~LPCryptoParametersBFVrns() {}
+			virtual ~LPCryptoParametersBFVrnsB() {}
 			
 			/**
 			* Serialize the object
@@ -141,152 +141,12 @@ namespace lbcrypto {
 			bool PrecomputeCRTTables();
 
 			/**
-			* Gets Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
-			*
-			* @return the precomputed CRT basis
-			*/
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsS() const { return m_paramsS; }
-
-			/**
-			* Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
-			*
-			* @return the precomputed CRT basis
-			*/
-			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsQS() const { return m_paramsQS; }
-
-			/**
-			* Gets the Barrett modulo reduction precomputations for Q
-			*
-			* @return the precomputed table
-			*/
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsQModulimu() const { return m_qModulimu; }
-
-			/**
-			* Gets the Barrett modulo reduction precomputations for S
-			*
-			* @return the precomputed table
-			*/
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
-
-			/**
-			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus < 45 bits
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<double>& GetCRTDecryptionFloatTable() const { return m_CRTDecryptionFloatTable; }
-
-			/**
-			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus is betweeen 45 and 57 bits
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<long double>& GetCRTDecryptionExtFloatTable() const { return m_CRTDecryptionExtFloatTable; }
-
-			/**
-			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus has 58..60 bits
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<QuadFloat>& GetCRTDecryptionQuadFloatTable() const { return m_CRTDecryptionQuadFloatTable; }
-
-			/**
-			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTDecryptionIntTable() const { return m_CRTDecryptionIntTable; }
-
-			/**
-			* Gets the NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTDecryptionIntPreconTable() const { return m_CRTDecryptionIntPreconTable; }
-
-			/**
-			* Gets the precomputed table of floor(Q/p) mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi)^{-1} mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTInverseTable() const { return m_CRTInverseTable; }
-
-			/**
-			* Gets the NTL precomputation for the precomputed table of (Q/qi)^{-1} mod qi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTInversePreconTable() const { return m_CRTInversePreconTable; }
-
-			/**
-			* Gets the precomputed table of (Q/qi) mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTqDivqiModsiTable() const { return m_CRTqDivqiModsiTable; }
-
-			/**
-			* Gets the precomputed table of Q mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTqModsiTable() const { return m_CRTqModsiTable; }
-
-			/**
-			* Gets the precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<long double>& GetCRTMultFloatTable() const { return m_CRTMultFloatTable; }
-
-			/**
-			* Gets the precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTMultIntTable() const { return m_CRTMultIntTable; }
-
-			/**
-			* Gets the precomputed table of (S/si)^{-1} mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTSInverseTable() const { return m_CRTSInverseTable; }
-
-			/**
-			* Gets the NTL precomputation for the precomputed table of (S/si)^{-1} mod si
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTSInversePreconTable() const { return m_CRTSInversePreconTable; }
-
-			/**
-			* Gets the precomputed table of (S/si) mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<std::vector<NativeInteger>>& GetCRTsDivsiModqiTable() const { return m_CRTsDivsiModqiTable; }
-
-			/**
-			* Gets the precomputed table of S mod qi table
-			*
-			* @return the precomputed table
-			*/
-			const std::vector<NativeInteger>& GetCRTsModqiTable() const { return m_CRTsModqiTable; }
-
-			/**
-			* == operator to compare to this instance of LPCryptoParametersBFVrns object.
+			* == operator to compare to this instance of LPCryptoParametersBFVrnsB object.
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
 			*/
 			bool operator==(const LPCryptoParameters<Element> &rhs) const {
-				const LPCryptoParametersBFVrns<Element> *el = dynamic_cast<const LPCryptoParametersBFVrns<Element> *>(&rhs);
+				const LPCryptoParametersBFVrnsB<Element> *el = dynamic_cast<const LPCryptoParametersBFVrnsB<Element> *>(&rhs);
 
 				if( el == 0 ) return false;
 
@@ -297,86 +157,219 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 			}
 
+			/**
+			* Gets the precomputed table of floor(Q/p) mod qi
+			*
+			* @return the precomputed table
+			*/
+			const std::vector<NativeInteger>& GetCRTDeltaTable() const { return m_CRTDeltaTable; }
+
+			// BFVrnsB getters and setters
+			const shared_ptr<ILDCRTParams<BigInteger>> GetDCRTParamsBsk() const { return m_paramsBsk; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqModuli() const { return m_qModuli; }
+
+			std::vector<DoubleNativeInteger> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsBskModuli() const { return m_BskModuli; }
+
+			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
+
+			NativeInteger const &GetDCRTParamsmtilde() const { return m_mtilde; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
+
+			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqiPrecon() const { return m_mtildeqDivqiPreconTable; }
+
+			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModBskmtilde() const { return m_qDivqiModBskmtildeTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqModBski() const { return m_qModBskiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqModBskiPrecon() const { return m_qModBskiPreconTable; }
+
+			NativeInteger const &GetDCRTParamsnegqInvModmtilde() const { return m_negqInvModmtilde; }
+
+			NativeInteger const &GetDCRTParamsnegqInvModmtildePrecon() const { return m_negqInvModmtildePrecon; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeInvModBskiTable() const { return m_mtildeInvModBskiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsmtildeInvModBskiPreconTable() const { return m_mtildeInvModBskiPreconTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqDivqiModqiTable() const { return m_qDivqiModqiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiTable() const { return m_tqDivqiModqiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamstqDivqiModqiPreconTable() const { return m_tqDivqiModqiPreconTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiTable() const { return m_tgammaqDivqiModqiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamstgammaqDivqiModqiPreconTable() const { return m_tgammaqDivqiModqiPreconTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiTable() const { return m_qInvModBskiTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsqInvModBiPreconTable() const { return m_qInvModBskiPreconTable; }
+
+			std::vector<NativeInteger> const &GetBDivBiModBi() const { return m_BDivBiModBiTable; }
+
+			std::vector<NativeInteger> const &GetBDivBiModBiPrecon() const { return m_BDivBiModBiPreconTable; }
+
+			std::vector<NativeInteger> const &GetBDivBiModmsk() const { return m_BDivBiModmskTable; }
+
+			NativeInteger const &GetBInvModmsk() const { return m_BInvModmsk; }
+
+			NativeInteger const &GetBInvModmskPrecon() const { return m_BInvModmskPrecon; }
+
+			std::vector<std::vector<NativeInteger>> const &GetBDivBiModqj() const { return m_BDivBiModqTable; }
+
+			std::vector<NativeInteger> const &GetBModqi() const { return m_BModqiTable; }
+
+			std::vector<NativeInteger> const &GetBModqiPrecon() const { return m_BModqiPreconTable; }
+
+			NativeInteger const &GetDCRTParamsgamma() const { return m_gamma; }
+
+			NativeInteger const &GetDCRTParamsgammaInvModt() const { return m_gammaInvModt; }
+
+			NativeInteger const &GetDCRTParamsgammaInvModtPrecon() const { return m_gammaInvModtPrecon; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaTable() const { return m_negqInvModtgammaTable; }
+
+			std::vector<NativeInteger> const &GetDCRTParamsnegqInvModtgammaPreconTable() const { return m_negqInvModtgammaPreconTable; }
+
+			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaTable() const { return m_qDivqiModtgammaTable; }
+
+			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaPreconTable() const { return m_qDivqiModtgammaPreconTable; }
+
 		private:
-
-			// Auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsS;
-
-			// Auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
-			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
-
-			// Barrett modulo reduction precomputation
-			std::vector<DoubleNativeInteger> m_qModulimu;
-
-			// Barrett modulo reduction precomputation
-			std::vector<DoubleNativeInteger> m_sModulimu;
-
-			// when log2 qi <= 44 bits
-			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<double> m_CRTDecryptionFloatTable;
-
-			// when 44 < log2 qi <= 57  bits
-			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<long double> m_CRTDecryptionExtFloatTable;
-
-			// when log2 qi = 58..60 bits
-			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
-			std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
-
-			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			std::vector<NativeInteger> m_CRTDecryptionIntTable;
 
 			// Stores a precomputed table of floor(Q/p) mod qi
 			std::vector<NativeInteger> m_CRTDeltaTable;
 
-			// Stores a precomputed table of (Q/qi)^{-1} mod qi
-			std::vector<NativeInteger> m_CRTInverseTable;
+			// Precomputed tables of Bajard et al. BFVrns variant (we call it BFVrnsB )
+			// naming convention:
+			// 1) let RNS base q = {q0, q1, ..., q(k-1)}, then q is used to refer to the RNS base or its dynamic value which is equal to q = q0*q1*...*q(k-1)
 
-			// Stores an NTL precomputation for the precomputed table of (Q/qi)^{-1} mod qi
-			std::vector<NativeInteger> m_CRTInversePreconTable;
+			// EvalMulRNS parameters
 
-			// Stores a precomputed table of (Q/qi) mod si
-			std::vector<std::vector<NativeInteger>> m_CRTqDivqiModsiTable;
+			// 1)
+			shared_ptr<ILDCRTParams<BigInteger>> m_paramsBsk;
 
-			// Stores a precomputed table of Q mod si
-			std::vector<NativeInteger> m_CRTqModsiTable;
+			// 2) number of moduli in the ciphertext coefficient base (q)
+			uint32_t m_numq;
 
-			// Stores a precomputed table of floor[p*S*[(Q*S/vi)^{-1}]_vi/vi] mod si
-			std::vector<std::vector<NativeInteger>> m_CRTMultIntTable;
+			// 3) number of moduli in the auxilliary base (B)
+			uint32_t m_numB;
 
-			// Stores a precomputed table of [p*S*(Q*S/vi)^{-1}]_vi / vi
-			std::vector<long double> m_CRTMultFloatTable;
+			// 4) mtilde
+			NativeInteger m_mtilde;
 
-			// Stores a precomputed table of (S/si)^{-1} mod si
-			std::vector<NativeInteger> m_CRTSInverseTable;
+			// 5) msk
+			NativeInteger m_msk;
 
-			// Stores an NTL precomputation for the precomputed table of (S/si)^{-1} mod si
-			std::vector<NativeInteger> m_CRTSInversePreconTable;
+			// 6) Stores the crt moduli of base B (size of B moduli is chosen such that )
+			std::vector<NativeInteger> m_qModuli;
+			std::vector<DoubleNativeInteger> m_qModulimu;
 
-			// Stores a precomputed table of (S/si) mod qi table
-			std::vector<std::vector<NativeInteger>> m_CRTsDivsiModqiTable;
+			// 7) Stores the auxilliary base B moduli
+			std::vector<NativeInteger> m_BModuli;
 
-			// Stores a precomputed table of S mod qi table
-			std::vector<NativeInteger> m_CRTsModqiTable;
+			// 8) Stores the roots of unity modulo Bsk
+			std::vector<NativeInteger> m_BskRoots;
 
-			// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
-			std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
+			// 9) Stores the crt moduli of base Bsk = {B U msk}
+			std::vector<NativeInteger> m_BskModuli;
+			std::vector<DoubleNativeInteger> m_BskModulimu;
 
+			// 10) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
+			std::vector<NativeInteger> m_BskmtildeModuli;
+			std::vector<DoubleNativeInteger> m_BskmtildeModulimu; // Barrett constant
+
+			// 11) Stores (q/qi)^-1 mod qi
+			std::vector<NativeInteger> m_qDivqiModqiTable;
+
+			// 12) Stores t*(q/qi)^-1 mod qi
+			std::vector<NativeInteger> m_tqDivqiModqiTable;
+			std::vector<NativeInteger> m_tqDivqiModqiPreconTable;
+
+			// 13) Stores q/qi mod Bj table (Matrix) where Bj \in {Bsk U mtilde}
+			std::vector<std::vector<NativeInteger>> m_qDivqiModBskmtildeTable;
+
+			// 14) Stores mtilde*(q/qi)^-1 mod qi table
+			std::vector<NativeInteger> m_mtildeqDivqiTable;
+			std::vector<NativeInteger> m_mtildeqDivqiPreconTable;
+
+			// 15) Stores -1/q mod mtilde
+			NativeInteger m_negqInvModmtilde;
+			NativeInteger m_negqInvModmtildePrecon;
+
+			// 16) Stores q mod Bski
+			std::vector<NativeInteger> m_qModBskiTable;
+			std::vector<NativeInteger> m_qModBskiPreconTable;
+
+			// 17) Stores mtilde^-1 mod Bski
+			std::vector<NativeInteger> m_mtildeInvModBskiTable;
+			std::vector<NativeInteger> m_mtildeInvModBskiPreconTable;
+
+			// 18) Stores q^-1 mod Bski
+			std::vector<NativeInteger> m_qInvModBskiTable;
+			std::vector<NativeInteger> m_qInvModBskiPreconTable;
+
+			// 19) Stores (B/Bi)^-1 mod Bi
+			std::vector<NativeInteger> m_BDivBiModBiTable;
+			std::vector<NativeInteger> m_BDivBiModBiPreconTable;
+
+			// 20) Stores B/Bi mod qj table (Matrix) where qj \in {q}
+			std::vector<std::vector<NativeInteger>> m_BDivBiModqTable;
+
+			// 21) stores B/Bi mod msk
+			std::vector<NativeInteger> m_BDivBiModmskTable;
+
+			// 22) Stores B^-1 mod msk
+			NativeInteger m_BInvModmsk;
+			NativeInteger m_BInvModmskPrecon;
+
+			// 23) Stores B mod qi
+			std::vector<NativeInteger> m_BModqiTable;
+			std::vector<NativeInteger> m_BModqiPreconTable;
+
+			// DecRNS parameters
+
+			// 24) Stores gamma
+			NativeInteger m_gamma;
+
+			// 25) Stores gamma^-1 mod t
+			NativeInteger m_gammaInvModt;
+			NativeInteger m_gammaInvModtPrecon;
+
+			// 26) Stores -1/q mod {t U gamma}
+			std::vector<NativeInteger> m_negqInvModtgammaTable;
+			std::vector<NativeInteger> m_negqInvModtgammaPreconTable;
+
+			// 27) Stores q/qi mod mj table (matrix) where mj \in {t U gamma}
+			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaTable;
+			std::vector<std::vector<NativeInteger>> m_qDivqiModtgammaPreconTable;
+
+			// 28) Stores (t*gamma*q/qi)^-1 mod qi
+			std::vector<NativeInteger> m_tgammaqDivqiModqiTable;
+			std::vector<NativeInteger> m_tgammaqDivqiModqiPreconTable;
 	};
 
 	/**
-	* @brief Parameter generation for BFVrns.  This scheme is also referred to as the FV scheme.
+	* @brief Parameter generation for BFVrnsB.  This scheme is also referred to as the FV scheme.
 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmParamsGenBFVrns : public LPAlgorithmParamsGenBFV<Element> {
+	class LPAlgorithmParamsGenBFVrnsB : public LPAlgorithmParamsGenBFV<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmParamsGenBFVrns() {}
+		LPAlgorithmParamsGenBFVrnsB() {}
 
 		/**
 		* Method for computing all derived parameters based on chosen primitive parameters
@@ -385,7 +378,6 @@ namespace lbcrypto {
 		* @param evalAddCount number of EvalAdds assuming no EvalMult and KeySwitch operations are performed.
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
-		* @param dcrtBits number of bits in each CRT modulus
 		*/
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
@@ -393,22 +385,22 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief Encryption algorithm implementation for BFVrns for the basic public key encrypt, decrypt and
-	* key generation methods for the BFVrns encryption scheme.
+	* @brief Encryption algorithm implementation for BFVrnsB for the basic public key encrypt, decrypt and
+	* key generation methods for the BFVrnsB encryption scheme.
 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmBFVrns : public LPAlgorithmBFV<Element> {
+	class LPAlgorithmBFVrnsB : public LPAlgorithmBFV<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmBFVrns() {}
+		LPAlgorithmBFVrnsB() {}
 
 		/**
-		* Method for encrypting plaintext using BFVrns.
+		* Method for encrypting plaintext using BFVrnsB.
 		*
 		* @param publicKey public key used for encryption.
 		* @param &plaintext the plaintext input.
@@ -419,7 +411,7 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for encrypting plaintext with private key using BFVrns.
+		* Method for encrypting plaintext with private key using BFVrnsB.
 		*
 		* @param privateKey private key used for encryption.
 		* @param plaintext the plaintext input.
@@ -430,7 +422,7 @@ namespace lbcrypto {
 			Element plaintext) const;
 
 		/**
-		* Method for decrypting using BFVrns. See the class description for citations on where the algorithms were
+		* Method for decrypting using BFVrnsB. See the class description for citations on where the algorithms were
 	 	* taken from.
 		*
 		* @param privateKey private key used for decryption.
@@ -446,18 +438,18 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief SHE algorithms implementation for BFVrns.
+	* @brief SHE algorithms implementation for BFVrnsB.
 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmSHEBFVrns : public LPAlgorithmSHEBFV<Element> {
+	class LPAlgorithmSHEBFVrnsB : public LPAlgorithmSHEBFV<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmSHEBFVrns() {}
+		LPAlgorithmSHEBFVrnsB() {}
 
 		/**
 		* Function for homomorphic addition of ciphertext and plaintext.
@@ -476,7 +468,7 @@ namespace lbcrypto {
 		* @param pt input ciphertext.
 		* @return new ciphertext.
 		*/
-		Ciphertext<Element> EvalSub(ConstCiphertext<Element> ct1,
+		Ciphertext<Element> EvalSub(ConstCiphertext<Element> ct,
 			ConstPlaintext pt) const;
 
 		/**
@@ -489,7 +481,7 @@ namespace lbcrypto {
 		* @return resulting EvalMult ciphertext.
 		*/
 		Ciphertext<Element> EvalMult(ConstCiphertext<Element> ct1,
-			ConstCiphertext<Element> ct2) const;
+				ConstCiphertext<Element> ct2) const;
 
 		/**
 		* Method for generating a KeySwitchHint using RLWE relinearization
@@ -528,25 +520,25 @@ namespace lbcrypto {
 	};
 
 	/**
-	* @brief PRE algorithms implementation for BFVrns.
+	* @brief PRE algorithms implementation for BFVrnsB.
 	*
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPAlgorithmPREBFVrns : public LPAlgorithmPREBFV<Element> {
+	class LPAlgorithmPREBFVrnsB : public LPAlgorithmPREBFV<Element> {
 	public:
 
 		/**
 		 * Default constructor
 		 */
-		LPAlgorithmPREBFVrns() {}
+		LPAlgorithmPREBFVrnsB() {}
 
 
 	};
 
 
 	/**
-	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrns.    This scheme is also referred to as the FV scheme.  A version of this multiparty scheme built on the BGV scheme is seen here:
+	 * @brief Concrete class for the FHE Multiparty algorithms on BFVrnsB.    This scheme is also referred to as the FV scheme.  A version of this multiparty scheme built on the BGV scheme is seen here:
 	 *   - Asharov G., Jain A., López-Alt A., Tromer E., Vaikuntanathan V., Wichs D. (2012) Multiparty Computation with Low Communication, Computation and Interaction via Threshold FHE. In: Pointcheval D., Johansson T. (eds) Advances in Cryptology – EUROCRYPT 2012. EUROCRYPT 2012. Lecture Notes in Computer Science, vol 7237. Springer, Berlin, Heidelberg
 	 *
 	 * During offline key generation, this multiparty scheme relies on the clients coordinating their public key generation.  To do this, a single client generates a public-secret key pair.
@@ -561,13 +553,13 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class LPAlgorithmMultipartyBFVrns : public LPAlgorithmMultipartyBFV<Element> {
+	class LPAlgorithmMultipartyBFVrnsB : public LPAlgorithmMultipartyBFV<Element> {
 	public:
 
 		/**
 		* Default constructor
 		*/
-		LPAlgorithmMultipartyBFVrns() {}
+		LPAlgorithmMultipartyBFVrnsB() {}
 
 		/**
 		 * Method for fusing the partially decrypted ciphertext.
@@ -584,16 +576,16 @@ namespace lbcrypto {
 
 
 	/**
-	* @brief Main public key encryption scheme for BFVrns implementation,
+	* @brief Main public key encryption scheme for BFVrnsB implementation,
 	* @tparam Element a ring element.
 	*/
 	template <class Element>
-	class LPPublicKeyEncryptionSchemeBFVrns : public LPPublicKeyEncryptionScheme<Element> {
+	class LPPublicKeyEncryptionSchemeBFVrnsB : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeBFVrns();
+		LPPublicKeyEncryptionSchemeBFVrnsB();
 
 		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
-			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBFVrns<Element> *>(&sch) == 0 )
+			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBFVrnsB<Element> *>(&sch) == 0 )
 				return false;
 			return true;
 		}
