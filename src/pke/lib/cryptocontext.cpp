@@ -1560,7 +1560,7 @@ CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
 		ep,
 		plaintextmodulus,
 		stDev,
-		9, // assuranceMeasure,
+		36, // assuranceMeasure,
 		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation
@@ -1582,7 +1582,7 @@ CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
 		ep,
 		encodingParams,
 		stDev,
-		9, // assuranceMeasure,
+		36, // assuranceMeasure,
 		1.006, // securityLevel,
 		relinWindow, // Relinearization Window
 		mode, //Mode of noise generation

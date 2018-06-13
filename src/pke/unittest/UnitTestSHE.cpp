@@ -344,7 +344,7 @@ static void UnitTest_EvalAtIndex(const CryptoContext<Element> cc, const string& 
 
 }
 
-GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalAtIndex, 2048, 65537)
+GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalAtIndex, 512, 65537)
 
 template<class Element>
 static void UnitTest_EvalMerge(const CryptoContext<Element> cc, const string& failmsg) {
@@ -393,7 +393,7 @@ static void UnitTest_EvalMerge(const CryptoContext<Element> cc, const string& fa
 
 }
 
-GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalMerge, 2048, 65537)
+GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalMerge, 512, 65537)
 
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
