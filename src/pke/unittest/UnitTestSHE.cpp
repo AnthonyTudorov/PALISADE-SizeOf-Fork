@@ -88,6 +88,32 @@ GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrnsB_rlwe, ORD, PTM) \
 GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrnsB_opt, ORD, PTM)
 
+// For EvalAtIndex, LTV is not supported
+#define GENERATE_TEST_CASES_FUNC_EVALATINDEX(x,y,ORD,PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BGV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrnsB_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, Poly, BFVrnsB_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BGV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrnsB_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, NativePoly, BFVrnsB_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, Null, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BGV_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BGV_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrns_opt, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrnsB_rlwe, ORD, PTM) \
+GENERATE_PKE_TEST_CASE(x, y, DCRTPoly, BFVrnsB_opt, ORD, PTM)
+
 static vector<string> AllSchemes( {"Null", "LTV", "BGV", "BFV", /*"BFVrns"*/} );
 typedef ::testing::Types<Poly, DCRTPoly, NativePoly> EncryptElementTypes;
 
@@ -275,6 +301,50 @@ static void UnitTest_Mult(const CryptoContext<Element> cc, const string& failmsg
 }
 
 GENERATE_TEST_CASES_FUNC(UTSHE, UnitTest_Mult, ORDER, PTMOD)
+
+template<class Element>
+static void UnitTest_EvalAtIndex(const CryptoContext<Element> cc, const string& failmsg) {
+
+	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+	Plaintext plaintext1 = cc->MakePackedPlaintext(vectorOfInts1);
+
+	// Expected results after evaluating EvalAtIndex(3) and EvalAtIndex(-3)
+	std::vector<uint64_t> vectorOfIntsPlus3= { 4,5,6,7,8,9,10,11,12,13,14,15,16,0,0,0 };
+	std::vector<uint64_t> vectorOfIntsMinus3 = {0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+
+	Plaintext intArrayPlus3 = cc->MakePackedPlaintext(vectorOfIntsPlus3);
+	Plaintext intArrayMinus3 = cc->MakePackedPlaintext(vectorOfIntsMinus3);
+
+	// Initialize the public key containers.
+	LPKeyPair<Element> kp = cc->KeyGen();
+
+	Ciphertext<Element> ciphertext1 = cc->Encrypt(kp.publicKey, intArray1);
+
+	cc->EvalAtIndexKeyGen(kp.secretKey,{3,-3});
+
+	Ciphertext<Element> cResult1 = cc->EvalAtIndex(ciphertext1, 3);
+
+	Ciphertext<Element> cResult2 = cc->EvalAtIndex(ciphertext1, -3);
+
+	Plaintext results1;
+
+	Plaintext results2;
+
+	cc->Decrypt(kp.secretKey, cResult1, &results1);
+
+	cc->Decrypt(kp.secretKey, cResult2, &results2);
+
+	results1->SetLength(intArrayPlus3->GetLength());
+	EXPECT_EQ(intArrayPlus3->GetPackedValue(), results1->GetPackedValue()) << failmsg << " EvalAtIndex(3) fails";
+
+	results2->SetLength(intArrayMinus3->GetLength());
+	EXPECT_EQ(intArrayMinus3->GetPackedValue(), results2->GetPackedValue()) << failmsg << " EvalAtIndex(-3) fails";
+
+}
+
+GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalAtIndex, 2048, 65537)
 
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
