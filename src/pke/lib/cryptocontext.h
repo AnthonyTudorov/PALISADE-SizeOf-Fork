@@ -2290,13 +2290,13 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the LTV Scheme
-	* @param plaintextmodulus
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param depth
+	* @param params ring parameters
+	* @param plaintextModulus plaintext modulus
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
@@ -2305,13 +2305,13 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the LTV Scheme
-	* @param encodingParams
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param depth
+	* @param params ring parameters
+	* @param encodingParams plaintext encoding parameters
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
@@ -2320,11 +2320,13 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the LTV Scheme using the scheme's ParamsGen methods
-	* @param plaintextModulus
-	* @param securityLevel
-	* @param numAdds
-	* @param numMults
-	* @param numKeyswitches
+	* @param plaintextModulus plaintext modulus
+	* @param security level - root Hermite factor
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param dist sigma - distribution parameter for error distribution
+	* @param numAdds - number/depth of homomorphic additions (assuming no other homomorphic operations are performed)
+	* @param numMults - multiplicative depth (assuming no other homomorphic operations are performed)
+	* @param numKeyswitches - depth of key switching/number of hops in proxy re-encryption (assuming no other homomorphic operations are performed)
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(
@@ -2333,11 +2335,13 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the LTV Scheme using the scheme's ParamsGen methods
-	* @param encodingParams
-	* @param securityLevel
-	* @param numAdds
-	* @param numMults
-	* @param numKeyswitches
+	* @param encodingParams plaintext encoding parameters
+	* @param security level - root Hermite factor
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param dist sigma - distribution parameter for error distribution
+	* @param numAdds - number/depth of homomorphic additions (assuming no other homomorphic operations are performed)
+	* @param numMults - multiplicative depth (assuming no other homomorphic operations are performed)
+	* @param numKeyswitches - depth of key switching/number of hops in proxy re-encryption (assuming no other homomorphic operations are performed)
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextLTV(
@@ -2346,21 +2350,20 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme
-	* @param plaintextmodulus
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param delta
-	* @param mode
-	* @param bigmodulus
-	* @param bigrootofunity
-	* @param depth
-	* @param assuranceMeasure
-	* @param securityLevel
-	* @param bigmodulusarb
-	* @param bigrootofunityarb
+	* @param params ring parameters
+	* @param plaintextModulus plaintext modulus
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param delta - the plaintext scaling parameter floor(q/t) in BFV
+	* @param mode - mode for generating secret keys (RLWE vs OPTIMIZED)
+	* @param bigmodulus - large modulus used in tensoring of homomorphic multiplication
+	* @param bigrootofunity - root of unity for bigmodulus
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
+	* @param bigmodulusarb - additional large modulus for bigmoduls for the case of general (non-power-of-two) cyclotomics
+	* @param bigrootofunityarb - root of unity for bigmodulusarb
+	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(shared_ptr<typename Element::Params> params,
@@ -2372,21 +2375,20 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme
-	* @param encodingParams
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param delta
-	* @param mode
-	* @param bigmodulus
-	* @param bigrootofunity
-	* @param depth
-	* @param assuranceMeasure
-	* @param securityLevel
-	* @param bigmodulusarb
-	* @param bigrootofunityarb
+	* @param params ring parameters
+	* @param encodingParams plaintext encoding parameters
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param delta - the plaintext scaling parameter floor(q/t) in BFV
+	* @param mode - mode for generating secret keys (RLWE vs OPTIMIZED)
+	* @param bigmodulus - large modulus used in tensoring of homomorphic multiplication
+	* @param bigrootofunity - root of unity for bigmodulus
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
+	* @param bigmodulusarb - additional large modulus for bigmoduls for the case of general (non-power-of-two) cyclotomics
+	* @param bigrootofunityarb - root of unity for bigmodulusarb
+	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(shared_ptr<typename Element::Params> params,
@@ -2398,9 +2400,10 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
-	* @param encodingParams plaintext modulus
+	* @param plaintextModulus plaintext modulus
 	* @param securityLevel root Hermite factor (lattice security parameter)
-	* @param distribution parameter for Gaussian noise generation
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param dist distribution parameter for Gaussian noise generation
 	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
 	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
@@ -2432,13 +2435,13 @@ public:
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus plaintext modulus
 	* @param securityLevel root Hermite factor (lattice security parameter)
-	* @param distribution parameter for Gaussian noise generation
+	* @param dist distribution parameter for Gaussian noise generation
 	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
 	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
  	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
-	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
+	* @param relinWindow the key switching window (bits in the base for digits) used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
 	* @return new context
 	*/
@@ -2451,7 +2454,7 @@ public:
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
 	* @param encodingParams plaintext encoding parameters
 	* @param securityLevel root Hermite factor (lattice security parameter)
-	* @param distribution parameter for Gaussian noise generation
+	* @param dist distribution parameter for Gaussian noise generation
 	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
 	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
@@ -2470,7 +2473,7 @@ public:
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus plaintext modulus
 	* @param securityLevel root Hermite factor (lattice security parameter)
-	* @param distribution parameter for Gaussian noise generation
+	* @param dist distribution parameter for Gaussian noise generation
 	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
 	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
@@ -2489,7 +2492,7 @@ public:
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
 	* @param encodingParams plaintext encoding parameters
 	* @param securityLevel root Hermite factor (lattice security parameter)
-	* @param distribution parameter for Gaussian noise generation
+	* @param dist distribution parameter for Gaussian noise generation
 	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
 	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
@@ -2504,16 +2507,14 @@ public:
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);
 
-
 	/**
 	* construct a PALISADE CryptoContextImpl for the BGV Scheme
-	* @param plaintextmodulus
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param mode
+	* @param params ring parameters
+	* @param plaintextModulus plaintext modulus
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
+	* @param depth of supported computation circuit (not used; for future use)
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBGV(shared_ptr<typename Element::Params> params,
@@ -2523,13 +2524,12 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BGV Scheme
-	* @param encodingParams
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param mode
+	* @param params ring parameters
+	* @param encodingParams plaintext encoding parameters
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
+	* @param depth of supported computation circuit (not used; for future use)
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBGV(shared_ptr<typename Element::Params> params,
@@ -2539,13 +2539,14 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the StehleSteinfeld Scheme
-	* @param plaintextmodulus
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param stDevStSt
+	* @param params ring parameters
+	* @param plaintextModulus plaintext modulus
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param stdDev distribution parameter for secret key distribution
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
@@ -2554,13 +2555,14 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the StehleSteinfeld Scheme
-	* @param encodingParams
-	* @param ringdim
-	* @param modulus
-	* @param rootOfUnity
-	* @param relinWindow
-	* @param stDev
-	* @param stDevStSt
+	* @param params ring parameters
+	* @param encodingParams plaintext encoding parameters
+	* @param relinWindow bits in the base of digits in key switching/relinearization
+	* @param stdDev sigma - distribution parameter for error distribution
+	* @param stdDev distribution parameter for secret key distribution
+	* @param depth of supported computation circuit (not used; for future use)
+	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
+	* @param security level - root Hermite factor
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextStehleSteinfeld(shared_ptr<typename Element::Params> params,
@@ -2569,14 +2571,16 @@ public:
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param plaintext modulus
+	* @param m cyclotomic order (ring dimension n = m/2 for power-of-two cyclotomics)
+	* @param plaintextModulus plaintext modulus
 	* @return
 	*/
 	static CryptoContext<Element> genCryptoContextNull(unsigned int m, const PlaintextModulus ptModulus);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the Null Scheme
-	* @param encodingParams
+	* @param m cyclotomic order (ring dimension n = m/2 for power-of-two cyclotomics)
+	* @param encodingParams plaintext encoding parameters
 	* @return
 	*/
 	static CryptoContext<Element> genCryptoContextNull(unsigned int m, EncodingParams encodingParams);

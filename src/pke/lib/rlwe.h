@@ -80,7 +80,8 @@ public:
 	* @param assuranceMeasure assurance level.
 	* @param securityLevel security level.
 	* @param relinWindow the size of the relinearization window.
-	* @param depth depth which defaults to 1.
+	* @param depth is the depth of computation circuit supported for these parameters (not used now; for future use).
+	* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 	* @param mode mode for secret polynomial, defaults to RLWE.
 	*/
 	LPCryptoParametersRLWE(
@@ -138,14 +139,14 @@ public:
 	usint GetRelinWindow() const { return m_relinWindow; }
 
 	/**
-	 * Returns the value of computation depth d
+	 * Returns the depth of computation circuit supported for these parameters (not used now; for future use).
 	 *
 	 * @return the computation depth supported d.
 	 */
 	int GetDepth() const {return m_depth;}
 
 	/**
-	 * Returns the value of computation depth d
+	 * Returns the maximum homomorphic multiplication depth before performing relinearization
 	 *
 	 * @return the computation depth supported d.
 	 */
@@ -195,13 +196,13 @@ public:
 	void SetRelinWindow(usint relinWindow) { m_relinWindow = relinWindow; }
 
 	/**
-	 * Sets the value of supported computation depth d
+	 * Sets the depth of computation circuit supported for these parameters (not used now; for future use).
 	 * @param depth
 	 */
 	void SetDepth(int depth) {m_depth = depth;}
 
 	/**
-	 * Sets the value of supported computation depth d
+	 * Sets the value of maximum homomorphic multiplication depth before performing relinearization
 	 * @param depth
 	 */
 	void SetMaxDepth(size_t maxDepth) {m_maxDepth = maxDepth;}
