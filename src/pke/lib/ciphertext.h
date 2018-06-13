@@ -292,7 +292,7 @@ class CiphertextImpl;
 	* @return The result of addition.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator+(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
+	Ciphertext<Element> operator+(const Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalAdd(a,b);
 	}
 
@@ -306,7 +306,7 @@ class CiphertextImpl;
 	* @return &a
 	*/
 	template <class Element>
-	ConstCiphertext<Element>& operator+=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
+	const Ciphertext<Element>& operator+=(Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalAdd(a, b);
 	}
 
@@ -317,8 +317,8 @@ class CiphertextImpl;
 	* @return the result of the negation.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator-(Ciphertext<Element> a) {
-		return a = a->GetCryptoContext()->EvalNegate(a);
+	Ciphertext<Element> operator-(const Ciphertext<Element>& a) {
+		return a->GetCryptoContext()->EvalNegate(a);
 	}
 
 	/**
@@ -331,7 +331,7 @@ class CiphertextImpl;
 	* @return The result of subtraction.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator-(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
+	Ciphertext<Element> operator-(const Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalSub(a, b);
 	}
 
@@ -345,7 +345,7 @@ class CiphertextImpl;
 	* @return &a
 	*/
 	template <class Element>
-	ConstCiphertext<Element>& operator-=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
+	const Ciphertext<Element>& operator-=(Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalSub(a, b);
 	}
 
@@ -359,7 +359,7 @@ class CiphertextImpl;
 	* @return The result of multiplication.
 	*/
 	template <class Element>
-	Ciphertext<Element> operator*(ConstCiphertext<Element>& a, ConstCiphertext<Element>& b) {
+	Ciphertext<Element> operator*(const Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a->GetCryptoContext()->EvalMult(a, b);
 	}
 
@@ -373,7 +373,7 @@ class CiphertextImpl;
 	* @return &a
 	*/
 	template <class Element>
-	ConstCiphertext<Element>& operator*=(Ciphertext<Element>& a, ConstCiphertext<Element>& b) {
+	const Ciphertext<Element>& operator*=(Ciphertext<Element>& a, const Ciphertext<Element>& b) {
 		return a = a->GetCryptoContext()->EvalMult(a, b);
 	}
 
