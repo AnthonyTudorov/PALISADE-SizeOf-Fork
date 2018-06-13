@@ -346,6 +346,55 @@ static void UnitTest_EvalAtIndex(const CryptoContext<Element> cc, const string& 
 
 GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalAtIndex, 2048, 65537)
 
+template<class Element>
+static void UnitTest_EvalMerge(const CryptoContext<Element> cc, const string& failmsg) {
+
+	// Initialize the public key containers.
+	LPKeyPair<Element> kp = cc->KeyGen();
+
+	std::vector<Ciphertext<Element>> ciphertexts;
+
+	std::vector<uint64_t> vectorOfInts1 = { 32,0,0,0,0,0,0,0, 0, 0 };
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray1));
+
+	std::vector<uint64_t> vectorOfInts2 = { 2,0,0,0,0,0,0,0, 0, 0};
+	Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray2));
+
+	std::vector<uint64_t> vectorOfInts3 = { 4,0,0,0,0,0,0,0, 0, 0};
+	Plaintext intArray3 = cc->MakePackedPlaintext(vectorOfInts3);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray3));
+
+	std::vector<uint64_t> vectorOfInts4 = { 8,0,0,0,0,0,0,0, 0, 0 };
+	Plaintext intArray4 = cc->MakePackedPlaintext(vectorOfInts4);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray4));
+
+	std::vector<uint64_t> vectorOfInts5 = { 16,0,0,0,0,0,0,0, 0, 0 };
+	Plaintext intArray5 = cc->MakePackedPlaintext(vectorOfInts5);
+	ciphertexts.push_back(cc->Encrypt(kp.publicKey, intArray5));
+
+	// Expected results after evaluating EvalAtIndex(3) and EvalAtIndex(-3)
+	std::vector<uint64_t> vectorMerged = { 32,2,4,8,16,0,0,0 };
+	Plaintext intArrayMerged = cc->MakePackedPlaintext(vectorMerged);
+
+	vector<int32_t> indexList = {-1,-2,-3,-4,-5};
+
+	cc->EvalAtIndexKeyGen(kp.secretKey, indexList);
+
+	auto mergedCiphertext = cc->EvalMerge(ciphertexts);
+
+	Plaintext results1;
+
+	cc->Decrypt(kp.secretKey, mergedCiphertext, &results1);
+
+	results1->SetLength(intArrayMerged->GetLength());
+	EXPECT_EQ(intArrayMerged->GetPackedValue(), results1->GetPackedValue()) << failmsg << " EvalMerge fails";
+
+}
+
+GENERATE_TEST_CASES_FUNC_EVALATINDEX(UTSHE, UnitTest_EvalMerge, 2048, 65537)
+
 TEST_F(UTSHE, keyswitch_sparse_key_SingleCRT_byteplaintext) {
 
 	usint m = 512;

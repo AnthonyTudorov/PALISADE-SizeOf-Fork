@@ -218,7 +218,7 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 		Bkey = 1;
 
 	//expansion factor delta
-	auto delta = [](uint32_t n) -> double { return sqrt(n); };
+	auto delta = [](uint32_t n) -> double { return 2*sqrt(n); };
 
 	//norm of fresh ciphertext polynomial
 	auto Vnorm = [&](uint32_t n) -> double { return Berr*(1+2*delta(n)*Bkey);  };

@@ -299,7 +299,7 @@ TEST_F(UTCryptotiming, eval_mult){
     double rootHermiteFactor = 1.03;
 
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
-            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
+            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED, 3);
     cc->Enable(ENCRYPTION|SHE);
 
     vector<TimingInfo>	times;
@@ -348,7 +348,7 @@ TEST_F(UTCryptotiming, eval_mult_many){
     double rootHermiteFactor = 1.03;
 
     CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBFV(
-            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 3, 0, OPTIMIZED, 4);
+            plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0, OPTIMIZED, 3);
     cc->Enable(ENCRYPTION|SHE);
 
     vector<TimingInfo>	times;
