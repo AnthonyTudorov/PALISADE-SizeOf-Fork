@@ -170,7 +170,7 @@ namespace lbcrypto {
 		{
 			typename Element::Integer v(u.at(j));
 			std::vector<int64_t> v_digits(k);
-			for(size_t i=1;i<k;i++){
+			for(size_t i=1;i<=k;i++){
 			 v_digits[i-1] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
 			}
 
