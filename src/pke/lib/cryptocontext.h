@@ -1667,7 +1667,7 @@ public:
 	}
 
 	/**
-	 * EvalShiftRight - works only for Integer Encoding
+	 * EvalShiftRight - works only for Fractional Encoding
 	 * @param pt2
 	 * @param ct1
 	 * @return new ciphertext for ct1 * pt2

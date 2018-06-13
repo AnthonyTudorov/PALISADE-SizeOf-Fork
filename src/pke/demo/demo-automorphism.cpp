@@ -25,16 +25,7 @@
  */
  /*
 Description:
-This code exercises the Proxy Re-Encryption capabilities of the NJIT Lattice crypto library.
-In this code we:
-- Generate a key pair.
-- Encrypt a string of data.
-- Decrypt the data.
-- Generate a new key pair.
-- Generate a proxy re-encryption key.
-- Re-Encrypt the encrypted data.
-- Decrypt the re-encrypted data.
-We configured parameters (namely the ring dimension and ciphertext modulus) to provide a level of security roughly equivalent to a root hermite factor of 1.007 which is generally considered secure and conservatively comparable to AES-128 in terms of computational work factor and may be closer to AES-256.
+This code shows how the automorphism operation works for different plaintext encodings and cyclotomic rings (both power-of-two and cyclic)
 
 */
 
@@ -78,6 +69,8 @@ void ArbNullAutomorphismCoeffArray(usint i);
 void ArbNullAutomorphismPackedArray2n(usint i);
 
 int main() {
+
+	std::cout << "\nThis code shows how the automorphism operation works for different plaintext encodings and cyclotomic rings (both power-of-two and cyclic).\n" << std::endl;
 
 	//LTVAutomorphismIntArray();
 	usint m = 22;

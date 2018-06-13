@@ -126,7 +126,7 @@ void KeyGen()
 		EncodingParams encodingParams(new EncodingParamsImpl(p));
 
 		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-				encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,2);
+				encodingParams, rootHermiteFactor, sigma, 0, 2, 0, OPTIMIZED,2,30,60);
 
 		uint32_t m = cc->GetCyclotomicOrder();
 		PackedEncoding::SetParams(m, encodingParams);
