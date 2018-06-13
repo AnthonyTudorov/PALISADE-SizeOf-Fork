@@ -55,7 +55,7 @@ template<typename Element>
 using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
 
 template<typename Element>
-using ConstCiphertext = shared_ptr<const CiphertextImpl<Element>>;
+using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 }
 
 #include "math/backend.h"
