@@ -87,7 +87,7 @@ namespace lbcrypto {
 			 * @param bigRootOfUnity root of unity for bigModulus
 			 * @param bigModulusArb modulus used in polynomial multiplications in EvalMult (for arbitrary cyclotomics)
 			 * @param bigRootOfUnityArb root of unity for bigModulus (for arbitrary cyclotomics)
-			 * @param depth Depth is the depth of computation supprted which is set to 1 by default.  Use the default setting unless you're using SHE, levelled SHE or FHE operations.
+			 * @param depth is the depth of computation circuit supported for these parameters (not used now; for future use).
 			 * @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			 */
 			LPCryptoParametersBFV(shared_ptr<typename Element::Params> params,
@@ -120,7 +120,7 @@ namespace lbcrypto {
 			* @param bigRootOfUnity root of unity for bigModulus
 			* @param bigModulusArb modulus used in polynomial multiplications in EvalMult (arbitrary cyclotomics)
 			* @param bigRootOfUnityArb root of unity for bigModulus (arbitrary cyclotomics)
-			* @param depth depth which is set to 1.
+			* @param depth is the depth of computation circuit supported for these parameters (not used now; for future use).
 			* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
 			*/
 			LPCryptoParametersBFV(shared_ptr<typename Element::Params> params,

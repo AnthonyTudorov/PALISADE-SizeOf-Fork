@@ -98,7 +98,7 @@ namespace lbcrypto {
 			 * @param securityLevel security level.
 			 * @param relinWindow the size of the relinearization window.
 			 * @param mode sets the mode of operation: RLWE or OPTIMIZED
-			 * @param depth depth which is set to 1.
+			 * @param depth of supported computation circuit (not used; for future use)
 			 */
 			LPCryptoParametersBGV(
 				shared_ptr<typename Element::Params> params,
@@ -130,7 +130,7 @@ namespace lbcrypto {
 			* @param securityLevel security level.
 			* @param relinWindow the size of the relinearization window.
 			* @param mode sets the mode of operation: RLWE or OPTIMIZED
-			* @param depth depth which is set to 1.
+			* @param depth of supported computation circuit (not used; for future use)
 			*/
 			LPCryptoParametersBGV(
 				shared_ptr<typename Element::Params> params,
