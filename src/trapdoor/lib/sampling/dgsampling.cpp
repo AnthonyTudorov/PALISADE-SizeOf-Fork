@@ -48,9 +48,9 @@ namespace lbcrypto {
 		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
 
-		std::vector<int64_t> m_digits(k+1);
+		std::vector<int64_t> m_digits(k);
 		for(size_t i=1;i<=k;i++){
-			m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
+			m_digits[i-1] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
 		}
 
 		// main diagonal of matrix L
@@ -74,10 +74,10 @@ namespace lbcrypto {
 
 		// c can be pre-computed as it only depends on the modulus
 		// (double) is added to avoid integer division
-		c(0, 0) = m_digits[1]/ (double)base;
+		c(0, 0) = m_digits[0]/ (double)base;
 
 		for (size_t i = 1; i < k; i++)
-			c(i, 0) = (c(i - 1, 0) + m_digits[i+1]) / base;
+			c(i, 0) = (c(i - 1, 0) + m_digits[i]) / base;
 
 #ifdef OMP
 #pragma omp parallel for
@@ -91,29 +91,29 @@ namespace lbcrypto {
 			LatticeGaussSampUtility<Element>::Perturb(sigma, k, u.GetLength(), l, h, base, dgg, &p);
 
 			Matrix<double> a([]() { return 0.0; }, k, 1);
-			std::vector<int64_t> v_digits(k+1);
+			std::vector<int64_t> v_digits(k);
 			for(size_t i=1;i<=k;i++){
-				v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
+				v_digits[i-1] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
 			}
 			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
 			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
 			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 			// (double) is added to avoid integer division
-			a(0, 0) = ((int64_t)(v_digits[1]) - p[0]) / (double)base;
+			a(0, 0) = ((int64_t)(v_digits[0]) - p[0]) / (double)base;
 
 			for (size_t t = 1; t < k; t++){
-				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t+1]) - p[t]) / base;
+				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t]) - p[t]) / base;
 			}
 			vector<int64_t> zj(k);
 
 			LatticeGaussSampUtility<Element>::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
-			(*z)(0, j) = base*zj[0] + (int64_t)(m_digits[1])*zj[k - 1] + (int64_t)(v_digits[1]);
+			(*z)(0, j) = base*zj[0] + (int64_t)(m_digits[0])*zj[k - 1] + (int64_t)(v_digits[0]);
 
 			for (size_t t = 1; t < k - 1; t++){
-					(*z)(t, j) = base*zj[t] - zj[t - 1] + (int64_t)(m_digits[t+1])*zj[k - 1] + (int64_t)(v_digits[t+1]);
+					(*z)(t, j) = base*zj[t] - zj[t - 1] + (int64_t)(m_digits[t])*zj[k - 1] + (int64_t)(v_digits[t]);
 			}
-			(*z)(k - 1, j) = (int64_t)(m_digits[k])*zj[k - 1] - zj[k - 2] + (int64_t)(v_digits[k]);
+			(*z)(k - 1, j) = (int64_t)(m_digits[k-1])*zj[k - 1] - zj[k - 2] + (int64_t)(v_digits[k-1]);
 		}
 
 	}
@@ -133,9 +133,9 @@ namespace lbcrypto {
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
 		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
-		std::vector<int64_t> m_digits(k+1);
+		std::vector<int64_t> m_digits(k);
 		for(size_t i=1;i<=k;i++){
-			m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
+			m_digits[i-1] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
 		}
 		// main diagonal of matrix L
 		std::vector<double> l(k);
@@ -158,10 +158,10 @@ namespace lbcrypto {
 
 		// c can be pre-computed as it only depends on the modulus
 		// (double) is added to avoid integer division
-		c(0, 0) = ((int64_t)m_digits[1] )/ (double)base;
+		c(0, 0) = ((int64_t)m_digits[0] )/ (double)base;
 
 		for (size_t i = 1; i < k; i++)
-			c(i, 0) = (c(i - 1, 0) + (int64_t)m_digits[i+1]) / base;
+			c(i, 0) = (c(i - 1, 0) + (int64_t)m_digits[i]) / base;
 
 #ifdef OMP
 #pragma omp parallel for
@@ -169,9 +169,9 @@ namespace lbcrypto {
 		for (size_t j = 0; j < u.GetLength(); j++)
 		{
 			typename Element::Integer v(u.at(j));
-			std::vector<int64_t> v_digits(k+1);
+			std::vector<int64_t> v_digits(k);
 			for(size_t i=1;i<=k;i++){
-			 v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
+			 v_digits[i-1] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
 			}
 
 			vector<double> p(k);
@@ -185,21 +185,21 @@ namespace lbcrypto {
 			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
 			// (double) is added to avoid integer division
 
-			a(0, 0) = ((int64_t)(v_digits[1]) - p[0]) / (double)base;
+			a(0, 0) = ((int64_t)(v_digits[0]) - p[0]) / (double)base;
 
 			for (size_t t = 1; t < k; t++) {
-				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t+1]) - p[t]) / base;
+				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t]) - p[t]) / base;
 			}
 			vector<int64_t> zj(k);
 
 			LatticeGaussSampUtility<Element>::SampleC(c, k, u.GetLength(), sigma, dgg, &a, &zj);
 
-			(*z)(0, j) = base*zj[0] + (int64_t)(m_digits[1])*zj[k - 1] + (int64_t)(v_digits[1]);
+			(*z)(0, j) = base*zj[0] + (int64_t)(m_digits[0])*zj[k - 1] + (int64_t)(v_digits[0]);
 
 			for (size_t t = 1; t < k - 1; t++) {
-				(*z)(t, j) = base*zj[t] - zj[t - 1] + (int64_t)(m_digits[t+1])*zj[k - 1] + (int64_t)(v_digits[t+1]);
+				(*z)(t, j) = base*zj[t] - zj[t - 1] + (int64_t)(m_digits[t])*zj[k - 1] + (int64_t)(v_digits[t]);
 			}
-			(*z)(k - 1, j) = (int64_t)(m_digits[k])*zj[k - 1] - zj[k - 2] + (int64_t)(v_digits[k]);
+			(*z)(k - 1, j) = (int64_t)(m_digits[k-1])*zj[k - 1] - zj[k - 2] + (int64_t)(v_digits[k-1]);
 		}
 
 	}
