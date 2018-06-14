@@ -29,7 +29,7 @@
 
 #include <string>
 
-#define PALISADE_VERSION		"v1.1.2"
+#define PALISADE_VERSION		"v1.2"
 
 /**
  * Returns PALISADE Version string
