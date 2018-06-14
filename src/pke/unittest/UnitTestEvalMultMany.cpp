@@ -48,10 +48,10 @@ public:
 
 static CryptoContext<Poly> MakeBFVPolyCC() {
 
-	int relWindow = 1;
+	int relWindow = 8;
 	int plaintextModulus = 256;
 	double sigma = 4;
-	double rootHermiteFactor = 1.03;
+	double rootHermiteFactor = 1.6;
 
 	//Set Crypto Parameters
 	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextBFV(
@@ -82,7 +82,7 @@ template<typename Element>
 static void RunEvalMultManyTest(CryptoContext<Element> cc, string msg);
 
 //Tests EvalMult w/o keyswitching and EvalMultMany for BFV in the OPTIMIZED mode
-TEST(UTBFVEVALMM, Poly_BFV_Eval_Mult_Many_Operations) {
+TEST(UTBFVEVALMM, Poly_BFV_Eval_Mult_Many_Operations_VERY_LONG) {
 
 	RunEvalMultManyTest(MakeBFVPolyCC(), "BFV");
 

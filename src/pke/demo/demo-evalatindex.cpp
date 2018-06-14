@@ -25,7 +25,7 @@
  */
  /*
 Description:
-EvalAtIndex demo
+This code shows how the EvalAtIndex and EvalMerge operations work for different cyclotomic rings (both power-of-two and cyclic)
 
 */
 
@@ -55,6 +55,8 @@ void BFVrnsEvalMerge2n();
 void NullEvalMerge2n();
 
 int main() {
+
+	std::cout << "\nThis code shows how the EvalAtIndex and EvalMerge operations work for different cyclotomic rings (both power-of-two and cyclic).\n" << std::endl;
 
 	std::cout << "\n========== BFVrns.EvalAtIndex - Power-of-Two Cyclotomics ===========" << std::endl;
 
