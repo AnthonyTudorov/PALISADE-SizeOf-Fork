@@ -1738,8 +1738,20 @@ void DCRTPolyImpl<ModType,IntType,VecType,ParmType>::FastBaseConvSK(
 	}
 
 	// drop extra vectors
-	for (uint32_t i = 0; i < numBsk; i++)
-		m_vectors.erase (m_vectors.begin() + numq + i);
+
+	// this code died on mac; need to be smarter about use of erase, and bounds...
+	//	for (uint32_t i = 0; i < numBsk; i++)
+	//		m_vectors.erase (m_vectors.begin() + numq + i);
+
+	// erase vectors from begin() + numq to begin() + numq + numBsk
+	// make sure beginning and end are inside the vector :)
+	if( numq < m_vectors.size() ) {
+		auto starti = m_vectors.begin() + numq;
+		if( starti + numBsk >= m_vectors.end() )
+			m_vectors.erase(starti, m_vectors.end() );
+		else
+			m_vectors.erase(starti, starti + numBsk );
+	}
 
 	delete[] alphaskxVector;
 	alphaskxVector = nullptr;
