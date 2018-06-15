@@ -405,21 +405,21 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 	}
 	else if( mode == Evaluate ) {
 
-		TimeVar t;
-		TIC(t);
+//		TimeVar t;
+//		TIC(t);
 		auto arg1 = cc->EvalMerge(vec1);
-		cout << "first merge of " << vecsize << " takes " << TOC_MS(t) << endl;
-		TIC(t);
+//		cout << "first merge of " << vecsize << " takes " << TOC_MS(t) << endl;
+//		TIC(t);
 		auto arg2 = cc->EvalMerge(vec2);
-		cout << "second merge of " << vecsize << " takes " << TOC_MS(t) << endl;
+//		cout << "second merge of " << vecsize << " takes " << TOC_MS(t) << endl;
 
 		if( CircuitOpTrace ) {
 			ss << "}\nEvalInnerProduct of results, depth " << innerProdDepth;
 		}
 
-		TIC(t);
+//		TIC(t);
 		this->value = cc->EvalInnerProduct(arg1, arg2, innerProdDepth);
-		cout << "inner prod takes " << TOC_MS(t) << endl;
+//		cout << "inner prod takes " << TOC_MS(t) << endl;
 
 		if( CircuitOpTrace ) {
 			cout << ss.str() << endl;
