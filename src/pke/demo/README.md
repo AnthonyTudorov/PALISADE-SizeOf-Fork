@@ -22,7 +22,7 @@ File Listing
 * Demo programs
 - [demo_fusion_simple.cpp](src/pke/demo/demo_fusion_simple.cpp): a demo program of multiparty FHE operations built on FV.
 - [demo-automorphism.cpp](src/pke/demo/demo-automorphism.cpp): demonstrates use of EvalAutomorphism for different schemes, plaintext encodings, and cyclotomic rings
-- [demo-bfv.cpp](src/pke/demo/demo-bfv.cpp): demonstrates use of the BFV scheme for basic homomorphic encryption
+- [demo-bfvrns.cpp](src/pke/demo/demo-bfvrns.cpp): demonstrates use of the BFVrns scheme for basic SHE operations
 - [demo-cross-correlation.cpp](src/pke/demo/demo-cross-correlation.cpp): a demo program that demonstrates the use of serialization, DCRT, arbitrary cyclotomics, and packed encoding for an application that computes cross-correlation using inner products.
 - [demo-cross-correlation-bfvrns.cpp](src/pke/demo/demo-cross-correlation-bfrns.cpp): a demo program that demonstrates the use of serialization, DCRT, power-of-two-cyclotomics, and packed encoding for an application that computes cross-correlation using inner products.
 - [demo-crypt-pre-text.cpp](src/pke/demo/demo-crypt-pre-text.cpp): demonstrates use of PALISADE for encryption, re-encryption and decryption of text

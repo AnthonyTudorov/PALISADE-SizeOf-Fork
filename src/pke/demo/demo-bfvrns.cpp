@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	std::cout << "\nThis code demonstrates the use of the BFV scheme for basic homomorphic encryption operations. " << std::endl;
+	std::cout << "\nThis code demonstrates the use of the BFVrns scheme for basic homomorphic encryption operations. " << std::endl;
 	std::cout << "This code shows how to auto-generate parameters during run-time based on desired plaintext moduli and security levels. " << std::endl;
 	std::cout << "In this demonstration we use three input plaintext and show how to both add them together and multiply them together. " << std::endl;
 
@@ -59,14 +59,13 @@ int main(int argc, char *argv[]) {
 	//Generate parameters.
 	double diff, start, finish;
 
-	int relWindow = 1;
 	int plaintextModulus = 256;
 	double sigma = 4;
 	double rootHermiteFactor = 1.006;
 
 	//Set Crypto Parameters
-	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextBFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 5, 0, OPTIMIZED, 6);
+	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			plaintextModulus, rootHermiteFactor, sigma, 0, 5, 0, OPTIMIZED,6);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -77,7 +76,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 	// Initialize Public Key Containers
-	LPKeyPair<Poly> keyPair;
+	LPKeyPair<DCRTPoly> keyPair;
 
 	////////////////////////////////////////////////////////////
 	// Perform Key Generation Operation
@@ -124,12 +123,12 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 
 
-	Ciphertext<Poly> ciphertext1;
-	Ciphertext<Poly> ciphertext2;
-	Ciphertext<Poly> ciphertext3;
-	Ciphertext<Poly> ciphertext4;
-	Ciphertext<Poly> ciphertext5;
-	Ciphertext<Poly> ciphertext6;
+	Ciphertext<DCRTPoly> ciphertext1;
+	Ciphertext<DCRTPoly> ciphertext2;
+	Ciphertext<DCRTPoly> ciphertext3;
+	Ciphertext<DCRTPoly> ciphertext4;
+	Ciphertext<DCRTPoly> ciphertext5;
+	Ciphertext<DCRTPoly> ciphertext6;
 
 	start = currentDateTime();
 
@@ -191,11 +190,11 @@ int main(int argc, char *argv[]) {
 	// EvalMult Operation
 	////////////////////////////////////////////////////////////
 
-	Ciphertext<Poly> ciphertextMul12;
-	Ciphertext<Poly> ciphertextMul123;
-	Ciphertext<Poly> ciphertextMul1234;
-	Ciphertext<Poly> ciphertextMul12345;
-	Ciphertext<Poly> ciphertextMul123456;
+	Ciphertext<DCRTPoly> ciphertextMul12;
+	Ciphertext<DCRTPoly> ciphertextMul123;
+	Ciphertext<DCRTPoly> ciphertextMul1234;
+	Ciphertext<DCRTPoly> ciphertextMul12345;
+	Ciphertext<DCRTPoly> ciphertextMul123456;
 
 	start = currentDateTime();
 	//Perform consecutive multiplications and do a keyswtiching at the end.
@@ -253,8 +252,8 @@ int main(int argc, char *argv[]) {
 	// EvalAdd Operation
 	////////////////////////////////////////////////////////////
 
-	Ciphertext<Poly> ciphertextAdd12;
-	Ciphertext<Poly> ciphertextAdd123;
+	Ciphertext<DCRTPoly> ciphertextAdd12;
+	Ciphertext<DCRTPoly> ciphertextAdd123;
 
 	start = currentDateTime();
 
@@ -296,8 +295,8 @@ int main(int argc, char *argv[]) {
 	////////////////////////////////////////////////////////////
 	// Done
 	////////////////////////////////////////////////////////////
-	Ciphertext<Poly> ciphertextMul1234567;
-	vector<Ciphertext<Poly>> cipherTextList;
+	Ciphertext<DCRTPoly> ciphertextMul1234567;
+	vector<Ciphertext<DCRTPoly>> cipherTextList;
 
 	cipherTextList.push_back(ciphertext1);
 	cipherTextList.push_back(ciphertext2);
