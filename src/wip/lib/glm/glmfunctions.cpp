@@ -245,12 +245,12 @@ void GLMServerComputeRegressor(GLMContext &context, pathList &path, glmParams & 
 		Matrix<Ciphertext<DCRTPoly>> t = context.cc[k]->EvalAddMatrix(w[k], C1C2[k]);
 		C1C2addW.push_back(t);
 	}
-
+/*
 	cout << "C1C2" << endl;
 	Decryption(context, params, path, primeList, C1C2);
 	cout << "W" << endl;
 	Decryption(context, params, path, primeList, w);
-
+*/
 /*
 	cout << "w" << endl;
 	cout << w[0](0,0) << endl;
