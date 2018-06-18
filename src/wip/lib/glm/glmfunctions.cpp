@@ -2501,7 +2501,7 @@ void doubleToBigInteger2(double &in, BigInteger &out){
 
 		out = BigInteger(fraction);
 		if(sign == 1)
-			out = out*(-1);
+			out = -out;
 	}
 }
 
