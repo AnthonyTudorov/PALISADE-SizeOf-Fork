@@ -156,28 +156,27 @@ void Decryption(GLMContext &context, glmParams & params,  pathList &path, vector
 
 	size_t numRegressors = C1C2[0].GetCols();
 //	size_t batchSize = context.cc[0]->GetEncodingParams()->GetBatchSize();
-	cout << "1" << endl;
+//	cout << "1" << endl;
 	vector<Matrix<Plaintext>> numeratorC1C2;
 	for(size_t k=0; k<primeList.size(); k++){
 	    Matrix<Plaintext> numeratorC1C2t (zeroAllocPacking, 1, numRegressors);
 	    context.cc[k]->DecryptMatrixCiphertext(sk[k], C1C2[k], &numeratorC1C2t);
 		numeratorC1C2.push_back(numeratorC1C2t);
 	}
-	cout << "2" << endl;
+//	cout << "2" << endl;
 
 	Matrix<BigInteger> numeratorC1C2CRT (zeroAllocBigInteger, 1, numRegressors);
 	CRTInterpolate(numeratorC1C2, numeratorC1C2CRT, primeList);
-	cout << "3" << endl;
+//	cout << "3" << endl;
 
     Matrix<double> C1C2PlaintextCRTDouble (zeroAllocDouble, 1, numRegressors);
     ConvertUnsingedToSigned(numeratorC1C2CRT, C1C2PlaintextCRTDouble, primeList);
 	PrintMatrixDouble(C1C2PlaintextCRTDouble);
-	cout << "4" << endl;
+//	cout << "4" << endl;
 
     Matrix<double> C1C2Fixed(zeroAllocDouble, 1, numRegressors);
     DecimalDecrement(C1C2PlaintextCRTDouble, C1C2Fixed, params.PRECISIONDECIMALSIZE*2+params.PRECISIONDECIMALSIZEX, params);
-    PrintMatrixDouble(C1C2Fixed);
-
+ //   PrintMatrixDouble(C1C2Fixed);
 
 }
 
@@ -705,12 +704,12 @@ void GLMClientRescaleC1(GLMContext &context, pathList &path, glmParams & params)
     Matrix<double> C1PlaintextCRTDoubleInverse(zeroAllocDouble);
 	MatrixInverse(C1PlaintextCRTDouble, C1PlaintextCRTDoubleInverse);
 
-	cout << "\n\n";
-	PrintMatrixDouble(C1PlaintextCRTDouble);
-	cout << "\n\n";
+//	cout << "\n\n";
+//	PrintMatrixDouble(C1PlaintextCRTDouble);
+//	cout << "\n\n";
 
-	PrintMatrixDouble(C1PlaintextCRTDoubleInverse);
-	cout << "\n\n";
+//	PrintMatrixDouble(C1PlaintextCRTDoubleInverse);
+//	cout << "\n\n";
 
 	vector<Matrix<Plaintext>> C1P;
 	DecimalIncrement(C1PlaintextCRTDoubleInverse, C1PlaintextCRTDoubleInverse, params.PRECISIONDECIMALSIZE, params);
@@ -792,11 +791,11 @@ vector<double> GLMClientRescaleRegressor(GLMContext &context, pathList &path, gl
 
     Matrix<double> C1C2PlaintextCRTDouble (zeroAllocDouble, 1, numRegressors);
     ConvertUnsingedToSigned(numeratorC1C2CRT, C1C2PlaintextCRTDouble, primeList);
-	PrintMatrixDouble(C1C2PlaintextCRTDouble);
+//	PrintMatrixDouble(C1C2PlaintextCRTDouble);
 
     Matrix<double> C1C2Fixed(zeroAllocDouble, 1, numRegressors);
     DecimalDecrement(C1C2PlaintextCRTDouble, C1C2Fixed, params.PRECISIONDECIMALSIZE*2+params.PRECISIONDECIMALSIZEX, params);
-    PrintMatrixDouble(C1C2Fixed);
+//  PrintMatrixDouble(C1C2Fixed);
 
     vector<double> regResultRow;
     for(size_t i=0; i< C1C2Fixed.GetCols(); i++)
@@ -2309,7 +2308,7 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<BigInteger> &CLi
 		auto zeroPackingAlloc = [=]() { return cc[k]->MakePackedPlaintext({0}); };
 		Matrix<Plaintext> CPt (zeroPackingAlloc, CList.GetRows(), CList.GetCols());
 
-		cout << "Coeffs" << endl;
+//		cout << "Coeffs" << endl;
 
 		for(size_t i=0; i< CList.GetRows(); i++){
 			for(size_t j=0; j< CList.GetCols(); j++){
@@ -2318,7 +2317,7 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<BigInteger> &CLi
 
 				temp = CList(i, j);
 
-				cout << temp << endl;
+//				cout << temp << endl;
 
 				tempPushed = (temp.Mod(primeList[k])).ConvertToInt();
 

@@ -55,14 +55,16 @@ using namespace lbcrypto;
 //#define MEASURE_TIMING
 
 //#define NUM_THREAD 8
-//#define OMP_SERVER_SECTION1
-//#define OMP_SERVER_SECTION2
-//#define OMP_SERVER_SECTION3
-//
-//#define OMP_CLIENT_SECTION1
-//#define OMP_CLIENT_SECTION2
-//#define OMP_CLIENT_SECTION3
 
+#ifdef NUM_THREAD
+	#define OMP_SERVER_SECTION1
+	#define OMP_SERVER_SECTION2
+	#define OMP_SERVER_SECTION3
+
+	#define OMP_CLIENT_SECTION1
+	#define OMP_CLIENT_SECTION2
+	#define OMP_CLIENT_SECTION3
+#endif
 
 #ifdef MEASURE_TIMING
 struct timingParams{
