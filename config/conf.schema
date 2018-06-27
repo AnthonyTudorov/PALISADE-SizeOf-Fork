@@ -1,0 +1,72 @@
+{
+	"id": "http://palisade.njit.edu/schemas/config.json",
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Deployment Configuration",
+	"description" : "Configurations for a deployment of PALISADE",
+	"type": "object",
+	"properties": {
+		"tag": { "type": "string" },
+		"deployment": {
+			"type": "object",
+			"required": [ "controls" ],
+			"properties": {
+				"target": {
+					"type": "object",
+					"properties": {
+						"hw": { "type":"string" },
+						"clock": { "type":"string" },
+						"os": { "type":"string" },
+						"ncore": { "type":"string" },
+						"l2cache": { "type":"string" }
+					}
+				},
+				"controls": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "object",
+						"required": [ "m" ],
+						"properties": {
+        "xxx": {
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/simpleparms" }
+            ]
+        },
+							"scheme": { "type": "string" },
+							"m": { "type": "string" },
+							"q": { "type": "string" },
+							"ru": { "type": "string" },
+							"qbits": { "type": "string" },
+							"ntower": { "type": "string" },
+							"secfactor": { "type": "string" },
+							"lattice": { "type": "string" },
+							"math": { "type": "string" },
+							"parallel": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"seq": { "type": "string" },
+										"ncores": { "type": "string" }
+									}
+								}
+							}
+						}
+					}
+				}
+			 }
+		 }
+	},
+	"definitions": {
+		"simpleparms": {
+			"type": "object",
+			"required": ["m", "q", "p"],
+			"properties": {
+				"m": { "type":"string" },
+				"q": { "type":"string" },
+				"p": { "type":"string" }
+			}
+		}
+	}
+}

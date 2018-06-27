@@ -1,0 +1,58 @@
+{
+	tag: "description",
+	deployment : {
+		target : {
+			hw: "Intel Core i7-3520M",
+			clock: "2.90GHz",
+			os: "CentOS 14.04",
+			ncore: 16,
+			l2cache: 4096k
+		}
+		controls: [
+			{
+				scheme: LTV,
+				order: 2048,
+				q: 16800767
+				secfactor: 1.003,
+				lattice: Poly,
+				math: PALISADE,
+				parallel: {
+					[
+						{
+							seq: "Matrix::EvalMult,Poly::EvalMult",
+							ncores: 1
+						},
+						{
+							seq: "Poly:EvalMult",
+							ncores: 8
+						}
+					]
+				}
+			},
+			{
+				scheme: BFVrns,
+				order: 2048,
+				qbits: 32,
+				ntower: 7,
+				secfactor: 1.004
+				lattice: DCRTPoly,
+				math: NTL,
+				parallel: {
+					[
+						{
+							seq: "Matrix::EvalMult,Poly::EvalMult",
+							ncores: 2
+						},
+						{
+							seq: "Matrix::EvalMult",
+							ncores: 4
+						},
+						{
+							seq: "Poly:EvalMult",
+							ncores: 8
+						}
+					]
+				}
+			}
+		]
+}

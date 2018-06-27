@@ -1,0 +1,37 @@
+{
+	"tag": "demo1",
+	"deployment": {
+		"target": {
+			"hw": "Mac",
+			"clock": "faaaaast",
+			"os": "OS X 10.12",
+			"ncore": "8",
+			"l2cache": "big"
+		},
+		"controls":
+		[
+			{
+				"scheme": "LTV",
+				"m": "2048",
+				"q": "16800767",
+				"ru": "string",
+				"qbits": "string",
+				"ntower": "string",
+				"secfactor": "string",
+				"lattice": "Poly",
+				"math": "NTL",
+				"parallel":
+				[
+					{
+						"seq": "string",
+						"ncores": "string"
+					},
+					{
+						"seq": "string",
+						"ncores": "string"
+					}
+				]
+			}
+		]
+	 }
+}
