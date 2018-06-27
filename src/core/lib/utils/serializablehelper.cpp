@@ -124,7 +124,8 @@ bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileNam
 	FILE *fp = fopen(jsonFileName.c_str(), "r");
 	if( fp == 0 ) return false;
 
-	char readBuffer[131072];
+	const int bsiz = 131072;
+	char readBuffer[bsiz];
 	rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
 	serObj->ParseStream(is);
@@ -140,7 +141,7 @@ bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileNam
 		int st = (off-WIN);
 		st = st < 0 ? 0 : st;
 		int en = off + WIN;
-		en = en > sizeof(readBuffer) ? sizeof(readBuffer) : en;
+		en = en > bsiz ? bsiz : en;
 		for( int j = st; j < en ; j++ )
 			cerr << readBuffer[j];
 		cerr << endl;

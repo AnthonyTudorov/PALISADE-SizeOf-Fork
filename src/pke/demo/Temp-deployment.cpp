@@ -141,7 +141,7 @@ main(int argc, char *argv[])
 
 		const auto& dep = ser["deployment"];
 		const auto& ct = dep["controls"][0];
-		cout << dep["controls"][0]["scheme"] << endl;
+		cout << ct["scheme"] << endl;
 
 	}
 
