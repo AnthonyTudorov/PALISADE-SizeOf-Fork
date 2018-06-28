@@ -71,30 +71,31 @@ using namespace lbcrypto;
 
 #include "utils/schemavalidator.h"
 
-ostream& operator<<(ostream& out, const Value& v) {
+
+ostream& operator<<(ostream& out, const rapidjson::Value& v) {
 	switch( v.GetType() ) {
-	case kNullType:
+	case rapidjson::kNullType:
 		break;
 
-	case kFalseType:
+	case rapidjson::kFalseType:
 		out << "False";
 		break;
 
-	case kTrueType:
+	case rapidjson::kTrueType:
 		out << "True";
 		break;
 
 
-	case kObjectType:
-	case kArrayType:
+	case rapidjson::kObjectType:
+	case rapidjson::kArrayType:
 		out << " --- not supported --- ";
 		break;
 
-	case kStringType:
+	case rapidjson::kStringType:
 		out << v.GetString();
 		break;
 
-	case kNumberType:
+	case rapidjson::kNumberType:
 		out << v.GetInt();
 		break;
 	}
@@ -102,11 +103,12 @@ ostream& operator<<(ostream& out, const Value& v) {
 	return out;
 }
 
+
 int
 main(int argc, char *argv[])
 {
-	if( argc < 2 ) {
-		cout << "Usage is " << argv[0] << " schema [files-to-test]" << endl;
+	if( argc != 3 ) {
+		cout << "Usage is " << argv[0] << " schema deployment" << endl;
 		return 0;
 	}
 
@@ -118,32 +120,33 @@ main(int argc, char *argv[])
 
 	cout << "Parsed schema" << endl;
 
-	for( int i = 2; i < argc; i++ ) {
+	Serialized ser;
+	if( SerializableHelper::ReadSerializationFromFile(argv[2], &ser, true) == false )
+		return 0;
 
-		cout << argv[i] << ":" << endl;
+	SchemaValidator validator(schema);
+	if (!ser.Accept(validator)) {
+		// Input JSON is invalid according to the schema
+		// Output diagnostic information
 
-		Serialized ser;
-		if( SerializableHelper::ReadSerializationFromFile(argv[i], &ser, true) == false )
-			continue;
+		StringBuffer sb;
+		validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+		cout << "Schema: " << sb.GetString() << endl;
 
-		SchemaValidator validator(schema);
-		if (!ser.Accept(validator)) {
-		    // Input JSON is invalid according to the schema
-		    // Output diagnostic information
-		    StringBuffer sb;
-		    validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-		    cout << "Invalid schema " << sb.GetString() << endl;
-		    cout << "Invalid keyword " << validator.GetInvalidSchemaKeyword() << endl;
-		    sb.Clear();
-		    validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-		    cout << "Invalid document " << sb.GetString() << endl;
-		}
+		cout << "Invalid keyword " << validator.GetInvalidSchemaKeyword() << endl;
 
-		const auto& dep = ser["deployment"];
-		const auto& ct = dep["controls"][0];
-		cout << ct["scheme"] << endl;
+		sb.Clear();
+		validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+		cout << "Document " << sb.GetString() << endl;
 
+		return 0;
 	}
+
+	const auto& dep = ser["deployment"];
+	const auto& ct = dep["controls"][0];
+	cout << ct["scheme"].GetString() << endl;
+
+	CryptoContextHelper::ContextFromDeployment(ct);
 
 	return 0;
 }

@@ -8,20 +8,23 @@
 			"ncore": "8",
 			"l2cache": "big"
 		},
-		"controls":
-		[
+		"controls": [
 			{
 				"scheme": "LTV",
-				"m": "2048",
-				"q": "16800767",
-				"ru": "string",
+				"schemeparams": {
+					"simpleparams": {
+						"m": "2048",
+						"q": "16800767",
+						"ru": "string",
+						"p": "327"
+					}
+				},
 				"qbits": "string",
 				"ntower": "string",
 				"secfactor": "string",
 				"lattice": "Poly",
 				"math": "NTL",
-				"parallel":
-				[
+				"parallel": [
 					{
 						"seq": "string",
 						"ncores": "string"
@@ -33,5 +36,5 @@
 				]
 			}
 		]
-	 }
+	}
 }

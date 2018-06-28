@@ -148,4 +148,5 @@ bool SerializableHelper::ReadSerializationFromFile(const std::string jsonFileNam
 	}
 	return !serObj->HasParseError();
 }
+
 }

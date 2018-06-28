@@ -28,6 +28,7 @@
 
 #include "cryptocontext.h"
 #include "cryptocontexthelper.h"
+#include "utils/schemavalidator.h"
 #include "utils/parmfactory.h"
 #include "rapidjson/filewritestream.h"
 
@@ -299,6 +300,32 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 	}
 	return buildContextFromSerialized<DCRTPoly>(it->second, parms);
 }
+
+static CryptoContext<Poly>
+ContextGenerator_LTV(const rapidjson::Value& doc)
+{
+	const auto& sp = doc["schemaparms"];
+	cout << sp["m"].GetString() << endl;
+
+	return 0;
+}
+
+CryptoContext<Poly>
+CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
+{
+	const auto& dep = doc["deployment"];
+	const auto& ct = dep["controls"][0];
+	string sch = ct["scheme"].GetString();
+
+	if( sch == "LTV") {
+		return ContextGenerator_LTV(ct);
+	}
+	else {
+		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
+	}
+	return 0;
+}
+
 
 
 static void printSet(std::ostream& out, string key, map<string,string>& pset)

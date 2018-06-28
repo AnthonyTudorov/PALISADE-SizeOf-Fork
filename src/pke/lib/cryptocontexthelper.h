@@ -91,6 +91,8 @@ public:
 	 * @return newly constructed CryptoContext, or null on failure
 	 */
 	static CryptoContext<DCRTPoly> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
+
+	static CryptoContext<Poly> ContextFromDeployment(const rapidjson::Value& doc);
 };
 
 }

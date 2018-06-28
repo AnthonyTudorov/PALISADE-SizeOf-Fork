@@ -25,15 +25,18 @@
 					"minItems": 1,
 					"items": {
 						"type": "object",
-						"required": [ "m" ],
+						"required": [ "scheme", "schemeparms" ],
 						"properties": {
-        "xxx": {
-            "type": "object",
-            "oneOf": [
-                { "$ref": "#/definitions/simpleparms" }
-            ]
-        },
-							"scheme": { "type": "string" },
+ 							"scheme": {
+								"type": "string",
+								"enum": [ "LTV", "StSt", "BFV", "BFVrns", "BGV", "FV", "Null" ]
+							},
+        					"schemeparms": {
+            					"type": "object",
+            					"oneOf": [
+                					{ "$ref": "#/definitions/simpleparms" }
+ 								]
+        					},
 							"m": { "type": "string" },
 							"q": { "type": "string" },
 							"ru": { "type": "string" },
@@ -42,6 +45,10 @@
 							"secfactor": { "type": "string" },
 							"lattice": { "type": "string" },
 							"math": { "type": "string" },
+							"encoding": {
+								"type": "string",
+								"enum": [ "scalar", "integer", "fractional", "packed", "coefpacked", "string" ]
+							},
 							"parallel": {
 								"type": "array",
 								"items": {
@@ -61,10 +68,11 @@
 	"definitions": {
 		"simpleparms": {
 			"type": "object",
-			"required": ["m", "q", "p"],
+			"required": ["m", "q", "ru", "p"],
 			"properties": {
 				"m": { "type":"string" },
 				"q": { "type":"string" },
+				"ru": { "type": "string" },
 				"p": { "type":"string" }
 			}
 		}
