@@ -103,12 +103,13 @@ ostream& operator<<(ostream& out, const rapidjson::Value& v) {
 	return out;
 }
 
+// configurator
 
 int
 main(int argc, char *argv[])
 {
-	if( argc != 3 ) {
-		cout << "Usage is " << argv[0] << " schema deployment" << endl;
+	if( argc != 4 ) {
+		cout << "Usage is " << argv[0] << " config-schema app-profile serialized-output" << endl;
 		return 0;
 	}
 
@@ -118,7 +119,7 @@ main(int argc, char *argv[])
 
 	SchemaDocument schema(sch);
 
-	cout << "Parsed schema" << endl;
+	cout << "Parsed config-schema" << endl;
 
 	Serialized ser;
 	if( SerializableHelper::ReadSerializationFromFile(argv[2], &ser, true) == false )
@@ -142,11 +143,21 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
+	cout << "Validated app-profile" << endl;
+
 	const auto& dep = ser["deployment"];
-	const auto& ct = dep["controls"][0];
+	const auto& ct = dep["controls"];
 	cout << ct["scheme"].GetString() << endl;
 
-	CryptoContextHelper::ContextFromDeployment(ct);
+	CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ct);
+
+	Serialized outSer;
+	cc->Serialize(&outSer);
+
+	if( SerializableHelper::WriteSerializationToFile(outSer, argv[3]) == false )
+		return 0;
+
+	cout << "Completed serialized-output... Done!" << endl;
 
 	return 0;
 }

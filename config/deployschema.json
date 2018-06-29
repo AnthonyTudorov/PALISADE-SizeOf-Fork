@@ -21,30 +21,30 @@
 					}
 				},
 				"controls": {
-					"type": "array",
-					"minItems": 1,
-					"items": {
 						"type": "object",
-						"required": [ "scheme", "schemeparms" ],
+						"required": [ "scheme", "confset", "lattice", "math", "encoding" ],
 						"properties": {
  							"scheme": {
 								"type": "string",
 								"enum": [ "LTV", "StSt", "BFV", "BFVrns", "BGV", "FV", "Null" ]
 							},
-        					"schemeparms": {
-            					"type": "object",
-            					"oneOf": [
-                					{ "$ref": "#/definitions/simpleparms" }
- 								]
-        					},
-							"m": { "type": "string" },
-							"q": { "type": "string" },
-							"ru": { "type": "string" },
-							"qbits": { "type": "string" },
+							"confset": {
+            						"type": "object",
+								"oneOf": [
+									{ "$ref": "#/definitions/MQP" },
+									{ "$ref": "#/definitions/MQbitsP" },
+									{ "$ref": "#/definitions/MQgen" }
+								]
+							},
 							"ntower": { "type": "string" },
 							"secfactor": { "type": "string" },
-							"lattice": { "type": "string" },
-							"math": { "type": "string" },
+							"lattice": {
+								"type": "string",
+								"enum": [ "Poly", "DCRT", "Native" ]
+							},
+							"math": {
+								"type": "string"
+							},
 							"encoding": {
 								"type": "string",
 								"enum": [ "scalar", "integer", "fractional", "packed", "coefpacked", "string" ]
@@ -60,21 +60,46 @@
 								}
 							}
 						}
-					}
 				}
 			 }
 		 }
 	},
-	"definitions": {
-		"simpleparms": {
-			"type": "object",
-			"required": ["m", "q", "ru", "p"],
-			"properties": {
-				"m": { "type":"string" },
-				"q": { "type":"string" },
-				"ru": { "type": "string" },
-				"p": { "type":"string" }
-			}
-		}
-	}
+        "definitions": {
+                "MQP": {
+                        "type": "object",
+                        "required": ["type", "m", "q", "p"],
+                        "properties": {
+								"type": { "enum": ["MQP"] },
+								"m": { "type":"string" },
+								"q": { "type":"string" },
+								"ru": { "type": "string" },
+								"p": { "type":"string" }
+                        }
+                },
+                "MQbitsP": {
+                        "type": "object",
+                        "required": ["type", "m", "qbits", "p"],
+                        "properties": {
+								"type": { "enum": ["MQbitsP"] },
+								"m": { "type":"string" },
+								"qbits": { "type":"string" },
+								"p": { "type":"string" }
+                        }
+                },
+                "MQgen": {
+                			"type": "object",
+                			"required": ["type", "secLevel", "numAdds", "numMults", "numKS", "p", "relinWindow", "dist", "qbits"],
+                			"properties": {
+								"type": { "enum": ["MQgen"] },
+                					"secLevel": { "type":"string" },
+                					"numAdds": { "type":"string" },
+                					"numMults": { "type":"string" },
+                					"numKS": { "type":"string" },
+								"p": { "type":"string" },
+								"relinWindow": { "type": "string" },
+								"dist": { "type": "string" },
+								"qbits": { "type":"string" }
+                			}
+                	}
+        }
 }

@@ -301,24 +301,125 @@ CryptoContextHelper::getNewDCRTContext(const string& parmset, usint numTowers, u
 	return buildContextFromSerialized<DCRTPoly>(it->second, parms);
 }
 
-static CryptoContext<Poly>
-ContextGenerator_LTV(const rapidjson::Value& doc)
-{
-	const auto& sp = doc["schemaparms"];
-	cout << sp["m"].GetString() << endl;
-
-	return 0;
+template<typename Element>
+shared_ptr<LPPublicKeyEncryptionScheme<Element>>
+CreateSchemeGivenName(const string& schemeName) {
+	if( schemeName == "BFV" )
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeBFV<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrns<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsB<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBGV<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeLElementV<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeNull<Element>() );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFV<Element>());
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrns<Element>());
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsB<Element>());
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBGV<Element>());
+	else if( schemeName == "LTV" )
+		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>());
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
+//	};
+//
+//	return SchemeFromName[schemeName];
+	else
+		return 0;
 }
 
-CryptoContext<Poly>
+template<typename Element>
+CryptoContext<Element>
 CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
 {
-	const auto& dep = doc["deployment"];
-	const auto& ct = dep["controls"][0];
-	string sch = ct["scheme"].GetString();
+	string sch = doc["scheme"].GetString();
+	const auto& cs = doc["confset"];
+	string setType = cs["type"].GetString();
+	string latType = doc["lattice"].GetString();
 
-	if( sch == "LTV") {
-		return ContextGenerator_LTV(ct);
+	usint m;
+	string q, ru;
+	PlaintextModulus p;
+
+	float secLevel;
+	usint nA, nM, nK;
+	usint qbits;
+	usint relinWindow;
+	float stdev;
+
+	// an MQP confset specifies all 4 of these
+	if( setType == "MQP" ) {
+		m = stoul( cs["m"].GetString() );
+		q = cs["q"].GetString();
+		if( cs.HasMember("ru") )
+			ru = cs["ru"].GetString();
+		p = stoul( cs["p"].GetString() );
+
+		cout << m << endl;
+		cout << q << endl;
+		cout << p << endl;
+		return 0;
+	}
+	else if( setType == "MqbitsP" ) {
+		m = stoul( cs["m"].GetString() );
+		qbits = stoul( cs["qbits"].GetString() );
+		p = stoul( cs["p"].GetString() );
+
+		// make a prime q of at least qbits in size
+		cout << m << endl;
+		cout << qbits << endl;
+		cout << p << endl;
+		return 0;
+	}
+	else if( setType == "MQgen" ){
+			secLevel = stof( cs["secLevel"].GetString() );
+			nA = stoul( cs["numAdds"].GetString() );
+			nM = stoul( cs["numMults"].GetString() );
+			nK = stoul( cs["numKS"].GetString() );
+			p = stoul( cs["p"].GetString() );
+			qbits = stoul( cs["qbits"].GetString() );
+			relinWindow = stoul( cs["relinWindow"].GetString() );
+			stdev = stof( cs["dist"].GetString() );
+	}
+	else {
+		return 0;
+	}
+
+//	// compute the root of unity if you don't have it
+//	if( ru.size() == 0 ) {
+//
+//	}
+
+//	usint relinWindow = stoul( doc["relinWindow"].GetString() );
+//	float stdev = stof( doc["stdev"].GetString() );
+
+//	shared_ptr<typename Element::Params> parms( new typename Poly::Params(m, q, ru) );
+//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = CreateSchemeGivenName<Element>( sch );
+
+//	if( sch == "LTV") {
+//		shared_ptr<LPCryptoParametersLTV<Element>> cparms(
+//				new LPCryptoParametersLTV<Element>(
+//					parms,
+//					p,
+//					stdev,
+//					9.0, // assurance
+//					1.006, // security level
+//					relinWindow,
+//					1)); // depth
+//
+////		if( scheme->ParamsGen(params, numAdds, numMults, numKeyswitches) == false )
+////			return 0;
+//
+//		return CryptoContextFactory<Element>::GetContext(cparms, scheme);
+//		//return CryptoContextFactory<Element>::genCryptoContextLTV(parms, p, relinWindow, stdev);
+//
+////	return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
+////			stoul(relinWindow), stof(stDev));
+////
+////		return ContextGenerator_LTV(doc);
+//	}
+////	else if( sch == "StSt" ) {
+////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
+////	}
+	if( sch == "BFVrns" ) {
+		return CryptoContextFactory<Element>::genCryptoContextBFVrns(p, secLevel, stdev, nA, nM, nK, OPTIMIZED, 2, relinWindow, qbits);
 	}
 	else {
 		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
@@ -326,6 +427,8 @@ CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
 	return 0;
 }
 
+template CryptoContext<Poly> CryptoContextHelper::ContextFromDeployment<Poly>(const rapidjson::Value&);
+template CryptoContext<DCRTPoly> CryptoContextHelper::ContextFromDeployment<DCRTPoly>(const rapidjson::Value&);
 
 
 static void printSet(std::ostream& out, string key, map<string,string>& pset)

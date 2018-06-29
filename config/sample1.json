@@ -8,22 +8,23 @@
 			"ncore": "8",
 			"l2cache": "big"
 		},
-		"controls": [
+		"controls":
 			{
-				"scheme": "LTV",
-				"schemeparams": {
-					"simpleparams": {
-						"m": "2048",
-						"q": "16800767",
-						"ru": "string",
-						"p": "327"
-					}
+				"scheme": "BFVrns",
+				"confset": {
+						"type": "MQgen",
+                			"secLevel": "1.004",
+                			"numAdds": "0",
+                			"numMults": "1",
+                			"numKS": "0",
+						"p": "8192",
+						"relinWindow": "30",
+						"dist": "3.19",
+						"qbits": "60"
 				},
-				"qbits": "string",
-				"ntower": "string",
-				"secfactor": "string",
 				"lattice": "Poly",
 				"math": "NTL",
+				"encoding": "coefpacked",
 				"parallel": [
 					{
 						"seq": "string",
@@ -35,6 +36,5 @@
 					}
 				]
 			}
-		]
 	}
 }

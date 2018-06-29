@@ -92,7 +92,8 @@ public:
 	 */
 	static CryptoContext<DCRTPoly> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
 
-	static CryptoContext<Poly> ContextFromDeployment(const rapidjson::Value& doc);
+	template<typename Element>
+	static CryptoContext<Element> ContextFromDeployment(const rapidjson::Value& doc);
 };
 
 }

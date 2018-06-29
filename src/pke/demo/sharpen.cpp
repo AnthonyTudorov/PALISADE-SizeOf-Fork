@@ -52,11 +52,52 @@ using namespace lbcrypto;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void Sharpen();
-void KeyGen();
-void Encrypt(size_t size);
-void Evaluate(size_t size);
-void Decrypt(size_t size);
+void Sharpen(CryptoContext<DCRTPoly> cc, size_t size);
+void KeyGen(CryptoContext<DCRTPoly> cc);
+void Encrypt(CryptoContext<DCRTPoly> cc, size_t size);
+void Evaluate(CryptoContext<DCRTPoly> cc, size_t size);
+void Decrypt(CryptoContext<DCRTPoly> cc, size_t size);
+
+#define PROFILE
+
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
+{
+
+	std::cout << "Deserializing the crypto context...";
+
+	Serialized	ccSer;
+	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
+		cerr << "Could not read the cryptocontext file" << endl;
+		return 0;
+	}
+
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+
+	cc->Enable(ENCRYPTION|SHE);
+
+	std::cout << "Completed" << std::endl;
+
+	return cc;
+}
+
+
+void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName)
+{
+
+	Serialized	emSer, esSer;
+
+	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
+		cerr << "Could not read the eval mult key file" << endl;
+		return;
+	}
+
+	if( cc->DeserializeEvalMultKey(emSer) == false ) {
+		cerr << "Could not deserialize the eval mult key file" << endl;
+		return;
+	}
+
+	std::cout << "Completed" << std::endl;
+}
 
 int main(int argc, char **argv) {
 
@@ -75,16 +116,18 @@ int main(int argc, char **argv) {
 		{"decrypt",   no_argument,     &operation_flag, 4},
 		/* These options don�t set a flag.
 		   We distinguish them by their indices. */
-		{"size",  	required_argument, 			0, 's'},
-		{"help",    no_argument, 0, 'h'},
+		{"deployment",	required_argument,	0, 'd'},
+		{"size",			required_argument,	0, 's'},
+		{"help",			no_argument,			0, 'h'},
 		{0, 0, 0, 0}
 	  };
 	/* getopt_long stores the option index here. */
 	int option_index = 0;
 
 	size_t size = 0;
+	string file;
 
-	while ((opt = getopt_long(argc, argv, "s:h", long_options, &option_index)) != -1) {
+	while ((opt = getopt_long(argc, argv, "s:d:h", long_options, &option_index)) != -1) {
 		switch (opt)
 		{
 			case 0:
@@ -94,34 +137,40 @@ int main(int argc, char **argv) {
 			case 's':
 				size = stoi(optarg);
 				break;
+			case 'd':
+				file = string(optarg);
+				break;
 			case 'h':
 			default: /* '?' */
 			  std::cerr<< "Usage: "<<argv[0]<<" <arguments> " <<std::endl
 				   << "arguments:" <<std::endl
 				   << "  --run simple run w/o serialization" <<std::endl
 				   << "  --keygen --encrypt --evaluate --decrypt operation to run" <<std::endl
-				   << "  -s --size size of the image"  <<std::endl
+				   << "  -d --deployment SPEC "
+				   << "  -s --size SIZE size of the image"  <<std::endl
 				   << "  -h --help prints this message" <<std::endl;
 			  exit(EXIT_FAILURE);
 		}
 	}
 
+	auto cc = DeserializeContext(file);
+
 	switch(operation_flag)
 	{
 		case 0:
-			Sharpen();
+			Sharpen(cc, size);
 			break;
 		case 1:
-			KeyGen();
+			KeyGen(cc);
 			break;
 		case 2:
-			Encrypt(size);
+			Encrypt(cc, size);
 			break;
 		case 3:
-			Evaluate(size);
+			Evaluate(cc, size);
 			break;
 		case 4:
-			Decrypt(size);
+			Decrypt(cc, size);
 			break;
 		default:
 			exit(EXIT_FAILURE);
@@ -133,56 +182,7 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#define PROFILE
-
-CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
-{
-
-	std::cout << "Deserializing the crypto context...";
-
-	Serialized	ccSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
-		cerr << "Could not read the cryptocontext file" << endl;
-		return 0;
-	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-
-	std::cout << "Completed" << std::endl;
-
-	return cc;
-}
-
-
-CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName, const string& emFileName)
-{
-
-	std::cout << "Deserializing the crypto context...";
-
-	Serialized	ccSer, emSer, esSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
-		cerr << "Could not read the cryptocontext file" << endl;
-		return 0;
-	}
-
-	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
-		cerr << "Could not read the eval mult key file" << endl;
-		return 0;
-	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-
-	if( cc->DeserializeEvalMultKey(emSer) == false ) {
-		cerr << "Could not deserialize the eval mult key file" << endl;
-		return 0;
-	}
-
-	std::cout << "Completed" << std::endl;
-
-	return cc;
-}
-
-void KeyGen() {
+void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	TimeVar t1, t_total; //for TIC TOC
 
@@ -190,25 +190,25 @@ void KeyGen() {
 
 	double timeKeyGen(0.0), timeSer(0.0), timeTotal(0.0);
 
-	usint ptm = 8192;
-	double sigma = 3.19;
-	double rootHermiteFactor = 1.004;
-
-	std::cout << "Generating parameters...";
-
-	//Set Crypto Parameters
-	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
-
-	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
-
-	// enable features that you wish to use
-	cryptoContext->Enable(ENCRYPTION);
-	cryptoContext->Enable(SHE);
-
-	std::cout << "Completed" << std::endl;
+//	usint ptm = 8192;
+//	double sigma = 3.19;
+//	double rootHermiteFactor = 1.004;
+//
+//	std::cout << "Generating parameters...";
+//
+//	//Set Crypto Parameters
+//	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+//			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
+//
+//	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+//	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+//	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+//
+//	// enable features that you wish to use
+//	cryptoContext->Enable(ENCRYPTION);
+//	cryptoContext->Enable(SHE);
+//
+//	std::cout << "Completed" << std::endl;
 
 	std::cout << "Generating keys...";
 
@@ -217,8 +217,8 @@ void KeyGen() {
 
 	TIC(t1);
 
-	kp = cryptoContext->KeyGen();
-	cryptoContext->EvalMultKeyGen(kp.secretKey);
+	kp = cc->KeyGen();
+	cc->EvalMultKeyGen(kp.secretKey);
 
 	timeKeyGen = TOC(t1);
 
@@ -226,22 +226,22 @@ void KeyGen() {
 
 	TIC(t1);
 
-	std::cout << "Serializing crypto context...";
-
-	Serialized ctxt;
-
-	if (cryptoContext->Serialize(&ctxt)) {
-		if (!SerializableHelper::WriteSerializationToFile(ctxt, "demoData/cryptocontext.txt")) {
-			cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
-			return;
-		}
-	}
-	else {
-		cerr << "Error serializing the crypto context" << endl;
-		return;
-	}
-
-	std::cout << "Completed" << std::endl;
+//	std::cout << "Serializing crypto context...";
+//
+//	Serialized ctxt;
+//
+//	if (cryptoContext->Serialize(&ctxt)) {
+//		if (!SerializableHelper::WriteSerializationToFile(ctxt, "demoData/cryptocontext.txt")) {
+//			cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
+//			return;
+//		}
+//	}
+//	else {
+//		cerr << "Error serializing the crypto context" << endl;
+//		return;
+//	}
+//
+//	std::cout << "Completed" << std::endl;
 
 	std::cout << "Serializing private and public keys...";
 
@@ -277,7 +277,7 @@ void KeyGen() {
 
 	Serialized emKeys;
 
-	if (cryptoContext->SerializeEvalMultKey(&emKeys)) {
+	if (cc->SerializeEvalMultKey(&emKeys)) {
 		if (!SerializableHelper::WriteSerializationToFile(emKeys, "demoData/EVALMULT.txt")) {
 			cerr << "Error writing serialization of the eval mult key" << endl;
 			return;
@@ -301,7 +301,7 @@ void KeyGen() {
 
 }
 
-void Encrypt(size_t size) {
+void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	TimeVar t1, t_total; //for TIC TOC
 
@@ -311,8 +311,6 @@ void Encrypt(size_t size) {
 
 	TIC(t1);
 
-	CryptoContext<DCRTPoly> cryptoContext = DeserializeContext("demoData/cryptocontext.txt");
-
 	string pubKeyLoc = "demoData/PUB.txt";
 	Serialized kser;
 	if(SerializableHelper::ReadSerializationFromFile(pubKeyLoc, &kser) == false) {
@@ -321,25 +319,17 @@ void Encrypt(size_t size) {
 	}
 
 	// Initialize the public key containers.
-	LPPublicKey<DCRTPoly> pk = cryptoContext->deserializePublicKey(kser);
+	LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(kser);
 
 	timeSer = TOC(t1);
 
 	// Read the image file
 	int width, height, bpp;
 
-	/*char path[] = "";
-	sprintf(path,"demoData/Baboon%lu.png",(long unsigned int)size);
-	unsigned char* data = stbi_load( path, &width, &height, &bpp, 1 );*/
-
 	string path = "demoData/Baboon" + to_string(size) + ".png";
 	const char *pathc = path.c_str();
 
 	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
-	cout << width << "," << height << "," << bpp << endl;
-
-	string path2 = "demoData/Baboon" + to_string(size) + "COPY.png";
-	stbi_write_png(path2.c_str(), width, height, 1, data, width*1);
 
 	std::cout << "Input 2D array" << std::endl;
 
@@ -347,12 +337,12 @@ void Encrypt(size_t size) {
 
 	for(int i = 0; i < height; i++)
 	{
-		std::cout << " [ ";
+//		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
-			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
-			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)data[i*width + k]));
+//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
+			plaintext[i].push_back(cc->MakeFractionalPlaintext( (unsigned int)data[i*width + k]));
 		}
-		std::cout << " ] " << std::endl;
+//		std::cout << " ] " << std::endl;
 	}
 
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
@@ -362,7 +352,7 @@ void Encrypt(size_t size) {
 		vector<Ciphertext<DCRTPoly>> imageRow(width);
 		for(int k = 0; k < width; k++) {
 			TIC(t1);
-			imageRow[k] = cryptoContext->Encrypt(pk, plaintext[i][k]);
+			imageRow[k] = cc->Encrypt(pk, plaintext[i][k]);
 			timeEnc += TOC(t1);
 
 			TIC(t1);
@@ -400,7 +390,7 @@ void Encrypt(size_t size) {
 
 }
 
-void Evaluate(size_t size)
+void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 {
 
 	TimeVar t1, t_total; //for TIC TOC
@@ -411,7 +401,7 @@ void Evaluate(size_t size)
 
 	TIC(t1);
 
-    CryptoContext<DCRTPoly> cryptoContext = DeserializeContextWithEvalKeys("demoData/cryptocontext.txt","demoData/EVALMULT.txt");
+    DeserializeEvalKeys(cc, "demoData/EVALMULT.txt");
 
     int height = size;
     int width = size;
@@ -435,7 +425,7 @@ void Evaluate(size_t size)
 					return;
 				}
 
-			Ciphertext<DCRTPoly> ct = cryptoContext->deserializeCiphertext(kser);
+			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
 			if(ct == NULL) {
 				cerr << "Could not deserialize ciphertext" << endl;
 				return;
@@ -462,7 +452,7 @@ void Evaluate(size_t size)
 	for(int i = 0; i < (int)weightsRaw.size(); i++)
 	{
 		for(int k = 0; k < (int)weightsRaw[0].size(); k++) {
-			weight[i].push_back(cryptoContext->MakeFractionalPlaintext(weightsRaw[i][k]));
+			weight[i].push_back(cc->MakeFractionalPlaintext(weightsRaw[i][k]));
 		}
 	}
 
@@ -478,12 +468,12 @@ void Evaluate(size_t size)
 			{
 				for(int j = -1; j < 2; j++) {
 					if (pixel_value == NULL)
-						pixel_value = cryptoContext->EvalMult(image[x+i][y+j],weight[i+1][j+1]);
+						pixel_value = cc->EvalMult(image[x+i][y+j],weight[i+1][j+1]);
 					else
-						pixel_value = cryptoContext->EvalAdd(pixel_value,cryptoContext->EvalMult(image[x+i][y+j],weight[i+1][j+1]));
+						pixel_value = cc->EvalAdd(pixel_value,cc->EvalMult(image[x+i][y+j],weight[i+1][j+1]));
 				}
 			}
-			image2[x][y] = cryptoContext->EvalSub(image[x][y],cryptoContext->EvalRightShift(pixel_value,truncatedBits));
+			image2[x][y] = cc->EvalSub(image[x][y],cc->EvalRightShift(pixel_value,truncatedBits));
 
 		}
 	}
@@ -537,7 +527,7 @@ void Evaluate(size_t size)
 
 }
 
-void Decrypt(size_t size) {
+void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	TimeVar t1, t_total; //for TIC TOC
 
@@ -546,8 +536,6 @@ void Decrypt(size_t size) {
 	double timeDec(0.0), timeSer(0.0), timeTotal(0.0);
 
 	TIC(t1);
-
-	CryptoContext<DCRTPoly> cryptoContext = DeserializeContext("demoData/cryptocontext.txt");
 
     int height = size;
     int width = size;
@@ -560,7 +548,7 @@ void Decrypt(size_t size) {
 	}
 
 	// Initialize the public key containers.
-	LPPrivateKey<DCRTPoly> sk = cryptoContext->deserializeSecretKey(kser);
+	LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(kser);
 
     std::cout << "Deserializing ciphertexts..." ;
 
@@ -579,7 +567,7 @@ void Decrypt(size_t size) {
 					return;
 				}
 
-			Ciphertext<DCRTPoly> ct = cryptoContext->deserializeCiphertext(kser);
+			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
 			if(ct == NULL) {
 				cerr << "Could not deserialize ciphertext" << endl;
 				return;
@@ -607,7 +595,7 @@ void Decrypt(size_t size) {
 	{
 		result[i] = vector<Plaintext>(width);
 		for(int k = 0; k < width; k++) {
-			cryptoContext->Decrypt(sk, image2[i][k],&result[i][k]);
+			cc->Decrypt(sk, image2[i][k],&result[i][k]);
 		}
 	}
 
@@ -628,34 +616,8 @@ void Decrypt(size_t size) {
 		}
 	}
 
-//	for(int i = 0; i < height; i++)
-//	{
-//		std::cout << " [ ";
-//		for(int k = 0; k < width; k++) {
-//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
-//			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
-//		}
-//		std::cout << " ] " << std::endl;
-//	}
 	stbi_write_png( pathc, width, height, 1, data, width*1 );
 	delete[] data;
-
-	cout << width << "," << height << endl;
-	std::cout << "The result is" << std::endl;
-
-	for(int i = 0; i < height; i++)
-	{
-		std::cout << " [ ";
-		for(int k = 0; k < width; k++) {
-			std::cout << result[i][k] << " ";
-		}
-		std::cout << " ] " << std::endl;
-		std::cout << " [ ";
-		for(int k = 0; k < width; k++) {
-			std::cout << (result[i][k]->GetIntegerValue() & 0xff) << " ";
-		}
-		std::cout << " ] " << std::endl;
-	}
 
 	timeTotal = TOC(t_total);
 
@@ -666,51 +628,38 @@ void Decrypt(size_t size) {
 
 }
 
-void Sharpen() {
+void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	std::cout << "\n===========SHARPENING DEMO===============: " << std::endl;
 
 	std::cout << "\nThis code demonstrates the implementation of 8-neighbor Laplacian image sharpening algorithm using BFVrns. " << std::endl;
 
-	usint ptm = 8192;
-	double sigma = 3.19;
-	double rootHermiteFactor = 1.004;
-
-	//Set Crypto Parameters
-	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
-
-	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
-
-	// enable features that you wish to use
-	cryptoContext->Enable(ENCRYPTION);
-	cryptoContext->Enable(SHE);
-
 	// Key generation
 	LPKeyPair<DCRTPoly> keyPair;
 
-	keyPair = cryptoContext->KeyGen();
-	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+	keyPair = cc->KeyGen();
+	cc->EvalMultKeyGen(keyPair.secretKey);
 
 	size_t truncatedBits = 1;
 
 	// Read the image file
 	int width, height, bpp;
-	unsigned char* data = stbi_load( "demoData/Baboon8.png", &width, &height, &bpp, 1 );
+
+	string path = "demoData/Baboon" + to_string(size) + ".png";
+	const char *pathc = path.c_str();
+
+	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
 
 	vector<vector<Plaintext>> plaintext(height);
 
 	for(int i = 0; i < height; i++)
 	{
-		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
-			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
-			plaintext[i].push_back(cryptoContext->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
+			plaintext[i].push_back(cc->MakeFractionalPlaintext( (unsigned int)(unsigned char)data[i*width + k]));
 		}
-		std::cout << " ] " << std::endl;
 	}
+
+	delete[] data;
 
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
@@ -718,7 +667,7 @@ void Sharpen() {
 	{
 		vector<Ciphertext<DCRTPoly>> imageRow(width);
 		for(int k = 0; k < width; k++) {
-			imageRow[k] = cryptoContext->Encrypt(keyPair.publicKey, plaintext[i][k]);
+			imageRow[k] = cc->Encrypt(keyPair.publicKey, plaintext[i][k]);
 		}
 		image[i] = imageRow;
 	}
@@ -730,7 +679,7 @@ void Sharpen() {
 	for(int i = 0; i < (int)weightsRaw.size(); i++)
 	{
 		for(int k = 0; k < (int)weightsRaw[0].size(); k++) {
-			weight[i].push_back(cryptoContext->MakeFractionalPlaintext(weightsRaw[i][k]));
+			weight[i].push_back(cc->MakeFractionalPlaintext(weightsRaw[i][k]));
 		}
 	}
 
@@ -744,12 +693,12 @@ void Sharpen() {
 			{
 				for(int j = -1; j < 2; j++) {
 					if (pixel_value == NULL)
-						pixel_value = cryptoContext->EvalMult(image[x+i][y+j],weight[i+1][j+1]);
+						pixel_value = cc->EvalMult(image[x+i][y+j],weight[i+1][j+1]);
 					else
-						pixel_value = cryptoContext->EvalAdd(pixel_value,cryptoContext->EvalMult(image[x+i][y+j],weight[i+1][j+1]));
+						pixel_value = cc->EvalAdd(pixel_value,cc->EvalMult(image[x+i][y+j],weight[i+1][j+1]));
 				}
 			}
-			image2[x][y] = cryptoContext->EvalSub(image[x][y],cryptoContext->EvalRightShift(pixel_value,truncatedBits));
+			image2[x][y] = cc->EvalSub(image[x][y],cc->EvalRightShift(pixel_value,truncatedBits));
 		}
 	}
 
@@ -759,20 +708,24 @@ void Sharpen() {
 	{
 		result[i] = vector<Plaintext>(width);
 		for(int k = 0; k < width; k++) {
-			cryptoContext->Decrypt(keyPair.secretKey, image2[i][k],&result[i][k]);
+			cc->Decrypt(keyPair.secretKey, image2[i][k],&result[i][k]);
 		}
 	}
 
-	std::cout << "The result is" << std::endl;
-
+	path = "demoData/Baboon" + to_string(size) + "OUT.png";
+	pathc = path.c_str();
+	data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)
 	{
-		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
-			std::cout << result[i][k] << " ";
+			auto v = result[i][k]->GetIntegerValue();
+			if( v < 0 ) v = 0;
+			else if( v > 0xff ) v = 0xff;
+			data[i*width + k] = v;
 		}
-		std::cout << " ] " << std::endl;
 	}
 
+	stbi_write_png( pathc, width, height, 1, data, width*1 );
+	delete[] data;
 }
 
