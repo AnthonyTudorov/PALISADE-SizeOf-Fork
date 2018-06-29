@@ -55,6 +55,7 @@ void usage() {
 	cout << "-null  --  use the null scheme" << endl;
 	cout << "-printall  --  prints value of every node after evaluation" << endl;
 	cout << "-otrace -- verbose details about the operations" << endl;
+	cout << "-ap -- generate application profile and stop" << endl;
 	cout << "-h  --  this message" << endl;
 }
 
@@ -77,6 +78,7 @@ main(int argc, char *argv[])
 	bool print_all_flag = false;
 	bool print_context_flag = false;
 	bool use_null = false;
+	bool gen_app_profile = false;
 
 	ofstream contextF;
 	ostream *ctxStr = &cout;
@@ -110,6 +112,9 @@ main(int argc, char *argv[])
 
 		if( arg == "-d" ) {
 			debug_parse = true;
+		}
+		else if( arg == "-ap" ) {
+			gen_app_profile = true;
 		}
 		else if( arg == "-otrace" ){
 			lbcrypto::CircuitOpTrace = true;
@@ -223,9 +228,11 @@ main(int argc, char *argv[])
 			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
 			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
 
-	std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cc->GetRingDimension() << std::endl;
-	std::cout << "log2 q = " << log2(cc->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	if( verbose ) {
+		std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+		std::cout << "n = " << cc->GetRingDimension() << std::endl;
+		std::cout << "log2 q = " << log2(cc->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	}
 
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -290,6 +297,22 @@ main(int argc, char *argv[])
 		if( procGF.is_open() )
 			procGF.close();
 	}
+
+	auto quot = [] (string s) { return "\"" + s + "\""; };
+	if( gen_app_profile ) {
+		cout << quot( "confset" ) << ": {"
+				<< quot("type") << ":" << quot("MQgen") << ","
+				<< quot("secLevel") << ":" << quot("1.004") << ","
+				<< quot("numAdds") << ":" << quot("0") << ","
+				<< quot("numMults") << ": \"" << cir.GetGraph().GetMaximumDepth() << "\","
+				<< quot("numKS") << ":" << quot("0") << ","
+				<< quot("p") << ":" << quot("8192") << ","
+				<< quot("relinWindow") << ":" << quot("30") << ","
+				<< quot("dist") << ":" << quot("3.19") << ","
+				<< quot("qbits") << ":" << quot("60") << "}";
+		return 0;
+	}
+
 
 	// to do estimates we need to know what functions we called; write them out and finish up
 	if( evaluation_list_mode ) {
@@ -429,12 +452,6 @@ main(int argc, char *argv[])
 	if( print_all_flag ) {
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
 			cout << "For node " << node.first << " Value: " << node.second->getValue() << " runtime " << node.second->GetRuntimeActual() << endl;
-		}
-	}
-
-	if( print_all_flag ) {
-		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			cout << "For node " << node.first << " Value: " << node.second->getValue() << endl;
 		}
 	}
 

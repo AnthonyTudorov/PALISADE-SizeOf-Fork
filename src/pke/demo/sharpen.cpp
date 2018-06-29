@@ -628,17 +628,24 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 }
 
+enum Stages {KEYGEN, ENCRYPT, EVALUATE, DECRYPT};
+
 void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
-	std::cout << "\n===========SHARPENING DEMO===============: " << std::endl;
+	TimeVar times[10], t_total; //for TIC TOC
+	double timeResult[10];
 
-	std::cout << "\nThis code demonstrates the implementation of 8-neighbor Laplacian image sharpening algorithm using BFVrns. " << std::endl;
+	TIC(t_total);
+
+	TIC(times[KEYGEN]);
 
 	// Key generation
 	LPKeyPair<DCRTPoly> keyPair;
 
 	keyPair = cc->KeyGen();
 	cc->EvalMultKeyGen(keyPair.secretKey);
+
+	timeResult[KEYGEN] = TOC(times[KEYGEN]);
 
 	size_t truncatedBits = 1;
 
@@ -661,6 +668,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	delete[] data;
 
+	TIC(times[ENCRYPT]);
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
 	for(int i = 0; i < height; i++)
@@ -671,6 +679,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 		}
 		image[i] = imageRow;
 	}
+	timeResult[ENCRYPT] = TOC(times[ENCRYPT]);
 
 	vector<vector<int>> weightsRaw = {{1, 1, 1}, {1, -8, 1}, {1, 1, 1}};
 
@@ -683,6 +692,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 		}
 	}
 
+	TIC(times[EVALUATE]);
 	vector<vector<Ciphertext<DCRTPoly>>> image2(image);
 
 	for(int x = 1; x < height-1; x++)
@@ -701,7 +711,9 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 			image2[x][y] = cc->EvalSub(image[x][y],cc->EvalRightShift(pixel_value,truncatedBits));
 		}
 	}
+	timeResult[EVALUATE] = TOC(times[EVALUATE]);
 
+	TIC(times[DECRYPT]);
 	vector<vector<Plaintext>> result(height);
 
 	for(int i = 0; i < height; i++)
@@ -711,6 +723,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 			cc->Decrypt(keyPair.secretKey, image2[i][k],&result[i][k]);
 		}
 	}
+	timeResult[DECRYPT] = TOC(times[DECRYPT]);
 
 	path = "demoData/Baboon" + to_string(size) + "OUT.png";
 	pathc = path.c_str();
@@ -727,5 +740,11 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	stbi_write_png( pathc, width, height, 1, data, width*1 );
 	delete[] data;
+
+	cout << "KEYGEN " << timeResult[KEYGEN] << endl;
+	cout << "ENCRYPT " << timeResult[ENCRYPT] << endl;
+	cout << "EVALUATE " << timeResult[EVALUATE] << endl;
+	cout << "DECRYPT " << timeResult[DECRYPT] << endl;
+
 }
 
