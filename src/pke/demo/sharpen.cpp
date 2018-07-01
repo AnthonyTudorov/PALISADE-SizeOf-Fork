@@ -23,9 +23,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- /*
+/*
 BFV RNS testing programs
-*/
+ */
 
 #include <iostream>
 #include <fstream>
@@ -60,8 +60,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size);
 
 #define PROFILE
 
-CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
-{
+CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 
 	std::cout << "Deserializing the crypto context...";
 
@@ -99,87 +98,103 @@ void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName)
 	std::cout << "Completed" << std::endl;
 }
 
+void usage(const string& msg)
+{
+	if( msg.length() > 0 )
+		cerr << msg << endl;
+	std::cerr<< "Usage: "<<std::endl
+			<< "arguments:" <<std::endl
+			<< "  --run simple run w/o serialization" <<std::endl
+			<< "  --keygen --encrypt --evaluate --decrypt operation to run" <<std::endl
+			<< "  -d --deployment SPEC " << endl
+			<< "  -s --size SIZE size of the image"  <<std::endl
+			<< "  -h --help prints this message" <<std::endl;
+	exit(EXIT_FAILURE);
+}
+
+string profile;
+
 int main(int argc, char **argv) {
 
 	static int operation_flag;
 	int opt;
 
 	static struct option long_options[] =
-	  {
-		/* These options set a flag. */
-		//{"verbose", no_argument,       &verbose_flag, 1},
-		//{"brief",   no_argument,       &verbose_flag, 0},
-		{"run", 	no_argument,       &operation_flag, 0},
-		{"keygen", 	no_argument,       &operation_flag, 1},
-		{"encrypt",   no_argument,     &operation_flag, 2},
-		{"evaluate",   no_argument,     &operation_flag, 3},
-		{"decrypt",   no_argument,     &operation_flag, 4},
-		/* These options don�t set a flag.
-		   We distinguish them by their indices. */
-		{"deployment",	required_argument,	0, 'd'},
-		{"size",			required_argument,	0, 's'},
-		{"help",			no_argument,			0, 'h'},
-		{0, 0, 0, 0}
-	  };
+	{
+			/* These options set a flag. */
+			//{"verbose", no_argument,       &verbose_flag, 1},
+			//{"brief",   no_argument,       &verbose_flag, 0},
+			{"run", 	no_argument,       &operation_flag, 0},
+			{"keygen", 	no_argument,       &operation_flag, 1},
+			{"encrypt",   no_argument,     &operation_flag, 2},
+			{"evaluate",   no_argument,     &operation_flag, 3},
+			{"decrypt",   no_argument,     &operation_flag, 4},
+
+			{"deployment",	required_argument,	0, 'd'},
+			{"size",			required_argument,	0, 's'},
+			{"help",			no_argument,			0, 'h'},
+			{0, 0, 0, 0}
+	};
 	/* getopt_long stores the option index here. */
 	int option_index = 0;
 
 	size_t size = 0;
-	string file;
 
 	while ((opt = getopt_long(argc, argv, "s:d:h", long_options, &option_index)) != -1) {
 		switch (opt)
 		{
-			case 0:
-				if (long_options[option_index].flag != 0)
-					break;
+		case 0:
+			if (long_options[option_index].flag != 0)
 				break;
-			case 's':
-				size = stoi(optarg);
-				break;
-			case 'd':
-				file = string(optarg);
-				break;
-			case 'h':
-			default: /* '?' */
-			  std::cerr<< "Usage: "<<argv[0]<<" <arguments> " <<std::endl
-				   << "arguments:" <<std::endl
-				   << "  --run simple run w/o serialization" <<std::endl
-				   << "  --keygen --encrypt --evaluate --decrypt operation to run" <<std::endl
-				   << "  -d --deployment SPEC "
-				   << "  -s --size SIZE size of the image"  <<std::endl
-				   << "  -h --help prints this message" <<std::endl;
-			  exit(EXIT_FAILURE);
+			break;
+		case 's':
+			size = stoi(optarg);
+			break;
+		case 'd':
+			profile = string(optarg);
+			break;
+		case 'h':
+		default: /* '?' */
+			usage("");
 		}
 	}
 
-	auto cc = DeserializeContext(file);
+	if( size == 0 || profile.length() == 0 )
+		usage("");
+
+	auto cc = DeserializeContext(profile);
 
 	switch(operation_flag)
 	{
-		case 0:
-			Sharpen(cc, size);
-			break;
-		case 1:
-			KeyGen(cc);
-			break;
-		case 2:
-			Encrypt(cc, size);
-			break;
-		case 3:
-			Evaluate(cc, size);
-			break;
-		case 4:
-			Decrypt(cc, size);
-			break;
-		default:
-			exit(EXIT_FAILURE);
+	case 0:
+		Sharpen(cc, size);
+		break;
+	case 1:
+		KeyGen(cc);
+		break;
+	case 2:
+		Encrypt(cc, size);
+		break;
+	case 3:
+		Evaluate(cc, size);
+		break;
+	case 4:
+		Decrypt(cc, size);
+		break;
+	default:
+		exit(EXIT_FAILURE);
 	}
 
 	//Sharpen();
 
 	//cin.get();
 	return 0;
+}
+
+void SaveSharpened(string profile, size_t size, int width, int height, unsigned char* data) {
+	string path = "Baboon" + to_string(size) + "-" + profile + "OUT.png";
+	const char *pathc = path.c_str();
+	stbi_write_png(pathc, width, height, 1, data, width * 1);
 }
 
 void KeyGen(CryptoContext<DCRTPoly> cc) {
@@ -190,25 +205,25 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	double timeKeyGen(0.0), timeSer(0.0), timeTotal(0.0);
 
-//	usint ptm = 8192;
-//	double sigma = 3.19;
-//	double rootHermiteFactor = 1.004;
-//
-//	std::cout << "Generating parameters...";
-//
-//	//Set Crypto Parameters
-//	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-//			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
-//
-//	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-//	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-//	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
-//
-//	// enable features that you wish to use
-//	cryptoContext->Enable(ENCRYPTION);
-//	cryptoContext->Enable(SHE);
-//
-//	std::cout << "Completed" << std::endl;
+	//	usint ptm = 8192;
+	//	double sigma = 3.19;
+	//	double rootHermiteFactor = 1.004;
+	//
+	//	std::cout << "Generating parameters...";
+	//
+	//	//Set Crypto Parameters
+	//	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+	//			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
+	//
+	//	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	//	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	//	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+	//
+	//	// enable features that you wish to use
+	//	cryptoContext->Enable(ENCRYPTION);
+	//	cryptoContext->Enable(SHE);
+	//
+	//	std::cout << "Completed" << std::endl;
 
 	std::cout << "Generating keys...";
 
@@ -226,32 +241,15 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	TIC(t1);
 
-//	std::cout << "Serializing crypto context...";
-//
-//	Serialized ctxt;
-//
-//	if (cryptoContext->Serialize(&ctxt)) {
-//		if (!SerializableHelper::WriteSerializationToFile(ctxt, "demoData/cryptocontext.txt")) {
-//			cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
-//			return;
-//		}
-//	}
-//	else {
-//		cerr << "Error serializing the crypto context" << endl;
-//		return;
-//	}
-//
-//	std::cout << "Completed" << std::endl;
-
 	std::cout << "Serializing private and public keys...";
 
-    if(kp.publicKey && kp.secretKey) {
+	if(kp.publicKey && kp.secretKey) {
 		Serialized pubK, privK;
 
 		if(kp.publicKey->Serialize(&pubK)) {
 			if(!SerializableHelper::WriteSerializationToFile(pubK, "demoData/PUB.txt")) {
-			cerr << "Error writing serialization of public key" << endl;
-			return;
+				cerr << "Error writing serialization of public key" << endl;
+				return;
 			}
 		} else {
 			cerr << "Error serializing public key" << endl;
@@ -260,8 +258,8 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 		if(kp.secretKey->Serialize(&privK)) {
 			if(!SerializableHelper::WriteSerializationToFile(privK, "demoData/PRI.txt")) {
-			cerr << "Error writing serialization of private key" << endl;
-			return;
+				cerr << "Error writing serialization of private key" << endl;
+				return;
 			}
 		} else {
 			cerr << "Error serializing private key" << endl;
@@ -330,6 +328,10 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 	const char *pathc = path.c_str();
 
 	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
+	if( data == NULL ) {
+		cerr << "There's no file for that size" << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	std::cout << "Input 2D array" << std::endl;
 
@@ -337,12 +339,12 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	for(int i = 0; i < height; i++)
 	{
-//		std::cout << " [ ";
+		//		std::cout << " [ ";
 		for(int k = 0; k < width; k++) {
-//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
+			//			std::cout << (unsigned int)(unsigned char)data[i*width+k] << " ";
 			plaintext[i].push_back(cc->MakeFractionalPlaintext( (unsigned int)data[i*width + k]));
 		}
-//		std::cout << " ] " << std::endl;
+		//		std::cout << " ] " << std::endl;
 	}
 
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
@@ -401,16 +403,16 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 	TIC(t1);
 
-    DeserializeEvalKeys(cc, "demoData/EVALMULT.txt");
+	DeserializeEvalKeys(cc, "demoData/EVALMULT.txt");
 
-    int height = size;
-    int width = size;
+	int height = size;
+	int width = size;
 
-    size_t truncatedBits = 1;
+	size_t truncatedBits = 1;
 
-    std::cout << "Deserializing ciphertexts..." ;
+	std::cout << "Deserializing ciphertexts..." ;
 
-    vector<vector<Ciphertext<DCRTPoly>>> image(height);
+	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
 	for(int i = 0; i < height; i++)
 	{
@@ -421,9 +423,9 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 			Serialized kser;
 			if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-					cerr << "Could not read ciphertext" << endl;
-					return;
-				}
+				cerr << "Could not read ciphertext" << endl;
+				return;
+			}
 
 			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
 			if(ct == NULL) {
@@ -537,8 +539,8 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	TIC(t1);
 
-    int height = size;
-    int width = size;
+	int height = size;
+	int width = size;
 
 	string privKeyLoc = "demoData/PRI.txt";
 	Serialized kser;
@@ -550,9 +552,9 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 	// Initialize the public key containers.
 	LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(kser);
 
-    std::cout << "Deserializing ciphertexts..." ;
+	std::cout << "Deserializing ciphertexts..." ;
 
-    vector<vector<Ciphertext<DCRTPoly>>> image2(height);
+	vector<vector<Ciphertext<DCRTPoly>>> image2(height);
 
 	for(int i = 0; i < height; i++)
 	{
@@ -563,9 +565,9 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 			Serialized kser;
 			if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-					cerr << "Could not read ciphertext" << endl;
-					return;
-				}
+				cerr << "Could not read ciphertext" << endl;
+				return;
+			}
 
 			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
 			if(ct == NULL) {
@@ -585,7 +587,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	timeSer = TOC(t1);
 
-    std::cout << "Decrypting..." ;
+	std::cout << "Decrypting..." ;
 
 	vector<vector<Plaintext>> result(height);
 
@@ -603,8 +605,6 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	std::cout << "Completed" << std::endl;
 
-	string path = "demoData/Baboon" + to_string(size) + "OUT.png";
-	const char *pathc = path.c_str();
 	unsigned char *data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)
 	{
@@ -616,7 +616,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 		}
 	}
 
-	stbi_write_png( pathc, width, height, 1, data, width*1 );
+	SaveSharpened(profile, size, width, height, data);
 	delete[] data;
 
 	timeTotal = TOC(t_total);
@@ -656,6 +656,10 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	const char *pathc = path.c_str();
 
 	unsigned char* data = stbi_load( pathc, &width, &height, &bpp, 1 );
+	if( data == NULL ) {
+		cerr << "There's no file for that size" << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	vector<vector<Plaintext>> plaintext(height);
 
@@ -725,8 +729,6 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	}
 	timeResult[DECRYPT] = TOC(times[DECRYPT]);
 
-	path = "demoData/Baboon" + to_string(size) + "OUT.png";
-	pathc = path.c_str();
 	data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)
 	{
@@ -738,7 +740,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 		}
 	}
 
-	stbi_write_png( pathc, width, height, 1, data, width*1 );
+	SaveSharpened(profile, size, width, height, data);
 	delete[] data;
 
 	cout << "KEYGEN " << timeResult[KEYGEN] << endl;

@@ -24,6 +24,8 @@
  *
  */
 
+//#define RAPIDJSON_SCHEMA_VERBOSE 1
+
 #include <iostream>
 #include <fstream>
 
@@ -59,7 +61,6 @@
 #include <iterator>
 #include <algorithm>
 
-#define RAPIDJSON_NO_SIZETYPEDEFINE
 
 using namespace rapidjson;
 
@@ -145,17 +146,24 @@ main(int argc, char *argv[])
 
 	cout << "Validated app-profile" << endl;
 
-	const auto& dep = ser["deployment"];
-	const auto& ct = dep["controls"];
-	cout << ct["scheme"].GetString() << endl;
+//	auto& dep = ser["deployment"];
+//	auto& ct = dep["controls"];
+//	cout << ct["scheme"].GetString() << endl;
 
-	CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ct);
+	float rhf[] = {0, 1.001, 1.002, 1.003, 1.004, 1.005};
+	string oname(argv[3]);
 
-	Serialized outSer;
-	cc->Serialize(&outSer);
+	for( int i=1; i<6; i++ ) {
+		ser["confset"]["secLevel"].SetString(to_string( rhf[i] ).c_str(), ser.GetAllocator());
 
-	if( SerializableHelper::WriteSerializationToFile(outSer, argv[3]) == false )
-		return 0;
+		CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ser);
+
+		Serialized outSer;
+		cc->Serialize(&outSer);
+
+		if( SerializableHelper::WriteSerializationToFile(outSer, oname + to_string(i)) == false )
+			return 0;
+	}
 
 	cout << "Completed serialized-output... Done!" << endl;
 

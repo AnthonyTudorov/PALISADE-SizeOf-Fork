@@ -329,10 +329,10 @@ template<typename Element>
 CryptoContext<Element>
 CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
 {
-	string sch = doc["scheme"].GetString();
+	//string sch = doc["scheme"].GetString();
 	const auto& cs = doc["confset"];
 	string setType = cs["type"].GetString();
-	string latType = doc["lattice"].GetString();
+	//string latType = doc["lattice"].GetString();
 
 	usint m;
 	string q, ru;
@@ -418,13 +418,13 @@ CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
 ////	else if( sch == "StSt" ) {
 ////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
 ////	}
-	if( sch == "BFVrns" ) {
+//	if( sch == "BFVrns" ) {
 		return CryptoContextFactory<Element>::genCryptoContextBFVrns(p, secLevel, stdev, nA, nM, nK, OPTIMIZED, 2, relinWindow, qbits);
-	}
-	else {
-		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
-	}
-	return 0;
+//	}
+//	else {
+//		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
+//	}
+//	return 0;
 }
 
 template CryptoContext<Poly> CryptoContextHelper::ContextFromDeployment<Poly>(const rapidjson::Value&);
