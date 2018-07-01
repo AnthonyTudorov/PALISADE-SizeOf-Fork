@@ -1,40 +1,25 @@
 {
 	"tag": "demo1",
-	"deployment": {
-		"target": {
-			"hw": "Mac",
-			"clock": "faaaaast",
-			"os": "OS X 10.12",
-			"ncore": "8",
-			"l2cache": "big"
+	"comment": "try this one",
+	"confset": {
+		"type": "MQgen",
+		"secLevel": "1.004",
+		"numAdds": "0",
+		"numMults": "1",
+		"numKS": "0",
+		"p": "8192",
+		"relinWindow": "30",
+		"dist": "3.19",
+		"qbits": "60"
+	},
+	"parallel": [
+		{
+			"seq": "string",
+			"ncores": "string"
 		},
-		"controls":
-			{
-				"scheme": "BFVrns",
-				"confset": {
-						"type": "MQgen",
-                			"secLevel": "1.004",
-                			"numAdds": "0",
-                			"numMults": "1",
-                			"numKS": "0",
-						"p": "8192",
-						"relinWindow": "30",
-						"dist": "3.19",
-						"qbits": "60"
-				},
-				"lattice": "Poly",
-				"math": "NTL",
-				"encoding": "coefpacked",
-				"parallel": [
-					{
-						"seq": "string",
-						"ncores": "string"
-					},
-					{
-						"seq": "string",
-						"ncores": "string"
-					}
-				]
-			}
-	}
+		{
+			"seq": "string",
+			"ncores": "string"
+		}
+	]
 }
