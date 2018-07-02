@@ -419,7 +419,7 @@ CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
 ////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
 ////	}
 //	if( sch == "BFVrns" ) {
-		return CryptoContextFactory<Element>::genCryptoContextBFVrns(p, secLevel, stdev, nA, nM, nK, OPTIMIZED, 2, relinWindow, qbits);
+		return CryptoContextFactory<Element>::genCryptoContextBFVrns(p, secLevel, stdev, nA, nM, nK, OPTIMIZED, 5, relinWindow, qbits);
 //	}
 //	else {
 //		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"

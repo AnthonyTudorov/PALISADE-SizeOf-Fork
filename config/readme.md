@@ -25,3 +25,9 @@ APPLICATION runs and is given the DEPLOY-PROFILE to run
 
 I have measurements on Mac, Win, Lin
 
+
+Experimental results:
+
+Run the 8-neighbor Laplacian image sharpening algorithm on a 64x64 encrypted image
+
+

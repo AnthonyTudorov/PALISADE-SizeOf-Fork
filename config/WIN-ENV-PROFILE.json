@@ -1,89 +1,13 @@
-"vendor": "GenuineIntel"
-"processor": "Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz"
-
-CPU 0:
-Maximum basic CPUID leaf: 0x0000000d
-
-
-Signature:  0x000306a9
-  Family:   0x06 (6)
-  Model:    0x3a (58)
-  Stepping: 0x09 (9)
-
-CLFLUSH size: 64
-
-Cache descriptors:
-    [NOTICE] For cache data, see Deterministic Cache Parameters leaf instead
-
-      Code TLB: 2MB or 4MB pages
-                fully associative
-                8 entries
-
-      Code TLB: 4KB pages
-                4-way set associative
-                128 entries
-
-      Data TLB: 2MB or 4MB pages
-                4-way set associative
-                32 entries
-
-      Data TLB: 4KB pages
-                4-way set associative
-                64 entries
-
-    Shared TLB: 4KB pages
-                4-way set associative
-                512 entries
-
-    64-byte prefetching
-
-
-Deterministic Cache Parameters:
-   32KB L1 data cache
-        8-way set associative
-        64 byte line size
-        Self-initializing
-        Shared by max 2 threads
-
-   32KB L1 code cache
-        8-way set associative
-        64 byte line size
-        Self-initializing
-        Shared by max 2 threads
-
-  256KB L2 unified cache
-        8-way set associative
-        64 byte line size
-        Self-initializing
-        Shared by max 2 threads
-
-    6MB L3 unified cache
-        12-way set associative
-        64 byte line size
-        Self-initializing
-        Inclusive of lower cache levels
-        Complex indexing
-        Shared by max 16 threads
-
-MONITOR/MWAIT features:
-  Smallest monitor-line size: 64 bytes
-  Largest monitor-line size: 64 bytes
-  Interrupts as break-event for MWAIT, even when interrupts off
-  C1 sub C-states supported by MWAIT: 2
-  C2 sub C-states supported by MWAIT: 1
-  C3 sub C-states supported by MWAIT: 1
-
-x2APIC Processor Topology:
-  Inferred information:
-    Logical total:       4
-    Logical per socket:  4
-    Cores per socket:    4
-    Threads per core:    1
-
-  x2APIC ID 0 (socket 0, core 0, thread 0)
-
-Maximum extended CPUID leaf: 0x80000008
-
-Physical address size: 36 bits
-Linear address size: 48 bits
-
+{
+	"vendor": "GenuineIntel",
+	"processor": "Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz",
+	"OS": "MINGW64_NT-10.0",
+	"L1DataCache": "32KB",
+	"L1CodeCache": "32KB",
+	"L2Cache": "256KB",
+	"L3Cache": "6MB",
+	"LogicalTotal": "4",
+	"LogicalPerSocket": "4",
+	"CoresPerSocket": "4",
+	"ThreadsPerCore": "1"
+}

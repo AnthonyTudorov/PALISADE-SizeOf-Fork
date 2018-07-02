@@ -630,6 +630,8 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 enum Stages {KEYGEN, ENCRYPT, EVALUATE, DECRYPT};
 
+// This code demonstrates the implementation of 8-neighbor Laplacian image sharpening algorithm
+
 void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	TimeVar times[10], t_total; //for TIC TOC
@@ -743,10 +745,10 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	SaveSharpened(profile, size, width, height, data);
 	delete[] data;
 
-	cout << "KEYGEN " << timeResult[KEYGEN] << endl;
-	cout << "ENCRYPT " << timeResult[ENCRYPT] << endl;
-	cout << "EVALUATE " << timeResult[EVALUATE] << endl;
-	cout << "DECRYPT " << timeResult[DECRYPT] << endl;
+	cout << "KEYGEN: " << timeResult[KEYGEN] << "ms" << endl;
+	cout << "ENCRYPT: " << timeResult[ENCRYPT] << "ms" << endl;
+	cout << "EVALUATE: " << timeResult[EVALUATE] << "ms" << endl;
+	cout << "DECRYPT: " << timeResult[DECRYPT] << "ms" << endl;
 
 }
 

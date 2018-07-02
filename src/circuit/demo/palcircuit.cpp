@@ -235,7 +235,9 @@ main(int argc, char *argv[])
 	}
 
 	cc->Enable(ENCRYPTION);
+	try {
 	cc->Enable(SHE);
+	} catch(...) {}
 	try {
 		cc->Enable(LEVELEDSHE);
 	} catch(...) {}
