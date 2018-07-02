@@ -1,0 +1,25 @@
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"1","Members":{"0":{"ILParams":{"Order":"32768","RingDim":"16384","CtModulus":"1152921470260412417","RootOfUnity":"378734320493477066","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"8192","PlaintextRootOfUnity":"0","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"0"}},"DistributionParameter":"3.190000","AssuranceMeasure":"36.000000","SecurityLevel":"1.001000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"8192"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"0"}}Deserializing the crypto context...Completed
+KEYGEN: 29ms
+ENCRYPT: 24817ms
+EVALUATE: 71836ms
+DECRYPT: 6677ms
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"1","Members":{"0":{"ILParams":{"Order":"16384","RingDim":"8192","CtModulus":"1152921487438528513","RootOfUnity":"350224857646812959","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"8192","PlaintextRootOfUnity":"0","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"0"}},"DistributionParameter":"3.190000","AssuranceMeasure":"36.000000","SecurityLevel":"1.002000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"8192"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"0"}}Deserializing the crypto context...Completed
+KEYGEN: 9ms
+ENCRYPT: 110109ms
+EVALUATE: 38934ms
+DECRYPT: 3284ms
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"1","Members":{"0":{"ILParams":{"Order":"8192","RingDim":"4096","CtModulus":"1152921496017371137","RootOfUnity":"45614083217753105","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"8192","PlaintextRootOfUnity":"0","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"0"}},"DistributionParameter":"3.190000","AssuranceMeasure":"36.000000","SecurityLevel":"1.003000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"8192"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"0"}}Deserializing the crypto context...Completed
+KEYGEN: 6ms
+ENCRYPT: 7498ms
+EVALUATE: 21270ms
+DECRYPT: 1503ms
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"1","Members":{"0":{"ILParams":{"Order":"8192","RingDim":"4096","CtModulus":"1152921496017371137","RootOfUnity":"686982040590959246","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"8192","PlaintextRootOfUnity":"0","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"0"}},"DistributionParameter":"3.190000","AssuranceMeasure":"36.000000","SecurityLevel":"1.004000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"8192"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"0"}}Deserializing the crypto context...Completed
+KEYGEN: 4ms
+ENCRYPT: 7460ms
+EVALUATE: 20975ms
+DECRYPT: 1507ms
+{"CryptoContext":{"Params":{"LPCryptoParametersBFVrns":{"ElemParams":{"ILDCRTParams":{"Params":{"Container":"VectorOfPointer","Typename":"ILParams","Length":"1","Members":{"0":{"ILParams":{"Order":"4096","RingDim":"2048","CtModulus":"1152921500312051713","RootOfUnity":"973757502368578453","BigCtModulus":"0","BigRootOfUnity":"0"}}}}}},"EncodingParams":{"EncodingParams":{"PlaintextModulus":"8192","PlaintextRootOfUnity":"0","PlaintextBigModulus":"0","PlaintextBigRootOfUnity":"0","PlaintextGenerator":"0","BatchSize":"0"}},"DistributionParameter":"3.190000","AssuranceMeasure":"36.000000","SecurityLevel":"1.005000","RelinWindow":"30","Depth":"1","MaxDepth":"2","Mode":"1","PlaintextModulus":"8192"},"LPCryptoParametersType":"LPCryptoParametersBFVrns"},"Schemes":"0"}}Deserializing the crypto context...Completed
+KEYGEN: 2ms
+ENCRYPT: 3764ms
+EVALUATE: 12155ms
+DECRYPT: 770ms
