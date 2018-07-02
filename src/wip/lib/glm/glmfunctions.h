@@ -54,7 +54,7 @@ using namespace lbcrypto;
 
 //#define MEASURE_TIMING
 
-//#define NUM_THREAD 8
+#define NUM_THREAD 8
 
 #ifdef NUM_THREAD
 	#define OMP_SERVER_SECTION1
