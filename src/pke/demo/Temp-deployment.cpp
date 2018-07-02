@@ -153,10 +153,19 @@ main(int argc, char *argv[])
 	float rhf[] = {0, 1.001, 1.002, 1.003, 1.004, 1.005};
 	string oname(argv[3]);
 
-	for( int i=1; i<6; i++ ) {
-		ser["confset"]["secLevel"].SetString(to_string( rhf[i] ).c_str(), ser.GetAllocator());
+	auto nA = stoul(ser["confset"]["numAdds"].GetString());
+	auto nM = stoul(ser["confset"]["numMults"].GetString());
+	auto nK = stoul(ser["confset"]["numKS"].GetString());
+	PlaintextModulus ptm = stoul(ser["confset"]["p"].GetString());
+	auto maxD = stoul(ser["confset"]["maxDepth"].GetString());
 
-		CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ser);
+	for( int i=1; i<6; i++ ) {
+		//ser["confset"]["secLevel"].SetString(to_string( rhf[i] ).c_str(), ser.GetAllocator());
+
+		CryptoContext<DCRTPoly> cc =
+				CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm,rhf[i],3.19,nA,nM,nK,OPTIMIZED,maxD);
+
+		//CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ser);
 
 		Serialized outSer;
 		cc->Serialize(&outSer);

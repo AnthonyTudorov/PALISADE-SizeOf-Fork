@@ -1,7 +1,7 @@
 {
 	"vendor": "GenuineIntel",
 	"processor": "Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz",
-	"OS": "MINGW64_NT-10.0",
+	"OS": "MINGW64_NT-6.1",
 	"L1DataCache": "32KB",
 	"L1CodeCache": "32KB",
 	"L2Cache": "256KB",

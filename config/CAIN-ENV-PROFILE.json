@@ -1,7 +1,7 @@
 {
 	"vendor": "GenuineIntel",
-	"processor": "Intel(R) Core(TM) i7-3520M CPU @ 2.90GHz",
-	"OS": "Linux 4.13.0-45-generic #50~16.04.1 Ubuntu SMP",
+	"processor": "Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz",
+	"OS": "Linux 3.10.0-327.13.1.el7.x86_64",
 	"L1DataCache": "32KB",
 	"L1CodeCache": "32KB",
 	"L2Cache": "256KB",
