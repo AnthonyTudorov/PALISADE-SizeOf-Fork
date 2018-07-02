@@ -1,6 +1,6 @@
 {
-	"tag": "demo1",
-	"comment": "try this one",
+	"tag": "laplace",
+	"comment": "8-neighbor Laplacian image sharpening",
 	"confset": {
 		"type": "MQgen",
 		"secLevel": "1.004",
@@ -14,8 +14,8 @@
 	},
 	"parallel": [
 		{
-			"seq": "string",
-			"ncores": "string"
+			"seq": "EvalMultMatrix:EvalMult:EvalAdd",
+			"ncores": "1:1:x"
 		},
 		{
 			"seq": "string",

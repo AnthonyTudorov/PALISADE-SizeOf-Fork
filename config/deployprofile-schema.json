@@ -6,6 +6,7 @@
 	"type": "object",
 	"properties": {
 		"tag": { "type": "string" },
+		"comment": { "type": "string" },
 		"deployment": {
 			"type": "object",
 			"required": [ "controls" ],
