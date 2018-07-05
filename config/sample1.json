@@ -3,14 +3,11 @@
 	"comment": "8-neighbor Laplacian image sharpening",
 	"confset": {
 		"type": "MQgen",
-		"secLevel": "1.004",
 		"numAdds": "0",
 		"numMults": "1",
 		"numKS": "0",
 		"p": "8192",
-		"relinWindow": "30",
-		"dist": "3.19",
-		"qbits": "60"
+		"maxDepth": "4"
 	},
 	"parallel": [
 		{

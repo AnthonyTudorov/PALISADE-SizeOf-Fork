@@ -2031,13 +2031,29 @@ namespace lbcrypto {
 		EncodingParams								m_encodingParams;
 	};
 
-	
+	// forward decl so SchemeIdentifier works
+	template<typename Element> class LPPublicKeyEncryptionScheme;
+
+	template<typename Element>
+	class PalisadeSchemeIdentifier {
+		string									schemeName;
+		LPPublicKeyEncryptionScheme<Element>		*(*schemeMaker)();
+	public:
+		PalisadeSchemeIdentifier(string n, LPPublicKeyEncryptionScheme<Element> (*f)())
+			: schemeName(n), schemeMaker(f) {}
+
+		const string& GetName() const { return schemeName; }
+		LPPublicKeyEncryptionScheme<Element> *GetScheme() const { return (*schemeMaker)(); }
+	};
+
 	/**
 	 * @brief Abstract interface for public key encryption schemes
 	 * @tparam Element a ring element.
 	 */
-	template <class Element>
+	template<typename Element>
 	class LPPublicKeyEncryptionScheme {
+	protected:
+		//PalisadeSchemeIdentifier<Element> *SchemeId;
 
 	public:
 		LPPublicKeyEncryptionScheme() :

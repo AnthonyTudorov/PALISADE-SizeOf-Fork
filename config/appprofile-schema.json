@@ -93,14 +93,11 @@
 		"type": "object",
 		"required": [
 			"type",
-			"secLevel",
 			"numAdds",
 			"numMults",
 			"numKS",
 			"p",
-			"relinWindow",
-			"dist",
-			"qbits"
+			"maxDepth"
 		],
 		"properties": {
 			"type": {
@@ -123,13 +120,7 @@
 			"p": {
 				"type": "string"
 			},
-			"relinWindow": {
-				"type": "string"
-			},
-			"dist": {
-				"type": "string"
-			},
-			"qbits": {
+			"maxDepth": {
 				"type": "string"
 			}
 		}

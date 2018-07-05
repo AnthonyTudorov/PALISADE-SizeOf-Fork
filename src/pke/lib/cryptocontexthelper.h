@@ -93,7 +93,9 @@ public:
 	static CryptoContext<DCRTPoly> getNewDCRTContext(const string& parmsetname, usint numTowers, usint primeBits);
 
 	template<typename Element>
-	static CryptoContext<Element> ContextFromDeployment(const rapidjson::Value& doc);
+	static CryptoContext<Element> ContextFromAppProfile(const string& scheme, PlaintextModulus ptm,
+			usint nA, usint nM, usint nK,
+			usint maxD, float secFactor);
 };
 
 }

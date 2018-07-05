@@ -327,108 +327,82 @@ CreateSchemeGivenName(const string& schemeName) {
 
 template<typename Element>
 CryptoContext<Element>
-CryptoContextHelper::ContextFromDeployment(const rapidjson::Value& doc)
+CryptoContextHelper::ContextFromAppProfile(const string& sch,
+		PlaintextModulus ptm,
+		usint nA, usint nM, usint nK,
+		usint maxD, float secFactor)
 {
-	//string sch = doc["scheme"].GetString();
-	const auto& cs = doc["confset"];
-	string setType = cs["type"].GetString();
-	//string latType = doc["lattice"].GetString();
-
-	usint m;
-	string q, ru;
-	PlaintextModulus p;
-
-	float secLevel;
-	usint nA, nM, nK;
-	usint qbits;
-	usint relinWindow;
-	float stdev;
-
-	// an MQP confset specifies all 4 of these
-	if( setType == "MQP" ) {
-		m = stoul( cs["m"].GetString() );
-		q = cs["q"].GetString();
-		if( cs.HasMember("ru") )
-			ru = cs["ru"].GetString();
-		p = stoul( cs["p"].GetString() );
-
-		cout << m << endl;
-		cout << q << endl;
-		cout << p << endl;
-		return 0;
-	}
-	else if( setType == "MqbitsP" ) {
-		m = stoul( cs["m"].GetString() );
-		qbits = stoul( cs["qbits"].GetString() );
-		p = stoul( cs["p"].GetString() );
-
-		// make a prime q of at least qbits in size
-		cout << m << endl;
-		cout << qbits << endl;
-		cout << p << endl;
-		return 0;
-	}
-	else if( setType == "MQgen" ){
-			secLevel = stof( cs["secLevel"].GetString() );
-			nA = stoul( cs["numAdds"].GetString() );
-			nM = stoul( cs["numMults"].GetString() );
-			nK = stoul( cs["numKS"].GetString() );
-			p = stoul( cs["p"].GetString() );
-			qbits = stoul( cs["qbits"].GetString() );
-			relinWindow = stoul( cs["relinWindow"].GetString() );
-			stdev = stof( cs["dist"].GetString() );
-	}
-	else {
-		return 0;
-	}
-
-//	// compute the root of unity if you don't have it
-//	if( ru.size() == 0 ) {
 //
-//	}
-
-//	usint relinWindow = stoul( doc["relinWindow"].GetString() );
-//	float stdev = stof( doc["stdev"].GetString() );
-
-//	shared_ptr<typename Element::Params> parms( new typename Poly::Params(m, q, ru) );
-//	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = CreateSchemeGivenName<Element>( sch );
-
-//	if( sch == "LTV") {
-//		shared_ptr<LPCryptoParametersLTV<Element>> cparms(
-//				new LPCryptoParametersLTV<Element>(
-//					parms,
-//					p,
-//					stdev,
-//					9.0, // assurance
-//					1.006, // security level
-//					relinWindow,
-//					1)); // depth
-//
-////		if( scheme->ParamsGen(params, numAdds, numMults, numKeyswitches) == false )
-////			return 0;
-//
-//		return CryptoContextFactory<Element>::GetContext(cparms, scheme);
-//		//return CryptoContextFactory<Element>::genCryptoContextLTV(parms, p, relinWindow, stdev);
-//
-////	return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
-////			stoul(relinWindow), stof(stDev));
+////	usint m;
+////	string q, ru;
+////	PlaintextModulus p;
 ////
-////		return ContextGenerator_LTV(doc);
+////	float secLevel;
+////	usint qbits;
+////	usint relinWindow;
+////	float stdev;
+//
+//#if OLD_ITEM
+//	// an MQP confset specifies all 4 of these
+//	if( setType == "MQP" ) {
+//		m = stoul( cs["m"].GetString() );
+//		q = cs["q"].GetString();
+//		if( cs.HasMember("ru") )
+//			ru = cs["ru"].GetString();
+//		p = stoul( cs["p"].GetString() );
+//
+//		cout << m << endl;
+//		cout << q << endl;
+//		cout << p << endl;
+//		return 0;
 //	}
-////	else if( sch == "StSt" ) {
-////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
-////	}
-//	if( sch == "BFVrns" ) {
-		return CryptoContextFactory<Element>::genCryptoContextBFVrns(p, secLevel, stdev, nA, nM, nK, OPTIMIZED, 5, relinWindow, qbits);
+//	else if( setType == "MqbitsP" ) {
+//		m = stoul( cs["m"].GetString() );
+//		qbits = stoul( cs["qbits"].GetString() );
+//		p = stoul( cs["p"].GetString() );
+//
+//		// make a prime q of at least qbits in size
+//		cout << m << endl;
+//		cout << qbits << endl;
+//		cout << p << endl;
+//		return 0;
+//	}
+//	else if( setType == "MQgen" ){
+//			secLevel = stof( cs["secLevel"].GetString() );
+//			nA = stoul( cs["numAdds"].GetString() );
+//			nM = stoul( cs["numMults"].GetString() );
+//			nK = stoul( cs["numKS"].GetString() );
+//			p = stoul( cs["p"].GetString() );
+//			qbits = stoul( cs["qbits"].GetString() );
+//			relinWindow = stoul( cs["relinWindow"].GetString() );
+//			stdev = stof( cs["dist"].GetString() );
 //	}
 //	else {
-//		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
+//		return 0;
 //	}
-//	return 0;
+//#endif
+//
+//	usint relinWindow;
+//	float dist;
+//
+//	if( sch == "LTV") {
+//		return CryptoContextFactory<Element>::genCryptoContextLTV(ptm, secFactor, relinWindow, dist,
+//				nA, nM, nK);
+//	}
+//////	else if( sch == "StSt" ) {
+//////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
+//////	}
+//	else if( sch == "BFVrns" ) {
+//		return CryptoContextFactory<Element>::genCryptoContextBFVrns(ptm, secFactor, dist, nA, nM, nK, OPTIMIZED, 5, relinWindow);
+//	}
+//	else {
+		//, "StSt", "BFV", "BFVrns", "BGV", "FV", "Null"
+		return 0;
+//	}
 }
 
-template CryptoContext<Poly> CryptoContextHelper::ContextFromDeployment<Poly>(const rapidjson::Value&);
-template CryptoContext<DCRTPoly> CryptoContextHelper::ContextFromDeployment<DCRTPoly>(const rapidjson::Value&);
+//template CryptoContext<Poly> CryptoContextHelper::ContextFromAppProfile<Poly>(const string& sch, const rapidjson::Value&);
+//template CryptoContext<DCRTPoly> CryptoContextHelper::ContextFromAppProfile<DCRTPoly>(const string& sch, const rapidjson::Value&);
 
 
 static void printSet(std::ostream& out, string key, map<string,string>& pset)

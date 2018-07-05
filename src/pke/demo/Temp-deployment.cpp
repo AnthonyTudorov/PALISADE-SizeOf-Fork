@@ -88,8 +88,29 @@ ostream& operator<<(ostream& out, const rapidjson::Value& v) {
 
 
 	case rapidjson::kObjectType:
+	{
+		out << "{";
+		auto it = v.MemberBegin();
+		if( it != v.MemberEnd() )
+			out << it->name << ":" << it->value;
+		for( it++; it != v.MemberEnd(); it++ ) {
+			out << "," << it->name << ":" << it->value;
+		}
+		out << "}";
+	}
+		break;
+
 	case rapidjson::kArrayType:
-		out << " --- not supported --- ";
+	{
+		out << "[";
+		auto it = v.Begin();
+		if( it != v.End() )
+			out << *it;
+		for( it++; it != v.End(); it++ ) {
+			out << "," << *it;
+		}
+		out << "]";
+	}
 		break;
 
 	case rapidjson::kStringType:
@@ -146,12 +167,14 @@ main(int argc, char *argv[])
 
 	cout << "Validated app-profile" << endl;
 
-//	auto& dep = ser["deployment"];
-//	auto& ct = dep["controls"];
-//	cout << ct["scheme"].GetString() << endl;
-
 	float rhf[] = {0, 1.001, 1.002, 1.003, 1.004, 1.005};
 	string oname(argv[3]);
+
+	string prettyStr;
+	SerializableHelper::SerializationToPrettyString(ser, prettyStr);
+	cout << prettyStr << endl;
+
+	//cout << ser << endl;
 
 	auto nA = stoul(ser["confset"]["numAdds"].GetString());
 	auto nM = stoul(ser["confset"]["numMults"].GetString());
@@ -165,12 +188,12 @@ main(int argc, char *argv[])
 		CryptoContext<DCRTPoly> cc =
 				CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ptm,rhf[i],3.19,nA,nM,nK,OPTIMIZED,maxD);
 
-		//CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromDeployment<DCRTPoly>(ser);
+		//CryptoContext<DCRTPoly> cc = CryptoContextHelper::ContextFromAppProfile<DCRTPoly>("BFVrns", ptm, nA, nM, nK, maxD, rhf[i]);
 
 		Serialized outSer;
 		cc->Serialize(&outSer);
 
-		if( SerializableHelper::WriteSerializationToFile(outSer, oname + to_string(i)) == false )
+		if( SerializableHelper::WriteSerializationToPrettyFile(outSer, oname + to_string(i)) == false )
 			return 0;
 	}
 
