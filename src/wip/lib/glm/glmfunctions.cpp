@@ -472,6 +472,7 @@ void GLMEncrypt(GLMContext &context, pathList &path, glmParams &params)
 		LPPrivateKey<DCRTPoly> sk = DeserializePrivateKey(cc, skFileName);
 		std::cout << "Completed" << std::endl;
 
+
 		// Packing and encryption
 		std::cout << "Batching/encrypting X...";
 		Matrix<Ciphertext<DCRTPoly>> xC = cc->EncryptMatrixCiphertext(pk, xP);
