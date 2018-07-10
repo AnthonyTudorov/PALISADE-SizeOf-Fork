@@ -316,7 +316,7 @@ public:
 #endif
 		for (size_t j = 0; j < cols; ++j) {
 			for (size_t i = 0; i < rows; ++i) {
-				result.data[i][j] = result.data[i][j] + other.data[i][j];
+				result.data[i][j] += other.data[i][j];
 			}
 		}
 		return result;
