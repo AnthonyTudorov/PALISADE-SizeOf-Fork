@@ -42,7 +42,7 @@ using std::ostream;
 #include "parsedriver.h"
 
 void usage() {
-	cout << "Usage is palcircuit {Arguments} inputfile specfile" << endl;
+	cout << "Usage is palcircuit {Arguments} contextfile inputfile specfile" << endl;
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
 	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
@@ -57,7 +57,16 @@ void usage() {
 	cout << "-otrace -- verbose details about the operations" << endl;
 	cout << "-ap -- generate application profile and stop" << endl;
 	cout << "-h  --  this message" << endl;
+	exit(0);
 }
+/*
+ * palcircuit {flags} command args
+ * where command is:
+ * exam specfile - examine circuit given in specfile, give info about circuit depth
+ * eval contextfile inputfile specfile - using the cryptocontext in contextfile, eval
+ * flags are:
+ * -ginput[=file] - generate a DOT script of the input to stdout, or to file
+ */
 
 Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 	return cc->MakePackedPlaintext({(uint64_t)val});
@@ -66,7 +75,7 @@ Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
 int
 main(int argc, char *argv[])
 {
-	const PlaintextModulus ptm = 1073872897;
+//	const PlaintextModulus ptm = 1073872897;
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -77,7 +86,7 @@ main(int argc, char *argv[])
 	bool evaluation_run_mode = false;
 	bool print_all_flag = false;
 	bool print_context_flag = false;
-	bool use_null = false;
+//	bool use_null = false;
 	bool gen_app_profile = false;
 
 	ofstream contextF;
@@ -93,6 +102,7 @@ main(int argc, char *argv[])
 	ostream	*procGraph = &cout;
 	ostream	*resultGraph = &cout;
 
+	string ctxtfile;
 	string inputfile;
 	string specfile;
 
@@ -119,9 +129,9 @@ main(int argc, char *argv[])
 		else if( arg == "-otrace" ){
 			lbcrypto::CircuitOpTrace = true;
 		}
-		else if( arg == "-null" ){
-			use_null = true;
-		}
+//		else if( arg == "-null" ){
+//			use_null = true;
+//		}
 		else if( arg == "-ginput" ) {
 			print_input_graph = true;
 			if( argf.size() > 0 ) {
@@ -163,7 +173,6 @@ main(int argc, char *argv[])
 		}
 		else if( arg == "-h" ) {
 			usage();
-			return 0;
 		}
 		else if( arg == "-econtext" ) {
 			print_context_flag = true;
@@ -197,36 +206,51 @@ main(int argc, char *argv[])
 		}
 		else if( arg[0] == '-' ) { // an unrecognized flag
 			usage();
-			return 1;
 		}
 		else {
-			inputfile = arg;
-			if( argc != i+2 ) {
+			if( argc != i+3 )
 				usage();
-				return 1;
-			}
-			specfile = argv[i+1];
+
+			ctxtfile = argv[i+1];
+			inputfile = argv[i+2];
+			specfile = argv[i+3];
+
 			break;
 		}
 	}
 
-	if( inputfile.length() == 0 ) {
-		usage();
+	// PARSE THE CIRCUIT
+	pdriver driver(debug_parse);
+
+	if( verbose ) {
+		cout << "Parsing" << endl;
+	}
+	if( driver.parse(specfile) != 0 ) {
+		cout << "Error parsing spec file " << specfile << endl;
 		return 1;
 	}
 
-	if( evaluation_list_mode && evaluation_run_mode ) {
-		cout << "Cannot specify both -elist and -estats" << endl;
+	if( driver.parse(inputfile) != 0 ) {
+		cout << "Error parsing input file " << inputfile << endl;
 		return 1;
 	}
 
-	// Prepare to process the graph
+	if( verbose ) {
+		cout << "Circuit parsed" << endl;
+	}
 
-	EncodingParams ep( new EncodingParamsImpl(ptm) );
+	// GET CONTEXT
+	Serialized ser;
+	if( SerializableHelper::ReadSerializationFromFile(ctxtfile, &ser, true) == false )
+		return 0;
 
-	CryptoContext<DCRTPoly> cc = use_null ?
-			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
-			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ser);
+
+	//	EncodingParams ep( new EncodingParamsImpl(ptm) );
+	//
+	//	CryptoContext<DCRTPoly> cc = use_null ?
+	//			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
+	//			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
 
 	if( verbose ) {
 		std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
@@ -243,6 +267,7 @@ main(int argc, char *argv[])
 	} catch(...) {}
 
 	const usint m = cc->GetCyclotomicOrder();
+	auto ep = cc->GetEncodingParams();
 	PackedEncoding::SetParams(m, ep);
 	ep->SetBatchSize(1024);
 
@@ -255,27 +280,6 @@ main(int argc, char *argv[])
 			return 1;
 		}
 		SerializableHelper::SerializationToStream(serObj, *ctxStr);
-	}
-
-	// PARSE THE CIRCUIT
-	pdriver driver(debug_parse);
-
-	if( verbose ) {
-		cout << "Parsing" << endl;
-	}
-
-	if( driver.parse(inputfile) != 0 ) {
-		cout << "Error parsing input file " << inputfile << endl;
-		return 1;
-	}
-
-	if( driver.parse(specfile) != 0 ) {
-		cout << "Error parsing spec file " << specfile << endl;
-		return 1;
-	}
-
-	if( verbose ) {
-		cout << "Circuit parsed" << endl;
 	}
 
 	// From the parsed circuit, create a graph that can hold values
