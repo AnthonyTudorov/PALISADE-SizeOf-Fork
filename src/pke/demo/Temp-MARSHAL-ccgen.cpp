@@ -104,10 +104,7 @@ ostream& operator<<(ostream& out, const rapidjson::Value& v) {
 	return out;
 }
 
-// configurator
-vector<string> schemes = {
-		"LTV", "StSt", "BFVrns"
-};
+// Parms generator
 
 int
 main(int argc, char *argv[])
@@ -122,15 +119,62 @@ main(int argc, char *argv[])
 	float secparm = stof(argv[3]);
 	int opcount = stoul(argv[4]);
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(
-			ptm, secparm, 16, 4, 0, opcount, 0);
+	CryptoContext<DCRTPoly> cc;
+
+	usint relin = 16;
+	float dist = 4;
+
+	if( scheme == "LTV" ) {
+
+		cc = CryptoContextFactory<DCRTPoly>::genCryptoContextLTV(
+			ptm, secparm, relin, dist, 0, opcount, 0);
+
+	}
+
+	else if( scheme == "BFV" ) {
+
+		cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFV(
+				ptm, secparm, relin, dist,
+				0, opcount, 0);
+
+	}
+
+	else if( scheme == "BFVrns" ) {
+
+		cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+				ptm, secparm, dist,
+				0, opcount, 0);
+
+	}
+
+	else if( scheme == "BFVrnsB" ) {
+
+		cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrnsB(
+				ptm, secparm, dist,
+				0, opcount, 0);
+
+	}
+
+	else {
+
+		cerr << "Unknown scheme " << scheme << endl;
+		return 1;
+
+	}
+
+	if( cc == 0 ) {
+
+		cerr << "Unable to make scheme" << endl;
+		return 1;
+
+	}
 
 	Serialized sch;
 	if( cc->Serialize(&sch) != true )
 		return 0;
 
 	string ser;
-	if( SerializableHelper::SerializationToString(sch, ser) == false )
+	if( SerializableHelper::SerializationToPrettyString(sch, ser) == false )
 		return 0;
 
 	cout << ser << endl;

@@ -48,7 +48,6 @@ void usage() {
 	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
 	cout << "-gproc[=file]  --  print a graph of the preprocessed input circuit, DOT format" << endl;
 	cout << "-gresult[=file]  --  print a graph of the result of executing the circuit, DOT format" << endl;
-	cout << "-econtext[=file] -- export a serialization of the context to file" << endl;
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
@@ -85,12 +84,7 @@ main(int argc, char *argv[])
 	bool evaluation_list_mode = false;
 	bool evaluation_run_mode = false;
 	bool print_all_flag = false;
-	bool print_context_flag = false;
-//	bool use_null = false;
 	bool gen_app_profile = false;
-
-	ofstream contextF;
-	ostream *ctxStr = &cout;
 
 	ofstream evalListF;
 	ostream *elistStr = &cout;
@@ -107,6 +101,10 @@ main(int argc, char *argv[])
 	string specfile;
 
 	// PROCESS USER ARGS
+
+	if( argc < 4 )
+		usage();
+
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
 		string argf(arg);
@@ -174,17 +172,6 @@ main(int argc, char *argv[])
 		else if( arg == "-h" ) {
 			usage();
 		}
-		else if( arg == "-econtext" ) {
-			print_context_flag = true;
-			if( argf.size() > 0 ) {
-				contextF.open(argf, ostream::out);
-				if( !contextF.is_open() ) {
-					cout << "Unable to open file " << argf << endl;
-					return 1;
-				}
-				ctxStr = &contextF;
-			}
-		}
 		else if( arg == "-elist" ) {
 			evaluation_list_mode = true;
 			if( argf.size() > 0 ) {
@@ -211,9 +198,9 @@ main(int argc, char *argv[])
 			if( argc != i+3 )
 				usage();
 
-			ctxtfile = argv[i+1];
-			inputfile = argv[i+2];
-			specfile = argv[i+3];
+			ctxtfile = argv[i];
+			inputfile = argv[i+1];
+			specfile = argv[i+2];
 
 			break;
 		}
@@ -225,6 +212,7 @@ main(int argc, char *argv[])
 	if( verbose ) {
 		cout << "Parsing" << endl;
 	}
+
 	if( driver.parse(specfile) != 0 ) {
 		cout << "Error parsing spec file " << specfile << endl;
 		return 1;
@@ -260,27 +248,22 @@ main(int argc, char *argv[])
 
 	cc->Enable(ENCRYPTION);
 	try {
-	cc->Enable(SHE);
+		cc->Enable(SHE);
 	} catch(...) {}
 	try {
 		cc->Enable(LEVELEDSHE);
 	} catch(...) {}
 
-	const usint m = cc->GetCyclotomicOrder();
-	auto ep = cc->GetEncodingParams();
-	PackedEncoding::SetParams(m, ep);
-	ep->SetBatchSize(1024);
-
-	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
-	if( print_context_flag ) {
-		Serialized serObj;
-		serObj.SetObject();
-		if( cc->Serialize(&serObj) == false ) {
-			cout << "Can't serialize CryptoContext" << endl;
-			return 1;
-		}
-		SerializableHelper::SerializationToStream(serObj, *ctxStr);
-	}
+//	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
+//	if( print_context_flag ) {
+//		Serialized serObj;
+//		serObj.SetObject();
+//		if( cc->Serialize(&serObj) == false ) {
+//			cout << "Can't serialize CryptoContext" << endl;
+//			return 1;
+//		}
+//		SerializableHelper::SerializationToStream(serObj, *ctxStr);
+//	}
 
 	// From the parsed circuit, create a graph that can hold values
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
@@ -304,21 +287,28 @@ main(int argc, char *argv[])
 			procGF.close();
 	}
 
-	auto quot = [] (string s) { return "\"" + s + "\""; };
+	auto quotS = [] (string s) { return "\"" + s + "\""; };
+	auto quotI = [] (unsigned s) { return "\"" + to_string(s) + "\""; };
+	auto quotF = [] (float s) { return "\"" + to_string(s) + "\""; };
 	if( gen_app_profile ) {
-		cout << quot( "confset" ) << ": {"
-				<< quot("type") << ":" << quot("MQgen") << ","
-				<< quot("secLevel") << ":" << quot("1.004") << ","
-				<< quot("numAdds") << ":" << quot("0") << ","
-				<< quot("numMults") << ": \"" << cir.GetGraph().GetMaximumDepth() << "\","
-				<< quot("numKS") << ":" << quot("0") << ","
-				<< quot("p") << ":" << quot("8192") << ","
-				<< quot("relinWindow") << ":" << quot("30") << ","
-				<< quot("dist") << ":" << quot("3.19") << ","
-				<< quot("qbits") << ":" << quot("60") << "}";
+		cout << quotS( "confset" ) << ": {"
+				<< quotS("type") << ":" << quotS("MQgen") << ","
+				<< quotS("secLevel") << ":" << quotF(1.004) << ","
+				<< quotS("numAdds") << ":" << quotI(0) << ","
+				<< quotS("numMults") << ":" << quotI(cir.GetGraph().GetMaximumDepth()) << ","
+				<< quotS("numKS") << ":" << quotI(0) << ","
+				<< quotS("p") << ":" << quotI( cc->GetEncodingParams()->GetPlaintextModulus() ) << ","
+				<< quotS("relinWindow") << ":" << quotI(30) << ","
+				<< quotS("dist") << ":" << quotF(3.19) << ","
+				<< quotS("qbits") << ":" << quotI(60) << "}";
 		return 0;
 	}
 
+
+	const usint m = cc->GetCyclotomicOrder();
+	auto ep = cc->GetEncodingParams();
+	PackedEncoding::SetParams(m, ep);
+	ep->SetBatchSize(1024);
 
 	// to do estimates we need to know what functions we called; write them out and finish up
 	if( evaluation_list_mode ) {

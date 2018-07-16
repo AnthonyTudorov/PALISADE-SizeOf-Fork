@@ -39,8 +39,6 @@ template<>
 bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams,
 		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
-	bool dbg_flag = true;
-
 	if (!cryptoParams)
 		return false;
 
@@ -59,12 +57,6 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 	double rpow5 = pow(r,5);
 	double wpow5 = pow(w,5);
 
-	DEBUG("w " << w);
-	DEBUG("hermiteFactor " << hermiteFactor);
-	DEBUG("p " << p);
-	DEBUG("r " << r);
-	DEBUG("depth " << depth);
-
 	vector<NativeInteger> qvals;
 
 	usint n = 512; // to start
@@ -78,26 +70,19 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 		double q2boundD = 4 * psquared * rpow5 * pow(rootn, 3) * wpow5;
 		NativeInteger q2bound(std::llround(q2boundD));
 
-		DEBUG("n " << n << " rootn " << rootn);
-		DEBUG("qbD " << qboundD << " q2bD " << q2boundD);
-		DEBUG("qb " << qbound << " q2b " << q2bound);
-
 		NativeInteger q = FirstPrime<NativeInteger>(static_cast<usint>(ceil(log2(qboundD))),n);
 		while( q < qbound )
 			q = NextPrime(q, n);
-		DEBUG("q " << q);
 
 		NativeInteger q2 = FirstPrime<NativeInteger>(static_cast<usint>(ceil(log2(q2boundD))), n);
 		while( q2 < q2bound )
 			q2 = NextPrime(q2, n);
-		DEBUG("q2 " << q2);
 
 		qvals.push_back( q );
 		qvals.push_back( q2 );
 
 		for( usint i=2; i<depth; i++ ) {
 			q2 = NextPrime(q2, n);
-			DEBUG("next q2 " << q2);
 			qvals.push_back(q2);
 		}
 
@@ -117,11 +102,8 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 
 	vector<NativeInteger> roots;
 
-	DEBUG("ROOTS");
-	for( const auto& qv : qvals ) {
-		DEBUG(qv);
+	for( const auto& qv : qvals )
 		roots.push_back( RootOfUnity(n, qv) );
-	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, qvals, roots));
 	cParams->SetElementParams( params );
