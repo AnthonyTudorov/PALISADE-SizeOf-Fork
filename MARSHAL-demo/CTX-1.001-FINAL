@@ -1,0 +1,69 @@
+{
+    "CryptoContext": {
+        "Params": {
+            "LPCryptoParametersBFVrns": {
+                "ElemParams": {
+                    "ILDCRTParams": {
+                        "Params": {
+                            "Container": "VectorOfPointer",
+                            "Typename": "ILParams",
+                            "Length": "3",
+                            "Members": {
+                                "0": {
+                                    "ILParams": {
+                                        "Order": "65536",
+                                        "RingDim": "32768",
+                                        "CtModulus": "1152921435889795073",
+                                        "RootOfUnity": "681457672251551159",
+                                        "BigCtModulus": "0",
+                                        "BigRootOfUnity": "0"
+                                    }
+                                },
+                                "1": {
+                                    "ILParams": {
+                                        "Order": "65536",
+                                        "RingDim": "32768",
+                                        "CtModulus": "1152921435891302401",
+                                        "RootOfUnity": "126334457270634247",
+                                        "BigCtModulus": "0",
+                                        "BigRootOfUnity": "0"
+                                    }
+                                },
+                                "2": {
+                                    "ILParams": {
+                                        "Order": "65536",
+                                        "RingDim": "32768",
+                                        "CtModulus": "1152921435892088833",
+                                        "RootOfUnity": "767247228160841225",
+                                        "BigCtModulus": "0",
+                                        "BigRootOfUnity": "0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "EncodingParams": {
+                    "EncodingParams": {
+                        "PlaintextModulus": "8192",
+                        "PlaintextRootOfUnity": "0",
+                        "PlaintextBigModulus": "0",
+                        "PlaintextBigRootOfUnity": "0",
+                        "PlaintextGenerator": "0",
+                        "BatchSize": "0"
+                    }
+                },
+                "DistributionParameter": "4.000000",
+                "AssuranceMeasure": "36.000000",
+                "SecurityLevel": "1.001000",
+                "RelinWindow": "16",
+                "Depth": "1",
+                "MaxDepth": "3",
+                "Mode": "1",
+                "PlaintextModulus": "8192"
+            },
+            "LPCryptoParametersType": "LPCryptoParametersBFVrns"
+        },
+        "Schemes": "0"
+    }
+}

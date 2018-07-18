@@ -345,6 +345,7 @@ protected:
 		if( (pIt = mIter->value.FindMember("SecurityLevel")) == mIter->value.MemberEnd() )
 			return false;
 		float securityLevel = atof(pIt->value.GetString());
+//		cout << securityLevel << ":" << pIt->value.GetString() << endl;
 
 		if( (pIt = mIter->value.FindMember("RelinWindow")) == mIter->value.MemberEnd() )
 			return false;
@@ -362,6 +363,7 @@ protected:
 			return false;
 		MODE mode = (MODE)atoi(pIt->value.GetString());
 
+		//cout << "BEFORE " << *this << endl;
 		this->SetPlaintextModulus(bbiPlaintextModulus);
 		this->SetDistributionParameter(distributionParameter);
 		this->SetAssuranceMeasure(assuranceMeasure);
@@ -370,6 +372,7 @@ protected:
 		this->SetDepth(depth);
 		this->SetMaxDepth(maxDepth);
 		this->SetMode(mode);
+		//cout << "AFTER " << *this << endl;
 
 		return true;
 	}

@@ -34,7 +34,6 @@
 #include "cryptocontextgen.h"
 #include "palisadecircuit.h"
 using namespace lbcrypto;
-using std::cout;
 
 #include <fstream>
 using std::ostream;
@@ -68,7 +67,7 @@ void usage() {
  */
 
 Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
-	return cc->MakePackedPlaintext({(uint64_t)val});
+	return cc->MakeFractionalPlaintext((uint64_t)val);
 }
 
 int
@@ -234,6 +233,10 @@ main(int argc, char *argv[])
 
 	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ser);
 
+	const shared_ptr<const LPCryptoParametersBFVrns<DCRTPoly>> parms = dynamic_pointer_cast<const LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
+	unsigned qbits = log2(parms->GetElementParams()->GetModulus().ConvertToDouble());
+	float sp = parms->GetSecurityLevel();
+
 	//	EncodingParams ep( new EncodingParamsImpl(ptm) );
 	//
 	//	CryptoContext<DCRTPoly> cc = use_null ?
@@ -241,9 +244,11 @@ main(int argc, char *argv[])
 	//			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
 
 	if( verbose ) {
-		std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-		std::cout << "n = " << cc->GetRingDimension() << std::endl;
-		std::cout << "log2 q = " << log2(cc->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+		cout << "Input Context:" << endl;
+		cout << "p = " << parms->GetPlaintextModulus() << endl;
+		cout << "n = " << cc->GetRingDimension() << endl;
+		cout << "log2 q = " << qbits << endl;
+		cout << "max depth supported = " << parms->GetMaxDepth() << endl;
 	}
 
 	cc->Enable(ENCRYPTION);
@@ -266,7 +271,13 @@ main(int argc, char *argv[])
 //	}
 
 	// From the parsed circuit, create a graph that can hold values
+	if( verbose )
+		cout << "Creating graph..." << endl;
+
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
+
+	if( verbose )
+		cout << "Graph created" << endl;
 
 	if( print_input_graph ) {
 		cir.GetGraph().DisplayGraph(*inGraph);
@@ -275,11 +286,9 @@ main(int argc, char *argv[])
 	}
 
 	// ASSIGN DEPTHS (and, eventually, optimize)
-	if( verbose ) cout << "Preprocessing" << endl;
+	if( verbose ) cout << "Optimizing circuit..." << endl;
 	cir.GetGraph().Preprocess();
-
-	if( verbose )
-		cout << "Maximum depth is " << cir.GetGraph().GetMaximumDepth() << endl;
+	if( verbose ) cout << "Done..." << endl;
 
 	if( print_preproc_graph ) {
 		cir.GetGraph().DisplayGraph(*procGraph);
@@ -287,20 +296,32 @@ main(int argc, char *argv[])
 			procGF.close();
 	}
 
+	if( verbose ) {
+		cout << "Depth required for circuit is " << cir.GetGraph().GetMaximumDepth() << endl;
+	}
+
+	if( cir.GetGraph().GetMaximumDepth() > parms->GetMaxDepth() ) {
+		cout << "*** Context will not support circuit... Regenerate\n" << endl;
+		return cir.GetGraph().GetMaximumDepth();
+	}
+
 	auto quotS = [] (string s) { return "\"" + s + "\""; };
 	auto quotI = [] (unsigned s) { return "\"" + to_string(s) + "\""; };
 	auto quotF = [] (float s) { return "\"" + to_string(s) + "\""; };
 	if( gen_app_profile ) {
+		//cout << *parms << endl;
+		cout << qbits << endl;
+		cout << sp << endl;
 		cout << quotS( "confset" ) << ": {"
 				<< quotS("type") << ":" << quotS("MQgen") << ","
-				<< quotS("secLevel") << ":" << quotF(1.004) << ","
+				<< quotS("secLevel") << ":" << quotF(parms->GetSecurityLevel()) << ","
 				<< quotS("numAdds") << ":" << quotI(0) << ","
 				<< quotS("numMults") << ":" << quotI(cir.GetGraph().GetMaximumDepth()) << ","
 				<< quotS("numKS") << ":" << quotI(0) << ","
 				<< quotS("p") << ":" << quotI( cc->GetEncodingParams()->GetPlaintextModulus() ) << ","
-				<< quotS("relinWindow") << ":" << quotI(30) << ","
-				<< quotS("dist") << ":" << quotF(3.19) << ","
-				<< quotS("qbits") << ":" << quotI(60) << "}";
+				<< quotS("relinWindow") << ":" << quotI(parms->GetRelinWindow()) << ","
+				<< quotS("dist") << ":" << quotF(parms->GetDistributionParameter()) << ","
+				<< quotS("qbits") << ":" << quotI(qbits) << "}";
 		return 0;
 	}
 

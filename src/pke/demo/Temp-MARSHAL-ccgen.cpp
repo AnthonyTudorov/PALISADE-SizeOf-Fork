@@ -143,7 +143,7 @@ main(int argc, char *argv[])
 
 		cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
 				ptm, secparm, dist,
-				0, opcount, 0);
+				0, opcount, 0, OPTIMIZED, opcount, relin);
 
 	}
 
@@ -164,10 +164,13 @@ main(int argc, char *argv[])
 
 	if( cc == 0 ) {
 
-		cerr << "Unable to make scheme" << endl;
+		cerr << "Unable to make context" << endl;
 		return 1;
 
 	}
+
+	cerr << "*** Generated " << scheme << " context for " << opcount << " operations" << endl;
+	cerr << "*** Security level " << secparm << endl;
 
 	Serialized sch;
 	if( cc->Serialize(&sch) != true )

@@ -130,8 +130,6 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 	if (this->DeserializeRLWE(mIter) == false)
 		return false;
 
-	SerialItem::ConstMemberIterator pIt;
-
 	return PrecomputeCRTTables();
 }
 

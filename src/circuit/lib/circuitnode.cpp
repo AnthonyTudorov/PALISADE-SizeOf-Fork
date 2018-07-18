@@ -477,7 +477,7 @@ void ModReduceNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<Elem
 	return;
 }
 
-#define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) return new TV(n); }
+#define TESTANDMAKE(T,TV,n) { T* node = dynamic_cast<T*>(n); if( node != 0 ) {return new TV(n);} }
 
 template<typename Element>
 CircuitNodeWithValue<Element> *CircuitNodeWithValue<Element>::ValueNodeFactory( CircuitNode *n ) {

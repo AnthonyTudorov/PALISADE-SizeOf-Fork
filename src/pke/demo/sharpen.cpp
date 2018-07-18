@@ -292,7 +292,7 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	timeTotal = TOC(t_total);
 
-	std::cout << "\nTiming Summary" << std::endl;
+	std::cout << "\nKeyGen Timing Summary" << std::endl;
 	std::cout << "Key generation time:        " << "\t" << timeKeyGen << " ms" << std::endl;
 	std::cout << "Serialization time: " << "\t" << timeSer << " ms" << std::endl;
 	std::cout << "Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
@@ -333,7 +333,7 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 		exit(EXIT_FAILURE);
 	}
 
-	std::cout << "Input 2D array" << std::endl;
+	std::cout << "Constructing plaintext" << std::endl;
 
 	vector<vector<Plaintext>> plaintext(height);
 
@@ -349,6 +349,7 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
+	std::cout << "Encrypting..." << std::flush;
 	for(int i = 0; i < height; i++)
 	{
 		vector<Ciphertext<DCRTPoly>> imageRow(width);
@@ -384,8 +385,9 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 	}
 
 	timeTotal = TOC(t_total);
+	std::cout << "...done" << std::endl;
 
-	std::cout << "\nTiming Summary" << std::endl;
+	std::cout << "\nEncryption Timing Summary" << std::endl;
 	std::cout << "Encryption time:        " << "\t" << timeEnc << " ms" << std::endl;
 	std::cout << "Serialization time: " << "\t" << timeSer << " ms" << std::endl;
 	std::cout << "Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
@@ -410,7 +412,7 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 	size_t truncatedBits = 1;
 
-	std::cout << "Deserializing ciphertexts..." ;
+	std::cout << "Deserializing ciphertexts..." << std::flush;
 
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
@@ -441,11 +443,11 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 	}
 
-	std::cout << "Completed" << std::endl;
+	std::cout << "...Done" << std::endl;
 
 	timeSer = TOC(t1);
 
-	std::cout << "Computing..." ;
+	std::cout << "Computing..." << std::flush;
 
 	vector<vector<int>> weightsRaw = {{1, 1, 1}, {1, -8, 1}, {1, 1, 1}};
 
@@ -482,9 +484,9 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 	timeEval = TOC(t1);
 
-	std::cout << "Completed" << std::endl;
+	std::cout << "...Done" << std::endl;
 
-	std::cout << "Serializing the results..." ;
+	std::cout << "Serializing the results..." << std::flush;
 
 	TIC(t1);
 
@@ -518,11 +520,11 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 	timeSer += TOC(t1);
 
-	std::cout << "Completed" << std::endl;
+	std::cout << "...Done" << std::endl;
 
 	timeTotal = TOC(t_total);
 
-	std::cout << "\nTiming Summary" << std::endl;
+	std::cout << "\nEvaluation Timing Summary" << std::endl;
 	std::cout << "Evaluation time:        " << "\t" << timeEval << " ms" << std::endl;
 	std::cout << "Serialization time: " << "\t" << timeSer << " ms" << std::endl;
 	std::cout << "Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
@@ -552,7 +554,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 	// Initialize the public key containers.
 	LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(kser);
 
-	std::cout << "Deserializing ciphertexts..." ;
+	std::cout << "Deserializing ciphertexts..." << std::flush;
 
 	vector<vector<Ciphertext<DCRTPoly>>> image2(height);
 
@@ -583,11 +585,11 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	}
 
-	std::cout << "Completed" << std::endl;
+	std::cout << "...Done" << std::endl;
 
 	timeSer = TOC(t1);
 
-	std::cout << "Decrypting..." ;
+	std::cout << "Decrypting..." << std::flush;
 
 	vector<vector<Plaintext>> result(height);
 
@@ -603,7 +605,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	timeDec = TOC(t1);
 
-	std::cout << "Completed" << std::endl;
+	std::cout << "...Done" << std::endl;
 
 	unsigned char *data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)
@@ -621,7 +623,7 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	timeTotal = TOC(t_total);
 
-	std::cout << "\nTiming Summary" << std::endl;
+	std::cout << "\nDecryption Timing Summary" << std::endl;
 	std::cout << "Decryption time:        " << "\t" << timeDec << " ms" << std::endl;
 	std::cout << "Serialization time: " << "\t" << timeSer << " ms" << std::endl;
 	std::cout << "Total execution time:       " << "\t" << timeTotal << " ms" << std::endl;
@@ -644,6 +646,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	// Key generation
 	LPKeyPair<DCRTPoly> keyPair;
 
+	cout << "Generating keys..." << std::flush;
 	keyPair = cc->KeyGen();
 	cc->EvalMultKeyGen(keyPair.secretKey);
 
@@ -665,6 +668,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	vector<vector<Plaintext>> plaintext(height);
 
+	cout << endl << "Initializing plaintext..." << flush;
 	for(int i = 0; i < height; i++)
 	{
 		for(int k = 0; k < width; k++) {
@@ -674,6 +678,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	delete[] data;
 
+	cout << endl << "Encrypting..." << flush;
 	TIC(times[ENCRYPT]);
 	vector<vector<Ciphertext<DCRTPoly>>> image(height);
 
@@ -686,6 +691,8 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 		image[i] = imageRow;
 	}
 	timeResult[ENCRYPT] = TOC(times[ENCRYPT]);
+
+	cout << endl << "Calculating..." << flush;
 
 	vector<vector<int>> weightsRaw = {{1, 1, 1}, {1, -8, 1}, {1, 1, 1}};
 
@@ -719,6 +726,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	}
 	timeResult[EVALUATE] = TOC(times[EVALUATE]);
 
+	cout << endl << "Decrypting..." << flush;
 	TIC(times[DECRYPT]);
 	vector<vector<Plaintext>> result(height);
 
@@ -730,6 +738,8 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 		}
 	}
 	timeResult[DECRYPT] = TOC(times[DECRYPT]);
+
+	cout << endl;
 
 	data = new unsigned char[height*width];
 	for(int i = 0; i < height; i++)

@@ -1,0 +1,10 @@
+spec=$1
+siz=$2
+
+
+bin/demo/pke/sharpen -d $spec -s $siz
+
+#bin/demo/pke/sharpen -d $spec -s $siz --keygen
+#bin/demo/pke/sharpen -d $spec -s $siz --encrypt
+#bin/demo/pke/sharpen -d $spec -s $siz --evaluate
+#bin/demo/pke/sharpen -d $spec -s $siz --decrypt

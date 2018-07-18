@@ -1979,6 +1979,9 @@ namespace lbcrypto {
 
 		virtual usint GetRelinWindow() const { return 0; }
 
+		virtual int GetDepth() const { return 0; }
+		virtual size_t GetMaxDepth() const { return 0; }
+
 		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const {
 			throw std::logic_error("No DGG Available for this parameter set");
 		}
