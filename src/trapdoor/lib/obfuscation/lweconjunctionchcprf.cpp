@@ -194,7 +194,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
 
-	uint32_t length = m_length / m_chunkSize;
+	uint32_t length = m_adjustedLength;
 	uint32_t base = m_base;
 
 	//Correctness constraint
@@ -260,7 +260,7 @@ void LWEConjunctionCHCPRFAlgorithm<Element>::EncodingParamsGen() {
 	usint base = m_base;
 	usint stddev = m_dgg.GetStd();
 
-	for(size_t i = 0; i<= m_adjustedLength; i++) {
+	for(size_t i = 0; i <= m_adjustedLength; i++) {
 		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGen(params, stddev, base); //TODO remove stddev
 
 		m_A->push_back(trapPair.first);
@@ -279,7 +279,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 
 	size_t m = Ai.GetCols();
 	size_t k = m - 2;
-	size_t n = elem.GetRingDimension();
+	size_t n = GetRingDimension();
 	auto zero_alloc = Element::Allocator(elem.GetParams(), EVALUATION);
 
 	//generate a row vector of discrete Gaussian ring elements
@@ -331,9 +331,9 @@ shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrix
 		Poly poly = matrix(0, i).CRTInterpolate();
 
 		// Transform negative numbers so that they could be rounded correctly
-		for (usint i = 0; i < poly.GetLength(); i++) {
-			if (poly[i] > half)
-				poly[i] = q - poly[i];
+		for (usint k = 0; k < poly.GetLength(); k++) {
+			if (poly[k] > half)
+				poly[k] = q - poly[k];
 		}
 
 		poly = poly.DivideAndRound(half);
@@ -343,7 +343,7 @@ shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrix
 
 	return result;
 
-}
+};
 
 }
 
