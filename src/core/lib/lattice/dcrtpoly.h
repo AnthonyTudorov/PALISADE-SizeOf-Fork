@@ -54,25 +54,25 @@ namespace lbcrypto
 * The double-CRT representations are discussed theoretically here:
 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
 */
-template<typename ModType, typename IntType, typename VecType, typename ParmType>
-class DCRTPolyImpl : public ILElement< DCRTPolyImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+template<typename IntType, typename VecType, typename ParmType>
+class DCRTPolyImpl : public ILElement< DCRTPolyImpl<IntType,VecType,ParmType>,IntType,VecType>
 {
 public:
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
 
-	typedef DCRTPolyImpl<ModType,IntType,VecType,ParmType> DCRTPolyType;
+	typedef DCRTPolyImpl<IntType,VecType,ParmType> DCRTPolyType;
 	typedef DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> DggType;
 	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
 	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
 	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyType;
+	typedef PolyImpl<NativeInteger,NativeVector,ILNativeParams> PolyType;
 
 	// the composed polynomial type
-	typedef PolyImpl<ModType,IntType,VecType,ILParamsImpl<IntType>> PolyLargeType;
+	typedef PolyImpl<IntType,VecType,ILParamsImpl<IntType>> PolyLargeType;
 
 	static const std::string GetElementName() {
 		return "DCRTPolyImpl";
@@ -271,7 +271,7 @@ public:
 	 * @brief returns the element's modulus
 	 * @return returns the modulus of the element.
 	 */
-	const ModType &GetModulus() const {
+	const IntType &GetModulus() const {
 		return m_params->GetModulus();
 	}
 
@@ -1036,7 +1036,7 @@ private:
 namespace lbcrypto
 {
 
-typedef DCRTPolyImpl<BigInteger, BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
+typedef DCRTPolyImpl<BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
 
 }
 

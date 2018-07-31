@@ -53,21 +53,21 @@ namespace lbcrypto
  * @file poly.h
  * @brief Ideal lattice using a vector representation
  */
-template<typename ModType, typename IntType, typename VecType, typename ParmType>
-class PolyImpl : public ILElement<PolyImpl<ModType,IntType,VecType,ParmType>,ModType,IntType,VecType>
+template<typename IntType, typename VecType, typename ParmType>
+class PolyImpl : public ILElement<PolyImpl<IntType,VecType,ParmType>,IntType,VecType>
 {
 public:
 
 	typedef ParmType Params;
 	typedef IntType Integer;
 	typedef VecType Vector;
-	typedef PolyImpl<ModType,IntType,VecType,ParmType> PolyType;
+	typedef PolyImpl<IntType,VecType,ParmType> PolyType;
 	typedef DiscreteGaussianGeneratorImpl<IntType,VecType> DggType;
 	typedef DiscreteUniformGeneratorImpl<IntType,VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<IntType,VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<IntType,VecType> BugType;
-	typedef PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams> PolyNative;
-	typedef PolyImpl<ModType,IntType,VecType,ParmType> PolyLargeType;
+	typedef PolyImpl<NativeInteger,NativeVector,ILNativeParams> PolyNative;
+	typedef PolyImpl<IntType,VecType,ParmType> PolyLargeType;
 
 	/**
 	 * @brief Return the element name.
@@ -90,7 +90,7 @@ public:
 	 */
 	PolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
-	PolyImpl(const shared_ptr<ILDCRTParams<ModType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	PolyImpl(const shared_ptr<ILDCRTParams<IntType>> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	/**
 	 * @brief Construct given parameters and format
@@ -325,7 +325,7 @@ public:
 	 *
 	 * @return the modulus.
 	 */
-	const ModType &GetModulus() const {
+	const IntType &GetModulus() const {
 		return m_params->GetModulus();
 	}
 
@@ -835,7 +835,7 @@ private:
 // biginteger version
 template<>
 inline NativePoly
-PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+PolyImpl<BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 
 	Poly smaller = this->Mod(ptm);
 	NativePoly interp(
@@ -852,7 +852,7 @@ PolyImpl<BigInteger, BigInteger, BigVector, ILParams>::DecryptionCRTInterpolate(
 // native poly version
 template<>
 inline NativePoly
-PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+PolyImpl<NativeInteger, NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 
 	return this->Mod(ptm);
 }
@@ -863,9 +863,9 @@ PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams>::Decryption
 namespace lbcrypto
 {
 
-template<typename ModType, typename IntType, typename VecType, typename ParmType> class PolyImpl;
-typedef PolyImpl<BigInteger, BigInteger, BigVector, ILParams> Poly;
-typedef PolyImpl<NativeInteger, NativeInteger, NativeVector, ILNativeParams> NativePoly;
+template<typename IntType, typename VecType, typename ParmType> class PolyImpl;
+typedef PolyImpl<BigInteger, BigVector, ILParams> Poly;
+typedef PolyImpl<NativeInteger, NativeVector, ILNativeParams> NativePoly;
 
 }
 

@@ -45,10 +45,10 @@ template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
 namespace lbcrypto {
 template class ElemParams<BigInteger>;
 template class ILParamsImpl<BigInteger>;
-template class PolyImpl<BigInteger,BigInteger,BigVector,ILParams>;
+template class PolyImpl<BigInteger,BigVector,ILParams>;
 
 template<>
-PolyImpl<BigInteger,BigInteger,BigVector,ILParams>::PolyImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
+PolyImpl<BigInteger,BigVector,ILParams>::PolyImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
 	// construct a local params out of the stuff from the DCRT Params
 	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
 
