@@ -20,6 +20,26 @@ enum LType { Native, Poly, DCRTPoly };
 //};
 
 template<typename I>
+class myParms {
+public:
+	typedef I Integer;
+
+	Integer x;
+};
+
+template<typename I>
+class myILParms : public myParms<I> {
+public:
+	typename myParms<I>::Integer y;
+};
+
+template<typename I>
+class myILDCRTParms : public myParms<I> {
+public:
+	typename myParms<I>::Integer z[3];
+};
+
+template<typename I>
 class Vector {
 public:
 	typedef I Integer;
@@ -32,14 +52,21 @@ class MyPoly {
 public:
 	typedef typename V::Integer Integer;
 	typedef V Vector;
+	typedef myILParms<Integer> Parms;
+
+	MyPoly( Parms *p ) : pptr(p) {}
 
 	Vector x;
+
+private:
+	Parms *pptr;
 };
 
 int
 main(int argc, char *argv[])
 {
-	MyPoly<Vector<int>> p;
+	myILParms<int> mp;
+	MyPoly<Vector<int>> p( &mp );
 
 	p.x.foo = p.x.bar = 127;
 	cout << "Hello" << endl;

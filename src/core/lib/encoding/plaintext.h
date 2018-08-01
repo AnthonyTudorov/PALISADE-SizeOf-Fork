@@ -43,13 +43,14 @@ namespace lbcrypto
 {
 
 enum PlaintextEncodings {
-	Unknown,
+	Unknown = 0,
 	Scalar,
 	Integer,
 	CoefPacked,
 	Packed,
 	String,
 	Fractional,
+	//MaxKnownEncoding = 7
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
@@ -100,9 +101,10 @@ class PlaintextImpl
 protected:
 	bool						isEncoded;
 	PtxtPolyType				typeFlag;
-	EncodingParams				encodingParams;
+	EncodingParams			encodingParams;
+	//mutable ILElement		*vec;
 	mutable Poly				encodedVector;
-	mutable NativePoly			encodedNativeVector;
+	mutable NativePoly		encodedNativeVector;
 	mutable DCRTPoly			encodedVectorDCRT;
 
 public:
