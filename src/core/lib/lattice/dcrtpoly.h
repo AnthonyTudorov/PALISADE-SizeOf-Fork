@@ -54,25 +54,26 @@ namespace lbcrypto
 * The double-CRT representations are discussed theoretically here:
 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
 */
-template<typename IntType, typename VecType, typename ParmType>
-class DCRTPolyImpl : public ILElement< DCRTPolyImpl<IntType,VecType,ParmType>,IntType,VecType>
+template<typename VecType, typename ParmType>
+class DCRTPolyImpl : public ILElement< DCRTPolyImpl<VecType,ParmType>,VecType>
 {
 public:
+	using Integer = typename VecType::Integer;
+
 	typedef ParmType Params;
-	typedef IntType Integer;
 	typedef VecType Vector;
 
-	typedef DCRTPolyImpl<IntType,VecType,ParmType> DCRTPolyType;
+	typedef DCRTPolyImpl<VecType,ParmType> DCRTPolyType;
 	typedef DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> DggType;
 	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
 	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
 	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<NativeInteger,NativeVector,ILNativeParams> PolyType;
+	typedef PolyImpl<NativeVector,ILNativeParams> PolyType;
 
 	// the composed polynomial type
-	typedef PolyImpl<IntType,VecType,ILParamsImpl<IntType>> PolyLargeType;
+	typedef PolyImpl<VecType,ILParamsImpl<Integer>> PolyLargeType;
 
 	static const std::string GetElementName() {
 		return "DCRTPolyImpl";
@@ -234,7 +235,7 @@ public:
 	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<IntType,VecType> &dgg, Format format = EVALUATION) const;
+	DCRTPolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<Integer,VecType> &dgg, Format format = EVALUATION) const;
 
 	/**
 	* @brief Destructor.
@@ -271,7 +272,7 @@ public:
 	 * @brief returns the element's modulus
 	 * @return returns the modulus of the element.
 	 */
-	const IntType &GetModulus() const {
+	const Integer &GetModulus() const {
 		return m_params->GetModulus();
 	}
 
@@ -279,8 +280,8 @@ public:
 	 * @brief returns the element's root of unity.
 	 * @return the element's root of unity.
 	 */
-	const IntType &GetRootOfUnity() const {
-		static IntType t(0);
+	const Integer &GetRootOfUnity() const {
+		static Integer t(0);
 		return t;
 	}
 
@@ -499,7 +500,7 @@ public:
 	* @param &element is the element to add entry-wise.
 	* @return is the result of the addition operation.
 	*/
-	DCRTPolyType Plus(const IntType &element) const;
+	DCRTPolyType Plus(const Integer &element) const;
 
 	/**
 	* @brief Scalar subtraction - subtract an element to all entries.
@@ -507,7 +508,7 @@ public:
 	* @param &element is the element to subtract entry-wise.
 	* @return is the return value of the minus operation.
 	*/
-	DCRTPolyType Minus(const IntType &element) const;
+	DCRTPolyType Minus(const Integer &element) const;
 
 	/**
 	* @brief Scalar multiplication - multiply all entries.
@@ -515,7 +516,7 @@ public:
 	* @param &element is the element to multiply entry-wise.
 	* @return is the return value of the times operation.
 	*/
-	DCRTPolyType Times(const IntType &element) const;
+	DCRTPolyType Times(const Integer &element) const;
 
 	/**
 	* @brief Scalar multiplication by an integer represented in CRT Basis.
@@ -532,7 +533,7 @@ public:
 	* @param &q is the element to divide entry-wise.
 	* @return is the return value of the multiply, divide and followed by rounding operation.
 	*/
-	DCRTPolyType MultiplyAndRound(const IntType &p, const IntType &q) const;
+	DCRTPolyType MultiplyAndRound(const Integer &p, const Integer &q) const;
 
 	/**
 	* @brief Scalar division followed by rounding operation - operation on all entries.
@@ -540,7 +541,7 @@ public:
 	* @param &q is the element to divide entry-wise.
 	* @return is the return value of the divide, followed by rounding operation.
 	*/
-	DCRTPolyType DivideAndRound(const IntType &q) const;
+	DCRTPolyType DivideAndRound(const Integer &q) const;
 
 	/**
 	* @brief Performs a negation operation and returns the result.
@@ -549,7 +550,7 @@ public:
 	*/
 	DCRTPolyType Negate() const;
 
-	const DCRTPolyType& operator+=(const IntType &element) {
+	const DCRTPolyType& operator+=(const Integer &element) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors[i] += element.ConvertToInt();
 		}
@@ -562,7 +563,7 @@ public:
 	* @param &element is the element to subtract from.
 	* @return is the result of the subtraction.
 	*/
-	const DCRTPolyType& operator-=(const IntType &element) {
+	const DCRTPolyType& operator-=(const Integer &element) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
 			this->m_vectors[i] -= element.ConvertToInt();
 		}
@@ -575,7 +576,7 @@ public:
 	* @param &element is the element to multiply by.
 	* @return is the result of the subtraction.
 	*/
-	const DCRTPolyType& operator*=(const IntType &element);
+	const DCRTPolyType& operator*=(const Integer &element);
 
 	/**
 	* @brief Performs an multiplication operation and returns the result.
@@ -606,8 +607,8 @@ public:
 	* @param modulus is the modulus to use.
 	* @return is the return value of the modulus.
 	*/
-	DCRTPolyType Mod(const IntType &modulus) const {
-		throw std::logic_error("Mod of an IntType not implemented on DCRTPoly");
+	DCRTPolyType Mod(const Integer &modulus) const {
+		throw std::logic_error("Mod of an Integer not implemented on DCRTPoly");
 	}
 
 	// OTHER FUNCTIONS AND UTILITIES
@@ -653,7 +654,7 @@ public:
 	/**
 	* @brief Add uniformly random values to all components except for the first one
 	*/
-	DCRTPolyType AddRandomNoise(const IntType &modulus) const {
+	DCRTPolyType AddRandomNoise(const Integer &modulus) const {
 		throw std::logic_error("AddRandomNoise is not currently implemented for DCRTPoly");
 	}
 
@@ -685,7 +686,7 @@ public:
 	*
 	* @param plaintextModulus is the plaintextModulus used for the DCRTPoly
 	*/
-	void ModReduce(const IntType &plaintextModulus);
+	void ModReduce(const Integer &plaintextModulus);
 
 	/**
 	* @brief Interpolates the DCRTPoly to an Poly based on the Chinese Remainder Transform Interpolation.
@@ -884,7 +885,7 @@ public:
 	* @param &rootOfUnityArb is the corresponding root of unity for the modulus
 	* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 	*/
-	void SwitchModulus(const IntType &modulus, const IntType &rootOfUnity, const IntType &modulusArb = IntType(0), const IntType &rootOfUnityArb = IntType(0)) {
+	void SwitchModulus(const Integer &modulus, const Integer &rootOfUnity, const Integer &modulusArb = Integer(0), const Integer &rootOfUnityArb = Integer(0)) {
 		throw std::logic_error("SwitchModulus not implemented on DCRTPoly");
 	}
 
@@ -896,7 +897,7 @@ public:
 	* @param &rootOfUnity is the corresponding root of unity for the modulus
 	* ASSUMPTION: This method assumes that the caller provides the correct rootOfUnity for the modulus
 	*/
-	void SwitchModulusAtIndex(usint index, const IntType &modulus, const IntType &rootOfUnity);
+	void SwitchModulusAtIndex(usint index, const Integer &modulus, const Integer &rootOfUnity);
 
 	/**
 	* @brief Determines if inverse exists
@@ -958,7 +959,7 @@ public:
 	 * @param b integer to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline DCRTPolyType operator+(const DCRTPolyType &a, const IntType &b) {
+	friend inline DCRTPolyType operator+(const DCRTPolyType &a, const Integer &b) {
 		return a.Plus(b);
 	}
 	
@@ -968,7 +969,7 @@ public:
 	 * @param b element to add.
 	 * @return the result of the addition operation.
 	 */
-	friend inline DCRTPolyType operator+(const IntType &a, const DCRTPolyType &b) {
+	friend inline DCRTPolyType operator+(const Integer &a, const DCRTPolyType &b) {
 		return b.Plus(a);
 	}
 	
@@ -988,7 +989,7 @@ public:
 	 * @param b integer to subtract.
 	 * @return the result of the subtraction operation.
 	 */
-	friend inline DCRTPolyType operator-(const DCRTPolyType &a, const IntType &b) {
+	friend inline DCRTPolyType operator-(const DCRTPolyType &a, const Integer &b) {
 		return a.Minus(b);
 	}
 	
@@ -1008,7 +1009,7 @@ public:
 	 * @param b integer to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline DCRTPolyType operator*(const DCRTPolyType &a, const IntType &b) {
+	friend inline DCRTPolyType operator*(const DCRTPolyType &a, const Integer &b) {
 		return a.Times(b);
 	}
 	
@@ -1018,7 +1019,7 @@ public:
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
-	friend inline DCRTPolyType operator*(const IntType &a, const DCRTPolyType &b) {
+	friend inline DCRTPolyType operator*(const Integer &a, const DCRTPolyType &b) {
 		return b.Times(a);
 	}
 
@@ -1036,7 +1037,7 @@ private:
 namespace lbcrypto
 {
 
-typedef DCRTPolyImpl<BigInteger, BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
+typedef DCRTPolyImpl<BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
 
 }
 

@@ -35,7 +35,7 @@
 
 namespace lbcrypto
 {
-template<typename IntType, typename VecType, typename ParmType> class PolyImpl;
+template<typename VecType, typename ParmType> class PolyImpl;
 }
 
 namespace lbcrypto

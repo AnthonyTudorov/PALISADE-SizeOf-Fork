@@ -43,9 +43,11 @@ namespace lbcrypto
  * Element is the return type for all of these virtual functions.
  * There is no constructor here in the base class; it contains no data to construct.
  */
-template <typename Element, typename IntType, typename VecType>
+template <typename Element, typename VecType>
 class ILElement : public Serializable
 {
+	using IntType = typename VecType::Integer;
+
 public:
 
 	/**
