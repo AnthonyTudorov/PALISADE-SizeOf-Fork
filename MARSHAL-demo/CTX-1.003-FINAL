@@ -14,7 +14,7 @@
                                         "Order": "16384",
                                         "RingDim": "8192",
                                         "CtModulus": "1152921487438528513",
-                                        "RootOfUnity": "800667854890021750",
+                                        "RootOfUnity": "58165839387161820",
                                         "BigCtModulus": "0",
                                         "BigRootOfUnity": "0"
                                     }
@@ -24,7 +24,7 @@
                                         "Order": "16384",
                                         "RingDim": "8192",
                                         "CtModulus": "1152921487438544897",
-                                        "RootOfUnity": "1038300327569362024",
+                                        "RootOfUnity": "255111598069581694",
                                         "BigCtModulus": "0",
                                         "BigRootOfUnity": "0"
                                     }

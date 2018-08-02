@@ -10,7 +10,7 @@ do
 
 	echo "Analyzing circuit...."
 	bin/demo/circuit/palcircuit -v -ap \
-		MARSHAL-demo/CTX-pass$nops \
+		MARSHAL-demo/CTX-$sec-pass$nops \
 		MARSHAL-demo/sharpen-input.acirc \
 		MARSHAL-demo/sharpen.acirc
 	result=$?

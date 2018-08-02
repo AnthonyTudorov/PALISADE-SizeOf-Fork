@@ -142,6 +142,11 @@ main(int argc, char *argv[])
 	SchemaDocument schema(sch);
 
 	cout << "Parsed config-schema" << endl;
+	{
+		string s;
+		SerializableHelper::SerializationToPrettyString(schema, s);
+		cout << s << endl;
+	}
 
 	Serialized ser;
 	if( SerializableHelper::ReadSerializationFromFile(argv[2], &ser, true) == false )
