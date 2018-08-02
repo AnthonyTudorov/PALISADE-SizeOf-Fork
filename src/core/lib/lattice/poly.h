@@ -59,14 +59,15 @@ class PolyImpl : public ILElement<PolyImpl<VecType,ParmType>,VecType>
 public:
 
 	using Integer = typename VecType::Integer;
+	using Params = ILParamsImpl<Integer>;
 
-	typedef ParmType Params;
+	//typedef ParmType Params;
 	typedef VecType Vector;
 	typedef PolyImpl<VecType,ParmType> PolyType;
-	typedef DiscreteGaussianGeneratorImpl<Integer,VecType> DggType;
-	typedef DiscreteUniformGeneratorImpl<Integer,VecType> DugType;
-	typedef TernaryUniformGeneratorImpl<Integer,VecType> TugType;
-	typedef BinaryUniformGeneratorImpl<Integer,VecType> BugType;
+	typedef DiscreteGaussianGeneratorImpl<VecType> DggType;
+	typedef DiscreteUniformGeneratorImpl<VecType> DugType;
+	typedef TernaryUniformGeneratorImpl<VecType> TugType;
+	typedef BinaryUniformGeneratorImpl<VecType> BugType;
 	typedef PolyImpl<NativeVector,ILNativeParams> PolyNative;
 	typedef PolyImpl<VecType,ParmType> PolyLargeType;
 
@@ -158,7 +159,7 @@ public:
 	 */
 	inline static function<PolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
 		return [=]() {
-			DiscreteGaussianGeneratorImpl<Integer,VecType> dgg(stddev);
+			DiscreteGaussianGeneratorImpl<VecType> dgg(stddev);
 			PolyType ilvec(dgg, params, COEFFICIENT);
 			ilvec.SetFormat(resultFormat);
 			return ilvec;
@@ -174,7 +175,7 @@ public:
 	 */
 	inline static function<PolyType()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
 		return [=]() {
-			DiscreteUniformGeneratorImpl<Integer,VecType> dug;
+			DiscreteUniformGeneratorImpl<VecType> dug;
 			dug.SetModulus(params->GetModulus());
 			return PolyType(dug, params, format);
 		};
@@ -234,7 +235,7 @@ public:
 	 * @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the PolyImpl with random numbers.
 	 * @return new Element
 	 */
-	PolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<Integer,VecType> &dgg, Format format) const;
+	PolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format) const;
 
 	/**
 	 * Destructor

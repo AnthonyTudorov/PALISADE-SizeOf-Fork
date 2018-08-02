@@ -64,10 +64,10 @@ public:
 	typedef VecType Vector;
 
 	typedef DCRTPolyImpl<VecType,ParmType> DCRTPolyType;
-	typedef DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> DggType;
-	typedef DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> DugType;
-	typedef TernaryUniformGeneratorImpl<NativeInteger,NativeVector> TugType;
-	typedef BinaryUniformGeneratorImpl<NativeInteger,NativeVector> BugType;
+	typedef DiscreteGaussianGeneratorImpl<NativeVector> DggType;
+	typedef DiscreteUniformGeneratorImpl<NativeVector> DugType;
+	typedef TernaryUniformGeneratorImpl<NativeVector> TugType;
+	typedef BinaryUniformGeneratorImpl<NativeVector> BugType;
 
 	// this class contains an array of these:
 	typedef PolyImpl<NativeVector,ILNativeParams> PolyType;
@@ -235,7 +235,7 @@ public:
 	* @param &dgg the input discrete Gaussian generator. The dgg will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<Integer,VecType> &dgg, Format format = EVALUATION) const;
+	DCRTPolyType CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format = EVALUATION) const;
 
 	/**
 	* @brief Destructor.

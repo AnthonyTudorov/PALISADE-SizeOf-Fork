@@ -35,10 +35,10 @@
 // This creates all the necessary class implementations for Poly
 
 namespace lbcrypto {
-template class DiscreteGaussianGeneratorImpl<BigInteger,BigVector>;
-template class BinaryUniformGeneratorImpl<BigInteger,BigVector>;
-template class TernaryUniformGeneratorImpl<BigInteger,BigVector>;
-template class DiscreteUniformGeneratorImpl<BigInteger,BigVector>;
+template class DiscreteGaussianGeneratorImpl<BigVector>;
+template class BinaryUniformGeneratorImpl<BigVector>;
+template class TernaryUniformGeneratorImpl<BigVector>;
+template class DiscreteUniformGeneratorImpl<BigVector>;
 
 }
 

@@ -87,7 +87,7 @@ void MultiThreadedRun(int index) {
 
 	size_t counter = 24;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigVector> dgg(SIGMA);
 
 	usint sm = SECURE_PARAMS[index].m;
 	BigInteger smodulus(SECURE_PARAMS[index].modulus);

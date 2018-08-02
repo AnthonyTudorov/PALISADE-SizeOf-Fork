@@ -95,7 +95,7 @@ double LWETBOLinearSecret::EstimateModulusClassifier() {
 shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
 {
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(m_modulus);
 
 	vector<shared_ptr<NativeVector>> secretKey(m_N);
@@ -119,7 +119,7 @@ shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen() const
 shared_ptr<LWETBOKeys> LWETBOLinearSecret::KeyGen(unsigned char* aes_key, uint32_t seed) const
 {
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(m_modulus);
 
 	NativeVector publicRandomVector = dug.GenerateVector(m_n);

@@ -269,7 +269,7 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneParametersOn
 }
 
 template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<Integer,VecType> &dgg, Format format) const
+DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format) const
 {
 
 	DCRTPolyImpl res = CloneParametersOnly();

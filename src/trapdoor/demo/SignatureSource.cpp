@@ -65,7 +65,7 @@ void MultiThreadedRun() {
 
 	size_t counter = 50;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigVector> dgg(SIGMA);
 
 	usint sm = 2048;
 	BigInteger smodulus("67127297");

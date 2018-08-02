@@ -63,7 +63,7 @@ void testDCRTPolyConstructorNegative(std::vector<NativePoly> &towers);
 /*-TESTING METHODS OF LATTICE ELEMENTS    ----------------*/
 
 // template for operations tests
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 static void operators_tests(shared_ptr<ParmType> ilparams) {
 
 	Element ilvector2n1(ilparams);
@@ -87,7 +87,7 @@ static void operators_tests(shared_ptr<ParmType> ilparams) {
 	{//test SwitchModulus, !=
 		Element ilv1 = ilvector2n1;
 		try {
-			ilv1.SwitchModulus(IntType("123467"), IntType("1234"));
+			ilv1.SwitchModulus(typename VecType::Integer("123467"), typename VecType::Integer("1234"));
 			EXPECT_NE(ilvector2n1, ilv1)
 				<< "Failure: Operator!= switchmodulus comparison";
 
@@ -159,7 +159,7 @@ TEST(UTPoly, ops_tests) {
 	Poly::Integer primeModulus("73");
 	Poly::Integer primitiveRootOfUnity("22");
 
-	operators_tests<BigInteger, BigVector, ILParams, Poly>(
+	operators_tests<BigVector, ILParams, Poly>(
 			ElemParamFactory::GenElemParams<ILParamsImpl<BigInteger>>(m) );
 }
 
@@ -168,30 +168,30 @@ TEST(UTNativePoly, ops_tests) {
 	NativeInteger primeModulus("73");
 	NativeInteger primitiveRootOfUnity("22");
 
-	operators_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>(
+	operators_tests<NativeVector, ILNativeParams, NativePoly>(
 			ElemParamFactory::GenElemParams<ILParamsImpl<NativeInteger>>(m) );
 }
 
 TEST(UTDCRTPoly, ops_tests) {
-	operators_tests<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>(
+	operators_tests<BigVector, ILDCRTParams<BigInteger>, DCRTPoly>(
 			GenerateDCRTParams<BigInteger>(8, 3, 20) );
 }
 
 // template for rounding_operations tests
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void rounding_operations() {
   bool dbg_flag = false;
 	usint m = 8;
 
-	IntType q("73");
-	IntType primitiveRootOfUnity("22");
-	IntType p("8");
+	typename VecType::Integer q("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+	typename VecType::Integer p("8");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, q, primitiveRootOfUnity) );
 
 	//temporary larger modulus that is used for polynomial multiplication before rounding
-	IntType q2("16417");
-	IntType primitiveRootOfUnity2("13161");
+	typename VecType::Integer q2("16417");
+	typename VecType::Integer primitiveRootOfUnity2("13161");
 
 	shared_ptr<ParmType> ilparams2( new ParmType(m, q2, primitiveRootOfUnity2) );
 
@@ -258,24 +258,24 @@ void rounding_operations() {
 }
 // instantiate various test for rounding_operations()
 TEST(UTPoly, rounding_operations) {
-	rounding_operations<BigInteger, BigVector, ILParams, Poly>();
+	rounding_operations<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, rounding_operations) {
-	rounding_operations<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	rounding_operations<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, rounding_operations) {
-//	rounding_operations<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	rounding_operations<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
 //template for setters_tests()
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void setters_tests() {
 	usint m = 8;
 
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -313,21 +313,21 @@ void setters_tests() {
 
 // instantiate setters_tests() for various combos
 TEST(UTPoly, setters_tests) {
-	setters_tests<BigInteger, BigVector, ILParams, Poly>();
+	setters_tests<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, setters_tests) {
-	setters_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	setters_tests<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //template for binary_ops()
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void binary_ops() {
 	bool dbg_flag = false;
 	usint m = 8;
 
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -408,23 +408,23 @@ void binary_ops() {
 
 // Instantiations of binary_ops
 TEST(UTPoly, binary_ops) {
-	binary_ops<BigInteger, BigVector, ILParams, Poly>();
+	binary_ops<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, binary_ops) {
-	binary_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	binary_ops<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, binary_ops) {
-//	binary_ops<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	binary_ops<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
 //templet for clone_ops
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void clone_ops() {
 	usint m = 8;
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -447,7 +447,7 @@ void clone_ops() {
 	}
 	{
 		float stdDev = 4;
-		DiscreteGaussianGeneratorImpl<IntType,VecType> dgg(stdDev);
+		DiscreteGaussianGeneratorImpl<VecType> dgg(stdDev);
 		Element ilvClone = ilv.CloneWithNoise(dgg, ilv.GetFormat());
 
 		EXPECT_EQ(ilv.GetCyclotomicOrder(), 
@@ -463,23 +463,23 @@ void clone_ops() {
 }
 //Instantiations of clone_ops()
 TEST(UTPoly, clone_ops) {
-	clone_ops<BigInteger, BigVector, ILParams, Poly>();
+	clone_ops<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, clone_ops) {
-	clone_ops<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	clone_ops<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, clone_ops) {
-//	clone_ops<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	clone_ops<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
 //template for arithmetic_ops_element()
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void arithmetic_ops_element() {
 	usint m = 8;
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -488,7 +488,7 @@ void arithmetic_ops_element() {
 	bbv = {"2","1","4","1"};
 	ilv.SetValues(bbv, ilv.GetFormat());
 
-	IntType element("1");
+	typename VecType::Integer element("1");
 
 	{
 		Element ilvector2n(ilparams);
@@ -510,7 +510,7 @@ void arithmetic_ops_element() {
 			<<"Failure: Minus()";
 	}
 	{
-		IntType ele("2");
+		typename VecType::Integer ele("2");
 		Element ilvector2n = ilv.Times(ele);
 		VecType expected(4, primeModulus);
 		expected = {"4","2","8","2"};
@@ -548,24 +548,24 @@ void arithmetic_ops_element() {
 }
 //instantiations for arithmetic_ops_element()
 TEST(UTPoly, arithmetic_ops_element) {
-	arithmetic_ops_element<BigInteger, BigVector, ILParams, Poly>();
+	arithmetic_ops_element<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, arithmetic_ops_element) {
-	arithmetic_ops_element<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	arithmetic_ops_element<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, arithmetic_ops_element) {
-//	arithmetic_ops_element<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	arithmetic_ops_element<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
 //template fore other_methods()
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void other_methods() {
 	bool dbg_flag = false;
 	usint m = 8;
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	float stdDev = 4.0;
 	typename Element::DggType dgg(stdDev);
@@ -705,8 +705,8 @@ void other_methods() {
 		bbv ={"56","1","37","2"};
 		ilv.SetValues(bbv, Format::COEFFICIENT);
 
-		IntType modulus("17");
-		IntType rootOfUnity("15");
+		typename VecType::Integer modulus("17");
+		typename VecType::Integer rootOfUnity("15");
 
 		ilv.SwitchModulus(modulus, rootOfUnity);
 		VecType expected(4, modulus);
@@ -719,8 +719,8 @@ void other_methods() {
 		bbv1 ={"56","43","35","28"};
 		ilv1.SetValues(bbv1, Format::COEFFICIENT);
 
-		IntType modulus1("193");
-		IntType rootOfUnity1("150");
+		typename VecType::Integer modulus1("193");
+		typename VecType::Integer rootOfUnity1("150");
 
 		ilv1.SwitchModulus(modulus1, rootOfUnity1);
 		VecType expected2(4, modulus1);
@@ -771,7 +771,7 @@ void other_methods() {
 		//
 		//    for (usint i = 0; i < m/2; ++i)
 		//    {
-		//      EXPECT_EQ(IntType::ONE, ilvProduct.at(i));
+		//      EXPECT_EQ(typename VecType::Integer::ONE, ilvProduct.at(i));
 		//    }
 
 		Element ilv1(ilparams);
@@ -815,36 +815,36 @@ void other_methods() {
 }
 //Instantiations of other_methods()
 TEST(UTPoly, other_methods) {
-	other_methods<BigInteger, BigVector, ILParams, Poly>();
+	other_methods<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, other_methods) {
-	other_methods<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	other_methods<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, other_methods) {
-//	other_methods<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	other_methods<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void cyclotomicOrder_test() {
 	usint m = 8;
-	shared_ptr<ParmType> ilparams0( new ParmType(m, IntType("1234"), IntType("5678")) );
+	shared_ptr<ParmType> ilparams0( new ParmType(m, typename VecType::Integer("1234"), typename VecType::Integer("5678")) );
 	Element ilv0(ilparams0);
 	EXPECT_EQ(ilparams0->GetCyclotomicOrder(), ilv0.GetCyclotomicOrder())
 		<< "Failure: GetCyclotomicOrder()";
 }
 //Instantiations of cyclotomicOrder_test()
 TEST(UTPoly, cyclotomicOrder_test) {
-	cyclotomicOrder_test<BigInteger, BigVector, ILParams, Poly>();
+	cyclotomicOrder_test<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, cyclotomicOrder_test) {
-	cyclotomicOrder_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	cyclotomicOrder_test<NativeVector, ILNativeParams, NativePoly>();
 }
 
 TEST(UTDCRTPoly, cyclotomicOrder_test) {
-	cyclotomicOrder_test<BigInteger, BigVector, ILDCRTParams<BigInteger>, DCRTPoly>();
+	cyclotomicOrder_test<BigVector, ILDCRTParams<BigInteger>, DCRTPoly>();
 }
 
 // this test is only for DCRTPoly so isn't templated
@@ -1002,13 +1002,13 @@ TEST(UTDCRTPoly, constructors_test) {
 
 // Signed mod must handle the modulo operation for both positive and negative numbers
 // It is used in decoding/decryption of homomorphic encryption schemes
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void signed_mod_tests() {
 
 	usint m = 8;
 
-	IntType primeModulus("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
@@ -1037,24 +1037,24 @@ void signed_mod_tests() {
 }
 //Instantiations of signed_mod_tests()
 TEST(UTPoly, signed_mod_tests) {
-	signed_mod_tests<BigInteger, BigVector, ILParams, Poly>();
+	signed_mod_tests<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, signed_mod_tests) {
-	signed_mod_tests<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	signed_mod_tests<NativeVector, ILNativeParams, NativePoly>();
 }
 
 //TEST(UTDCRTPoly, signed_mod_tests) {
-//	signed_mod_tests<BigInteger, BigVector, ILDCRTParams, DCRTPoly>();
+//	signed_mod_tests<BigVector, ILDCRTParams, DCRTPoly>();
 //}
 
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void transposition_test() {
   bool dbg_flag = false;
 	usint m = 8;
 
-	IntType q("73");
-	IntType primitiveRootOfUnity("22");
+	typename VecType::Integer q("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
 
 	shared_ptr<ParmType> ilparams(new ParmType(m, q, primitiveRootOfUnity));
 
@@ -1086,11 +1086,11 @@ void transposition_test() {
 }
 //Instantiations of transposition_test()
 TEST(UTPoly, transposition_test) {
-	transposition_test<BigInteger, BigVector, ILParams, Poly>();
+	transposition_test<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, transposition_test) {
-	transposition_test<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	transposition_test<NativeVector, ILNativeParams, NativePoly>();
 }
 
 // DCRTPoly Only
@@ -1500,14 +1500,14 @@ TEST(UTDCRTPoly, decompose_test) {
 
 }
 
-template<typename IntType, typename VecType, typename ParmType, typename Element>
+template<typename VecType, typename ParmType, typename Element>
 void ensures_mod_operation_during_ops_on_two_Polys() {
 
 	usint order = 8;
 	usint nBits = 7;
 
-	IntType primeModulus = lbcrypto::FirstPrime<IntType>(nBits, order);
-	IntType primitiveRootOfUnity = lbcrypto::RootOfUnity<IntType>(order, primeModulus);
+	typename VecType::Integer primeModulus = lbcrypto::FirstPrime<typename VecType::Integer>(nBits, order);
+	typename VecType::Integer primitiveRootOfUnity = lbcrypto::RootOfUnity<typename VecType::Integer>(order, primeModulus);
 
 	shared_ptr<ParmType> ilparams( new ParmType(order, primeModulus, primitiveRootOfUnity) );
 
@@ -1541,11 +1541,11 @@ void ensures_mod_operation_during_ops_on_two_Polys() {
 }
 
 TEST(UTPoly, ensures_mod_operation_during_ops_on_two_Polys) {
-	ensures_mod_operation_during_ops_on_two_Polys<BigInteger, BigVector, ILParams, Poly>();
+	ensures_mod_operation_during_ops_on_two_Polys<BigVector, ILParams, Poly>();
 }
 
 TEST(UTNativePoly, ensures_mod_operation_during_ops_on_two_Polys) {
-	ensures_mod_operation_during_ops_on_two_Polys<NativeInteger, NativeVector, ILNativeParams, NativePoly>();
+	ensures_mod_operation_during_ops_on_two_Polys<NativeVector, ILNativeParams, NativePoly>();
 }
 
 TEST(UTDCRTPoly, ensures_mod_operation_during_ops_on_two_DCRTPolys){

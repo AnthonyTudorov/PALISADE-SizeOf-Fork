@@ -56,16 +56,16 @@
 
 namespace lbcrypto {
 
-template<typename IntType, typename VecType>
+template<typename VecType>
 class DiscreteGaussianGeneratorImpl;
 
-typedef DiscreteGaussianGeneratorImpl<BigInteger,BigVector> DiscreteGaussianGenerator;
+typedef DiscreteGaussianGeneratorImpl<BigVector> DiscreteGaussianGenerator;
 
 /**
 * @brief The class for Discrete Gaussion Distribution generator.
 */
-template<typename IntType, typename VecType>
-class DiscreteGaussianGeneratorImpl : public DistributionGenerator<IntType,VecType> {
+template<typename VecType>
+class DiscreteGaussianGeneratorImpl : public DistributionGenerator<VecType> {
 
 public:
 	/**
@@ -74,6 +74,11 @@ public:
 	* @param std     The standard deviation for this Gaussian Distribution.
 	*/
 	DiscreteGaussianGeneratorImpl (float std = 1);
+
+	/**
+	* @brief Destructor
+	*/
+	~DiscreteGaussianGeneratorImpl() { }
 
 	/**
 	* @brief Initializes the generator.
@@ -111,7 +116,7 @@ public:
 	* @brief  Returns a generated integer. Uses Peikert's inversion method.
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	IntType GenerateInteger (const IntType& modulus) const;
+	typename VecType::Integer GenerateInteger (const typename VecType::Integer& modulus) const;
 
 	/**
 	* @brief           Generates a vector of random values within this Discrete Gaussian Distribution. Uses Peikert's inversion method.
@@ -120,7 +125,7 @@ public:
 	* @param  modulus  modulus of the polynomial ring.
 	* @return          The vector of values within this Discrete Gaussian Distribution.
 	*/
-	VecType GenerateVector (usint size, const IntType &modulus) const;
+	VecType GenerateVector (usint size, const typename VecType::Integer &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -130,7 +135,7 @@ public:
 	* param modulus modulus
 	* @return A random value within this Discrete Gaussian Distribution.
 	*/
-	IntType GenerateInteger (double mean, double stddev, size_t n, const IntType &modulus) const;
+	typename VecType::Integer GenerateInteger (double mean, double stddev, size_t n, const typename VecType::Integer &modulus) const;
 
 	/**
 	* @brief  Returns a generated integer. Uses rejection method.
@@ -150,10 +155,6 @@ public:
 	//int32_t GenerateInt32 (double mean, double stddev);
 	//will be defined later
 	
-	/**
-	* @brief Destructor
-	*/
-	~DiscreteGaussianGeneratorImpl() { }
 	/**
 	* @brief Returns a generated integer. Uses Karney's method defined as Algorithm D in https://arxiv.org/pdf/1303.6257.pdf
 	* @param mean center of discrecte Gaussian distribution.

@@ -99,7 +99,7 @@ PolyImpl<VecType,ParmType>::PolyImpl(const DggType &dgg, const shared_ptr<ParmTy
 }
 
 template<typename VecType, typename ParmType>
-PolyImpl<VecType,ParmType>::PolyImpl( DiscreteUniformGeneratorImpl<Integer,VecType> &dug, const shared_ptr<ParmType> params, Format format)
+PolyImpl<VecType,ParmType>::PolyImpl( DiscreteUniformGeneratorImpl<VecType> &dug, const shared_ptr<ParmType> params, Format format)
 {
 
 	m_params = params;
@@ -117,7 +117,7 @@ PolyImpl<VecType,ParmType>::PolyImpl( DiscreteUniformGeneratorImpl<Integer,VecTy
 }
 
 template<typename VecType, typename ParmType>
-PolyImpl<VecType,ParmType>::PolyImpl(const BinaryUniformGeneratorImpl<Integer,VecType> &bug, const shared_ptr<ParmType> params, Format format)
+PolyImpl<VecType,ParmType>::PolyImpl(const BinaryUniformGeneratorImpl<VecType> &bug, const shared_ptr<ParmType> params, Format format)
 {
 	bool dbg_flag = false;
 	m_params = params;
@@ -133,7 +133,7 @@ PolyImpl<VecType,ParmType>::PolyImpl(const BinaryUniformGeneratorImpl<Integer,Ve
 }
 
 template<typename VecType, typename ParmType>
-PolyImpl<VecType,ParmType>::PolyImpl(const TernaryUniformGeneratorImpl<Integer,VecType> &tug, const shared_ptr<ParmType> params, Format format)
+PolyImpl<VecType,ParmType>::PolyImpl(const TernaryUniformGeneratorImpl<VecType> &tug, const shared_ptr<ParmType> params, Format format)
 {
 
 	m_params = params;
@@ -423,7 +423,7 @@ PolyImpl<VecType,ParmType> PolyImpl<VecType,ParmType>::CloneParametersOnly() con
 }
 
 template<typename VecType, typename ParmType>
-PolyImpl<VecType,ParmType> PolyImpl<VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<Integer,VecType> &dgg, Format format) const
+PolyImpl<VecType,ParmType> PolyImpl<VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format) const
 {
 	PolyImpl<VecType,ParmType> result(dgg, m_params, format);
 	return result;

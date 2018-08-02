@@ -38,10 +38,10 @@
 
 namespace lbcrypto
 {
-template class DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector>;
-template class BinaryUniformGeneratorImpl<NativeInteger,NativeVector>;
-template class TernaryUniformGeneratorImpl<NativeInteger,NativeVector>;
-template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
+template class DiscreteGaussianGeneratorImpl<NativeVector>;
+template class BinaryUniformGeneratorImpl<NativeVector>;
+template class TernaryUniformGeneratorImpl<NativeVector>;
+template class DiscreteUniformGeneratorImpl<NativeVector>;
 
 template class ElemParams<NativeInteger>;
 template class ILParamsImpl<NativeInteger>;

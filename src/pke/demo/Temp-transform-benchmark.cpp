@@ -404,7 +404,7 @@ int main() {
 	uint64_t nRep;
 	double start, stop;
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
 

@@ -63,7 +63,6 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson, Poly** newPoly)
 	if( pkv != parmsDoc.MemberEnd() ) {
 		fmt = Formats[pkv->value.GetString()];
 	}
-	cout << fmt << endl;
 
 	bool initToZero = false;
 	pkv = parmsDoc.FindMember("initToZero");
@@ -101,7 +100,7 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson, Poly** newPoly)
 		switch( p ) {
 		case PTNative:
 		{
-			//*newPoly = new Poly<x>(parms, fmt, initToZero);
+
 		}
 		break;
 
@@ -155,7 +154,7 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson, Poly** newPoly)
 
 		case PTInteger:
 		{
-
+			*newPoly = new PolyImpl<BigVector,ILParams>(parms, fmt, initToZero);
 		}
 		break;
 
@@ -231,5 +230,20 @@ main(int argc, char *argv[])
 
 	p.x.foo = p.x.bar = 127;
 	cout << "Hello" << endl;
+
+	usint m = 8;
+	BigInteger q("73");
+	BigInteger primitiveRootOfUnity("22");
+	BigInteger ptm("8");
+
+	shared_ptr<ILParams> ilparams( new ILParams(m, q, primitiveRootOfUnity) );
+
+	PolyFactory::SetLatticeParms(ilparams);
+
+	Poly *poly;
+	if( PolyFactory::MakePoly("{}",&poly) ) {
+		cout << "Poly Success!" << endl;
+	}
+
 	return 0;
 }
