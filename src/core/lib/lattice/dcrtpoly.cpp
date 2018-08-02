@@ -36,15 +36,15 @@ namespace lbcrypto
 {
 
 /*CONSTRUCTORS*/
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl()
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl()
 {
 	m_format = EVALUATION;
-	m_params.reset( new ParmType(0,1) );
+	m_params.reset( new DCRTPolyImpl::Params(0,1) );
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const shared_ptr<ParmType> dcrtParams, Format format, bool initializeElementToZero)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format, bool initializeElementToZero)
 {
 	m_format = format;
 	m_params = dcrtParams;
@@ -57,17 +57,17 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const shared_ptr<ParmType> dcrtPara
 	}
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl &element)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const DCRTPolyImpl &element)
 {
 	m_format = element.m_format;
 	m_vectors = element.m_vectors;
 	m_params = element.m_params;
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType>&
-DCRTPolyImpl<VecType,ParmType>::operator=(const PolyLargeType &element)
+template<typename VecType>
+const DCRTPolyImpl<VecType>&
+DCRTPolyImpl<VecType>::operator=(const PolyLargeType &element)
 {
 
 	if( element.GetModulus() > m_params->GetModulus() ) {
@@ -103,8 +103,8 @@ DCRTPolyImpl<VecType,ParmType>::operator=(const PolyLargeType &element)
 }
 
 /* Construct from a single Poly. The format is derived from the passed in Poly.*/
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<ParmType> params)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<DCRTPolyImpl::Params> params)
 {
 	Format format;
 	try {
@@ -125,8 +125,8 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const PolyLargeType &element, const
 /* Construct using a tower of vectors.
  * The params and format for the DCRTPolyImpl will be derived from the towers
  */
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const std::vector<PolyType> &towers)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const std::vector<PolyType> &towers)
 {
 	usint cyclotomicOrder = towers.at(0).GetCyclotomicOrder();
 	std::vector<std::shared_ptr<ILNativeParams>> parms;
@@ -137,7 +137,7 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const std::vector<PolyType> &towers
 		parms.push_back( towers[i].GetParams() );
 	}
 
-	shared_ptr<ParmType> p( new ParmType(cyclotomicOrder, parms) );
+	shared_ptr<DCRTPolyImpl::Params> p( new DCRTPolyImpl::Params(cyclotomicOrder, parms) );
 
 	m_params = p;
 	m_vectors = towers;
@@ -145,8 +145,8 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const std::vector<PolyType> &towers
 }
 
 /*The dgg will be the seed to populate the towers of the DCRTPolyImpl with random numbers. The algorithm to populate the towers can be seen below.*/
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const DggType& dgg, const shared_ptr<ParmType> dcrtParams, Format format)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const DggType& dgg, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
 {
 	m_format = format;
 	m_params = dcrtParams;
@@ -185,8 +185,8 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const DggType& dgg, const shared_pt
 	}
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(DugType& dug, const shared_ptr<ParmType> dcrtParams, Format format)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(DugType& dug, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
 {
 
 	m_format = format;
@@ -209,8 +209,8 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(DugType& dug, const shared_ptr<Parm
 	}
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const TugType& tug, const shared_ptr<ParmType> dcrtParams, Format format)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const TugType& tug, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
 {
 
 	m_format = format;
@@ -252,24 +252,24 @@ DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const TugType& tug, const shared_pt
 }
 
 /*Move constructor*/
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::DCRTPolyImpl(const DCRTPolyImpl &&element)
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const DCRTPolyImpl &&element)
 {
 	m_format = element.m_format;
 	m_vectors = std::move(element.m_vectors);
 	m_params = std::move(element.m_params);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneParametersOnly() const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::CloneParametersOnly() const
 {
 
 	DCRTPolyImpl res(this->m_params, this->m_format);
 	return std::move(res);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::CloneWithNoise(const DiscreteGaussianGeneratorImpl<VecType> &dgg, Format format) const
 {
 
 	DCRTPolyImpl res = CloneParametersOnly();
@@ -289,12 +289,12 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::CloneWithNoise(co
 
 // DESTRUCTORS
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>::~DCRTPolyImpl() {}
+template<typename VecType>
+DCRTPolyImpl<VecType>::~DCRTPolyImpl() {}
 
 // GET ACCESSORS
-template<typename VecType, typename ParmType>
-const typename DCRTPolyImpl<VecType,ParmType>::PolyType& DCRTPolyImpl<VecType,ParmType>::GetElementAtIndex (usint i) const
+template<typename VecType>
+const typename DCRTPolyImpl<VecType>::PolyType& DCRTPolyImpl<VecType>::GetElementAtIndex (usint i) const
 {
 	if(m_vectors.empty())
 		throw std::logic_error("DCRTPolyImpl's towers are not initialized.");
@@ -303,26 +303,26 @@ const typename DCRTPolyImpl<VecType,ParmType>::PolyType& DCRTPolyImpl<VecType,Pa
 	return m_vectors[i];
 }
 
-template<typename VecType, typename ParmType>
-usint DCRTPolyImpl<VecType,ParmType>::GetNumOfElements() const
+template<typename VecType>
+usint DCRTPolyImpl<VecType>::GetNumOfElements() const
 {
 	return m_vectors.size();
 }
 
-template<typename VecType, typename ParmType>
-const std::vector<typename DCRTPolyImpl<VecType,ParmType>::PolyType>& DCRTPolyImpl<VecType,ParmType>::GetAllElements() const
+template<typename VecType>
+const std::vector<typename DCRTPolyImpl<VecType>::PolyType>& DCRTPolyImpl<VecType>::GetAllElements() const
 {
 	return m_vectors;
 }
 
-template<typename VecType, typename ParmType>
-Format DCRTPolyImpl<VecType,ParmType>::GetFormat() const
+template<typename VecType>
+Format DCRTPolyImpl<VecType>::GetFormat() const
 {
 	return m_format;
 }
 
-template<typename VecType, typename ParmType>
-std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
+template<typename VecType>
+std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
 	bool dbg_flag = false;
 	DEBUG("...::BaseDecompose" );
@@ -339,11 +339,11 @@ std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::Base
 		DEBUG(i );
 	DEBUG("</bdV>" );
 
-	std::vector<DCRTPolyImpl<VecType,ParmType>> result;
+	std::vector<DCRTPolyImpl<VecType>> result;
 
 	// populate the result by converting each of the big vectors into a VectorArray
 	for( usint i=0; i<bdV.size(); i++ ) {
-		DCRTPolyImpl<VecType,ParmType> dv(bdV[i], this->GetParams());
+		DCRTPolyImpl<VecType> dv(bdV[i], this->GetParams());
 		if( evalModeAnswer )
 			dv.SwitchFormat();
 		result.push_back( std::move(dv) );
@@ -357,8 +357,8 @@ std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::Base
 	return std::move(result);
 }
 
-template<typename VecType, typename ParmType>
-std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::CRTDecompose(uint32_t baseBits) const
+template<typename VecType>
+std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t baseBits) const
 {
 
 	uint32_t nWindows = 1;
@@ -426,12 +426,12 @@ std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::CRTD
 	return std::move(result);
 }
 
-template<typename VecType, typename ParmType>
-std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::PowersOfBase(usint baseBits) const
+template<typename VecType>
+std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::PowersOfBase(usint baseBits) const
 {
 	bool dbg_flag = false;
 
-	std::vector<DCRTPolyImpl<VecType,ParmType>> result;
+	std::vector<DCRTPolyImpl<VecType>> result;
 
 	usint nBits = m_params->GetModulus().GetLengthForBase(2);
 
@@ -473,10 +473,10 @@ std::vector<DCRTPolyImpl<VecType,ParmType>> DCRTPolyImpl<VecType,ParmType>::Powe
 
 /*VECTOR OPERATIONS*/
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::MultiplicativeInverse() const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::MultiplicativeInverse() const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = m_vectors[i].MultiplicativeInverse();
@@ -484,10 +484,10 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::MultiplicativeInv
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::ModByTwo() const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ModByTwo() const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = m_vectors[i].ModByTwo();
@@ -495,13 +495,13 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::ModByTwo() const
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Plus(const DCRTPolyImpl &element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Plus(const DCRTPolyImpl &element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot add");
 	}
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] += element.GetElementAtIndex (i);
@@ -509,10 +509,10 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Plus(const DCRTPo
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Negate() const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Negate() const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(this->CloneParametersOnly());
+	DCRTPolyImpl<VecType> tmp(this->CloneParametersOnly());
 	tmp.m_vectors.clear();
 
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
@@ -522,13 +522,13 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Negate() const
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Minus(const DCRTPolyImpl &element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Minus(const DCRTPolyImpl &element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot subtract");
 	}
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] -= element.GetElementAtIndex (i);
@@ -536,8 +536,8 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Minus(const DCRTP
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator+=(const DCRTPolyImpl &rhs)
+template<typename VecType>
+const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator+=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
 		this->m_vectors[i] += rhs.m_vectors[i];
@@ -546,8 +546,8 @@ const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator+=
 
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator-=(const DCRTPolyImpl &rhs)
+template<typename VecType>
+const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator-=(const DCRTPolyImpl &rhs)
 {
 	for (usint i = 0; i < this->GetNumOfElements(); i++) {
 		this->m_vectors.at(i) -= rhs.m_vectors[i];
@@ -556,8 +556,8 @@ const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator-=
 
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator*=(const DCRTPolyImpl &element)
+template<typename VecType>
+const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator*=(const DCRTPolyImpl &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
 		this->m_vectors.at(i) *= element.m_vectors.at(i);
@@ -567,8 +567,8 @@ const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator*=
 
 }
 
-template<typename VecType, typename ParmType>
-bool DCRTPolyImpl<VecType,ParmType>::operator==(const DCRTPolyImpl &rhs) const
+template<typename VecType>
+bool DCRTPolyImpl<VecType>::operator==(const DCRTPolyImpl &rhs) const
 {
 
 	if( GetCyclotomicOrder() != rhs.GetCyclotomicOrder() )
@@ -589,8 +589,8 @@ bool DCRTPolyImpl<VecType,ParmType>::operator==(const DCRTPolyImpl &rhs) const
 	else return (m_vectors == rhs.GetAllElements());
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType> & DCRTPolyImpl<VecType,ParmType>::operator=(const DCRTPolyImpl & rhs)
+template<typename VecType>
+const DCRTPolyImpl<VecType> & DCRTPolyImpl<VecType>::operator=(const DCRTPolyImpl & rhs)
 {
 	if (this != &rhs) {
 		m_vectors = rhs.m_vectors;
@@ -600,8 +600,8 @@ const DCRTPolyImpl<VecType,ParmType> & DCRTPolyImpl<VecType,ParmType>::operator=
 	return *this;
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType> & DCRTPolyImpl<VecType,ParmType>::operator=(DCRTPolyImpl&& rhs)
+template<typename VecType>
+const DCRTPolyImpl<VecType> & DCRTPolyImpl<VecType>::operator=(DCRTPolyImpl&& rhs)
 {
 	if (this != &rhs) {
 		m_vectors = std::move(rhs.m_vectors);
@@ -611,8 +611,8 @@ const DCRTPolyImpl<VecType,ParmType> & DCRTPolyImpl<VecType,ParmType>::operator=
 	return *this;
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator=(std::initializer_list<uint64_t> rhs)
+template<typename VecType>
+DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::initializer_list<uint64_t> rhs)
 {
 	usint len = rhs.size();
 	static PolyType::Integer ZERO(0);
@@ -640,8 +640,8 @@ DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator=(std::i
 }
 
 // Used only inside a Matrix object; so an allocator already initializes the values
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(uint64_t val)
+template<typename VecType>
+DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(uint64_t val)
 {
 	if (!IsEmpty()) {
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -661,8 +661,8 @@ DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(uint
 }
 
 // Used only inside a Matrix object; so an allocator already initializes the values
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(std::vector<int64_t> val)
+template<typename VecType>
+DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::vector<int64_t> val)
 {
 	if (!IsEmpty()) {
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -684,8 +684,8 @@ DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(std:
 }
 
 // Used only inside a Matrix object; so an allocator already initializes the values
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(std::vector<int32_t> val)
+template<typename VecType>
+DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::vector<int32_t> val)
 {
 	if (!IsEmpty()) {
 		for (usint i = 0; i < m_vectors.size(); i++) {
@@ -709,10 +709,10 @@ DCRTPolyImpl<VecType, ParmType>& DCRTPolyImpl<VecType, ParmType>::operator=(std:
 
 /*SCALAR OPERATIONS*/
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Plus(const Integer &element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Plus(const Integer &element) const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] += element.ConvertToInt();
@@ -720,10 +720,10 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Plus(const Intege
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Minus(const Integer &element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Minus(const Integer &element) const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 	for (usint i = 0; i < tmp.m_vectors.size(); i++) {
 		tmp.m_vectors[i] -= element.ConvertToInt();
@@ -731,13 +731,13 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Minus(const Integ
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(const DCRTPolyImpl & element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const DCRTPolyImpl & element) const
 {
 	if( m_vectors.size() != element.m_vectors.size() ) {
 		throw std::logic_error("tower size mismatch; cannot multiply");
 	}
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 #ifdef OMP
 #pragma omp parallel for
@@ -749,10 +749,10 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(const DCRTP
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(const Integer &element) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const Integer &element) const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 #ifdef OMP
 #pragma omp parallel for
@@ -763,11 +763,11 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(const Integ
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(
 		const std::vector<NativeInteger> &element) const
 {
-	DCRTPolyImpl<VecType,ParmType> tmp(*this);
+	DCRTPolyImpl<VecType> tmp(*this);
 
 #ifdef OMP
 #pragma omp parallel for
@@ -778,24 +778,24 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::Times(
 	return std::move(tmp);
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::MultiplyAndRound(const Integer &p, const Integer &q) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::MultiplyAndRound(const Integer &p, const Integer &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
 	throw std::runtime_error(errMsg);
 	return *this;
 }
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::DivideAndRound(const Integer &q) const
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::DivideAndRound(const Integer &q) const
 {
 	std::string errMsg = "Operation not implemented yet";
 	throw std::runtime_error(errMsg);
 	return *this;
 }
 
-template<typename VecType, typename ParmType>
-const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator*=(const Integer &element)
+template<typename VecType>
+const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator*=(const Integer &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
 		this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % Integer((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
@@ -805,8 +805,8 @@ const DCRTPolyImpl<VecType,ParmType>& DCRTPolyImpl<VecType,ParmType>::operator*=
 }
 
 
-template<typename VecType, typename ParmType>
-  void DCRTPolyImpl<VecType,ParmType>::SetValuesToZero()
+template<typename VecType>
+  void DCRTPolyImpl<VecType>::SetValuesToZero()
   {
   	for(usint i = 0; i < m_vectors.size(); i++) {
   		m_vectors[i].SetValuesToZero();
@@ -816,18 +816,18 @@ template<typename VecType, typename ParmType>
 
 
   
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::AddILElementOne()
+template<typename VecType>
+void DCRTPolyImpl<VecType>::AddILElementOne()
 {
 	if(m_format != Format::EVALUATION)
-		throw std::runtime_error("DCRTPolyImpl<VecType,ParmType>::AddILElementOne cannot be called on a DCRTPolyImpl in COEFFICIENT format.");
+		throw std::runtime_error("DCRTPolyImpl<VecType>::AddILElementOne cannot be called on a DCRTPolyImpl in COEFFICIENT format.");
 	for(usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].AddILElementOne();
 	}
 }
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::MakeSparse(const uint32_t &wFactor)
+template<typename VecType>
+void DCRTPolyImpl<VecType>::MakeSparse(const uint32_t &wFactor)
 {
 	for(usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].MakeSparse(wFactor);
@@ -836,8 +836,8 @@ void DCRTPolyImpl<VecType,ParmType>::MakeSparse(const uint32_t &wFactor)
 
 // This function modifies PolyArrayImpl to keep all the even indices in the tower.
 // It reduces the ring dimension of the tower by half.
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::Decompose()
+template<typename VecType>
+void DCRTPolyImpl<VecType>::Decompose()
 {
 
 	if(m_format != Format::COEFFICIENT) {
@@ -853,11 +853,11 @@ void DCRTPolyImpl<VecType,ParmType>::Decompose()
 	std::vector<std::shared_ptr<ILNativeParams>> vparms(m_vectors.size());
 	for( size_t i = 0; i < m_vectors.size(); i++)
 		vparms[i] = m_vectors[i].GetParams();
-	m_params.reset( new ParmType(vparms[0]->GetCyclotomicOrder(), vparms) );
+	m_params.reset( new DCRTPolyImpl::Params(vparms[0]->GetCyclotomicOrder(), vparms) );
 }
 
-template<typename VecType, typename ParmType>
-bool DCRTPolyImpl<VecType,ParmType>::IsEmpty() const
+template<typename VecType>
+bool DCRTPolyImpl<VecType>::IsEmpty() const
 {
 	for(size_t i=0; i<m_vectors.size(); i++) {
 		if(!m_vectors.at(i).IsEmpty())
@@ -866,15 +866,15 @@ bool DCRTPolyImpl<VecType,ParmType>::IsEmpty() const
 	return true;
 }
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::DropLastElement()
+template<typename VecType>
+void DCRTPolyImpl<VecType>::DropLastElement()
 {
 	if(m_vectors.size() == 0) {
 		throw std::out_of_range("Last element being removed from empty list");
 	}
 
 	m_vectors.resize(m_vectors.size() - 1);
-	ParmType *newP = new ParmType( *m_params );
+	DCRTPolyImpl::Params *newP = new DCRTPolyImpl::Params( *m_params );
 	newP->PopLastParam();
 	m_params.reset(newP);
 }
@@ -892,8 +892,8 @@ void DCRTPolyImpl<VecType,ParmType>::DropLastElement()
 * 3. let d′ = c + delta mod q. By construction, d′ is divisible by q′.
 * 4. output (d′/q′) in R(q/q′).
 */
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::ModReduce(const Integer &plaintextModulus)
+template<typename VecType>
+void DCRTPolyImpl<VecType>::ModReduce(const Integer &plaintextModulus)
 {
 	bool dbg_flag = false;
 	if(m_format != Format::EVALUATION) {
@@ -959,8 +959,8 @@ void DCRTPolyImpl<VecType,ParmType>::ModReduce(const Integer &plaintextModulus)
 * Once we have the V values, we construct an Poly from V, use qt as it's modulus, and calculate a root of unity
 * for parameter selection of the Poly.
 */
-template<typename VecType, typename ParmType>
-typename DCRTPolyImpl<VecType,ParmType>::PolyLargeType DCRTPolyImpl<VecType,ParmType>::CRTInterpolate() const
+template<typename VecType>
+typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpolate() const
 {
 	bool dbg_flag = false;
 
@@ -1034,7 +1034,7 @@ typename DCRTPolyImpl<VecType,ParmType>::PolyLargeType DCRTPolyImpl<VecType,Parm
 	DEBUG("modulus "<< bigModulus);
 
 	// Setting the root of unity to ONE as the calculation is expensive and not required.
-	typename DCRTPolyImpl<VecType,ParmType>::PolyLargeType polynomialReconstructed( shared_ptr<ILParamsImpl<Integer>>( new ILParamsImpl<Integer>(GetCyclotomicOrder(), bigModulus, 1) ) );
+	typename DCRTPolyImpl<VecType>::PolyLargeType polynomialReconstructed( shared_ptr<ILParamsImpl<Integer>>( new ILParamsImpl<Integer>(GetCyclotomicOrder(), bigModulus, 1) ) );
 	polynomialReconstructed.SetValues(coefficients,COEFFICIENT);
 
 	DEBUG("answer: " << polynomialReconstructed);
@@ -1043,8 +1043,8 @@ typename DCRTPolyImpl<VecType,ParmType>::PolyLargeType DCRTPolyImpl<VecType,Parm
 }
 
 // todo can we be smarter with this method?
-template<typename VecType, typename ParmType>
-NativePoly DCRTPolyImpl<VecType,ParmType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+template<typename VecType>
+NativePoly DCRTPolyImpl<VecType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	return this->CRTInterpolate().DecryptionCRTInterpolate(ptm);
 }
 
@@ -1056,9 +1056,9 @@ NativePoly DCRTPolyImpl<VecType,ParmType>::DecryptionCRTInterpolate(PlaintextMod
 // beta_i = ((p*[(q/qi)^{-1}]_qi)%qi)/qi in (0,1)
 // used in decryption of BFVrns
 
-template<typename VecType, typename ParmType>
-PolyImpl<NativeVector,ILNativeParams>
-DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &p,
+template<typename VecType>
+PolyImpl<NativeVector>
+DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
 		const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
 		const std::vector<long double> &extBeta) const {
@@ -1198,9 +1198,9 @@ DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(const typename PolyType::Integer &
  *
  */
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::SwitchCRTBasis(
-		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
+		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) const{
 
@@ -1262,9 +1262,9 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::SwitchCRTBasis(
 // @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
 // uses SwichCRTBasis as a subroutine; Outputs the resulting polynomial in EVALUATION representation
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> paramsExpanded,
-		const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+template<typename VecType>
+void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params> paramsExpanded,
+		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) {
 
@@ -1320,9 +1320,9 @@ void DCRTPolyImpl<VecType,ParmType>::ExpandCRTBasis(const shared_ptr<ParmType> p
 // GCD(t, gamma) = 1
 // used in decryption of BFVrnsB
 
-template<typename VecType, typename ParmType>
-PolyImpl<NativeVector,ILNativeParams>
-DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(
+template<typename VecType>
+PolyImpl<NativeVector>
+DCRTPolyImpl<VecType>::ScaleAndRound(
 		const std::vector<typename PolyType::Integer> &qModuliTable,
 		const typename PolyType::Integer &gamma,
 		const typename PolyType::Integer &t,
@@ -1386,9 +1386,9 @@ DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(
 // Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}
 // used in EvalMult of BFVrnsB
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::FastBaseConvqToBskMontgomery(
-		const shared_ptr<ParmType> paramsBsk,
+template<typename VecType>
+void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
+		const shared_ptr<DCRTPolyImpl::Params> paramsBsk,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
 		const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
@@ -1545,8 +1545,8 @@ void DCRTPolyImpl<VecType,ParmType>::FastBaseConvqToBskMontgomery(
 // Outputs the resulting polynomial in CRT/RNS representation in basis {q U Bsk}. Note that the actual result is basically in basis {Bsk}.
 // used in EvalMult of BFVrnsB
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::FastRNSFloorq(
+template<typename VecType>
+void DCRTPolyImpl<VecType>::FastRNSFloorq(
 		const typename PolyType::Integer &t,
 		const std::vector<typename PolyType::Integer> &qModuli,
 		const std::vector<typename PolyType::Integer> &BskModuli,
@@ -1631,8 +1631,8 @@ void DCRTPolyImpl<VecType,ParmType>::FastRNSFloorq(
 // Outputs the resulting polynomial in CRT/RNS representation in basis q. Note that the actual result is basically in basis {Bsk}.
 // used in EvalMult of BFVrnsB
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::FastBaseConvSK(
+template<typename VecType>
+void DCRTPolyImpl<VecType>::FastBaseConvSK(
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<DoubleNativeInteger> &qModulimu,
 			const std::vector<typename PolyType::Integer> &BskModuli,
@@ -1765,8 +1765,8 @@ void DCRTPolyImpl<VecType,ParmType>::FastBaseConvSK(
 // alpha is a matrix of precomputed integer factors = {Floor[p*S*[(Q*S/vi)^{-1}]_{vi}/vi]}_si; for all combinations of vi, si; where vi is a prime modulus in Q*S
 // beta is a vector of precomputed floating-point factors between 0 and 1 = [p*S*(Q*S/vi)^{-1}]_{vi}/vi; - for each vi
 
-template<typename VecType, typename ParmType>
-DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(const shared_ptr<ParmType> params,
+template<typename VecType>
+DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(const shared_ptr<DCRTPolyImpl::Params> params,
 		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
 		const std::vector<long double> &beta, const std::vector<DoubleNativeInteger> &siModulimu) const {
 
@@ -1823,8 +1823,8 @@ DCRTPolyImpl<VecType,ParmType> DCRTPolyImpl<VecType,ParmType>::ScaleAndRound(con
 }
 
 /*Switch format calls IlVector2n's switchformat*/
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::SwitchFormat()
+template<typename VecType>
+void DCRTPolyImpl<VecType>::SwitchFormat()
 {
 	if (m_format == COEFFICIENT) {
 		m_format = EVALUATION;
@@ -1841,8 +1841,8 @@ void DCRTPolyImpl<VecType,ParmType>::SwitchFormat()
 }
 
 #ifdef OUT
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::SwitchModulus(const Integer &modulus, const Integer &rootOfUnity)
+template<typename VecType>
+void DCRTPolyImpl<VecType>::SwitchModulus(const Integer &modulus, const Integer &rootOfUnity)
 {
 	m_modulus = Integer::ONE;
 	for (usint i = 0; i < m_vectors.size(); ++i) {
@@ -1854,8 +1854,8 @@ void DCRTPolyImpl<VecType,ParmType>::SwitchModulus(const Integer &modulus, const
 }
 #endif
 
-template<typename VecType, typename ParmType>
-void DCRTPolyImpl<VecType,ParmType>::SwitchModulusAtIndex(usint index, const Integer &modulus, const Integer &rootOfUnity)
+template<typename VecType>
+void DCRTPolyImpl<VecType>::SwitchModulusAtIndex(usint index, const Integer &modulus, const Integer &rootOfUnity)
 {
 	if(index > m_vectors.size()-1) {
 		std::string errMsg;
@@ -1867,8 +1867,8 @@ void DCRTPolyImpl<VecType,ParmType>::SwitchModulusAtIndex(usint index, const Int
 	m_params->RecalculateModulus();
 }
 
-template<typename VecType, typename ParmType>
-bool DCRTPolyImpl<VecType,ParmType>::InverseExists() const
+template<typename VecType>
+bool DCRTPolyImpl<VecType>::InverseExists() const
 {
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		if (!m_vectors[i].InverseExists()) return false;
@@ -1876,15 +1876,15 @@ bool DCRTPolyImpl<VecType,ParmType>::InverseExists() const
 	return true;
 }
 
-template<typename VecType, typename ParmType>
-double DCRTPolyImpl<VecType, ParmType>::Norm() const
+template<typename VecType>
+double DCRTPolyImpl<VecType>::Norm() const
 {
 	PolyLargeType poly(CRTInterpolate());
 	return poly.Norm();
 }
 
-template<typename VecType, typename ParmType>
-bool DCRTPolyImpl<VecType,ParmType>::Serialize(Serialized* serObj) const
+template<typename VecType>
+bool DCRTPolyImpl<VecType>::Serialize(Serialized* serObj) const
 {
 	if( !serObj->IsObject() ){
 		serObj->SetObject();
@@ -1904,8 +1904,8 @@ bool DCRTPolyImpl<VecType,ParmType>::Serialize(Serialized* serObj) const
 	return true;
 }
 
-template<typename VecType, typename ParmType>
-bool DCRTPolyImpl<VecType,ParmType>::Deserialize(const Serialized& serObj)
+template<typename VecType>
+bool DCRTPolyImpl<VecType>::Deserialize(const Serialized& serObj)
 {
 	SerialItem::ConstMemberIterator it = serObj.FindMember("DCRTPolyImpl");
 
@@ -1918,7 +1918,7 @@ bool DCRTPolyImpl<VecType,ParmType>::Deserialize(const Serialized& serObj)
 	Serialized parm(rapidjson::kObjectType);
 	parm.AddMember(SerialItem(pIt->name, parm.GetAllocator()), SerialItem(pIt->value, parm.GetAllocator()), parm.GetAllocator());
 
-	shared_ptr<ParmType> json_ilParams(new ParmType());
+	shared_ptr<DCRTPolyImpl::Params> json_ilParams(new DCRTPolyImpl::Params());
 	if (!json_ilParams->Deserialize(parm))
 		return false;
 	m_params = json_ilParams;
@@ -1939,8 +1939,8 @@ bool DCRTPolyImpl<VecType,ParmType>::Deserialize(const Serialized& serObj)
 }
 
 
- template<typename VecType, typename ParmType>
-   std::ostream& operator<<(std::ostream &os, const DCRTPolyImpl<VecType,ParmType> & p)
+ template<typename VecType>
+   std::ostream& operator<<(std::ostream &os, const DCRTPolyImpl<VecType> & p)
 
  //TODO: Standardize this printing so it is like other poly's
  {

@@ -43,6 +43,6 @@ namespace lbcrypto
 
 template class ElemParams<NativeInteger>;
 template class ILDCRTParams<BigInteger>;
-template class DCRTPolyImpl<BigVector, ILDCRTParams<BigInteger>>;
+template class DCRTPolyImpl<BigVector>;
 
 }

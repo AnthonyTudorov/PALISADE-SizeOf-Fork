@@ -54,26 +54,26 @@ namespace lbcrypto
 * The double-CRT representations are discussed theoretically here:
 *   - Gentry C., Halevi S., Smart N.P. (2012) Homomorphic Evaluation of the AES Circuit. In: Safavi-Naini R., Canetti R. (eds) Advances in Cryptology – CRYPTO 2012. Lecture Notes in Computer Science, vol 7417. Springer, Berlin, Heidelberg
 */
-template<typename VecType, typename ParmType>
-class DCRTPolyImpl : public ILElement< DCRTPolyImpl<VecType,ParmType>,VecType>
+template<typename VecType>
+class DCRTPolyImpl : public ILElement< DCRTPolyImpl<VecType>,VecType>
 {
 public:
 	using Integer = typename VecType::Integer;
+	using Params = ILDCRTParams<Integer>;
 
-	typedef ParmType Params;
 	typedef VecType Vector;
 
-	typedef DCRTPolyImpl<VecType,ParmType> DCRTPolyType;
+	typedef DCRTPolyImpl<VecType> DCRTPolyType;
 	typedef DiscreteGaussianGeneratorImpl<NativeVector> DggType;
 	typedef DiscreteUniformGeneratorImpl<NativeVector> DugType;
 	typedef TernaryUniformGeneratorImpl<NativeVector> TugType;
 	typedef BinaryUniformGeneratorImpl<NativeVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<NativeVector,ILNativeParams> PolyType;
+	typedef PolyImpl<NativeVector> PolyType;
 
 	// the composed polynomial type
-	typedef PolyImpl<VecType,ILParamsImpl<Integer>> PolyLargeType;
+	typedef PolyImpl<VecType> PolyLargeType;
 
 	static const std::string GetElementName() {
 		return "DCRTPolyImpl";
@@ -93,7 +93,7 @@ public:
 	*@param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*@param initializeElementToZero
 	*/
-	DCRTPolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	DCRTPolyImpl(const shared_ptr<Params> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	const DCRTPolyType& operator=(const PolyLargeType& element);
 
@@ -104,7 +104,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	DCRTPolyImpl(const DggType &dgg, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	* @brief Constructor based on binary distribution generator. This is not implemented. Will throw a logic_error.
@@ -113,7 +113,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION) {
+	DCRTPolyImpl(const BugType &bug, const shared_ptr<Params> params, Format format = EVALUATION) {
 		throw std::logic_error("Cannot use BinaryUniformGenerator with DCRTPoly; not implemented");
 	}
 
@@ -124,7 +124,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	DCRTPolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	* @brief Constructor based on discrete uniform generator.
@@ -133,7 +133,7 @@ public:
 	* @param params the input params.
 	* @param &format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	DCRTPolyImpl(DugType &dug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	* @brief Construct using a single Poly. The Poly is copied into every tower. Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in Poly.
@@ -141,7 +141,7 @@ public:
 	* @param &element Poly to build other towers from.
 	* @param params parameter set required for DCRTPoly.
 	*/
-	DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<ParmType> params);
+	DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<Params> params);
 
 	/**
 	* @brief Construct using an tower of ILVectro2ns. The params and format for the DCRTPoly will be derived from the towers.
@@ -155,7 +155,7 @@ public:
 	* @param params the params to use.
 	* @param format - EVALUATION or COEFFICIENT
 	*/
-	inline static function<DCRTPolyType()> Allocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<DCRTPolyType()> Allocator(const shared_ptr<Params> params, Format format) {
 		return [=]() {
 			return DCRTPolyType(params, format, true);
 		};
@@ -169,7 +169,7 @@ public:
 	* @param stddev standard deviation for the discrete gaussian generator.
 	* @return the resulting vector.
 	*/
-	inline static function<DCRTPolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<DCRTPolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<Params> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DggType dgg(stddev);
 			DCRTPolyType ilvec(dgg, params, COEFFICIENT);
@@ -185,7 +185,7 @@ public:
 	* @param format format for the polynomials generated.
 	* @return the resulting vector.
 	*/
-	inline static function<DCRTPolyType()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<DCRTPolyType()> MakeDiscreteUniformAllocator(shared_ptr<Params> params, Format format) {
 		return [=]() {
 			DugType dug;
 			return DCRTPolyType(dug, params, format);
@@ -248,7 +248,7 @@ public:
 	 * @brief returns the parameters of the element.
 	 * @return the element parameter set.
 	 */
-	const shared_ptr<ParmType> GetParams() const {
+	const shared_ptr<Params> GetParams() const {
 		return m_params;
 	}
 
@@ -725,7 +725,7 @@ public:
 	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	* @return the polynomial in the CRT basis S
 	*/
-	DCRTPolyType SwitchCRTBasis(const shared_ptr<ParmType> params, const std::vector<typename PolyType::Integer> &qInvModqi,
+	DCRTPolyType SwitchCRTBasis(const shared_ptr<Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) const;
 
@@ -741,7 +741,7 @@ public:
 	* @param &siModulimu Barrett modulo reduction precomputations for si's
 	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	*/
-	void ExpandCRTBasis(const shared_ptr<ParmType> paramsQS, const shared_ptr<ParmType> params,
+	void ExpandCRTBasis(const shared_ptr<Params> paramsQS, const shared_ptr<Params> params,
 			const std::vector<typename PolyType::Integer> &qInvModqi,
 			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
 			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon);
@@ -790,7 +790,7 @@ public:
 	 * @param mtildeInvModBskiPreconTable
 	 */
 	void FastBaseConvqToBskMontgomery(
-			const shared_ptr<ParmType> paramsBsk,
+			const shared_ptr<Params> paramsBsk,
 			const std::vector<typename PolyType::Integer> &qModuli,
 			const std::vector<typename PolyType::Integer> &BskmtildeModuli,
 			const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
@@ -866,7 +866,7 @@ public:
 	* @param &siModulimu Barrett modulo reduction precomputations for si's
  	* @return the result of computation as a polynomial in the CRT basis Q
 	*/
-	DCRTPolyType ScaleAndRound(const shared_ptr<ParmType> params,
+	DCRTPolyType ScaleAndRound(const shared_ptr<Params> params,
 			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
 			const std::vector<long double> &beta,
 			const std::vector<DoubleNativeInteger> &siModulimu) const;
@@ -1024,7 +1024,7 @@ public:
 	}
 
 private:
-	shared_ptr<ParmType> m_params;
+	shared_ptr<Params> m_params;
 
 	// array of vectors used for double-CRT presentation
 	std::vector<PolyType> m_vectors;
@@ -1037,7 +1037,7 @@ private:
 namespace lbcrypto
 {
 
-typedef DCRTPolyImpl<BigVector, ILDCRTParams<BigInteger>> DCRTPoly;
+typedef DCRTPolyImpl<BigVector> DCRTPoly;
 
 }
 

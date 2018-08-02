@@ -26,6 +26,12 @@ enum PolyType { PTNative, PTInteger, PTDCRT };
 
 enum MathLayer { M2, M4, M6 };
 
+//bool ParamMaker( MathLayer m, PolyType p,
+//		usint m, string q, string ru, string bq, string bru, ElemParams* p)
+//{
+//	return false;
+//}
+
 enum GeneratorType { NoGenerator, DiscreteGaussian, BinaryUniform, TernaryUniform, DiscreteUniform };
 map<string,GeneratorType> Generators = {
 		{ "dgg", DiscreteGaussian },
@@ -37,6 +43,7 @@ map<string,GeneratorType> Generators = {
 class PolyFactory {
 	static PolyType		pt;
 	static MathLayer	ml;
+	//static shared_ptr<ElemParams> ep;
 	static shared_ptr<ILParams>	parms;
 
 public:
@@ -47,6 +54,25 @@ public:
 	static bool MakePoly(string inputJson, Poly** newPoly) { return MakePoly(pt, ml, inputJson, newPoly); }
 	static bool MakePoly(PolyType p, MathLayer m, string inputJson, Poly** newPoly);
 };
+
+class B {
+	int x;
+};
+
+template<typename T>
+class C : public B {
+	T y;
+};
+
+template<typename T2>
+class D : public B {
+	T2 z;
+};
+
+C<int> xxx;
+D<char> yyy;
+B* xxxp = & xxx;
+B* yyyp = & yyy;
 
 //string PolyFactoryParmSchema =
 //		;
@@ -154,7 +180,7 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson, Poly** newPoly)
 
 		case PTInteger:
 		{
-			*newPoly = new PolyImpl<BigVector,ILParams>(parms, fmt, initToZero);
+			*newPoly = new PolyImpl<BigVector>(parms, fmt, initToZero);
 		}
 		break;
 

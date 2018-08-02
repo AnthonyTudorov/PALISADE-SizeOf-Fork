@@ -53,23 +53,22 @@ namespace lbcrypto
  * @file poly.h
  * @brief Ideal lattice using a vector representation
  */
-template<typename VecType, typename ParmType>
-class PolyImpl : public ILElement<PolyImpl<VecType,ParmType>,VecType>
+template<typename VecType>
+class PolyImpl : public ILElement<PolyImpl<VecType>,VecType>
 {
 public:
 
 	using Integer = typename VecType::Integer;
 	using Params = ILParamsImpl<Integer>;
 
-	//typedef ParmType Params;
 	typedef VecType Vector;
-	typedef PolyImpl<VecType,ParmType> PolyType;
+	typedef PolyImpl<VecType> PolyType;
 	typedef DiscreteGaussianGeneratorImpl<VecType> DggType;
 	typedef DiscreteUniformGeneratorImpl<VecType> DugType;
 	typedef TernaryUniformGeneratorImpl<VecType> TugType;
 	typedef BinaryUniformGeneratorImpl<VecType> BugType;
-	typedef PolyImpl<NativeVector,ILNativeParams> PolyNative;
-	typedef PolyImpl<VecType,ParmType> PolyLargeType;
+	typedef PolyImpl<NativeVector> PolyNative;
+	typedef PolyImpl<VecType> PolyLargeType;
 
 	/**
 	 * @brief Return the element name.
@@ -90,7 +89,7 @@ public:
 	 * @param format - EVALUATION or COEFFICIENT
 	 * @param initializeElementToZero - if true, allocates an empty vector set to all 0s
 	 */
-	PolyImpl(const shared_ptr<ParmType> params, Format format = EVALUATION, bool initializeElementToZero = false);
+	PolyImpl(const shared_ptr<Params> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
 	PolyImpl(const shared_ptr<ILDCRTParams<Integer>> params, Format format = EVALUATION, bool initializeElementToZero = false);
 
@@ -100,7 +99,7 @@ public:
 	 * @param params - element parameters
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	PolyImpl(bool initializeElementToMax, const shared_ptr<ParmType> params, Format format);
+	PolyImpl(bool initializeElementToMax, const shared_ptr<Params> params, Format format);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -109,7 +108,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	PolyImpl(const DggType &dgg, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const DggType &dgg, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -118,7 +117,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	PolyImpl(const BugType &bug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const BugType &bug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -127,7 +126,7 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	PolyImpl(const TugType &tug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -136,14 +135,14 @@ public:
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	PolyImpl( DugType &dug, const shared_ptr<ParmType> params, Format format = EVALUATION);
+	PolyImpl( DugType &dug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	 * @brief Create lambda that allocates a zeroed element for the case when it is called from a templated class
 	 * @param params the params to use.
 	 * @param format - EVALUATION or COEFFICIENT
 	 */
-	inline static function<PolyType()> Allocator(const shared_ptr<ParmType> params, Format format) {
+	inline static function<PolyType()> Allocator(const shared_ptr<Params> params, Format format) {
 		return [=]() {
 			return PolyType(params, format, true);
 		};
@@ -157,7 +156,7 @@ public:
 	 * @param stddev standard deviation for the discrete gaussian generator.
 	 * @return the resulting vector.
 	 */
-	inline static function<PolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<ParmType> params, Format resultFormat, int stddev) {
+	inline static function<PolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<Params> params, Format resultFormat, int stddev) {
 		return [=]() {
 			DiscreteGaussianGeneratorImpl<VecType> dgg(stddev);
 			PolyType ilvec(dgg, params, COEFFICIENT);
@@ -173,7 +172,7 @@ public:
 	 * @param format format for the polynomials generated.
 	 * @return the resulting vector.
 	 */
-	inline static function<PolyType()> MakeDiscreteUniformAllocator(shared_ptr<ParmType> params, Format format) {
+	inline static function<PolyType()> MakeDiscreteUniformAllocator(shared_ptr<Params> params, Format format) {
 		return [=]() {
 			DiscreteUniformGeneratorImpl<VecType> dug;
 			dug.SetModulus(params->GetModulus());
@@ -187,7 +186,7 @@ public:
 	 * @param &element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	PolyImpl(const PolyType &element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(const PolyType &element, shared_ptr<Params> parms = 0);
 
 	/**
 	 * @brief Copy constructor from a Poly of native integers.
@@ -203,7 +202,7 @@ public:
 	 * @param &&element the copied element.
 	 * @param parms ILParams instance that is is passed.
 	 */
-	PolyImpl(PolyType &&element, shared_ptr<ParmType> parms = 0);
+	PolyImpl(PolyType &&element, shared_ptr<Params> parms = 0);
 
 	/**
 	 * @brief Clone the object by making a copy of it and returning the copy
@@ -304,7 +303,7 @@ public:
 	 *
 	 * @return the ring element params.
 	 */
-	const shared_ptr<ParmType> GetParams() const {
+	const shared_ptr<Params> GetParams() const {
 		return m_params;
 	}
 
@@ -829,7 +828,7 @@ private:
 	Format m_format;
 
 	// parameters for ideal lattices
-	shared_ptr<ParmType> m_params;
+	shared_ptr<Params> m_params;
 
 	void ArbitrarySwitchFormat();
 };
@@ -837,7 +836,7 @@ private:
 // biginteger version
 template<>
 inline NativePoly
-PolyImpl<BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+PolyImpl<BigVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 
 	Poly smaller = this->Mod(ptm);
 	NativePoly interp(
@@ -854,7 +853,7 @@ PolyImpl<BigVector, ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) co
 // native poly version
 template<>
 inline NativePoly
-PolyImpl<NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+PolyImpl<NativeVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 
 	return this->Mod(ptm);
 }
@@ -865,9 +864,9 @@ PolyImpl<NativeVector, ILNativeParams>::DecryptionCRTInterpolate(PlaintextModulu
 namespace lbcrypto
 {
 
-template<typename VecType, typename ParmType> class PolyImpl;
-typedef PolyImpl<BigVector, ILParams> Poly;
-typedef PolyImpl<NativeVector, ILNativeParams> NativePoly;
+template<typename VecType> class PolyImpl;
+typedef PolyImpl<BigVector> Poly;
+typedef PolyImpl<NativeVector> NativePoly;
 
 }
 

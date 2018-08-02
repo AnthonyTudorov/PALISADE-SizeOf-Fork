@@ -33,10 +33,10 @@
 #include "../math/nbtheory.h"
 #include "../lattice/ilparams.h"
 
-namespace lbcrypto
-{
-template<typename VecType, typename ParmType> class PolyImpl;
-}
+//namespace lbcrypto
+//{
+//template<typename VecType, typename ParmType> class PolyImpl;
+//}
 
 namespace lbcrypto
 {
@@ -54,6 +54,7 @@ class ILDCRTParams : public ElemParams<IntType>
 {
 public:
 	typedef IntType Integer;
+	using ILNativeParams = ILParamsImpl<NativeInteger>;
 
 	/**
 	 * @brief Constructor with basic parameter set.

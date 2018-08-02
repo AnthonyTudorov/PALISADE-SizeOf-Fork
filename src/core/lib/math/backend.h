@@ -185,13 +185,13 @@ namespace lbcrypto {
 #endif
 
 	template<typename IntType> class ILParamsImpl;
-	template<typename VecType, typename ParmType> class PolyImpl;
+	template<typename VecType> class PolyImpl;
 
 	typedef ILParamsImpl<BigInteger> ILParams;
 	typedef ILParamsImpl<NativeInteger> ILNativeParams;
 
-	typedef PolyImpl<BigVector, ILParams> Poly;
-	typedef PolyImpl<NativeVector, ILNativeParams> NativePoly;
+	typedef PolyImpl<BigVector> Poly;
+	typedef PolyImpl<NativeVector> NativePoly;
 	
 } // namespace lbcrypto ends
 

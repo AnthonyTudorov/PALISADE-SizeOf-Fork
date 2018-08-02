@@ -1,5 +1,5 @@
 /**
- * @file plaintext.h Represents and defines plaintext objects in Palisade.
+ * @file elemparams.h base class for parameters for a lattice element
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -226,11 +226,11 @@ public:
 
 
 protected:
-	usint			cyclotomicOrder;			/**< Cyclotomic order */
+	usint			cyclotomicOrder;		/**< Cyclotomic order */
 	usint			ringDimension;			/**< Ring Dimension */
-	bool				isPowerOfTwo;			/**< True if the Ring Dimension is a power of 2.  False otherwise. */
+	bool			isPowerOfTwo;			/**< True if the Ring Dimension is a power of 2.  False otherwise. */
 	IntegerType		ciphertextModulus;		/**< Ciphertext modulus. */
-	IntegerType		rootOfUnity;				/**< Root of unity */
+	IntegerType		rootOfUnity;			/**< Root of unity */
 	IntegerType		bigCiphertextModulus;	/**< Big ciphertext modulus.  Used for only some applications. */
 	IntegerType		bigRootOfUnity;			/**< Big root of unity.  Used for only some applications. */
 
