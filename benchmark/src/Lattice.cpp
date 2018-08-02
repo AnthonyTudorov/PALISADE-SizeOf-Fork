@@ -125,8 +125,8 @@ ElemParamFactory::GenElemParams<ILDCRTParams<BE2Integer>>(usint m, usint bits, u
 
 template<>
 inline NativePoly
-PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	PolyImpl<BE2Integer, BE2Integer, BE2Vector, BE2ILParams> smaller = this->Mod(ptm);
+PolyImpl<BE2Vector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+	auto smaller = this->Mod(ptm);
 	NativePoly interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
 															this->GetFormat(), true);
@@ -148,8 +148,8 @@ ElemParamFactory::GenElemParams<ILDCRTParams<BE4Integer>>(usint m, usint bits, u
 
 template<>
 inline NativePoly
-PolyImpl<BE4Integer, BE4Integer, BE4Vector, BE4ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	PolyImpl<BE4Integer, BE4Integer, BE4Vector, BE4ILParams> smaller = this->Mod(ptm);
+PolyImpl<BE4Vector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+	auto smaller = this->Mod(ptm);
 	NativePoly interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
 															this->GetFormat(), true);

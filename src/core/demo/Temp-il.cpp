@@ -26,11 +26,88 @@ enum PolyType { PTNative, PTInteger, PTDCRT };
 
 enum MathLayer { M2, M4, M6 };
 
-//bool ParamMaker( MathLayer m, PolyType p,
-//		usint m, string q, string ru, string bq, string bru, ElemParams* p)
-//{
-//	return false;
-//}
+using M2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
+using M2Vector = cpu_int::BigVectorImpl<M2Integer>;
+
+//template class M2Integer;
+//template class M2Vector;
+
+using M4Integer = exp_int::xubint;
+using M4Vector = exp_int::xmubintvec;
+
+using M6Integer = NTL::myZZ;
+using M6Vector = NTL::myVecP<M6Integer>;
+
+bool ParamMaker( MathLayer ml, PolyType p, void** newParm,
+		usint m, uint64_t q, uint64_t ru, uint64_t bq = 0, uint64_t bru = 0)
+{
+	return false;
+}
+
+#define GENERATE_NEW_PARM( PARMTYPE, INTTYPE ) \
+{ \
+	auto np = new PARMTYPE<INTTYPE>(m, INTTYPE(q), INTTYPE(ru)); \
+	*newParm = (void *)np; \
+	return true; \
+}
+
+bool ParamMaker( MathLayer ml, PolyType p, void** newParm,
+			usint m, string q, string ru, string bq, string bru)
+{
+	if( p == PTNative ) {
+		GENERATE_NEW_PARM( ILParamsImpl, NativeInteger )
+//		auto np = new ILParamsImpl<NativeInteger>(m, NativeInteger(q), NativeInteger(ru));
+//		*newParm = (void *)np;
+//		return true;
+	}
+
+	switch( ml ) {
+	case M2:
+	{
+		if( p == PTInteger ) {
+			GENERATE_NEW_PARM( ILParamsImpl, M2Integer )
+		}
+		else if( p == PTDCRT ) {
+
+		}
+		else {
+			return false;
+		}
+	}
+	break;
+
+	case M4:
+	{
+		if( p == PTInteger ) {
+
+		}
+		else if( p == PTDCRT ) {
+
+		}
+		else {
+			return false;
+		}
+	}
+	break;
+
+	case M6:
+	{
+		if( p == PTInteger ) {
+
+		}
+		else if( p == PTDCRT ) {
+
+		}
+		else {
+			return false;
+		}
+	}
+	break;
+
+	}
+
+	return false;
+}
 
 enum GeneratorType { NoGenerator, DiscreteGaussian, BinaryUniform, TernaryUniform, DiscreteUniform };
 map<string,GeneratorType> Generators = {
