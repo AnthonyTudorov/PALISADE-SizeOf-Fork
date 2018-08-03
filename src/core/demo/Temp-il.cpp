@@ -13,6 +13,18 @@ using namespace std;
 #include "math/backend.h"
 #include "utils/serializablehelper.h"
 
+#include "math/nbtheory.cpp"
+#include "math/transfrm.cpp"
+#include "math/binaryuniformgenerator.cpp"
+#include "math/ternaryuniformgenerator.cpp"
+#include "math/discreteuniformgenerator.cpp"
+#include "math/discretegaussiangenerator.cpp"
+#include "lattice/elemparams.cpp"
+#include "lattice/ilparams.cpp"
+#include "lattice/ildcrtparams.cpp"
+#include "lattice/poly.cpp"
+#include "lattice/dcrtpoly.cpp"
+
 using namespace lbcrypto;
 
 namespace lbcrypto {
@@ -38,6 +50,10 @@ using M4Vector = exp_int::xmubintvec;
 using M6Integer = NTL::myZZ;
 using M6Vector = NTL::myVecP<M6Integer>;
 
+template class ElemParams<M2Integer>;
+template class ILParamsImpl<M2Integer>;
+template class PolyImpl<M2Vector>;
+
 bool ParamMaker( MathLayer ml, PolyType p, void** newParm,
 		usint m, uint64_t q, uint64_t ru, uint64_t bq = 0, uint64_t bru = 0)
 {
@@ -45,20 +61,20 @@ bool ParamMaker( MathLayer ml, PolyType p, void** newParm,
 }
 
 #define GENERATE_NEW_PARM( PARMTYPE, INTTYPE ) \
-{ \
+		{ \
 	auto np = new PARMTYPE<INTTYPE>(m, INTTYPE(q), INTTYPE(ru)); \
 	*newParm = (void *)np; \
 	return true; \
-}
+		}
 
 bool ParamMaker( MathLayer ml, PolyType p, void** newParm,
-			usint m, string q, string ru, string bq, string bru)
+		usint m, string q, string ru, string bq, string bru)
 {
 	if( p == PTNative ) {
 		GENERATE_NEW_PARM( ILParamsImpl, NativeInteger )
-//		auto np = new ILParamsImpl<NativeInteger>(m, NativeInteger(q), NativeInteger(ru));
-//		*newParm = (void *)np;
-//		return true;
+		//		auto np = new ILParamsImpl<NativeInteger>(m, NativeInteger(q), NativeInteger(ru));
+		//		*newParm = (void *)np;
+		//		return true;
 	}
 
 	switch( ml ) {
@@ -133,6 +149,7 @@ public:
 };
 
 class B {
+public:
 	int x;
 };
 
@@ -146,10 +163,18 @@ class D : public B {
 	T2 z;
 };
 
-C<int> xxx;
-D<char> yyy;
-B* xxxp = & xxx;
-B* yyyp = & yyy;
+void f() {
+	C<int> xxx;
+	xxx.x = 1;
+
+	D<char> yyy;
+	yyy.x = 2;
+
+	B* xxxp = & xxx;
+	B* yyyp = & yyy;
+
+	cout << xxxp->x << yyyp->x;
+}
 
 //string PolyFactoryParmSchema =
 //		;
