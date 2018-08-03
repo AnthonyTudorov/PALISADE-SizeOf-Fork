@@ -833,31 +833,11 @@ private:
 	void ArbitrarySwitchFormat();
 };
 
-// biginteger version
-template<>
-inline NativePoly
-PolyImpl<BigVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-
-	Poly smaller = this->Mod(ptm);
-	NativePoly interp(
-			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-															this->GetFormat(), true);
-
-	for (usint i = 0; i<smaller.GetLength(); i++) {
-		interp[i] = smaller[i].ConvertToInt();
-	}
-
-	return std::move( interp );
-}
-
-// native poly version
 template<>
 inline NativePoly
 PolyImpl<NativeVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-
 	return this->Mod(ptm);
 }
-
 
 } //namespace lbcrypto ends
 

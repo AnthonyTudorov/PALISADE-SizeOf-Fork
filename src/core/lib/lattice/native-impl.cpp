@@ -46,4 +46,5 @@ template class DiscreteUniformGeneratorImpl<NativeVector>;
 template class ElemParams<NativeInteger>;
 template class ILParamsImpl<NativeInteger>;
 template class PolyImpl<NativeVector>;
+
 }

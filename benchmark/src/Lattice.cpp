@@ -122,21 +122,6 @@ inline shared_ptr<ILDCRTParams<BE2Integer>>
 ElemParamFactory::GenElemParams<ILDCRTParams<BE2Integer>>(usint m, usint bits, usint towersize) {
 	return GenerateDCRTParams<BE2Integer>(m, towersize, bits);
 }
-
-template<>
-inline NativePoly
-PolyImpl<BE2Vector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	auto smaller = this->Mod(ptm);
-	NativePoly interp(
-			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-															this->GetFormat(), true);
-
-	for (usint i = 0; i<smaller.GetLength(); i++) {
-		interp[i] = smaller[i].ConvertToInt();
-	}
-
-	return std::move( interp );
-}
 #endif
 
 #if MATHBACKEND != 4
@@ -145,21 +130,6 @@ inline shared_ptr<ILDCRTParams<BE4Integer>>
 ElemParamFactory::GenElemParams<ILDCRTParams<BE4Integer>>(usint m, usint bits, usint towersize) {
 	return GenerateDCRTParams<BE4Integer>(m, towersize, bits);
 }
-
-template<>
-inline NativePoly
-PolyImpl<BE4Vector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	auto smaller = this->Mod(ptm);
-	NativePoly interp(
-			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-															this->GetFormat(), true);
-
-	for (usint i = 0; i<smaller.GetLength(); i++) {
-		interp[i] = smaller[i].ConvertToInt();
-	}
-
-	return std::move( interp );
-}
 #endif
 
 #if MATHBACKEND != 6
@@ -167,21 +137,6 @@ template<>
 inline shared_ptr<ILDCRTParams<BE6Integer>>
 ElemParamFactory::GenElemParams<ILDCRTParams<BE6Integer>>(usint m, usint bits, usint towersize) {
 	return GenerateDCRTParams<BE6Integer>(m, towersize, bits);
-}
-
-template<>
-inline NativePoly
-PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
-	PolyImpl<BE6Integer, BE6Integer, BE6Vector, BE6ILParams> smaller = this->Mod(ptm);
-	NativePoly interp(
-			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
-															this->GetFormat(), true);
-
-	for (usint i = 0; i<smaller.GetLength(); i++) {
-		interp[i] = smaller[i].ConvertToInt();
-	}
-
-	return std::move( interp );
 }
 #endif
 }

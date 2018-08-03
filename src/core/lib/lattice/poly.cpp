@@ -1059,6 +1059,22 @@ std::vector<PolyImpl<VecType>> PolyImpl<VecType>::PowersOfBase(usint baseBits) c
 
 }
 
+// biginteger version
+template<typename VecType>
+NativePoly
+PolyImpl<VecType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
+
+	auto smaller = this->Mod(ptm);
+	NativePoly interp(
+			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
+															this->GetFormat(), true);
+
+	for (usint i = 0; i<smaller.GetLength(); i++) {
+		interp[i] = smaller[i].ConvertToInt();
+	}
+
+	return std::move( interp );
+}
 
 // JSON FACILITY - Serialize Operation
 template<typename VecType>
