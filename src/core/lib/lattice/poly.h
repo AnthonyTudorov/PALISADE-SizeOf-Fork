@@ -34,6 +34,7 @@ using std::function;
 using std::shared_ptr;
 
 #include "../math/backend.h"
+#include "../lattice/backend.h"
 #include "../utils/inttypes.h"
 #include "../utils/memory.h"
 #include "../lattice/elemparams.h"
@@ -591,7 +592,7 @@ public:
 		return *this;
 	}
 
-	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
+	PolyNative DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
 	 * @brief Transpose the ring element using the automorphism operation
@@ -834,20 +835,11 @@ private:
 };
 
 template<>
-inline NativePoly
+inline PolyImpl<NativeVector>
 PolyImpl<NativeVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	return this->Mod(ptm);
 }
 
 } //namespace lbcrypto ends
-
-namespace lbcrypto
-{
-
-template<typename VecType> class PolyImpl;
-typedef PolyImpl<BigVector> Poly;
-typedef PolyImpl<NativeVector> NativePoly;
-
-}
 
 #endif

@@ -1,5 +1,6 @@
-/*
- * @file poly-impl.cpp - implementation of the integer lattice
+/**
+ * @file be2-poly-impl.cpp This file contains template instantiations for all classes using math be2
+ *
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,24 +25,25 @@
  *
  */
 
-#include "elemparams.cpp"
-#include "ilparams.cpp"
-#include "../math/discretegaussiangenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
+#include "../math/backend.h"
 #include "../math/binaryuniformgenerator.cpp"
 #include "../math/ternaryuniformgenerator.cpp"
+#include "../math/discreteuniformgenerator.cpp"
+#include "../math/discretegaussiangenerator.cpp"
+
+#include "elemparams.cpp"
+#include "ilparams.cpp"
 #include "poly.cpp"
 
 namespace lbcrypto {
 
-template<>
-PolyImpl<BigVector>::PolyImpl(const shared_ptr<ILDCRTParams<BigInteger>> params, Format format, bool initializeElementToZero) : m_values(nullptr), m_format(format) {
-	// construct a local params out of the stuff from the DCRT Params
-	m_params.reset( new ILParams(params->GetCyclotomicOrder(), params->GetModulus(), 1));
+template class DiscreteGaussianGeneratorImpl<M2Vector>;
+template class BinaryUniformGeneratorImpl<M2Vector>;
+template class TernaryUniformGeneratorImpl<M2Vector>;
+template class DiscreteUniformGeneratorImpl<M2Vector>;
 
-	if (initializeElementToZero) {
-		this->SetValuesToZero();
-	}
-}
+template class ElemParams<M2Integer>;
+template class ILParamsImpl<M2Integer>;
+template class PolyImpl<M2Vector>;
 
 }

@@ -143,14 +143,19 @@ typedef mubintvec<xubint> xmubintvec;
 }
 
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
-//#include "gmp_int/mgmpint.h" //experimental gmp modulo unsigned big ints
-//#include "gmp_int/gmpintvec.h" //vectors of such
 #include "gmp_int/mgmpintvec.h" //rings of such
 
 namespace gmp_int {
 typedef NTL::myZZ ubint;
-
 }
+
+// typedefs for the known math backends
+using M2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
+using M2Vector = cpu_int::BigVectorImpl<M2Integer>;
+using M4Integer = exp_int::xubint;
+using M4Vector = exp_int::xmubintvec;
+using M6Integer = NTL::myZZ;
+using M6Vector = NTL::myVecP<M6Integer>;
 
 /**
  * @namespace lbcrypto
@@ -160,39 +165,28 @@ namespace lbcrypto {
 
 #if MATHBACKEND == 2
 
-	typedef cpu_int::BigInteger<integral_dtype,BigIntegerBitLength> BigInteger;
-	typedef cpu_int::BigVectorImpl<BigInteger> BigVector;
+	using BigInteger = M2Integer;
+	using BigVector = M2Vector;
 
 #endif
 
 #if MATHBACKEND == 4
+
 #ifdef UBINT_64
 	#error MATHBACKEND 4 with UBINT_64 currently does not work do not use.
 #endif
-	typedef exp_int::xubint BigInteger;
-	typedef exp_int::xmubintvec BigVector;
+
+	using BigInteger = M4Integer;
+	using BigVector = M4Vector;
 
 #endif
 
 #if MATHBACKEND == 6
 
-	/** Define the mapping for BigInteger */
-	typedef NTL::myZZ BigInteger;
-	
-	/** Define the mapping for BigVector */
-	typedef NTL::myVecP<NTL::myZZ> BigVector;
+	using BigInteger = M6Integer;
+	using BigVector = M6Vector;
 
 #endif
-
-	template<typename IntType> class ILParamsImpl;
-	template<typename VecType> class PolyImpl;
-
-	typedef ILParamsImpl<BigInteger> ILParams;
-	typedef ILParamsImpl<NativeInteger> ILNativeParams;
-
-	typedef PolyImpl<BigVector> Poly;
-	typedef PolyImpl<NativeVector> NativePoly;
-	
-} // namespace lbcrypto ends
+}
 
 #endif

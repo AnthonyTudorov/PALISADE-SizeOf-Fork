@@ -70,7 +70,7 @@ public:
 	typedef BinaryUniformGeneratorImpl<NativeVector> BugType;
 
 	// this class contains an array of these:
-	typedef PolyImpl<NativeVector> PolyType;
+	using PolyType = PolyImpl<NativeVector>;
 
 	// the composed polynomial type
 	typedef PolyImpl<VecType> PolyLargeType;
@@ -696,7 +696,7 @@ public:
 	*/
 	PolyLargeType CRTInterpolate() const;
 
-	NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const;
+	PolyType DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
 	/**
 	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS;
@@ -710,8 +710,8 @@ public:
 	* @param &extBeta a vector of precomputed extended-double-precision floating-point factors between 0 and 1 - for each q_i - used when CRT moduli are 45..57 bits long
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
-	PolyType ScaleAndRound(const typename PolyType::Integer &p, const std::vector<typename PolyType::Integer> &alpha,
-			const std::vector<double> &beta, const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
+	PolyType ScaleAndRound(const NativeInteger &p, const std::vector<NativeInteger> &alpha,
+			const std::vector<double> &beta, const std::vector<NativeInteger> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
 			const std::vector<long double> &extBeta) const;
 
 	/**
@@ -725,9 +725,9 @@ public:
 	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	* @return the polynomial in the CRT basis S
 	*/
-	DCRTPolyType SwitchCRTBasis(const shared_ptr<Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) const;
+	DCRTPolyType SwitchCRTBasis(const shared_ptr<Params> params, const std::vector<NativeInteger> &qInvModqi,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
+			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) const;
 
 	/**
 	* @brief Expands polynomial in CRT basis Q = q1*q2*...*qn to a larger CRT basis Q*S, where S = s1*s2*...*sn;
@@ -742,9 +742,9 @@ public:
 	* @param &qInvModqiPrecon NTL precomputations for (q/qi)^{-1} mod q
 	*/
 	void ExpandCRTBasis(const shared_ptr<Params> paramsQS, const shared_ptr<Params> params,
-			const std::vector<typename PolyType::Integer> &qInvModqi,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon);
+			const std::vector<NativeInteger> &qInvModqi,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
+			const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon);
 
 	/**
 	 * @brief Computes Round(t/q*x) mod t for fast rounding in RNS
@@ -762,17 +762,17 @@ public:
 	 * @return
 	 */
 	PolyType ScaleAndRound(
-			const std::vector<typename PolyType::Integer> &qModuliTable,
-			const typename PolyType::Integer &gamma,
-			const typename PolyType::Integer &t,
-			const typename PolyType::Integer &gammaInvModt,
-			const typename PolyType::Integer &gammaInvModtPrecon,
-			const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-			const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
-			const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
-			const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiPreconTable,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaPreconTable) const;
+			const std::vector<NativeInteger> &qModuliTable,
+			const NativeInteger &gamma,
+			const NativeInteger &t,
+			const NativeInteger &gammaInvModt,
+			const NativeInteger &gammaInvModtPrecon,
+			const std::vector<NativeInteger> &negqInvModtgammaTable,
+			const std::vector<NativeInteger> &negqInvModtgammaPreconTable,
+			const std::vector<NativeInteger> &tgammaqDivqiModqiTable,
+			const std::vector<NativeInteger> &tgammaqDivqiModqiPreconTable,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModtgammaTable,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModtgammaPreconTable) const;
 
 	/**
 	 *@ brief Expands polynomial in CRT basis q to a larger CRT basis {Bsk U mtilde}, mtilde is a redundant modulus used to remove q overflows generated from fast conversion.
@@ -791,18 +791,18 @@ public:
 	 */
 	void FastBaseConvqToBskMontgomery(
 			const shared_ptr<Params> paramsBsk,
-			const std::vector<typename PolyType::Integer> &qModuli,
-			const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+			const std::vector<NativeInteger> &qModuli,
+			const std::vector<NativeInteger> &BskmtildeModuli,
 			const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
-			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
-			const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-			const std::vector<typename PolyType::Integer> &qModBski,
-			const std::vector<typename PolyType::Integer> &qModBskiPrecon,
-			const typename PolyType::Integer &negqInvModmtilde,
-			const typename PolyType::Integer &negqInvModmtildePrecon,
-			const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable,
-			const std::vector<typename PolyType::Integer> &mtildeInvModBskiPreconTable);
+			const std::vector<NativeInteger> &mtildeqDivqiModqi,
+			const std::vector<NativeInteger> &mtildeqDivqiModqiPrecon,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
+			const std::vector<NativeInteger> &qModBski,
+			const std::vector<NativeInteger> &qModBskiPrecon,
+			const NativeInteger &negqInvModmtilde,
+			const NativeInteger &negqInvModmtildePrecon,
+			const std::vector<NativeInteger> &mtildeInvModBskiTable,
+			const std::vector<NativeInteger> &mtildeInvModBskiPreconTable);
 
 	/**
 	 * @brief Scales polynomial in CRT basis {q U Bsk} by scalar t/q.
@@ -816,15 +816,15 @@ public:
 	 * @param qInvModBiPrecon
 	 */
 	void FastRNSFloorq(
-			const typename PolyType::Integer &t,
-			const std::vector<typename PolyType::Integer> &qModuli,
-			const std::vector<typename PolyType::Integer> &BskModuli,
+			const NativeInteger &t,
+			const std::vector<NativeInteger> &qModuli,
+			const std::vector<NativeInteger> &BskModuli,
 			const std::vector<DoubleNativeInteger> &BskModulimu,
-			const std::vector<typename PolyType::Integer> &tqDivqiModqi,
-			const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
-			const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-			const std::vector<typename PolyType::Integer> &qInvModBi,
-			const std::vector<typename PolyType::Integer> &qInvModBiPrecon);
+			const std::vector<NativeInteger> &tqDivqiModqi,
+			const std::vector<NativeInteger> &tqDivqiModqiPrecon,
+			const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
+			const std::vector<NativeInteger> &qInvModBi,
+			const std::vector<NativeInteger> &qInvModBiPrecon);
 
 	/**
 	 * @brief Converts fast polynomial in CRT basis {q U Bsk} to basis {q} using Shenoy Kumaresan method.
@@ -840,18 +840,18 @@ public:
 	 * @param BModqiPrecon
 	 */
 	void FastBaseConvSK(
-			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<NativeInteger> &qModuli,
 			const std::vector<DoubleNativeInteger> &qModulimu,
-			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<NativeInteger> &BskModuli,
 			const std::vector<DoubleNativeInteger> &BskModulimu,
-			const std::vector<typename PolyType::Integer> &BDivBiModBi,
-			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
-			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
-			const typename PolyType::Integer &BInvModmsk,
-			const typename PolyType::Integer &BInvModmskPrecon,
-			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
-			const std::vector<typename PolyType::Integer> &BModqi,
-			const std::vector<typename PolyType::Integer> &BModqiPrecon
+			const std::vector<NativeInteger> &BDivBiModBi,
+			const std::vector<NativeInteger> &BDivBiModBiPrecon,
+			const std::vector<NativeInteger> &BDivBiModmsk,
+			const NativeInteger &BInvModmsk,
+			const NativeInteger &BInvModmskPrecon,
+			const std::vector<std::vector<NativeInteger>> &BDivBiModqj,
+			const std::vector<NativeInteger> &BModqi,
+			const std::vector<NativeInteger> &BModqiPrecon
 			);
 
 
@@ -867,7 +867,7 @@ public:
  	* @return the result of computation as a polynomial in the CRT basis Q
 	*/
 	DCRTPolyType ScaleAndRound(const shared_ptr<Params> params,
-			const std::vector<std::vector<typename PolyType::Integer>> &alpha,
+			const std::vector<std::vector<NativeInteger>> &alpha,
 			const std::vector<long double> &beta,
 			const std::vector<DoubleNativeInteger> &siModulimu) const;
 

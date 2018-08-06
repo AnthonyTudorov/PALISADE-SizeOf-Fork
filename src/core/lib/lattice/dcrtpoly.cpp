@@ -1058,15 +1058,15 @@ NativePoly DCRTPolyImpl<VecType>::DecryptionCRTInterpolate(PlaintextModulus ptm)
 
 template<typename VecType>
 PolyImpl<NativeVector>
-DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
-		const std::vector<typename PolyType::Integer> &alpha, const std::vector<double> &beta,
-		const std::vector<typename PolyType::Integer> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
+DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
+		const std::vector<NativeInteger> &alpha, const std::vector<double> &beta,
+		const std::vector<NativeInteger> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
 		const std::vector<long double> &extBeta) const {
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();
 
-	typename PolyType::Vector coefficients(ringDimension, p);
+	typename PolyType::Vector coefficients(ringDimension, p.ConvertToInt());
 
 	if(m_vectors[0].GetModulus().GetMSB() < 45)
 	{
@@ -1075,9 +1075,9 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 #endif
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			double curFloatSum = 0.0;
-			typename PolyType::Integer curIntSum = 0;
+			NativeInteger curIntSum = 0;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
-				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+				const NativeInteger &xi = m_vectors[vi].GetValues()[ri];
 
 				// We assume that that the value of p is smaller than 64 bits (like 58)
 				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
@@ -1087,7 +1087,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 				curFloatSum += (double)(xi.ConvertToInt())*beta[vi];
 			}
 
-			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+			coefficients[ri] = ((curIntSum + Integer(std::llround(curFloatSum))).Mod(p)).ConvertToInt();
 		}
 	}
 	else if (m_vectors[0].GetModulus().GetMSB() < 58)
@@ -1097,9 +1097,9 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 #endif
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			long double curFloatSum = 0.0;
-			typename PolyType::Integer curIntSum = 0;
+			NativeInteger curIntSum = 0;
 			for( usint vi = 0; vi < nTowers; vi++ ) {
-				const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+				const NativeInteger &xi = m_vectors[vi].GetValues()[ri];
 
 				// We assume that that the value of p is smaller than 64 bits (like 58)
 				// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
@@ -1109,7 +1109,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 				curFloatSum += (long double)(xi.ConvertToInt())*extBeta[vi];
 			}
 
-			coefficients[ri] = (curIntSum + typename PolyType::Integer(std::llround(curFloatSum))).Mod(p);
+			coefficients[ri] = ((curIntSum + Integer(std::llround(curFloatSum))).Mod(p)).ConvertToInt();
 		}
 	}
 	else
@@ -1124,9 +1124,9 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 #endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
-				typename PolyType::Integer curIntSum = 0;
+				NativeInteger curIntSum = 0;
 				for( usint vi = 0; vi < nTowers; vi++ ) {
-					const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+					const NativeInteger &xi = m_vectors[vi].GetValues()[ri];
 
 					// We assume that that the value of p is smaller than 64 bits (like 58)
 					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
@@ -1136,7 +1136,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
 				}
 
-				coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p);
+				coefficients[ri] = ((curIntSum + Integer(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p)).ConvertToInt();
 			}
 		}
 		else
@@ -1146,9 +1146,9 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 #endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
-				typename PolyType::Integer curIntSum = 0;
+				NativeInteger curIntSum = 0;
 				for( usint vi = 0; vi < nTowers; vi++ ) {
-					const typename PolyType::Integer &xi = m_vectors[vi].GetValues()[ri];
+					const NativeInteger &xi = m_vectors[vi].GetValues()[ri];
 
 					// We assume that that the value of p is smaller than 64 bits (like 58)
 					// Thus we do not make additional curIntSum.Mod(p) calls for each value of vi
@@ -1158,14 +1158,14 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 					curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
 				}
 
-				coefficients[ri] = (curIntSum + typename PolyType::Integer(quadFloatRound(curFloatSum))).Mod(p);
+				coefficients[ri] = ((curIntSum + Integer(quadFloatRound(curFloatSum))).Mod(p)).ConvertToInt();
 			}
 		}
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive
 	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
-	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), p, 1) ) );
+	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), p.ConvertToInt(), 1) ) );
 	result.SetValues(coefficients,COEFFICIENT);
 
 	return std::move(result);
@@ -1200,9 +1200,9 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const typename PolyType::Integer &p,
 
 template<typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
-		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) const{
+		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<NativeInteger> &qInvModqi,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
+		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) const{
 
 	DCRTPolyType ans(params,m_format,true);
 
@@ -1215,13 +1215,13 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
 #endif
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
-		std::vector<typename PolyType::Integer> xInvVector(nTowers);
+		std::vector<NativeInteger> xInvVector(nTowers);
 		double nu = 0.0;
 
 		// Compute alpha and vector of x_i terms
 		for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
-			const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
-			const typename PolyType::Integer &qi = m_vectors[vIndex].GetModulus();
+			const NativeInteger &xi = m_vectors[vIndex].GetValues()[rIndex];
+			const NativeInteger &qi = m_vectors[vIndex].GetModulus();
 
 			//computes [xi (q/qi)^{-1}]_qi
 			xInvVector[vIndex] = xi.ModMulPreconOptimized(qInvModqi[vIndex],qi,qInvModqiPrecon[vIndex]);
@@ -1231,20 +1231,20 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
 		}
 
 		// alpha corresponds to the number of overflows
-		typename PolyType::Integer alpha = std::llround(nu);
+		NativeInteger alpha = std::llround(nu);
 
 		for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
 			DoubleNativeInteger curValue = 0;
 
-			const typename PolyType::Integer &si = ans.m_vectors[newvIndex].GetModulus();
+			const NativeInteger &si = ans.m_vectors[newvIndex].GetModulus();
 
 			//first round - compute "fast conversion"
 			for( usint vIndex = 0; vIndex < nTowers; vIndex++ ) {
 				curValue += Mul128(xInvVector[vIndex].ConvertToInt(),qDivqiModsi[newvIndex][vIndex].ConvertToInt());
 			}
 
-			const typename PolyType::Integer &curNativeValue = typename PolyType::Integer(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
+			const NativeInteger &curNativeValue = NativeInteger(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
 			//second round - remove q-overflows
 			ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si),si);
@@ -1264,9 +1264,9 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
 
 template<typename VecType>
 void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params> paramsExpanded,
-		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<typename PolyType::Integer> &qInvModqi,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModsi, const std::vector<typename PolyType::Integer> &qModsi,
-		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<typename PolyType::Integer> &qInvModqiPrecon) {
+		const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<NativeInteger> &qInvModqi,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
+		const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) {
 
 	std::vector<PolyType> polyInNTT;
 
@@ -1323,40 +1323,40 @@ void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params
 template<typename VecType>
 PolyImpl<NativeVector>
 DCRTPolyImpl<VecType>::ScaleAndRound(
-		const std::vector<typename PolyType::Integer> &qModuliTable,
-		const typename PolyType::Integer &gamma,
-		const typename PolyType::Integer &t,
-		const typename PolyType::Integer &gammaInvModt,
-		const typename PolyType::Integer &gammaInvModtPrecon,
-		const std::vector<typename PolyType::Integer> &negqInvModtgammaTable,
-		const std::vector<typename PolyType::Integer> &negqInvModtgammaPreconTable,
-		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiTable,
-		const std::vector<typename PolyType::Integer> &tgammaqDivqiModqiPreconTable,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaTable,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModtgammaPreconTable) const {
+		const std::vector<NativeInteger> &qModuliTable,
+		const NativeInteger &gamma,
+		const NativeInteger &t,
+		const NativeInteger &gammaInvModt,
+		const NativeInteger &gammaInvModtPrecon,
+		const std::vector<NativeInteger> &negqInvModtgammaTable,
+		const std::vector<NativeInteger> &negqInvModtgammaPreconTable,
+		const std::vector<NativeInteger> &tgammaqDivqiModqiTable,
+		const std::vector<NativeInteger> &tgammaqDivqiModqiPreconTable,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModtgammaTable,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModtgammaPreconTable) const {
 
 	usint n = GetRingDimension();
 	usint numq = m_vectors.size();
 
-	typename PolyType::Vector coefficients(n, t);
+	typename PolyType::Vector coefficients(n, t.ConvertToInt());
 
 #ifdef OMP
 #pragma omp parallel for
 #endif
 	for (usint k = 0; k < n; k++)
 	{
-		typename PolyType::Integer sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
+		NativeInteger sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
 		for (usint i = 0; i < numq; i++)
 		{
-			const typename PolyType::Integer &qi = qModuliTable[i];
-			const typename PolyType::Integer &xi = m_vectors[i][k];
+			const NativeInteger &qi = qModuliTable[i];
+			const NativeInteger &xi = m_vectors[i][k];
 			tmp = xi;
 			tmp.ModMulPreconOptimizedEq( tgammaqDivqiModqiTable[i], qi, tgammaqDivqiModqiPreconTable[i] ); // xi*t*gamma*(q/qi)^-1 mod qi
 
 			tmpt = tmp.ModMulPreconOptimized( qDivqiModtgammaTable[i][0], t, qDivqiModtgammaPreconTable[i][0] ); // mod t
 			tmpgamma = tmp.ModMulPreconOptimized( qDivqiModtgammaTable[i][1], gamma, qDivqiModtgammaPreconTable[i][1] ); // mod gamma
 
-			st.ModAddFastOptimizedEq( tmpt, t );
+			st.ModAddFastOptimizedEq( tmpt, t.ConvertToInt() );
 			sgamma.ModAddFastOptimizedEq( tmpgamma, gamma );
 		}
 
@@ -1369,12 +1369,12 @@ DCRTPolyImpl<VecType>::ScaleAndRound(
 
 		tmp = st.ModSub( sgamma, t );
 
-		coefficients[k] = tmp.ModMulPreconOptimized( gammaInvModt, t, gammaInvModtPrecon );
+		coefficients[k] = tmp.ModMulPreconOptimized( gammaInvModt, t, gammaInvModtPrecon ).ConvertToInt();
 	}
 
 	// Setting the root of unity to ONE as the calculation is expensive
 	// It is assumed that no polynomial multiplications in evaluation representation are performed after this
-	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), t, 1) ) );
+	PolyType result( shared_ptr<typename PolyType::Params>( new typename PolyType::Params(GetCyclotomicOrder(), t.ConvertToInt(), 1) ) );
 	result.SetValues(coefficients,COEFFICIENT);
 
 	return std::move(result);
@@ -1389,18 +1389,18 @@ DCRTPolyImpl<VecType>::ScaleAndRound(
 template<typename VecType>
 void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 		const shared_ptr<DCRTPolyImpl::Params> paramsBsk,
-		const std::vector<typename PolyType::Integer> &qModuli,
-		const std::vector<typename PolyType::Integer> &BskmtildeModuli,
+		const std::vector<NativeInteger> &qModuli,
+		const std::vector<NativeInteger> &BskmtildeModuli,
 		const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
-		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqi,
-		const std::vector<typename PolyType::Integer> &mtildeqDivqiModqiPrecon,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-		const std::vector<typename PolyType::Integer> &qModBski,
-		const std::vector<typename PolyType::Integer> &qModBskiPrecon,
-		const typename PolyType::Integer &negqInvModmtilde,
-		const typename PolyType::Integer &negqInvModmtildePrecon,
-		const std::vector<typename PolyType::Integer> &mtildeInvModBskiTable,
-		const std::vector<typename PolyType::Integer> &mtildeInvModBskiPreconTable) {
+		const std::vector<NativeInteger> &mtildeqDivqiModqi,
+		const std::vector<NativeInteger> &mtildeqDivqiModqiPrecon,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
+		const std::vector<NativeInteger> &qModBski,
+		const std::vector<NativeInteger> &qModBskiPrecon,
+		const NativeInteger &negqInvModmtilde,
+		const NativeInteger &negqInvModmtildePrecon,
+		const std::vector<NativeInteger> &mtildeInvModBskiTable,
+		const std::vector<NativeInteger> &mtildeInvModBskiPreconTable) {
 
 	// Input: poly in basis q
 	// Output: poly in base Bsk = {B U msk}
@@ -1428,11 +1428,11 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 	// ----------------------- step 0 -----------------------
 
 	// first we twist xi by mtilde*(q/qi)^-1 mod qi
-	typename PolyType::Integer *ximtildeqiDivqModqi = new typename PolyType::Integer[n*numq];
+	NativeInteger *ximtildeqiDivqModqi = new NativeInteger[n*numq];
     for (uint32_t i = 0; i < numq; i++)
     {
-    	const typename PolyType::Integer &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
-    	const typename PolyType::Integer &currentmtildeqDivqiModqiPrecon = mtildeqDivqiModqiPrecon[i];
+    	const NativeInteger &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
+    	const NativeInteger &currentmtildeqDivqiModqiPrecon = mtildeqDivqiModqiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1466,7 +1466,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
     		DoubleNativeInteger result = 0;
     		for (uint32_t i = 0; i < numq; i++)
     		{
-    			const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
+    			const NativeInteger &qDivqiModBjValue = qDivqiModBj[i][j];
     			result += Mul128( ximtildeqiDivqModqi[i*n+k].ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
     		}
     		m_vectors[numq+j][k] = BarrettUint128ModUint64( result, BskmtildeModuli[j].ConvertToInt(), BskmtildeModulimu[j] );
@@ -1476,9 +1476,9 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
     // now we have input in Basis (q U Bsk U mtilde)
     // next we perform Small Motgomery Reduction mod q
     // ----------------------- step 1 -----------------------
-    const typename PolyType::Integer &mtilde = BskmtildeModuli[numBsk];
+    const NativeInteger &mtilde = BskmtildeModuli[numBsk];
 
-    typename PolyType::Integer *r_m_tildes = new typename PolyType::Integer[n];
+    NativeInteger *r_m_tildes = new NativeInteger[n];
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1491,8 +1491,8 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 
     for (uint32_t i = 0; i < numBsk; i++)
     {
-    	const typename PolyType::Integer &currentqModBski = qModBski[i];
-    	const typename PolyType::Integer &currentqModBskiPrecon = qModBskiPrecon[i];
+    	const NativeInteger &currentqModBski = qModBski[i];
+    	const NativeInteger &currentqModBskiPrecon = qModBskiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1500,7 +1500,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
     	for ( uint32_t k = 0; k < n; k++ )
 		{
     		// collapsing
-    		typename PolyType::Integer r_m_tilde = r_m_tildes[k]; // m_tilde < than all Bsk_i
+    		NativeInteger r_m_tilde = r_m_tildes[k]; // m_tilde < than all Bsk_i
     		r_m_tilde.ModMulPreconOptimizedEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (r_mtilde) * q mod Bski
     		r_m_tilde.ModAddFastOptimizedEq( m_vectors[numq+i][k], BskmtildeModuli[i] ); // (c``_m + (r_mtilde* q)) mod Bski
     		m_vectors[numq+i][k] = r_m_tilde.ModMulPreconOptimized( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + (r_mtilde* q)) * mtilde mod Bski
@@ -1547,15 +1547,15 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 
 template<typename VecType>
 void DCRTPolyImpl<VecType>::FastRNSFloorq(
-		const typename PolyType::Integer &t,
-		const std::vector<typename PolyType::Integer> &qModuli,
-		const std::vector<typename PolyType::Integer> &BskModuli,
+		const NativeInteger &t,
+		const std::vector<NativeInteger> &qModuli,
+		const std::vector<NativeInteger> &BskModuli,
 		const std::vector<DoubleNativeInteger> &BskModulimu,
-		const std::vector<typename PolyType::Integer> &tqDivqiModqi,
-		const std::vector<typename PolyType::Integer> &tqDivqiModqiPrecon,
-		const std::vector<std::vector<typename PolyType::Integer>> &qDivqiModBj,
-		const std::vector<typename PolyType::Integer> &qInvModBi,
-		const std::vector<typename PolyType::Integer> &qInvModBiPrecon) {
+		const std::vector<NativeInteger> &tqDivqiModqi,
+		const std::vector<NativeInteger> &tqDivqiModqiPrecon,
+		const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
+		const std::vector<NativeInteger> &qInvModBi,
+		const std::vector<NativeInteger> &qInvModBiPrecon) {
 
 	// Input: poly in basis {q U Bsk}
 	// Output: approximateFloor(t/q*poly) in basis Bsk
@@ -1569,12 +1569,12 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 	uint32_t n = GetLength();
 
 	// Twist xi by t*(q/qi)^-1 mod qi
-	typename PolyType::Integer *txiqiDivqModqi = new typename PolyType::Integer[n*numBsk];
+	NativeInteger *txiqiDivqModqi = new NativeInteger[n*numBsk];
 
 	for (uint32_t i = 0; i < numq; i++)
 	{
-		const typename PolyType::Integer &currenttqDivqiModqi = tqDivqiModqi[i];
-		const typename PolyType::Integer &currenttqDivqiModqiPrecon = tqDivqiModqiPrecon[i];
+		const NativeInteger &currenttqDivqiModqi = tqDivqiModqi[i];
+		const NativeInteger &currenttqDivqiModqiPrecon = tqDivqiModqiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
@@ -1596,8 +1596,8 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 			DoubleNativeInteger aq = 0;
 			for (uint32_t i = 0; i < numq; i++)
 			{
-				const typename PolyType::Integer &qDivqiModBjValue = qDivqiModBj[i][j];
-				typename PolyType::Integer &xi = m_vectors[i][k];
+				const NativeInteger &qDivqiModBjValue = qDivqiModBj[i][j];
+				NativeInteger &xi = m_vectors[i][k];
 				aq += Mul128( xi.ConvertToInt(), qDivqiModBjValue.ConvertToInt() );
 			}
 			txiqiDivqModqi[j*n + k] = BarrettUint128ModUint64( aq, BskModuli[j].ConvertToInt(), BskModulimu[j] );
@@ -1608,8 +1608,8 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 
     for (uint32_t i = 0; i < numBsk; i++)
     {
-        const typename PolyType::Integer &currentqInvModBski = qInvModBi[i];
-        const typename PolyType::Integer &currentqInvModBskiPrecon = qInvModBiPrecon[i];
+        const NativeInteger &currentqInvModBski = qInvModBi[i];
+        const NativeInteger &currentqInvModBskiPrecon = qInvModBiPrecon[i];
 #ifdef OMP
 #pragma omp parallel for
 #endif
@@ -1633,18 +1633,18 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 
 template<typename VecType>
 void DCRTPolyImpl<VecType>::FastBaseConvSK(
-			const std::vector<typename PolyType::Integer> &qModuli,
+			const std::vector<NativeInteger> &qModuli,
 			const std::vector<DoubleNativeInteger> &qModulimu,
-			const std::vector<typename PolyType::Integer> &BskModuli,
+			const std::vector<NativeInteger> &BskModuli,
 			const std::vector<DoubleNativeInteger> &BskModulimu,
-			const std::vector<typename PolyType::Integer> &BDivBiModBi,
-			const std::vector<typename PolyType::Integer> &BDivBiModBiPrecon,
-			const std::vector<typename PolyType::Integer> &BDivBiModmsk,
-			const typename PolyType::Integer &BInvModmsk,
-			const typename PolyType::Integer &BInvModmskPrecon,
-			const std::vector<std::vector<typename PolyType::Integer>> &BDivBiModqj,
-			const std::vector<typename PolyType::Integer> &BModqi,
-			const std::vector<typename PolyType::Integer> &BModqiPrecon
+			const std::vector<NativeInteger> &BDivBiModBi,
+			const std::vector<NativeInteger> &BDivBiModBiPrecon,
+			const std::vector<NativeInteger> &BDivBiModmsk,
+			const NativeInteger &BInvModmsk,
+			const NativeInteger &BInvModmskPrecon,
+			const std::vector<std::vector<NativeInteger>> &BDivBiModqj,
+			const std::vector<NativeInteger> &BModqi,
+			const std::vector<NativeInteger> &BModqiPrecon
 			)
 {
 	// Input: poly in basis Bsk
@@ -1658,8 +1658,8 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 
     for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
     {
-        const typename PolyType::Integer &currentBDivBiModBi = BDivBiModBi[i];
-        const typename PolyType::Integer &currentBDivBiModBiPrecon = BDivBiModBiPrecon[i];
+        const NativeInteger &currentBDivBiModBi = BDivBiModBi[i];
+        const NativeInteger &currentBDivBiModBiPrecon = BDivBiModBiPrecon[i];
 #ifdef OMP
 #pragma omp parallel for
 #endif
@@ -1680,8 +1680,8 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 			DoubleNativeInteger result = 0;
 			for (uint32_t i = 0; i < numBsk-1; i++) // exclude msk residue
 			{
-				const typename PolyType::Integer &currentBDivBiModqj = BDivBiModqj[i][j];
-				const typename PolyType::Integer &xi = m_vectors[numq+i][k];
+				const NativeInteger &currentBDivBiModqj = BDivBiModqj[i][j];
+				const NativeInteger &xi = m_vectors[numq+i][k];
 				result += Mul128( xi.ConvertToInt(), currentBDivBiModqj.ConvertToInt() );
 			}
 			m_vectors[j][k] = BarrettUint128ModUint64( result, qModuli[j].ConvertToInt(), qModulimu[j] );
@@ -1690,7 +1690,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 
     // calculate alphaskx
     // FastBaseConv(x, B, msk)
-    typename PolyType::Integer *alphaskxVector = new typename PolyType::Integer[n];
+    NativeInteger *alphaskxVector = new NativeInteger[n];
 #ifdef OMP
 #pragma omp parallel for
 #endif
@@ -1699,7 +1699,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     	DoubleNativeInteger result = 0;
         for (uint32_t i = 0; i < numBsk-1; i++)
         {
-        	const typename PolyType::Integer &currentBDivBiModmsk = BDivBiModmsk[i];
+        	const NativeInteger &currentBDivBiModmsk = BDivBiModmsk[i];
         	result += Mul128( m_vectors[numq+i][k].ConvertToInt(), currentBDivBiModmsk.ConvertToInt() );
         }
         alphaskxVector[k] = BarrettUint128ModUint64( result, BskModuli[numBsk-1].ConvertToInt(), BskModulimu[numBsk-1] );
@@ -1717,18 +1717,18 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 	}
 
     // do (m_vector - alphaskx*M) mod q
-    typename PolyType::Integer mskDivTwo = BskModuli[numBsk-1]/2;
+    NativeInteger mskDivTwo = BskModuli[numBsk-1]/2;
 	for (uint32_t i = 0; i < numq; i++)
 	{
-		const typename PolyType::Integer &currentBModqi = BModqi[i];
-		const typename PolyType::Integer &currentBModqiPrecon = BModqiPrecon[i];
+		const NativeInteger &currentBModqi = BModqi[i];
+		const NativeInteger &currentBModqiPrecon = BModqiPrecon[i];
 
 #ifdef OMP
 #pragma omp parallel for
 #endif
 		for (uint32_t k = 0; k < n; k++)
 		{
-			typename PolyType::Integer alphaskBModqi = alphaskxVector[k];
+			NativeInteger alphaskBModqi = alphaskxVector[k];
 			if (alphaskBModqi > mskDivTwo)
 				alphaskBModqi = alphaskBModqi.ModSubFast( BskModuli[numBsk-1], qModuli[i] );
 
@@ -1767,7 +1767,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 
 template<typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(const shared_ptr<DCRTPolyImpl::Params> params,
-		const std::vector<std::vector<typename PolyType::Integer>> &alpha,
+		const std::vector<std::vector<NativeInteger>> &alpha,
 		const std::vector<long double> &beta, const std::vector<DoubleNativeInteger> &siModulimu) const {
 
 		DCRTPolyType ans(params,m_format,true);
@@ -1786,31 +1786,31 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(const shared_ptr<DCRT
 
 			for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
 
-				const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+				const NativeInteger &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 				nu += beta[vIndex]*xi.ConvertToInt();
 
 			}
 
-			typename PolyType::Integer rounded = std::llround(nu);
+			NativeInteger rounded = std::llround(nu);
 
 			for (usint newvIndex = 0; newvIndex < newSize; newvIndex ++ ) {
 
 				DoubleNativeInteger curValue = 0;
 
-				const typename PolyType::Integer &si = params->GetParams()[newvIndex]->GetModulus();
+				const NativeInteger &si = params->GetParams()[newvIndex]->GetModulus();
 
 				for( usint vIndex = 0; vIndex < sizeQ; vIndex++ ) {
-					const typename PolyType::Integer &xi = m_vectors[vIndex].GetValues()[rIndex];
+					const NativeInteger &xi = m_vectors[vIndex].GetValues()[rIndex];
 
 					curValue += Mul128(xi.ConvertToInt(),alpha[vIndex][newvIndex].ConvertToInt());
 				}
 
-				const typename PolyType::Integer &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
+				const NativeInteger &xi = m_vectors[sizeQ + newvIndex].GetValues()[rIndex];
 
 				curValue += Mul128(xi.ConvertToInt(),alpha[sizeQ][newvIndex].ConvertToInt());
 
-				const typename PolyType::Integer &curNativeValue = typename PolyType::Integer(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
+				const NativeInteger &curNativeValue = NativeInteger(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
 				ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModAddFastOptimized(rounded,si);
 

@@ -154,7 +154,7 @@ public:
 		throw std::logic_error("const [] not implemented");
 	}
 
-	virtual NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const = 0;
+//	virtual NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const = 0;
 
 	// OPERATORS
 	/**

@@ -41,8 +41,11 @@
 namespace lbcrypto
 {
 
-template class ElemParams<NativeInteger>;
-template class ILDCRTParams<BigInteger>;
-template class DCRTPolyImpl<BigVector>;
+template class ILDCRTParams<M2Integer>;
+template class DCRTPolyImpl<M2Vector>;
+template class ILDCRTParams<M4Integer>;
+template class DCRTPolyImpl<M4Vector>;
+template class ILDCRTParams<M6Integer>;
+template class DCRTPolyImpl<M6Vector>;
 
 }

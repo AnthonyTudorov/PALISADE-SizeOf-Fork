@@ -44,12 +44,8 @@
 using namespace std;
 using namespace lbcrypto;
 
-using BE2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
-using BE2ILParams = ILParamsImpl<BE2Integer>;
-using BE2ILDCRTParams = ILDCRTParams<BE2Integer>;
-using BE2Vector = cpu_int::BigVectorImpl<BE2Integer>;
-using BE2Poly = PolyImpl<BE2Vector>;
-using BE2DCRTPoly = DCRTPolyImpl<BE2Vector>;
+using BE2ILDCRTParams = ILDCRTParams<M2Integer>;
+using BE2DCRTPoly = DCRTPolyImpl<M2Vector>;
 
 using BE4Integer = exp_int::xubint;
 using BE4ILParams = ILParamsImpl<BE4Integer>;

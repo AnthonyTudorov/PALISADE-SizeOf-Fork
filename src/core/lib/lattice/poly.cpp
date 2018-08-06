@@ -1059,13 +1059,13 @@ std::vector<PolyImpl<VecType>> PolyImpl<VecType>::PowersOfBase(usint baseBits) c
 
 }
 
-// biginteger version
 template<typename VecType>
-NativePoly
+typename PolyImpl<VecType>::PolyNative
 PolyImpl<VecType>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 
 	auto smaller = this->Mod(ptm);
-	NativePoly interp(
+
+	typename PolyImpl<VecType>::PolyNative interp(
 			shared_ptr<ILNativeParams>( new ILNativeParams(this->GetCyclotomicOrder(), ptm, 1) ),
 															this->GetFormat(), true);
 

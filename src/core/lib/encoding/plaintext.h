@@ -30,14 +30,13 @@
 #include <vector>
 #include <initializer_list>
 #include <iostream>
+
 #include "encodingparams.h"
 #include "../utils/inttypes.h"
 #include "../math/backend.h"
-#include "../lattice/elemparams.h"
-#include "../lattice/dcrtpoly.h"
-#include "../lattice/ilparams.h"
-#include "../lattice/ildcrtparams.h"
-#include "../lattice/poly.h"
+#include "../lattice/backend.h"
+
+using std::shared_ptr;
 
 namespace lbcrypto
 {
