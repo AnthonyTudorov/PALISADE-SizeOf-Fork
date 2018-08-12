@@ -33,11 +33,6 @@
 #include "../math/nbtheory.h"
 #include "../lattice/ilparams.h"
 
-//namespace lbcrypto
-//{
-//template<typename VecType, typename ParmType> class PolyImpl;
-//}
-
 namespace lbcrypto
 {
 

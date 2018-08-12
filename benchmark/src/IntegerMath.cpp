@@ -58,8 +58,8 @@ void BM_BigInt_constants(benchmark::State& state) { // benchmark
 }
 
 DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,M2Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,BE4Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,BE6Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,M4Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,M6Integer)
 DO_BENCHMARK_TEMPLATE(BM_BigInt_constants,NativeInteger)
 
 template<typename I>
@@ -76,8 +76,8 @@ void BM_BigInt_small_variables(benchmark::State& state) { // benchmark
 }
 
 DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,M2Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,BE4Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,BE6Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,M4Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,M6Integer)
 DO_BENCHMARK_TEMPLATE(BM_BigInt_small_variables,NativeInteger)
 
 template<typename I>
@@ -93,8 +93,8 @@ void BM_BigInt_large_variables(benchmark::State& state) { // benchmark
 }
 
 DO_BENCHMARK_TEMPLATE(BM_BigInt_large_variables,M2Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_large_variables,BE4Integer)
-DO_BENCHMARK_TEMPLATE(BM_BigInt_large_variables,BE6Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_large_variables,M4Integer)
+DO_BENCHMARK_TEMPLATE(BM_BigInt_large_variables,M6Integer)
 
 static string smalla("10403"), smallb("103");
 static string largea("18446744073709551616"), largeb("18446744073709551617");
@@ -118,10 +118,10 @@ static void BM_BigInt_Add(benchmark::State& state) { // benchmark
 
 BENCHMARK_TEMPLATE(BM_BigInt_Add,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 BENCHMARK_TEMPLATE(BM_BigInt_Add,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Add,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Add,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Add,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Add,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Add,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Add,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Add,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Add,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
 BENCHMARK_TEMPLATE(BM_BigInt_Add,NativeInteger)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 
 // +=
@@ -142,10 +142,10 @@ static void BM_BigInt_Addeq(benchmark::State& state) { // benchmark
 
 BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Addeq,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Addeq,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Addeq,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Addeq,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Addeq,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
 BENCHMARK_TEMPLATE(BM_BigInt_Addeq,NativeInteger)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 
 // mult
@@ -166,10 +166,10 @@ static void BM_BigInt_Mult(benchmark::State& state) { // benchmark
 
 BENCHMARK_TEMPLATE(BM_BigInt_Mult,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 BENCHMARK_TEMPLATE(BM_BigInt_Mult,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Mult,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Mult,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Mult,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Mult,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Mult,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Mult,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Mult,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Mult,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
 BENCHMARK_TEMPLATE(BM_BigInt_Mult,NativeInteger)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 
 // *=
@@ -190,10 +190,10 @@ static void BM_BigInt_Multeq(benchmark::State& state) { // benchmark
 
 BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M2Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Multeq,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Multeq,BE4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
-BENCHMARK_TEMPLATE(BM_BigInt_Multeq,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
-BENCHMARK_TEMPLATE(BM_BigInt_Multeq,BE6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M4Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
+BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
+BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M6Integer)->Unit(benchmark::kMicrosecond)->ArgName("Large")->Arg(1);
 BENCHMARK_TEMPLATE(BM_BigInt_Multeq,NativeInteger)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 
 //execute the benchmarks

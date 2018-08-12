@@ -250,7 +250,6 @@ public:
 	 */
 	NativeInteger Minus(const NativeInteger& b) const {
 		return m_value <= b.m_value ? 0 : m_value - b.m_value;
-		//return m_value - b.m_value;
 	}
 
 	/**
@@ -260,8 +259,10 @@ public:
 	 * @return result of the subtraction operation of type BigInteger.
 	 */
 	const NativeInteger& MinusEq(const NativeInteger& b) {
-		//m_value -= m_value <= b.m_value ? m_value : b.m_value;
-		m_value -= b.m_value;
+		if( m_value <= b.m_value )
+			m_value = 0;
+		else
+			m_value -= b.m_value;
 		return *this;
 	}
 

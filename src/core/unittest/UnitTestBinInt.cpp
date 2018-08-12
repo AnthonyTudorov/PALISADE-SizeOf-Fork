@@ -46,120 +46,140 @@
 using namespace std;
 using namespace lbcrypto;
 
-
-class UnitTestBinInt : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-  }
-
-  virtual void TearDown() {
-    // Code here will be called immediately after each test
-    // (right before the destructor).
-  }
-};
-
 /************************************************/
-/*	TESTING METHODS OF BININT CLASS		*/
+/* TESTING METHODS OF ALL THE INTEGER CLASSES   */
 /************************************************/
 
-TEST(UTBinInt,assign) {
-	BigInteger v;
+template<typename T>
+void assign_test(const string& msg) {
+	T v;
 	vector<uint64_t> vals( {27, uint64_t(1)<<10, uint64_t(1)<<25, uint64_t(1)<<35, uint64_t(1)<<55, } );
 
 	for( auto tv : vals ) {
 		v = uint64_t(tv);
-		EXPECT_EQ(v.ConvertToInt(), tv);
+		EXPECT_EQ(v.ConvertToInt(), tv) << msg;
 	}
 }
 
-inline void identity_test(BigInteger& a) {
-	BigInteger ZERO(0);
-	BigInteger ONE(1);
+TEST(UTBinInt,assign) {
+	{ using T = M2Integer; assign_test<T>("BE2 assign"); }
+	{ using T = M4Integer; assign_test<T>("BE4 assign"); }
+	{ using T = M6Integer; assign_test<T>("BE6 assign"); }
+	{ using T = NativeInteger; assign_test<T>("Native assign"); }
+}
 
-	EXPECT_EQ(a, a + ZERO) << "Failure testing a + 0";
-	EXPECT_EQ(a, a += ZERO) << "Failure testing a += 0";
-	EXPECT_EQ(a, a * ONE) << "Failure testing a * 1";
-	EXPECT_EQ(a, a *= ONE) << "Failure testing a *= 1";
+template<typename T>
+void identity_test(T& a, const string& msg) {
+	T ZERO(0);
+	T ONE(1);
 
-	EXPECT_EQ(a, ZERO + a) << "Failure testing 0 + a";
-	EXPECT_EQ(a, ZERO += a) << "Failure testing 0 += a";
-	EXPECT_EQ(a, ONE * a) << "Failure testing 1 * a";
-	EXPECT_EQ(a, ONE *= a) << "Failure testing 1 *= a";
+	EXPECT_EQ(a, a + ZERO) << msg << " Failure testing a + 0";
+	EXPECT_EQ(a, a += ZERO) << msg << " Failure testing a += 0";
+	EXPECT_EQ(a, a * ONE) << msg << " Failure testing a * 1";
+	EXPECT_EQ(a, a *= ONE) << msg << " Failure testing a *= 1";
 
-	EXPECT_EQ(a*a, ONE *= a) << "Failure on 1 *= a, twice";
+	EXPECT_EQ(a, ZERO + a) << msg << " Failure testing 0 + a";
+	EXPECT_EQ(a, ZERO += a) << msg << " Failure testing 0 += a";
+	EXPECT_EQ(a, ONE * a) << msg << " Failure testing 1 * a";
+	EXPECT_EQ(a, ONE *= a) << msg << " Failure testing 1 *= a";
+
+	EXPECT_EQ(a*a, ONE *= a) << msg << " Failure on 1 *= a, twice";
 }
 
 TEST(UTBinInt,identity) {
-	BigInteger sm("3279");
-	BigInteger lg("1234567898765432");
+	{
+		using T = M2Integer;
 
-	identity_test( sm );
-	identity_test( lg );
+		T sm("3279");
+		T lg("1234567898765432");
+
+		identity_test( sm, "BE2" );
+		identity_test( lg, "BE2" );
+	}
+	{
+		using T = M4Integer;
+
+		T sm("3279");
+		T lg("1234567898765432");
+
+		identity_test( sm, "BE4" );
+		identity_test( lg, "BE4" );
+	}
+	{
+		using T = M6Integer;
+
+		T sm("3279");
+		T lg("1234567898765432");
+
+		identity_test( sm, "BE6" );
+		identity_test( lg, "BE6" );
+	}
 }
 
 /************************************************/
 /* TESTING BASIC MATH METHODS AND OPERATORS     */
 /************************************************/
-TEST(UTBinInt,basic_math){
+template<typename T>
+void basic_math_test(const string& msg) {
 
   /************************************************/
   /* TESTING METHOD PLUS FOR ALL CONDITIONS       */
   /************************************************/
-  // The method "Plus" does addition on two BigIntegers a,b
-  // Returns a+b, which is stored in another BigInteger
-  // calculatedResult ConvertToInt converts BigInteger
+  // The method "Plus" does addition on two Ts a,b
+  // Returns a+b, which is stored in another T
+  // calculatedResult ConvertToInt converts T
   // calculatedResult to integer
 
-  BigInteger calculatedResult;
+  T calculatedResult;
   uint64_t expectedResult;
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    BigInteger a("203450");
-    BigInteger b("2034");
+    T a("203450");
+    T b("2034");
 
     calculatedResult = a.Plus(b);
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing plus_a_greater_than_b";
+      << msg << " Failure testing plus_a_greater_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    BigInteger a("2034");
-    BigInteger b("203450");
+    T a("2034");
+    T b("203450");
 
 
     calculatedResult = a.Plus(b);
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing plus_a_less_than_b";
+      << msg << " Failure testing plus_a_less_than_b";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // BYTE
   {
-    BigInteger a("768900");
-    BigInteger b("16523408");
+    T a("768900");
+    T b("16523408");
 
     calculatedResult = a.Plus(b);
     expectedResult = 17292308;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing overflow_to_next_byte";
+      << msg << " Failure testing overflow_to_next_byte";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
-    BigInteger a("35");
-    BigInteger b("1015");
+    T a("35");
+    T b("1015");
 
     calculatedResult = a.Plus(b);
     expectedResult = 1050;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing plus_no_overflow_to_next_byte";
+      << msg << " Failure testing plus_no_overflow_to_next_byte";
   }
 
   /************************************************/
@@ -168,14 +188,14 @@ TEST(UTBinInt,basic_math){
 
   // The operator "+=(Plus Equals)" does addition of two Big
   // Integers a,b Calculates a+b, and stores result in a ConvertToInt
-  // converts BigInteger a to integer
+  // converts T a to integer
 
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    BigInteger a("2034");
-    BigInteger b("203");
+    T a("2034");
+    T b("203");
 
     a+=b;
     expectedResult = 2237;
@@ -186,54 +206,54 @@ TEST(UTBinInt,basic_math){
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
-    BigInteger a("2034");
-    BigInteger b("203450");
+    T a("2034");
+    T b("203450");
 
     a+=b;
     expectedResult = 205484;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Falure testing plus_equals_a_less_than_b";
+      << msg << " Failure testing plus_equals_a_less_than_b";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // BYTE
   {
-    BigInteger a("768900");
-    BigInteger b("16523408");
+    T a("768900");
+    T b("16523408");
 
     a+=b;
     expectedResult = 17292308;
 
     EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Falure testing plus_equals_overflow_to_next_byte";
+      << msg << " Failure testing plus_equals_overflow_to_next_byte";
   }
   // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
-    BigInteger a("35");
-    BigInteger b("1015");
+    T a("35");
+    T b("1015");
 
     a+=b;
     expectedResult = 1050;
 
     EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Falure testing plus_equals_no_overflow_to_next_byte";
+      << msg << " Failure testing plus_equals_no_overflow_to_next_byte";
   }
   /************************************************/
   /* TESTING METHOD MINUS FOR ALL CONDITIONS      */
   /************************************************/
 
-  // The method "Minus" does subtraction on two BigIntegers a,b
-  // Returns a-b, which is stored in another BigInteger
+  // The method "Minus" does subtraction on two Ts a,b
+  // Returns a-b, which is stored in another T
   // calculatedResult When a<b, the result is 0, since there is no
   // support for negative numbers as of now ConvertToInt converts
-  // BigInteger calculatedResult to integer
+  // T calculatedResult to integer
 
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
-    BigInteger a("20489");
-    BigInteger b("2034455");
+    T a("20489");
+    T b("2034455");
 
     calculatedResult = a.Minus(b);
     expectedResult = 0;
@@ -241,231 +261,238 @@ TEST(UTBinInt,basic_math){
     //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
     //ZERO
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing minus_a_less_than_b";
+      << msg << " Failure testing minus_a_less_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
-    BigInteger a("2048956567");
-    BigInteger b("2048956567");
+    T a("2048956567");
+    T b("2048956567");
 
     calculatedResult = a.Minus(b);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing minus_a_equal_to_b";
+      << msg << " Failure testing minus_a_equal_to_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
-    BigInteger a("2048956567");
-    BigInteger b("2034455");
+    T a("2048956567");
+    T b("2034455");
 
     calculatedResult = a.Minus(b);
     expectedResult = 2046922112;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing minus_a_greater_than_b";
+      << msg << " Failure testing minus_a_greater_than_b";
   }
   // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
   {
-    BigInteger a("196737");
-    BigInteger b("65406");
+    T a("196737");
+    T b("65406");
 
     calculatedResult = a.Minus(b);
     expectedResult = 131331;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing minus_borrow_from_next_byte";
+      << msg << " Failure testing minus_borrow_from_next_byte";
   }
 
   /************************************************/
   /* TESTING OPERATOR -= FOR ALL CONDITIONS       */
   /************************************************/
 
-  // The operator "-=(Minus Equals)" does subtractionn of two Big
+  // The operator "-=(Minus Equals)" does subtraction of two Big
   // Integers a,b Calculates a-b, and stores result in a Results to 0,
   // when a<b, since there is no concept of negative number as of now
-  // ConvertToInt converts BigInteger a to integer
+  // ConvertToInt converts T a to integer
   {
     // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
-    BigInteger a("20489");
-    BigInteger b("2034455");
+    T a("20489");
+    T b("2034455");
 
     a-=b;
     expectedResult = 0;
 
-    //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMEBR RESULT SHOULD BE
-    //ZERO
+    //SINCE THERE IS NO CONCEPT OF NEGATIVE NUMBER RESULT SHOULD BE ZERO
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing minus_equals_a_less_than_b";
+      << msg << " Failure testing minus_equals_a_less_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
-    BigInteger a("2048956567");
-    BigInteger b("2048956567");
+    T a("2048956567");
+    T b("2048956567");
 
     a-=b;
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing minus_equals_a_equal_to_b";
+      << msg << " Failure testing minus_equals_a_equal_to_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
 
-    BigInteger a("2048956567");
-    BigInteger b("2034455");
+    T a("2048956567");
+    T b("2034455");
 
     a-=b;
     expectedResult = 2046922112;
 
     EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Failure testing minus_equals_a_greater_than_b";
+      << msg << " Failure testing minus_equals_a_greater_than_b";
   }
   // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
   {
-    BigInteger a("196737");
-    BigInteger b("65406");
+    T a("196737");
+    T b("65406");
 
     a-=b;
     expectedResult = 131331;
 
     EXPECT_EQ(expectedResult,a.ConvertToInt())
-      << "Failure testing minus_equals_borrow_from_next_byte";
+      << msg << " Failure testing minus_equals_borrow_from_next_byte";
   }
 
   /************************************************/
   /* TESTING METHOD TIMES FOR ALL CONDITIONS      */
   /************************************************/
 
-  // The method "Times" does multiplication on two BigIntegers
-  // a,b Returns a*b, which is stored in another BigInteger
-  // calculatedResult ConvertToInt converts BigInteger
+  // The method "Times" does multiplication on two Ts
+  // a,b Returns a*b, which is stored in another T
+  // calculatedResult ConvertToInt converts T
   // calculatedResult to integer
   {
     //ask about the branching if (b.m_MSB==0 or 1)
-    BigInteger a("1967");
-    BigInteger b("654");
+    T a("1967");
+    T b("654");
 
     calculatedResult = a*b;
     expectedResult = 1286418;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing times_test";
+      << msg << " Failure testing times_test";
   }
 
   /************************************************/
   /* TESTING METHOD DIVIDED_BY FOR ALL CONDITIONS */
   /************************************************/
 
-  // The method "Divided By" does division of BigInteger a by
-  // another BigInteger b Returns a/b, which is stored in another
-  // BigInteger calculatedResult ConvertToInt converts
-  // BigInteger calculatedResult to integer When b=0, throws
+  // The method "Divided By" does division of T a by
+  // another T b Returns a/b, which is stored in another
+  // T calculatedResult ConvertToInt converts
+  // T calculatedResult to integer When b=0, throws
   // error, since division by Zero is not allowed When a<b, returns 0,
   // since decimal value is not returned
 
 
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
   {
-    BigInteger a("2048");
-    BigInteger b("2034455");
+    T a("2048");
+    T b("2034455");
 
     calculatedResult = a.DividedBy(b);
     expectedResult = 0;
 
     //RESULT SHOULD BE ZERO
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing divided_by_a_less_than_b";
+      << msg << " Failure testing divided_by_a_less_than_b";
   }
 
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
 
-    BigInteger a("2048956567");
-    BigInteger b("2048956567");
+    T a("2048956567");
+    T b("2048956567");
 
     calculatedResult = a.DividedBy(b);
     expectedResult = 1;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing divided_by_a_equals_b";
+      << msg << " Failure testing divided_by_a_equals_b";
   }
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
-    BigInteger a("2048956567");
-    BigInteger b("2034455");
+    T a("2048956567");
+    T b("2034455");
 
     calculatedResult = a.DividedBy(b);
     expectedResult = 1007;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing divided_by_a_greater_than_b";
+      << msg << " Failure testing divided_by_a_greater_than_b";
   }
 
   {
-	  BigInteger a("8096");
-	  BigInteger b("4049");
+	  T a("8096");
+	  T b("4049");
 
 	  calculatedResult = a.Mod(b);
 	  expectedResult = 4047;
 
 	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-		  << "Failure testing Mod";
+		  << msg << " Failure testing Mod";
   }
 
   // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
 
   {
-	  BigInteger a("8096");
-	  BigInteger b("4049");
+	  T a("8096");
+	  T b("4049");
 
 	  calculatedResult = a.DivideAndRound(b);
 	  expectedResult = 2;
 
 	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-		  << "Failure testing divided_and_rounding_by_a_greater_than_b";
+		  << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }
 
   /*{
-    BigInteger a("204");
-    BigInteger b("210");
+    T a("204");
+    T b("210");
 
     calculatedResult = a.DivideAndRound(b);
     expectedResult = 1;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing divided_and_rounding_by_a_greater_than_b";
+      << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }
 
   // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
   {
-	  BigInteger a("100");
-	  BigInteger b("210");
+	  T a("100");
+	  T b("210");
 
 	  calculatedResult = a.DivideAndRound(b);
 	  expectedResult = 0;
 
 	  EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-		  << "Failure testing divided_and_rounding_by_a_greater_than_b";
+		  << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }*/
 
   // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
   /*{
-    BigInteger a("4048");
-    BigInteger b("4049");
-    BigInteger c("2");
+    T a("4048");
+    T b("4049");
+    T c("2");
 
     calculatedResult = a.MultiplyAndRound(c, b);
     expectedResult = 2;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing divided_and_rounding_by_a_greater_than_b";
+      << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }*/
 }
 
-TEST(UTBinInt,basic_compare){
+TEST(UTBinInt,basic_math) {
+	{ using T = M2Integer; basic_math_test<T>("BE2 basic math"); }
+	{ using T = M4Integer; basic_math_test<T>("BE4 basic math"); }
+	{ using T = M6Integer; basic_math_test<T>("BE6 basic math"); }
+	{ using T = NativeInteger; basic_math_test<T>("Native basic math"); }
+}
+
+template<typename T>
+void basic_compare_test(const string& msg) {
 
   /************************************************/
   /* TESTING BASIC COMPARATOR METHODS AND OPERATORS */
@@ -475,7 +502,7 @@ TEST(UTBinInt,basic_compare){
   /* TESTING METHOD COMPARE FOR ALL CONDITIONS    */
   /************************************************/
 
-  // The method "Comapare" comapres two BigIntegers a,b
+  // The method "Compare" compares two Ts a,b
   // Returns:
   //    1, when a>b
   //    0, when a=b
@@ -489,107 +516,115 @@ TEST(UTBinInt,basic_compare){
 
   // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
-    BigInteger a("112504");
-    BigInteger b("46968");
+    T a("112504");
+    T b("46968");
 
     c = a.Compare(b);
     expectedResult = 1;
 
     EXPECT_EQ(expectedResult,(int)c)
-      << "Failure testing compare_a_greater_than_b";
+      << msg << " Failure testing compare_a_greater_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
   {
-    BigInteger a("12504");
-    BigInteger b("46968");
+    T a("12504");
+    T b("46968");
 
     c = a.Compare(b);
     expectedResult = -1;
 
     EXPECT_EQ(expectedResult,(int)c)
-      << "Failure testing compare_a_less_than_b";
+      << msg << " Failure testing compare_a_less_than_b";
   }
   // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
   {
-    BigInteger a("34512504");
-    BigInteger b("34512504");
+    T a("34512504");
+    T b("34512504");
 
     c = a.Compare(b);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult,(int)c)
-      << "Failure testing compare_a_equals_b";
+      << msg << " Failure testing compare_a_equals_b";
   }
 }
 
-TEST(UTBinInt,mod_operations){
+TEST(UTBinInt,basic_compare) {
+	{ using T = M2Integer; basic_compare_test<T>("BE2 basic compare"); }
+	{ using T = M4Integer; basic_compare_test<T>("BE4 basic compare"); }
+	{ using T = M6Integer; basic_compare_test<T>("BE6 basic compare"); }
+	{ using T = NativeInteger; basic_compare_test<T>("Native basic compare"); }
+}
+
+template<typename T>
+void mod_test(const string& msg) {
 
   /************************************************/
   /* TESTING METHOD MOD FOR ALL CONDITIONS        */
   /************************************************/
 
-  // The method "Mod" does modulus operation on two BigIntegers
-  // m,p Returns (m mod p), which is stored in another BigInteger
-  // calculatedResult ConvertToInt converts BigInteger r to
+  // The method "Mod" does modulus operation on two Ts
+  // m,p Returns (m mod p), which is stored in another T
+  // calculatedResult ConvertToInt converts T r to
   // integer
 
-  BigInteger calculatedResult;
+  T calculatedResult;
   uint64_t expectedResult;
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
   {
-    BigInteger m("27");
-    BigInteger p("240");
+    T m("27");
+    T p("240");
 
     calculatedResult = m.Mod(p);
     expectedResult = 27;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_less_than_modulus";
+      << msg << " Failure testing number_less_than_modulus";
   }
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
-    BigInteger m("93409673");
-    BigInteger p("406");
+    T m("93409673");
+    T p("406");
 
     calculatedResult = m.Mod(p);
     expectedResult = 35;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_greater_than_modulus";
+      << msg << " Failure testing number_greater_than_modulus";
   }
   // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
   {
-    BigInteger m("32768");
-    BigInteger p("16");
+    T m("32768");
+    T p("16");
 
     calculatedResult = m.Mod(p);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_dividible_by_modulus";
+      << msg << " Failure testing number_dividible_by_modulus";
   }
 
   // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
   {
-    BigInteger m("67108913");
-    BigInteger p("67108913");
+    T m("67108913");
+    T p("67108913");
 
     calculatedResult = m.Mod(p);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_equal_to_modulus";
+      << msg << " Failure testing number_equal_to_modulus";
   }
-}
 
+#ifdef OUT
   /************************************************/
   /* TESTING METHOD MOD BARRETT FOR ALL CONDITIONS */
   /************************************************/
 
 
-  /* 	The method "Divided By" does division of BigInteger m by another BigInteger p
+  /* 	The method "Divided By" does division of T m by another T p
 	Function takes b as argument and operates on a
-  	Returns a/b, which is stored in another BigInteger calculatedResult
+  	Returns a/b, which is stored in another T calculatedResult
 	ConvertToInt converts BigInteger calculatedResult to integer
 	When b=0, throws error, since division by Zero is not allowed
 	When a<b, returns 0, since decimal value is not returned
@@ -599,7 +634,7 @@ TEST(UTBinInt,mod_operations){
 
   // TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
 
-  /*TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
+  TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
     BigInteger a("9587");
     BigInteger b("3591");
@@ -612,43 +647,53 @@ TEST(UTBinInt,mod_operations){
 
     //EXPECT_EQ(27,calculatedResult.ConvertToInt());
     }
-  */
-TEST(UTBinInt,mod_inverse){
+#endif
+}
+
+TEST(UTBinInt,mod_operations) {
+	{ using T = M2Integer; mod_test<T>("BE2 mod"); }
+	{ using T = M4Integer; mod_test<T>("BE4 mod"); }
+	{ using T = M6Integer; mod_test<T>("BE6 mod"); }
+	{ using T = NativeInteger; mod_test<T>("Native mod"); }
+}
+
+template<typename T>
+void mod_inverse(const string& msg) {
   /*************************************************/
   /* TESTING METHOD MOD INVERSE FOR ALL CONDITIONS */
   /*************************************************/
-  // The method "Mod Inverse" operates on BigIntegers m,p
+  // The method "Mod Inverse" operates on Ts m,p
   // Returns {(m)^(-1)}mod p
   //    which is multiplicative inverse of m with respect to p, and is
   //    uses extended Euclidean algorithm m and p are co-primes (i,e GCD
   //    of m and p is 1)
   // If m and p are not co-prime, the method throws an error
-  // ConvertToInt converts BigInteger calculatedResult to integer
+  // ConvertToInt converts T calculatedResult to integer
 
-  BigInteger calculatedResult;
+  T calculatedResult;
   uint64_t expectedResult;
 
   // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
-    BigInteger m("5");
-    BigInteger p("108");
+    T m("5");
+    T p("108");
 
     calculatedResult = m.ModInverse(p);
     expectedResult = 65;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_less_than_modulus";
+      << msg << " Failure testing number_less_than_modulus";
   }
   // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
-    BigInteger m("3017");
-    BigInteger p("108");
+    T m("3017");
+    T p("108");
 
     calculatedResult = m.ModInverse(p);
     expectedResult = 77;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing number_greater_than_modulus";
+      << msg << " Failure testing number_greater_than_modulus";
   }
 
   //TESTCASE 
@@ -656,21 +701,21 @@ TEST(UTBinInt,mod_inverse){
   //testcase that failed during testing.
   {
 
-    BigInteger first("4974113608263");
-    BigInteger second("486376675628");
+    T first("4974113608263");
+    T second("486376675628");
     string modcorrect("110346851983");
-    BigInteger modresult;
+    T modresult;
 
     modresult = first.Mod(second);
 
     EXPECT_EQ(modcorrect, modresult.ToString())
-      <<"Failure ModInverse() Mod regression test";
+      <<msg << " Failure ModInverse() Mod regression test";
 
 
-    BigInteger input ("405107564542978792");
-    BigInteger modulus("1152921504606847009");
+    T input ("405107564542978792");
+    T modulus("1152921504606847009");
     string modIcorrect("844019068664266609");
-    BigInteger modIresult;
+    T modIresult;
 
     bool thrown = false;
     try {
@@ -681,255 +726,259 @@ TEST(UTBinInt,mod_inverse){
     }
 
     EXPECT_FALSE(thrown)
-      << "Failure testing ModInverse() non co-prime arguments";
+      << msg << " Failure testing ModInverse() non co-prime arguments";
     EXPECT_EQ(modIcorrect, modIresult.ToString())
-      <<"Failure ModInverse() regression test";
+      <<msg << " Failure ModInverse() regression test";
   }
 
-
-
-  // Mod(0)
+#ifdef OUT
   {
-#if 0 //BBI just hangs, do not run this test.
-    BigInteger first("4974113608263");
-    BigInteger second("0");
+	//BBI just hangs, do not run this test.
+    T first("4974113608263");
+    T second("0");
     string modcorrect("4974113608263");
-    BigInteger modresult;
+    T modresult;
 
     modresult = first.Mod(second);
 
     EXPECT_EQ(modcorrect, modresult.ToString())
-      <<"Failure ModInverse() Mod(0)";
-#endif
+      <<msg << " Failure ModInverse() Mod(0)";
   }
-
+#endif
 
 }
 
+TEST(UTBinInt,mod_inverse) {
+	{ using T = M2Integer; mod_inverse<T>("BE2 modinv"); }
+	{ using T = M4Integer; mod_inverse<T>("BE4 modinv"); }
+	{ using T = M6Integer; mod_inverse<T>("BE6 modinv"); }
+	{ using T = NativeInteger; mod_inverse<T>("Native modinv"); }
+}
 
-TEST(UTBinInt,mod_arithmetic){
-  BigInteger calculatedResult;
+template<typename T>
+void mod_arithmetic(const string& msg) {
+  T calculatedResult;
   uint64_t expectedResult;
   /************************************************/
   /* TESTING METHOD MODADD FOR ALL CONDITIONS     */
   /************************************************/
-  // The method "Mod Add" operates on BigIntegers m,n,q
+  // The method "Mod Add" operates on Ts m,n,q
   //   Returns:
   //     (m+n)mod q
   //      = {(m mod q) + (n mod q)}mod q
-  //   ConvertToInt converts BigInteger calculatedResult to integer
+  //   ConvertToInt converts T calculatedResult to integer
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
-    BigInteger m("58059595");
-    BigInteger n("3768");
-    BigInteger q("4067");
+    T m("58059595");
+    T n("3768");
+    T q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 2871;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing first_number_greater_than_modulus";
+      << msg << " Failure testing first_number_greater_than_modulus";
   }
   // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
   {
-    BigInteger m("595");
-    BigInteger n("376988");
-    BigInteger q("4067");
+    T m("595");
+    T n("376988");
+    T q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 3419;
 
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing second_number_greater_than_modulus";
+      << msg << " Failure testing second_number_greater_than_modulus";
   }
   // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
   {
-    BigInteger m("595");
-    BigInteger n("376");
-    BigInteger q("4067");
+    T m("595");
+    T n("376");
+    T q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 971;
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing both_numbers_less_than_modulus";
+      << msg << " Failure testing both_numbers_less_than_modulus";
   }
   // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
   {
 
-    BigInteger m("59509095449");
-    BigInteger n("37654969960");
-    BigInteger q("4067");
+    T m("59509095449");
+    T n("37654969960");
+    T q("4067");
 
     calculatedResult = m.ModAdd(n,q);
     expectedResult = 2861;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing both_numbers_greater_than_modulus";
+      << msg << " Failure testing both_numbers_greater_than_modulus";
   }
 
   /************************************************/
   /* TESTING METHOD MODSUB FOR ALL CONDITIONS -*/
   /************************************************/
 
-  // The method "Mod Sub" operates on BigIntegers m,n,q
+  // The method "Mod Sub" operates on Ts m,n,q
   //   Returns:
   //    (m-n)mod q
   //    = {(m mod q) - (n mod q)}mod q	when m>n
   //    = 0 when m=n
   //    = {(m mod q)+q-(n mod q)}mod q when m<n
 
-  //   ConvertToInt converts BigInteger calculatedResult to integer
+  //   ConvertToInt converts T calculatedResult to integer
 
   // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
-    BigInteger m("595");
-    BigInteger n("399");
-    BigInteger q("406");
+    T m("595");
+    T n("399");
+    T q("406");
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 196;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing first_number_greater_than_modulus";
+      << msg << " Failure testing first_number_greater_than_modulus";
   }
   // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
   {
-    BigInteger m("39960");
-    BigInteger n("595090959");
-    BigInteger q("406756");
+    T m("39960");
+    T n("595090959");
+    T q("406756");
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 33029;
 
     //[{(a mod c)+ c} - (b mod c)] since a < b
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
-      << "Failure testing first_number_less_than_modulus";
+      << msg << " Failure testing first_number_less_than_modulus";
   }
   // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
   {
-    BigInteger m("595090959");
-    BigInteger n("595090959");
-    BigInteger q("406756");
+    T m("595090959");
+    T n("595090959");
+    T q("406756");
 
     calculatedResult = m.ModSub(n,q);
     expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing first_number_equals_second_number";
+      << msg << " Failure testing first_number_equals_second_number";
   }
 
   /************************************************/
   /* TESTING METHOD MODMUL FOR ALL CONDITIONS     */
   /************************************************/
 
-  // The method "Mod Mul" operates on BigIntegers m,n,q
+  // The method "Mod Mul" operates on Ts m,n,q
   //   Returns:  (m*n)mod q
   //              = {(m mod q)*(n mod q)}mod q
-  // ConvertToInt converts BigInteger calculatedResult to integer
+  // ConvertToInt converts T calculatedResult to integer
 
   // FIRST > MOD
   {
-    BigInteger m("38");
-    BigInteger n("4");
-    BigInteger q("32");
+    T m("38");
+    T n("4");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 24;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul first > mod";
+      << msg << " Failure testing ModMul first > mod";
   }
 
   // FIRST == MOD
   {
-    BigInteger m("32");
-    BigInteger n("4");
-    BigInteger q("32");
+    T m("32");
+    T n("4");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul first == mod";
+      << msg << " Failure testing ModMul first == mod";
   }
 
   // SECOND > MOD
   {
-    BigInteger m("3");
-    BigInteger n("37");
-    BigInteger q("32");
+    T m("3");
+    T n("37");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 15;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul second > mod";
+      << msg << " Failure testing ModMul second > mod";
   }
 
   // SECOND == MOD
   {
-    BigInteger m("3");
-    BigInteger n("32");
-    BigInteger q("32");
+    T m("3");
+    T n("32");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul second == mod";
+      << msg << " Failure testing ModMul second == mod";
   }
 
   // BOTH > MOD
   {
-    BigInteger m("36");
-    BigInteger n("37");
-    BigInteger q("32");
+    T m("36");
+    T n("37");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 20;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul both > mod";
+      << msg << " Failure testing ModMul both > mod";
   }
 
   // BOTH == MOD
   {
-    BigInteger m("32");
-    BigInteger n("32");
-    BigInteger q("32");
+    T m("32");
+    T n("32");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul both == mod";
+      << msg << " Failure testing ModMul both == mod";
   }
 
   // PRODUCT > MOD
   {
-    BigInteger m("39");
-    BigInteger n("37");
-    BigInteger q("32");
+    T m("39");
+    T n("37");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 3;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul product > mod";
+      << msg << " Failure testing ModMul product > mod";
   }
 
   // PRODUCT == MOD
   {
-    BigInteger m("8");
-    BigInteger n("4");
-    BigInteger q("32");
+    T m("8");
+    T n("4");
+    T q("32");
 
-    BigInteger calculatedResult = m.ModMul(n,q);
+    T calculatedResult = m.ModMul(n,q);
     uint64_t expectedResult = 0;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing ModMul product == mod";
+      << msg << " Failure testing ModMul product == mod";
   }
 
 
@@ -937,61 +986,78 @@ TEST(UTBinInt,mod_arithmetic){
   /* TESTING METHOD MODEXP FOR ALL CONDITIONS     */
   /************************************************/
 
-  // The method "Mod Exp" operates on BigIntegers m,n,q
+  // The method "Mod Exp" operates on Ts m,n,q
   // Returns:  (m^n)mod q
   //   = {(m mod q)^(n mod q)}mod q
-  // ConvertToInt converts BigInteger calculatedResult to integer
+  // ConvertToInt converts T calculatedResult to integer
 
   {
-    BigInteger m("39960");
-    BigInteger n("9");
-    BigInteger q("406756");
+    T m("39960");
+    T n("9");
+    T q("406756");
 
-    BigInteger calculatedResult = m.ModExp(n,q);
+    T calculatedResult = m.ModExp(n,q);
     uint64_t expectedResult = 96776;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing mod_exp_test";
+      << msg << " Failure testing mod_exp_test";
   }
 }
 
-TEST(UTBinInt,big_modexp){
-  //very big modexp. 
-  {
-    bool dbg_flag = false;
-    TimeVar t;
+TEST(UTBinInt,mod_arithmetic) {
+	{ using T = M2Integer; mod_arithmetic<T>("BE2 mod_arithmetic"); }
+	{ using T = M4Integer; mod_arithmetic<T>("BE4 mod_arithmetic"); }
+	{ using T = M6Integer; mod_arithmetic<T>("BE6 mod_arithmetic"); }
+	{ using T = NativeInteger; mod_arithmetic<T>("Native mod_arithmetic"); }
+}
 
-    TIC(t);
-    BigInteger m("150802716267100577727763462252");
-    BigInteger n("507060240091291760598681282151");
-    BigInteger q("1014120480182583521197362564303");
+template<typename T>
+void big_modexp(const string& msg) {
+	bool dbg_flag = false;
+	TimeVar t;
 
-    BigInteger calculatedResult = m.ModExp(n,q);
-    BigInteger expectedResult("187237443793760596004690725849");
+	TIC(t);
+	T m("150802716267100577727763462252");
+	T n("507060240091291760598681282151");
+	T q("1014120480182583521197362564303");
 
-    EXPECT_EQ(expectedResult, calculatedResult)
-      << "Failure testing very big mod_exp_test";
+	T calculatedResult = m.ModExp(n,q);
+	T expectedResult("187237443793760596004690725849");
 
-    
-    DEBUG("big_modexp time ns "<<TOC_NS(t));
-  }
+	EXPECT_EQ(expectedResult, calculatedResult)
+	<< msg << " Failure testing very big mod_exp_test";
+
+
+	DEBUG("big_modexp time ns "<<TOC_NS(t));
+}
+
+TEST(UTBinInt,big_modexp) {
+	{ using T = M2Integer; big_modexp<T>("BE2 big_modexp"); }
+	{ using T = M4Integer; big_modexp<T>("BE4 big_modexp"); }
+	{ using T = M6Integer; big_modexp<T>("BE6 big_modexp"); }
+}
+
+template<typename T>
+void power_2_modexp(const string& msg) {
+	T m("2");
+	T n("50");
+	T q("16");
+
+	T calculatedResult = m.ModExp(n,q);
+	T expectedResult(0);
+
+	EXPECT_EQ( expectedResult, calculatedResult ) << msg << " Failure testing TWO.ModExp(50,16)";
 }
 
 TEST(UTBinInt,power_2_modexp) {
-  {
-    BigInteger m("2");
-    BigInteger n("50");
-    BigInteger q("16");
-
-    BigInteger calculatedResult = m.ModExp(n,q);
-    BigInteger expectedResult("0");
-
-    EXPECT_EQ( expectedResult, calculatedResult ) << "Failure testing TWO.ModExp(50,16)";
-      
-  }
+	{ using T = M2Integer; power_2_modexp<T>("BE2 power_2_modexp"); }
+	{ using T = M4Integer; power_2_modexp<T>("BE4 power_2_modexp"); }
+	{ using T = M6Integer; power_2_modexp<T>("BE6 power_2_modexp"); }
+	{ using T = NativeInteger; power_2_modexp<T>("Native power_2_modexp"); }
 }
 
-TEST(UTBinInt,shift){
+template<typename T>
+void shift(const string& msg) {
 
   /****************************/
   /* TESTING SHIFT OPERATORS  */
@@ -1001,39 +1067,39 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR LEFT SHIFT (<<) FOR ALL CONDITIONS */
   /*******************************************************/
 
-  // The operator 'Left Shift' operates on BigInteger a, and it
+  // The operator 'Left Shift' operates on T a, and it
   // is shifted by a number
 
-  // Returns: a<<(num), and the result is stored in BigIntegererger
+  // Returns: a<<(num), and the result is stored in Terger
   // calculatedResult 'a' is left shifted by 'num' number of bits, and
   // filled up by 0s from right which is equivalent to a * (2^num)
   //
   //        example:
   //            4<<3 => (100)<<3 => (100000) => 32
   //           this is equivalent to: 4* (2^3) => 4*8 =32
-  //ConvertToInt converts BigInteger calculatedResult to integer
+  //ConvertToInt converts T calculatedResult to integer
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39960");
+    T a("39960");
     usshort shift = 3;
 
-    BigInteger calculatedResult = a<<(shift);
+    T calculatedResult = a<<(shift);
     uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing shift_less_than_max_shift";
+      << msg << " Failure testing shift_less_than_max_shift";
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39960");
+    T a("39960");
     usshort shift = 6;
 
-    BigInteger calculatedResult = a<<(shift);
+    T calculatedResult = a<<(shift);
     uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing shift_greater_than_max_shift";
+      << msg << " Failure testing shift_greater_than_max_shift";
   }
 
 
@@ -1041,7 +1107,7 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR LEFT SHIFT EQUALS (<<=) FOR ALL CONDITIONS -*/
   /************************************************/
 
-  // The operator 'Left Shift Equals' operates on BigInteger a,
+  // The operator 'Left Shift Equals' operates on T a,
   // and it is shifted by a number
   // Returns:
   // a<<(num), and the result is stored in 'a'
@@ -1049,72 +1115,72 @@ TEST(UTBinInt,shift){
   // from right which is equivalent to a * (2^num)
   // example :4<<3 => (100)<<3 => (100000) => 32
   // this is equivalent to: 4* (2^3) => 4*8 =32
-  // ConvertToInt converts BigInteger a to integer
+  // ConvertToInt converts T a to integer
 
 
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39960");
+    T a("39960");
     usshort num = 3;
 
     a<<=(num);
     uint64_t expectedResult = 319680;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing shift_less_than_max_shift";
+      << msg << " Failure testing shift_less_than_max_shift";
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39960");
+    T a("39960");
     usshort num = 6;
 
     a<<=(num);
     uint64_t expectedResult = 2557440;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing shift_greater_than_max_shift";
+      << msg << " Failure testing shift_greater_than_max_shift";
   }
 
 
   /********************************************************/
   /* TESTING OPERATOR RIGHT SHIFT (>>) FOR ALL CONDITIONS */
   /********************************************************/
-  // The operator 'Right Shift' operates on BigInteger a, and it
+  // The operator 'Right Shift' operates on T a, and it
   // is shifted by a number
 
-  // Returns: a>>(num), and the result is stored in BigInteger
+  // Returns: a>>(num), and the result is stored in T
   // calculated. Result 'a' is right shifted by 'num' number of bits,
   // and filled up by 0s from left which is equivalent to a / (2^num)
 
   //  ex:4>>3 => (100000)>>3 => (000100) => 4
 
   // this is equivalent to: 32*(2^3) => 32/8 = 4
-  // ConvertToInt converts BigInteger calculatedResult to integer
+  // ConvertToInt converts T calculatedResult to integer
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39965675");
+    T a("39965675");
     usshort shift = 3;
 
-    BigInteger calculatedResult = a>>(shift);
+    T calculatedResult = a>>(shift);
     uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing shift_less_than_max_shift";
+      << msg << " Failure testing shift_less_than_max_shift";
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39965675");
+    T a("39965675");
     usshort shift = 6;
 
-    BigInteger calculatedResult = a>>(shift);
+    T calculatedResult = a>>(shift);
     uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
-      << "Failure testing shift_greater_than_max_shift";
+      << msg << " Failure testing shift_greater_than_max_shift";
   }
 
 
@@ -1122,7 +1188,7 @@ TEST(UTBinInt,shift){
   /* TESTING OPERATOR RIGHT SHIFT EQUALS(>>=) FOR ALL CONDITIONS */
   /***************************************************************/
 
-  // The operator 'Right Shift Equals' operates on BigInteger a,
+  // The operator 'Right Shift Equals' operates on T a,
   // and it is shifted by a number
 
   // Returns: a>>=(num), and the result is stored in a 'a' is right
@@ -1132,130 +1198,171 @@ TEST(UTBinInt,shift){
   //   ex:4>>3 => (100000)>>3 => (000100) => 4
 
   //   this is equivalent to: 32*(2^3) => 32/8 = 4
-  //   ConvertToInt converts BigInteger calculatedResult to integer
+  //   ConvertToInt converts T calculatedResult to integer
 
 
   // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39965675");
+    T a("39965675");
     usshort shift = 3;
 
     a>>=(shift);
     uint64_t expectedResult = 4995709;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing shift_less_than_max_shift";
+      << msg << " Failure testing shift_less_than_max_shift";
   }
   // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
-    BigInteger a("39965675");
+    T a("39965675");
     usshort shift = 6;
 
     a>>=(shift);
     uint64_t expectedResult = 624463;
 
     EXPECT_EQ(expectedResult, a.ConvertToInt())
-      << "Failure testing shift_greater_than_max_shift";
+      << msg << " Failure testing shift_greater_than_max_shift";
   }
+}
+
+TEST(UTBinInt,shift) {
+	{ using T = M2Integer; shift<T>("BE2 shift"); }
+	{ using T = M4Integer; shift<T>("BE4 shift"); }
+	{ using T = M6Integer; shift<T>("BE6 shift"); }
+	{ using T = NativeInteger; shift<T>("Native shift"); }
 }
 
 /****************************************/
 /* TESTING METHOD  BitStringToBigInteger */
 /****************************************/
 
-TEST(UTBinInt,method_binary_string_to_big_binary_integer){
-  //TEST CASE FOR STATIC METHOD BitStringToBigInteger in BigInteger
+template<typename T>
+void binString(const string& msg) {
+	//TEST CASE FOR STATIC METHOD BitStringToBigInteger in BigInteger
 
- std::string binaryString = "1011101101110001111010111011000000011";
-  BigInteger b =
-    lbcrypto::BigInteger::BitStringToBigInteger(binaryString);
+	string binaryString = "1011101101110001111010111011000000011";
+	T b = T::BitStringToBigInteger(binaryString);
 
-  BigInteger expectedResult("100633769475");
-  EXPECT_EQ(expectedResult, b)
-    << "Failure testing BitStringToBigInteger";
+	T expectedResult("100633769475");
+	EXPECT_EQ(expectedResult, b)
+	<< msg << " Failure testing BitStringToBigInteger";
 }
 
-/****************************************/
-/* TESTING METHOD  EXP                  */
-/****************************************/
-TEST(UTBinInt,method_exponentiation_without_modulus){
+TEST(UTBinInt,binString) {
+	{ using T = M2Integer; binString<T>("BE2 binString"); }
+	{ using T = M4Integer; binString<T>("BE4 binString"); }
+	{ using T = M6Integer; binString<T>("BE6 binString"); }
+	{ using T = NativeInteger; binString<T>("Native binString"); }
+}
 
-  BigInteger x("56");
-  BigInteger result = x.Exp(10);
+template<typename T>
+void expNoMod(const string& msg) {
 
-  BigInteger expectedResult("303305489096114176");
+  T x("56");
+  T result = x.Exp(10);
+
+  T expectedResult("303305489096114176");
   EXPECT_EQ(expectedResult, result)
-    << "Failure testing exp";
+    << msg << " Failure testing exp";
 }
 
-TEST(UTBinInt,method_ConvertToDouble) {
-  BigInteger x("104037585658683683");
+TEST(UTBinInt,expNoMod) {
+	{ using T = M2Integer; expNoMod<T>("BE2 expNoMod"); }
+	{ using T = M4Integer; expNoMod<T>("BE4 expNoMod"); }
+	{ using T = M6Integer; expNoMod<T>("BE6 expNoMod"); }
+	{ using T = NativeInteger; expNoMod<T>("Native expNoMod"); }
+}
+
+template<typename T>
+void convToDouble(const string& msg) {
+  T x("104037585658683683");
   double xInDouble = 104037585658683683;
 
-  EXPECT_EQ(xInDouble, x.ConvertToDouble());
+  EXPECT_EQ(xInDouble, x.ConvertToDouble()) << msg;
 }
 
-TEST(UTBinInt,method_getDigitAtIndex) {
-	BigInteger x(0xa);
-
-	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0ULL);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1ULL);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0ULL);
-	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1ULL);
+TEST(UTBinInt,convToDouble) {
+	{ using T = M2Integer; shift<T>("BE2 convToDouble"); }
+	{ using T = M4Integer; shift<T>("BE4 convToDouble"); }
+	{ using T = M6Integer; shift<T>("BE6 convToDouble"); }
+	{ using T = NativeInteger; shift<T>("Native convToDouble"); }
 }
 
-TEST(UTBinInt, method_GetBitAtIndex){
+template<typename T>
+void getDigitAtIndex(const string& msg) {
+	T x(0xa);
+
+	EXPECT_EQ(x.GetDigitAtIndexForBase(1,2), 0ULL) << msg;
+	EXPECT_EQ(x.GetDigitAtIndexForBase(2,2), 1ULL) << msg;
+	EXPECT_EQ(x.GetDigitAtIndexForBase(3,2), 0ULL) << msg;
+	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1ULL) << msg;
+}
+
+TEST(UTBinInt,getDigitAtIndex) {
+	{ using T = M2Integer; getDigitAtIndex<T>("BE2 getDigitAtIndex"); }
+	{ using T = M4Integer; getDigitAtIndex<T>("BE4 getDigitAtIndex"); }
+	{ using T = M6Integer; getDigitAtIndex<T>("BE6 getDigitAtIndex"); }
+	{ using T = NativeInteger; getDigitAtIndex<T>("Native getDigitAtIndex"); }
+}
+
+template<typename T>
+void GetBitAtIndex(const string& msg) {
   bool dbg_flag = false;
-  BigInteger x(1);
+  T x(1);
 
-  x <<=(100); //x has one bit at 100
+  x <<= 55; //x has one bit at 55
 
-  x += BigInteger(2); //x has one bit at 2
+  x += T(2); //x has one bit at 2
 
   DEBUG("x "<<x);
   DEBUG(x.GetInternalRepresentation());
-  //DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
 
   // index is 1 for lsb!
-  EXPECT_EQ(x.GetBitAtIndex(1), 0);
-  EXPECT_EQ(x.GetBitAtIndex(2), 1);
+  EXPECT_EQ(x.GetBitAtIndex(1), 0) << msg;
+  EXPECT_EQ(x.GetBitAtIndex(2), 1) << msg;
 
-  for (auto idx = 3; idx < 100; idx++){
-    EXPECT_EQ(x.GetBitAtIndex(idx), 0);
+  for (auto idx = 3; idx < 55; idx++){
+    EXPECT_EQ(x.GetBitAtIndex(idx), 0) << msg;
   }
-  EXPECT_EQ(x.GetBitAtIndex(101), 1);
+  EXPECT_EQ(x.GetBitAtIndex(56), 1) << msg;
 
 }
 
+TEST(UTBinInt,GetBitAtIndex) {
+	{ using T = M2Integer; GetBitAtIndex<T>("BE2 GetBitAtIndex"); }
+	{ using T = M4Integer; GetBitAtIndex<T>("BE4 GetBitAtIndex"); }
+	{ using T = M6Integer; GetBitAtIndex<T>("BE6 GetBitAtIndex"); }
+	{ using T = NativeInteger; GetBitAtIndex<T>("Native GetBitAtIndex"); }
+}
 
-TEST(UTBinInt, method_GetInternalRepresentation){
-  bool dbg_flag = false;
-  BigInteger x(1);
+template<typename T>
+void GetInternalRepresentation(const string& msg) {
+  bool dbg_flag = true;
+  T x(1);
 
-  x <<=(100); //x has one bit at 128
-  x += BigInteger(2); //x has one bit at 2
+  x <<= 100; //x has one bit at 128
+  x += T(2); //x has one bit at 2
 
   auto x_limbs = x.GetInternalRepresentation();
 
   if (dbg_flag) {
-
-
-
-    //DEBUG(std::hex <<x.GetInternalRepresentation()<<std::dec); 
     DEBUG(x_limbs);
     DEBUG("x_limbs "<< x_limbs);
     DEBUG("x "<<x);
   }
 
   //define what is correct based on math backend selected
-#if MATHBACKEND == 2
-  std::string correct("2 0 0 16");
-#elif MATHBACKEND == 4 && defined(UBINT_32)
-  std::string correct("2 0 0 16");
-#elif MATHBACKEND == 4 && defined(UBINT_64)
-  //this configuration is not supported yet
-#elif MATHBACKEND == 6
-  std::string correct("2 68719476736");
-#endif
-  EXPECT_EQ(correct, x_limbs);
+  string correct("2 0 0 16");
+
+  if( typeid(T) == typeid(M6Integer) )
+	  correct = "2 68719476736";
+
+  EXPECT_EQ(correct, x_limbs) << msg;
+}
+
+TEST(UTBinInt,GetInternalRepresentation) {
+	{ using T = M2Integer; GetBitAtIndex<T>("BE2 GetInternalRepresentation"); }
+	{ using T = M4Integer; GetBitAtIndex<T>("BE4 GetInternalRepresentation"); }
+	{ using T = M6Integer; GetBitAtIndex<T>("BE6 GetInternalRepresentation"); }
+	{ using T = NativeInteger; GetBitAtIndex<T>("Native GetInternalRepresentation"); }
 }

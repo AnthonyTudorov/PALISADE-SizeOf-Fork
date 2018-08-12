@@ -26,63 +26,79 @@ enum PolyType { PTNative, PTInteger, PTDCRT };
 
 enum MathLayer { M2, M4, M6 };
 
-bool ParamMaker( MathLayer ml, PolyType p,
-		usint m, uint64_t q, uint64_t ru, uint64_t bq = 0, uint64_t bru = 0)
-{
-	return false;
+/**
+ * ParamMaker
+ * @param ml
+ * @param p
+ * @param m
+ * @param q as a string
+ */
+void *ParamMaker( MathLayer ml, PolyType p, usint m, string q ) {
+
+	if( p == PTNative )
+		return (void *) new ILParamsImpl<NativeInteger>( m, NativeInteger(q) );
+
+	if( p == PTDCRT )
+		return 0;
+
+	switch( ml ) {
+	case M2:
+		return (void *) new ILParamsImpl<M2Integer>( m, M2Integer(q) );
+
+	case M4:
+		return (void *) new ILParamsImpl<M4Integer>( m, M4Integer(q) );
+
+	case M6:
+		return (void *) new ILParamsImpl<M6Integer>( m, M6Integer(q) );
+
+	}
+
+	return 0;
 }
 
-#define GENERATE_NEW_PARM( PARMTYPE, INTTYPE ) { return new PARMTYPE<INTTYPE>(m, INTTYPE(q), INTTYPE(ru)); }
+void *ParamMaker( MathLayer ml, PolyType p, usint m, usint q ) {
+	return ParamMaker( ml, p, m, to_string(q) );
+}
 
-void *ParamMaker( MathLayer ml, PolyType p,
-		usint m, string q, string ru, string bq = "0", string bru = "0")
-{
-	if( p == PTNative ) {
+#define GENERATE_NEW_PARM( PARMTYPE, INTTYPE ) { return new PARMTYPE<INTTYPE>(m, INTTYPE(q), INTTYPE(ru), INTTYPE(bq), INTTYPE(bru)); }
+
+void *ParamMaker( MathLayer ml, PolyType p, usint m, string q, string ru, string bq = "0", string bru = "0") {
+
+	if( p == PTNative )
 		GENERATE_NEW_PARM( ILParamsImpl, NativeInteger )
+	if( p == PTDCRT )
+		return 0;
+
+	switch( ml ) {
+	case M2:
+		GENERATE_NEW_PARM( ILParamsImpl, M2Integer )
+
+	case M4:
+		GENERATE_NEW_PARM( ILParamsImpl, M4Integer )
+
+	case M6:
+		GENERATE_NEW_PARM( ILParamsImpl, M6Integer )
+
+	}
+
+	return 0;
+}
+
+void *ParamMaker( MathLayer ml, PolyType pt, usint m,
+		vector<NativeInteger> q, vector<NativeInteger> ru, vector<NativeInteger> bq, vector<NativeInteger> bru) {
+	if( pt != PTDCRT ) {
+		// error
 	}
 
 	switch( ml ) {
 	case M2:
-	{
-		if( p == PTInteger ) {
-			GENERATE_NEW_PARM( ILParamsImpl, M2Integer )
-		}
-		else if( p == PTDCRT ) {
-
-		}
-		else {
-			return 0;
-		}
-	}
-	break;
+		return (void *) new ILDCRTParams<M2Integer>( m, q, ru, bq, bru );
 
 	case M4:
-	{
-		if( p == PTInteger ) {
-			GENERATE_NEW_PARM( ILParamsImpl, M4Integer )
-		}
-		else if( p == PTDCRT ) {
-
-		}
-		else {
-			return 0;
-		}
-	}
-	break;
+		return (void *) new ILDCRTParams<M4Integer>( m, q, ru, bq, bru );
 
 	case M6:
-	{
-		if( p == PTInteger ) {
-			GENERATE_NEW_PARM( ILParamsImpl, M6Integer )
-		}
-		else if( p == PTDCRT ) {
-
-		}
-		else {
-			return 0;
-		}
-	}
-	break;
+		return (void *) new ILDCRTParams<M6Integer>( m, q, ru, bq, bru );
 
 	}
 
@@ -98,14 +114,16 @@ map<string,GeneratorType> Generators = {
 };
 
 class PolyFactory {
-	static PolyType		pt;
-	static MathLayer		ml;
+	static PolyType		default_pt;
+	static MathLayer		default_ml;
+	static void			*default_parm;
 
 public:
-	static void SetPolyType(PolyType p) { pt = p; }
-	static void SetMathLayer(MathLayer m) { ml = m; }
+	static void SetPolyType(PolyType p) { default_pt = p; }
+	static void SetMathLayer(MathLayer m) { default_ml = m; }
+	static void SetParm(void *pp) { default_parm = pp; }
 
-	static void *MakePoly(string inputJson) { return MakePoly(pt, ml, inputJson); }
+	static void *MakePoly(string inputJson) { return MakePoly(default_pt, default_ml, inputJson); }
 	static void *MakePoly(PolyType p, MathLayer m, string inputJson);
 };
 
@@ -216,7 +234,7 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson)
 
 		case PTInteger:
 		{
-			shared_ptr<M6Params> parm;
+			shared_ptr<M6Params> parm((M6Params *)default_parm);
 			return new M6Poly(parm, fmt, initToZero);
 		}
 		break;
@@ -235,8 +253,9 @@ PolyFactory::MakePoly(PolyType p, MathLayer m, string inputJson)
 	return 0;
 }
 
-PolyType PolyFactory::pt = PTInteger;
-MathLayer PolyFactory::ml = M6;
+PolyType PolyFactory::default_pt = PTInteger;
+MathLayer PolyFactory::default_ml = M6;
+void *PolyFactory::default_parm = 0;
 
 }
 
@@ -250,9 +269,16 @@ main(int argc, char *argv[])
 	string ru("22");
 //	PlaintextModulus ptm = 8;
 
+	PolyFactory::SetMathLayer(M6);
+	PolyFactory::SetPolyType(PTInteger);
+
 	ILParams *np;
 
 	np = (ILParams *)ParamMaker( M6, PTInteger, m, q, ru );
+	PolyFactory::SetParm(np);
+
+	cout << "Made parm" << endl;
+	cout << *np << endl;
 
 	Poly *poly = (Poly *)PolyFactory::MakePoly("{}");
 	if( poly ) {

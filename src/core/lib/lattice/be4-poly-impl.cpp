@@ -26,21 +26,12 @@
  */
 
 #include "../math/backend.h"
-#include "../math/binaryuniformgenerator.cpp"
-#include "../math/ternaryuniformgenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
-#include "../math/discretegaussiangenerator.cpp"
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
 #include "poly.cpp"
 
 namespace lbcrypto {
-
-template class DiscreteGaussianGeneratorImpl<M4Vector>;
-template class BinaryUniformGeneratorImpl<M4Vector>;
-template class TernaryUniformGeneratorImpl<M4Vector>;
-template class DiscreteUniformGeneratorImpl<M4Vector>;
 
 template class ElemParams<M4Integer>;
 template class ILParamsImpl<M4Integer>;

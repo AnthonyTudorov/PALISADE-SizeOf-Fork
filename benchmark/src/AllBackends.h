@@ -44,21 +44,4 @@
 using namespace std;
 using namespace lbcrypto;
 
-using BE2ILDCRTParams = ILDCRTParams<M2Integer>;
-using BE2DCRTPoly = DCRTPolyImpl<M2Vector>;
-
-using BE4Integer = exp_int::xubint;
-using BE4ILParams = ILParamsImpl<BE4Integer>;
-using BE4ILDCRTParams = ILDCRTParams<BE4Integer>;
-using BE4Vector = exp_int::xmubintvec;
-using BE4Poly = PolyImpl<BE4Vector>;
-using BE4DCRTPoly = DCRTPolyImpl<BE4Vector>;
-
-using BE6Integer = NTL::myZZ;
-using BE6ILParams = ILParamsImpl<BE6Integer>;
-using BE6ILDCRTParams = ILDCRTParams<BE6Integer>;
-using BE6Vector = NTL::myVecP<NTL::myZZ>;
-using BE6Poly = PolyImpl<BE6Vector>;
-using BE6DCRTPoly = DCRTPolyImpl<BE6Vector>;
-
 #endif /* BENCHMARK_SRC_ALLBACKENDS_H_ */

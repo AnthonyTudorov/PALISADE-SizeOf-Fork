@@ -401,7 +401,6 @@ namespace lbcrypto {
 	class BigVectorInterface{
 	public:
 		typedef I Integer;
-		//typedef typename T::Integer Integer;
 
 		// CONSTRUCTORS
 
