@@ -66,32 +66,6 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
     }
 }
 
-void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>> cases) {
-    // "10*0" -> x0 V -x1 V -x3
-    auto zero_alloc = []() { return 0; };
-    Matrix<int> I(zero_alloc, 2, 2);
-    I(0, 0) = 1;
-    I(1, 1) = 1;
-    Matrix<int> N(zero_alloc, 2, 2);
-    N(1, 1) = 1;
-    Matrix<int> v(zero_alloc, 1, 2);
-    v(0, 0) = 1;
-
-    vector<vector<Matrix<int>>> M;
-    for (const char& value : pattern) {
-        if (value == '*') {
-            M.push_back({I, I});
-        } else if (value == '1') {
-            M.push_back({I, N});
-        } else {
-            M.push_back({N, I});
-        }
-    }
-
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
-    test(algorithm, M, cases);
-}
-
 void CC17Manual() {
     // M accepts 010? and 100?
     auto zero_alloc = []() { return 0; };
@@ -133,7 +107,68 @@ void CC17Manual() {
     test(algorithm, M, {{"1001", true}, {"0110", false}});
 }
 
+void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& cases) {
+    // "10*0" -> x0 V -x1 V -x3
+    auto zero_alloc = []() { return 0; };
+    Matrix<int> I(zero_alloc, 2, 2);
+    I(0, 0) = 1;
+    I(1, 1) = 1;
+    Matrix<int> N(zero_alloc, 2, 2);
+    N(1, 1) = 1;
+    Matrix<int> v(zero_alloc, 1, 2);
+    v(0, 0) = 1;
+
+    vector<vector<Matrix<int>>> M;
+    for (const char& value : pattern) {
+        if (value == '*') {
+            M.push_back({I, I});
+        } else if (value == '1') {
+            M.push_back({I, N});
+        } else {
+            M.push_back({N, I});
+        }
+    }
+
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
+    test(algorithm, M, cases);
+}
+
+void CVW18WitnessEncryption() {
+    WitnessEncryption<DCRTPoly> algorithm(1 << 15, 2, 1024, 4, 6);
+
+    TimeVar t;
+    double processingTime;
+
+    cout << "n = " << algorithm.GetRingDimension() << endl;
+    cout << "log2 q = " << algorithm.GetLogModulus() << endl;
+
+    TIC(t);
+    // clauses
+    // -x0 V -x1 V -x2 V -x3
+    // -x0 V -x1 V  x2
+    // -x0 V  x1 V -x2 V  x3
+    //  x0 V -x1 V -x2 V -x3
+    //  x0 V -x1 V x2
+    //  x0 V  x1
+    auto ciphertext = algorithm.Encrypt({"0000", "001*", "0101", "1000", "101*", "11**"}, 0);
+    processingTime = TOC(t);
+    cout << "Encrypt: " << processingTime << "ms" << endl;
+
+    TIC(t);
+    const string input0 = "1001";
+    const string input1 = "0010";
+    usint value0 = algorithm.Decrypt(ciphertext, input0);
+    usint value1 = algorithm.Decrypt(ciphertext, input1);
+    processingTime = TOC(t);
+    cout << "Decrypt: 2 * " << processingTime / 2 << "ms" << endl;
+    cout << "input: " << input0 << endl;
+    cout << value0 << (value0 == 0 ? " (Correct)" : " (Incorrect)") << endl;
+    cout << "input: " << input1 << endl;
+    cout << value1 << (value1 == 1 ? " (Correct)" : " (Incorrect)") << endl;
+}
+
 int main(int argc, char* argv[]) {
     CC17Manual();
     CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
+    CVW18WitnessEncryption();
 }

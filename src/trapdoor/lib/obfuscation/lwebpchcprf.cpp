@@ -346,6 +346,80 @@ const Matrix<Element> CVW18Algorithm<Element>::Gamma(const Matrix<int>& m, const
     return t;
 }
 
+template <class Element>
+WitnessEncryption<Element>::WitnessEncryption(usint base, usint chunkSize, usint n, usint numVariables, usint numClauses)
+    : BPCHCPRF<Element>(base, chunkSize, numVariables, n, numClauses + 1) {
+    auto zero_alloc = Element::Allocator(this->m_elemParams, EVALUATION);
+    Matrix<Element> J(zero_alloc, 1, this->m_w);
+    for (usint i = 0; i < this->m_w; i++) {
+        J(0, i) = 1;
+    }
+    this->m_J = make_shared<Matrix<Element>>(J);
+}
+
+template <class Element>
+const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> WitnessEncryption<Element>::Encrypt(
+    const vector<string>& cnf,
+    usint message) const {
+    // transform CNF to matrix BP
+    // clause representation: "10*0" -> x0 V -x1 V -x3
+    const usint numClauses = cnf.size();
+    const usint numVariables = cnf[0].length();
+
+    auto zero_alloc = []() { return 0; };
+    Matrix<int> I(zero_alloc, numClauses + 1, numClauses + 1);
+    I(0, 0) = message;
+    for (usint i = 1; i <= numClauses; i++) {
+        I(i, i) = 1;
+    }
+
+    vector<vector<Matrix<int>>> M;
+    for (usint i = 0; i < numVariables; i++) {
+        M.push_back({I, I});
+    }
+
+    for (usint i = 0; i < numClauses; i++) {
+        for (usint j = 0; j < numVariables; j++) {
+            if (cnf[i][j] == '1') {
+                M[j][1](i + 1, i + 1) = 0;
+            } else if (cnf[i][j] == '0') {
+                M[j][0](i + 1, i + 1) = 0;
+            }
+        }
+    }
+
+    return this->Constrain(this->KeyGen(), M);
+}
+
+template <class Element>
+usint WitnessEncryption<Element>::Decrypt(
+    const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> ciphertext,
+    const string& x) const {
+    const vector<Poly> output = this->Evaluate(ciphertext, x);
+    BigInteger zero("0");
+    usint value = 0;
+    for (usint i = 0; i < output.size(); i++) {
+        for (usint k = 0; k < output[i].GetLength(); k++) {
+            if (output[i][k] > zero) {
+                value = 1;
+            }
+        }
+    }
+    return value;
+}
+
+template <class Element>
+const Matrix<Element> WitnessEncryption<Element>::Gamma(const Matrix<int>& m, const Element& s) const {
+    auto zero_alloc = Element::Allocator(this->m_elemParams, EVALUATION);
+    Matrix<Element> t(zero_alloc, this->m_w, this->m_w);
+    for (usint x = 0; x < this->m_w; x++) {
+        for (usint y = 0; y < this->m_w; y++) {
+            t(x, y) = m(x, y) * s;
+        }
+    }
+    return t;
+}
+
 }  // namespace lbcrypto
 
 #endif

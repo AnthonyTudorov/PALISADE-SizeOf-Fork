@@ -231,6 +231,23 @@ class CVW18Algorithm : public BPCHCPRF<Element> {
     const Matrix<Element> Gamma(const Matrix<int>& m, const Element& s) const;
 };
 
+template <class Element>
+class WitnessEncryption : public BPCHCPRF<Element> {
+   public:
+    explicit WitnessEncryption(usint base, usint chunkSize, usint n, usint numVariables, usint numClauses);
+
+    const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> Encrypt(
+        const vector<string>& cnf,
+        usint message) const;
+
+    usint Decrypt(
+        const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> ciphertext,
+        const string& x) const;
+
+   protected:
+    const Matrix<Element> Gamma(const Matrix<int>& m, const Element& s) const;
+};
+
 }  // namespace lbcrypto
 
 #endif
