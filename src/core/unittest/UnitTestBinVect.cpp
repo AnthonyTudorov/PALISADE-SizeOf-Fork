@@ -308,23 +308,24 @@ void ModAddSmallerModulus(const string& msg) {
 	  NativeInteger M = 3534;
 	  NativeInteger N = 34365;
 
-	  cout << "Add" << endl;
+	  cout << "NTL_BITS_PER_LONG " << NTL_BITS_PER_LONG << endl;
+	  cout << A << ", ";
+	  cout << M << ", ";
+	  cout << N << endl;
+	  cout << "A.ModAdd(N,M): ";
 	  cout << A.ModAdd(N,M) << endl;
-	  A.ModAddEq(N,M);
-	  cout << A << endl;
-	  A = 9868;
 
-	  cout << "AddFast" << endl;
+	  A = 9868;
+	  cout << "A.ModAddFast(N,M) ";
 	  cout << A.ModAddFast(N,M) << endl;
-	  A.ModAddFastEq(N,M);
-	  cout << A << endl;
-	  A = 9868;
 
-	  cout << "AddFastOptimized" << endl;
-	  cout << A.ModAddFastOptimized(N,M) << endl;
-	  A.ModAddFastOptimizedEq(N,M);
-	  cout << A << endl;
 	  A = 9868;
+	  cout << "A.ModAddFastOptimizedEq(N,M) ";
+	  cout << A.ModAddFastOptimizedEq(N,M) << endl;
+
+	  A = 9868;
+	  cout << "NTL Call: ";
+	  cout << NTL::AddMod(A.ConvertToInt(), N.ConvertToInt(), M.ConvertToInt()) << endl;
   }
 
 	typename V::Integer q("3534");	// constructor calling to set mod value
