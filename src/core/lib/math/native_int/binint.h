@@ -520,15 +520,15 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-#if NTL_BITS_PER_LONG==64
-		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
+//#if NTL_BITS_PER_LONG==64
+//		return (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+//#else
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
 		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		return (uint_type)modsum;
-#endif
+//#endif
 	}
 
 	/**
@@ -539,15 +539,15 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
-#if NTL_BITS_PER_LONG==64
-		this->m_value = (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
+//#if NTL_BITS_PER_LONG==64
+//		this->m_value = (uint_type)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
+//#else
 		Duint_type modsum = (Duint_type)m_value;
 		modsum += b.m_value;
 		if (modsum >= modulus.m_value)
 			modsum %= modulus.m_value;
 		this->m_value = (uint_type)modsum;
-#endif
+//#endif
 		return *this;
 	}
 
