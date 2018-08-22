@@ -27,7 +27,7 @@
   This code exercises the block allocator utility of the PALISADE lattice encryption library.
 */
 
-#define PROFILE
+//#define PROFILE  //uncomment to print out elapsed time
 #include "include/gtest/gtest.h"
 
 #include <new>
@@ -207,15 +207,16 @@ void Benchmark(const char* name, TestFunc testFunc)
 
   TimeVar t1;
   
-  float ElapsedMicroseconds = {0};
+  //float ElapsedMicroseconds = {0};
   // Allocate MAX_BLOCKS blocks MAX_BLOCK_SIZE / 2 sized blocks
 
   TIC(t1);
   // Call test function
   testFunc();
-  ElapsedMicroseconds = TOC_US(t1);
+  //ElapsedMicroseconds = TOC_US(t1);
   
-  PROFILELOG( name << " Elapsed time: " << ElapsedMicroseconds);
+  //PROFILELOG( name << " Elapsed time: " << ElapsedMicroseconds);
+  PROFILELOG( name << " Elapsed time: " << TOC_US(t1));
 }
 
 
@@ -279,7 +280,9 @@ TEST(UTBlockAllocate,stl_test){
 	Benchmark("xstring Fixed Block (Run 2)", StringFixedBlockTest);
 	Benchmark("xstring Fixed Block (Run 3)", StringFixedBlockTest);
 
+#ifdef PROFILE
 	xalloc_stats();
+#endif
 	return;
   }
   

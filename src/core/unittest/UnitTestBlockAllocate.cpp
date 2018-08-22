@@ -27,7 +27,7 @@
   This code exercises the block allocator utility of the PALISADE lattice encryption library.
 */
 
-#define PROFILE
+//#define PROFILE    //define this is we want profiling output
 #include "include/gtest/gtest.h"
 #include <iostream>
 

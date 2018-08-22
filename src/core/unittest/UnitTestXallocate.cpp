@@ -27,7 +27,7 @@
   This code exercises the block allocator utility of the PALISADE lattice encryption library.
 */
 
-#define PROFILE
+//#define PROFILE  //define if we want elapsed time output
 #include "include/gtest/gtest.h"
 #include <iostream>
 
@@ -128,7 +128,7 @@ void Benchmark(const char* name, AllocFunc allocFunc, DeallocFunc deallocFunc)
   TIC(t1);
   for (int i=0; i<MAX_ALLOCATIONS; i+=2)
     deallocFunc(memoryPtrs[i]);
-    ElapsedMicroseconds = TOC_US(t1);
+  ElapsedMicroseconds = TOC_US(t1);
   PROFILELOG( name << " 1 deallocate time: " << ElapsedMicroseconds);
   TotalElapsedMicroseconds += ElapsedMicroseconds;
   
@@ -188,7 +188,9 @@ TEST(UTBlockAllocate, xalloc_test){
   Benchmark("xmalloc/xfree (Run 2)", xmalloc, xfree);
   Benchmark("xmalloc/xfree (Run 3)", xmalloc, xfree);
 
+#ifdef PROFILE
   xalloc_stats();
+#endif
 
   // If AUTOMATIC_XALLOCATOR_INIT_DESTROY is defined, ~XallocDestroy() will call 
   // xalloc_destroy() automatically. Never call xalloc_destroy() manually except if
