@@ -85,7 +85,7 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension){
 	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<typename Element::Integer,typename Element::Vector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
 	Matrix<Element> pubElemBPos(zero_alloc, ell, m);
 	Matrix<Element> pubElemBNeg(zero_alloc, ell, m);
@@ -210,7 +210,7 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
@@ -297,7 +297,7 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<typename Element::Integer,typename Element::Vector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
 	IBE<Element> pkg, sender, receiver;
 
@@ -363,7 +363,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
@@ -443,7 +443,7 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 

@@ -107,7 +107,7 @@ void ArbBGVEvalSumPackedArray() {
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -214,7 +214,7 @@ void ArbLTVEvalSumPackedArray() {
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -270,7 +270,7 @@ void ArbBFVEvalSumPackedArray() {
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 

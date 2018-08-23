@@ -50,9 +50,11 @@ namespace lbcrypto {
 	/**
 	* @brief Number Theoretic Transform implemetation
 	*/
-	template<typename IntType, typename VecType>
+	template<typename VecType>
 	class NumberTheoreticTransform
 	{
+		using IntType = typename VecType::Integer;
+
 	public:
 		/**
 		* Forward transform.
@@ -365,9 +367,11 @@ namespace lbcrypto {
 	/**
 	* @brief Golden Chinese Remainder Transform FFT implemetation.
 	*/
-	template<typename IntType, typename VecType>
+	template<typename VecType>
 	class ChineseRemainderTransformFTT
 	{
+		using IntType = typename VecType::Integer;
+
 	public:
 		/**
 		* Virtual forward transform.
@@ -429,8 +433,10 @@ namespace lbcrypto {
 	/**
 	* @brief Bluestein Fast Fourier Transform implemetation
 	*/
-	template<typename IntType, typename VecType>
+	template<typename VecType>
 	class BluesteinFFT {
+		using IntType = typename VecType::Integer;
+
 	public:
 		/**
 		* Forward transform.
@@ -520,8 +526,10 @@ namespace lbcrypto {
 	/**
 	* @brief Chinese Remainder Transform for arbitrary cyclotomics.
 	*/
-	template<typename IntType, typename VecType>
+	template<typename VecType>
 	class ChineseRemainderTransformArb {
+		using IntType = typename VecType::Integer;
+
 	public:
 		/**
 		* Sets the cyclotomic polynomial.

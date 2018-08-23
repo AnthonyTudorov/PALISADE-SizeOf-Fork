@@ -829,13 +829,13 @@ void PolyImpl<VecType>::SwitchFormat()
 
 		DEBUG("transform to evaluation m_values was"<< *m_values);
 
-		ChineseRemainderTransformFTT<Integer,VecType>::ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+		ChineseRemainderTransformFTT<VecType>::ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
 		DEBUG("m_values now "<< newValues);
 	} else {
 		m_format = COEFFICIENT;
 		DEBUG("transform to coefficient m_values was"<< *m_values);
 
-		ChineseRemainderTransformFTT<Integer,VecType>::InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+		ChineseRemainderTransformFTT<VecType>::InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
 		DEBUG("m_values now "<< newValues);
 	}
 
@@ -857,7 +857,7 @@ void PolyImpl<VecType>::ArbitrarySwitchFormat()
 		//todo:: does this have an extra copy?
 		DEBUG("transform to evaluation m_values was"<< *m_values);
 
-		m_values = make_unique<VecType>(ChineseRemainderTransformArb<Integer,VecType>::
+		m_values = make_unique<VecType>(ChineseRemainderTransformArb<VecType>::
 				ForwardTransform(*m_values, m_params->GetRootOfUnity(),m_params->GetBigModulus(),
 						m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 		DEBUG("m_values now "<< *m_values);
@@ -865,7 +865,7 @@ void PolyImpl<VecType>::ArbitrarySwitchFormat()
 		m_format = COEFFICIENT;
 		DEBUG("transform to coefficient m_values was"<< *m_values);
 
-		m_values = make_unique<VecType>(ChineseRemainderTransformArb<Integer,VecType>::
+		m_values = make_unique<VecType>(ChineseRemainderTransformArb<VecType>::
 				InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetBigModulus(),
 						m_params->GetBigRootOfUnity(), m_params->GetCyclotomicOrder()));
 		DEBUG("m_values now "<< *m_values);

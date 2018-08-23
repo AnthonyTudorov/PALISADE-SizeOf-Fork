@@ -40,8 +40,8 @@ template class DiscreteGaussianGeneratorImpl<M6Vector>;
 template class BinaryUniformGeneratorImpl<M6Vector>;
 template class TernaryUniformGeneratorImpl<M6Vector>;
 template class DiscreteUniformGeneratorImpl<M6Vector>;
-template class ChineseRemainderTransformFTT<M6Integer,M6Vector>;
-template class ChineseRemainderTransformArb<M6Integer,M6Vector>;
+template class ChineseRemainderTransformFTT<M6Vector>;
+template class ChineseRemainderTransformArb<M6Vector>;
 
 template M6Integer RootOfUnity<M6Integer>(usint m, const M6Integer& modulo);
 template std::vector<M6Integer> RootsOfUnity(usint m, const std::vector<M6Integer> moduli);

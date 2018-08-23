@@ -78,5 +78,18 @@ namespace lbcrypto {
 
 } // namespace lbcrypto ends
 
-
 #endif
+
+
+#define RUN_BIG_POLYS(FUNCTION, MESSAGE) { \
+	if( TestB2 ) { using V = M2Poly; FUNCTION<V>("BE2 " MESSAGE); } \
+	if( TestB4 ) { using V = M4Poly; FUNCTION<V>("BE4 " MESSAGE); } \
+	if( TestB6 ) { using V = M6Poly; FUNCTION<V>("BE6 " MESSAGE); } \
+}
+
+#define RUN_ALL_POLYS(FUNCTION, MESSAGE) { \
+	RUN_BIG_POLYS(FUNCTION,MESSAGE) \
+	if( TestNative ) { using V = NativePoly; FUNCTION<V>("Native " MESSAGE); } \
+}
+
+

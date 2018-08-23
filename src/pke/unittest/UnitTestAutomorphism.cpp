@@ -181,7 +181,7 @@ std::vector<uint64_t> ArbLTVAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -232,7 +232,7 @@ std::vector<uint64_t> ArbBGVAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
 	float stdDev = 4;

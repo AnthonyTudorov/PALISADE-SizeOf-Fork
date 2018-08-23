@@ -106,7 +106,7 @@ void ArbBGVInnerProductPackedArray() {
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -176,7 +176,7 @@ void ArbLTVInnerProductPackedArray() {
 	//std::cout << bigroot << std::endl;
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -236,8 +236,8 @@ void ArbBFVInnerProductPackedArray() {
 	BigInteger bigroot("13201431150704581233041184864526870950");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -249,8 +249,8 @@ void ArbBFVInnerProductPackedArray() {
 	BigInteger bigEvalMultRootOfUnityAlt("37861550304274465568523443986246841530644847113781666728121717722285667862085");
 
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
 	usint batchSize = 8;
 
@@ -321,8 +321,8 @@ void ArbBFVEvalMultPackedArray() {
 	BigInteger bigroot("76686504597021638023705542");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -334,8 +334,8 @@ void ArbBFVEvalMultPackedArray() {
 	BigInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
 
 	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
-	//ChineseRemainderTransformArb<BigInteger, BigVector>::PreCompute(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
+	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
 	usint batchSize = 8;
 

@@ -95,7 +95,7 @@ void MultiThreadedRun(int index) {
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;

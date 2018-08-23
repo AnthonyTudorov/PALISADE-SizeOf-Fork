@@ -46,9 +46,10 @@
 using namespace std;
 using namespace lbcrypto;
 
-/*---------------------------------------	TESTING METHODS OF BINVECT CLASS		--------------------------------------------*/
-
-
+extern bool TestB2;
+extern bool TestB4;
+extern bool TestB6;
+extern bool TestNative;
 
 //---------------------TESTING INTEGER OPERATIONS ON VECTOR---------------------------------//
 
@@ -158,10 +159,7 @@ void AtAndSetModulusTest(const string& msg) {
 }
 
 TEST(UTBinVect,AtAndSetModulusTest) {
-	{ using V = M2Vector; AtAndSetModulusTest<V>("BE2 AtAndSetModulusTest"); }
-	{ using V = M4Vector; AtAndSetModulusTest<V>("BE4 AtAndSetModulusTest"); }
-	{ using V = M6Vector; AtAndSetModulusTest<V>("BE6 AtAndSetModulusTest"); }
-	{ using V = NativeVector; AtAndSetModulusTest<V>("Native AtAndSetModulusTest"); }
+	RUN_BIG_BACKENDS(AtAndSetModulusTest, "AtAndSetModulusTest")
 }
 
 #ifdef OUT // i think this is redundant?
@@ -252,10 +250,7 @@ void CTOR_Test(const string& msg) {
 }
 
 TEST(UTBinVect,CTOR_Test) {
-	{ using V = M2Vector; CTOR_Test<V>("BE2 CTOR_Test"); }
-	{ using V = M4Vector; CTOR_Test<V>("BE4 CTOR_Test"); }
-	{ using V = M6Vector; CTOR_Test<V>("BE6 CTOR_Test"); }
-	{ using V = NativeVector; CTOR_Test<V>("Native CTOR_Test"); }
+	RUN_BIG_BACKENDS(CTOR_Test, "CTOR_Test")
 }
 
 /*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
@@ -291,10 +286,7 @@ void ModAddBigModulus(const string& msg) {
 }
 
 TEST(UTBinVect,ModAddBigModulus) {
-	{ using V = M2Vector; ModAddBigModulus<V>("BE2 ModAddBigModulus"); }
-	{ using V = M4Vector; ModAddBigModulus<V>("BE4 ModAddBigModulus"); }
-	{ using V = M6Vector; ModAddBigModulus<V>("BE6 ModAddBigModulus"); }
-	{ using V = NativeVector; ModAddBigModulus<V>("Native ModAddBigModulus"); }
+	RUN_BIG_BACKENDS(ModAddBigModulus, "ModAddBigModulus")
 }
 
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
@@ -302,31 +294,6 @@ TEST(UTBinVect,ModAddBigModulus) {
 template<typename V>
 void ModAddSmallerModulus(const string& msg) {
   bool dbg_flag = false;
-
-  {
-	  NativeInteger A = 9868;
-	  NativeInteger M = 3534;
-	  NativeInteger N = 34365;
-
-	  cout << "NTL_BITS_PER_LONG " << NTL_BITS_PER_LONG << endl;
-	  cout << A << ", ";
-	  cout << M << ", ";
-	  cout << N << endl;
-	  cout << "A.ModAdd(N,M): ";
-	  cout << A.ModAdd(N,M) << endl;
-
-	  A = 9868;
-	  cout << "A.ModAddFast(N,M) ";
-	  cout << A.ModAddFast(N,M) << endl;
-
-	  A = 9868;
-	  cout << "A.ModAddFastOptimizedEq(N,M) ";
-	  cout << A.ModAddFastOptimizedEq(N,M) << endl;
-
-	  A = 9868;
-	  cout << "NTL Call: ";
-	  cout << NTL::AddMod(A.ConvertToInt(), N.ConvertToInt(), M.ConvertToInt()) << endl;
-  }
 
 	typename V::Integer q("3534");	// constructor calling to set mod value
 	V m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
@@ -353,10 +320,7 @@ void ModAddSmallerModulus(const string& msg) {
 }
 
 TEST(UTBinVect,ModAddSmallerModulus) {
-	{ using V = M2Vector; ModAddSmallerModulus<V>("BE2 ModAddSmallerModulus"); }
-	{ using V = M4Vector; ModAddSmallerModulus<V>("BE4 ModAddSmallerModulus"); }
-	{ using V = M6Vector; ModAddSmallerModulus<V>("BE6 ModAddSmallerModulus"); }
-	{ using V = NativeVector; ModAddSmallerModulus<V>("Native ModAddSmallerModulus"); }
+	RUN_BIG_BACKENDS(ModAddSmallerModulus, "ModAddSmallerModulus")
 }
 
 /*--------------TESTING METHOD MODUSUB FOR ALL CONDITIONS---------------------------*/
@@ -394,10 +358,7 @@ void modsub_first_less_than_second(const string& msg) {
 }
 
 TEST(UTBinVect,modsub_first_less_than_second) {
-	{ using V = M2Vector; modsub_first_less_than_second<V>("BE2 modsub_first_less_than_second"); }
-	{ using V = M4Vector; modsub_first_less_than_second<V>("BE4 modsub_first_less_than_second"); }
-	{ using V = M6Vector; modsub_first_less_than_second<V>("BE6 modsub_first_less_than_second"); }
-	{ using V = NativeVector; modsub_first_less_than_second<V>("Native modsub_first_less_than_second"); }
+	RUN_BIG_BACKENDS(modsub_first_less_than_second, "modsub_first_less_than_second")
 }
 
 // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER 
@@ -425,10 +386,7 @@ void modsub_first_greater_than_second(const string& msg) {
 }
 
 TEST(UTBinVect,modsub_first_greater_than_second) {
-	{ using V = M2Vector; modsub_first_greater_than_second<V>("BE2 modsub_first_greater_than_second"); }
-	{ using V = M4Vector; modsub_first_greater_than_second<V>("BE4 modsub_first_greater_than_second"); }
-	{ using V = M6Vector; modsub_first_greater_than_second<V>("BE6 modsub_first_greater_than_second"); }
-	{ using V = NativeVector; modsub_first_greater_than_second<V>("Native modsub_first_greater_than_second"); }
+	RUN_BIG_BACKENDS(modsub_first_greater_than_second, "modsub_first_greater_than_second")
 }
 
 /*--------------TESTING METHOD MODUMUL FOR ALL CONDITIONS---------------------------*/
@@ -460,10 +418,7 @@ void ModMulTest(const string& msg) {
 }
 
 TEST(UTBinVect,ModMulTest) {
-	{ using V = M2Vector; ModMulTest<V>("BE2 ModMulTest"); }
-	{ using V = M4Vector; ModMulTest<V>("BE4 ModMulTest"); }
-	{ using V = M6Vector; ModMulTest<V>("BE6 ModMulTest"); }
-	{ using V = NativeVector; ModMulTest<V>("Native ModMulTest"); }
+	RUN_BIG_BACKENDS(ModMulTest, "ModMulTest")
 }
 
 /*--------------TESTING METHOD MODEXP FOR ALL CONDITIONS---------------------------*/
@@ -496,10 +451,7 @@ void ModExpTest(const string& msg) {
 }
 
 TEST(UTBinVect,ModExpTest) {
-	{ using V = M2Vector; ModExpTest<V>("BE2 ModExpTest"); }
-	{ using V = M4Vector; ModExpTest<V>("BE4 ModExpTest"); }
-	{ using V = M6Vector; ModExpTest<V>("BE6 ModExpTest"); }
-	{ using V = NativeVector; ModExpTest<V>("Native ModExpTest"); }
+	RUN_BIG_BACKENDS(ModExpTest, "ModExpTest")
 }
 
 /*--------------TESTING METHOD MODINVERSE FOR ALL CONDITIONS---------------------------*/
@@ -533,10 +485,7 @@ void test_modinv(const string& msg) {
 }
 
 TEST(UTBinVect,test_modinv) {
-	{ using V = M2Vector; test_modinv<V>("BE2 test_modinv"); }
-	{ using V = M4Vector; test_modinv<V>("BE4 test_modinv"); }
-	{ using V = M6Vector; test_modinv<V>("BE6 test_modinv"); }
-	{ using V = NativeVector; test_modinv<V>("Native test_modinv"); }
+	RUN_BIG_BACKENDS(test_modinv, "test_modinv")
 }
 
 /*--------------TESTING METHOD MODADD FOR ALL CONDITIONS---------------------------*/
@@ -578,10 +527,7 @@ void modadd_vector_result_smaller_modulus(const string& msg) {
 }
 
 TEST(UTBinVect,modadd_vector_result_smaller_modulus) {
-	{ using V = M2Vector; modadd_vector_result_smaller_modulus<V>("BE2 modadd_vector_result_smaller_modulus"); }
-	{ using V = M4Vector; modadd_vector_result_smaller_modulus<V>("BE4 modadd_vector_result_smaller_modulus"); }
-	{ using V = M6Vector; modadd_vector_result_smaller_modulus<V>("BE6 modadd_vector_result_smaller_modulus"); }
-	{ using V = NativeVector; modadd_vector_result_smaller_modulus<V>("Native modadd_vector_result_smaller_modulus"); }
+	RUN_BIG_BACKENDS(modadd_vector_result_smaller_modulus, "modadd_vector_result_smaller_modulus")
 }
 
 // TEST CASE WHEN NUMBERS AFTER ADDITION ARE GREATER THAN MODULUS 
@@ -615,10 +561,7 @@ void modadd_vector_result_greater_modulus(const string& msg) {
 }
 
 TEST(UTBinVect,modadd_vector_result_greater_modulus) {
-	{ using V = M2Vector; modadd_vector_result_greater_modulus<V>("BE2 modadd_vector_result_greater_modulus"); }
-	{ using V = M4Vector; modadd_vector_result_greater_modulus<V>("BE4 modadd_vector_result_greater_modulus"); }
-	{ using V = M6Vector; modadd_vector_result_greater_modulus<V>("BE6 modadd_vector_result_greater_modulus"); }
-	{ using V = NativeVector; modadd_vector_result_greater_modulus<V>("Native modadd_vector_result_greater_modulus"); }
+	RUN_BIG_BACKENDS(modadd_vector_result_greater_modulus, "modadd_vector_result_greater_modulus")
 }
 
 /*--------------TESTING METHOD PLUS EQUALS FOR ALL CONDITIONS---------------------------*/
@@ -654,10 +597,7 @@ void method_plus_equals_vector_operation(const string& msg) {
 }
 
 TEST(UTBinVect,method_plus_equals_vector_operation) {
-	{ using V = M2Vector; method_plus_equals_vector_operation<V>("BE2 method_plus_equals_vector_operation"); }
-	{ using V = M4Vector; method_plus_equals_vector_operation<V>("BE4 method_plus_equals_vector_operation"); }
-	{ using V = M6Vector; method_plus_equals_vector_operation<V>("BE6 method_plus_equals_vector_operation"); }
-	{ using V = NativeVector; method_plus_equals_vector_operation<V>("Native method_plus_equals_vector_operation"); }
+	RUN_BIG_BACKENDS(method_plus_equals_vector_operation, "method_plus_equals_vector_operation")
 }
 
 /*--------------TESTING METHOD MODMUL FOR ALL CONDITIONS---------------------------*/
@@ -695,8 +635,5 @@ void modmul_vector(const string& msg) {
 }
 
 TEST(UTBinVect,modmul_vector) {
-	{ using V = M2Vector; modmul_vector<V>("BE2 modmul_vector"); }
-	{ using V = M4Vector; modmul_vector<V>("BE4 modmul_vector"); }
-	{ using V = M6Vector; modmul_vector<V>("BE6 modmul_vector"); }
-	{ using V = NativeVector; modmul_vector<V>("Native modmul_vector"); }
+	RUN_BIG_BACKENDS(modmul_vector, "modmul_vector")
 }

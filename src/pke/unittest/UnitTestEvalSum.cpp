@@ -145,7 +145,7 @@ usint ArbLTVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModu
 	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -196,7 +196,7 @@ usint ArbBGVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModu
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -245,7 +245,7 @@ usint ArbBGVEvalSumPackedArrayPrime(std::vector<uint64_t> &clearVector, Plaintex
 	BigInteger bigroot("74771531227552428119450922526156");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 
@@ -294,7 +294,7 @@ usint ArbBFVEvalSumPackedArray(std::vector<uint64_t> &clearVector, PlaintextModu
 	BigInteger bigroot("77936753846653065954043047918387");
 
 	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
-	ChineseRemainderTransformArb<BigInteger, BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
 

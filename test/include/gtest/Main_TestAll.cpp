@@ -53,8 +53,6 @@ public:
 		cout << lead << "PALISADE Version " << GetPALISADEVersion() << endl;
 		cout << lead << "Date " <<
 			testing::internal::FormatEpochTimeInMillisAsIso8601(unit_test.start_timestamp()) << endl;
-
-		cout << lead << "Begin " << GetMathBackendParameters() << endl;
 	}
 	void OnTestIterationStart(const ::testing::UnitTest& unit_test, int iteration) {}
 	void OnEnvironmentsSetUpStart(const ::testing::UnitTest& unit_test) {}
@@ -128,6 +126,11 @@ public:
 
 
 };
+
+bool TestB2 = true;
+bool TestB4 = true;
+bool TestB6 = true;
+bool TestNative = true;
 
 int main(int argc, char **argv) {
 

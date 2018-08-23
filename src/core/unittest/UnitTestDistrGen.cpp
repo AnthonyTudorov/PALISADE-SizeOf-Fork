@@ -26,9 +26,7 @@
  /*
   This code exercises the random number distribution generator libraries
   of the PALISADE lattice encryption library.
-
-  4/22/2016 DBC: modified to new UT format. Adding validity checks for parallelization code.
-*/
+  */
 
 #include "include/gtest/gtest.h"
 #include <iostream>
@@ -47,22 +45,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-/*
-  int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-  }
-*/
-class UnitTestDistrGen : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-  }
-
-  virtual void TearDown() {
-    // Code here will be called immediately after each test
-    // (right before the destructor).
-  }
-};
 //////////////////////////////////////////////////////////////////
 // Testing Methods of BigInteger DiscreteUniformGenerator
 //////////////////////////////////////////////////////////////////

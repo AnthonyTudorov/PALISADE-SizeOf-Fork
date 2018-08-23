@@ -83,7 +83,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 		memcpy(&m_qModulimu[i], val, sizeof(DoubleNativeInteger));
 	}
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
 
 	// Compute Bajard's et al. RNS variant lookup tables
 
@@ -127,7 +127,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsBsk = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, m_BskModuli, m_BskRoots));
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(m_BskRoots, 2 * n, m_BskModuli);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(m_BskRoots, 2 * n, m_BskModuli);
 
 	// finally add m_tilde as last modulus in the chain
 	m_BskmtildeModuli.push_back( m_mtilde );
@@ -557,7 +557,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
 
 	cryptoParamsBFVrnsB->SetElementParams(params);
 

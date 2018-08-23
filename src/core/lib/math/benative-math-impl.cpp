@@ -40,8 +40,8 @@ template class DiscreteGaussianGeneratorImpl<NativeVector>;
 template class BinaryUniformGeneratorImpl<NativeVector>;
 template class TernaryUniformGeneratorImpl<NativeVector>;
 template class DiscreteUniformGeneratorImpl<NativeVector>;
-template class ChineseRemainderTransformFTT<NativeInteger,NativeVector>;
-template class ChineseRemainderTransformArb<NativeInteger,NativeVector>;
+template class ChineseRemainderTransformFTT<NativeVector>;
+template class ChineseRemainderTransformArb<NativeVector>;
 
 template NativeInteger RootOfUnity<NativeInteger>(usint m, const NativeInteger& modulo);
 template std::vector<NativeInteger> RootsOfUnity(usint m, const std::vector<NativeInteger> moduli);

@@ -47,7 +47,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 		roots[i] = GetElementParams()->GetParams()[i]->GetRootOfUnity();
 	}
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
 
 	// computes the auxiliary CRT basis S=s1*s2*..sn used in homomorphic multiplication
 
@@ -67,7 +67,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 
 	m_paramsS = shared_ptr<ILDCRTParams<BigInteger>>(new ILDCRTParams<BigInteger>(2 * n, moduliS, rootsS));
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(rootsS,2*n,moduliS);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootsS,2*n,moduliS);
 
 	// stores the parameters for the auxiliary expanded CRT basis Q*S = v1*v2*...*vn used in homomorphic multiplication
 
@@ -511,7 +511,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
 
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(roots,2*n,moduli);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
 
 	cryptoParamsBFVrns->SetElementParams(params);
 

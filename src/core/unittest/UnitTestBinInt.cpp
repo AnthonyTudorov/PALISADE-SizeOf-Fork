@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file UnitTestBinInt
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,9 +23,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
  /*
-  This code exercises the math libraries of the PALISADE lattice encryption library.
-*/
+  * This code tests the binary integers in the math libraries of the PALISADE lattice encryption library.
+  */
 
 #define PROFILE
 #include "include/gtest/gtest.h"
@@ -46,9 +47,18 @@
 using namespace std;
 using namespace lbcrypto;
 
+extern bool TestB2;
+extern bool TestB4;
+extern bool TestB6;
+extern bool TestNative;
+
 /************************************************/
 /* TESTING METHODS OF ALL THE INTEGER CLASSES   */
 /************************************************/
+
+class UTBinInt : public ::testing::Test {
+ protected:
+};
 
 template<typename T>
 void assign_test(const string& msg) {
@@ -61,59 +71,37 @@ void assign_test(const string& msg) {
 	}
 }
 
-TEST(UTBinInt,assign) {
-	{ using T = M2Integer; assign_test<T>("BE2 assign"); }
-	{ using T = M4Integer; assign_test<T>("BE4 assign"); }
-	{ using T = M6Integer; assign_test<T>("BE6 assign"); }
-	{ using T = NativeInteger; assign_test<T>("Native assign"); }
+TEST_F(UTBinInt,assign) {
+	RUN_ALL_BACKENDS_INT(assign_test, "assign")
 }
 
 template<typename T>
-void identity_test(T& a, const string& msg) {
-	T ZERO(0);
-	T ONE(1);
+void identity_test(const string& msg) {
+	auto f = [](T& a, const string& msg) {
+		T ZERO(0);
+		T ONE(1);
 
-	EXPECT_EQ(a, a + ZERO) << msg << " Failure testing a + 0";
-	EXPECT_EQ(a, a += ZERO) << msg << " Failure testing a += 0";
-	EXPECT_EQ(a, a * ONE) << msg << " Failure testing a * 1";
-	EXPECT_EQ(a, a *= ONE) << msg << " Failure testing a *= 1";
+		EXPECT_EQ(a, a + ZERO) << msg << " Failure testing a + 0";
+		EXPECT_EQ(a, a += ZERO) << msg << " Failure testing a += 0";
+		EXPECT_EQ(a, a * ONE) << msg << " Failure testing a * 1";
+		EXPECT_EQ(a, a *= ONE) << msg << " Failure testing a *= 1";
 
-	EXPECT_EQ(a, ZERO + a) << msg << " Failure testing 0 + a";
-	EXPECT_EQ(a, ZERO += a) << msg << " Failure testing 0 += a";
-	EXPECT_EQ(a, ONE * a) << msg << " Failure testing 1 * a";
-	EXPECT_EQ(a, ONE *= a) << msg << " Failure testing 1 *= a";
+		EXPECT_EQ(a, ZERO + a) << msg << " Failure testing 0 + a";
+		EXPECT_EQ(a, ZERO += a) << msg << " Failure testing 0 += a";
+		EXPECT_EQ(a, ONE * a) << msg << " Failure testing 1 * a";
+		EXPECT_EQ(a, ONE *= a) << msg << " Failure testing 1 *= a";
 
-	EXPECT_EQ(a*a, ONE *= a) << msg << " Failure on 1 *= a, twice";
+		EXPECT_EQ(a*a, ONE *= a) << msg << " Failure on 1 *= a, twice";
+	};
+
+	T sm("3279");
+	f(sm, msg + " small");
+	T lg("1234567898765432");
+	f(lg, msg + " small");
 }
 
-TEST(UTBinInt,identity) {
-	{
-		using T = M2Integer;
-
-		T sm("3279");
-		T lg("1234567898765432");
-
-		identity_test( sm, "BE2" );
-		identity_test( lg, "BE2" );
-	}
-	{
-		using T = M4Integer;
-
-		T sm("3279");
-		T lg("1234567898765432");
-
-		identity_test( sm, "BE4" );
-		identity_test( lg, "BE4" );
-	}
-	{
-		using T = M6Integer;
-
-		T sm("3279");
-		T lg("1234567898765432");
-
-		identity_test( sm, "BE6" );
-		identity_test( lg, "BE6" );
-	}
+TEST_F(UTBinInt,identity) {
+	RUN_BIG_BACKENDS_INT(identity_test,"identity")
 }
 
 /************************************************/
@@ -132,7 +120,7 @@ void basic_math_test(const string& msg) {
 
   T calculatedResult;
   uint64_t expectedResult;
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     T a("203450");
@@ -144,7 +132,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing plus_a_greater_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
+  // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     T a("2034");
@@ -157,7 +145,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing plus_a_less_than_b";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
+  // TEST_F CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // BYTE
   {
     T a("768900");
@@ -169,7 +157,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing overflow_to_next_byte";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
+  // TEST_F CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
     T a("35");
@@ -191,7 +179,7 @@ void basic_math_test(const string& msg) {
   // converts T a to integer
 
 
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     T a("2034");
@@ -203,7 +191,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << " Failure testing plus_equals_a_greater_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
+  // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER AND MSB
   // HAS NO OVERFLOW
   {
     T a("2034");
@@ -215,7 +203,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << msg << " Failure testing plus_equals_a_less_than_b";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
+  // TEST_F CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW TO THE NEXT
   // BYTE
   {
     T a("768900");
@@ -227,7 +215,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << msg << " Failure testing plus_equals_overflow_to_next_byte";
   }
-  // TEST CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
+  // TEST_F CASE WHEN MSB OF THE RESULT HAS BIT-OVERFLOW IN THE SAME
   // BYTE
   {
     T a("35");
@@ -250,7 +238,7 @@ void basic_math_test(const string& msg) {
   // T calculatedResult to integer
 
   {
-    // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
+    // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
     T a("20489");
     T b("2034455");
@@ -263,7 +251,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing minus_a_less_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
     T a("2048956567");
     T b("2048956567");
@@ -274,7 +262,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing minus_a_equal_to_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
     T a("2048956567");
     T b("2034455");
@@ -285,7 +273,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing minus_a_greater_than_b";
   }
-  // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
+  // TEST_F CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
   {
     T a("196737");
     T b("65406");
@@ -306,7 +294,7 @@ void basic_math_test(const string& msg) {
   // when a<b, since there is no concept of negative number as of now
   // ConvertToInt converts T a to integer
   {
-    // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
+    // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
 
     T a("20489");
     T b("2034455");
@@ -318,7 +306,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << msg << " Failure testing minus_equals_a_less_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
     T a("2048956567");
     T b("2048956567");
@@ -329,7 +317,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << msg << " Failure testing minus_equals_a_equal_to_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
 
     T a("2048956567");
@@ -341,7 +329,7 @@ void basic_math_test(const string& msg) {
     EXPECT_EQ(expectedResult,a.ConvertToInt())
       << msg << " Failure testing minus_equals_a_greater_than_b";
   }
-  // TEST CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
+  // TEST_F CASE WHEN SUBTRACTION NEEDS BORROW FROM NEXT BYTE
   {
     T a("196737");
     T b("65406");
@@ -385,7 +373,7 @@ void basic_math_test(const string& msg) {
   // since decimal value is not returned
 
 
-  // TEST CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN THE SECOND NUMBER
   {
     T a("2048");
     T b("2034455");
@@ -398,7 +386,7 @@ void basic_math_test(const string& msg) {
       << msg << " Failure testing divided_by_a_less_than_b";
   }
 
-  // TEST CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS EQUAL TO THE SECOND NUMBER
   {
 
     T a("2048956567");
@@ -411,7 +399,7 @@ void basic_math_test(const string& msg) {
       << msg << " Failure testing divided_by_a_equals_b";
   }
 
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN THE SECOND NUMBER
   {
     T a("2048956567");
     T b("2034455");
@@ -434,7 +422,7 @@ void basic_math_test(const string& msg) {
 		  << msg << " Failure testing Mod";
   }
 
-  // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
+  // TEST_F CASE FOR VERIFICATION OF ROUNDING OPERATION.
 
   {
 	  T a("8096");
@@ -458,7 +446,7 @@ void basic_math_test(const string& msg) {
       << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }
 
-  // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
+  // TEST_F CASE FOR VERIFICATION OF ROUNDING OPERATION.
   {
 	  T a("100");
 	  T b("210");
@@ -470,7 +458,7 @@ void basic_math_test(const string& msg) {
 		  << msg << " Failure testing divided_and_rounding_by_a_greater_than_b";
   }*/
 
-  // TEST CASE FOR VERIFICATION OF ROUNDING OPERATION.
+  // TEST_F CASE FOR VERIFICATION OF ROUNDING OPERATION.
   /*{
     T a("4048");
     T b("4049");
@@ -484,11 +472,8 @@ void basic_math_test(const string& msg) {
   }*/
 }
 
-TEST(UTBinInt,basic_math) {
-	{ using T = M2Integer; basic_math_test<T>("BE2 basic math"); }
-	{ using T = M4Integer; basic_math_test<T>("BE4 basic math"); }
-	{ using T = M6Integer; basic_math_test<T>("BE6 basic math"); }
-	{ using T = NativeInteger; basic_math_test<T>("Native basic math"); }
+TEST_F(UTBinInt,basic_math) {
+	RUN_ALL_BACKENDS_INT(basic_math_test,"basic math")
 }
 
 template<typename T>
@@ -514,7 +499,7 @@ void basic_compare_test(const string& msg) {
   int c;
   int expectedResult;
 
-  // TEST CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS GREATER THAN SECOND NUMBER
   {
     T a("112504");
     T b("46968");
@@ -525,7 +510,7 @@ void basic_compare_test(const string& msg) {
     EXPECT_EQ(expectedResult,(int)c)
       << msg << " Failure testing compare_a_greater_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS LESS THAN SECOND NUMBER
   {
     T a("12504");
     T b("46968");
@@ -536,7 +521,7 @@ void basic_compare_test(const string& msg) {
     EXPECT_EQ(expectedResult,(int)c)
       << msg << " Failure testing compare_a_less_than_b";
   }
-  // TEST CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
+  // TEST_F CASE WHEN FIRST NUMBER IS EQUAL TO SECOND NUMBER
   {
     T a("34512504");
     T b("34512504");
@@ -549,11 +534,8 @@ void basic_compare_test(const string& msg) {
   }
 }
 
-TEST(UTBinInt,basic_compare) {
-	{ using T = M2Integer; basic_compare_test<T>("BE2 basic compare"); }
-	{ using T = M4Integer; basic_compare_test<T>("BE4 basic compare"); }
-	{ using T = M6Integer; basic_compare_test<T>("BE6 basic compare"); }
-	{ using T = NativeInteger; basic_compare_test<T>("Native basic compare"); }
+TEST_F(UTBinInt,basic_compare) {
+	RUN_ALL_BACKENDS_INT(basic_compare_test,"basic compare")
 }
 
 template<typename T>
@@ -570,7 +552,7 @@ void mod_test(const string& msg) {
 
   T calculatedResult;
   uint64_t expectedResult;
-  // TEST CASE WHEN THE NUMBER IS LESS THAN MOD
+  // TEST_F CASE WHEN THE NUMBER IS LESS THAN MOD
   {
     T m("27");
     T p("240");
@@ -581,7 +563,7 @@ void mod_test(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing number_less_than_modulus";
   }
-  // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
+  // TEST_F CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
     T m("93409673");
     T p("406");
@@ -592,7 +574,7 @@ void mod_test(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing number_greater_than_modulus";
   }
-  // TEST CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
+  // TEST_F CASE WHEN THE NUMBER IS DIVISIBLE BY MOD
   {
     T m("32768");
     T p("16");
@@ -604,7 +586,7 @@ void mod_test(const string& msg) {
       << msg << " Failure testing number_dividible_by_modulus";
   }
 
-  // TEST CASE WHEN THE NUMBER IS EQUAL TO MOD
+  // TEST_F CASE WHEN THE NUMBER IS EQUAL TO MOD
   {
     T m("67108913");
     T p("67108913");
@@ -632,9 +614,9 @@ void mod_test(const string& msg) {
 
 
 
-  // TEST CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
+  // TEST_F CASE WHEN THE NUMBER IS LESS THAN MOD			//NOT GIVING PROPER OUTPUT AS OF NOW
 
-  TEST(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
+  TEST_F(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
     BigInteger a("9587");
     BigInteger b("3591");
@@ -650,11 +632,8 @@ void mod_test(const string& msg) {
 #endif
 }
 
-TEST(UTBinInt,mod_operations) {
-	{ using T = M2Integer; mod_test<T>("BE2 mod"); }
-	{ using T = M4Integer; mod_test<T>("BE4 mod"); }
-	{ using T = M6Integer; mod_test<T>("BE6 mod"); }
-	{ using T = NativeInteger; mod_test<T>("Native mod"); }
+TEST_F(UTBinInt,mod_operations) {
+	RUN_ALL_BACKENDS_INT(mod_test,"mod")
 }
 
 template<typename T>
@@ -673,7 +652,7 @@ void mod_inverse(const string& msg) {
   T calculatedResult;
   uint64_t expectedResult;
 
-  // TEST CASE WHEN THE NUMBER IS GREATER THAN MOD
+  // TEST_F CASE WHEN THE NUMBER IS GREATER THAN MOD
   {
     T m("5");
     T p("108");
@@ -684,7 +663,7 @@ void mod_inverse(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing number_less_than_modulus";
   }
-  // TEST CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
+  // TEST_F CASE WHEN THE NUMBER AND MOD ARE NOT CO-PRIME
   {
     T m("3017");
     T p("108");
@@ -748,11 +727,8 @@ void mod_inverse(const string& msg) {
 
 }
 
-TEST(UTBinInt,mod_inverse) {
-	{ using T = M2Integer; mod_inverse<T>("BE2 modinv"); }
-	{ using T = M4Integer; mod_inverse<T>("BE4 modinv"); }
-	{ using T = M6Integer; mod_inverse<T>("BE6 modinv"); }
-	{ using T = NativeInteger; mod_inverse<T>("Native modinv"); }
+TEST_F(UTBinInt,mod_inverse) {
+	RUN_ALL_BACKENDS_INT(mod_inverse,"modinv")
 }
 
 template<typename T>
@@ -768,7 +744,7 @@ void mod_arithmetic(const string& msg) {
   //      = {(m mod q) + (n mod q)}mod q
   //   ConvertToInt converts T calculatedResult to integer
 
-  // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
+  // TEST_F CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     T m("58059595");
     T n("3768");
@@ -780,7 +756,7 @@ void mod_arithmetic(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing first_number_greater_than_modulus";
   }
-  // TEST CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
+  // TEST_F CASE WHEN THE SECOND NUMBER IS GREATER THAN MOD
   {
     T m("595");
     T n("376988");
@@ -792,7 +768,7 @@ void mod_arithmetic(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing second_number_greater_than_modulus";
   }
-  // TEST CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
+  // TEST_F CASE WHEN THE BOTH NUMBERS ARE LESS THAN MOD
   {
     T m("595");
     T n("376");
@@ -803,7 +779,7 @@ void mod_arithmetic(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing both_numbers_less_than_modulus";
   }
-  // TEST CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
+  // TEST_F CASE WHEN THE BOTH NUMBERS ARE GREATER THAN MOD
   {
 
     T m("59509095449");
@@ -830,7 +806,7 @@ void mod_arithmetic(const string& msg) {
 
   //   ConvertToInt converts T calculatedResult to integer
 
-  // TEST CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
+  // TEST_F CASE WHEN THE FIRST NUMBER IS GREATER THAN MOD
   {
     T m("595");
     T n("399");
@@ -842,7 +818,7 @@ void mod_arithmetic(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing first_number_greater_than_modulus";
   }
-  // TEST CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
+  // TEST_F CASE WHEN THE FIRST NUMBER LESS THAN SECOND NUMBER AND MOD
   {
     T m("39960");
     T n("595090959");
@@ -855,7 +831,7 @@ void mod_arithmetic(const string& msg) {
     EXPECT_EQ(expectedResult,calculatedResult.ConvertToInt())
       << msg << " Failure testing first_number_less_than_modulus";
   }
-  // TEST CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
+  // TEST_F CASE WHEN THE FIRST NUMBER EQUAL TO SECOND NUMBER
   {
     T m("595090959");
     T n("595090959");
@@ -1004,11 +980,8 @@ void mod_arithmetic(const string& msg) {
   }
 }
 
-TEST(UTBinInt,mod_arithmetic) {
-	{ using T = M2Integer; mod_arithmetic<T>("BE2 mod_arithmetic"); }
-	{ using T = M4Integer; mod_arithmetic<T>("BE4 mod_arithmetic"); }
-	{ using T = M6Integer; mod_arithmetic<T>("BE6 mod_arithmetic"); }
-	{ using T = NativeInteger; mod_arithmetic<T>("Native mod_arithmetic"); }
+TEST_F(UTBinInt,mod_arithmetic) {
+	RUN_ALL_BACKENDS_INT(mod_arithmetic,"mod_arithmetic")
 }
 
 template<typename T>
@@ -1031,10 +1004,8 @@ void big_modexp(const string& msg) {
 	DEBUG("big_modexp time ns "<<TOC_NS(t));
 }
 
-TEST(UTBinInt,big_modexp) {
-	{ using T = M2Integer; big_modexp<T>("BE2 big_modexp"); }
-	{ using T = M4Integer; big_modexp<T>("BE4 big_modexp"); }
-	{ using T = M6Integer; big_modexp<T>("BE6 big_modexp"); }
+TEST_F(UTBinInt,big_modexp) {
+	RUN_BIG_BACKENDS_INT(big_modexp,"big_modexp")
 }
 
 template<typename T>
@@ -1049,11 +1020,8 @@ void power_2_modexp(const string& msg) {
 	EXPECT_EQ( expectedResult, calculatedResult ) << msg << " Failure testing TWO.ModExp(50,16)";
 }
 
-TEST(UTBinInt,power_2_modexp) {
-	{ using T = M2Integer; power_2_modexp<T>("BE2 power_2_modexp"); }
-	{ using T = M4Integer; power_2_modexp<T>("BE4 power_2_modexp"); }
-	{ using T = M6Integer; power_2_modexp<T>("BE6 power_2_modexp"); }
-	{ using T = NativeInteger; power_2_modexp<T>("Native power_2_modexp"); }
+TEST_F(UTBinInt,power_2_modexp) {
+	RUN_ALL_BACKENDS_INT(power_2_modexp,"power_2_modexp")
 }
 
 template<typename T>
@@ -1079,7 +1047,7 @@ void shift(const string& msg) {
   //           this is equivalent to: 4* (2^3) => 4*8 =32
   //ConvertToInt converts T calculatedResult to integer
 
-  // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39960");
     usshort shift = 3;
@@ -1090,7 +1058,7 @@ void shift(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing shift_less_than_max_shift";
   }
-  // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39960");
     usshort shift = 6;
@@ -1120,7 +1088,7 @@ void shift(const string& msg) {
 
 
 
-  // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39960");
     usshort num = 3;
@@ -1131,7 +1099,7 @@ void shift(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << msg << " Failure testing shift_less_than_max_shift";
   }
-  // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39960");
     usshort num = 6;
@@ -1160,7 +1128,7 @@ void shift(const string& msg) {
   // ConvertToInt converts T calculatedResult to integer
 
 
-  // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39965675");
     usshort shift = 3;
@@ -1171,7 +1139,7 @@ void shift(const string& msg) {
     EXPECT_EQ(expectedResult, calculatedResult.ConvertToInt())
       << msg << " Failure testing shift_less_than_max_shift";
   }
-  // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39965675");
     usshort shift = 6;
@@ -1201,7 +1169,7 @@ void shift(const string& msg) {
   //   ConvertToInt converts T calculatedResult to integer
 
 
-  // TEST CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS LESS THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39965675");
     usshort shift = 3;
@@ -1212,7 +1180,7 @@ void shift(const string& msg) {
     EXPECT_EQ(expectedResult, a.ConvertToInt())
       << msg << " Failure testing shift_less_than_max_shift";
   }
-  // TEST CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
+  // TEST_F CASE WHEN SHIFT IS GREATER THAN 4 (MAX SHIFT DONE AT A TIME)
   {
     T a("39965675");
     usshort shift = 6;
@@ -1225,11 +1193,8 @@ void shift(const string& msg) {
   }
 }
 
-TEST(UTBinInt,shift) {
-	{ using T = M2Integer; shift<T>("BE2 shift"); }
-	{ using T = M4Integer; shift<T>("BE4 shift"); }
-	{ using T = M6Integer; shift<T>("BE6 shift"); }
-	{ using T = NativeInteger; shift<T>("Native shift"); }
+TEST_F(UTBinInt,shift) {
+	RUN_ALL_BACKENDS_INT(shift,"shift")
 }
 
 /****************************************/
@@ -1238,7 +1203,7 @@ TEST(UTBinInt,shift) {
 
 template<typename T>
 void binString(const string& msg) {
-	//TEST CASE FOR STATIC METHOD BitStringToBigInteger in BigInteger
+	//TEST_F CASE FOR STATIC METHOD BitStringToBigInteger in BigInteger
 
 	string binaryString = "1011101101110001111010111011000000011";
 	T b = T::BitStringToBigInteger(binaryString);
@@ -1248,11 +1213,8 @@ void binString(const string& msg) {
 	<< msg << " Failure testing BitStringToBigInteger";
 }
 
-TEST(UTBinInt,binString) {
-	{ using T = M2Integer; binString<T>("BE2 binString"); }
-	{ using T = M4Integer; binString<T>("BE4 binString"); }
-	{ using T = M6Integer; binString<T>("BE6 binString"); }
-	{ using T = NativeInteger; binString<T>("Native binString"); }
+TEST_F(UTBinInt,binString) {
+	RUN_ALL_BACKENDS_INT(binString,"binString")
 }
 
 template<typename T>
@@ -1266,11 +1228,8 @@ void expNoMod(const string& msg) {
     << msg << " Failure testing exp";
 }
 
-TEST(UTBinInt,expNoMod) {
-	{ using T = M2Integer; expNoMod<T>("BE2 expNoMod"); }
-	{ using T = M4Integer; expNoMod<T>("BE4 expNoMod"); }
-	{ using T = M6Integer; expNoMod<T>("BE6 expNoMod"); }
-	{ using T = NativeInteger; expNoMod<T>("Native expNoMod"); }
+TEST_F(UTBinInt,expNoMod) {
+	RUN_ALL_BACKENDS_INT(expNoMod,"expNoMod")
 }
 
 template<typename T>
@@ -1281,11 +1240,8 @@ void convToDouble(const string& msg) {
   EXPECT_EQ(xInDouble, x.ConvertToDouble()) << msg;
 }
 
-TEST(UTBinInt,convToDouble) {
-	{ using T = M2Integer; shift<T>("BE2 convToDouble"); }
-	{ using T = M4Integer; shift<T>("BE4 convToDouble"); }
-	{ using T = M6Integer; shift<T>("BE6 convToDouble"); }
-	{ using T = NativeInteger; shift<T>("Native convToDouble"); }
+TEST_F(UTBinInt,convToDouble) {
+	RUN_ALL_BACKENDS_INT(convToDouble,"convToDouble")
 }
 
 template<typename T>
@@ -1298,11 +1254,8 @@ void getDigitAtIndex(const string& msg) {
 	EXPECT_EQ(x.GetDigitAtIndexForBase(4,2), 1ULL) << msg;
 }
 
-TEST(UTBinInt,getDigitAtIndex) {
-	{ using T = M2Integer; getDigitAtIndex<T>("BE2 getDigitAtIndex"); }
-	{ using T = M4Integer; getDigitAtIndex<T>("BE4 getDigitAtIndex"); }
-	{ using T = M6Integer; getDigitAtIndex<T>("BE6 getDigitAtIndex"); }
-	{ using T = NativeInteger; getDigitAtIndex<T>("Native getDigitAtIndex"); }
+TEST_F(UTBinInt,getDigitAtIndex) {
+	RUN_ALL_BACKENDS_INT(getDigitAtIndex,"getDigitAtIndex")
 }
 
 template<typename T>
@@ -1328,16 +1281,13 @@ void GetBitAtIndex(const string& msg) {
 
 }
 
-TEST(UTBinInt,GetBitAtIndex) {
-	{ using T = M2Integer; GetBitAtIndex<T>("BE2 GetBitAtIndex"); }
-	{ using T = M4Integer; GetBitAtIndex<T>("BE4 GetBitAtIndex"); }
-	{ using T = M6Integer; GetBitAtIndex<T>("BE6 GetBitAtIndex"); }
-	{ using T = NativeInteger; GetBitAtIndex<T>("Native GetBitAtIndex"); }
+TEST_F(UTBinInt,GetBitAtIndex) {
+	RUN_ALL_BACKENDS_INT(GetBitAtIndex,"GetBitAtIndex")
 }
 
 template<typename T>
 void GetInternalRepresentation(const string& msg) {
-  bool dbg_flag = true;
+  bool dbg_flag = false;
   T x(1);
 
   x <<= 100; //x has one bit at 128
@@ -1360,9 +1310,6 @@ void GetInternalRepresentation(const string& msg) {
   EXPECT_EQ(correct, x_limbs) << msg;
 }
 
-TEST(UTBinInt,GetInternalRepresentation) {
-	{ using T = M2Integer; GetBitAtIndex<T>("BE2 GetInternalRepresentation"); }
-	{ using T = M4Integer; GetBitAtIndex<T>("BE4 GetInternalRepresentation"); }
-	{ using T = M6Integer; GetBitAtIndex<T>("BE6 GetInternalRepresentation"); }
-	{ using T = NativeInteger; GetBitAtIndex<T>("Native GetInternalRepresentation"); }
+TEST_F(UTBinInt,GetInternalRepresentation) {
+	RUN_BIG_BACKENDS_INT(GetInternalRepresentation,"GetInternalRepresentation")
 }

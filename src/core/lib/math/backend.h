@@ -190,3 +190,28 @@ namespace lbcrypto {
 }
 
 #endif
+
+// macros for unit testing
+#define RUN_BIG_BACKENDS_INT(FUNCTION, MESSAGE) { \
+	if( TestB2 ) { using T = M2Integer; FUNCTION<T>("BE2 " MESSAGE); } \
+	if( TestB4 ) { using T = M4Integer; FUNCTION<T>("BE4 " MESSAGE); } \
+	if( TestB6 ) { using T = M6Integer; FUNCTION<T>("BE6 " MESSAGE); } \
+}
+
+#define RUN_ALL_BACKENDS_INT(FUNCTION, MESSAGE) { \
+	RUN_BIG_BACKENDS_INT(FUNCTION,MESSAGE) \
+	if( TestNative ) { using T = NativeInteger; FUNCTION<T>("Native " MESSAGE); } \
+}
+
+#define RUN_BIG_BACKENDS(FUNCTION, MESSAGE) { \
+	if( TestB2 ) { using V = M2Vector; FUNCTION<V>("BE2 " MESSAGE); } \
+	if( TestB4 ) { using V = M4Vector; FUNCTION<V>("BE4 " MESSAGE); } \
+	if( TestB6 ) { using V = M6Vector; FUNCTION<V>("BE6 " MESSAGE); } \
+}
+
+#define RUN_ALL_BACKENDS(FUNCTION, MESSAGE) { \
+	RUN_BIG_BACKENDS(FUNCTION,MESSAGE) \
+	if( TestNative ) { using V = NativeVector; FUNCTION<V>("Native " MESSAGE); } \
+}
+
+

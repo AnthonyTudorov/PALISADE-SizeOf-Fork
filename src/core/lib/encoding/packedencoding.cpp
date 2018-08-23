@@ -251,11 +251,11 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 			for (usint i = 0; i < phim; i++) {
 				permutedSlots[i] = slotValues[m_toCRTPerm[m][i]];
 			}
-			ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(permutedSlots, m_initRoot[modulusM], m, &slotValues);
+			ChineseRemainderTransformFTT<NativeVector>::InverseTransform(permutedSlots, m_initRoot[modulusM], m, &slotValues);
 		}
 		else
 		{
-			ChineseRemainderTransformFTT<NativeInteger, NativeVector>::InverseTransform(slotValues, m_initRoot[modulusM], m, &slotValues);
+			ChineseRemainderTransformFTT<NativeVector>::InverseTransform(slotValues, m_initRoot[modulusM], m, &slotValues);
 		}
 
 	} else { // Arbitrary cyclotomic
@@ -271,7 +271,7 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 		DEBUG("m_bigModulus[modulusM] " << m_bigModulus[modulusM]);
 		DEBUG("m_bigRoot[modulusM] " << m_bigRoot[modulusM]);
 
-		slotValues = ChineseRemainderTransformArb<NativeInteger, NativeVector>::
+		slotValues = ChineseRemainderTransformArb<NativeVector>::
 				InverseTransform(permutedSlots, m_initRoot[modulusM], m_bigModulus[modulusM], m_bigRoot[modulusM], m);
 	}
 
@@ -316,9 +316,9 @@ void PackedEncoding::Unpack(P *ring, const PlaintextModulus &modulus) const {
 	// Transform Coeff to Eval
 	NativeVector permutedSlots(phim, modulusNI);
 	if (!(m & (m-1))) { // Check if m is a power of 2
-		ChineseRemainderTransformFTT<NativeInteger, NativeVector>::ForwardTransform(packedVector, m_initRoot[modulusM], m, &permutedSlots);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(packedVector, m_initRoot[modulusM], m, &permutedSlots);
 	} else { // Arbitrary cyclotomic
-		permutedSlots = ChineseRemainderTransformArb<NativeInteger, NativeVector>::
+		permutedSlots = ChineseRemainderTransformArb<NativeVector>::
 				ForwardTransform(packedVector, m_initRoot[modulusM], m_bigModulus[modulusM], m_bigRoot[modulusM], m);
 	}
 
