@@ -26,7 +26,6 @@
 
 #include "include/gtest/gtest.h"
 #include "signature/lwesign.h"
-#include "signature/lwesign.cpp"
 #include "encoding/encodings.h"
 
 using namespace lbcrypto;
