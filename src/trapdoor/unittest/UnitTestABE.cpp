@@ -34,7 +34,6 @@
 #include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
 #include "../lib/abe/ibe.cpp"
-#include "../lib/abe/cp_abe.cpp"
 
 using namespace std;
 using namespace lbcrypto;
