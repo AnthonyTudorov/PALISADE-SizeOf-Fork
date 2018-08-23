@@ -24,11 +24,8 @@
  *
  */
 #include "signature/lwesign.h"
-#include "signature/lwesign.cpp"
 #include "encoding/encodings.h"
 #include "utils/serializablehelper.h"
-
-#include <omp.h> //open MP header
 
 //#define ONLINE_TIMING 1
 //#define OFFLINE_TIMING 1
