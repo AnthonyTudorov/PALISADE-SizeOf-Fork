@@ -30,10 +30,12 @@
 
 #include "../lib/math/backend.h"
 #include "../lib/abe/cp_abe.h"
-#include "../lib/abe/kp_abe.h"
-#include "../lib/abe/kp_abe.cpp"
 #include "../lib/abe/ibe.h"
-#include "../lib/abe/ibe.cpp"
+
+#include "../lib/abe/kp_abe.h"
+#include "../lib/abe/kp_abe.cpp" //note this needs to be removed soon
+
+
 
 using namespace std;
 using namespace lbcrypto;
