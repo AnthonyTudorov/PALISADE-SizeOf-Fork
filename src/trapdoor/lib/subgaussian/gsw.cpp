@@ -39,12 +39,14 @@ namespace lbcrypto {
 	template <class Integer,class Vector>
 	shared_ptr<GSWSecretKey<Integer>> GSWScheme<Integer,Vector>::SecretKeyGen() const
 	{
-		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>([&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, m_cryptoParams.Getn()-1, 1));
+		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>([&]()
+				{return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, m_cryptoParams.Getn()-1, 1));
 		return sk;
 	}
 
 	template <class Integer,class Vector>
-	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::Encrypt(const GSWPlaintext<Integer> &plaintext, const shared_ptr<GSWSecretKey<Integer>> sk) const
+	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::Encrypt(const GSWPlaintext<Integer> &plaintext,
+			const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
 		const Integer &modulus = m_cryptoParams.GetModulus();
 		Matrix<Integer> cbar([&](){return m_cryptoParams.GetDug().GenerateInteger();}, m_cryptoParams.Getn()-1, m_cryptoParams.Getm());
@@ -61,7 +63,8 @@ namespace lbcrypto {
 	}
 
 	template <class Integer,class Vector>
-	GSWPlaintext<Integer> GSWScheme<Integer,Vector>::Decrypt(const shared_ptr<GSWCiphertext<Integer>> ciphertext, const shared_ptr<GSWSecretKey<Integer>> sk) const
+	GSWPlaintext<Integer> GSWScheme<Integer,Vector>::Decrypt(const shared_ptr<GSWCiphertext<Integer>> ciphertext,
+			const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
 		const Integer &modulus = m_cryptoParams.GetModulus();
 		GSWPlaintext<Integer> mu = Integer(0);
