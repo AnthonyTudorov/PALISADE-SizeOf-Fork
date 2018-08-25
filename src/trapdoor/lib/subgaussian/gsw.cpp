@@ -87,6 +87,17 @@ namespace lbcrypto {
 		//return mu;
 	}
 
+	template <class Integer,class Vector>
+	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::EvalAdd(const shared_ptr<GSWCiphertext<Integer>> ct1,
+			const shared_ptr<GSWCiphertext<Integer>> ct2) {
+
+		const Integer &modulus = m_cryptoParams.GetModulus();
+		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((*ct1 + *ct2).ModEq(modulus)));
+
+		return c;
+
+	}
+
 }
 
 #endif

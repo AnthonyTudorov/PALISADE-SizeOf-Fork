@@ -33,7 +33,7 @@ int main()
 
 	auto p = scheme.Decrypt(c,sk);
 
-	std::cout << "secret key\n" <<  *sk << std::endl;
+	//std::cout << "secret key\n" <<  *sk << std::endl;
 
 	std::cout << "plaintext = " << p << std::endl;
 
@@ -49,13 +49,23 @@ int main()
 
 	auto cNative = schemeNative.Encrypt(NativeInteger(1),skNative);
 
+	auto cNativePlus = schemeNative.EvalAdd(cNative,cNative);
+
+	auto cNativePlus2 = schemeNative.EvalAdd(cNativePlus,cNative);
+
 	auto pNative = schemeNative.Decrypt(cNative,skNative);
 
-	std::cout << "secret key\n" <<  *skNative << std::endl;
+	auto pNativePlus = schemeNative.Decrypt(cNativePlus,skNative);
+
+	auto pNativePlus2 = schemeNative.Decrypt(cNativePlus2,skNative);
+
+	//std::cout << "secret key\n" <<  *skNative << std::endl;
 
 	std::cout << "plaintext = " << pNative << std::endl;
 
+	std::cout << "plaintext of addition = " << pNativePlus << std::endl;
 
+	std::cout << "plaintext of triple addition = " << pNativePlus2 << std::endl;
 
 	return 0;
 }
