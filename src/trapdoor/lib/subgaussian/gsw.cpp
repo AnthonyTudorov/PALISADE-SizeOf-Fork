@@ -98,6 +98,39 @@ namespace lbcrypto {
 
 	}
 
+	template <class Integer,class Vector>
+	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::EvalMult(const shared_ptr<GSWCiphertext<Integer>> ct1,
+			const shared_ptr<GSWCiphertext<Integer>> ct2) {
+
+		const Integer &modulus = m_cryptoParams.GetModulus();
+
+		auto ct2Inverse = InverseG(ct2);
+		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((ct1->Mult(*ct2Inverse)).ModEq(modulus)));
+
+		return c;
+	}
+
+	template <class Integer,class Vector>
+	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::InverseG(const shared_ptr<GSWCiphertext<Integer>> ct) {
+		size_t cols = ct->GetCols();
+		size_t rows = ct->GetRows();
+		Matrix<Integer> gInverse([&](){return Integer(0);}, cols,cols);
+		for (size_t i = 0; i < cols; i++)
+		{
+			for (size_t j = 0; j < rows; j++) {
+				auto vector = GetDigits((*ct)(j,i),m_cryptoParams.GetBase(),m_cryptoParams.Getl());
+				for (size_t k = 0; k < vector->size(); k++)
+				{
+					gInverse(j*m_cryptoParams.Getl()+k,i) = (*vector)[k];
+				}
+			}
+		}
+		//std::cout << *ct << std::endl;
+		//std::cout << gInverse << std::endl;
+		shared_ptr<Matrix<Integer>> result(new Matrix<Integer>(gInverse));
+		return result;
+	}
+
 }
 
 #endif

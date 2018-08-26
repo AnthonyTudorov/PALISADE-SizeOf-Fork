@@ -121,7 +121,10 @@ public:
 	shared_ptr<GSWCiphertext<Integer>> EvalMult(const shared_ptr<GSWCiphertext<Integer>>, const shared_ptr<GSWCiphertext<Integer>>);
 
 private:
+
 	GSWCryptoParameters<Integer,Vector> m_cryptoParams;
+
+	shared_ptr<GSWCiphertext<Integer>> InverseG(const shared_ptr<GSWCiphertext<Integer>>);
 
 };
 

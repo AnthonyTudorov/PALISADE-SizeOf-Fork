@@ -31,16 +31,24 @@ int main()
 
 	auto c = scheme.Encrypt(BigInteger(1),sk);
 
+	auto cMult = scheme.EvalMult(c,c);
+
 	auto p = scheme.Decrypt(c,sk);
+
+	auto pMult = scheme.Decrypt(cMult,sk);
 
 	//std::cout << "secret key\n" <<  *sk << std::endl;
 
+	std::cout << " ==== POLY =====" << std::endl;
+
 	std::cout << "plaintext = " << p << std::endl;
+
+	std::cout << "plaintext of multiplication = " << pMult << std::endl;
 
 
 	GSWScheme<NativeInteger,NativeVector> schemeNative;
 
-	l = 20;
+	l = 30;
 
 	NativeInteger qNative = FirstPrime<NativeInteger>(l, 2 * n);
 
@@ -53,19 +61,27 @@ int main()
 
 	auto cNativePlus2 = schemeNative.EvalAdd(cNativePlus,cNative);
 
+	auto cNativeMult = schemeNative.EvalMult(cNative,cNative);
+
 	auto pNative = schemeNative.Decrypt(cNative,skNative);
 
 	auto pNativePlus = schemeNative.Decrypt(cNativePlus,skNative);
 
 	auto pNativePlus2 = schemeNative.Decrypt(cNativePlus2,skNative);
 
+	auto pNativeMult = schemeNative.Decrypt(cNativeMult,skNative);
+
 	//std::cout << "secret key\n" <<  *skNative << std::endl;
+
+	std::cout << " ==== NATIVEPOLY =====" << std::endl;
 
 	std::cout << "plaintext = " << pNative << std::endl;
 
 	std::cout << "plaintext of addition = " << pNativePlus << std::endl;
 
 	std::cout << "plaintext of triple addition = " << pNativePlus2 << std::endl;
+
+	std::cout << "plaintext of multiplication = " << pNativeMult << std::endl;
 
 	return 0;
 }
