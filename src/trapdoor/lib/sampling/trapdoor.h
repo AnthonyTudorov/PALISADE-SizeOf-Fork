@@ -43,7 +43,7 @@ namespace lbcrypto {
 template <class Element>
 class RLWETrapdoorPair {
 public:
-	// matrix of noise Elementnomials
+	// matrix of noise polyanomials
 	Matrix<Element> m_r;
 	// matrix
 	Matrix<Element> m_e;
@@ -70,7 +70,21 @@ public:
 	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base = 2, bool bal = false);
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params,
+			int stddev, int64_t base = 2, bool bal = false);
+
+	/**
+	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation")
+	*
+	* @param params ring element parameters
+	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @param dimension of square matrix
+	* @param base base of gadget matrix
+	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
+	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
+	*/
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGenSquareMat(shared_ptr<typename Element::Params> params,
+			 int stddev, size_t dimension, int64_t base = 2, bool bal = false);
 
 	/**
 	* Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
@@ -277,11 +291,7 @@ public:
 				DEBUG("z1tot: "<<TOC(t1_tot));
 			}
 };
-/*template <>
-	void RLWETrapdoorUtility<DCRTPoly>::ZSampleSigmaP(size_t n, double s, double sigma,
-			const RLWETrapdoorPair<DCRTPoly> &Tprime,
-			const DCRTPoly::DggType& dgg, const DCRTPoly::DggType& dggLargeSigma,
-			shared_ptr<Matrix<DCRTPoly>> perturbationVector);*/
+
 } //end namespace crypto
 
 #endif

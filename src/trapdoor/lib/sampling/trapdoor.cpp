@@ -35,7 +35,8 @@ namespace lbcrypto {
 
   
 	template <class Element>
-	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base, bool bal)
+	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params,
+			int stddev, int64_t base, bool bal)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
@@ -73,6 +74,56 @@ namespace lbcrypto {
 
 	}
 
+
+	template <class Element>
+	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGenSquareMat(shared_ptr<typename Element::Params> params,
+			int stddev, size_t d, int64_t base, bool bal)
+	{
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
+		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
+		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+		double val = params->GetModulus().ConvertToDouble();
+		double nBits = ceil(log2(val));
+
+		size_t k = std::ceil(nBits/log2(base));  /* (+1) is for balanced representation */
+
+		if(bal == true){
+			k++; // for a balanced digit representation, there is an extra digit required
+		}
+
+		Matrix<Element> R(zero_alloc, d, d*k, gaussian_alloc);
+		Matrix<Element> E(zero_alloc, d, d*k, gaussian_alloc);
+
+		Matrix<Element> Abar(zero_alloc, d, d, uniform_alloc);
+
+		//Converts discrete gaussians to Evaluation representation
+		R.SwitchFormat();
+		E.SwitchFormat();
+
+		Matrix<Element> G = Matrix<Element>(zero_alloc, d, d*k).GadgetVector(base);
+
+		Matrix<Element> A(zero_alloc, d, d*2);
+
+		for(size_t i = 0; i < d; i++)
+		{
+			for(size_t j = 0; j < d; j++)
+			{
+				A(i,j) = Abar(i,j);
+				if (i==j)
+					A(i,j+d) = 1;
+				else
+					A(i,j+d) = 0;
+			}
+		}
+
+		Matrix<Element> A1 = G - (Abar*R + E);
+
+		A.HStack(A1);
+
+		return std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(A, RLWETrapdoorPair<Element>(R, E));
+
+	}
 
 	// Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
 

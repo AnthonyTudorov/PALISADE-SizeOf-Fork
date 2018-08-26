@@ -139,6 +139,45 @@ TEST(UTTrapdoor,TrapDoorPairTest){
         //Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
 }
 
+TEST(UTTrapdoor,TrapDoorPairTestSquareMat){
+	usint m = 16;
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = ceil(log2(val));
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
+
+    size_t d = 5;
+
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, stddev, d);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+	RingMat eyeKK = RingMat(zero_alloc, d*k, d*k).Identity();
+
+	RingMat stackedTrap1 = rHat.VStack(eHat);
+	//std::cout << stackedTrap2 <<std::endl;
+
+	EXPECT_EQ(2*d,stackedTrap1.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,stackedTrap1.GetCols())
+		<< "Failure testing number of colums";
+
+	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
+
+	EXPECT_EQ(d*(k+2),stackedTrap2.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,stackedTrap2.GetCols())
+		<< "Failure testing number of colums";
+
+        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+}
+
 TEST(UTTrapdoor,GadgetTest){
 	usint m = 16;
 	BigInteger modulus("67108913");
@@ -195,6 +234,41 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 
     Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
     EXPECT_EQ(g, trapMult);
+}
+
+TEST(UTTrapdoor,TrapDoorMultTestSquareMat){
+	usint m = 16;
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = ceil(log2(val));
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	size_t d = 5;
+
+	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
+
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, stddev, d);
+
+	RingMat eHat = trapPair.second.m_e;
+	RingMat rHat = trapPair.second.m_r;
+	RingMat eyeKK = RingMat(zero_alloc, d*k, d*k).Identity();
+
+
+	RingMat stackedTrap1 = rHat.VStack(eHat);
+	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
+
+	RingMat trapMult = (trapPair.first)*(stackedTrap2);
+	EXPECT_EQ(d,trapMult.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,trapMult.GetCols())
+		<< "Failure testing number of colums";
+
+    RingMat G = RingMat(zero_alloc, d, d*k).GadgetVector();
+    EXPECT_EQ(G, trapMult);
 }
 
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
