@@ -48,6 +48,10 @@ const auto SPECTRAL_BOUND = [](uint64_t n, uint64_t k, uint64_t base) -> double 
 	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(n*k) + std::sqrt(2*n) + 4.7);
 };
 
+const auto SPECTRAL_BOUND_D = [](uint64_t n, uint64_t k, uint64_t base, uint64_t d) -> double {
+	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(d*n*k) + std::sqrt(2*n) + 4.7);
+};
+
 /**
 * @brief Utility class containing operations needed for lattice sampling;
 * Sources: https://eprint.iacr.org/2017/844.pdf and https://eprint.iacr.org/2017/308.pdf

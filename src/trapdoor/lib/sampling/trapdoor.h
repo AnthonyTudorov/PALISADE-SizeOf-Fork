@@ -307,6 +307,126 @@ public:
 				TIC(t1);
 				DEBUG("z1tot: "<<TOC(t1_tot));
 			}
+
+	/**
+		* New method for perturbation generation as described in "Implementing Token-Based Obfuscation..."
+		*
+		*@param n ring dimension
+		*@param s parameter Gaussian distribution
+		*@param sigma standard deviation
+		*@param &Tprime compact trapdoor matrix
+		*@param &dgg discrete Gaussian generator for error sampling
+		*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+		*@param *perturbationVector perturbation vector;output of the function
+		*/
+		static void SamplePertSquareMat(size_t n, double s, double sigma,
+				const RLWETrapdoorPair<Element> &Tprime,
+				const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
+				shared_ptr<Matrix<Element>> perturbationVector){
+
+					Matrix<Element> Tprime0 = Tprime.m_e;
+					Matrix<Element> Tprime1 = Tprime.m_r;
+
+					// k is the bit length
+					size_t k = Tprime0.GetCols();
+
+					const shared_ptr<typename Element::Params> params = Tprime0(0, 0).GetParams();
+
+					// all three Polynomials are initialized with "0" coefficients
+					Element va(params, EVALUATION, 1);
+					Element vb(params, EVALUATION, 1);
+					Element vd(params, EVALUATION, 1);
+
+					for (size_t i = 0; i < k; i++) {
+						va += Tprime0(0, i)*Tprime0(0, i).Transpose();
+						vb += Tprime1(0, i)*Tprime0(0, i).Transpose();
+						vd += Tprime1(0, i)*Tprime1(0, i).Transpose();
+					}
+
+
+					//Switch the ring elements (Polynomials) to coefficient representation
+					va.SwitchFormat();
+					vb.SwitchFormat();
+					vd.SwitchFormat();
+
+					//Create field elements from ring elements
+					Field2n a(va), b(vb), d(vd);
+
+					double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
+
+					a = a.ScalarMult(scalarFactor);
+					b = b.ScalarMult(scalarFactor);
+					d = d.ScalarMult(scalarFactor);
+
+					a = a + s*s;
+					d = d + s*s;
+
+					//converts the field elements to DFT representation
+					a.SwitchFormat();
+					b.SwitchFormat();
+					d.SwitchFormat();
+
+					Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, 1);
+
+					double sigmaLarge = sqrt(s * s - sigma * sigma);
+
+					// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+					// otherwise, use Karney's method
+					if (sigmaLarge > 3e5) {
+
+						//Karney rejection method
+						for (size_t i = 0; i < n * k; i++) {
+							p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+						}
+					}
+					else
+					{
+
+						//Peikert's inversion method
+						std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+
+						for (size_t i = 0; i < n * k; i++) {
+							p2ZVector(i, 0) = (dggVector.get())[i];
+						}
+
+					}
+
+					//create k ring elements in coefficient representation
+					Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
+
+					//now converting to evaluation representation before multiplication
+					p2.SwitchFormat();
+
+					//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
+
+					//the dimension is 2x1 - a vector of 2 ring elements
+					auto zero_alloc =Element::Allocator(params, EVALUATION);
+					Matrix<Element> Tp2(zero_alloc, 2, 1);
+					Tp2(0,0) = (Tprime0 * p2)(0,0);
+					Tp2(1,0) = (Tprime1 * p2)(0,0);
+
+					//change to coefficient representation before converting to field elements
+					Tp2.SwitchFormat();
+
+
+					Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
+
+					c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+					c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+
+					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2, 1));
+
+					LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
+
+					//create 2 ring elements in coefficient representation
+					Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
+
+					//Converts p1 to Evaluation representation
+					p1.SwitchFormat();
+
+					*perturbationVector = p1.VStack(p2);
+
+				}
 };
 
 } //end namespace crypto

@@ -252,10 +252,10 @@ namespace lbcrypto {
 
 		const typename Element::Integer& modulus = A(0, 0).GetModulus();
 
-		//spectral bound s
-		double s = SPECTRAL_BOUND(n,k,base);
-
 		size_t d = T.m_r.GetRows();
+
+		//spectral bound s
+		double s = SPECTRAL_BOUND_D(n,k,base,d);
 
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, d*(k + 2), d));
@@ -263,7 +263,7 @@ namespace lbcrypto {
 // Correct the perturbation sampling
 // START
 
-		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
+		SamplePertSquareMat(n, s, c, T, dgg, dggLargeSigma, pHat);
 
 // END
 
