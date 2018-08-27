@@ -256,7 +256,7 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Arb) {
 	BigInteger bigmodulus("1019642968797569");
 	BigInteger bigroot("116200103432701");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
@@ -292,7 +292,7 @@ TEST_F(UTLTVBATCHING, Poly_EVALADD_Arb) {
 	BigInteger bigmodulus("1019642968797569");
 	BigInteger bigroot("116200103432701");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
@@ -341,7 +341,7 @@ TEST_F(UTBGVBATCHING, Poly_EVALMULT_Arb) {
 	BigInteger bigmodulus("77302754575416994210914689");
 	BigInteger bigroot("76686504597021638023705542");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
@@ -392,7 +392,7 @@ TEST_F(UTBFVBATCHING, Poly_EVALMULT_Arb) {
 	BigInteger bigmodulus("77302754575416994210914689");
 	BigInteger bigroot("76686504597021638023705542");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
@@ -405,7 +405,7 @@ TEST_F(UTBFVBATCHING, Poly_EVALMULT_Arb) {
 	BigInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
 	BigInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
 
-	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector>(m, bigEvalMultModulus);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 
 	usint batchSize = 8;

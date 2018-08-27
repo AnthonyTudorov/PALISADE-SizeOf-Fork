@@ -25,14 +25,16 @@
  *
  */
 
-#include "../math/backend.h"
+#include "math/backend.h"
+#include "math/matrix.h"
 
-#include "../math/binaryuniformgenerator.cpp"
-#include "../math/ternaryuniformgenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
-#include "../math/discretegaussiangenerator.cpp"
-#include "../math/nbtheory.cpp"
-#include "../math/transfrm.cpp"
+#include "math/binaryuniformgenerator.cpp"
+#include "math/ternaryuniformgenerator.cpp"
+#include "math/discreteuniformgenerator.cpp"
+#include "math/discretegaussiangenerator.cpp"
+#include "math/nbtheory.cpp"
+#include "math/transfrm.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
 
@@ -57,10 +59,22 @@ template M6Vector PolynomialMultiplication(const M6Vector &a, const M6Vector &b)
 template M6Vector GetCyclotomicPolynomial(usint m, const M6Integer &modulus);
 template M6Integer SyntheticRemainder(const M6Vector &dividend, const M6Integer &a, const M6Integer &modulus);
 template M6Vector SyntheticPolyRemainder(const M6Vector &dividend, const M6Vector &aList, const M6Integer &modulus);
-template M6Vector PolynomialPower<M6Vector, M6Integer>(const M6Vector &input, usint power);
+template M6Vector PolynomialPower<M6Vector>(const M6Vector &input, usint power);
 template M6Vector SyntheticPolynomialDivision(const M6Vector &dividend, const M6Integer &a, const M6Integer &modulus);
 template M6Integer FindGeneratorCyclic(const M6Integer& modulo);
 template bool IsGenerator(const M6Integer& g, const M6Integer& modulo);
 template M6Integer ComputeMu(const M6Integer& q);
+
+template class Matrix<M6Integer>;
+ONES_FOR_TYPE(M6Integer)
+IDENTITY_FOR_TYPE(M6Integer)
+GADGET_FOR_TYPE(M6Integer)
+MATRIX_NOT_SERIALIZABLE(M6Integer)
+
+template class Matrix<M6Vector>;
+ONES_FOR_TYPE(M6Vector)
+IDENTITY_FOR_TYPE(M6Vector)
+GADGET_FOR_TYPE(M6Vector)
+MATRIX_NOT_SERIALIZABLE(M6Vector)
 
 }

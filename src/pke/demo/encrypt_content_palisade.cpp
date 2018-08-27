@@ -46,7 +46,7 @@ int generate_crypto_context() {
 	BigInteger bigmodulus("80899135611688102162227204937217");
 	BigInteger bigroot("77936753846653065954043047918387");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
@@ -182,7 +182,7 @@ cout << *info.cryptocontext->GetCryptoParameters() << endl;
 
 //auto m = info.cryptocontext->GetElementParams()->GetCyclotomicOrder();
 ////auto modulusQ = info.cryptocontext->GetElementParams()->GetModulus();
-////auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+////auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 ////ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 //PackedEncoding::SetParams(m, info.cryptocontext->GetEncodingParams());
 	info.cryptocontext->Decrypt(sk, ct, &iPlaintext);	

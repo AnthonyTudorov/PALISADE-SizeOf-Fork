@@ -191,6 +191,12 @@ namespace lbcrypto {
 
 #endif
 
+// COMMON TESTING DEFINITIONS
+extern bool TestB2;
+extern bool TestB4;
+extern bool TestB6;
+extern bool TestNative;
+
 // macros for unit testing
 #define RUN_BIG_BACKENDS_INT(FUNCTION, MESSAGE) { \
 	if( TestB2 ) { using T = M2Integer; FUNCTION<T>("BE2 " MESSAGE); } \

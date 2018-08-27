@@ -25,14 +25,16 @@
  *
  */
 
-#include "../math/backend.h"
+#include "math/backend.h"
+#include "math/matrix.h"
 
-#include "../math/binaryuniformgenerator.cpp"
-#include "../math/ternaryuniformgenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
-#include "../math/discretegaussiangenerator.cpp"
-#include "../math/nbtheory.cpp"
-#include "../math/transfrm.cpp"
+#include "math/binaryuniformgenerator.cpp"
+#include "math/ternaryuniformgenerator.cpp"
+#include "math/discreteuniformgenerator.cpp"
+#include "math/discretegaussiangenerator.cpp"
+#include "math/nbtheory.cpp"
+#include "math/transfrm.cpp"
+#include "math/matrix.cpp"
 
 namespace lbcrypto {
 
@@ -60,10 +62,22 @@ template NativeVector PolynomialMultiplication(const NativeVector &a, const Nati
 template NativeVector GetCyclotomicPolynomial(usint m, const NativeInteger &modulus);
 template NativeInteger SyntheticRemainder(const NativeVector &dividend, const NativeInteger &a, const NativeInteger &modulus);
 template NativeVector SyntheticPolyRemainder(const NativeVector &dividend, const NativeVector &aList, const NativeInteger &modulus);
-template NativeVector PolynomialPower<NativeVector, NativeInteger>(const NativeVector &input, usint power);
+template NativeVector PolynomialPower<NativeVector>(const NativeVector &input, usint power);
 template NativeVector SyntheticPolynomialDivision(const NativeVector &dividend, const NativeInteger &a, const NativeInteger &modulus);
 template NativeInteger FindGeneratorCyclic(const NativeInteger& modulo);
 template bool IsGenerator(const NativeInteger& g, const NativeInteger& modulo);
 template NativeInteger ComputeMu(const NativeInteger& q);
+
+template class Matrix<NativeInteger>;
+ONES_FOR_TYPE(NativeInteger)
+IDENTITY_FOR_TYPE(NativeInteger)
+GADGET_FOR_TYPE(NativeInteger)
+MATRIX_NOT_SERIALIZABLE(NativeInteger)
+
+template class Matrix<NativeVector>;
+ONES_FOR_TYPE(NativeVector)
+IDENTITY_FOR_TYPE(NativeVector)
+GADGET_FOR_TYPE(NativeVector)
+MATRIX_NOT_SERIALIZABLE(NativeVector)
 
 }

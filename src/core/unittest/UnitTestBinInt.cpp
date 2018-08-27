@@ -618,11 +618,11 @@ void mod_test(const string& msg) {
 
   TEST_F(UTBinInt_METHOD_MOD_BARRETT,NUMBER_LESS_THAN_MOD){
 
-    BigInteger a("9587");
-    BigInteger b("3591");
-    BigInteger c("177");
+    T a("9587");
+    T b("3591");
+    T c("177");
 
-    BigInteger calculatedResult = a.ModBarrett(b,c);
+    T calculatedResult = a.ModBarrett(b,c);
     int expectedResult = 205484;
 
     std::cout<<"\n"<<d.ConvertToInt()<<"\n";	//for testing purpose

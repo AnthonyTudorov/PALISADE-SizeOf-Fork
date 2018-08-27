@@ -44,53 +44,36 @@
 //using namespace std;
 using namespace lbcrypto;
 
-
-class UnitTestMatrix : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-  }
-
-  virtual void TearDown() {
-    // Code here will be called immediately after each test
-    // (right before the destructor).
-  }
-};
-
-/************************************************/
-/*	TESTING METHODS OF BININT CLASS		*/
-/************************************************/
-
-/************************************************/
-/* TESTING BASIC MATH METHODS AND OPERATORS     */
-/************************************************/
-
-static function<Poly()> secureIL2nAlloc() {
-    BigInteger secureModulus("8590983169");
-    BigInteger secureRootOfUnity("4810681236");
-    return Poly::Allocator(
-        shared_ptr<ILParams>( new ILParams(
+template<typename Element>
+static function<Element()> secureIL2nAlloc() {
+    typename Element::Integer secureModulus("8590983169");
+    typename Element::Integer secureRootOfUnity("4810681236");
+    return Element::Allocator(
+        shared_ptr<typename Element::Params>( new typename Element::Params(
         2048, secureModulus, secureRootOfUnity) ),
         EVALUATION
         );
 }
 
-static function<Poly()> fastIL2nAlloc() {
+template<typename Element>
+static function<Element()> fastIL2nAlloc() {
 	usint m = 16;
-	BigInteger modulus("67108913");
-	BigInteger rootOfUnity("61564");
-    return Poly::Allocator(
-        shared_ptr<ILParams>( new ILParams(
+	typename Element::Integer modulus("67108913");
+	typename Element::Integer rootOfUnity("61564");
+    return Element::Allocator(
+        shared_ptr<typename Element::Params>( new typename Element::Params(
         m, modulus, rootOfUnity) ),
         EVALUATION
         );
 }
 
-static function<Poly()> fastUniformIL2nAlloc() {
+template<typename Element>
+static function<Element()> fastUniformIL2nAlloc() {
 	usint m = 16;
-	BigInteger modulus("67108913");
-	BigInteger rootOfUnity("61564");
-	return Poly::MakeDiscreteUniformAllocator(
-		shared_ptr<ILParams>(new ILParams(
+	typename Element::Integer modulus("67108913");
+	typename Element::Integer rootOfUnity("61564");
+	return Element::MakeDiscreteUniformAllocator(
+		shared_ptr<typename Element::Params>(new typename Element::Params(
 			m, modulus, rootOfUnity)),
 		EVALUATION
 	);
@@ -100,31 +83,35 @@ TEST(UTMatrix,serializer) {
 	Matrix<int32_t> m([](){return 0;}, 3, 5);
 }
 
-TEST(UTMatrix,basic_il2n_math){
-    Matrix<Poly> z(secureIL2nAlloc(), 2,2);
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Ones();
-    Matrix<Poly> I = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Identity();
+template<typename Element>
+void basic_il2n_math(const string& msg) {
+    Matrix<Element> z(secureIL2nAlloc<Element>(), 2,2);
+    Matrix<Element> n = Matrix<Element>(secureIL2nAlloc<Element>(), 2, 2).Ones();
+    Matrix<Element> I = Matrix<Element>(secureIL2nAlloc<Element>(), 2, 2).Identity();
     I.SetFormat(COEFFICIENT);
     I.SetFormat(EVALUATION);
-    EXPECT_EQ(n, I*n);
+    EXPECT_EQ(n, I*n) << msg;
 
     n -= n;
-    EXPECT_EQ(n, z);
+    EXPECT_EQ(n, z) << msg;
+}
 
-    //Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Ones();
-    //m.Fill(2);
-    //n.Fill(1);
-    //n = n + n;
-    //EXPECT_EQ(n, m);
+TEST(UTMatrix,basic_il2n_math){
+	RUN_ALL_POLYS(basic_il2n_math,"basic_il2n_math")
+}
+
+template<typename T>
+void basic_int_math(const string& msg) {
+    Matrix<T> z(T::Allocator, 2,2);
+    Matrix<T> n = Matrix<T>(T::Allocator, 2, 2).Ones();
+    Matrix<T> I = Matrix<T>(T::Allocator, 2, 2).Identity();
+    EXPECT_EQ(n, I*n) << msg;
+    n -= n;
+    EXPECT_EQ(n, z) << msg;
 }
 
 TEST(UTMatrix,basic_int_math){
-    Matrix<BigInteger> z(BigInteger::Allocator, 2,2);
-    Matrix<BigInteger> n = Matrix<BigInteger>(BigInteger::Allocator, 2, 2).Ones();
-    Matrix<BigInteger> I = Matrix<BigInteger>(BigInteger::Allocator, 2, 2).Identity();
-    EXPECT_EQ(n, I*n);
-    n -= n;
-    EXPECT_EQ(n, z);
+	RUN_ALL_BACKENDS_INT(basic_int_math,"basic_int_math")
 }
 
 TEST(UTMatrix,basic_intvec_math){
@@ -156,21 +143,21 @@ TEST(UTMatrix,basic_intvec_math){
 }
 
 TEST(UTMatrix, transpose){
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 4, 2).Ones();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Ones();
     Matrix<Poly> nT = Matrix<Poly>(n).Transpose();
-    Matrix<Poly> I = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Identity();
+    Matrix<Poly> I = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 2).Identity();
     EXPECT_EQ(nT, I*nT);
 }
 
 TEST(UTMatrix, scalar_mult){
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 4, 2).Ones();
-    auto one = secureIL2nAlloc()();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Ones();
+    auto one = secureIL2nAlloc<Poly>()();
     one = 1;
     EXPECT_EQ(n, one*n);
     EXPECT_EQ(n, n*one);
 
-    //auto two = secureIL2nAlloc()();
-    //Matrix<Poly> twos = Matrix<Poly>(secureIL2nAlloc(), 4, 2).Fill(2);
+    //auto two = secureIL2nAlloc<Poly>()();
+    //Matrix<Poly> twos = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Fill(2);
     //*two = 2;
     //EXPECT_EQ(*two*n, twos);
     //EXPECT_EQ(n**two, twos);
@@ -180,10 +167,10 @@ TEST(UTMatrix, Poly_mult_square_matrix) {
 
 	int32_t dimension = 8;
 
-	Matrix<Poly> A = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<Poly> B = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<Poly> C = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	Matrix<Poly> I = Matrix<Poly>(fastIL2nAlloc(), dimension, dimension).Identity();
+	Matrix<Poly> A = Matrix<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	Matrix<Poly> B = Matrix<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	Matrix<Poly> C = Matrix<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	Matrix<Poly> I = Matrix<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension).Identity();
 
 	EXPECT_EQ(A, A*I) << "Matrix multiplication of two Poly2Ns: A = AI - failed.\n";
 	EXPECT_EQ(A, I*A) << "Matrix multiplication of two Poly2Ns: A = IA - failed.\n";
@@ -201,10 +188,10 @@ TEST(UTMatrix, Poly_mult_square_matrix_caps) {
 
 	int32_t dimension = 16;
 
-	MatrixStrassen<Poly> A = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	MatrixStrassen<Poly> B = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	MatrixStrassen<Poly> C = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension, fastUniformIL2nAlloc());
-	MatrixStrassen<Poly> I = MatrixStrassen<Poly>(fastIL2nAlloc(), dimension, dimension).Identity();
+	MatrixStrassen<Poly> A = MatrixStrassen<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	MatrixStrassen<Poly> B = MatrixStrassen<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	MatrixStrassen<Poly> C = MatrixStrassen<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension, fastUniformIL2nAlloc<Poly>());
+	MatrixStrassen<Poly> I = MatrixStrassen<Poly>(fastIL2nAlloc<Poly>(), dimension, dimension).Identity();
 
 	//EXPECT_EQ((A.Mult(B))(0, 0), (A.MultiplyCAPS(B, 2))(0, 0)) << "CAPS matrix multiplication of two Poly2Ns doesn't agree with Mult: A.Mult(B), A.MultiplyCAPS(B,2) - failed.\n";
 	EXPECT_EQ(A, A.Mult(I, 2)) << "CAPS matrix multiplication of two Poly2Ns: A = AI - failed.\n";
@@ -245,8 +232,8 @@ TEST(UTMatrix, cholesky) {
 }
 
 TEST(UTMatrix, gadget_vector) {
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 1, 4).GadgetVector();
-	auto v = secureIL2nAlloc()();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 1, 4).GadgetVector();
+	auto v = secureIL2nAlloc<Poly>()();
 	v = 1;
     EXPECT_EQ(v, n(0,0));
 	v = 2;
@@ -258,7 +245,7 @@ TEST(UTMatrix, gadget_vector) {
 }
 
 TEST(UTMatrix, rotate_vec_result) {
-    Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc(), 1, 2).Ones();
+    Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc<Poly>(), 1, 2).Ones();
     const Poly::Integer& modulus = n(0,0).GetModulus();
     n.SetFormat(COEFFICIENT);
     n(0,0).at(2)= 1;
@@ -279,7 +266,7 @@ TEST(UTMatrix, rotate_vec_result) {
 }
 
 TEST(UTMatrix, rotate) {
-    Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc(), 1, 2).Ones();
+    Matrix<Poly> n = Matrix<Poly>(fastIL2nAlloc<Poly>(), 1, 2).Ones();
 
     n.SetFormat(COEFFICIENT);
     n(0,0).at(2)= 1;
@@ -298,21 +285,21 @@ TEST(UTMatrix, rotate) {
 }
 
 TEST(UTMatrix, vstack) {
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 4, 2).Ones();
-    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc(), 8, 2).Ones();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Ones();
+    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc<Poly>(), 8, 2).Ones();
     EXPECT_EQ(m, n.VStack(n));
 }
 
 TEST(UTMatrix, hstack) {
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Ones();
-    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc(), 2, 4).Ones();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 2).Ones();
+    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 4).Ones();
     EXPECT_EQ(m, n.HStack(n));
 }
 
 TEST(UTMatrix, norm) {
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Ones();
+    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 2).Ones();
     EXPECT_EQ(1.0, n.Norm());
-    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc(), 2, 2).Identity();
+    Matrix<Poly> m = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 2).Identity();
     EXPECT_EQ(1.0, m.Norm());
 }
 

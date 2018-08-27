@@ -91,7 +91,7 @@ void BGVCrossCorrelation() {
 	BigInteger bigmodulus("80899135611688102162227204937217");
 	BigInteger bigroot("77936753846653065954043047918387");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	float stdDev = 4;
@@ -176,7 +176,7 @@ void BFVCrossCorrelation() {
 	BigInteger bigmodulus("77302754575416994210914689");
 	BigInteger bigroot("76686504597021638023705542");
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::PreCompute(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
@@ -189,7 +189,7 @@ void BFVCrossCorrelation() {
 	BigInteger bigEvalMultModulusAlt("1461501637330902918203684832716283019655932547329");
 	BigInteger bigEvalMultRootOfUnityAlt("570268124029534407621996591794583635795426001824");
 
-	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector, BigInteger>(m, bigEvalMultModulus);
+	auto cycloPolyBig = GetCyclotomicPolynomial<BigVector>(m, bigEvalMultModulus);
 
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPolyBig, bigEvalMultModulus);
 

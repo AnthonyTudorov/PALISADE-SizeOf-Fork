@@ -291,16 +291,16 @@ inline Matrix<Element>& Matrix<Element>::HStack(Matrix<Element> const& other) {
     return *this;
 }
 
-template<class Element>
-void Matrix<Element>::deepCopyData(data_t const& src) {
-    data.clear();
-    data.resize(src.size());
-    for (size_t row = 0; row < src.size(); ++row) {
-        for (auto elem = src[row].begin(); elem != src[row].end(); ++elem) {
-            data[row].push_back(*elem);
-        }
-    }
-}
+//template<class Element>
+//void Matrix<Element>::deepCopyData(data_t const& src) {
+//    data.clear();
+//    data.resize(src.size());
+//    for (size_t row = 0; row < src.size(); ++row) {
+//        for (auto elem = src[row].begin(); elem != src[row].end(); ++elem) {
+//            data[row].push_back(*elem);
+//        }
+//    }
+//}
 
 /*
  * Multiply the matrix by a vector of 1's, which is the same as adding all the

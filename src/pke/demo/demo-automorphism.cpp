@@ -309,7 +309,7 @@ void ArbBGVAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -363,7 +363,7 @@ void ArbLTVAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -414,7 +414,7 @@ void ArbBFVAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -470,7 +470,7 @@ void ArbBFVAutomorphismCoeffArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -528,7 +528,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	usint batchSize = 8;
@@ -584,7 +584,7 @@ void ArbNullAutomorphismCoeffArray(usint i) {
 	BigInteger bigroot("77936753846653065954043047918387");
 	//std::cout << bigroot << std::endl;
 
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 	usint batchSize = 8;

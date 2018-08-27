@@ -139,7 +139,7 @@ void ArbBGVAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -156,7 +156,7 @@ void ArbBGVAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -173,7 +173,7 @@ void ArbBGVAutomorphismPackedArray(usint i) {
 	//BigInteger bigmodulus("80899135611688102162227204937217");
 	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -232,7 +232,7 @@ void EvalMult() {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -251,7 +251,7 @@ void EvalMult() {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -268,7 +268,7 @@ void EvalMult() {
 	//BigInteger bigmodulus("80899135611688102162227204937217");
 	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -334,7 +334,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -351,7 +351,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -368,7 +368,7 @@ void ArbNullAutomorphismPackedArray(usint i) {
 	//BigInteger bigmodulus("80899135611688102162227204937217");
 	//BigInteger bigroot("77936753846653065954043047918387");
 
-	//auto cycloPoly = GetCyclotomicPolynomial<BigVector, BigInteger>(m, modulusQ);
+	//auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
 	//ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
 
@@ -431,7 +431,7 @@ void ArbBGVInnerProductPackedArray() {
 		q = lbcrypto::NextPrime(q, mArb);
 		init_moduli[i] = q;
 		init_rootsOfUnity[i] = RootOfUnity(mArb, init_moduli[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 
@@ -448,7 +448,7 @@ void ArbBGVInnerProductPackedArray() {
 		q = lbcrypto::NextPrime(q, mNTT);
 		init_moduli_NTT[i] = q;
 		init_rootsOfUnity_NTT[i] = RootOfUnity(mNTT, init_moduli_NTT[i]);
-		auto cycloPoly = GetCyclotomicPolynomial<NativeVector, NativeInteger>(m, q);
+		auto cycloPoly = GetCyclotomicPolynomial<NativeVector>(m, q);
 		ChineseRemainderTransformArb<NativeVector>::SetCylotomicPolynomial(cycloPoly, q);
 	}
 

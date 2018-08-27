@@ -135,6 +135,18 @@ public:
 	 */
 	Matrix<Element>& Ones();
 
+	// Macro for convenient definitions of class implementations of special functions
+#define ONES_FOR_TYPE(T)			\
+	template<>					\
+	Matrix<T>& Matrix<T>::Ones() {		\
+		for (size_t row = 0; row < rows; ++row) {	\
+			for (size_t col = 0; col < cols; ++col) { \
+				data[row][col] = 1;			\
+			}						\
+		}						\
+		return *this;				\
+	}
+
 	/**
 	 * Fill matrix using the same element
 	 *
@@ -151,6 +163,21 @@ public:
 	 */
 	Matrix<Element>& Identity();
 
+#define IDENTITY_FOR_TYPE(T)			\
+	template<>					\
+	Matrix<T>& Matrix<T>::Identity() {		\
+		for (size_t row = 0; row < rows; ++row) {	\
+			for (size_t col = 0; col < cols; ++col) { \
+				if (row == col) {			\
+					data[row][col] = 1;			\
+				} else {				\
+					data[row][col] = 0;			\
+				}					\
+			}						\
+		}						\
+		return *this;				\
+	}
+
 	/**
 	 * Sets the first row to be powers of two for when the base is two
 	 *
@@ -159,12 +186,41 @@ public:
 	 */
 	Matrix<Element> GadgetVector(int64_t base = 2) const;
 
+#define GADGET_FOR_TYPE(T)					\
+	template<>							\
+	Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
+		Matrix<T> g(allocZero, rows, cols);				\
+		auto base_matrix = allocZero();				\
+		base_matrix = base;					\
+		g(0, 0) = 1;						\
+		for (size_t col = 1; col < cols; ++col) {			\
+			g(0, col) = g(0, col-1) * base_matrix;			\
+		}								\
+		return g;							\
+	}
+
 	/**
 	 * Computes the infinity norm
 	 *
 	 * @return the norm in double format
 	 */
 	double Norm() const;
+
+#define NORM_FOR_TYPE(T)			\
+	template<>					\
+	double Matrix<T>::Norm() const {		\
+		double retVal = 0.0;			\
+		double locVal = 0.0;			\
+		for (size_t row = 0; row < rows; ++row) {	\
+			for (size_t col = 0; col < cols; ++col) { \
+				locVal = data[row][col].Norm();	\
+				if (locVal > retVal) {			\
+					retVal = locVal;			\
+				}					\
+			}						\
+		}						\
+		return retVal;				\
+	}
 
 	/**
 	 * Matrix multiplication
@@ -296,7 +352,13 @@ public:
 	 *
 	 * @param &format the enum value corresponding to coefficient or evaluation representation
 	 */
-	void SetFormat(Format format);
+	void SetFormat(Format format) {
+		for (size_t row = 0; row < rows; ++row) {
+			for (size_t col = 0; col < cols; ++col) {
+				data[row][col].SetFormat(format);
+			}
+		}
+	}
 
 
 	/**
@@ -528,6 +590,15 @@ public:
 	 */
 	bool Deserialize(const Serialized& serObj);
 
+#define MATRIX_NOT_SERIALIZABLE(T) \
+	template<> \
+	bool Matrix<T>::Serialize(Serialized* serObj) const { \
+		PALISADE_THROW(serialize_error,"Not implemented"); \
+	} \
+	template<> \
+	bool Matrix<T>::Deserialize(const Serialized& serObj) { \
+		PALISADE_THROW(deserialize_error,"Not implemented"); \
+	}
 
 private:
 	data_t data;
@@ -537,7 +608,15 @@ private:
 	//mutable int NUM_THREADS = 1;
 
 	//deep copy of data - used for copy constructor
-	void deepCopyData(data_t const& src);
+	void deepCopyData(data_t const& src) {
+	    data.clear();
+	    data.resize(src.size());
+	    for (size_t row = 0; row < src.size(); ++row) {
+	        for (auto elem = src[row].begin(); elem != src[row].end(); ++elem) {
+	            data[row].push_back(*elem);
+	        }
+	    }
+	}
 
 };
 
@@ -626,6 +705,22 @@ Matrix<int32_t> ConvertToInt32(const Matrix<BigVector> &input, const BigInteger&
 template<typename Element>
 Matrix<Element> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
 
+#define SPLIT64_FOR_TYPE(T)						\
+  template<>								\
+  Matrix<T> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+    auto zero_alloc = T::Allocator(params, COEFFICIENT);		\
+    size_t rows = other.GetRows() / n;					\
+    Matrix<T> result(zero_alloc, rows, 1);				\
+    for (size_t row = 0; row < rows; ++row) {				\
+      std::vector<int64_t> values(n);					\
+      for (size_t i = 0; i < n; ++i)					\
+	values[i] = other(row*n + i, 0);				\
+      result(row, 0) = values;						\
+    }									\
+    return result;							\
+  }
+
+
 /**
  * Another method for splitting a vector of int32_t into a vector of ring elements with ring dimension n
  *
@@ -637,6 +732,21 @@ Matrix<Element> SplitInt64IntoElements(Matrix<int64_t> const& other, size_t n, c
 template<typename Element>
 Matrix<Element> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
 
+#define SPLIT32ALT_FOR_TYPE(T)						\
+template<>								\
+Matrix<T> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::Allocator(params, COEFFICIENT);		\
+	size_t rows = other.GetRows();					\
+	Matrix<T> result(zero_alloc, rows, 1);			\
+	for (size_t row = 0; row < rows; ++row) {		\
+		std::vector<int32_t> values(n);				\
+		for (size_t i = 0; i < n; ++i)				\
+			values[i] = other(row, i);				\
+		result(row, 0) = values;						\
+	}									\
+	return result;						\
+}
+
 /**
  * Split a vector of int64_t into a vector of ring elements with ring dimension n
  *
@@ -647,5 +757,21 @@ Matrix<Element> SplitInt32AltIntoElements(Matrix<int32_t> const& other, size_t n
  */
 template<typename Element>
 Matrix<Element> SplitInt64AltIntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename Element::Params> params);
+
+#define SPLIT64ALT_FOR_TYPE(T)						\
+template<>								\
+Matrix<T> SplitInt64AltIntoElements(Matrix<int64_t> const& other, size_t n, const shared_ptr<typename T::Params> params) { \
+	auto zero_alloc = T::Allocator(params, COEFFICIENT);		\
+	size_t rows = other.GetRows();					\
+	Matrix<T> result(zero_alloc, rows, 1);				\
+	for (size_t row = 0; row < rows; ++row) {				\
+		std::vector<int64_t> values(n);					\
+		for (size_t i = 0; i < n; ++i)					\
+			values[i] = other(row, i);						\
+		result(row, 0) = values;						\
+	}									\
+	return result;							\
+}
+
 }
 #endif // LBCRYPTO_MATH_MATRIX_H

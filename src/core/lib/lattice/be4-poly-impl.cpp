@@ -27,6 +27,7 @@
 
 #include "../math/backend.h"
 #include "../lattice/backend.h"
+#include "../math/matrix.cpp"
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
@@ -37,5 +38,15 @@ namespace lbcrypto {
 template class ElemParams<M4Integer>;
 template class ILParamsImpl<M4Integer>;
 template class PolyImpl<M4Vector>;
+
+template class Matrix<M4Poly>;
+ONES_FOR_TYPE(M4Poly)
+IDENTITY_FOR_TYPE(M4Poly)
+GADGET_FOR_TYPE(M4Poly)
+NORM_FOR_TYPE(M4Poly)
+MATRIX_NOT_SERIALIZABLE(M4Poly)
+SPLIT64_FOR_TYPE(M4Poly)
+SPLIT64ALT_FOR_TYPE(M4Poly)
+SPLIT32ALT_FOR_TYPE(M4Poly)
 
 }

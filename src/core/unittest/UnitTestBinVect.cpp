@@ -46,11 +46,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-extern bool TestB2;
-extern bool TestB4;
-extern bool TestB6;
-extern bool TestNative;
-
 //---------------------TESTING INTEGER OPERATIONS ON VECTOR---------------------------------//
 
 /*

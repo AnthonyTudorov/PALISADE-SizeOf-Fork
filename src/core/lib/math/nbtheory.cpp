@@ -487,8 +487,8 @@ namespace lbcrypto {
 	}
 
 	/* Calculate the remainder from polynomial division */
-	template<typename IntVector, typename IntType>
-	IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const IntType &modulus) {
+	template<typename IntVector>
+	IntVector PolyMod(const IntVector &dividend, const IntVector &divisor, const typename IntVector::Integer &modulus) {
 
 		usint divisorLength = divisor.GetLength();
 		usint dividendLength = dividend.GetLength();
@@ -497,10 +497,10 @@ namespace lbcrypto {
 		usint runs = dividendLength - divisorLength + 1; //no. of iterations
 
 		//Precompute the Barrett mu parameter
-		IntType mu = ComputeMu<IntType>(modulus);
+		auto mu = ComputeMu<typename IntVector::Integer>(modulus);
 
-		auto mat = [](const IntType &x, const IntType &y, const IntType &z, const IntType &mod, const IntType &muBarrett) {
-			IntType result(z.ModBarrettSub(x*y, mod, muBarrett));
+		auto mat = [](const typename IntVector::Integer &x, const typename IntVector::Integer &y, const typename IntVector::Integer &z, const typename IntVector::Integer &mod, const typename IntVector::Integer &muBarrett) {
+			typename IntVector::Integer result(z.ModBarrettSub(x*y, mod, muBarrett));
 			return result;
 		};
 
@@ -508,7 +508,7 @@ namespace lbcrypto {
 
 		usint  divisorPtr;
 		for (usint i = 0; i < runs; i++) {
-			IntType divConst(runningDividend.at(dividendLength - 1));//get the highest degree coeff
+			typename IntVector::Integer divConst(runningDividend.at(dividendLength - 1));//get the highest degree coeff
 			divisorPtr = divisorLength - 1;
 			for (usint j = 0; j < dividendLength - i - 1; j++) {
 				if (divisorPtr > j) {
@@ -554,33 +554,32 @@ namespace lbcrypto {
 
 	}
 
-	template<typename IntVector, typename IntType>
-	IntVector GetCyclotomicPolynomial(usint m, const IntType &modulus) {
+	template<typename IntVector>
+	IntVector GetCyclotomicPolynomial(usint m, const typename IntVector::Integer &modulus) {
 
 		auto intCP = GetCyclotomicPolynomialRecursive(m);
 		IntVector result(intCP.size(), modulus);
 		for (usint i = 0; i < intCP.size(); i++) {
 			auto val = intCP.at(i);
 			if (intCP.at(i) > -1)
-				result.at(i)= IntType(val);
+				result.at(i) = typename IntVector::Integer(val);
 			else {
 				val *= -1;
-				result.at(i)= modulus - IntType(val);
+				result.at(i) = modulus - typename IntVector::Integer(val);
 			}
 
 		}
 
 		return result;
-
 	}
 
 
-	template<typename IntVector, typename IntType>
-	IntType SyntheticRemainder(const IntVector &dividend, const IntType &a, const IntType &modulus) {
+	template<typename IntVector>
+	typename IntVector::Integer SyntheticRemainder(const IntVector &dividend, const typename IntVector::Integer &a, const typename IntVector::Integer &modulus) {
 		auto val = dividend.at(dividend.GetLength() - 1);
 
 		//Precompute the Barrett mu parameter
-		IntType mu = ComputeMu<IntType>(modulus);
+		auto mu = ComputeMu<typename IntVector::Integer>(modulus);
 
 		for (int i = dividend.GetLength() - 2; i > -1; i--) {
 			val = dividend.at(i) + a*val;
@@ -590,8 +589,8 @@ namespace lbcrypto {
 		return val;
 	}
 
-	template<typename IntVector, typename IntType>
-	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const IntType &modulus) {
+	template<typename IntVector>
+	IntVector SyntheticPolyRemainder(const IntVector &dividend, const IntVector &aList, const typename IntVector::Integer &modulus) {
 		IntVector result(aList.GetLength(), modulus);
 		for (usint i = 0; i < aList.GetLength(); i++) {
 			result.at(i) = SyntheticRemainder(dividend, aList.at(i), modulus);
@@ -600,7 +599,7 @@ namespace lbcrypto {
 		return result;
 	}
 
-	template<typename IntVector, typename IntType>
+	template<typename IntVector>
 	IntVector PolynomialPower(const IntVector &input, usint power) {
 		usint finalDegree = (input.GetLength() - 1)*power;
 		IntVector finalPoly(finalDegree + 1, input.GetModulus());
@@ -611,13 +610,13 @@ namespace lbcrypto {
 		return finalPoly;
 	}
 
-	template<typename IntVector, typename IntType>
-	IntVector SyntheticPolynomialDivision(const IntVector &dividend, const IntType &a, const IntType &modulus) {
+	template<typename IntVector>
+	IntVector SyntheticPolynomialDivision(const IntVector &dividend, const typename IntVector::Integer &a, const typename IntVector::Integer &modulus) {
 		usint n = dividend.GetLength() - 1;
 		IntVector result(n, modulus);
 
 		//Precompute the Barrett mu parameter
-		IntType mu = ComputeMu<IntType>(modulus);
+		auto mu = ComputeMu<typename IntVector::Integer>(modulus);
 
 		result.at(n - 1)= dividend.at(n);
 		auto val(dividend.at(n));
