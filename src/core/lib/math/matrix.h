@@ -352,14 +352,7 @@ public:
 	 *
 	 * @param &format the enum value corresponding to coefficient or evaluation representation
 	 */
-	void SetFormat(Format format) {
-		for (size_t row = 0; row < rows; ++row) {
-			for (size_t col = 0; col < cols; ++col) {
-				data[row][col].SetFormat(format);
-			}
-		}
-	}
-
+	void SetFormat(Format format);
 
 	/**
 	 * Matrix addition
@@ -561,7 +554,11 @@ public:
 	 *
 	 */
 	void SwitchFormat();
-
+#define NOT_AN_ELEMENT_MATRIX(T) \
+	template<> \
+	void Matrix<T>::SwitchFormat() { \
+		PALISADE_THROW(not_available_error, "Not a matrix of Elements"); \
+	}
 
 	/*
 	 * Multiply the matrix by a vector whose elements are all 1's.  This causes the elements of each

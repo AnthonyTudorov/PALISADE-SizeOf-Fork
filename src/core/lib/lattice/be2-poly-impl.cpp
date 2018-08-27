@@ -25,9 +25,10 @@
  *
  */
 
-#include "../math/backend.h"
-#include "../lattice/backend.h"
-#include "../math/matrix.cpp"
+#include "math/backend.h"
+#include "lattice/backend.h"
+#include "math/matrix.cpp"
+#include "matrix-lattice-impl.cpp"
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"
@@ -48,5 +49,5 @@ MATRIX_NOT_SERIALIZABLE(M2Poly)
 SPLIT64_FOR_TYPE(M2Poly)
 SPLIT64ALT_FOR_TYPE(M2Poly)
 SPLIT32ALT_FOR_TYPE(M2Poly)
-
+template<> Matrix<M2Vector> RotateVecResult(Matrix<M2Poly> const& inMat);
 }

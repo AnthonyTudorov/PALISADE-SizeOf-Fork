@@ -347,7 +347,7 @@ void testParallelDiscreteUniformGenerator(typename V::Integer &modulus, std::str
 
 
 template<typename V>
-void BinaryUniformGenerator(const string& msg) {
+void BinaryUniformGeneratorTest(const string& msg) {
 
 	// fail if less than 0
 	{
@@ -391,12 +391,12 @@ void BinaryUniformGenerator(const string& msg) {
 }
 
 TEST(UTDistrGen, BinaryUniformGenerator) {
-	RUN_ALL_BACKENDS(BinaryUniformGenerator, "BinaryUniformGenerator")
+	RUN_ALL_BACKENDS(BinaryUniformGeneratorTest, "BinaryUniformGeneratorTest")
 }
 
  // mean test
 template<typename V>
-void TernaryUniformGenerator(const string& msg) {
+void TernaryUniformGeneratorTest(const string& msg) {
 
 	auto ternaryUniGen = TernaryUniformGeneratorImpl<V>();
 
@@ -424,7 +424,7 @@ void TernaryUniformGenerator(const string& msg) {
 }
 
 TEST(UTDistrGen, TernaryUniformGenerator) {
-	RUN_ALL_BACKENDS(TernaryUniformGenerator, "TernaryUniformGenerator")
+	RUN_ALL_BACKENDS(TernaryUniformGeneratorTest, "TernaryUniformGeneratorTest")
 }
 
 ////////////////////////////////////////////////
@@ -433,7 +433,7 @@ TEST(UTDistrGen, TernaryUniformGenerator) {
 
 
 template<typename V>
-void DiscreteGaussianGenerator(const string& msg) {
+void DiscreteGaussianGeneratorTest(const string& msg) {
 	//mean test
 
 	{
@@ -482,7 +482,7 @@ void DiscreteGaussianGenerator(const string& msg) {
 }
 
 TEST(UTDistrGen, DiscreteGaussianGenerator) {
-	RUN_ALL_BACKENDS(DiscreteGaussianGenerator, "DiscreteGaussianGenerator")
+	RUN_ALL_BACKENDS(DiscreteGaussianGeneratorTest, "DiscreteGaussianGeneratorTest")
 }
 
 template<typename V>

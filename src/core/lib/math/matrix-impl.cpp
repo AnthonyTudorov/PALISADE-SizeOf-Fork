@@ -42,17 +42,19 @@ namespace lbcrypto {
   template class Matrix<int>;
   template class Matrix<int64_t>;
 
-  ONES_FOR_TYPE(int32_t)
   ONES_FOR_TYPE(double)
+  ONES_FOR_TYPE(int)
+  ONES_FOR_TYPE(int64_t)
   ONES_FOR_TYPE(Field2n)
 
-  IDENTITY_FOR_TYPE(int32_t)
   IDENTITY_FOR_TYPE(double)
+  IDENTITY_FOR_TYPE(int)
+  IDENTITY_FOR_TYPE(int64_t)
   IDENTITY_FOR_TYPE(Field2n)
 
-  GADGET_FOR_TYPE(int32_t)
-  GADGET_FOR_TYPE(int64_t)
   GADGET_FOR_TYPE(double)
+  GADGET_FOR_TYPE(int)
+  GADGET_FOR_TYPE(int64_t)
 //  GADGET_FOR_TYPE(DCRTPoly)
   GADGET_FOR_TYPE(Field2n)
 
@@ -62,171 +64,15 @@ namespace lbcrypto {
     throw std::logic_error("Norm not defined for this type");	\
   }
 
-  NONORM_FOR_TYPE(int32_t)
   NONORM_FOR_TYPE(double)
-  NONORM_FOR_TYPE(BigInteger)
-  NONORM_FOR_TYPE(BigVector)
+  NONORM_FOR_TYPE(int)
+  NONORM_FOR_TYPE(int64_t)
   NONORM_FOR_TYPE(Field2n)
 
-//  template<>
-//  void Matrix<Poly>::SetFormat(Format format) {
-//    for (size_t row = 0; row < rows; ++row) {
-//      for (size_t col = 0; col < cols; ++col) {
-//    	  	  data[row][col].SetFormat(format);
-//      }
-//    }
-//  }
-//
-//  template<>
-//  void Matrix<NativePoly>::SetFormat(Format format) {
-//    for (size_t row = 0; row < rows; ++row) {
-//      for (size_t col = 0; col < cols; ++col) {
-//    	  	  data[row][col].SetFormat(format);
-//      }
-//    }
-//  }
-
-  Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat) {
-    Matrix<Poly> mat(inMat);
-    mat.SetFormat(COEFFICIENT);
-    size_t n = mat(0,0).GetLength();
-    BigInteger const& modulus = mat(0,0).GetModulus();
-    size_t rows = mat.GetRows() * n;
-    size_t cols = mat.GetCols() * n;
-    Matrix<BigInteger> result(BigInteger::Allocator, rows, cols);
-    for (size_t row = 0; row < mat.GetRows(); ++row) {
-      for (size_t col = 0; col < mat.GetCols(); ++col) {
-	for (size_t rotRow = 0; rotRow < n; ++rotRow) {
-	  for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-	    result(row*n + rotRow, col*n + rotCol) =
-                        mat(row, col).GetValues().at(
-						      (rotRow - rotCol + n) % n
-						      );
-	    //  negate (mod q) upper-right triangle to account for
-	    //  (mod x^n + 1)
-	    if (rotRow < rotCol) {
-	      result(row*n + rotRow, col*n + rotCol) = modulus.ModSub(result(row*n + rotRow, col*n + rotCol), modulus);
-	    }
-	  }
-	}
-      }
-    }
-    return result;
-  }
-
-  /**
-   *  Each element becomes a square matrix with columns of that element's
-   *  rotations in coefficient form.
-   */
-  Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat) {
-    Matrix<Poly> mat(inMat);
-    mat.SetFormat(COEFFICIENT);
-    size_t n = mat(0,0).GetLength();
-    BigInteger const& modulus = mat(0,0).GetModulus();
-    BigVector zero(1, modulus);
-    size_t rows = mat.GetRows() * n;
-    size_t cols = mat.GetCols() * n;
-    auto singleElemBinVecAlloc = [=](){ return BigVector(1, modulus); };
-    Matrix<BigVector> result(singleElemBinVecAlloc, rows, cols);
-    for (size_t row = 0; row < mat.GetRows(); ++row) {
-      for (size_t col = 0; col < mat.GetCols(); ++col) {
-	for (size_t rotRow = 0; rotRow < n; ++rotRow) {
-	  for (size_t rotCol = 0; rotCol < n; ++rotCol) {
-	    BigVector& elem = result(row*n + rotRow, col*n + rotCol);
-                    elem.at(0)=
-		      mat(row, col).GetValues().at((rotRow - rotCol + n) % n);
-	    //  negate (mod q) upper-right triangle to account for
-	    //  (mod x^n + 1)
-	    if (rotRow < rotCol) {
-	      result(row*n + rotRow, col*n + rotCol) = zero.ModSub(elem);
-	    }
-	  }
-	}
-      }
-    }
-    return result;
-  }
-
-  template<>
-  void Matrix<Poly>::SwitchFormat() {
-
-    if (rows == 1)
-      {
-	for (size_t row = 0; row < rows; ++row) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-	  for (size_t col = 0; col < cols; ++col) {
-	    data[row][col].SwitchFormat();
-	  }
-	}
-      }
-    else
-      {
-	for (size_t col = 0; col < cols; ++col) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-	  for (size_t row = 0; row < rows; ++row) {
-	    data[row][col].SwitchFormat();
-	  }
-	}
-      }
-  }
-
-  template<>
-  void Matrix<NativePoly>::SwitchFormat() {
-
-	if (rows == 1)
-	{
-		for (size_t row = 0; row < rows; ++row) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-			for (size_t col = 0; col < cols; ++col) {
-				data[row][col].SwitchFormat();
-			}
-		}
-	}
-	else
-	{
-		for (size_t col = 0; col < cols; ++col) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-			for (size_t row = 0; row < rows; ++row) {
-				data[row][col].SwitchFormat();
-			}
-		}
-	}
-}
-
-template<>
-  void Matrix<DCRTPoly>::SwitchFormat() {
-
-    if (rows == 1)
-      {
-	for (size_t row = 0; row < rows; ++row) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-	  for (size_t col = 0; col < cols; ++col) {
-	    data[row][col].SwitchFormat();
-	  }
-	}
-      }
-    else
-      {
-	for (size_t col = 0; col < cols; ++col) {
-#ifdef OMP
-#pragma omp parallel for
-#endif
-	  for (size_t row = 0; row < rows; ++row) {
-	    data[row][col].SwitchFormat();
-	  }
-	}
-      }
-  }
+  MATRIX_NOT_SERIALIZABLE(double)
+  MATRIX_NOT_SERIALIZABLE(int)
+  MATRIX_NOT_SERIALIZABLE(int64_t)
+  MATRIX_NOT_SERIALIZABLE(Field2n)
 
   // YSP removed the Matrix class because it is not defined for all possible data types
   // needs to be checked to make sure input matrix is used in the right places

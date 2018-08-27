@@ -24,9 +24,10 @@
  *
  */
 
-#include "../math/backend.h"
-#include "../lattice/backend.h"
-#include "../math/matrix.cpp"
+#include "math/backend.h"
+#include "lattice/backend.h"
+#include "math/matrix.cpp"
+#include "matrix-lattice-impl.cpp"
 
 #include "elemparams.cpp"
 #include "ilparams.cpp"

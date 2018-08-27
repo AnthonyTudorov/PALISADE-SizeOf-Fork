@@ -38,8 +38,6 @@ using std::invalid_argument;
 
 namespace lbcrypto {
 
-MATRIX_NOT_SERIALIZABLE(double)
-
 // TODO implement!
 #ifdef OUT
 template<>
