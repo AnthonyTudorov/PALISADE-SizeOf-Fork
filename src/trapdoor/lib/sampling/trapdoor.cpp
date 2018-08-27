@@ -237,6 +237,85 @@ namespace lbcrypto {
 
 	}
 
+	// Gaussian sampling as described in "Implementing Token-Based Obfuscation..."
+
+	template <class Element>
+	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSampSquareMat(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Matrix<Element>& U,
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base)
+	{
+
+		const shared_ptr<typename Element::Params> params = U(0,0).GetParams();
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
+
+		double c = (base + 1) * SIGMA;
+
+		const typename Element::Integer& modulus = A(0, 0).GetModulus();
+
+		//spectral bound s
+		double s = SPECTRAL_BOUND(n,k,base);
+
+		size_t d = T.m_r.GetRows();
+
+		//perturbation vector in evaluation representation
+		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, d*(k + 2), d));
+
+// Correct the perturbation sampling
+// START
+
+		ZSampleSigmaP(n, s, c, T, dgg, dggLargeSigma, pHat);
+
+// END
+
+		// It is assumed that A has dimension d x d*(k + 2) and pHat has the dimension of d*(k + 2) x d
+		// perturbedSyndrome is in the evaluation representation
+		Matrix<Element> perturbedSyndrome = U - (A.Mult(*pHat));
+
+		// converting perturbed syndrome to coefficient representation
+		perturbedSyndrome.SwitchFormat();
+
+		Matrix<Element> zHatMat(zero_alloc, d*k, d);
+
+		for (size_t i = 0; i < d; i++)
+		{
+			for (size_t j = 0; j < d; j++)
+			{
+				Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
+
+				LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome(i,j), c, k, modulus, base, dgg, &zHatBBI);
+
+				// Convert zHat from a matrix of BBI to a vector of Element ring elements
+				// zHat is in the coefficient representation
+				Matrix<Element> zHat = SplitInt64AltIntoElements<Element>(zHatBBI, n, params);
+
+				// Now converting it to the evaluation representation before multiplication
+				zHat.SwitchFormat();
+
+				for(size_t p=0; p<k; p++)
+					zHatMat(i*k+p,j) = zHat(p,0);
+			}
+		}
+
+		Matrix<Element> zHatPrime(zero_alloc, d*(k + 2), d);
+
+		Matrix<Element> rZhat = T.m_r.Mult(zHatMat); // d x d
+		Matrix<Element> eZhat = T.m_e.Mult(zHatMat); // d x d
+
+		for (size_t i = 0; i < d; i++) {
+			for (size_t j = 0; j < d; j++) {
+				zHatPrime(i,j) = (*pHat)(i,j) + rZhat(i,j);
+				zHatPrime(i+d,j) = (*pHat)(i+d,j) + eZhat(i,j);
+
+				for (size_t row = 2; row < k + 2; ++row) {
+					zHatPrime(i+row*d,j) = (*pHat)(i+row*d,j) + zHatMat(i+(row-2)*d,j);
+				}
+			}
+		}
+
+		return zHatPrime;
+
+	}
+
 	// On-line stage of pre-image sampling (includes only G-sampling)
 
 	template <class Element>

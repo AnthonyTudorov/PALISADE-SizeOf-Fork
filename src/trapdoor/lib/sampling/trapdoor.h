@@ -74,7 +74,7 @@ public:
 			int stddev, int64_t base = 2, bool bal = false);
 
 	/**
-	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation")
+	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation...")
 	*
 	* @param params ring element parameters
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
@@ -101,6 +101,23 @@ public:
 	*/
 	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u,
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
+
+	/**
+	* Gaussian sampling (described in "Implementing Token-Based Obfuscation...")
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = log2(q)/log2(base) + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &U syndrome matrix that Gaussian sampling is centered around
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling (only used in Peikert's method)
+	* @param base base of gadget matrix
+	* @return the sampled vector (matrix)
+	*/
+	static Matrix<Element> GaussSampSquareMat(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Matrix<Element> &U,
 		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
 
 	/**
