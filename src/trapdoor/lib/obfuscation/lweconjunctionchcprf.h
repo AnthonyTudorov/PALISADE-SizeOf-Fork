@@ -121,7 +121,7 @@ namespace lbcrypto {
 
 	private:
 		/**
-		 * Method to find estimate given ring dimension n
+		 * Method to find modulus estimate given ring dimension n
 		 * Used as a subroutine by constructor
 		 *
 		 * @param n ring dimension
@@ -147,12 +147,12 @@ namespace lbcrypto {
 
 		/**
 		 * Method to encode elem by path Ai -> Aj
-		 * Used as a subroutine by KeyGen and Constrain
+		 * Used as a subroutine by Constrain
 		 *
 		 * @param i path start node
 		 * @param j path end node
 		 * @param elem element to encode
-		 * @returrn encoding of elem
+		 * @return encoding of elem
 		 */
 		shared_ptr<Matrix<Element>> Encode(usint i, usint j, const Element &elem);
 

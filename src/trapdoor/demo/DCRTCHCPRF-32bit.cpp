@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 	TIC(t);
 	auto constrainedKey = algorithm.Constrain(key,  pattern);
 	processingTime = TOC(t);
-	std::cout << "Contstrained Key Generation: " << processingTime << "ms" << std::endl;
+	std::cout << "Constrained Key Generation: " << processingTime << "ms" << std::endl;
 
 	TIC(t);
 	const auto value1 = algorithm.Evaluate(           key, input1);
@@ -91,13 +91,13 @@ int main(int argc, char* argv[]) {
 	const auto value4 = algorithm.Evaluate(constrainedKey, input2);
 	processingTime = TOC(t);
 	std::cout << "Evaluation (constrained): 2 * " << processingTime / 2 << "ms" << std::endl;
-	//std::cout << value1 << std::endl;
-	//std::cout << value2 << std::endl;
+	//std::cout << *value1 << std::endl;
+	//std::cout << *value2 << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
 	std::cout << "input 1: " << input1 << std::endl;
 	std::cout << (*value1 == *value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
-	//std::cout << value3 << std::endl;
-	//std::cout << value4 << std::endl;
+	//std::cout << *value3 << std::endl;
+	//std::cout << *value4 << std::endl;
 	std::cout << "input 2: " << input2 << std::endl;
 	std::cout << (*value3 == *value4 ? "Matched (Incorrect)" : "Did not match (Correct)") << std::endl;
 }
