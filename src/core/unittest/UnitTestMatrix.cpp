@@ -114,19 +114,20 @@ TEST(UTMatrix,basic_int_math){
 	RUN_ALL_BACKENDS_INT(basic_int_math,"basic_int_math")
 }
 
-TEST(UTMatrix,basic_intvec_math){
+template<typename V>
+void basic_intvec_math(const string& msg) {
 
   bool dbg_flag = false;
 
-    BigInteger modulus("67108913");
+    typename V::Integer modulus("67108913");
     DEBUG("1");
     auto singleAlloc = [=](){ return BigVector(1, modulus); };
     DEBUG("2");
-    Matrix<BigVector> z(singleAlloc, 2,2);
+    Matrix<V> z(singleAlloc, 2,2);
     DEBUG("3");
-    Matrix<BigVector> n = Matrix<BigVector>(singleAlloc, 2, 2).Ones();
+    Matrix<V> n = Matrix<V>(singleAlloc, 2, 2).Ones();
     DEBUG("4");
-    Matrix<BigVector> I = Matrix<BigVector>(singleAlloc, 2, 2).Identity();
+    Matrix<V> I = Matrix<V>(singleAlloc, 2, 2).Identity();
     DEBUG("5");
     DEBUG("z mod 00 "<<z(0,0).GetModulus().ToString());
     DEBUG("z mod 01 "<<z(0,1).GetModulus().ToString());
@@ -142,11 +143,20 @@ TEST(UTMatrix,basic_intvec_math){
     DEBUG("8");
 }
 
-TEST(UTMatrix, transpose){
-    Matrix<Poly> n = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Ones();
-    Matrix<Poly> nT = Matrix<Poly>(n).Transpose();
-    Matrix<Poly> I = Matrix<Poly>(secureIL2nAlloc<Poly>(), 2, 2).Identity();
+TEST(UTMatrix,basic_intvec_math){
+	RUN_ALL_BACKENDS(basic_intvec_math,"basic_intvec_math")
+}
+
+template<typename Element>
+void transpose(const string& msg) {
+    Matrix<Element> n = Matrix<Element>(secureIL2nAlloc<Element>(), 4, 2).Ones();
+    Matrix<Element> nT = Matrix<Element>(n).Transpose();
+    Matrix<Element> I = Matrix<Element>(secureIL2nAlloc<Element>(), 2, 2).Identity();
     EXPECT_EQ(nT, I*nT);
+}
+
+TEST(UTMatrix,transpose){
+	RUN_ALL_POLYS(transpose,"transpose")
 }
 
 TEST(UTMatrix, scalar_mult){
@@ -155,12 +165,6 @@ TEST(UTMatrix, scalar_mult){
     one = 1;
     EXPECT_EQ(n, one*n);
     EXPECT_EQ(n, n*one);
-
-    //auto two = secureIL2nAlloc<Poly>()();
-    //Matrix<Poly> twos = Matrix<Poly>(secureIL2nAlloc<Poly>(), 4, 2).Fill(2);
-    //*two = 2;
-    //EXPECT_EQ(*two*n, twos);
-    //EXPECT_EQ(n**two, twos);
 }
 
 TEST(UTMatrix, Poly_mult_square_matrix) {

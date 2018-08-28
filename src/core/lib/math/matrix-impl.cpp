@@ -69,11 +69,6 @@ namespace lbcrypto {
   NONORM_FOR_TYPE(int64_t)
   NONORM_FOR_TYPE(Field2n)
 
-  MATRIX_NOT_SERIALIZABLE(double)
-  MATRIX_NOT_SERIALIZABLE(int)
-  MATRIX_NOT_SERIALIZABLE(int64_t)
-  MATRIX_NOT_SERIALIZABLE(Field2n)
-
   // YSP removed the Matrix class because it is not defined for all possible data types
   // needs to be checked to make sure input matrix is used in the right places
   // the assumption is that covariance matrix does not have large coefficients because it is formed by

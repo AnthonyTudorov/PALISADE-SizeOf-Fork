@@ -49,5 +49,7 @@ MATRIX_NOT_SERIALIZABLE(NativePoly)
 SPLIT64_FOR_TYPE(NativePoly)
 SPLIT64ALT_FOR_TYPE(NativePoly)
 SPLIT32ALT_FOR_TYPE(NativePoly)
+template Matrix<NativeVector> RotateVecResult(Matrix<NativePoly> const& inMat);
+template Matrix<NativeInteger> Rotate(Matrix<NativePoly> const& inMat);
 
 }

@@ -636,7 +636,8 @@ Matrix<Element> operator*(Element const& e, Matrix<Element> const& M) {
  * @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
  * @return the resulting matrix of big binary integers
  */
-Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat);
+template<typename Element>
+Matrix<typename Element::Integer> Rotate(Matrix<Element> const& inMat);
 
 /**
  *  Each element becomes a square matrix with columns of that element's
@@ -645,7 +646,8 @@ Matrix<BigInteger> Rotate(Matrix<Poly> const& inMat);
  * @param &inMat the matrix of power-of-2 cyclotomic ring elements to be rotated
  * @return the resulting matrix of big binary integers
  */
-Matrix<BigVector> RotateVecResult(Matrix<Poly> const& inMat);
+template<typename Element>
+Matrix<typename Element::Vector> RotateVecResult(Matrix<Element> const& inMat);
 
 /**
  *  Stream output operator

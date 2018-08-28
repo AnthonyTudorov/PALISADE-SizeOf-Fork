@@ -39,6 +39,7 @@ namespace lbcrypto {
 template class ElemParams<M6Integer>;
 template class ILParamsImpl<M6Integer>;
 template class PolyImpl<M6Vector>;
+template class DCRTPolyImpl<M6Vector>;
 
 template class Matrix<M6Poly>;
 ONES_FOR_TYPE(M6Poly)
@@ -49,5 +50,19 @@ MATRIX_NOT_SERIALIZABLE(M6Poly)
 SPLIT64_FOR_TYPE(M6Poly)
 SPLIT64ALT_FOR_TYPE(M6Poly)
 SPLIT32ALT_FOR_TYPE(M6Poly)
+template Matrix<M6Vector> RotateVecResult(Matrix<M6Poly> const& inMat);
+template Matrix<M6Integer> Rotate(Matrix<M6Poly> const& inMat);
+
+template class Matrix<M6DCRTPoly>;
+ONES_FOR_TYPE(M6DCRTPoly)
+IDENTITY_FOR_TYPE(M6DCRTPoly)
+GADGET_FOR_TYPE(M6DCRTPoly)
+NORM_FOR_TYPE(M6DCRTPoly)
+MATRIX_NOT_SERIALIZABLE(M6DCRTPoly)
+SPLIT64_FOR_TYPE(M6DCRTPoly)
+SPLIT64ALT_FOR_TYPE(M6DCRTPoly)
+SPLIT32ALT_FOR_TYPE(M6DCRTPoly)
+template Matrix<M6Vector> RotateVecResult(Matrix<M6DCRTPoly> const& inMat);
+template Matrix<M6Integer> Rotate(Matrix<M6DCRTPoly> const& inMat);
 
 }
