@@ -368,8 +368,8 @@ void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension){
 		matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
 	}
 
-	KPABE<Poly,Poly> agent;
-	agent.PolyVec2BalDecom111(ilParams, base, k+k, matrixDecomposePoly, &psi);
+
+	PolyVec2BalDecom<Poly,Poly,Poly>(ilParams, base, k+k, matrixDecomposePoly, &psi);
 
 	for(usint i = 0; i < psi.GetRows(); i++){
 				for(usint j = 0; j < psi.GetCols();j++){
