@@ -36,9 +36,7 @@
 #include "utils/utilities.h"
 
 #include "sampling/trapdoor.h"
-//#include "../../../src/lib/lattice/trapdoor.cpp"
 #include "obfuscation/lweconjunctionobfuscate.h"
-//#include "obfuscation/lweconjunctionobfuscate.cpp"
 
 //using namespace std;
 using namespace lbcrypto;
@@ -80,7 +78,7 @@ TEST(UTTrapdoor,sizes){
 	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
 
 	shared_ptr<ILParams> fastParams( new ILParams(m, modulus, rootOfUnity) );
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(fastParams, stddev);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(fastParams, stddev);
 
 	EXPECT_EQ(1U,trapPair.first.GetRows())
 		<< "Failure testing number of rows";
@@ -113,17 +111,17 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
+    std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
-	RingMat eHat = trapPair.second.m_e;
-	RingMat rHat = trapPair.second.m_r;
-	RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
+	Matrix<Poly> eyeKK = Matrix<Poly>(zero_alloc, k, k).Identity();
 
         //std::cout << eHat <<std::endl;
 	//std::cout << rHat <<std::endl;
 	//std::cout << eyeKK <<std::endl;
 
-	RingMat stackedTrap1 = eHat.VStack(rHat);
+	Matrix<Poly> stackedTrap1 = eHat.VStack(rHat);
 	//std::cout << stackedTrap2 <<std::endl;
 
 	EXPECT_EQ(2U,stackedTrap1.GetRows())
@@ -131,14 +129,14 @@ TEST(UTTrapdoor,TrapDoorPairTest){
 	EXPECT_EQ(k,stackedTrap1.GetCols())
 		<< "Failure testing number of colums";
 
-	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
+	Matrix<Poly> stackedTrap2 = stackedTrap1.VStack(eyeKK);
 
 	EXPECT_EQ(k+2,stackedTrap2.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,stackedTrap2.GetCols())
 		<< "Failure testing number of colums";
 
-        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+        //Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
 }
 
 TEST(UTTrapdoor,GadgetTest){
@@ -153,7 +151,7 @@ TEST(UTTrapdoor,GadgetTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
         auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
-        RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+        Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
 
 	EXPECT_EQ(1U,g.GetRows())
 		<< "Failure testing number of rows";
@@ -175,27 +173,27 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
     auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, stddev);
 
-	RingMat eHat = trapPair.second.m_e;
-	RingMat rHat = trapPair.second.m_r;
-	RingMat eyeKK = RingMat(zero_alloc, k, k).Identity();
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
+	Matrix<Poly> eyeKK = Matrix<Poly>(zero_alloc, k, k).Identity();
 
 	//std::cout << eHat <<std::endl;
 	//std::cout << rHat <<std::endl;
 	//std::cout << eyeKK <<std::endl;
 
 
-	RingMat stackedTrap1 = eHat.VStack(rHat);
-	RingMat stackedTrap2 = stackedTrap1.VStack(eyeKK);
+	Matrix<Poly> stackedTrap1 = eHat.VStack(rHat);
+	Matrix<Poly> stackedTrap2 = stackedTrap1.VStack(eyeKK);
 
-	RingMat trapMult = (trapPair.first)*(stackedTrap2);
+	Matrix<Poly> trapMult = (trapPair.first)*(stackedTrap2);
 	EXPECT_EQ(1U,trapMult.GetRows())
 		<< "Failure testing number of rows";
 	EXPECT_EQ(k,trapMult.GetCols())
 		<< "Failure testing number of colums";
 
-    RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+    Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
     EXPECT_EQ(g, trapMult);
 }
 
@@ -356,10 +354,10 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
 	//auto zero_alloc = Poly::Allocator(params, COEFFICIENT);
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
-	RingMat eHat = trapPair.second.m_e;
-	RingMat rHat = trapPair.second.m_r;
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
 	//auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
 
 	Poly::DggType dgg(sigma);
@@ -377,7 +375,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	u.SwitchFormat();
 	DEBUG("u "<<u);
 
-	RingMat z = RLWETrapdoorUtility<Poly>::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
+	Matrix<Poly> z = RLWETrapdoorUtility<Poly>::GaussSamp(m / 2, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
 
 	//Matrix<Poly> uEst = trapPair.first * z;
 
@@ -453,10 +451,10 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 
 	//std::cout << 50 / (c*sigma) << std::endl;
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGen(params, sigma);
 
-	RingMat eHat = trapPair.second.m_e;
-	RingMat rHat = trapPair.second.m_r;
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
 
 	Poly::DggType dgg(sigma);
 	Poly::DugType dug = Poly::DugType();
@@ -467,7 +465,7 @@ TEST(UTTrapdoor, TrapDoorPerturbationSamplingTest) {
 	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 
 	//Do perturbation sampling
-	shared_ptr<RingMat> pHat(new RingMat(zero_alloc, k + 2, 1));
+	shared_ptr<Matrix<Poly>> pHat(new Matrix<Poly>(zero_alloc, k + 2, 1));
 
 	Matrix<int32_t> p([]() { return 0; }, (2 + k)*n, 1);
 

@@ -31,11 +31,7 @@
 #include "../lib/math/backend.h"
 #include "../lib/abe/cp_abe.h"
 #include "../lib/abe/ibe.h"
-
 #include "../lib/abe/kp_abe.h"
-#include "../lib/abe/kp_abe.cpp" //note this needs to be removed soon
-
-
 
 using namespace std;
 using namespace lbcrypto;
@@ -214,12 +210,12 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-	RingMat publicElementB(zero_alloc, ell+1, m);
-	RingMat ctCin(zero_alloc, ell+2, m);
+	Matrix<Poly> publicElementB(zero_alloc, ell+1, m);
+	Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE<Poly, Poly> pkg, sender, receiver;
@@ -236,12 +232,12 @@ void UnitTestKPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat evalBf(Poly::Allocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMat evalCf(Poly::Allocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m); // CA
+	Matrix<Poly> evalBf(Poly::Allocator(ilParams, EVALUATION), 1, m);  //evaluated Bs
+	Matrix<Poly> evalCf(Poly::Allocator(ilParams, EVALUATION), 1, m);  // evaluated Cs
+	Matrix<Poly> ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m); // CA
 
 	// secret key corresponding to the circuit output
-	RingMat sk(zero_alloc, 2, m);
+	Matrix<Poly> sk(zero_alloc, 2, m);
 
 	// decrypted text
 	Poly dtext(ilParams, EVALUATION, true);
@@ -360,7 +356,7 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 
 	// Precompuations for FTT
@@ -368,8 +364,8 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-	RingMat publicElementB(zero_alloc, ell+1, m);
-	RingMat ctCin(zero_alloc, ell+2, m);
+	Matrix<Poly> publicElementB(zero_alloc, ell+1, m);
+	Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE<Poly, Poly> pkg, sender, receiver;
@@ -387,12 +383,12 @@ void UnitTestKPABEANDGate(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
 
 	// Secret key for the output of the circuit
-	RingMat sk(zero_alloc, 2, m);
+	Matrix<Poly> sk(zero_alloc, 2, m);
 
 	// text after the decryption
 	Poly dtext(ilParams, EVALUATION, true);
@@ -441,15 +437,15 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Trapdoor Generation
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
 
 	// Precompuations for FTT
 	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	Poly pubElemBeta(dug, ilParams, EVALUATION);
 
-	RingMat publicElementB(zero_alloc, ell+1, m);
-	RingMat ctCin(zero_alloc, ell+2, m);
+	Matrix<Poly> publicElementB(zero_alloc, ell+1, m);
+	Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
 	KPABE<Poly, Poly> pkg, sender, receiver;
@@ -467,12 +463,12 @@ void UnitTesKPABENANDGATE(int32_t base, usint k, usint ringDimension){
 	Poly ptext(ilParams, COEFFICIENT, true);
 
 	// circuit outputs
-	RingMat pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
-	RingMat ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> pubElemBf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> ctCf(Poly::Allocator(ilParams, EVALUATION), 1, m);
+	Matrix<Poly> ctCA(Poly::Allocator(ilParams, EVALUATION), 1, m);
 
 	// Secret key for the output of the circuit
-	RingMat sk(zero_alloc, 2, m);
+	Matrix<Poly> sk(zero_alloc, 2, m);
 
 	// text after the decryption
 	Poly dtext(ilParams, EVALUATION, true);
@@ -539,7 +535,7 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 	auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
 	auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
 
-	RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
+	Matrix<DCRTPoly> matrixTobeDecomposed(zero_alloc, 1, m);
 
 	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
@@ -551,19 +547,20 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 			}
 	}
 
-	RingMatDCRT results(zero_alloc_eval, 1, m);
-	RingMatDCRT g = RingMatDCRT(zero_alloc_eval, 1, m).GadgetVector(base);
+	Matrix<DCRTPoly> results(zero_alloc_eval, 1, m);
+	Matrix<DCRTPoly> g = Matrix<DCRTPoly>(zero_alloc_eval, 1, m).GadgetVector(base);
 
-	RingMatDCRT psiDCRT(zero_alloc, m, m);
-	RingMat psi(zero_alloc_poly, m, m);
+	Matrix<DCRTPoly> psiDCRT(zero_alloc, m, m);
+	Matrix<Poly> psi(zero_alloc_poly, m, m);
 
-	RingMat matrixDecomposePoly(zero_alloc_poly, 1, m);
+	Matrix<Poly> matrixDecomposePoly(zero_alloc_poly, 1, m);
 
 	for(usint i = 0; i < m; i++){
 		matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
 	}
 
-	lbcrypto::PolyVec2BalDecom(ilParams, base, k+k, matrixDecomposePoly, &psi);
+	KPABE<Poly, Poly> agent;
+	agent.PolyVec2BalDecom111(ilParams, base, k+k, matrixDecomposePoly, &psi);
 
 	for(usint i = 0; i < psi.GetRows(); i++){
 				for(usint j = 0; j < psi.GetCols();j++){
@@ -637,12 +634,12 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
 	// Trapdoor Generation
-	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
 
 	DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
-	RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
-	RingMatDCRT ctCin(zero_alloc, ell + 2, m);
+	Matrix<DCRTPoly> publicElementB(zero_alloc, ell + 1, m);
+	Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
 	KPABE<DCRTPoly, Poly> pkg, sender, receiver;
@@ -663,12 +660,12 @@ void UnitTestKPABEANDGateDCRT(int32_t base, usint ringDimension){
 	DCRTPoly ptext(ptext1, ilDCRTParams);
 
 	// circuit outputs
-	RingMatDCRT pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMatDCRT ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMatDCRT ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
+	Matrix<DCRTPoly> pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+	Matrix<DCRTPoly> ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+	Matrix<DCRTPoly> ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
 																   // secret key corresponding to the circuit output
-	RingMatDCRT sk(zero_alloc, 2, m);
+	Matrix<DCRTPoly> sk(zero_alloc, 2, m);
 
 	// decrypted text
 	DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
@@ -747,12 +744,12 @@ void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 	DCRTPoly::DugType dug = DCRTPoly::DugType();
 
 	// Trapdoor Generation
-	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapdoorA = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
 
 	DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
-	RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
-	RingMatDCRT ctCin(zero_alloc, ell + 2, m);
+	Matrix<DCRTPoly> publicElementB(zero_alloc, ell + 1, m);
+	Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
 	KPABE<DCRTPoly, Poly> pkg, sender, receiver;
@@ -772,12 +769,12 @@ void UnitTesKPABENANDGATEDCRT(int32_t base, usint ringDimension){
 	DCRTPoly ptext(ptext1, ilDCRTParams);
 
 	// circuit outputs
-	RingMatDCRT pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-	RingMatDCRT ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-	RingMatDCRT ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
+	Matrix<DCRTPoly> pubElemBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+	Matrix<DCRTPoly> ctCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+	Matrix<DCRTPoly> ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
 																   // secret key corresponding to the circuit output
-	RingMatDCRT sk(zero_alloc, 2, m);
+	Matrix<DCRTPoly> sk(zero_alloc, 2, m);
 
 	// decrypted text
 	DCRTPoly dtext(ilDCRTParams, EVALUATION, true);

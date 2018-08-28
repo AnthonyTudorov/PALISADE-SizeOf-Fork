@@ -54,25 +54,6 @@
  */
 namespace lbcrypto {
 
-    /**
-    * Setup function for Private Key Generator (PKG)
-    * Digit decomposition using higher bases with balanced representation
-    * Limits noise growth
-    * Temporarily here; but can be made a part of RingMat class
-    *
-    * @param ilParams parameter set
-    * @param base is a power of two
-    * @param k bit size of modulus
-    * @param &matrix to be decomposed
-	* @param *psi decomposed matrix
-    */
-	int PolyVec2BalDecom(
-		const shared_ptr<ILParams> ilParams,
-		int32_t base,
-		int k,
-		const RingMat &publElemB,
-		RingMat *psi
-	);
 /*Element is the main ring element used, while Element2 is interpolated ring element. e.g. DCRTPoly is element and Poly is Element2*/
 	template <class Element, class Element2>
 	class KPABE {
@@ -92,6 +73,7 @@ namespace lbcrypto {
 		 */
 		~KPABE() {
 		}
+
 
 		/**
 		* Setup function for Private Key Generator (PKG)
@@ -185,12 +167,12 @@ namespace lbcrypto {
 		* @param *evalCT evaluated ciphertext value
 		*/
 		void EvalCT(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB,
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &pubElemB,
 			const usint x[],  //attributes
-			const RingMat &origCT, // original ciphtertext
+			const Matrix<Element> &origCT, // original ciphtertext
 			usint *evalAttribute, // evaluated circuit
-			RingMat *evalCT //evaluated ciphertext
+			Matrix<Element> *evalCT //evaluated ciphertext
 		);
 
 		/**
@@ -207,10 +189,10 @@ namespace lbcrypto {
 		 * This is method for evaluating a single NAND gate
 		 */
 		void NANDGateEvalPK(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB0,
-			const RingMat &origPubElem,
-			RingMat *evalPubElem
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &pubElemB0,
+			const Matrix<Element> &origPubElem,
+			Matrix<Element> *evalPubElem
 		);
 
 
@@ -231,13 +213,13 @@ namespace lbcrypto {
 		 * This is method for evaluating a single NAND gate
 		 */
 		void NANDGateEvalCT(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &ctC0,
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &ctC0,
 			const usint x[],
-			const RingMat &origPubElem,
-			const RingMat &origCT,
+			const Matrix<Element> &origPubElem,
+			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			RingMat *evalCT
+			Matrix<Element> *evalCT
 		);
 
 
@@ -249,9 +231,9 @@ namespace lbcrypto {
 		* @param *evalPubElementBf evaluated value of public element
 		*/
 		void ANDGateEvalPK(
-			shared_ptr<ILParams> ilParams,
-			const RingMat &origPubElemB,
-			RingMat *evalPubElemBf
+			shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &origPubElemB,
+			Matrix<Element> *evalPubElemBf
 		);
 		/**
 		*Evaluation of simple AND Gate
@@ -264,12 +246,12 @@ namespace lbcrypto {
 		* @param *evalCT evaluated ciphertext value
 		*/
 		void ANDGateEvalCT(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> ilParams,
 			const usint x[2], //TBA
-			const RingMat &origPubElemB,
-			const RingMat &origCT,
+			const Matrix<Element> &origPubElemB,
+			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			RingMat *evalCT
+			Matrix<Element> *evalCT
 		);
 
 		/**
@@ -436,9 +418,51 @@ namespace lbcrypto {
 			usint *evalAttribute,
 			Matrix<Element> *evalCT,
 			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+				       );
+
+    /**
+    * Setup function for Private Key Generator (PKG)
+    * Digit decomposition using higher bases with balanced representation
+    * Limits noise growth
+    * Temporarily here; but can be made a part of RingMat class
+    *
+    * @param ilParams parameter set
+    * @param base is a power of two
+    * @param k bit size of modulus
+    * @param &matrix to be decomposed
+	* @param *psi decomposed matrix
+    */
+
+	void PolyVec2BalDecom111(
+		const shared_ptr<typename Element::Params> ilParams,
+		int32_t base,
+		int k,
+		const Matrix<Element> &publElemB,
+		Matrix<Element> *psi
+	);
+	void PolyVec2BalDecom112(
+		const shared_ptr<typename Element::Params> ilParams,
+		int32_t base,
+		int k,
+		const Matrix<Element> &publElemB,
+		Matrix<Element2> *psi
+	);
+	void PolyVec2BalDecom212(
+		const shared_ptr<typename Element2::Params> ilParams,
+		int32_t base,
+		int k,
+		const Matrix<Element> &publElemB,
+		Matrix<Element2> *psi
 	);
 
-
+	void PolyVec2BalDecom222(
+		const shared_ptr<typename Element2::Params> ilParams,
+		int32_t base,
+		int k,
+		const Matrix<Element2> &publElemB,
+		Matrix<Element2> *psi
+	);
+		
 	private:
 		usint m_k; //number of bits of the modulus
 		usint m_ell; //number of attributes
