@@ -321,6 +321,12 @@ namespace lbcrypto {
 
 	}
 
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::SampleMat(const Matrix<Field2n> & A, const Matrix<Field2n> & B,
+		const Matrix<Field2n> & D, const Matrix<Field2n> &C, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p){
+		return;
+	}
+
 	// Subroutine used by ZSampleSigma2x2 as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf
 	// f is in Coefficient representation
 	// c is in Coefficient representation

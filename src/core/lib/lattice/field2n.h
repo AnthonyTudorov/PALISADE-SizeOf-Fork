@@ -222,6 +222,83 @@ public:
 	}
 
 	/**
+	 * @brief In-place addition operation for field elements
+	 *
+	 * @param &element  right hand side element for operation
+	 * @return result of the operation
+	 */
+	const Field2n& operator+=(const Field2n &element) {
+		return *this = this->Plus(element);
+	}
+
+	/**
+	 * @brief In-place subtraction operation for field elements
+	 *
+	 * @param &element  right hand side element for operation
+	 * @return result of the operation
+	 */
+	const Field2n& operator-=(const Field2n &element) {
+		return *this = this->Minus(element);
+	}
+
+	/**
+	 * @brief Unary minus on a field element.
+	 * @return negation of the field element.
+	 */
+	Field2n operator-() const {
+		Field2n all0(size(), this->GetFormat(), true);
+		return all0 - *this;
+	}
+
+	/**
+	 * @brief Substraction operator for field elements
+	 *
+	 * @param &a left hand side field element
+	 * @param &b right hand side field element
+	 * @return result of the substraction operation
+	 */
+	friend inline Field2n operator-(const Field2n &a, const Field2n &b)
+	{
+		return a.Minus(b);
+	}
+
+	/**
+	 * @brief Addition operator for field elements
+	 *
+	 * @param &a left hand side field element
+	 * @param &b right hand side field element
+	 * @return result of the addition operation
+	 */
+	friend inline Field2n operator+(const Field2n &a, const Field2n &b)
+	{
+		return a.Plus(b);
+	}
+
+	/**
+	 * @brief Scalar addition operator for field elements
+	 *
+	 * @param &a left hand side field element
+	 * @param &b  the scalar to be added
+	 * @return result of the addition operation
+	 */
+	friend inline Field2n operator+(const Field2n &a, double scalar)
+	{
+		return a.Plus(scalar);
+	}
+
+	/**
+	 * @brief Multiplication operator for field elements
+	 *
+	 * @param &a left hand side field element
+	 * @param &b right hand side field element
+	 * @return result of the multiplication operation
+	 */
+	friend inline Field2n operator*(const Field2n &a, const Field2n &b)
+	{
+		return a.Times(b);
+	}
+
+	/**
 	 * @brief Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 	 * @return true if successfully serialized
@@ -261,52 +338,5 @@ inline std::ostream& operator<<(std::ostream& os, const Field2n& m)
 	return os;
 }
 
-/**
- * @brief Addition operator for field elements
- *
- * @param &a left hand side field element
- * @param &b right hand side field element
- * @return result of the addition operation
- */
-inline Field2n operator+(const Field2n &a, const Field2n &b)
-{
-	return a.Plus(b);
-}
-
-/**
- * @brief Scalar addition operator for field elements
- *
- * @param &a left hand side field element
- * @param &b  the scalar to be added
- * @return result of the addition operation
- */
-inline Field2n operator+(const Field2n &a, double scalar)
-{
-	return a.Plus(scalar);
-}
-
-/**
- * @brief Substraction operator for field elements
- *
- * @param &a left hand side field element
- * @param &b right hand side field element
- * @return result of the substraction operation
- */
-inline Field2n operator-(const Field2n &a, const Field2n &b)
-{
-	return a.Minus(b);
-}
-
-/**
- * @brief Multiplication operator for field elements
- *
- * @param &a left hand side field element
- * @param &b right hand side field element
- * @return result of the multiplication operation
- */
-inline Field2n operator*(const Field2n &a, const Field2n &b)
-{
-	return a.Times(b);
-}
 }
 #endif

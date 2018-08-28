@@ -322,111 +322,126 @@ public:
 		static void SamplePertSquareMat(size_t n, double s, double sigma,
 				const RLWETrapdoorPair<Element> &Tprime,
 				const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
-				shared_ptr<Matrix<Element>> perturbationVector){
+				shared_ptr<Matrix<Element>> perturbationVector)
+		{
+				Matrix<Element> R = Tprime.m_r;
+				Matrix<Element> E = Tprime.m_e;
 
-					Matrix<Element> Tprime0 = Tprime.m_e;
-					Matrix<Element> Tprime1 = Tprime.m_r;
+				const shared_ptr<typename Element::Params> params = R(0, 0).GetParams();
 
-					// k is the bit length
-					size_t k = Tprime0.GetCols();
+				// k is the bit length
+				size_t k = R.GetCols();
+				size_t d = R.GetRows();
 
-					const shared_ptr<typename Element::Params> params = Tprime0(0, 0).GetParams();
+				Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, d);
 
-					// all three Polynomials are initialized with "0" coefficients
-					Element va(params, EVALUATION, 1);
-					Element vb(params, EVALUATION, 1);
-					Element vd(params, EVALUATION, 1);
+				double sigmaLarge = sqrt(s * s - sigma * sigma);
 
-					for (size_t i = 0; i < k; i++) {
-						va += Tprime0(0, i)*Tprime0(0, i).Transpose();
-						vb += Tprime1(0, i)*Tprime0(0, i).Transpose();
-						vd += Tprime1(0, i)*Tprime1(0, i).Transpose();
-					}
+				// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+				// otherwise, use Karney's method
+				if (sigmaLarge > 3e5) {
 
-
-					//Switch the ring elements (Polynomials) to coefficient representation
-					va.SwitchFormat();
-					vb.SwitchFormat();
-					vd.SwitchFormat();
-
-					//Create field elements from ring elements
-					Field2n a(va), b(vb), d(vd);
-
-					double scalarFactor = -s * s * sigma * sigma / (s * s - sigma * sigma);
-
-					a = a.ScalarMult(scalarFactor);
-					b = b.ScalarMult(scalarFactor);
-					d = d.ScalarMult(scalarFactor);
-
-					a = a + s*s;
-					d = d + s*s;
-
-					//converts the field elements to DFT representation
-					a.SwitchFormat();
-					b.SwitchFormat();
-					d.SwitchFormat();
-
-					Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, 1);
-
-					double sigmaLarge = sqrt(s * s - sigma * sigma);
-
-					// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
-					// otherwise, use Karney's method
-					if (sigmaLarge > 3e5) {
-
-						//Karney rejection method
-						for (size_t i = 0; i < n * k; i++) {
-							p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+					//Karney rejection method
+					for (size_t i = 0; i < n * k; i++) {
+						for (size_t j = 0; j < d; j ++) {
+							p2ZVector(i, j) = dgg.GenerateIntegerKarney(0, sigmaLarge);
 						}
 					}
-					else
-					{
+				}
+				else
+				{
 
-						//Peikert's inversion method
-						std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
+					//Peikert's inversion method
+					std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k*d);
 
-						for (size_t i = 0; i < n * k; i++) {
-							p2ZVector(i, 0) = (dggVector.get())[i];
+					for (size_t i = 0; i < n * k; i++) {
+						for (size_t j = 0; j < d; j ++) {
+							p2ZVector(i, j) = (dggVector.get())[i*d+j];
 						}
-
 					}
-
-					//create k ring elements in coefficient representation
-					Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
-
-					//now converting to evaluation representation before multiplication
-					p2.SwitchFormat();
-
-					//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
-
-					//the dimension is 2x1 - a vector of 2 ring elements
-					auto zero_alloc =Element::Allocator(params, EVALUATION);
-					Matrix<Element> Tp2(zero_alloc, 2, 1);
-					Tp2(0,0) = (Tprime0 * p2)(0,0);
-					Tp2(1,0) = (Tprime1 * p2)(0,0);
-
-					//change to coefficient representation before converting to field elements
-					Tp2.SwitchFormat();
-
-
-					Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
-
-					c(0, 0) = Field2n(Tp2(0, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-					c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-
-					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2, 1));
-
-					LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
-
-					//create 2 ring elements in coefficient representation
-					Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
-
-					//Converts p1 to Evaluation representation
-					p1.SwitchFormat();
-
-					*perturbationVector = p1.VStack(p2);
 
 				}
+
+				//create a matrix of d*k x d ring elements in coefficient representation
+				Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector.ExtractRow(0), n, params);
+				for(size_t i = 1; i < d; i++) {
+					p2.VStack(SplitInt64IntoElements<Element>(p2ZVector.ExtractRow(i), n, params));
+				}
+
+				//now converting to evaluation representation before multiplication
+				p2.SwitchFormat();
+
+				//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
+
+				auto zero_alloc = Element::Allocator(params, EVALUATION);
+
+				// all three Polynomials are initialized with "0" coefficients
+				Matrix<Element> A = R*(R.Transpose()); // d x d
+				Matrix<Element> B = R*E; // d x d
+				Matrix<Element> D = E*(E.Transpose()); // d x d
+
+				//Switch the ring elements (Polynomials) to coefficient representation
+				A.SwitchFormat();
+				B.SwitchFormat();
+				D.SwitchFormat();
+
+				Matrix<Field2n> AF([]() { return Field2n(); }, d, d);
+				Matrix<Field2n> BF([]() { return Field2n(); }, d, d);
+				Matrix<Field2n> DF([]() { return Field2n(); }, d, d);
+
+				double scalarFactor = -sigma * sigma;
+
+				for (size_t i = 0; i < d; i++) {
+					for (size_t j = 0; j < d; j++) {
+						AF(i,j) = Field2n(A(i,j));
+						AF(i,j) = AF(i,j).ScalarMult(scalarFactor);
+						BF(i,j) = Field2n(B(i,j));
+						BF(i,j) = BF(i,j).ScalarMult(scalarFactor);
+						DF(i,j) = Field2n(D(i,j));
+						DF(i,j) = DF(i,j).ScalarMult(scalarFactor);
+						if (i == j) {
+							AF(i,j) = AF(i,j) + s*s;
+							DF(i,j) = DF(i,j) + s*s;
+						}
+					}
+				}
+
+				//converts the field elements to DFT representation
+				AF.SwitchFormat();
+				BF.SwitchFormat();
+				DF.SwitchFormat();
+
+				//the dimension is 2d x d
+				Matrix<Element> Tp2 = (R.VStack(E))*p2;
+
+				//change to coefficient representation before converting to field elements
+				Tp2.SwitchFormat();
+
+				Matrix<Field2n> c([]() { return Field2n(); }, 2*d, d);
+
+				for (size_t i = 0; i < d; i++) {
+					for (size_t j = 0; j < d; j++) {
+						c(i,j) = Field2n(Tp2(i, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+						c(i+d,j) = Field2n(Tp2(i+d, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+					}
+				}
+
+				shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, d));
+
+				LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
+
+				//create amtrix of 2d x d ring elements in coefficient representation
+				Matrix<Element> p1 = SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(0), n, params);
+				for(size_t i = 1; i < d; i++) {
+					p1.VStack(SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(i), n, params));
+				}
+
+				//Converts p1 to Evaluation representation
+				p1.SwitchFormat();
+
+				*perturbationVector = p1.VStack(p2);
+
+			}
 };
 
 } //end namespace crypto
