@@ -7,13 +7,14 @@ import math
 import time
 import numpy as np
 import fileTransfer
+import glm as g
 from decimal import *
 
 ##########################################################
 ##########################################################
 ##########################################################
 
-regSel = 2
+regSel = 3
 
 regAlg = ""
 MAXVALUE              = 0
@@ -32,7 +33,7 @@ NUMTHREADS            = 0
 
 if regSel == 1:
     regAlg = "NORMAL"
-elif regSel == 2: 
+elif regSel == 2:
     regAlg = "LOGISTIC"
 elif regSel == 3:
     regAlg = "POISSON"
@@ -46,7 +47,7 @@ if regAlg == "NORMAL":
     PLAINTEXTPRIMESIZE    = 6
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 2
+    REGRLOOPCOUNT         = 15
 
     NUMTHREADS            = 1
 elif regAlg == "LOGISTIC":
@@ -58,13 +59,13 @@ elif regAlg == "LOGISTIC":
     PLAINTEXTPRIMESIZE    = 5
     PLAINTEXTBITSIZE      = 20
 
-    REGRLOOPCOUNT         = 10
+    REGRLOOPCOUNT         = 15
 
-    NUMTHREADS            = 1
+    NUMTHREADS            = 8
 elif regAlg == "POISSON":
     MAXVALUE              = 10
     PRECISION             = 10
-    PRECISIONDECIMALSIZE  = 10 
+    PRECISIONDECIMALSIZE  = 10
     PRECISIONDECIMALSIZEX = 2
 
     PLAINTEXTPRIMESIZE    = 5
@@ -73,10 +74,10 @@ elif regAlg == "POISSON":
     REGRLOOPCOUNT         = 4
 
     NUMTHREADS            = 8
-    
+
 GlmParamList = [ MAXVALUE, PRECISION, PRECISIONDECIMALSIZE, PRECISIONDECIMALSIZEX,
                 PLAINTEXTPRIMESIZE, PLAINTEXTBITSIZE, REGRLOOPCOUNT, NUMTHREADS]
-                
+
 realResults = [ [3.6745554551111108,  0.7842383988522375,  1.2302013919502843,  -1.5370575140827381,   -2.7313786051999478],
                 [7.0926111620630845,  1.2856318959144208,  2.0123455188618156,  -2.7444339290424296,   -4.4630534104986532],
                [11.6168341053094544,  1.7605746013985570,  2.6966126939506729,  -4.0099278137242864,   -6.4006471598762067],
@@ -88,33 +89,37 @@ realResults = [ [3.6745554551111108,  0.7842383988522375,  1.2302013919502843,  
                [42.6355733455598482,  2.4652061276013080,  6.6806493557471898,  -9.4290109005654337,  -18.2854464630521498],
                [42.6378036527676798,  2.4652201932619415,  6.6808869990902311,  -9.4293851253192376,  -18.2861368433573190]]
 
+keyDir                  = "demoData/python/glm/client/keyDir"
+keyfileName             = "keyFileLinReg"
+ciphertextDataDir       = "demoData/python/glm/client/ciphertextDataDir"
+ciphertextDataFileName  = "Vertical_Artifical_Data"
+plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
+plaintextDataFileName   = "rev_10k_poisson.csv"
+
 ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
 ciphertextWFileName    = "ciphertext-w"
 
-ciphertextXWFileName  = "ciphertext-xw"
+ciphertextXWFileName   = "ciphertext-xw"
 
 ciphertextMUFileName    = "ciphertext-mu"
 ciphertextSFileName     = "ciphertext-S"
-ciphertextC0FileName    = "ciphertext-C0"
 ciphertextC1FileName    = "ciphertext-C1"
 ciphertextC2FileName    = "ciphertext-C2"
-ciphertextC1C2FileName = "ciphertext-C1C2"
+ciphertextC1C2FileName  = "ciphertext-C1C2"
 
-keyDir                  = "demoData/python/glm/client/keyDir"
-keyfileName             = "keyFileLinReg"
-plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
-plaintextDataFileName   = "fishData.csv"
-ciphertextDataDir       = "demoData/python/glm/client/ciphertextDataDir"
-ciphertextDataFileName  = "Vertical_Artifical_Data"
-ciphertextResultDir     = "demoData/python/glm/client/ciphertextResultDir" 
-ciphertextResultFileName= "Vertical_Artifical_Ciphertext_Result"
+pathList = [keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, plaintextDataDir, plaintextDataFileName,
+            ciphertextXFileName, ciphertextYFileName, ciphertextWFileName, ciphertextXWFileName, ciphertextMUFileName,
+            ciphertextSFileName, ciphertextC1FileName, ciphertextC2FileName, ciphertextC1C2FileName]
 
-regResultList = [[0 for x in range(5)] for y in range(REGRLOOPCOUNT)] 
+
+regResultList = [[0 for x in range(5)] for y in range(REGRLOOPCOUNT)]
 
 timing = {"Keygen":0.0, "Encrypt":0.0, "SendParam":0.0, "SendKeyCrypt":0.0,
           "SendXY":0.0, "SendW":0.0, "RecvXW":0.0, "ComputeStep1":0.0, "SendMuS":0.0,
           "RecvC1":0.0, "ComputeStep2":0.0, "SendC1":0.0, "RecvC1":0.0, "ComputeStep3":0.0}
+
+matW = []
 
 ##########################################################
 ##########################################################
@@ -122,16 +127,20 @@ timing = {"Keygen":0.0, "Encrypt":0.0, "SendParam":0.0, "SendKeyCrypt":0.0,
 totalTime0 = time.time()
 glm = pycrypto.GLMClient()
 
+glm.SetFileNamesPaths(pathList)
+glm.SetGLMParams(GlmParamList)
+
 t0 = time.time()
-glm.KeyGen(keyDir, keyfileName, GlmParamList)
+glm.KeyGen()
 t1 = time.time()
 timing["Keygen"] = timing["Keygen"] + (t1-t0)
 
 t0 = time.time()
-glm.Encrypt(keyDir, keyfileName, plaintextDataDir, plaintextDataFileName, ciphertextDataDir, ciphertextDataFileName, 
-            ciphertextXFileName, ciphertextYFileName, ciphertextWFileName, GlmParamList)
+glm.Encrypt()
 t1 = time.time()
 timing["Encrypt"] = timing["Encrypt"] + (t1-t0)
+
+glm.SetGLMContext()
 
 ##########################################################
 ##########################################################
@@ -140,7 +149,7 @@ timing["Encrypt"] = timing["Encrypt"] + (t1-t0)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 ## Connect the socket to the port where the server is listening
-server_address = ('localhost', 1313)
+server_address = ('localhost', 1113)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
@@ -168,122 +177,121 @@ print 'Completed'
 print 'Send:   Key and CryptoContext...',
 t0 = time.time()
 for i in range(PLAINTEXTPRIMESIZE):
-    
+
     pubKeyPath = keyDir+"/"+keyfileName+"-public" + str(i) + ".txt"
     fileTransfer.sendFile(pubKeyPath, sock)
 
     evalKeyMultPath = keyDir+"/"+keyfileName+"-eval-mult" + str(i) + ".txt"
     fileTransfer.sendFile(evalKeyMultPath, sock)
-    
+
     evalKeySumPath  = keyDir+"/"+keyfileName+"-eval-sum" + str(i) + ".txt"
     fileTransfer.sendFile(evalKeySumPath, sock)
-    
+
     cryptoContPath  = keyDir+"/"+keyfileName+"-cryptocontext" + str(i) + ".txt"
     fileTransfer.sendFile(cryptoContPath, sock)
-                                                             
+
 t1 = time.time()
-print 'Completed'    
+print 'Completed'
 timing["SendKeyCrypt"] = timing["SendKeyCrypt"] + (t1-t0)
-                                                         
+
 ##########################################################
 
 # Send data
 print 'Send:   X and Y...',
 t0 = time.time()
 for i in range(PLAINTEXTPRIMESIZE):
-            
+
     ciphertextXPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextXFileName+"-" + str(i) + ".txt"
     fileTransfer.sendFile(ciphertextXPath, sock)
-        
+
     ciphertextYPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextYFileName+"-" + str(i) + ".txt"
     fileTransfer.sendFile(ciphertextYPath, sock)
-    
+
 t1 = time.time()
-timing["SendXY"] = timing["SendXY"] + (t1-t0)    
+timing["SendXY"] = timing["SendXY"] + (t1-t0)
 print 'Completed'
 
 ##########################################################
-    
+
 for loop in range(REGRLOOPCOUNT):
-    
+
     print '\n'
     print '########################################################'
     print '         Iteration ', loop
     print '########################################################'
 
-    
+    totaltimestart = time.time()
     print 'Send:   W...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
-    
+
         ciphertextWPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextWFileName+"-" + str(i) + ".txt"
         fileTransfer.sendFile(ciphertextWPath, sock)
-    
+
     t1 = time.time()
-    timing["SendW"] = timing["SendW"] + (t1-t0)    
+    timing["SendW"] = timing["SendW"] + (t1-t0)
     print 'Completed'
 
     ##########################################################
-    
+
     print 'Recv:   X*W...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
 
         ciphertextXWPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextXWFileName+"-" + str(i) + ".txt"
         fileTransfer.recieveFile(ciphertextXWPath, sock)
-    
+
     t1 = time.time()
-    timing["RecvXW"] = timing["RecvXW"] + (t1-t0) 
+    timing["RecvXW"] = timing["RecvXW"] + (t1-t0)
     print 'Completed'
-    
+
     ##########################################################
-    
-    print 'Comp:   Link Function (Step-1)...',    
+
+    print 'Comp:   Link Function (Step-1)...',
     t0 = time.time()
-    glm.Step1ComputeLink(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextMUFileName,  ciphertextSFileName,
-                         ciphertextXWFileName, ciphertextYFileName, regAlg, GlmParamList)
+    glm.Step1ComputeLink(regAlg)
     t1 = time.time()
-    timing["ComputeStep1"] = timing["ComputeStep1"] + (t1-t0)     
+    timing["ComputeStep1"] = timing["ComputeStep1"] + (t1-t0)
     print 'Completed'
-    
+
     ##########################################################
 
     # Send data
     print 'Send:   Mu and S...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
-        
+
         ciphertextMUPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextMUFileName+"-"+ str(i) + ".txt"
         fileTransfer.sendFile(ciphertextMUPath, sock)
-        
+
         ciphertextSPath = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextSFileName+"-"+ str(i) + ".txt"
         fileTransfer.sendFile(ciphertextSPath, sock)
-        
+
     t1 = time.time()
-    timing["SendMuS"] = timing["SendMuS"] + (t1-t0) 
+    timing["SendMuS"] = timing["SendMuS"] + (t1-t0)
     print 'Completed'
-    
+
     ##########################################################
-    
+
     print 'Recv:   C1=X^T*S*X...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
-               
+
         ciphertextC1Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1FileName+"-" + str(i) + ".txt"
         fileTransfer.recieveFile(ciphertextC1Path, sock)
- 
+
     t1 = time.time()
-    timing["RecvC1"] = timing["RecvC1"] + (t1-t0)     
+    timing["RecvC1"] = timing["RecvC1"] + (t1-t0)
     print 'Completed'
-    
+
     ##########################################################
-    
+
     print 'Comp:   C1^{-1}=(X^T*S*X)^{-1} (Step-2)...',
     t0 = time.time()
-    glm.Step2RescaleC1(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextC1FileName, GlmParamList)
-    
+    glm.Step2RescaleC1()
+
     t1 = time.time()
-    timing["ComputeStep2"] = timing["ComputeStep2"] + (t1-t0)     
+    timing["ComputeStep2"] = timing["ComputeStep2"] + (t1-t0)
     print 'Completed'
 
     ##########################################################
@@ -294,52 +302,61 @@ for loop in range(REGRLOOPCOUNT):
 
         ciphertextC1Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1FileName+"-" + str(i) + ".txt"
         fileTransfer.sendFile(ciphertextC1Path, sock)
-            
+
     t1 = time.time()
-    timing["SendC1"] = timing["SendC1"] + (t1-t0)     
+    timing["SendC1"] = timing["SendC1"] + (t1-t0)
     print 'Completed'
-    
+
     ##########################################################
-    
+
     print 'Recv:   w + C1^{-1}*C2 = w + (X^T*S*X)^{-1}*X^T*(y-mu)...',
     t0 = time.time()
     for i in range(PLAINTEXTPRIMESIZE):
-    
+
         ciphertextC1C2Path = ciphertextDataDir+"/"+ciphertextDataFileName+"-"+ciphertextC1C2FileName+"-" + str(i) + ".txt"
         fileTransfer.recieveFile(ciphertextC1C2Path, sock)
 
     t1 = time.time()
-    timing["RecvC1"] = timing["RecvC1"] + (t1-t0)  
-    print 'Completed'   
-    
+    timing["RecvC1"] = timing["RecvC1"] + (t1-t0)
+    print 'Completed'
+
     ##########################################################
-    
+
     print 'Rescale:w + (X^T*S*X)^{-1}*X^T*(y-mu)...',
     t0 = time.time()
-    regResults = glm.Step3RescaleRegressor(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, 
-                      ciphertextC1C2FileName, ciphertextWFileName, GlmParamList)
+    regResults = glm.Step3RescaleRegressor()
     t1 = time.time()
-    timing["ComputeStep3"] = timing["ComputeStep3"] + (t1-t0)     
-    print 'Completed' 
+    timing["ComputeStep3"] = timing["ComputeStep3"] + (t1-t0)
+    print 'Completed'
 
     ##########################################################
-    
-    print 'Error:', glm.ComputeError(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextMUFileName, 
-                   ciphertextYFileName, GlmParamList)
-
+    t0 = time.time()
+    print 'Error:', glm.ComputeError()
+    t1 = time.time()
+    print 'Error timing:\t', (t1-t0)
     ##########################################################
-    
+    totaltimefinish = time.time()
     print '\n',
     print '################################'
     print '   Results for w - Iteration ', loop
-    print '################################'  
+    print '################################'
     print 'Comp:', regResults
     # If the input data is fishData.csv display the real result
-    if plaintextDataFileName == "fishData.csv":
-        print 'Real:', realResults[loop]
+#    if plaintextDataFileName == "fishData.csv":
+#        print 'Real:', realResults[loop]
+#    print '################################'
+
+    matW = g.Compute(plaintextDataDir+"/"+plaintextDataFileName, matW, regAlg)
+
+#    print '######### Python Comp  ##############'
+    print 'Real:', matW.transpose()
     print '################################'
-    
+
+
+
     regResultList[loop] = regResults
+
+    print 'Time for Loop', loop,':', (totaltimefinish-totaltimestart)
 
 sock.close()
 
@@ -350,15 +367,15 @@ sock.close()
 print '\n'
 print '################################'
 print '   Results  of w '
-print '################################'  
+print '################################'
 for i in range(len(regResultList)):
     print 'Iter -', i,'   ',
-    
+
     for j in range(len(regResultList[i])):
         print "%.6f   " % (regResultList[i][j]),
-        
+
     print '\n',
-    
+
 ##########################################################
 ##########################################################
 ##########################################################
@@ -399,28 +416,3 @@ print "ComputeStep3:   ", timing["ComputeStep3"]
 
 
 glm.PrintTimings()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

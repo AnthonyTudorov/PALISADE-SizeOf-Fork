@@ -41,95 +41,87 @@ namespace glmcrypto{
 ////////////////////////////   CLIENT   /////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-	void GLMClient::KeyGen(const string keyDir,
-					 const string keyfileName,
-					 const boost::python::list& pythonList){
+	void GLMClient::SetFileNamesPaths(const boost::python::list& pythonList){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		GLMKeyGen(keyDir, keyfileName, glmParam);
+		vector<string> vecList = pythonListToCppStringVector(pythonList);
+		vectorToPathList(path, vecList);
 	}
 
+	void GLMClient::SetGLMParams(const boost::python::list& pythonList){
 
-	void GLMClient::Encrypt(const string keyDir,
-			 	 	  const string keyfileName,
-					  const string plaintextDataDir,
-					  const string plaintextDataFileName,
-					  const string ciphertextDataDir,
-					  const string ciphertextDataFileName,
-					  const string ciphertextXFileName,
-					  const string ciphertextYFileName,
-					  const string ciphertextWFileName,
-					  const boost::python::list& pythonList){
-
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
+		std::vector<uint64_t> glmParamVector = pythonListToCppIntVector(pythonList);
 		vectorToGlmParams(glmParam, glmParamVector);
-		GLMEncrypt(keyDir, keyfileName, plaintextDataDir, plaintextDataFileName, ciphertextDataDir, ciphertextDataFileName,
-				ciphertextXFileName, ciphertextYFileName, ciphertextWFileName, glmParam);
 	}
 
-	double GLMClient::ComputeError(const string keyDir,
-			   	   	   	 const string keyfileName,
-						 const string ciphertextDataDir,
-						 const string ciphertextDataFileName,
-						 const string ciphertextMUFileName,
-						 const string ciphertextYFileName,
-						 const boost::python::list& pythonList){
+	void GLMClient::SetGLMContext(){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
+		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
 
-		return GLMClientComputeError(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName,
-				ciphertextMUFileName, ciphertextYFileName, glmParam);
+			string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+			string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+			string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+			string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+			string skFileName = path.keyDir+"/"+path.keyfileName+"-private" + std::to_string(k) + ".txt";
+
+			// Deserialize the crypto context
+			CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
+			context.cc.push_back(cct);
+
+			context.cc[k]->Enable(ENCRYPTION);
+			context.cc[k]->Enable(SHE);
+
+			size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+			EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
+			PackedEncoding::SetParams(m, encodingParams);
+
+			DeserializeEvalSum(context.cc[k], esFileName);
+			DeserializeEvalMult(context.cc[k], emFileName);
+
+			string pathToFile;
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
+			Matrix<Ciphertext<DCRTPoly>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.x.push_back(xt);
+
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
+			Matrix<Ciphertext<DCRTPoly>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.y.push_back(yt);
+
+			LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(context.cc[k], pkFileName);
+			context.pk.push_back(pkt);
+
+			LPPrivateKey<DCRTPoly> skt = DeserializePrivateKey(context.cc[k], skFileName);
+			context.sk.push_back(skt);
+		}
 	}
 
-	void GLMClient::Step1ComputeLink(const string keyDir,
-			   	   	   	 const string keyfileName,
-						 const string ciphertextDataDir,
-						 const string ciphertextDataFileName,
-						 const string ciphertextMUFileName,
-						 const string ciphertextSFileName,
-						 const string ciphertextXWFileName,
-						 const string ciphertextYFileName,
-						 const string regAlgorithm,
-						 const boost::python::list& pythonList){
+	void GLMClient::KeyGen(){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		GLMClientLink(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName,
-				ciphertextMUFileName, ciphertextSFileName, ciphertextXWFileName, ciphertextYFileName, regAlgorithm, glmParam);
+		GLMKeyGen(path, glmParam);
 	}
 
-	void GLMClient::Step2RescaleC1(const string keyDir,
- 	 	 	   const string keyfileName,
-			   const string ciphertextDataDir,
-			   const string ciphertextDataFileName,
-			   const string ciphertextC1FileName,
-			   const boost::python::list& pythonList){
+	void GLMClient::Encrypt(){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		GLMClientRescaleC1(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextC1FileName, glmParam);
+		GLMEncrypt(context, path, glmParam);
 	}
 
-	vector<double> GLMClient::Step3RescaleRegressor(const string keyDir,
-						  const string keyfileName,
-						  const string ciphertextDataDir,
-						  const string ciphertextDataFileName,
-						  const string ciphertextC0C1C2FileName,
-						  const string ciphertextWFileName,
-						  const boost::python::list& pythonList){
+	double GLMClient::ComputeError(){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		return GLMClientRescaleRegressor(keyDir, keyfileName, ciphertextDataDir,
-						 ciphertextDataFileName, ciphertextC0C1C2FileName, ciphertextWFileName, glmParam);
+		return GLMClientComputeError(context, path, glmParam);
+	}
+
+	void GLMClient::Step1ComputeLink(const string regAlgorithm){
+
+		GLMClientLink(context, path, glmParam, regAlgorithm);
+	}
+
+	void GLMClient::Step2RescaleC1(){
+
+		GLMClientRescaleC1(context, path, glmParam);
+	}
+
+	vector<double> GLMClient::Step3RescaleRegressor(){
+
+		return GLMClientRescaleRegressor(context, path, glmParam);
 	}
 
 	void GLMClient::PrintTimings(){
@@ -142,58 +134,83 @@ namespace glmcrypto{
 ////////////////////////////   SERVER  //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-	void GLMServer::Step1ComputeXW(const string keyDir,
-					   const string keyfileName,
-					   const string ciphertextDataDir,
-					   const string ciphertextDataFileName,
-					   const string ciphertextXFileName,
-					   const string ciphertextWFileName,
-					   const string ciphertextResultFileName,
-					   const boost::python::list& pythonList){
+	void GLMServer::SetGLMContext(){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		GLMServerXW(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName,
-				ciphertextXFileName, ciphertextWFileName, ciphertextResultFileName, glmParam);
+		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
+
+			string ccFileName = path.keyDir+"/"+path.keyfileName+"-cryptocontext" + std::to_string(k) + ".txt";
+			string emFileName = path.keyDir+"/"+path.keyfileName+"-eval-mult" + std::to_string(k) + ".txt";
+			string esFileName = path.keyDir+"/"+path.keyfileName+"-eval-sum" + std::to_string(k) + ".txt";
+			string pkFileName = path.keyDir+"/"+path.keyfileName+"-public" + std::to_string(k) + ".txt";
+
+			// Deserialize the crypto context
+			CryptoContext<DCRTPoly> cct = DeserializeContext(ccFileName);
+			context.cc.push_back(cct);
+
+			context.cc[k]->Enable(ENCRYPTION);
+			context.cc[k]->Enable(SHE);
+
+			size_t m = context.cc[k]->GetCyclotomicOrder(); //params.CYCLOTOMICM;
+			EncodingParams encodingParams = context.cc[k]->GetEncodingParams();
+			PackedEncoding::SetParams(m, encodingParams);
+
+			DeserializeEvalSum(context.cc[k], esFileName);
+			DeserializeEvalMult(context.cc[k], emFileName);
+
+			string pathToFile;
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-" + path.ciphertextXFileName + "-" + std::to_string(k) + ".txt";
+			Matrix<Ciphertext<DCRTPoly>> xt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.x.push_back(xt);
+
+			pathToFile = path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextYFileName+"-" + std::to_string(k) + ".txt";
+			Matrix<Ciphertext<DCRTPoly>> yt = DeserializeCiphertext(context.cc[k], pathToFile);
+			context.y.push_back(yt);
+
+			LPPublicKey<DCRTPoly> pkt = DeserializePublicKey(context.cc[k], pkFileName);
+			context.pk.push_back(pkt);
+		}
+
+		//This is to create a dummy computation to create multiplication tables for BFVrns.
+		//This prevents problems in OpenMP threading.
+		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
+
+			std::vector<uint64_t> vectorOfInts1;
+			vectorOfInts1.push_back(0);
+
+			Plaintext intArray1 = context.cc[k]->MakePackedPlaintext(vectorOfInts1);
+
+	    	Ciphertext<DCRTPoly> c1 = context.cc[k]->Encrypt(context.pk[k], intArray1);
+	    	Ciphertext<DCRTPoly> c2 = context.cc[k]->Encrypt(context.pk[k], intArray1);
+
+		    Ciphertext<DCRTPoly> t  = context.cc[k]->EvalMult(c1, c2);
+	    }
 	}
 
-	void GLMServer::Step2ComputeXTSX(const string keyDir,
-					   const string keyfileName,
-					   const string ciphertextDataDir,
-					   const string ciphertextDataFileName,
-					   const string ciphertextResultFileName,
-					   const string ciphertextSFileName,
-					   const string ciphertextXFileName,
-					   const string ciphertextC1FileName,
-					   const boost::python::list& pythonList){
+	void GLMServer::SetFileNamesPaths(const boost::python::list& pythonList){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
-		vectorToGlmParams(glmParam, glmParamVector);
-		GLMServerXTSX(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName,
-				ciphertextSFileName, ciphertextXFileName, ciphertextC1FileName, glmParam);
+		vector<string> vecList = pythonListToCppStringVector(pythonList);
+		vectorToPathList(path, vecList);
 	}
 
-	void GLMServer::Step3ComputeRegressor(const string keyDir,
-					   	 const string keyfileName,
-					     const string ciphertextDataDir,
-					     const string ciphertextDataFileName,
-						 const string ciphertextWFileName,
-						 const string ciphertextXFileName,
-						 const string ciphertextYFileName,
-						 const string ciphertextMUFileName,
-					     const string ciphertextC1FileName,
-						 const string ciphertextC1C2FileName,
-						 const boost::python::list& pythonList){
+	void GLMServer::SetGLMParams(const boost::python::list& pythonList){
 
-		glmParams glmParam;
-		std::vector<uint64_t> glmParamVector = pythonListToCppVector(pythonList);
+		std::vector<uint64_t> glmParamVector = pythonListToCppIntVector(pythonList);
 		vectorToGlmParams(glmParam, glmParamVector);
-		GLMServerComputeRegressor(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName,
-						ciphertextWFileName, ciphertextXFileName, ciphertextYFileName, ciphertextMUFileName,
-						ciphertextC1FileName, ciphertextC1C2FileName, glmParam);
+	}
 
+	void GLMServer::Step1ComputeXW(){
+
+		GLMServerXW(context, path, glmParam);
+	}
+
+	void GLMServer::Step2ComputeXTSX(){
+
+		GLMServerXTSX(context, path, glmParam);
+	}
+
+	void GLMServer::Step3ComputeRegressor(){
+
+		GLMServerComputeRegressor(context, path, glmParam);
 	}
 
 	void GLMServer::PrintTimings(){
@@ -205,6 +222,28 @@ namespace glmcrypto{
 /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////    UTIL    /////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+
+	vector<uint64_t> pythonListToCppIntVector(const boost::python::list& pythonList) {
+
+		vector<uint64_t> cppVector;
+
+		for (unsigned int i = 0; i < len(pythonList); i++) {
+			cppVector.push_back(boost::python::extract<uint64_t>(pythonList[i]));
+		}
+
+		return cppVector;
+	}
+
+	vector<string> pythonListToCppStringVector(const boost::python::list& pythonList) {
+
+		vector<string> cppVector;
+
+		for (unsigned int i = 0; i < len(pythonList); i++) {
+			cppVector.push_back(boost::python::extract<string>(pythonList[i]));
+		}
+
+		return cppVector;
+	}
 
 	void vectorToGlmParams(glmParams &g, vector<uint64_t> &l){
 
@@ -221,15 +260,34 @@ namespace glmcrypto{
 		g.NUMTHREADS = l[7];
 	}
 
-	vector<uint64_t> pythonListToCppVector(const boost::python::list& pythonList) {
+	void vectorToPathList(pathList &path, vector<string> &vecList){
 
-		vector<uint64_t> cppVector;
+		path.keyDir					= vecList[0];
+		path.keyfileName			= vecList[1];
+		path.ciphertextDataDir		= vecList[2];
+		path.ciphertextDataFileName	= vecList[3];
+		path.plaintextDataDir		= vecList[4];
+		path.plaintextDataFileName	= vecList[5];
+		path.ciphertextXFileName	= vecList[6];
+		path.ciphertextYFileName	= vecList[7];
+		path.ciphertextWFileName	= vecList[8];
+		path.ciphertextXWFileName	= vecList[9];
+		path.ciphertextMUFileName	= vecList[10];
+		path.ciphertextSFileName	= vecList[11];
+		path.ciphertextC1FileName	= vecList[12];
+		path.ciphertextC2FileName	= vecList[13];
+		path.ciphertextC1C2FileName = vecList[14];
 
-		for (unsigned int i = 0; i < len(pythonList); i++) {
-			cppVector.push_back(boost::python::extract<uint64_t>(pythonList[i]));
-		}
-
-		return cppVector;
 	}
 
 }
+
+
+
+
+
+
+
+
+
+

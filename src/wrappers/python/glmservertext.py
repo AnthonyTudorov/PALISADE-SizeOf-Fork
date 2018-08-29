@@ -13,27 +13,29 @@ from urllib import localhost
 
 keyDir                  = "demoData/python/glm/server/keyDir"
 keyfileName             = "keyFileLinReg"
-plaintextDataDir        = "demoData/python/glm/server/plaintextDataDir"
-plaintextDataFileName   = "fishData.csv"
 ciphertextDataDir       = "demoData/python/glm/server/ciphertextDataDir"
 ciphertextDataFileName  = "Vertical_Artifical_Data"
-ciphertextResultDir     = "demoData/python/glm/server/ciphertextResultDir" 
-ciphertextResultFileName= "Vertical_Artifical_Ciphertext_Result"
+plaintextDataDir        = "demoData/python/glm/client/plaintextDataDir"
+plaintextDataFileName   = "case3_poisson.csv"
 
 ciphertextXFileName    = "ciphertext-x"
 ciphertextYFileName    = "ciphertext-y"
 ciphertextWFileName    = "ciphertext-w"
 
-ciphertextXTXFileName  = "ciphertext-xTx"
-ciphertextXWFileName  = "ciphertext-xw"
+ciphertextXWFileName   = "ciphertext-xw"
 
 ciphertextMUFileName    = "ciphertext-mu"
 ciphertextSFileName     = "ciphertext-S"
-ciphertextSInvFileName  = "ciphertext-SInv"
-ciphertextC0FileName    = "ciphertext-C0"
 ciphertextC1FileName    = "ciphertext-C1"
 ciphertextC2FileName    = "ciphertext-C2"
-ciphertextC1C2FileName = "ciphertext-C1C2"
+ciphertextC1C2FileName  = "ciphertext-C1C2"
+
+
+pathList = [keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, plaintextDataDir, plaintextDataFileName,
+            ciphertextXFileName, ciphertextYFileName, ciphertextWFileName, ciphertextXWFileName, ciphertextMUFileName,
+            ciphertextSFileName, ciphertextC1FileName, ciphertextC2FileName, ciphertextC1C2FileName]
+
+
 
 timing = {"RecvParam":0.0, "RecvKeyCrypt":0.0, "RecvXY":0.0, "RecvW":0.0, "ComputeStep1":0.0, 
           "SendXW":0.0, "RecvMuS":0.0, "SendXTSX":0.0, "ComputeStep2":0.0, "SendC1":0.0, 
@@ -43,6 +45,7 @@ GlmParamList = []
 
 glm = pycrypto.GLMServer()
 
+glm.SetFileNamesPaths(pathList)
 ##########################################################
 ##########################################################
 ##########################################################
@@ -51,7 +54,7 @@ glm = pycrypto.GLMServer()
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 1313)
+server_address = ('localhost', 1113)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
@@ -90,6 +93,8 @@ print 'Parameters\n', GlmParamList
 
 ##########################################################
 
+glm.SetGLMParams(GlmParamList)
+
 print '\nRecv:   Key and CryptoContext...',
 t0 = time.time()
 for i in range(PLAINTEXTPRIMESIZE):
@@ -126,6 +131,8 @@ timing["RecvXY"] = timing["RecvXY"] + (t1-t0)
 print 'Completed'
 
 ##########################################################
+
+glm.SetGLMContext()
     
 for loop in range(REGRLOOPCOUNT):    
     totalstart = time.time()
@@ -149,8 +156,7 @@ for loop in range(REGRLOOPCOUNT):
     
     print 'Comp:   X*W (Step-1)...',
     t0 = time.time()
-    glm.Step1ComputeXW(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, 
-                       ciphertextXFileName, ciphertextWFileName, ciphertextXWFileName, GlmParamList)
+    glm.Step1ComputeXW()
     t1 = time.time()
     timing["ComputeStep1"] = timing["ComputeStep1"] + (t1-t0)
     print 'Completed'
@@ -188,8 +194,7 @@ for loop in range(REGRLOOPCOUNT):
  
     print 'Comp:   C1=X^T*S*X (Step-2)...',
     t0 = time.time()
-    glm.Step2ComputeXTSX(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, ciphertextXTXFileName, 
-                        ciphertextSFileName, ciphertextXFileName, ciphertextC1FileName, GlmParamList)
+    glm.Step2ComputeXTSX()
     t1 = time.time()
     timing["ComputeStep2"] = timing["ComputeStep2"] + (t1-t0)
     print 'Completed'
@@ -224,9 +229,7 @@ for loop in range(REGRLOOPCOUNT):
 
     print 'Comp:   w + C1^{-1}*C2 = w + (X^T*S*X)^{-1}*X^T*(y-mu)...',
     t0 = time.time()
-    glm.Step3ComputeRegressor(keyDir, keyfileName, ciphertextDataDir, ciphertextDataFileName, 
-                              ciphertextWFileName, ciphertextXFileName, ciphertextYFileName, ciphertextMUFileName, 
-                              ciphertextC1FileName, ciphertextC1C2FileName, GlmParamList)
+    glm.Step3ComputeRegressor()
     t1 = time.time()
     timing["ComputeStep3"] = timing["ComputeStep3"] + (t1-t0)
     print 'Completed'

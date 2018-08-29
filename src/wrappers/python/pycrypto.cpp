@@ -42,8 +42,11 @@ BOOST_PYTHON_MODULE(pycrypto) {
 		.def("EvaluateClear", &pycrypto::Obfuscator::EvaluateClear);
 
 	class_<glmcrypto::GLMClient >("GLMClient")
+			.def("SetGLMContext", &glmcrypto::GLMClient::SetGLMContext)
 			.def("KeyGen", &glmcrypto::GLMClient::KeyGen)
 			.def("Encrypt", &glmcrypto::GLMClient::Encrypt)
+			.def("SetGLMParams", &glmcrypto::GLMClient::SetGLMParams)
+			.def("SetFileNamesPaths", &glmcrypto::GLMClient::SetFileNamesPaths)
 			.def("ComputeError", &glmcrypto::GLMClient::ComputeError)
 			.def("Step1ComputeLink", &glmcrypto::GLMClient::Step1ComputeLink)
 			.def("Step2RescaleC1", &glmcrypto::GLMClient::Step2RescaleC1)
@@ -51,6 +54,9 @@ BOOST_PYTHON_MODULE(pycrypto) {
 			.def("PrintTimings", &glmcrypto::GLMClient::PrintTimings);
 
 	class_<glmcrypto::GLMServer >("GLMServer")
+			.def("SetGLMContext", &glmcrypto::GLMServer::SetGLMContext)
+			.def("SetGLMParams", &glmcrypto::GLMServer::SetGLMParams)
+			.def("SetFileNamesPaths", &glmcrypto::GLMServer::SetFileNamesPaths)
 			.def("Step1ComputeXW", &glmcrypto::GLMServer::Step1ComputeXW)
 			.def("Step2ComputeXTSX", &glmcrypto::GLMServer::Step2ComputeXTSX)
 			.def("Step3ComputeRegressor", &glmcrypto::GLMServer::Step3ComputeRegressor)
