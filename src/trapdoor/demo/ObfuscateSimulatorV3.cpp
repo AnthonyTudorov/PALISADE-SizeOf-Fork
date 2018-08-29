@@ -195,7 +195,7 @@ bool CONJOBF(bool dbg_flag, int n_evals, int n) {
 	//This code is run only when performing execution time measurements
 
 	//Precomputations for FTT
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(rootOfUnity, m, modulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, m, modulus);
 	DiscreteFourierTransform::PreComputeTable(m);
 
 	//Precomputations for DGG

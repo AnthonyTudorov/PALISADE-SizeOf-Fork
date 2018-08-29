@@ -59,7 +59,7 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 	// Trapdoor Generation
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapdoorA = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true); // A.first is the public element
@@ -427,7 +427,7 @@ void KPABE_NANDGATE(int32_t base, usint k, usint ringDimension){
 			BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 			// Precompuations for FTT
-			ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
+			ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 			// Trapdoor Generation
 			std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);
@@ -642,7 +642,7 @@ void KPABEANDGate(int32_t base, usint k, usint ringDimension){
 		BinaryUniformGenerator bug = BinaryUniformGenerator();
 
 		// Precompuations for FTT
-		ChineseRemainderTransformFTT<BigInteger, BigVector>::PreCompute(rootOfUnity, n, q);
+		ChineseRemainderTransformFTT<BigVector>::PreCompute(rootOfUnity, n, q);
 
 		// Trapdoor Generation
 		std::pair<RingMat, RLWETrapdoorPair<Poly>> A = RLWETrapdoorUtility<Poly>::TrapdoorGen(ilParams, SIGMA, base, true);

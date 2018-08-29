@@ -235,7 +235,7 @@ shared_ptr<typename DCRTPoly::Params> BPCHCPRF<DCRTPoly>::GenerateElemParams(dou
 
     shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
 
-    ChineseRemainderTransformFTT<NativeInteger, NativeVector>::PreCompute(roots, 2 * n, moduli);
+    ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots, 2 * n, moduli);
 
     return params;
 }

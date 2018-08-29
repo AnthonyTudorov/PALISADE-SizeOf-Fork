@@ -279,7 +279,7 @@ namespace lbcrypto {
 		uint32_t m_numAtt;
 
 		// Discrete Gaussian distribution for generating the noise in the LWE encryption
-		DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> m_dgg;
+		DiscreteGaussianGeneratorImpl<NativeVector> m_dgg;
 
 		/**
 		 * Method to estimate the modulus

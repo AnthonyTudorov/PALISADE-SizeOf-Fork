@@ -83,24 +83,24 @@ void MultiThreadedRun(int index) {
 
 	size_t counter = 20;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<NativeVector> dgg(SIGMA);
 
 	usint sm = SECURE_PARAMS[index].m;
 	NativeInteger smodulus(SECURE_PARAMS[index].modulus);
 	NativeInteger srootOfUnity(SECURE_PARAMS[index].rootOfUnity);
 
-	ILNative1Params ilParams(sm, smodulus, srootOfUnity);
-	shared_ptr<ILNative1Params> silParams = std::make_shared<ILNative1Params>(ilParams);
+	ILNativeParams ilParams(sm, smodulus, srootOfUnity);
+	shared_ptr<ILNativeParams> silParams = std::make_shared<ILNativeParams>(ilParams);
 
 	std::cout << "m: " << sm << " q: " << smodulus << " rootOfUnity: " << srootOfUnity << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;
 
-	silParams = std::make_shared<ILNative1Params>(ilParams);
+	silParams = std::make_shared<ILNativeParams>(ilParams);
 	LPSignatureParameters<NativePoly> signParams(silParams, dgg);
 	//signParams.SetElemParams(silParams);
 	std::cout << signParams.GetILParams()->GetCyclotomicOrder() << std::endl << std::endl;

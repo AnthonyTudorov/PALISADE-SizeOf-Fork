@@ -404,7 +404,7 @@ int main() {
 	uint64_t nRep;
 	double start, stop;
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
 
@@ -416,15 +416,15 @@ int main() {
 	}
 
 	NativeVector X(m/2), xx(m/2);
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
 	//std::cout << X << std::endl;
 	//std::cout << xx << std::endl;
 
 	nRep = 10000;
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){
-		ChineseRemainderTransformFTT<NativeInteger,NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
 	stop = currentDateTime();
 	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
@@ -437,7 +437,7 @@ int main() {
 
 		for (usint i = 0; i<m / 2; i++)
 			InputToFFT.at(i)= x.at(i).ModBarrettMul(rootOfUnityTable.at(i*ringDimensionFactor), x.GetModulus(), mu);
-		NumberTheoreticTransform<NativeInteger,NativeVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
+		NumberTheoreticTransform<NativeVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
 	}
 	stop = currentDateTime();
 	std::cout << " Forward Iterative (with local cache) Transform: " << (stop-start)/nRep << std::endl;

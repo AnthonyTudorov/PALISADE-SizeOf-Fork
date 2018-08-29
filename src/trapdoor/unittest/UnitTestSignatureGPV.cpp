@@ -55,7 +55,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
   DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
   DEBUG("Step 5");
@@ -102,7 +102,7 @@ TEST(UTSignatureGPV,simple_sign_verify_native_below_sixty_bits) {
 
 	shared_ptr<ILNativeParams> silParams( new ILNativeParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
   DEBUG("Step 4");
 	LPSignatureParameters<NativePoly> signParams(silParams, dgg);
   DEBUG("Step 5");
@@ -149,7 +149,7 @@ TEST(UTSignatureGPV,simple_sign_verify_native_above_sixty_bits) {
 
 	shared_ptr<ILNativeParams> silParams( new ILNativeParams(sm, smodulus, srootOfUnity) );
   DEBUG("Step 2");
-	ChineseRemainderTransformFTT<NativeInteger,NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(srootOfUnity, sm, smodulus);
   DEBUG("Step 4");
 	LPSignatureParameters<NativePoly> signParams(silParams, dgg);
   DEBUG("Step 5");
@@ -188,7 +188,7 @@ TEST(UTSignatureGPV, simple_sign_verify_two_phase) {
 
 	shared_ptr<ILParams> silParams(new ILParams(sm, smodulus, srootOfUnity));
 	DEBUG("Step 2");
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DEBUG("Step 4");
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	DEBUG("Step 5");
@@ -223,7 +223,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
 	BigInteger smodulus("1152921504606847009");
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams);
@@ -266,7 +266,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
 	BigInteger smodulus("1152921504606847009");
 	BigInteger srootOfUnity("405107564542978792");
 	shared_ptr<ILParams> silParams( new ILParams(sm, smodulus, srootOfUnity) );
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	LPSignatureParameters<Poly> signParams(silParams, dgg);
 	LPSignKeyGPVGM<Poly> s_k(signParams),s_k2(signParams);
 	LPVerificationKeyGPVGM<Poly> v_k(signParams),v_k2(signParams);

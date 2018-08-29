@@ -1,5 +1,6 @@
-/*
- * @file native-impl.cpp - native integer implementation.
+/**
+ * @file plaintext-impl.cpp This file contains template instantiations for plaintext matrixes
+ *
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,26 +25,12 @@
  *
  */
 
-#include "../math/backend.h"
-#include "../math/native_int/binint.h"
-#include "../math/native_int/binvect.cpp"
-#include "../math/discretegaussiangenerator.cpp"
-#include "../math/discreteuniformgenerator.cpp"
-#include "../math/binaryuniformgenerator.cpp"
-#include "../math/ternaryuniformgenerator.cpp"
+#include "math/backend.h"
+#include "lattice/backend.h"
+#include "math/matrix.cpp"
 
-#include "elemparams.cpp"
-#include "ilparams.cpp"
-#include "poly.cpp"
+namespace lbcrypto {
 
-namespace lbcrypto
-{
-template class DiscreteGaussianGeneratorImpl<NativeInteger,NativeVector>;
-template class BinaryUniformGeneratorImpl<NativeInteger,NativeVector>;
-template class TernaryUniformGeneratorImpl<NativeInteger,NativeVector>;
-template class DiscreteUniformGeneratorImpl<NativeInteger,NativeVector>;
+MATRIX_NOT_SERIALIZABLE(Plaintext)
 
-template class ElemParams<NativeInteger>;
-template class ILParamsImpl<NativeInteger>;
-template class PolyImpl<NativeInteger,NativeInteger,NativeVector,ILNativeParams>;
 }

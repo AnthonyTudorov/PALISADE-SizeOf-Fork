@@ -85,7 +85,7 @@ void MultiThreadedRun(int index, usint base) {
 
 	size_t counter = 20;
 	double start, finish;
-	DiscreteGaussianGeneratorImpl<BigInteger,BigVector> dgg(SIGMA);
+	DiscreteGaussianGeneratorImpl<BigVector> dgg(SIGMA);
 
 	usint sm = SECURE_PARAMS[index].m;
 	BigInteger smodulus(SECURE_PARAMS[index].modulus);
@@ -98,7 +98,7 @@ void MultiThreadedRun(int index, usint base) {
 	std::cout << "base: " << base << std::endl;
 	std::cout << "Signature precomputations" << std::endl;
 	start = currentDateTime();
-	ChineseRemainderTransformFTT<BigInteger,BigVector>::PreCompute(srootOfUnity, sm, smodulus);
+	ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
 	finish = currentDateTime();
 	std::cout << "Precomputation time: " << finish - start << " ms" << std::endl;

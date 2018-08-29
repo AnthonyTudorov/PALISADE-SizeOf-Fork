@@ -33,7 +33,7 @@ namespace lbcrypto {
 
 
 		template<class Element>
-        class MatrixStrassen : public Serializable {
+        class MatrixStrassen { // FIXME : public Serializable {
         public:
             typedef vector<vector<Element>> data_t;
             typedef vector<Element> lineardata_t;
@@ -367,7 +367,6 @@ namespace lbcrypto {
 			* @param *result where the result is stored
 			*/
 			inline void Determinant(Element *result) const;
-			//inline Element Determinant() const;
 
 			/**
 			* Cofactor matrix - the matrix of determinants of the minors A_{ij} multiplied by -1^{i+j}
@@ -462,19 +461,19 @@ namespace lbcrypto {
              */
             MatrixStrassen<Element> MultByRandomVector(std::vector<int> ranvec) const;
 
-			/**
-			* Serialize the object into a Serialized
-			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized* serObj) const;
+//			/**
+//			* Serialize the object into a Serialized
+//			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+//			* @return true if successfully serialized
+//			*/
+			//bool Serialize(Serialized* serObj) const;
 
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj);
+//			/**
+//			* Populate the object from the deserialization of the Serialized
+//			* @param serObj contains the serialized object
+//			* @return true on success
+//			*/
+			//bool Deserialize(const Serialized& serObj);
 
 
         private:

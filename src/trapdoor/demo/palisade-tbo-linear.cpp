@@ -36,7 +36,7 @@ using namespace lbcrypto;
 
 shared_ptr<vector<NativeInteger>> BuildWeightVector(const vector<uint32_t> &thresholds, PlaintextModulus p, uint32_t N, uint32_t wordSize) {
 
-	DiscreteUniformGeneratorImpl<NativeInteger,NativeVector> dug;
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(p);
 
 	shared_ptr<vector<NativeInteger>> weights(new vector<NativeInteger>(N));

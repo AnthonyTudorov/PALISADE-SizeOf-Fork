@@ -74,7 +74,7 @@ int IBE_Test(int iter, int32_t base, usint ringDimension, usint k/*, typename El
 	typename Element::BugType bug = typename Element::BugType();
 
 	// Precompuations for FTT
-	ChineseRemainderTransformFTT<typename Element::Integer, typename Element::Vector>::PreCompute(rootOfUnity, n, q);
+	ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(rootOfUnity, n, q);
 
 	// for timing
 	long double start, finish, avg_keygen_offline, avg_keygen_online, avg_enc, avg_dec;
