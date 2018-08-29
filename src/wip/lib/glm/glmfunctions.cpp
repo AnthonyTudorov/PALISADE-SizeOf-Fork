@@ -2487,7 +2487,7 @@ void doubleToBigInteger2(double &in, BigInteger &out){
 	exp  = exp & 0x7F;
 
 	fraction = castDouble & 0xFFFFFFFFFFFFF;
-	fraction = fraction | (1UL << 52);
+	fraction = fraction | (1ULL << 52);
 
 	exp = exp - 1023;
 
