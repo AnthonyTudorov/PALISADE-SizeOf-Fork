@@ -144,7 +144,7 @@ main(int argc, char *argv[])
 	cout << "Parsed config-schema" << endl;
 	{
 		string s;
-		SerializableHelper::SerializationToPrettyString(schema, s);
+		SerializableHelper::SerializationToPrettyString(sch, s);
 		cout << s << endl;
 	}
 
