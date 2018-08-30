@@ -175,9 +175,10 @@ namespace lbcrypto {
 
 	};
 
+	#if 0
 	template <>
 	shared_ptr<typename DCRTPoly::Params> LWEConjunctionCHCPRFAlgorithm<DCRTPoly>::GenerateElemParams(double q, usint n) const;
-
+        #endif
 } // namespace lbcrypto ends
 
 #endif

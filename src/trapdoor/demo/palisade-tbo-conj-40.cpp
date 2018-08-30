@@ -33,7 +33,6 @@
 #include <random>
 #include <algorithm>
 #include "obfuscation/lweconjunctionchcprf.h"
-#include "obfuscation/lweconjunctionchcprf.cpp"
 #include "utils/debug.h"
 
 using namespace lbcrypto;
