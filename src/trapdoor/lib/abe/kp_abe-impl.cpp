@@ -32,8 +32,8 @@
 
 namespace lbcrypto {
 
-  template class KPABE<Poly,Poly>;
-  template class KPABE<DCRTPoly, Poly>;
+  template class KPABE<Poly>;
+  template class KPABE<DCRTPoly>;
   //template class KPABE<NativePoly, Poly>;
   //  template int PolyVec2BalDecom<typename Poly> (const shared_ptr<ILParams> ilParams, int32_t base, int k, const Matrix<Poly> &pubElemB, Matrix<Poly> *psi);
   //template<> int PolyVec2BalDecom<typename DCRTPoly>;

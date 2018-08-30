@@ -155,7 +155,7 @@ namespace lbcrypto {
    * while Element2 is interpolated ring element. 
    * e.g. DCRTPoly is element and Poly is Element2
    */
-	template <class Element, class Element2>
+	template <class Element, class Element2 = Poly>
 	class KPABE {
 	public:
 

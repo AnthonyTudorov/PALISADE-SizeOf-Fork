@@ -10,7 +10,7 @@
 using namespace lbcrypto;
 
 	void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint iter);
-template <class Element, class Element2>
+template <class Element, class Element2 = Poly>
 	void TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension);
 	int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base);
 	usint EvalNANDTree(usint *x, usint ell);
@@ -30,7 +30,7 @@ int main()
 	KPABEANDGate(32,51,2048);
 	KPABEANDGateDCRT(16, 8, 2048);
 
-	TestDCRTVecDecompose<DCRTPoly, Poly>(16,51,32);
+	TestDCRTVecDecompose<DCRTPoly>(16,51,32);
 
 	return 0;
 }
@@ -70,7 +70,7 @@ void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint ite
 	Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 	Poly c1(dug, ilParams, EVALUATION);
 
-	KPABE<Poly, Poly> pkg, sender, receiver;
+	KPABE<Poly> pkg, sender, receiver;
 
 	pkg.Setup(ilParams, base, ell, dug, &publicElementB);
 	sender.Setup(ilParams, base, ell);
@@ -211,7 +211,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
-	KPABE<DCRTPoly, Poly> pkg, sender, receiver;
+	KPABE<DCRTPoly> pkg, sender, receiver;
 
 	pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
 	sender.Setup(ilDCRTParams, base, ell);
@@ -439,7 +439,7 @@ void KPABE_NANDGATE(int32_t base, usint k, usint ringDimension){
 			Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 			Poly c1(dug, ilParams, EVALUATION);
 
-			KPABE<Poly, Poly> pkg, sender, receiver;
+			KPABE<Poly> pkg, sender, receiver;
 
 			pkg.Setup(ilParams, base, ell, dug, &publicElementB);
 			sender.Setup(ilParams, base, ell);
@@ -567,7 +567,7 @@ void KPABE_NANDGATEDCRT(int32_t base, usint k, usint ringDimension){
 		Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 		DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
-		KPABE<DCRTPoly, Poly> pkg, sender, receiver;
+		KPABE<DCRTPoly> pkg, sender, receiver;
 
 		pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
 		sender.Setup(ilDCRTParams, base, ell);
@@ -654,7 +654,7 @@ void KPABEANDGate(int32_t base, usint k, usint ringDimension){
 		Matrix<Poly> ctCin(zero_alloc, ell+2, m);
 		Poly c1(dug, ilParams, EVALUATION);
 
-		KPABE<Poly, Poly> pkg, sender, receiver;
+		KPABE<Poly> pkg, sender, receiver;
 
 		pkg.Setup(ilParams, base, ell, dug, &publicElementB);
 		sender.Setup(ilParams, base, ell);
@@ -781,7 +781,7 @@ void KPABEANDGateDCRT(int32_t base, usint k, usint ringDimension){
 	Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
-	KPABE<DCRTPoly, Poly> pkg, sender, receiver;
+	KPABE<DCRTPoly> pkg, sender, receiver;
 
 	pkg.Setup(ilDCRTParams, base, ell, dug, &publicElementB);
 	sender.Setup(ilDCRTParams, base, ell);
