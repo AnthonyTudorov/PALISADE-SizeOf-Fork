@@ -560,7 +560,7 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 	}
 
 
-	PolyVec2BalDecom<Poly,Poly,Poly>(ilParams, base, k+k, matrixDecomposePoly, &psi);
+	PolyVec2BalDecom<Poly>(ilParams, base, k+k, matrixDecomposePoly, &psi);
 
 	for(usint i = 0; i < psi.GetRows(); i++){
 				for(usint j = 0; j < psi.GetCols();j++){

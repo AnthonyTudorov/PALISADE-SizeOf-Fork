@@ -76,13 +76,13 @@ namespace lbcrypto {
    */
   
 
-  template <class E1, class E2, class E3>
+  template <class Element>
     void PolyVec2BalDecom(
-			  const shared_ptr<typename E1::Params> ilParams,
+			  const shared_ptr<typename Element::Params> ilParams,
 			  int32_t base,
 			  int k,
-			  const Matrix<E2> &pubElemB,
-			  Matrix<E3> *psi)
+			  const Matrix<Element> &pubElemB,
+			  Matrix<Element> *psi)
   {
     usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
     usint m = k+2;

@@ -131,7 +131,7 @@ template <class Element, class Element2>
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negpublicElementB(0, j) = pubElemB(2*i+1, j).Negate();
 
-			PolyVec2BalDecom<Element,Element,Element>(params, m_base, m_k, negpublicElementB, &psi);
+			PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
 
 			psi.SwitchFormat();
 
@@ -165,7 +165,7 @@ template <class Element, class Element2>
 				for (usint j = 0; j < m_m; j++)
 					negpublicElementB(0, j) = wpublicElementB(inStart+2*i, j).Negate();
 
-				PolyVec2BalDecom<Element,Element,Element>(params, m_base, m_k, negpublicElementB, &psi);
+				PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
 
 				psi.SwitchFormat();
 
@@ -243,7 +243,7 @@ template <class Element, class Element2>
 				}
 
 
-			PolyVec2BalDecom<Element2,Element2,Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 			// DCRT CREATE
 
@@ -299,7 +299,7 @@ template <class Element, class Element2>
 					}
 				}
 
-				PolyVec2BalDecom<Element2,Element2,Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix_Two, &psiPoly_Two);
+				PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix_Two, &psiPoly_Two);
 
 				// DCRT CREATE
 
@@ -379,7 +379,7 @@ void KPABE<Element, Element2>::EvalCT(
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negB(0, j) = pubElemB(2*i+1, j).Negate();
 
-			PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 			psi.SwitchFormat();
 
@@ -430,7 +430,7 @@ void KPABE<Element, Element2>::EvalCT(
 					negB(0, j) = wPublicElementB(InStart+2*i, j).Negate();
 
 
-				PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 				psi.SwitchFormat();
 
@@ -527,7 +527,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 				}
 
 
-			PolyVec2BalDecom<Element2,Element2,Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 
 			// DCRT CREATE
@@ -599,7 +599,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 				}
 
 
-				PolyVec2BalDecom<Element2,Element2,Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix_two, &psiPoly_two);
+				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix_two, &psiPoly_two);
 
 
 				for(usint i = 0; i < psiPoly_two.GetRows(); i++){
@@ -835,7 +835,7 @@ void KPABE<Element, Element2>::NANDGateEvalCT(
 	for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 		negB(0, j) = origPubElem(0, j).Negate();
 
-	PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+	PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 	psi.SwitchFormat();
 
@@ -882,7 +882,7 @@ void KPABE<Element, Element2>::NANDGateEvalPK(
 			for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 				negB(0, j) = origPubElem(0, j).Negate();
 
-			PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 			psi.SwitchFormat();
 
@@ -931,7 +931,7 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 				}
 			}
 
-			PolyVec2BalDecom<Element2,Element2,Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 			// DCRT CREATE
 
@@ -994,7 +994,7 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 				}
 			}
 
-		PolyVec2BalDecom<Element2,Element2,Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1045,7 +1045,7 @@ void KPABE<Element, Element2>::ANDGateEvalPK(
 			negB(0, j) = origPubElemB(0, j).Negate();
 		}
 
-		PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 		psi.SwitchFormat();
 
@@ -1078,7 +1078,7 @@ void KPABE<Element, Element2>::ANDGateEvalCT(
 			negB(0, j) = origPubElemB(0, j).Negate();
 		}
 
-		PolyVec2BalDecom<Element,Element,Element> (ilParams, m_base, m_k, negB, &psi);
+		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 
 		psi.SwitchFormat();
 		/* x2*C1 */
@@ -1129,7 +1129,7 @@ void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
 		}
 
 
-		PolyVec2BalDecom<Element2,Element2,Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1185,7 +1185,7 @@ void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
 			}
 		}
 
-		PolyVec2BalDecom<Element2,Element2,Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 
 		// DCRT CREATE
 
