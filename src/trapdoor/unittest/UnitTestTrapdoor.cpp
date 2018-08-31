@@ -477,6 +477,69 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 
 }
 
+// Test of Gaussian Sampling for matrices of 5 by 5
+TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
+        bool dbg_flag = false;
+	DEBUG("in test");
+	usint m = 16;
+	usint n = m / 2;
+
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	double sigma = SIGMA;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = std::ceil(log2(val));
+	usint k = (usint)(logTwo);
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	auto zero_alloc = Poly::Allocator(params, EVALUATION);
+	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	size_t d = 5;
+
+	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, sigma, d);
+
+	std::cerr << "Trapdoor generation was successful"  << std::endl;
+
+	RingMat R = trapPair.second.m_r;
+	RingMat E = trapPair.second.m_e;
+	//auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	Poly::DggType dgg(sigma);
+	Poly::DugType dug = Poly::DugType();
+	dug.SetModulus(modulus);
+
+	uint32_t base = 2;
+	double c = (base + 1) * SIGMA;
+	double s = SPECTRAL_BOUND_D(n, k, base, d);
+	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
+
+	Matrix<Poly> U(zero_alloc, d, d,uniform_alloc);
+
+	std::cerr << "About to call trapdoor sampling"  << std::endl;
+
+	Matrix<Poly> z = RLWETrapdoorUtility<Poly>::GaussSampSquareMat(m / 2, k, trapPair.first, trapPair.second, U, dgg, dggLargeSigma);
+
+	std::cerr << "Finished trapdoor sampling"  << std::endl;
+
+	//Matrix<Poly> uEst = trapPair.first * z;
+
+	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(m / 2, z(0, 0).GetLength())
+		<< "Failure testing ring dimension for the first ring element";
+
+	Matrix<Poly> UEst = trapPair.first * z;
+
+	UEst.SwitchFormat();
+	U.SwitchFormat();
+
+	EXPECT_EQ(U, UEst);
+
+}
+
 // Test  UCSD integer perturbation sampling algorithm
 // So far the test simply runs 100 instances of ZSampleSigmaP
 // and makes sure no exceptions are encountered - this validates that

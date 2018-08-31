@@ -263,7 +263,11 @@ namespace lbcrypto {
 // Correct the perturbation sampling
 // START
 
+		std::cerr << "About to call perturbation sampling"  << std::endl;
+
 		SamplePertSquareMat(n, s, c, T, dgg, dggLargeSigma, pHat);
+
+		std::cerr << "Perturbation sampling is done"  << std::endl;
 
 // END
 

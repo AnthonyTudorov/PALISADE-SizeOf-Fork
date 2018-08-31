@@ -362,6 +362,8 @@ public:
 
 				}
 
+				std::cerr << "Perturbation sampling: called regular Gaussian generation for p"  << std::endl;
+
 				//create a matrix of d*k x d ring elements in coefficient representation
 				Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector.ExtractRow(0), n, params);
 				for(size_t i = 1; i < d; i++) {
@@ -375,10 +377,14 @@ public:
 
 				auto zero_alloc = Element::Allocator(params, EVALUATION);
 
+				std::cerr << "Perturbation sampling: About to do multiplications in A, B, and D"  << std::endl;
+
 				// all three Polynomials are initialized with "0" coefficients
 				Matrix<Element> A = R*(R.Transpose()); // d x d
-				Matrix<Element> B = R*E; // d x d
+				Matrix<Element> B = R*(E.Transpose()); // d x d
 				Matrix<Element> D = E*(E.Transpose()); // d x d
+
+				std::cerr << "Perturbation sampling: Setting A, B, and D"  << std::endl;
 
 				//Switch the ring elements (Polynomials) to coefficient representation
 				A.SwitchFormat();
@@ -406,6 +412,8 @@ public:
 					}
 				}
 
+				std::cerr << "Perturbation sampling: Computing AF, BF, and DF"  << std::endl;
+
 				//converts the field elements to DFT representation
 				AF.SwitchFormat();
 				BF.SwitchFormat();
@@ -427,6 +435,8 @@ public:
 				}
 
 				shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, d));
+
+				std::cerr << "Perturbation sampling: About to enter SampleMat"  << std::endl;
 
 				LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
 
