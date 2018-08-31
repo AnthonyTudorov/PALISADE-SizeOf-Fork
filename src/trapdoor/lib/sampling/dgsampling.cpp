@@ -323,7 +323,96 @@ namespace lbcrypto {
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::SampleMat(const Matrix<Field2n> & A, const Matrix<Field2n> & B,
-		const Matrix<Field2n> & D, const Matrix<Field2n> &C, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p){
+		const Matrix<Field2n> &D, const Matrix<Field2n> &C, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p){
+
+		size_t d = C.GetRows();
+
+		if (d == 2) {
+			ZSampleSigma2x2(A(0,0), B(0,0), D(0,0), C, dgg, p);
+		}
+
+		size_t n = D(0,0).Size();
+
+		size_t dimA = A.GetRows();
+		size_t dimD = D.GetRows();
+
+		shared_ptr<Matrix<int64_t>> q1;
+		Matrix<Field2n> c0([]() { return Field2n(); }, dimA, 1);
+		Matrix<Field2n> c1([]() { return Field2n(); }, dimD, 1);
+		Matrix<Field2n> qF1([]() { return Field2n(); }, dimD, dimD);
+
+		Matrix<Field2n> Dinverse([]() { return Field2n(); }, dimD, dimD);
+
+		if (dimD == 1) {
+
+			Field2n dEval = D(0,0);
+			// convert to coefficient representation
+			dEval.SwitchFormat();
+			c1(0,0) = C(d-1,0);
+			c0 = C.ExtractRows(0,d-2);
+			q1 = ZSampleF(dEval,c1(0,0),dgg,dEval.Size());
+
+			Dinverse(0,0) = D(0,0).Inverse();
+
+			qF1(0,0) = Field2n(*q1);
+
+		}
+		else if (dimD == 2) { //dimD == 2
+
+			c1 = C.ExtractRows(dimD-2,dimD-1);
+			c0 = C.ExtractRows(0,dimD-2);
+
+			ZSampleSigma2x2(D(0,0), D(0,1), D(1,1), c1, dgg, q1);
+
+			qF1(0,0) = Field2n(q1->ExtractRows(0,n-1));
+			qF1(1,0) = Field2n(q1->ExtractRows(n,2*n-1));
+
+			Field2n det = D(0,0)*D(1,1)-D(0,1)*D(1,0);
+			Field2n detInverse = det.Inverse();
+
+			Dinverse(0,0) = D(1,1)*detInverse;
+			Dinverse(0,1) = -D(0,1)*detInverse;
+			Dinverse(1,0) = -D(1,0)*detInverse;
+			Dinverse(1,1) = D(0,0)*detInverse;
+
+		}
+		else
+			throw std::logic_error("Matrices higher than 5x5 are not currently supported");
+
+		Matrix<Field2n> sigma = A - B*Dinverse*(B.Transpose());
+
+		Matrix<Field2n> diff = qF1 - c1;
+		// Switch to evaluation representation
+		diff.SwitchFormat();
+		c0.SwitchFormat();
+
+		Matrix<Field2n> cNew = c0 + B*Dinverse*diff;
+
+		size_t newDimA = (size_t)std::ceil(dimA/2);
+		size_t newDimD = (size_t)std::floor(dimA/2);
+
+		Matrix<Field2n> newA([]() { return Field2n(); }, newDimA, newDimA);
+		Matrix<Field2n> newB([]() { return Field2n(); }, newDimA, newDimD);
+		Matrix<Field2n> newD([]() { return Field2n(); }, newDimD, newDimD);
+
+		for (size_t i = 0; i < newDimA; i++)
+			for (size_t j = 0; j < newDimA; j++)
+				newA(i,j) = sigma(i,j);
+
+		for (size_t i = 0; i < newDimA; i++)
+			for (size_t j = 0; j < newDimD; j++)
+				newB(i,j) = sigma(i,j+dimA);
+
+		for (size_t i = 0; i < newDimD; i++)
+			for (size_t j = 0; j < newDimD; j++)
+				newD(i,j) = sigma(i+dimA,j+dimA);
+
+		shared_ptr<Matrix<int64_t>> q0;
+
+		SampleMat(newA,newB,newD,cNew,dgg,q0);
+
+		p = shared_ptr<Matrix<int64_t>>(new Matrix<int64_t>(q0->VStack(*q1)));
+
 		return;
 	}
 

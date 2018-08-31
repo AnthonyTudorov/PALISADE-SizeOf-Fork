@@ -430,7 +430,7 @@ public:
 
 				LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
 
-				//create amtrix of 2d x d ring elements in coefficient representation
+				//create matrix of 2d x d ring elements in coefficient representation
 				Matrix<Element> p1 = SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(0), n, params);
 				for(size_t i = 1; i < d; i++) {
 					p1.VStack(SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(i), n, params));
