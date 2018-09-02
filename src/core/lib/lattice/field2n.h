@@ -46,6 +46,8 @@ public:
 	 */
 	Field2n() : format(COEFFICIENT) {};
 
+	Field2n(Format f) : format(f) {};
+
 	/**
 	 * @brief Constructor for field element
 	 * @param size element size

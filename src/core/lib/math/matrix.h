@@ -515,6 +515,21 @@ public:
 	}
 
 	/**
+	 * Matrix column extractor
+	 *
+	 * @param &col col index
+	 * @return the col at the index
+	 */
+	Matrix<Element> ExtractCol(size_t col) const {
+		Matrix<Element> result(this->allocZero,this->rows,1);
+		for (size_t i = 0; i < this->rows; i++) {
+			result(i,0) = data[i][col];
+		}
+		return result;
+		//return *this;
+	}
+
+	/**
 	 * Matrix rows extractor in a range from row_start to row_and; inclusive
 	 *
 	 * @param &row_start &row_end row indices

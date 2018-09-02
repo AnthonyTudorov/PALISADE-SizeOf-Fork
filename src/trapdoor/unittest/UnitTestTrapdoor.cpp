@@ -497,7 +497,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
 	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	size_t d = 5;
+	size_t d = 2;
 
 	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, sigma, d);
 
@@ -530,6 +530,13 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
 		<< "Failure testing number of rows";
 	EXPECT_EQ(m / 2, z(0, 0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
+
+	std::cerr << trapPair.first.GetCols() << std::endl;
+	std::cerr << z.GetRows() << std::endl;
+
+	std::cerr << trapPair.first << std::endl;
+
+	std::cerr << z << std::endl;
 
 	Matrix<Poly> UEst = trapPair.first * z;
 

@@ -329,6 +329,7 @@ namespace lbcrypto {
 
 		if (d == 2) {
 			ZSampleSigma2x2(A(0,0), B(0,0), D(0,0), C, dgg, p);
+			return;
 		}
 
 		size_t n = D(0,0).Size();
@@ -336,12 +337,12 @@ namespace lbcrypto {
 		size_t dimA = A.GetRows();
 		size_t dimD = D.GetRows();
 
-		shared_ptr<Matrix<int64_t>> q1;
-		Matrix<Field2n> c0([]() { return Field2n(); }, dimA, 1);
-		Matrix<Field2n> c1([]() { return Field2n(); }, dimD, 1);
-		Matrix<Field2n> qF1([]() { return Field2n(); }, dimD, dimD);
+		shared_ptr<Matrix<int64_t>> q1(new Matrix<int64_t>([]() { return 0; }, n * dimD, 1));
+		Matrix<Field2n> c0([]() { return Field2n(COEFFICIENT); }, dimA, 1);
+		Matrix<Field2n> c1([]() { return Field2n(COEFFICIENT); }, dimD, 1);
+		Matrix<Field2n> qF1([]() { return Field2n(COEFFICIENT); }, dimD, 1);
 
-		Matrix<Field2n> Dinverse([]() { return Field2n(); }, dimD, dimD);
+		Matrix<Field2n> Dinverse([]() { return Field2n(EVALUATION); }, dimD, dimD);
 
 		if (dimD == 1) {
 
@@ -350,6 +351,7 @@ namespace lbcrypto {
 			dEval.SwitchFormat();
 			c1(0,0) = C(d-1,0);
 			c0 = C.ExtractRows(0,d-2);
+
 			q1 = ZSampleF(dEval,c1(0,0),dgg,dEval.Size());
 
 			Dinverse(0,0) = D(0,0).Inverse();
@@ -359,13 +361,13 @@ namespace lbcrypto {
 		}
 		else if (dimD == 2) { //dimD == 2
 
-			c1 = C.ExtractRows(dimD-2,dimD-1);
-			c0 = C.ExtractRows(0,dimD-2);
+			c1 = C.ExtractRows(dimA,d-1);
+			c0 = C.ExtractRows(0,dimA-1);
 
 			ZSampleSigma2x2(D(0,0), D(0,1), D(1,1), c1, dgg, q1);
 
-			qF1(0,0) = Field2n(q1->ExtractRows(0,n-1));
-			qF1(1,0) = Field2n(q1->ExtractRows(n,2*n-1));
+			for (size_t i = 0; i < dimD; i++)
+				qF1(i,0) = Field2n(q1->ExtractRows(i*n,i*n+n-1));
 
 			Field2n det = D(0,0)*D(1,1)-D(0,1)*D(1,0);
 			Field2n detInverse = det.Inverse();
@@ -376,8 +378,44 @@ namespace lbcrypto {
 			Dinverse(1,1) = D(0,0)*detInverse;
 
 		}
-		else
-			throw std::logic_error("Matrices higher than 5x5 are not currently supported");
+		else // dimD > 2
+		{
+
+			c1 = C.ExtractRows(dimA,d-1);
+			c0 = C.ExtractRows(0,dimA-1);
+
+			size_t newDimA = (size_t)std::ceil((double)dimD/2);
+			size_t newDimD = (size_t)std::floor((double)dimD/2);
+
+			Matrix<Field2n> newA([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimA);
+			Matrix<Field2n> newB([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimD);
+			Matrix<Field2n> newD([&]() { return Field2n(n,EVALUATION,true); }, newDimD, newDimD);
+
+			for (size_t i = 0; i < newDimA; i++)
+				for (size_t j = 0; j < newDimA; j++)
+					newA(i,j) = D(i,j);
+
+			for (size_t i = 0; i < newDimA; i++)
+				for (size_t j = 0; j < newDimD; j++)
+					newB(i,j) = D(i,j+newDimA);
+
+			for (size_t i = 0; i < newDimD; i++)
+				for (size_t j = 0; j < newDimD; j++)
+					newD(i,j) = D(i+newDimA,j+newDimA);
+
+			SampleMat(newA,newB,newD,c1,dgg,q1);
+
+			for (size_t i = 0; i < dimD; i++)
+				qF1(i,0) = Field2n(q1->ExtractRows(i*n,i*n+n-1));
+
+			Field2n det(n,EVALUATION,true);
+			D.Determinant(&det);
+
+			Field2n detInverse = det.Inverse();
+
+			Dinverse = (D.CofactorMatrix()).Transpose() * detInverse;
+
+		}
 
 		Matrix<Field2n> sigma = A - B*Dinverse*(B.Transpose());
 
@@ -388,12 +426,15 @@ namespace lbcrypto {
 
 		Matrix<Field2n> cNew = c0 + B*Dinverse*diff;
 
-		size_t newDimA = (size_t)std::ceil(dimA/2);
-		size_t newDimD = (size_t)std::floor(dimA/2);
+		// Swtich to coefficient representation
+		cNew.SwitchFormat();
 
-		Matrix<Field2n> newA([]() { return Field2n(); }, newDimA, newDimA);
-		Matrix<Field2n> newB([]() { return Field2n(); }, newDimA, newDimD);
-		Matrix<Field2n> newD([]() { return Field2n(); }, newDimD, newDimD);
+		size_t newDimA = (size_t)std::ceil((double)dimA/2);
+		size_t newDimD = (size_t)std::floor((double)dimA/2);
+
+		Matrix<Field2n> newA([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimA);
+		Matrix<Field2n> newB([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimD);
+		Matrix<Field2n> newD([&]() { return Field2n(n,EVALUATION,true); }, newDimD, newDimD);
 
 		for (size_t i = 0; i < newDimA; i++)
 			for (size_t j = 0; j < newDimA; j++)
@@ -401,13 +442,13 @@ namespace lbcrypto {
 
 		for (size_t i = 0; i < newDimA; i++)
 			for (size_t j = 0; j < newDimD; j++)
-				newB(i,j) = sigma(i,j+dimA);
+				newB(i,j) = sigma(i,j+newDimA);
 
 		for (size_t i = 0; i < newDimD; i++)
 			for (size_t j = 0; j < newDimD; j++)
-				newD(i,j) = sigma(i+dimA,j+dimA);
+				newD(i,j) = sigma(i+newDimA,j+newDimA);
 
-		shared_ptr<Matrix<int64_t>> q0;
+		shared_ptr<Matrix<int64_t>> q0(new Matrix<int64_t>([]() { return 0; }, n * dimA, 1));
 
 		SampleMat(newA,newB,newD,cNew,dgg,q0);
 

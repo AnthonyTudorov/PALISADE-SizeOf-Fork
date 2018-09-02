@@ -362,12 +362,10 @@ public:
 
 				}
 
-				std::cerr << "Perturbation sampling: called regular Gaussian generation for p"  << std::endl;
-
 				//create a matrix of d*k x d ring elements in coefficient representation
-				Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector.ExtractRow(0), n, params);
+				Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector.ExtractCol(0), n, params);
 				for(size_t i = 1; i < d; i++) {
-					p2.VStack(SplitInt64IntoElements<Element>(p2ZVector.ExtractRow(i), n, params));
+					p2.HStack(SplitInt64IntoElements<Element>(p2ZVector.ExtractCol(i), n, params));
 				}
 
 				//now converting to evaluation representation before multiplication
@@ -377,23 +375,18 @@ public:
 
 				auto zero_alloc = Element::Allocator(params, EVALUATION);
 
-				std::cerr << "Perturbation sampling: About to do multiplications in A, B, and D"  << std::endl;
-
-				// all three Polynomials are initialized with "0" coefficients
 				Matrix<Element> A = R*(R.Transpose()); // d x d
 				Matrix<Element> B = R*(E.Transpose()); // d x d
 				Matrix<Element> D = E*(E.Transpose()); // d x d
-
-				std::cerr << "Perturbation sampling: Setting A, B, and D"  << std::endl;
 
 				//Switch the ring elements (Polynomials) to coefficient representation
 				A.SwitchFormat();
 				B.SwitchFormat();
 				D.SwitchFormat();
 
-				Matrix<Field2n> AF([]() { return Field2n(); }, d, d);
-				Matrix<Field2n> BF([]() { return Field2n(); }, d, d);
-				Matrix<Field2n> DF([]() { return Field2n(); }, d, d);
+				Matrix<Field2n> AF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
+				Matrix<Field2n> BF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
+				Matrix<Field2n> DF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
 
 				double scalarFactor = -sigma * sigma;
 
@@ -412,8 +405,6 @@ public:
 					}
 				}
 
-				std::cerr << "Perturbation sampling: Computing AF, BF, and DF"  << std::endl;
-
 				//converts the field elements to DFT representation
 				AF.SwitchFormat();
 				BF.SwitchFormat();
@@ -425,25 +416,26 @@ public:
 				//change to coefficient representation before converting to field elements
 				Tp2.SwitchFormat();
 
-				Matrix<Field2n> c([]() { return Field2n(); }, 2*d, d);
+				Matrix<Element> p1(zero_alloc, 1, 1);
 
-				for (size_t i = 0; i < d; i++) {
-					for (size_t j = 0; j < d; j++) {
-						c(i,j) = Field2n(Tp2(i, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
-						c(i+d,j) = Field2n(Tp2(i+d, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+				for (size_t j = 0; j < d; j++) {
+
+					Matrix<Field2n> c([&]() { return Field2n(n,COEFFICIENT); }, 2*d, 1);
+
+					for (size_t i = 0; i < d; i++) {
+						c(i,0) = Field2n(Tp2(i, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+						c(i+d,0) = Field2n(Tp2(i+d, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 					}
-				}
 
-				shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, d));
+					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, 1));
 
-				std::cerr << "Perturbation sampling: About to enter SampleMat"  << std::endl;
+					LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
 
-				LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
+					if (j == 0)
+						p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, params);
+					else
+						p1.HStack(SplitInt64IntoElements<Element>(*p1ZVector, n, params));
 
-				//create matrix of 2d x d ring elements in coefficient representation
-				Matrix<Element> p1 = SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(0), n, params);
-				for(size_t i = 1; i < d; i++) {
-					p1.VStack(SplitInt64IntoElements<Element>(p1ZVector->ExtractRow(i), n, params));
 				}
 
 				//Converts p1 to Evaluation representation
@@ -452,6 +444,7 @@ public:
 				*perturbationVector = p1.VStack(p2);
 
 			}
+
 };
 
 } //end namespace crypto

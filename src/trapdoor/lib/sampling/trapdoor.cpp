@@ -260,20 +260,11 @@ namespace lbcrypto {
 		//perturbation vector in evaluation representation
 		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, d*(k + 2), d));
 
-// Correct the perturbation sampling
-// START
-
-		std::cerr << "About to call perturbation sampling"  << std::endl;
-
 		SamplePertSquareMat(n, s, c, T, dgg, dggLargeSigma, pHat);
-
-		std::cerr << "Perturbation sampling is done"  << std::endl;
-
-// END
 
 		// It is assumed that A has dimension d x d*(k + 2) and pHat has the dimension of d*(k + 2) x d
 		// perturbedSyndrome is in the evaluation representation
-		Matrix<Element> perturbedSyndrome = U - (A.Mult(*pHat));
+		Matrix<Element> perturbedSyndrome = U;// - (A.Mult(*pHat));
 
 		// converting perturbed syndrome to coefficient representation
 		perturbedSyndrome.SwitchFormat();
@@ -304,7 +295,7 @@ namespace lbcrypto {
 
 		Matrix<Element> rZhat = T.m_r.Mult(zHatMat); // d x d
 		Matrix<Element> eZhat = T.m_e.Mult(zHatMat); // d x d
-
+/*
 		for (size_t i = 0; i < d; i++) {
 			for (size_t j = 0; j < d; j++) {
 				zHatPrime(i,j) = (*pHat)(i,j) + rZhat(i,j);
@@ -312,6 +303,17 @@ namespace lbcrypto {
 
 				for (size_t row = 2; row < k + 2; ++row) {
 					zHatPrime(i+row*d,j) = (*pHat)(i+row*d,j) + zHatMat(i+(row-2)*d,j);
+				}
+			}
+		}
+*/
+		for (size_t i = 0; i < d; i++) {
+			for (size_t j = 0; j < d; j++) {
+				zHatPrime(i,j) =  rZhat(i,j);
+				zHatPrime(i+d,j) =  eZhat(i,j);
+
+				for (size_t row = 2; row < k + 2; ++row) {
+					zHatPrime(i+row*d,j) =  zHatMat(i+(row-2)*d,j);
 				}
 			}
 		}
