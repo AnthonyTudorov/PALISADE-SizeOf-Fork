@@ -52,6 +52,24 @@ namespace lbcrypto {
   IDENTITY_FOR_TYPE(int64_t)
   IDENTITY_FOR_TYPE(Field2n)
 
+  //Matrix<T> Matrix<T>::GadgetVector(int64_t base)
+#define GADGET_FOR_TYPE(T)					\
+  template<>							\
+  Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
+    Matrix<T> g(allocZero, rows, cols);				\
+    auto base_matrix = allocZero();				\
+    base_matrix = base;							\
+  	for (size_t row = 0; row < rows; ++row) { \
+  		g(row, 0) = 1;						\
+  	} \
+    for (size_t col = 1; col < cols; ++col) {			\
+    	for (size_t row = 0; row < rows; ++row) {		\
+    		g(row, col) = g(row, col-1) * base_matrix;			\
+    	}										\
+    }								\
+    return g;							\
+  }
+
   GADGET_FOR_TYPE(double)
   GADGET_FOR_TYPE(int)
   GADGET_FOR_TYPE(int64_t)

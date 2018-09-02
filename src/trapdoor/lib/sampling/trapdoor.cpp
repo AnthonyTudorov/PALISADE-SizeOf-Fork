@@ -287,7 +287,7 @@ namespace lbcrypto {
 				zHat.SwitchFormat();
 
 				for(size_t p=0; p<k; p++)
-					zHatMat(i*k+p,j) = zHat(p,0);
+					zHatMat(i+p*d,j) = zHat(p,0);
 			}
 		}
 
@@ -295,6 +295,21 @@ namespace lbcrypto {
 
 		Matrix<Element> rZhat = T.m_r.Mult(zHatMat); // d x d
 		Matrix<Element> eZhat = T.m_e.Mult(zHatMat); // d x d
+/*
+		Matrix<Element> rZhat(zero_alloc, d, d); // d x d
+		Matrix<Element> eZhat(zero_alloc, d, d); // d x d
+
+		for(size_t p=0; p<k; p++) {
+			for (size_t i = 0; i < d; i++) {
+				for (size_t j = 0; j < d; j++) {
+					for (size_t t = 0; t < d; t++) {
+						rZhat(i,j) += T.m_r(i,t+p*d)*zHatMat(t+p*d,j);
+						eZhat(i,j) += T.m_e(i,t+p*d)*zHatMat(t+p*d,j);
+					}
+				}
+			}
+		}
+*/
 /*
 		for (size_t i = 0; i < d; i++) {
 			for (size_t j = 0; j < d; j++) {
@@ -307,12 +322,14 @@ namespace lbcrypto {
 			}
 		}
 */
-		for (size_t i = 0; i < d; i++) {
-			for (size_t j = 0; j < d; j++) {
-				zHatPrime(i,j) =  rZhat(i,j);
-				zHatPrime(i+d,j) =  eZhat(i,j);
+		size_t m = k + 2;
 
-				for (size_t row = 2; row < k + 2; ++row) {
+		for (size_t j = 0; j < d; j++) { // columns
+			for (size_t i = 0; i < d; i++) {
+				zHatPrime(i,j) =  rZhat(i,j);
+				zHatPrime(i+1,j) =  eZhat(i,j);
+
+				for (size_t row = 2; row < m; row++) {
 					zHatPrime(i+row*d,j) =  zHatMat(i+(row-2)*d,j);
 				}
 			}

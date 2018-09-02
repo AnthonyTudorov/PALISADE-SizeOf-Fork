@@ -268,6 +268,9 @@ TEST(UTTrapdoor,TrapDoorMultTestSquareMat){
 		<< "Failure testing number of colums";
 
     RingMat G = RingMat(zero_alloc, d, d*k).GadgetVector();
+
+    std::cerr << G << std::endl;
+
     EXPECT_EQ(G, trapMult);
 }
 
@@ -517,6 +520,7 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
 	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
 	Matrix<Poly> U(zero_alloc, d, d,uniform_alloc);
+	//Matrix<Poly> U(zero_alloc, d, d);
 
 	std::cerr << "About to call trapdoor sampling"  << std::endl;
 
@@ -531,12 +535,12 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
 	EXPECT_EQ(m / 2, z(0, 0).GetLength())
 		<< "Failure testing ring dimension for the first ring element";
 
-	std::cerr << trapPair.first.GetCols() << std::endl;
-	std::cerr << z.GetRows() << std::endl;
+	//std::cerr << trapPair.first.GetCols() << std::endl;
+	//std::cerr << z.GetRows() << std::endl;
 
-	std::cerr << trapPair.first << std::endl;
+	//std::cerr << trapPair.first << std::endl;
 
-	std::cerr << z << std::endl;
+	//std::cerr << z << std::endl;
 
 	Matrix<Poly> UEst = trapPair.first * z;
 
