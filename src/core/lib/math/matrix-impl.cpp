@@ -58,15 +58,21 @@ namespace lbcrypto {
   Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
     Matrix<T> g(allocZero, rows, cols);				\
     auto base_matrix = allocZero();				\
+    size_t k = cols/rows; 		\
     base_matrix = base;							\
-  	for (size_t row = 0; row < rows; ++row) { \
-  		g(row, 0) = 1;						\
+  	for (size_t row = 0; row < rows; row++) { \
+  		for (size_t col = 0; col < rows; col++) { \
+  			if (row == col)							\
+  				g(row, col) = 1;					\
+  		} \
   	} \
-    for (size_t col = 1; col < cols; ++col) {			\
-    	for (size_t row = 0; row < rows; ++row) {		\
-    		g(row, col) = g(row, col-1) * base_matrix;			\
-    	}										\
-    }								\
+	for (size_t i = 1; i < k; i++) {		\
+	    for (size_t row = 0; row < rows; row++) {			\
+	    	for (size_t col = 0; col < rows; col++) {			\
+    	    	g(row, col + i*rows) = g(row, col + (i-1)*rows) * base_matrix;			\
+    	    }										\
+    	} 							\
+  	}								\
     return g;							\
   }
 

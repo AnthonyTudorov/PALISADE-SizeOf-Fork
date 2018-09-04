@@ -269,7 +269,7 @@ TEST(UTTrapdoor,TrapDoorMultTestSquareMat){
 
     RingMat G = RingMat(zero_alloc, d, d*k).GadgetVector();
 
-    std::cerr << G << std::endl;
+    //std::cerr << G << std::endl;
 
     EXPECT_EQ(G, trapMult);
 }
@@ -480,8 +480,8 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 
 }
 
-// Test of Gaussian Sampling for matrices of 5 by 5
-TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
+// Test of Gaussian Sampling for matrices from 2x2 to 5x5
+TEST(UTTrapdoor, TrapDoorGaussSampTestSquareMatrices) {
         bool dbg_flag = false;
 	DEBUG("in test");
 	usint m = 16;
@@ -500,54 +500,39 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest5x5) {
 	auto zero_alloc = Poly::Allocator(params, EVALUATION);
 	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
 
-	size_t d = 2;
+	for (size_t d = 2; d < 6; d++) {
 
-	std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, sigma, d);
+		std::pair<RingMat, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, sigma, d);
 
-	std::cerr << "Trapdoor generation was successful"  << std::endl;
+		RingMat R = trapPair.second.m_r;
+		RingMat E = trapPair.second.m_e;
 
-	RingMat R = trapPair.second.m_r;
-	RingMat E = trapPair.second.m_e;
-	//auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
+		Poly::DggType dgg(sigma);
+		Poly::DugType dug = Poly::DugType();
+		dug.SetModulus(modulus);
 
-	Poly::DggType dgg(sigma);
-	Poly::DugType dug = Poly::DugType();
-	dug.SetModulus(modulus);
+		uint32_t base = 2;
+		double c = (base + 1) * SIGMA;
+		double s = SPECTRAL_BOUND_D(n, k, base, d);
+		Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
 
-	uint32_t base = 2;
-	double c = (base + 1) * SIGMA;
-	double s = SPECTRAL_BOUND_D(n, k, base, d);
-	Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
+		Matrix<Poly> U(zero_alloc, d, d,uniform_alloc);
 
-	Matrix<Poly> U(zero_alloc, d, d,uniform_alloc);
-	//Matrix<Poly> U(zero_alloc, d, d);
+		Matrix<Poly> z = RLWETrapdoorUtility<Poly>::GaussSampSquareMat(m / 2, k, trapPair.first, trapPair.second, U, dgg, dggLargeSigma);
 
-	std::cerr << "About to call trapdoor sampling"  << std::endl;
+		EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+			<< "Failure testing number of rows";
+		EXPECT_EQ(m / 2, z(0, 0).GetLength())
+			<< "Failure testing ring dimension for the first ring element";
 
-	Matrix<Poly> z = RLWETrapdoorUtility<Poly>::GaussSampSquareMat(m / 2, k, trapPair.first, trapPair.second, U, dgg, dggLargeSigma);
+		Matrix<Poly> UEst = trapPair.first * z;
 
-	std::cerr << "Finished trapdoor sampling"  << std::endl;
+		UEst.SwitchFormat();
+		U.SwitchFormat();
 
-	//Matrix<Poly> uEst = trapPair.first * z;
+		EXPECT_EQ(U, UEst) << "Failure trapdoor sampling test for " << d << "x" << d << " matrices";
 
-	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
-		<< "Failure testing number of rows";
-	EXPECT_EQ(m / 2, z(0, 0).GetLength())
-		<< "Failure testing ring dimension for the first ring element";
-
-	//std::cerr << trapPair.first.GetCols() << std::endl;
-	//std::cerr << z.GetRows() << std::endl;
-
-	//std::cerr << trapPair.first << std::endl;
-
-	//std::cerr << z << std::endl;
-
-	Matrix<Poly> UEst = trapPair.first * z;
-
-	UEst.SwitchFormat();
-	U.SwitchFormat();
-
-	EXPECT_EQ(U, UEst);
+	}
 
 }
 
