@@ -30,12 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include "obfuscation/lweconjunctionobfuscate.h"
-#include "obfuscation/lweconjunctionobfuscate.cpp"
-
-
 #include "utils/debug.h"
-
-#include <omp.h> //open MP header
 
 //using namespace std;
 using namespace lbcrypto;

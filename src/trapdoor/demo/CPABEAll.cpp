@@ -1,5 +1,4 @@
 #include "abe/cp_abe.h"
-#include "abe/cp_abe.cpp"
 
 
 #include "utils/debug.h"
@@ -80,8 +79,10 @@ int main()
 	};	
 
 	for(usint i = 0; i < sizeof(cpabe_params)/sizeof(cpabe_params[0]);i++){
-		BigInteger modulus(cpabe_params[i].modulus);
-		BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
+	  //std::cout << "modulus " << cpabe_params[i].modulus<< std::endl;
+
+	  //BigInteger modulus(cpabe_params[i].modulus);
+	  //	BigInteger rootOfUnity(cpabe_params[i].rootOfUnity);
 			CPABE_Test<NativePoly>(3, cpabe_params[i].base, cpabe_params[i].ringDimension, cpabe_params[i].q, cpabe_params[i].l,/* modulus, rootOfUnity,*/ true);
 	}	
 	std::cout << "-------End demo for CP-ABE-------" << std::endl << std::endl;

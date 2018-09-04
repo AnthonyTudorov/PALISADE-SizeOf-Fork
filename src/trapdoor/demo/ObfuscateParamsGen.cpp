@@ -69,7 +69,7 @@ void RunUniform() {
 
 	start = currentDateTime();
 
-	RingMat u1(zero_alloc, 2, k, uniform_alloc);
+	Matrix<Poly> u1(zero_alloc, 2, k, uniform_alloc);
 
 	finish = currentDateTime();
 

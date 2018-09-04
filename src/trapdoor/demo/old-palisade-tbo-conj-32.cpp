@@ -29,7 +29,6 @@
 
 #include <iostream>
 #include "obfuscation/lweconjunctionchcprf.h"
-#include "obfuscation/lweconjunctionchcprf.cpp"
 
 #include "utils/debug.h"
 

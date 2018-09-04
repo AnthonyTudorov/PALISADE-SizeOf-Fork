@@ -53,28 +53,109 @@
  * The namespace of lbcrypto
  */
 namespace lbcrypto {
+  
+  /**
+   * Setup function for Private Key Generator (PKG)
+   * Digit decomposition using higher bases with balanced representation
+   * Limits noise growth
+   * Temporarily here; but can be made a part of RingMat class
+   *
+   * templated with three Element classes E1, E2, E3)
+   * @param ilParams parameter set (of type E1:Params) 
+   * @param base is a power of two
+   * @param k bit size of modulus
+   * @param &matrix to be decomposed (of elements E2)
+   * @param *psi decomposed matrix (of elements E3)
+   **/
+  
+  /*
+   * Input: base
+   * Input: vector of (k+2) elements of $R_q$
+   * Input: $k = \lceil \log_(base){q} \rceil$; i.e. the digit length of the modulus + 1 (in base)
+   * Output: matrix of (k+2)x(k+2) elements of $R_2$ where the coefficients are in balanced representation
+   */
+  
 
-    /**
-    * Setup function for Private Key Generator (PKG)
-    * Digit decomposition using higher bases with balanced representation
-    * Limits noise growth
-    * Temporarily here; but can be made a part of RingMat class
-    *
-    * @param ilParams parameter set
-    * @param base is a power of two
-    * @param k bit size of modulus
-    * @param &matrix to be decomposed
-	* @param *psi decomposed matrix
-    */
-	int PolyVec2BalDecom(
-		const shared_ptr<ILParams> ilParams,
-		int32_t base,
-		int k,
-		const RingMat &publElemB,
-		RingMat *psi
-	);
-/*Element is the main ring element used, while Element2 is interpolated ring element. e.g. DCRTPoly is element and Poly is Element2*/
-	template <class Element, class Element2>
+  template <class Element>
+    void PolyVec2BalDecom(
+			  const shared_ptr<typename Element::Params> ilParams,
+			  int32_t base,
+			  int k,
+			  const Matrix<Element> &pubElemB,
+			  Matrix<Element> *psi)
+  {
+    usint ringDimesion = ilParams->GetCyclotomicOrder() >> 1;
+    usint m = k+2;
+    BigInteger q = ilParams->GetModulus();
+    auto big0 = BigInteger(0);
+    auto bigBase = BigInteger(base);
+    for(usint i=0; i<m; i++)
+      for(usint j=0; j<m; j++) {
+	(*psi)(j, i).SetValuesToZero();
+	if ((*psi)(j, i).GetFormat() != COEFFICIENT){
+	  (*psi)(j, i).SwitchFormat();
+	}
+      }
+    for (usint ii=0; ii<m; ii++) {
+      int digit_i;
+      auto tB = pubElemB(0, ii);
+      if(tB.GetFormat() != COEFFICIENT){
+	tB.SwitchFormat();
+      }
+
+      for(usint i=0; i<ringDimesion; i++) {
+	auto coeff_i = tB.at(i);
+	int j = 0;
+	int flip = 0;
+	while(coeff_i > big0) {
+#ifdef STRANGE_MINGW_COMPILER_ERROR
+	  // the following line of code, with -O2 or -O3 on, crashes the mingw64 compiler
+	  // replaced with the bracketed code below
+	  digit_i = coeff_i.GetDigitAtIndexForBase(1, base);
+#endif
+	  {
+	    digit_i = 0;
+	    usint newIndex = 1;
+	    for (int32_t i = 1; i < base; i = i * 2)
+	      {
+		digit_i += coeff_i.GetBitAtIndex(newIndex)*i;
+		newIndex++;
+	      }
+	  }
+
+	  if (digit_i > (base>>1)) {
+	    digit_i = base-digit_i;
+	    coeff_i = coeff_i+bigBase;    // math backend 2
+	    (*psi)(j, ii).at(i)= q-BigInteger(digit_i);
+	  }
+	  else if(digit_i == (base>>1)) {
+	    if (flip == 0) {
+	      coeff_i = coeff_i+bigBase;    // math backend 2
+	      (*psi)(j, ii).at(i)= q-BigInteger(digit_i);
+	    }
+	    else
+	      (*psi)(j, ii).at(i)= BigInteger(digit_i);
+	    flip = flip ^ 1;
+	  }
+	  else
+	    (*psi)(j, ii).at(i)= BigInteger(digit_i);
+
+	  coeff_i = coeff_i.DividedBy(bigBase);
+	  j++;
+	}
+      }
+    }
+
+  }
+
+
+  /**
+   * KPABE class definition template
+   * Element is the main ring element used, 
+   * while Element2 is interpolated ring element. 
+   * e.g. DCRTPoly is element and Poly is Element2
+   */
+	template <class Element, class Element2 = Poly>
 	class KPABE {
 	public:
 
@@ -92,6 +173,7 @@ namespace lbcrypto {
 		 */
 		~KPABE() {
 		}
+
 
 		/**
 		* Setup function for Private Key Generator (PKG)
@@ -185,12 +267,12 @@ namespace lbcrypto {
 		* @param *evalCT evaluated ciphertext value
 		*/
 		void EvalCT(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB,
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &pubElemB,
 			const usint x[],  //attributes
-			const RingMat &origCT, // original ciphtertext
+			const Matrix<Element> &origCT, // original ciphtertext
 			usint *evalAttribute, // evaluated circuit
-			RingMat *evalCT //evaluated ciphertext
+			Matrix<Element> *evalCT //evaluated ciphertext
 		);
 
 		/**
@@ -207,10 +289,10 @@ namespace lbcrypto {
 		 * This is method for evaluating a single NAND gate
 		 */
 		void NANDGateEvalPK(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &pubElemB0,
-			const RingMat &origPubElem,
-			RingMat *evalPubElem
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &pubElemB0,
+			const Matrix<Element> &origPubElem,
+			Matrix<Element> *evalPubElem
 		);
 
 
@@ -231,13 +313,13 @@ namespace lbcrypto {
 		 * This is method for evaluating a single NAND gate
 		 */
 		void NANDGateEvalCT(
-			const shared_ptr<ILParams> ilParams,
-			const RingMat &ctC0,
+			const shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &ctC0,
 			const usint x[],
-			const RingMat &origPubElem,
-			const RingMat &origCT,
+			const Matrix<Element> &origPubElem,
+			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			RingMat *evalCT
+			Matrix<Element> *evalCT
 		);
 
 
@@ -249,9 +331,9 @@ namespace lbcrypto {
 		* @param *evalPubElementBf evaluated value of public element
 		*/
 		void ANDGateEvalPK(
-			shared_ptr<ILParams> ilParams,
-			const RingMat &origPubElemB,
-			RingMat *evalPubElemBf
+			shared_ptr<typename Element::Params> ilParams,
+			const Matrix<Element> &origPubElemB,
+			Matrix<Element> *evalPubElemBf
 		);
 		/**
 		*Evaluation of simple AND Gate
@@ -264,12 +346,12 @@ namespace lbcrypto {
 		* @param *evalCT evaluated ciphertext value
 		*/
 		void ANDGateEvalCT(
-			const shared_ptr<ILParams> ilParams,
+			const shared_ptr<typename Element::Params> ilParams,
 			const usint x[2], //TBA
-			const RingMat &origPubElemB,
-			const RingMat &origCT,
+			const Matrix<Element> &origPubElemB,
+			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			RingMat *evalCT
+			Matrix<Element> *evalCT
 		);
 
 		/**
@@ -436,9 +518,8 @@ namespace lbcrypto {
 			usint *evalAttribute,
 			Matrix<Element> *evalCT,
 			const shared_ptr<typename Element2::Params> ilParamsConsolidated
-	);
-
-
+				       );
+		
 	private:
 		usint m_k; //number of bits of the modulus
 		usint m_ell; //number of attributes
