@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 	TIC(t);
 	auto constrainedKey = algorithm.Constrain(key,  pattern);
 	processingTime = TOC(t);
-	std::cout << "Contstrained Key Generation: " << processingTime << "ms" << std::endl;
+	std::cout << "Constrained Key Generation: " << processingTime << "ms" << std::endl;
 
 	TIC(t);
 	const auto value1 = algorithm.Evaluate(           key, input1);
