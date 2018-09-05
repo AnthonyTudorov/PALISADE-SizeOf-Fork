@@ -187,17 +187,23 @@ public:
 	Matrix<Element> GadgetVector(int64_t base = 2) const;
 
 #define GADGET_FOR_TYPE(T)					\
-	template<>							\
-	Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
-		Matrix<T> g(allocZero, rows, cols);				\
-		auto base_matrix = allocZero();				\
-		base_matrix = base;					\
-		g(0, 0) = 1;						\
-		for (size_t col = 1; col < cols; ++col) {			\
-			g(0, col) = g(0, col-1) * base_matrix;			\
-		}								\
-		return g;							\
-	}
+  template<>							\
+  Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
+    Matrix<T> g(allocZero, rows, cols);				\
+    auto base_matrix = allocZero();				\
+    size_t k = cols/rows; 						\
+    base_matrix = base;							\
+    g(0, 0) = 1;								\
+  	for (size_t i = 1; i < k; i++) { \
+  			g(0, i) = g(0, i-1) * base_matrix;					\
+  	} \
+	for (size_t row = 1; row < rows; row++) {		\
+		for (size_t i = 0; i < k; i++) { \
+    	    g(row, i + row*k) = g(0, i);			\
+    	} 							\
+  	}								\
+    return g;							\
+  }
 
 	/**
 	 * Computes the infinity norm
@@ -509,6 +515,21 @@ public:
 		for (auto elem = this->GetData()[row].begin(); elem != this->GetData()[row].end(); ++elem) {
 			result(0,i) = *elem;
 			i++;
+		}
+		return result;
+		//return *this;
+	}
+
+	/**
+	 * Matrix column extractor
+	 *
+	 * @param &col col index
+	 * @return the col at the index
+	 */
+	Matrix<Element> ExtractCol(size_t col) const {
+		Matrix<Element> result(this->allocZero,this->rows,1);
+		for (size_t i = 0; i < this->rows; i++) {
+			result(i,0) = data[i][col];
 		}
 		return result;
 		//return *this;

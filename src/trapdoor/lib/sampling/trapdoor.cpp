@@ -35,7 +35,8 @@ namespace lbcrypto {
 
   
 	template <class Element>
-	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base, bool bal)
+	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params,
+			int stddev, int64_t base, bool bal)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
 		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
@@ -73,6 +74,56 @@ namespace lbcrypto {
 
 	}
 
+
+	template <class Element>
+	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGenSquareMat(shared_ptr<typename Element::Params> params,
+			int stddev, size_t d, int64_t base, bool bal)
+	{
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
+		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
+		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+		double val = params->GetModulus().ConvertToDouble();
+		double nBits = ceil(log2(val));
+
+		size_t k = std::ceil(nBits/log2(base));  /* (+1) is for balanced representation */
+
+		if(bal == true){
+			k++; // for a balanced digit representation, there is an extra digit required
+		}
+
+		Matrix<Element> R(zero_alloc, d, d*k, gaussian_alloc);
+		Matrix<Element> E(zero_alloc, d, d*k, gaussian_alloc);
+
+		Matrix<Element> Abar(zero_alloc, d, d, uniform_alloc);
+
+		//Converts discrete gaussians to Evaluation representation
+		R.SwitchFormat();
+		E.SwitchFormat();
+
+		Matrix<Element> G = Matrix<Element>(zero_alloc, d, d*k).GadgetVector(base);
+
+		Matrix<Element> A(zero_alloc, d, d*2);
+
+		for(size_t i = 0; i < d; i++)
+		{
+			for(size_t j = 0; j < d; j++)
+			{
+				A(i,j) = Abar(i,j);
+				if (i==j)
+					A(i,j+d) = 1;
+				else
+					A(i,j+d) = 0;
+			}
+		}
+
+		Matrix<Element> A1 = G - (Abar*R + E);
+
+		A.HStack(A1);
+
+		return std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(A, RLWETrapdoorPair<Element>(R, E));
+
+	}
 
 	// Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
 
@@ -181,6 +232,86 @@ namespace lbcrypto {
 		//zHat(0, 0).SwitchFormat();
 
 		//std::cout << "zHat=" << zHat2.Norm() << std::endl;
+
+		return zHatPrime;
+
+	}
+
+	// Gaussian sampling as described in "Implementing Token-Based Obfuscation..."
+
+	template <class Element>
+	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSampSquareMat(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Matrix<Element>& U,
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base)
+	{
+
+		const shared_ptr<typename Element::Params> params = U(0,0).GetParams();
+		auto zero_alloc = Element::Allocator(params, EVALUATION);
+
+		double c = (base + 1) * SIGMA;
+
+		const typename Element::Integer& modulus = A(0, 0).GetModulus();
+
+		size_t d = T.m_r.GetRows();
+
+		//spectral bound s
+		double s = SPECTRAL_BOUND_D(n,k,base,d);
+
+		//perturbation vector in evaluation representation
+		shared_ptr<Matrix<Element>> pHat(new Matrix<Element>(zero_alloc, d*(k + 2), d));
+
+		SamplePertSquareMat(n, s, c, T, dgg, dggLargeSigma, pHat);
+
+		// It is assumed that A has dimension d x d*(k + 2) and pHat has the dimension of d*(k + 2) x d
+		// perturbedSyndrome is in the evaluation representation
+		Matrix<Element> perturbedSyndrome = U - (A.Mult(*pHat));
+
+		// converting perturbed syndrome to coefficient representation
+		perturbedSyndrome.SwitchFormat();
+
+		Matrix<Element> zHatMat(zero_alloc, d*k, d);
+
+		for (size_t i = 0; i < d; i++)
+		{
+			for (size_t j = 0; j < d; j++)
+			{
+				Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
+
+				LatticeGaussSampUtility<Element>::GaussSampGqArbBase(perturbedSyndrome(i,j), c, k, modulus, base, dgg, &zHatBBI);
+
+				// Convert zHat from a matrix of BBI to a vector of Element ring elements
+				// zHat is in the coefficient representation
+				Matrix<Element> zHat = SplitInt64AltIntoElements<Element>(zHatBBI, n, params);
+
+				// Now converting it to the evaluation representation before multiplication
+				zHat.SwitchFormat();
+
+				for(size_t p=0; p<k; p++)
+					zHatMat(i*k + p,j) = zHat(p,0);
+			}
+		}
+
+		Matrix<Element> zHatPrime(zero_alloc, d*(k + 2), d);
+
+		Matrix<Element> rZhat = T.m_r.Mult(zHatMat); // d x d
+		Matrix<Element> eZhat = T.m_e.Mult(zHatMat); // d x d
+
+		for (size_t j = 0; j < d; j++) { // columns
+			for (size_t i = 0; i < d; i++) {
+				zHatPrime(i,j) =  (*pHat)(i,j) +  rZhat(i,j);
+				zHatPrime(i+d,j) =  (*pHat)(i+d,j) + eZhat(i,j);
+
+				for (size_t p = 0; p < k; p++) {
+					zHatPrime(i*k + p + 2*d,j) =  (*pHat)(i*k + p + 2*d,j) + zHatMat(i*k + p,j);
+				}
+			}
+		}
+
+		//pHat->SwitchFormat();
+
+		//std::cerr << "s = " << s << std::endl;
+
+		//std::cerr << "pHat = " << *pHat << std::endl;
 
 		return zHatPrime;
 

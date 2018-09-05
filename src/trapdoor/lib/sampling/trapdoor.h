@@ -43,7 +43,7 @@ namespace lbcrypto {
 template <class Element>
 class RLWETrapdoorPair {
 public:
-	// matrix of noise Elementnomials
+	// matrix of noise polyanomials
 	Matrix<Element> m_r;
 	// matrix
 	Matrix<Element> m_e;
@@ -70,7 +70,21 @@ public:
 	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
-	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params, int stddev, int64_t base = 2, bool bal = false);
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params,
+			int stddev, int64_t base = 2, bool bal = false);
+
+	/**
+	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation...")
+	*
+	* @param params ring element parameters
+	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
+	* @param dimension of square matrix
+	* @param base base of gadget matrix
+	* @param bal flag for balanced (true) versus not-balanced (false) digit representation
+	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
+	*/
+	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGenSquareMat(shared_ptr<typename Element::Params> params,
+			 int stddev, size_t dimension, int64_t base = 2, bool bal = false);
 
 	/**
 	* Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
@@ -87,6 +101,23 @@ public:
 	*/
 	static Matrix<Element> GaussSamp(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u,
+		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
+
+	/**
+	* Gaussian sampling (described in "Implementing Token-Based Obfuscation...")
+	*
+	* @param n ring dimension
+	* @param k matrix sample dimension; k = log2(q)/log2(base) + 2
+	* @param &A public key of the trapdoor pair
+	* @param &T trapdoor itself
+	* @param &U syndrome matrix that Gaussian sampling is centered around
+	* @param &dgg discrete Gaussian generator for integers
+	* @param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling (only used in Peikert's method)
+	* @param base base of gadget matrix
+	* @return the sampled vector (matrix)
+	*/
+	static Matrix<Element> GaussSampSquareMat(size_t n, size_t k, const Matrix<Element>& A,
+		const RLWETrapdoorPair<Element>& T, const Matrix<Element> &U,
 		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
 
 	/**
@@ -276,12 +307,168 @@ public:
 				TIC(t1);
 				DEBUG("z1tot: "<<TOC(t1_tot));
 			}
+
+	/**
+		* New method for perturbation generation as described in "Implementing Token-Based Obfuscation..."
+		*
+		*@param n ring dimension
+		*@param s parameter Gaussian distribution
+		*@param sigma standard deviation
+		*@param &Tprime compact trapdoor matrix
+		*@param &dgg discrete Gaussian generator for error sampling
+		*@param &dggLargeSigma discrete Gaussian generator for perturbation vector sampling
+		*@param *perturbationVector perturbation vector;output of the function
+		*/
+		static void SamplePertSquareMat(size_t n, double s, double sigma,
+				const RLWETrapdoorPair<Element> &Tprime,
+				const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
+				shared_ptr<Matrix<Element>> perturbationVector)
+		{
+				Matrix<Element> R = Tprime.m_r;
+				Matrix<Element> E = Tprime.m_e;
+
+				const shared_ptr<typename Element::Params> params = R(0, 0).GetParams();
+
+				// k is the bit length
+				size_t k = R.GetCols();
+				size_t d = R.GetRows();
+
+				Matrix<int64_t> p2ZVector([]() { return 0; }, n*k, d);
+
+				double sigmaLarge = sqrt(s * s - sigma * sigma);
+
+				// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+				// otherwise, use Karney's method
+				if (sigmaLarge > 3e5) {
+
+					//Karney rejection method
+					for (size_t i = 0; i < n * k; i++) {
+						for (size_t j = 0; j < d; j ++) {
+							p2ZVector(i, j) = dgg.GenerateIntegerKarney(0, sigmaLarge);
+						}
+					}
+				}
+				else
+				{
+
+					//Peikert's inversion method
+					std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k*d);
+
+					for (size_t i = 0; i < n * k; i++) {
+						for (size_t j = 0; j < d; j ++) {
+							p2ZVector(i, j) = (dggVector.get())[i*d+j];
+						}
+					}
+
+				}
+
+				//create a matrix of d*k x d ring elements in coefficient representation
+				Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector.ExtractCol(0), n, params);
+				for(size_t i = 1; i < d; i++) {
+					p2.HStack(SplitInt64IntoElements<Element>(p2ZVector.ExtractCol(i), n, params));
+				}
+
+				//now converting to evaluation representation before multiplication
+				p2.SwitchFormat();
+
+				//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
+
+				auto zero_alloc = Element::Allocator(params, EVALUATION);
+
+				Matrix<Element> A = R*(R.Transpose()); // d x d
+				Matrix<Element> B = R*(E.Transpose()); // d x d
+				Matrix<Element> D = E*(E.Transpose()); // d x d
+
+				//Switch the ring elements (Polynomials) to coefficient representation
+				A.SwitchFormat();
+				B.SwitchFormat();
+				D.SwitchFormat();
+
+				Matrix<Field2n> AF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
+				Matrix<Field2n> BF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
+				Matrix<Field2n> DF([&]() { return Field2n(n,EVALUATION,true); }, d, d);
+
+				double scalarFactor = -sigma * sigma;
+
+				for (size_t i = 0; i < d; i++) {
+					for (size_t j = 0; j < d; j++) {
+						AF(i,j) = Field2n(A(i,j));
+						AF(i,j) = AF(i,j).ScalarMult(scalarFactor);
+						BF(i,j) = Field2n(B(i,j));
+						BF(i,j) = BF(i,j).ScalarMult(scalarFactor);
+						DF(i,j) = Field2n(D(i,j));
+						DF(i,j) = DF(i,j).ScalarMult(scalarFactor);
+						if (i == j) {
+							AF(i,j) = AF(i,j) + s*s;
+							DF(i,j) = DF(i,j) + s*s;
+						}
+					}
+				}
+
+				/*if (d==2) {
+					std::cerr << AF << std::endl;
+					std::cerr << BF << std::endl;
+					std::cerr << DF << std::endl;
+				}*/
+
+				//converts the field elements to DFT representation
+				AF.SwitchFormat();
+				BF.SwitchFormat();
+				DF.SwitchFormat();
+
+				//the dimension is 2d x d
+				Matrix<Element> Tp2 = (R.VStack(E))*p2;
+
+				//change to coefficient representation before converting to field elements
+				Tp2.SwitchFormat();
+
+				Matrix<Element> p1(zero_alloc, 1, 1);
+
+				for (size_t j = 0; j < d; j++) {
+
+					Matrix<Field2n> c([&]() { return Field2n(n,COEFFICIENT); }, 2*d, 1);
+
+					for (size_t i = 0; i < d; i++) {
+						c(i,0) = Field2n(Tp2(i, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+						c(i+d,0) = Field2n(Tp2(i+d, j)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
+					}
+
+					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, 1));
+
+					//if (d==2) {
+					//	std::cerr << " c= " << c << std::endl;
+					//}
+
+					LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
+
+					//if (d==2) {
+					//	std::cerr << " p1ZVector = " << *p1ZVector << std::endl;
+					//}
+
+					if (j == 0)
+						p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, params);
+					else
+						p1.HStack(SplitInt64IntoElements<Element>(*p1ZVector, n, params));
+
+				}
+
+				//Converts p1 to Evaluation representation
+				p1.SwitchFormat();
+
+				*perturbationVector = p1.VStack(p2);
+
+				p1.SwitchFormat();
+				//p2.SwitchFormat();
+
+				/*if (d==2) {
+					std::cerr << "p1 = " << p1 << std::endl;
+					std::cerr << "p2 = " << p2 << std::endl;
+				}*/
+
+			}
+
 };
-/*template <>
-	void RLWETrapdoorUtility<DCRTPoly>::ZSampleSigmaP(size_t n, double s, double sigma,
-			const RLWETrapdoorPair<DCRTPoly> &Tprime,
-			const DCRTPoly::DggType& dgg, const DCRTPoly::DggType& dggLargeSigma,
-			shared_ptr<Matrix<DCRTPoly>> perturbationVector);*/
+
 } //end namespace crypto
 
 #endif

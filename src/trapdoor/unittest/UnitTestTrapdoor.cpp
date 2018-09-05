@@ -139,6 +139,45 @@ TEST(UTTrapdoor,TrapDoorPairTest){
         //Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
 }
 
+TEST(UTTrapdoor,TrapDoorPairTestSquareMat){
+	usint m = 16;
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = ceil(log2(val));
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
+
+    size_t d = 5;
+
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, stddev, d);
+
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
+	Matrix<Poly> eyeKK = Matrix<Poly>(zero_alloc, d*k, d*k).Identity();
+
+	Matrix<Poly> stackedTrap1 = rHat.VStack(eHat);
+	//std::cout << stackedTrap2 <<std::endl;
+
+	EXPECT_EQ(2*d,stackedTrap1.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,stackedTrap1.GetCols())
+		<< "Failure testing number of colums";
+
+	Matrix<Poly> stackedTrap2 = stackedTrap1.VStack(eyeKK);
+
+	EXPECT_EQ(d*(k+2),stackedTrap2.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,stackedTrap2.GetCols())
+		<< "Failure testing number of colums";
+
+        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+}
+
 TEST(UTTrapdoor,GadgetTest){
 	usint m = 16;
 	BigInteger modulus("67108913");
@@ -195,6 +234,44 @@ TEST(UTTrapdoor,TrapDoorMultTest){
 
     Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
     EXPECT_EQ(g, trapMult);
+}
+
+TEST(UTTrapdoor,TrapDoorMultTestSquareMat){
+	usint m = 16;
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	float stddev = 4;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = ceil(log2(val));
+	usint k = (usint) floor(logTwo);// = this->m_cryptoParameters.GetModulus();
+
+	size_t d = 5;
+
+	shared_ptr<ILParams> params( new ILParams( m, modulus, rootOfUnity) );
+    auto zero_alloc = Poly::Allocator(params, EVALUATION);
+
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, stddev, d);
+
+	Matrix<Poly> eHat = trapPair.second.m_e;
+	Matrix<Poly> rHat = trapPair.second.m_r;
+	Matrix<Poly> eyeKK = Matrix<Poly>(zero_alloc, d*k, d*k).Identity();
+
+
+	Matrix<Poly> stackedTrap1 = rHat.VStack(eHat);
+	Matrix<Poly> stackedTrap2 = stackedTrap1.VStack(eyeKK);
+
+	Matrix<Poly> trapMult = (trapPair.first)*(stackedTrap2);
+	EXPECT_EQ(d,trapMult.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(d*k,trapMult.GetCols())
+		<< "Failure testing number of colums";
+
+	Matrix<Poly> G = Matrix<Poly>(zero_alloc, d, d*k).GadgetVector();
+
+    // std::cerr << G << std::endl;
+
+    EXPECT_EQ(G, trapMult);
 }
 
 TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
@@ -400,6 +477,131 @@ TEST(UTTrapdoor, TrapDoorGaussSampTest) {
 	EXPECT_EQ(u, uEst);
 
 	//std::cout << z << std::endl;
+
+}
+
+// Test of Gaussian Sampling for matrices from 2x2 to 5x5
+TEST(UTTrapdoor, TrapDoorGaussSampTestSquareMatrices) {
+        bool dbg_flag = false;
+	DEBUG("in test");
+	usint m = 16;
+	usint n = m / 2;
+
+	BigInteger modulus("67108913");
+	BigInteger rootOfUnity("61564");
+	double sigma = SIGMA;
+
+	double val = modulus.ConvertToDouble(); //TODO get the next few lines working in a single instance.
+	double logTwo = std::ceil(log2(val));
+	usint k = (usint)(logTwo);
+
+	shared_ptr<ILParams> params(new ILParams(m, modulus, rootOfUnity));
+
+	auto zero_alloc = Poly::Allocator(params, EVALUATION);
+	auto uniform_alloc = Poly::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	for (size_t d = 2; d < 6; d++) {
+
+		std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> trapPair = RLWETrapdoorUtility<Poly>::TrapdoorGenSquareMat(params, sigma, d);
+
+		Matrix<Poly> R = trapPair.second.m_r;
+		Matrix<Poly> E = trapPair.second.m_e;
+
+		Poly::DggType dgg(sigma);
+
+		uint32_t base = 2;
+		double c = (base + 1) * SIGMA;
+		double s = SPECTRAL_BOUND_D(n, k, base, d);
+		Poly::DggType dggLargeSigma(sqrt(s * s - c * c));
+
+		Matrix<Poly> U(zero_alloc, d, d,uniform_alloc);
+
+		Matrix<Poly> z = RLWETrapdoorUtility<Poly>::GaussSampSquareMat(m / 2, k, trapPair.first, trapPair.second, U, dgg, dggLargeSigma);
+
+		EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+			<< "Failure testing number of rows";
+		EXPECT_EQ(m / 2, z(0, 0).GetLength())
+			<< "Failure testing ring dimension for the first ring element";
+
+		Matrix<Poly> UEst = trapPair.first * z;
+
+		UEst.SwitchFormat();
+		U.SwitchFormat();
+
+		EXPECT_EQ(U, UEst) << "Failure trapdoor sampling test for " << d << "x" << d << " matrices";
+
+	}
+
+}
+
+// Test of Gaussian Sampling for matrices from 2x2 to 5x5
+TEST(UTTrapdoor, TrapDoorGaussSampTestSquareMatricesDCRT) {
+
+	usint m = 16;
+	usint n = m / 2;
+
+	size_t dcrtBits = 60;
+	size_t size = 3;
+
+	vector<NativeInteger> moduli(size);
+	vector<NativeInteger> roots(size);
+
+	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
+	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
+	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
+
+	for (size_t i = 1; i < size; i++)
+	{
+		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
+		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
+	}
+
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
+
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
+
+	double sigma = SIGMA;
+
+	double val = params->GetModulus().ConvertToDouble();
+	double logTwo = std::ceil(log2(val));
+	usint k = (usint)(logTwo);
+
+	auto zero_alloc = DCRTPoly::Allocator(params, EVALUATION);
+	auto uniform_alloc = DCRTPoly::MakeDiscreteUniformAllocator(params, EVALUATION);
+
+	for (size_t d = 2; d < 6; d++) {
+
+		std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapPair = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGenSquareMat(params, sigma, d);
+
+		Matrix<DCRTPoly> R = trapPair.second.m_r;
+		Matrix<DCRTPoly> E = trapPair.second.m_e;
+
+		DCRTPoly::DggType dgg(sigma);
+
+		uint32_t base = 2;
+		double c = (base + 1) * SIGMA;
+		double s = SPECTRAL_BOUND_D(n, k, base, d);
+		DCRTPoly::DggType dggLargeSigma(sqrt(s * s - c * c));
+
+		Matrix<DCRTPoly> U(zero_alloc, d, d,uniform_alloc);
+
+		Matrix<DCRTPoly> z = RLWETrapdoorUtility<DCRTPoly>::GaussSampSquareMat(m / 2, k, trapPair.first, trapPair.second, U, dgg, dggLargeSigma);
+
+		EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+			<< "Failure testing number of rows";
+		EXPECT_EQ(m / 2, z(0, 0).GetLength())
+			<< "Failure testing ring dimension for the first ring element";
+
+		Matrix<DCRTPoly> UEst = trapPair.first * z;
+
+		UEst.SwitchFormat();
+		U.SwitchFormat();
+
+		EXPECT_EQ(U, UEst) << "Failure trapdoor sampling test for " << d << "x" << d << " matrices";
+
+	}
 
 }
 

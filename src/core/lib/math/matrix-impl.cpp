@@ -183,6 +183,34 @@ namespace lbcrypto {
     return result;
   }
 
+  template<>
+  void Matrix<Field2n>::SwitchFormat() {
+
+    if (rows == 1)
+      {
+  	for (size_t row = 0; row < rows; ++row) {
+  #ifdef OMP
+  #pragma omp parallel for
+  #endif
+  	  for (size_t col = 0; col < cols; ++col) {
+  	    data[row][col].SwitchFormat();
+  	  }
+  	}
+      }
+    else
+      {
+  	for (size_t col = 0; col < cols; ++col) {
+  #ifdef OMP
+  #pragma omp parallel for
+  #endif
+  	  for (size_t row = 0; row < rows; ++row) {
+  	    data[row][col].SwitchFormat();
+  	  }
+  	}
+      }
+  }
+
+
 }
 
 #endif

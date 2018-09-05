@@ -48,6 +48,10 @@ const auto SPECTRAL_BOUND = [](uint64_t n, uint64_t k, uint64_t base) -> double 
 	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(n*k) + std::sqrt(2*n) + 4.7);
 };
 
+const auto SPECTRAL_BOUND_D = [](uint64_t n, uint64_t k, uint64_t base, uint64_t d) -> double {
+	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(d*n*k) + std::sqrt(2*n) + 4.7);
+};
+
 /**
 * @brief Utility class containing operations needed for lattice sampling;
 * Sources: https://eprint.iacr.org/2017/844.pdf and https://eprint.iacr.org/2017/308.pdf
@@ -102,6 +106,19 @@ public:
 	*/
 	static void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
 		const Field2n & d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p);
+
+	/**
+	* Subroutine used by SamplePertSquareMat as described in "Implementing Token-Based Obfuscation..."
+	*
+	* @param A a matrix of field elements in DFT format
+	* @param B a matrix of field elements in DFT format
+	* @param D a matrix of field elements in DFT format
+	* @param C a matrix of field elements in Coefficient format
+	* @param dgg discrete Gaussian generator
+	* @param *p non-spherical perturbation matrix; output of the function
+	*/
+	static void SampleMat(const Matrix<Field2n> & A, const Matrix<Field2n> & B,
+		const Matrix<Field2n> & D, const Matrix<Field2n> &C, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p);
 
 	/**
 	* Subroutine used by ZSampleSigma2x2 as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf

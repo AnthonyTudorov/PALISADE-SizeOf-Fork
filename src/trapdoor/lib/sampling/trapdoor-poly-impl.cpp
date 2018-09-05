@@ -42,4 +42,6 @@ namespace lbcrypto {
 	template class RLWETrapdoorUtility<NativePoly>;
 	template class Matrix<NativePoly>;
 
+	template class Matrix<Field2n>;
+
 }

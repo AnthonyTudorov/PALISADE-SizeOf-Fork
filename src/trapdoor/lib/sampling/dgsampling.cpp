@@ -321,6 +321,147 @@ namespace lbcrypto {
 
 	}
 
+	template <class Element>
+	void LatticeGaussSampUtility<Element>::SampleMat(const Matrix<Field2n> & A, const Matrix<Field2n> & B,
+		const Matrix<Field2n> &D, const Matrix<Field2n> &C, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p){
+
+		size_t d = C.GetRows();
+
+		if (d == 2) {
+
+			ZSampleSigma2x2(A(0,0), B(0,0), D(0,0), C, dgg, p);
+			return;
+
+		}
+
+		size_t n = D(0,0).Size();
+
+		size_t dimA = A.GetRows();
+		size_t dimD = D.GetRows();
+
+		shared_ptr<Matrix<int64_t>> q1(new Matrix<int64_t>([]() { return 0; }, n * dimD, 1));
+		Matrix<Field2n> c0([]() { return Field2n(COEFFICIENT); }, dimA, 1);
+		Matrix<Field2n> c1([]() { return Field2n(COEFFICIENT); }, dimD, 1);
+		Matrix<Field2n> qF1([]() { return Field2n(COEFFICIENT); }, dimD, 1);
+
+		Matrix<Field2n> Dinverse([]() { return Field2n(EVALUATION); }, dimD, dimD);
+
+		if (dimD == 1) {
+
+			Field2n dEval = D(0,0);
+			// convert to coefficient representation
+			dEval.SwitchFormat();
+			c1(0,0) = C(d-1,0);
+			c0 = C.ExtractRows(0,d-2);
+
+			q1 = ZSampleF(dEval,c1(0,0),dgg,dEval.Size());
+
+			Dinverse(0,0) = D(0,0).Inverse();
+
+			qF1(0,0) = Field2n(*q1);
+
+		}
+		else if (dimD == 2) { //dimD == 2
+
+			c1 = C.ExtractRows(dimA,d-1);
+			c0 = C.ExtractRows(0,dimA-1);
+
+			ZSampleSigma2x2(D(0,0), D(0,1), D(1,1), c1, dgg, q1);
+
+			for (size_t i = 0; i < dimD; i++)
+				qF1(i,0) = Field2n(q1->ExtractRows(i*n,i*n+n-1));
+
+			Field2n det = D(0,0)*D(1,1)-D(0,1)*D(1,0);
+			Field2n detInverse = det.Inverse();
+
+			Dinverse(0,0) = D(1,1)*detInverse;
+			Dinverse(0,1) = -D(0,1)*detInverse;
+			Dinverse(1,0) = -D(1,0)*detInverse;
+			Dinverse(1,1) = D(0,0)*detInverse;
+
+		}
+		else // dimD > 2
+		{
+
+			c1 = C.ExtractRows(dimA,d-1);
+			c0 = C.ExtractRows(0,dimA-1);
+
+			size_t newDimA = (size_t)std::ceil((double)dimD/2);
+			size_t newDimD = (size_t)std::floor((double)dimD/2);
+
+			Matrix<Field2n> newA([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimA);
+			Matrix<Field2n> newB([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimD);
+			Matrix<Field2n> newD([&]() { return Field2n(n,EVALUATION,true); }, newDimD, newDimD);
+
+			for (size_t i = 0; i < newDimA; i++)
+				for (size_t j = 0; j < newDimA; j++)
+					newA(i,j) = D(i,j);
+
+			for (size_t i = 0; i < newDimA; i++)
+				for (size_t j = 0; j < newDimD; j++)
+					newB(i,j) = D(i,j+newDimA);
+
+			for (size_t i = 0; i < newDimD; i++)
+				for (size_t j = 0; j < newDimD; j++)
+					newD(i,j) = D(i+newDimA,j+newDimA);
+
+			SampleMat(newA,newB,newD,c1,dgg,q1);
+
+			for (size_t i = 0; i < dimD; i++)
+				qF1(i,0) = Field2n(q1->ExtractRows(i*n,i*n+n-1));
+
+			Field2n det(n,EVALUATION,true);
+			D.Determinant(&det);
+
+			Field2n detInverse = det.Inverse();
+
+			Dinverse = (D.CofactorMatrix()).Transpose() * detInverse;
+
+		}
+
+		Matrix<Field2n> sigma = A - B*Dinverse*(B.Transpose());
+
+		Matrix<Field2n> diff = qF1 - c1;
+		// Switch to evaluation representation
+		diff.SwitchFormat();
+		c0.SwitchFormat();
+
+		Matrix<Field2n> cNew = c0 + B*Dinverse*diff;
+
+		// Swtich to coefficient representation
+		cNew.SwitchFormat();
+
+		size_t newDimA = (size_t)std::ceil((double)dimA/2);
+		size_t newDimD = (size_t)std::floor((double)dimA/2);
+
+		Matrix<Field2n> newA([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimA);
+		Matrix<Field2n> newB([&]() { return Field2n(n,EVALUATION,true); }, newDimA, newDimD);
+		Matrix<Field2n> newD([&]() { return Field2n(n,EVALUATION,true); }, newDimD, newDimD);
+
+		for (size_t i = 0; i < newDimA; i++)
+			for (size_t j = 0; j < newDimA; j++)
+				newA(i,j) = sigma(i,j);
+
+		for (size_t i = 0; i < newDimA; i++)
+			for (size_t j = 0; j < newDimD; j++)
+				newB(i,j) = sigma(i,j+newDimA);
+
+		for (size_t i = 0; i < newDimD; i++)
+			for (size_t j = 0; j < newDimD; j++)
+				newD(i,j) = sigma(i+newDimA,j+newDimA);
+
+		shared_ptr<Matrix<int64_t>> q0(new Matrix<int64_t>([]() { return 0; }, n * dimA, 1));
+
+		SampleMat(newA,newB,newD,cNew,dgg,q0);
+
+		*p = *q0;
+
+		p->VStack(*q1);
+
+		return;
+
+	}
+
 	// Subroutine used by ZSampleSigma2x2 as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf
 	// f is in Coefficient representation
 	// c is in Coefficient representation
