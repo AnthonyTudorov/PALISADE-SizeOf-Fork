@@ -405,6 +405,12 @@ public:
 					}
 				}
 
+				/*if (d==2) {
+					std::cerr << AF << std::endl;
+					std::cerr << BF << std::endl;
+					std::cerr << DF << std::endl;
+				}*/
+
 				//converts the field elements to DFT representation
 				AF.SwitchFormat();
 				BF.SwitchFormat();
@@ -429,7 +435,15 @@ public:
 
 					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, 1));
 
+					//if (d==2) {
+					//	std::cerr << " c= " << c << std::endl;
+					//}
+
 					LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
+
+					//if (d==2) {
+					//	std::cerr << " p1ZVector = " << *p1ZVector << std::endl;
+					//}
 
 					if (j == 0)
 						p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, params);
@@ -442,6 +456,14 @@ public:
 				p1.SwitchFormat();
 
 				*perturbationVector = p1.VStack(p2);
+
+				p1.SwitchFormat();
+				//p2.SwitchFormat();
+
+				/*if (d==2) {
+					std::cerr << "p1 = " << p1 << std::endl;
+					std::cerr << "p2 = " << p2 << std::endl;
+				}*/
 
 			}
 

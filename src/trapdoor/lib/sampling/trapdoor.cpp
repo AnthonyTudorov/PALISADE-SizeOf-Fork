@@ -287,7 +287,7 @@ namespace lbcrypto {
 				zHat.SwitchFormat();
 
 				for(size_t p=0; p<k; p++)
-					zHatMat(i+p*d,j) = zHat(p,0);
+					zHatMat(i*k + p,j) = zHat(p,0);
 			}
 		}
 
@@ -296,23 +296,18 @@ namespace lbcrypto {
 		Matrix<Element> rZhat = T.m_r.Mult(zHatMat); // d x d
 		Matrix<Element> eZhat = T.m_e.Mult(zHatMat); // d x d
 
-		size_t m = k + 2;
-
 		for (size_t j = 0; j < d; j++) { // columns
 			for (size_t i = 0; i < d; i++) {
 				zHatPrime(i,j) =  (*pHat)(i,j) +  rZhat(i,j);
 				zHatPrime(i+d,j) =  (*pHat)(i+d,j) + eZhat(i,j);
 
-				for (size_t row = 2; row < m; row++) {
-					zHatPrime(i+row*d,j) =  (*pHat)(i+row*d,j) + zHatMat(i+(row-2)*d,j);
+				for (size_t p = 0; p < k; p++) {
+					zHatPrime(i*k + p + 2*d,j) =  (*pHat)(i*k + p + 2*d,j) + zHatMat(i*k + p,j);
 				}
 			}
 		}
 
 		pHat->SwitchFormat();
-
-		std::cerr << s << std::endl;
-		std::cerr << *pHat << std::endl;
 
 		return zHatPrime;
 

@@ -269,7 +269,7 @@ TEST(UTTrapdoor,TrapDoorMultTestSquareMat){
 
     RingMat G = RingMat(zero_alloc, d, d*k).GadgetVector();
 
-    //std::cerr << G << std::endl;
+    // std::cerr << G << std::endl;
 
     EXPECT_EQ(G, trapMult);
 }

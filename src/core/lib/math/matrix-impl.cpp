@@ -58,6 +58,26 @@ namespace lbcrypto {
   Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
     Matrix<T> g(allocZero, rows, cols);				\
     auto base_matrix = allocZero();				\
+    size_t k = cols/rows; 						\
+    base_matrix = base;							\
+    g(0, 0) = 1;								\
+  	for (size_t i = 1; i < k; i++) { \
+  			g(0, i) = g(0, i-1) * base_matrix;					\
+  	} \
+	for (size_t row = 1; row < rows; row++) {		\
+		for (size_t i = 0; i < k; i++) { \
+    	    g(row, i + row*k) = g(0, i);			\
+    	} 							\
+  	}								\
+    return g;							\
+  }
+
+  /*
+   * #define GADGET_FOR_TYPE(T)					\
+  template<>							\
+  Matrix<T> Matrix<T>::GadgetVector(int64_t base) const {	\
+    Matrix<T> g(allocZero, rows, cols);				\
+    auto base_matrix = allocZero();				\
     size_t k = cols/rows; 		\
     base_matrix = base;							\
   	for (size_t row = 0; row < rows; row++) { \
@@ -75,6 +95,7 @@ namespace lbcrypto {
   	}								\
     return g;							\
   }
+   */
 
   GADGET_FOR_TYPE(double)
   GADGET_FOR_TYPE(int)

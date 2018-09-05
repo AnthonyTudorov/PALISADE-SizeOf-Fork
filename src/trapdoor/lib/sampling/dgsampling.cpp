@@ -328,7 +328,19 @@ namespace lbcrypto {
 		size_t d = C.GetRows();
 
 		if (d == 2) {
+
+			//std::cerr << A(0,0) << std::endl;
+
+			//std::cerr << B(0,0) << std::endl;
+
+			//std::cerr << D(0,0) << std::endl;
+
+			//std::cerr << C << std::endl;
+
 			ZSampleSigma2x2(A(0,0), B(0,0), D(0,0), C, dgg, p);
+
+			//std::cerr << *p << std::endl;
+
 			return;
 		}
 
@@ -405,6 +417,8 @@ namespace lbcrypto {
 
 			SampleMat(newA,newB,newD,c1,dgg,q1);
 
+			//std::cerr << *q1 << std::endl;
+
 			for (size_t i = 0; i < dimD; i++)
 				qF1(i,0) = Field2n(q1->ExtractRows(i*n,i*n+n-1));
 
@@ -455,6 +469,7 @@ namespace lbcrypto {
 		p = shared_ptr<Matrix<int64_t>>(new Matrix<int64_t>(q0->VStack(*q1)));
 
 		return;
+
 	}
 
 	// Subroutine used by ZSampleSigma2x2 as described Algorithm 4 in https://eprint.iacr.org/2017/844.pdf
