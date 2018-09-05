@@ -307,7 +307,11 @@ namespace lbcrypto {
 			}
 		}
 
-		pHat->SwitchFormat();
+		//pHat->SwitchFormat();
+
+		//std::cerr << "s = " << s << std::endl;
+
+		//std::cerr << "pHat = " << *pHat << std::endl;
 
 		return zHatPrime;
 
