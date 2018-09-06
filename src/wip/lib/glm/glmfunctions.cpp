@@ -2489,20 +2489,18 @@ void doubleToBigInteger2(double &in, BigInteger &out){
 	fraction = castDouble & 0xFFFFFFFFFFFFF;
 	fraction = fraction | (1ULL << 52);
 
+	if( exp < 1024 )
+		out = BigInteger(0);
+
 	exp = exp - 1023;
 
-	if(exp < 0)
-		out = BigInteger(0);
-	else{
+	exp = 52 - exp;
 
-		exp = 52 - exp;
+	fraction = fraction >> exp;
 
-		fraction = fraction >> exp;
-
-		out = BigInteger(fraction);
-		if(sign == 1)
-			out = -out;
-	}
+	out = BigInteger(fraction);
+	if(sign == 1)
+		out = -out;
 }
 
 

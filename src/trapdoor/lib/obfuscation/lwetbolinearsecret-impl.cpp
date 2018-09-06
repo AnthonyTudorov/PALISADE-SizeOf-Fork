@@ -1,6 +1,5 @@
-
 /**
- * @file lweconjunctionchcprf-impl.cpp Instantiation of conjunction constraint-hiding constrained PRFs as described in https://eprint.iacr.org/2017/143.pdf
+ * @file lwetbolinearsecret-impl.h Implementation of token-based obfuscation of linear functions (secret-key version)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,43 +24,4 @@
  *
  */
 
-#include "lweconjunctionchcprf.cpp"
-
-namespace lbcrypto {
-#if 0
-template <>
-	shared_ptr<typename DCRTPoly::Params> LWEConjunctionCHCPRFAlgorithm<DCRTPoly>::GenerateElemParams(double q, usint n) const;
-#endif
-
-template <>
-shared_ptr<typename DCRTPoly::Params> LWEConjunctionCHCPRFAlgorithm<DCRTPoly>::GenerateElemParams(double q, usint n) const {
-
-	size_t dcrtBits = 60;
-	size_t size = ceil((floor(log2(q - 1.0)) + 2.0) / (double)dcrtBits);
-
-	vector<NativeInteger> moduli(size);
-	vector<NativeInteger> roots(size);
-
-	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
-	NativeInteger firstInteger = FirstPrime<NativeInteger>(dcrtBits, 2 * n);
-	firstInteger -= 2*n*((uint64_t)(1)<<40);
-	moduli[0] = NextPrime<NativeInteger>(firstInteger, 2 * n);
-	roots[0] = RootOfUnity<NativeInteger>(2 * n, moduli[0]);
-
-	for (size_t i = 1; i < size; i++)
-	{
-		moduli[i] = NextPrime<NativeInteger>(moduli[i-1], 2 * n);
-		roots[i] = RootOfUnity<NativeInteger>(2 * n, moduli[i]);
-	}
-
-	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2 * n, moduli, roots));
-
-	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*n,moduli);
-
-	return params;
-
-};
-
-template class LWEConjunctionCHCPRFAlgorithm<DCRTPoly>;
-
-}
+#include "lwetbolinearsecret.cpp"
