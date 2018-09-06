@@ -23,9 +23,6 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-/*
-BFV RNS testing programs
- */
 
 #include <iostream>
 #include <fstream>
@@ -114,9 +111,32 @@ void usage(const string& msg)
 
 string profile;
 
+float parCases[][6] = {
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0},
+		{0, 0, 0, 0, 1, 0},
+		{0, 0, 0, 0, 0, 1},
+		{0, 0, 0, 0, .5, .5},
+		{.5, .5, 0, 0, 0, 0}
+};
+
+int parCase;
+
+const int OutRow = 0;
+const int OutCol = 1;
+const int InRow = 2;
+const int InCol = 3;
+
+int maxThreads;
+
 int main(int argc, char **argv) {
 
-	static int operation_flag;
+	maxThreads = omp_get_max_threads();
+	omp_set_dynamic(1);
+	omp_set_nested(1);
+
+	static int operation_flag = 0;
 	int opt;
 
 	static struct option long_options[] =
@@ -130,7 +150,7 @@ int main(int argc, char **argv) {
 			{"evaluate",   no_argument,     &operation_flag, 3},
 			{"decrypt",   no_argument,     &operation_flag, 4},
 
-			{"deployment",	required_argument,	0, 'd'},
+			{"deployment",	no_argument,	0, 'd'},
 			{"size",			required_argument,	0, 's'},
 			{"help",			no_argument,			0, 'h'},
 			{0, 0, 0, 0}
@@ -159,15 +179,38 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if( size == 0 || profile.length() == 0 )
+	if( size == 0 ) //|| profile.length() == 0 )
 		usage("");
 
-	auto cc = DeserializeContext(profile);
+	//auto cc = DeserializeContext(profile);
+	usint ptm = 8192;
+	double sigma = 3.19;
+	double rootHermiteFactor = 1.004;
+
+	std::cout << "Generating parameters...";
+
+	//Set Crypto Parameters
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
+			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
+
+	std::cout << "p = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+	std::cout << "n = " << cc->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+	std::cout << "log2 q = " << cc->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
+
+	// enable features that you wish to use
+	cc->Enable(ENCRYPTION);
+	cc->Enable(SHE);
+
+	std::cout << "Completed" << std::endl;
+
 
 	switch(operation_flag)
 	{
 	case 0:
-		Sharpen(cc, size);
+		for( parCase = 0; parCase <= 4; parCase++ ) {
+			cout << "experiment " << parCase << endl;
+			Sharpen(cc, size);
+		}
 		break;
 	case 1:
 		KeyGen(cc);
@@ -204,26 +247,6 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 	TIC(t_total);
 
 	double timeKeyGen(0.0), timeSer(0.0), timeTotal(0.0);
-
-	//	usint ptm = 8192;
-	//	double sigma = 3.19;
-	//	double rootHermiteFactor = 1.004;
-	//
-	//	std::cout << "Generating parameters...";
-	//
-	//	//Set Crypto Parameters
-	//	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-	//			ptm, rootHermiteFactor, sigma, 0, 1, 0, OPTIMIZED,3,30,60);
-	//
-	//	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	//	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	//	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
-	//
-	//	// enable features that you wish to use
-	//	cryptoContext->Enable(ENCRYPTION);
-	//	cryptoContext->Enable(SHE);
-	//
-	//	std::cout << "Completed" << std::endl;
 
 	std::cout << "Generating keys...";
 
@@ -708,12 +731,20 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	TIC(times[EVALUATE]);
 	vector<vector<Ciphertext<DCRTPoly>>> image2(image);
 
+	omp_set_num_threads(maxThreads * parCases[parCase][OutRow]);
+#pragma omp parallel for
 	for(int x = 1; x < height-1; x++)
 	{
+		omp_set_num_threads(maxThreads * parCases[parCase][OutCol]);
+#pragma omp parallel for
 		for(int y = 1; y < width-1; y++) {
 			Ciphertext<DCRTPoly> pixel_value;
+			omp_set_num_threads(maxThreads * parCases[parCase][InRow]);
+	#pragma omp parallel for
 			for(int i = -1; i < 2; i++)
 			{
+				omp_set_num_threads(maxThreads * parCases[parCase][InCol]);
+		#pragma omp parallel for
 				for(int j = -1; j < 2; j++) {
 					if (pixel_value == NULL)
 						pixel_value = cc->EvalMult(image[x+i][y+j],weight[i+1][j+1]);
