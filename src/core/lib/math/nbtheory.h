@@ -230,7 +230,7 @@ namespace lbcrypto {
 	* @return the next prime modulus.
 	*/
 	template<typename IntType>
-	IntType FirstPrime(usint nBits, usint m);
+	IntType FirstPrime(uint64_t nBits, uint64_t m);
 
 	/**
 	* Finds the next prime that satisfies q = 1 mod m
