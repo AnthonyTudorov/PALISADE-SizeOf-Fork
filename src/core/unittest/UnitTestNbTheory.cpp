@@ -153,12 +153,27 @@ TEST(UTNbTheory, method_factorize_returns_factors){
 	RUN_ALL_BACKENDS_INT(method_factorize_returns_factors, "method_factorize_returns_factors")
 }
 
+TEST(UTNbTheory, first_prime_overflow) {
+	// Failure case check
+	usint m = 512;
+	usint nBits = 64;
+
+	EXPECT_THROW(FirstPrime<NativeInteger>(nBits, m), math_error)
+		<< "did not detect overflow and throw exception for Native";
+
+	nBits = BigIntegerBitLength + 10;
+
+	EXPECT_THROW(FirstPrime<M2Integer>(nBits, m), math_error)
+		<< "did not detect overflow and throw exception for BE2";
+}
+
 template<typename T>
 void method_prime_modulus(const string& msg) {
+	usint m, nBits;
   {
     //TEST CASE TO FIND PRIME MODULUS
-    usint m = 2048;
-    usint nBits = 30;
+    m = 2048;
+    nBits = 30;
 
     T expectedResult("1073750017");
 
@@ -167,8 +182,8 @@ void method_prime_modulus(const string& msg) {
   }
   {
     // TEST CASE TO FIND PRIME MODULUS FOR A HIGHER BIT LENGTH 
-    usint m=4096; 
-    usint nBits=49;
+    m=4096;
+    nBits=49;
 	
     T primeModulus = lbcrypto::FirstPrime<T>(nBits, m);
     T expectedResult("562949954203649");

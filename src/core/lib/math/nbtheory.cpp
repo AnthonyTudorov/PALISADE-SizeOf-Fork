@@ -428,28 +428,46 @@ namespace lbcrypto {
 		PrimeFactorize(n, primeFactors);
 	}
 
+	// issue-881: make sure we don't overflow an IntType
 	template<typename IntType>
-	IntType FirstPrime(usint nBits, usint m) {
-		bool dbg_flag = false;
-		IntType r = IntType(2).ModExp(nBits, m);
-		DEBUG("r "<<r);
-		IntType qNew = (IntType(1) << nBits) + (IntType(m) - r) + IntType(1);
+	IntType FirstPrime(uint64_t nBits, uint64_t m) {
+		try {
+			bool dbg_flag = false;
+			IntType r = IntType(2).ModExp(nBits, m);
+			DEBUG("r "<<r);
+			IntType qNew = (IntType(1) << nBits);
+			if( qNew == IntType(0) ) {
+				// too big for IntType
+				PALISADE_THROW(math_error, "FirstPrime parameters are too large for this integer implementation");
+			}
+			IntType qNew2 = qNew + (IntType(m) - r) + IntType(1);
+			if( qNew2 < qNew ) {
+				PALISADE_THROW(math_error, "FirstPrime parameters overflow this integer implementation");
+			}
+			qNew = qNew2;
 
-		size_t i = 1;
-	        // TP: size_t is a system dependent size, i.e., not of a known size.  Seems like it would
-		// be better to make this a well-defined and system independent type.
-		//  Seems much better to match the type to m
+			uint64_t i = 1; // same type as m
 
-		while (!MillerRabinPrimalityTest(qNew)) {
-			// TP: Dangerous assumption?  This assumes that i*m is smaller than the maximum size of an arg to IntType, whihc
-			// is probably no bigger than 2^32-1 or 2^64-1.
-			// Also, should this really add a steadly increasing value to qNew or just keet adding m?
-			qNew += IntType(i*m);
-			i++;
+			while (!MillerRabinPrimalityTest(qNew)) {
+				// Should this really add a steadily increasing value to qNew or just keep adding m?
+				uint64_t imProd = i*m;
+				if( imProd < m || imProd < i ) {
+					PALISADE_THROW(math_error, "FirstPrime overflow making increment");
+				}
+				IntType incr = IntType(imProd);
+				qNew2 = qNew + incr;
+				i++;
+				if( qNew2 < qNew ) {
+					PALISADE_THROW(math_error, "FirstPrime overflow growing candidate");
+				}
+				qNew = qNew2;
+			}
+
+			return qNew;
 		}
-
-		return qNew;
-
+		catch( ... ) {
+			PALISADE_THROW(math_error, "FirstPrime math exception");
+		}
 	}
 
 	template<typename IntType>
