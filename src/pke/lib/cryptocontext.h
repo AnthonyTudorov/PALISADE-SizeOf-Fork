@@ -1379,9 +1379,7 @@ public:
 
 		for (size_t row = 0; row < ciphertext->GetRows(); row++)
 		{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 			for (size_t col = 0; col < ciphertext->GetCols(); col++)
 			{
 				if (row + col > 0)

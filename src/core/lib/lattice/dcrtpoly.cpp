@@ -378,9 +378,7 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
 	if (input.GetFormat() == EVALUATION)
 		input.SwitchFormat();
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for( usint i=0; i<m_vectors.size(); i++ ) {
 
 		if (baseBits == 0)
@@ -739,9 +737,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const DCRTPolyImpl & element)
 	}
 	DCRTPolyImpl<VecType> tmp(*this);
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		//ModMul multiplies and performs a mod operation on the results. The mod is the modulus of each tower.
 		tmp.m_vectors[i] *= element.m_vectors[i];
@@ -754,9 +750,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const Integer &element) const
 {
 	DCRTPolyImpl<VecType> tmp(*this);
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] = tmp.m_vectors[i] * element.ConvertToInt(); // (element % Integer((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
@@ -769,9 +763,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(
 {
 	DCRTPolyImpl<VecType> tmp(*this);
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		tmp.m_vectors[i] *= element[i]; // (element % Integer((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
@@ -1012,9 +1004,7 @@ typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpol
 	Integer mu = ComputeMu<Integer>(bigModulus);
 
 	// now, compute the values for the vector
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for( usint ri = 0; ri < ringDimension; ri++ ) {
 		coefficients[ri] = 0;
 		for( usint vi = 0; vi < nTowers; vi++ ) {
@@ -1070,9 +1060,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
 
 	if(m_vectors[0].GetModulus().GetMSB() < 45)
 	{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			double curFloatSum = 0.0;
 			NativeInteger curIntSum = 0;
@@ -1092,9 +1080,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
 	}
 	else if (m_vectors[0].GetModulus().GetMSB() < 58)
 	{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for( usint ri = 0; ri < ringDimension; ri++ ) {
 			long double curFloatSum = 0.0;
 			NativeInteger curIntSum = 0;
@@ -1119,9 +1105,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
 			{
 			QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
 				NativeInteger curIntSum = 0;
@@ -1141,9 +1125,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
 		}
 		else
 		{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 			for( usint ri = 0; ri < ringDimension; ri++ ) {
 				QuadFloat curFloatSum = QuadFloat(0);
 				NativeInteger curIntSum = 0;
@@ -1210,9 +1192,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
 	usint nTowers = m_vectors.size();
 	usint nTowersNew = ans.m_vectors.size();
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
 		std::vector<NativeInteger> xInvVector(nTowers);
@@ -1283,9 +1263,7 @@ void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params
 
 	m_vectors.resize(newSize);
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	// populate the towers corresponding to CRT basis S and convert them to evaluation representation
 	for (size_t i = 0; i < polyWithSwitchedCRTBasis.m_vectors.size(); i++ ) {
 		m_vectors[size + i] = polyWithSwitchedCRTBasis.GetElementAtIndex(i);
@@ -1299,9 +1277,7 @@ void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params
 	}
 	else
 	{ // else call NTT for the towers for Q
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (size_t i = 0; i <size; i++ )
 			m_vectors[i].SwitchFormat();
 	}
@@ -1340,9 +1316,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(
 
 	typename PolyType::Vector coefficients(n, t.ConvertToInt());
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (usint k = 0; k < n; k++)
 	{
 		NativeInteger sgamma = 0, st = 0, tmp, tmpt, tmpgamma;
@@ -1434,9 +1408,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
     	const NativeInteger &currentmtildeqDivqiModqi = mtildeqDivqiModqi[i];
     	const NativeInteger &currentmtildeqDivqiModqiPrecon = mtildeqDivqiModqiPrecon[i];
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
         for (uint32_t k = 0; k < n; k++)
         {
         	ximtildeqiDivqModqi[i*n + k] = m_vectors[i][k].ModMulPreconOptimized( currentmtildeqDivqiModqi, qModuli[i], currentmtildeqDivqiModqiPrecon);
@@ -1458,9 +1430,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 			m_vectors[numq+j] = std::move(newvec);
     	}
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
     	for ( uint32_t k = 0; k < n; k++ )
     	{
     		DoubleNativeInteger result = 0;
@@ -1480,9 +1450,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 
     NativeInteger *r_m_tildes = new NativeInteger[n];
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
     for ( uint32_t k = 0; k < n; k++ )
 	{
     	r_m_tildes[k] = m_vectors[numq+numBsk][k]; // c``_mtilde
@@ -1494,9 +1462,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
     	const NativeInteger &currentqModBski = qModBski[i];
     	const NativeInteger &currentqModBskiPrecon = qModBskiPrecon[i];
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
     	for ( uint32_t k = 0; k < n; k++ )
 		{
     		// collapsing
@@ -1517,16 +1483,12 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 	}
 	else
 	{ // else call NTT for the towers for q
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (size_t i = 0; i <numq; i++ )
 			m_vectors[i].SwitchFormat();
 	}
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
     for (uint32_t i = 0; i < numBsk; i++)
 		m_vectors[numq+i].SwitchFormat();
 
@@ -1576,9 +1538,7 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 		const NativeInteger &currenttqDivqiModqi = tqDivqiModqi[i];
 		const NativeInteger &currenttqDivqiModqiPrecon = tqDivqiModqiPrecon[i];
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 			// multiply by t*(q/qi)^-1 mod qi
@@ -1588,9 +1548,7 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 
 	for (uint32_t j = 0; j < numBsk; j++)
 	{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for ( uint32_t k = 0; k < n; k++ )
 		{
 			DoubleNativeInteger aq = 0;
@@ -1610,9 +1568,7 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
     {
         const NativeInteger &currentqInvModBski = qInvModBi[i];
         const NativeInteger &currentqInvModBskiPrecon = qInvModBiPrecon[i];
-#ifdef OMP
 #pragma omp parallel for
-#endif
         for (uint32_t k = 0; k < n; k++)
         {
         	// Not worthy to use lazy reduction here
@@ -1660,9 +1616,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     {
         const NativeInteger &currentBDivBiModBi = BDivBiModBi[i];
         const NativeInteger &currentBDivBiModBiPrecon = BDivBiModBiPrecon[i];
-#ifdef OMP
 #pragma omp parallel for
-#endif
         for (uint32_t k = 0; k < n; k++)
         {
             m_vectors[numq+i][k].ModMulPreconOptimizedEq( currentBDivBiModBi, BskModuli[i], currentBDivBiModBiPrecon);
@@ -1671,9 +1625,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 
     for (uint32_t j = 0; j < numq; j++)
 	{
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 
@@ -1691,9 +1643,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     // calculate alphaskx
     // FastBaseConv(x, B, msk)
     NativeInteger *alphaskxVector = new NativeInteger[n];
-#ifdef OMP
 #pragma omp parallel for
-#endif
     for (uint32_t k = 0; k < n; k++)
     {
     	DoubleNativeInteger result = 0;
@@ -1706,9 +1656,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     }
 
     // subtract xsk
-#ifdef OMP
 #pragma omp parallel for
-#endif
     for (uint32_t k = 0; k < n; k++)
 	{
     	alphaskxVector[k] = alphaskxVector[k].ModSubFast( m_vectors[numq+numBsk-1][k]
@@ -1723,9 +1671,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
 		const NativeInteger &currentBModqi = BModqi[i];
 		const NativeInteger &currentBModqiPrecon = BModqiPrecon[i];
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (uint32_t k = 0; k < n; k++)
 		{
 			NativeInteger alphaskBModqi = alphaskxVector[k];
@@ -1777,9 +1723,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(const shared_ptr<DCRT
 		size_t newSize = ans.m_vectors.size();
 		size_t sizeQ = size - newSize;
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
 			long double nu = 0.0;
@@ -1832,9 +1776,7 @@ void DCRTPolyImpl<VecType>::SwitchFormat()
 		m_format = COEFFICIENT;
 	}
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (usint i = 0; i < m_vectors.size(); i++) {
 		m_vectors[i].SwitchFormat();
 	}

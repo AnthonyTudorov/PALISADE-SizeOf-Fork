@@ -49,7 +49,7 @@ using namespace lbcrypto;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void Sharpen(CryptoContext<DCRTPoly> cc, size_t size);
+void Sharpen(CryptoContext<DCRTPoly> cc, size_t size, int parCase);
 void KeyGen(CryptoContext<DCRTPoly> cc);
 void Encrypt(CryptoContext<DCRTPoly> cc, size_t size);
 void Evaluate(CryptoContext<DCRTPoly> cc, size_t size);
@@ -121,8 +121,6 @@ float parCases[][6] = {
 		{.5, .5, 0, 0, 0, 0}
 };
 
-int parCase;
-
 const int OutRow = 0;
 const int OutCol = 1;
 const int InRow = 2;
@@ -132,9 +130,8 @@ int maxThreads;
 
 int main(int argc, char **argv) {
 
+	PalisadeParallelControls.Enable();
 	maxThreads = omp_get_max_threads();
-	omp_set_dynamic(1);
-	omp_set_nested(1);
 
 	static int operation_flag = 0;
 	int opt;
@@ -203,13 +200,12 @@ int main(int argc, char **argv) {
 
 	std::cout << "Completed" << std::endl;
 
-
 	switch(operation_flag)
 	{
 	case 0:
-		for( parCase = 0; parCase <= 4; parCase++ ) {
-			cout << "experiment " << parCase << endl;
-			Sharpen(cc, size);
+		for( int parCase = 0; parCase <= 4; parCase++ ) {
+			cout << "RUNNING CASE " << parCase << endl;
+			Sharpen(cc, size, parCase);
 		}
 		break;
 	case 1:
@@ -657,7 +653,7 @@ enum Stages {KEYGEN, ENCRYPT, EVALUATE, DECRYPT};
 
 // This code demonstrates the implementation of 8-neighbor Laplacian image sharpening algorithm
 
-void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
+void Sharpen(CryptoContext<DCRTPoly> cc, size_t size, int parCase) {
 
 	TimeVar times[10], t_total; //for TIC TOC
 	double timeResult[10];
@@ -787,10 +783,10 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 	SaveSharpened(profile, size, width, height, data);
 	delete[] data;
 
-	cout << "KEYGEN: " << timeResult[KEYGEN] << "ms" << endl;
-	cout << "ENCRYPT: " << timeResult[ENCRYPT] << "ms" << endl;
-	cout << "EVALUATE: " << timeResult[EVALUATE] << "ms" << endl;
-	cout << "DECRYPT: " << timeResult[DECRYPT] << "ms" << endl;
+	cout << "Size " << size << " Case " << parCase << " KEYGEN: " << timeResult[KEYGEN] << "ms" << endl;
+	cout << "Size " << size << " Case " << parCase << " ENCRYPT: " << timeResult[ENCRYPT] << "ms" << endl;
+	cout << "Size " << size << " Case " << parCase << " EVALUATE: " << timeResult[EVALUATE] << "ms" << endl;
+	cout << "Size " << size << " Case " << parCase << " DECRYPT: " << timeResult[DECRYPT] << "ms" << endl;
 
 }
 

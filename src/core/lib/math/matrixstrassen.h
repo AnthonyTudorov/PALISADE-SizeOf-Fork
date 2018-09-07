@@ -163,9 +163,7 @@ namespace lbcrypto {
              */  
             inline MatrixStrassen<Element> ScalarMult(Element const& other) const {
                 MatrixStrassen<Element> result(*this);
-#ifdef OMP
             #pragma omp parallel for
-#endif
             for (int32_t col = 0; col < result.cols; ++col) {
             	for (int32_t row = 0; row < result.rows; ++row) {
 
@@ -281,9 +279,7 @@ namespace lbcrypto {
                     throw invalid_argument("Addition operands have incompatible dimensions");
                 }
                 MatrixStrassen<Element> result(*this);
-#ifdef OMP
                 #pragma omp parallel for
-#endif
 		for (int32_t j = 0; j < cols; ++j) {
 		  for (int32_t i = 0; i < rows; ++i) {
 		    *result.data[i][j] += *other.data[i][j];
@@ -323,9 +319,7 @@ namespace lbcrypto {
                     throw invalid_argument("Subtraction operands have incompatible dimensions");
                 }
                 MatrixStrassen<Element> result(allocZero, rows, other.cols);
-#ifdef OMP
                 #pragma omp parallel for
-#endif
                 for (int32_t j = 0; j < cols; ++j) {
                 	for (int32_t i = 0; i < rows; ++i) {
 			  *result.data[i][j] = *data[i][j] - *other.data[i][j];
