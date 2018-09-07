@@ -671,6 +671,7 @@ void Sharpen(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	cout << "Generating keys..." << std::flush;
 	keyPair = cc->KeyGen();
+	cc->ClearEvalMultKeys();
 	cc->EvalMultKeyGen(keyPair.secretKey);
 
 	timeResult[KEYGEN] = TOC(times[KEYGEN]);
