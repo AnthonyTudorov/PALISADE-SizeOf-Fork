@@ -155,13 +155,13 @@ class BPCHCPRF {
     /**
      * Method to encode matrix by path A_i -> A_j
      * Used as a subroutine by Constrain
-     * @param trapPairs trapdoor pairs for A_i
+     * @param trapPair trapdoor pair for A_i
      * @param A A_j
      * @param matrix matrix to encode
      * @return encoding of matrix
      */
     Matrix<Element> Encode(
-        const vector<pair<Matrix<Element>, RLWETrapdoorPair<Element>>>& trapPairs,
+        const pair<Matrix<Element>, RLWETrapdoorPair<Element>>& trapPair,
         const Matrix<Element>& A,
         const Matrix<Element>& matrix) const;
 

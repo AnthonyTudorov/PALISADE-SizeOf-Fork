@@ -201,8 +201,8 @@ void CVW18WitnessEncryption() {
 }
 
 int main(int argc, char* argv[]) {
-    //CC17Manual();
-    //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
+    CC17Manual();
+    CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
     CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
-    //CVW18WitnessEncryption();
+    CVW18WitnessEncryption();
 }
