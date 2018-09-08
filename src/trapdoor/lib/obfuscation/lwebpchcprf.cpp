@@ -115,7 +115,6 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
             }
 
             Matrix<Element> t = Gamma(M_ik, s[i][k]);
-            //D_i.push_back(Encode(trapPairs, A, t));
             D_i.push_back(Encode(trapPair, A, t));
         }
 
@@ -231,44 +230,6 @@ shared_ptr<typename DCRTPoly::Params> BPCHCPRF<DCRTPoly>::GenerateElemParams(dou
     return params;
 }
 
-/*template <class Element>
-Matrix<Element> BPCHCPRF<Element>::Encode(
-    const vector<pair<Matrix<Element>, RLWETrapdoorPair<Element>>>& trapPairs,
-    const Matrix<Element>& A,
-    const Matrix<Element>& matrix) const {
-    usint n = GetRingDimension();
-    auto zero_alloc = Element::Allocator(m_elemParams, EVALUATION);
-
-    typename Element::DggType dgg = m_dgg;
-    typename Element::DggType dggLargeSigma = m_dggLargeSigma;
-
-    Matrix<Element> E(zero_alloc, m_w, m_w * m_m);
-    for (usint i = 0; i < m_w; i++) {
-        for (usint j = 0; j < m_w * m_m; j++) {
-            E(i, j) = Element(dgg, m_elemParams, COEFFICIENT);
-            E(i, j).SwitchFormat();
-        }
-    }
-
-    Matrix<Element> Y = matrix * A + E;
-
-    Matrix<Element> D(zero_alloc, m_w * m_m, m_w * m_m);
-
-#ifdef OMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-    for (usint i = 0; i < m_w; i++) {
-        for (usint j = 0; j < m_w * m_m; j++) {
-            Matrix<Element> gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n, m_m - 2, trapPairs[i].first, trapPairs[i].second, Y(i, j), dgg, dggLargeSigma, m_base);
-            for (usint k = 0; k < m_m; k++) {
-                D(i * m_m + k, j) = gaussj(k, 0);
-            }
-        }
-    }
-
-    return D;
-}*/
-
 template <class Element>
 Matrix<Element> BPCHCPRF<Element>::Encode(
     const pair<Matrix<Element>, RLWETrapdoorPair<Element>>& trapPair,
@@ -292,8 +253,6 @@ Matrix<Element> BPCHCPRF<Element>::Encode(
 
     Matrix<Element> D(zero_alloc, m_w * m_m, m_w * m_m);
     for (usint i = 0; i < m_m; i++) {
-        //cout << Y.GetRows() << " " << Y.GetCols() << endl;
-        //cout << m_w << " " << m_m << endl;
         Matrix<Element> Y_i(zero_alloc, m_w, m_w);
         for (usint j = 0; j < m_w; j++) {
             for (usint k = 0; k < m_w; k++) {
