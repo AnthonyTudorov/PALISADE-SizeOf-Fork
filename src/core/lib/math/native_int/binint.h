@@ -128,7 +128,22 @@ public:
 	 */
 	NativeInteger(const NativeInteger& nInteger) : m_value(nInteger.m_value) {}
 
-	/**
+    /**
+     * Constructors from smaller basic types
+     * @param init
+     */
+	NativeInteger(int init) : NativeInteger( uint64_t(init) ) {}
+	NativeInteger(uint32_t init) : NativeInteger( uint64_t(init) ) {}
+	NativeInteger(long init) : NativeInteger( uint64_t(init) ) {}
+	NativeInteger(long long init) : NativeInteger( uint64_t(init) ) {}
+
+    /**
+     * Constructor from double is not permitted
+     * @param d
+     */
+	NativeInteger(double d) __attribute__ ((deprecated("Cannot construct from a double")));
+
+    /**
 	 * Assignment operator
 	 *
 	 * @param &rhs is the integer to be assigned from.

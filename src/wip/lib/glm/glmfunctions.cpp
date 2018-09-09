@@ -2230,9 +2230,9 @@ void EncodeC0Matrix(vector<CryptoContext<DCRTPoly>> &cc, vector<Matrix<double>> 
 				for(size_t j=0; j<batchSize; j++){
 
 					if( CList[i](l, j)<0)
-						temp = Q-BigInteger(CList[i](l, j)*(-1));
+						temp = Q-BigInteger(std::llround(CList[i](l, j)*(-1)));
 					else
-						temp = BigInteger(CList[i](l, j));
+						temp = BigInteger(std::llround(CList[i](l, j)));
 
 					tempPushed = (temp.Mod(primeList[k])).ConvertToInt();
 					vectorOfInts1.push_back(tempPushed);
@@ -2356,9 +2356,9 @@ void EncodeC2Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<double> &CList, 
 				for(size_t j=0; j<batchSize; j++){
 
 					if( CList(l, j)<0)
-						temp = Q-BigInteger(CList(l, j)*(-1));//temp = (*CList)(l, j) + Q.ConvertToDouble();
+						temp = Q-BigInteger(std::llround(CList(l, j)*(-1)));//temp = (*CList)(l, j) + Q.ConvertToDouble();
 					else
-						temp = BigInteger(CList(l, j));
+						temp = BigInteger(std::llround(CList(l, j)));
 
 
 					tempPushed = (temp.Mod(primeList[k])).ConvertToInt();

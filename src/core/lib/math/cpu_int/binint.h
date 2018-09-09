@@ -253,10 +253,20 @@ namespace cpu_int{
      */
     BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
 
+    /**
+     * Constructors from smaller basic types
+     * @param init
+     */
     BigInteger(int init) : BigInteger( uint64_t(init) ) {}
     BigInteger(uint32_t init) : BigInteger( uint64_t(init) ) {}
     BigInteger(long init) : BigInteger( uint64_t(init) ) {}
+    BigInteger(unsigned long init) : BigInteger( uint64_t(init) ) {}
     BigInteger(long long init) : BigInteger( uint64_t(init) ) {}
+
+    /**
+     * Constructor from double is not permitted
+     * @param d
+     */
     BigInteger(double d) __attribute__ ((deprecated("Cannot construct from a double")));
    
     ~BigInteger() {}

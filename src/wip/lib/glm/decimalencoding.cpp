@@ -92,7 +92,7 @@ void DecimalEncoding::ConvertToBigInteger(const vector<vector<double>>& inVec, M
 
 	for(size_t i=0; i<dataColSize; i++)
 			for(size_t j=0; j<dataRowSize; j++)
-				outMat(j, i) = BigInteger(inVec[i][j]);
+				outMat(j, i) = BigInteger(std::llround(inVec[i][j]));
 }
 
 void DecimalEncoding::ConvertToBigInteger(const Matrix<double>& inMat, Matrix<BigInteger>& outMat){
@@ -106,7 +106,7 @@ void DecimalEncoding::ConvertToBigInteger(const Matrix<double>& inMat, Matrix<Bi
 
 	for(size_t i=0; i<dataColSize; i++)
 			for(size_t j=0; j<dataRowSize; j++)
-				outMat(j, i) = BigInteger(inMat(j, i));
+				outMat(j, i) = BigInteger(std::llround(inMat(j, i)));
 }
 
 void DecimalEncoding::CRTInterpolate(const vector<Matrix<BigInteger>> &crtVector, Matrix<BigInteger> &inMat) {
