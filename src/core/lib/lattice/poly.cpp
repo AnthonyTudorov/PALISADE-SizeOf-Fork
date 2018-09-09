@@ -325,7 +325,7 @@ const PolyImpl<VecType>& PolyImpl<VecType>::operator=(std::vector<int32_t> rhs)
 		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 			if (j < len) {
 				Integer tempBI;
-				uint32_t tempInteger;
+				uint64_t tempInteger;
 				if (*(rhs.begin() + j) < 0)
 				{
 					tempInteger = -*(rhs.begin() + j);
@@ -352,7 +352,7 @@ const PolyImpl<VecType>& PolyImpl<VecType>::operator=(std::vector<int32_t> rhs)
 		for (usint j = 0; j < vectorLength; ++j) { // loops within a tower
 			if (j < len) {
 				Integer tempBI;
-				uint32_t tempInteger;
+				uint64_t tempInteger;
 				if (*(rhs.begin() + j) < 0)
 				{
 					tempInteger = -*(rhs.begin() + j);

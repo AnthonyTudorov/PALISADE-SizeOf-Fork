@@ -51,7 +51,6 @@
 #include "../../utils/palisadebase64.h"
 #include "../../utils/serializable.h"
 #include "../../utils/exception.h"
-//#include "../native_int/binint.h"
 
 /**
 *@namespace cpu_int
@@ -253,6 +252,12 @@ namespace cpu_int{
      * @param native
      */
     BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
+
+    BigInteger(int init) : BigInteger( uint64_t(init) ) {}
+    BigInteger(uint32_t init) : BigInteger( uint64_t(init) ) {}
+    BigInteger(long init) : BigInteger( uint64_t(init) ) {}
+    BigInteger(long long init) : BigInteger( uint64_t(init) ) {}
+    BigInteger(double d) __attribute__ ((deprecated("Cannot construct from a double")));
    
     ~BigInteger() {}
         
