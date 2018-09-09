@@ -1,0 +1,50 @@
+{
+	"tag": "laplace",
+	"comment": "8-neighbor Laplacian image sharpening",
+	"deployment": {
+		"target": {
+			{
+				"vendor": "GenuineIntel",
+				"processor": "Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz",
+				"OS": "Darwin Kernel Version 17.6.0",
+				"L1DataCache": "32KB",
+				"L1CodeCache": "32KB",
+				"L2Cache": "256KB",
+				"L3Cache": "8MB",
+				"LogicalTotal": "8",
+				"LogicalPerSocket": "8",
+				"CoresPerSocket": "4",
+				"ThreadsPerCore": "2"
+			}
+		},
+		"controls": {
+			"scheme": "BFVrns",
+			"math": "NTL",
+			"lattice": "DCRT",
+			"encoding": "fractional",
+			"confset": {
+				"type": "MQP",
+				"secLevel": "1.004",
+				"p": "8192",
+				"q": "1152921496017371137",
+				"ru":"686982040590959246",
+				"relinWindow": "30",
+				"dist": "3.19",
+				"am": "36"
+				"mode": "1"
+			},
+	"parallel": [
+		{
+			"seq": "EvalMultMatrix:EvalMult:EvalAdd",
+			"ncores": "1:1:8"
+		},
+		{
+			"seq": "EvalAdd:Plus",
+			"ncores": "1:1"
+		},
+		{
+			"seq": "EvalMult:CRT",
+			"ncores": "1:4"
+		}
+	]
+}

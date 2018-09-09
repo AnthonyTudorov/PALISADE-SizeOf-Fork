@@ -1,0 +1,26 @@
+ctx=0
+nops=1
+p=8192
+
+sec=$1
+
+while [ $ctx -eq 0 ]
+do
+	bin/demo/pke/Temp-MARSHAL-ccgen.exe BFVrns $p $sec $nops  > MARSHAL-demo/CTX-$sec-pass$nops
+
+	echo "Analyzing circuit...."
+	bin/demo/circuit/palcircuit -v -ap \
+		MARSHAL-demo/CTX-$sec-pass$nops \
+		MARSHAL-demo/sharpen-input.acirc \
+		MARSHAL-demo/sharpen.acirc
+	result=$?
+
+	if [ $result -eq 0 ]
+	then
+		ctx=1
+	else
+		nops=$result
+	fi
+done
+
+mv MARSHAL-demo/CTX-$sec-pass$nops MARSHAL-demo/CTX-$sec-FINAL

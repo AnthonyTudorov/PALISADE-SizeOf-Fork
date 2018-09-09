@@ -1,0 +1,13 @@
+{
+	"vendor": "GenuineIntel",
+	"processor": "Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz",
+	"OS": "MINGW64_NT-6.1",
+	"L1DataCache": "32KB",
+	"L1CodeCache": "32KB",
+	"L2Cache": "256KB",
+	"L3Cache": "6MB",
+	"LogicalTotal": "4",
+	"LogicalPerSocket": "4",
+	"CoresPerSocket": "4",
+	"ThreadsPerCore": "1"
+}

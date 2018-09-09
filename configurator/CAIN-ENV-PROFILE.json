@@ -1,0 +1,13 @@
+{
+	"vendor": "GenuineIntel",
+	"processor": "Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz",
+	"OS": "Linux 3.10.0-327.13.1.el7.x86_64",
+	"L1DataCache": "32KB",
+	"L1CodeCache": "32KB",
+	"L2Cache": "256KB",
+	"L3Cache": "4MB",
+	"LogicalTotal": "4",
+	"LogicalPerSocket": "4",
+	"CoresPerSocket": "2",
+	"ThreadsPerCore": "2"
+}
