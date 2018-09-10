@@ -1,7 +1,0 @@
-siz=$1
-
-for i in CONFS*;
-do
-cat $i
-bin/demo/pke/sharpen -s $1 -d $i
-done

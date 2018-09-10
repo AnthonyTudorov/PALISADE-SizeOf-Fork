@@ -1,6 +1,0 @@
-[submodule "third-party/cpuid"]
-	path = third-party/cpuid
-	url = https://github.com/tycho/cpuid.git
-[submodule "rapidjson"]
-	path = third-party/rapidjson
-	url = https://github.com/Tencent/rapidjson.git

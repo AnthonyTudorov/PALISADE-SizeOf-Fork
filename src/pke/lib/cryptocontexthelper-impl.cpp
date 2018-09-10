@@ -28,7 +28,6 @@
 
 #include "cryptocontext.h"
 #include "cryptocontexthelper.h"
-#include "utils/schemavalidator.h"
 #include "utils/parmfactory.h"
 #include "rapidjson/filewritestream.h"
 

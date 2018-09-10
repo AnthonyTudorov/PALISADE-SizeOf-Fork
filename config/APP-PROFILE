@@ -1,3 +1,0 @@
-{
-"confset": {"type":"MQgen","secLevel":"1.004","numAdds":"0","numMults": "4","numKS":"0","p":"8192","relinWindow":"30","dist":"3.19","qbits":"60"}
-}
