@@ -521,10 +521,8 @@ void UnitTestPolyVecDecomp(int32_t base, usint k, usint ringDimension){
 	roots_Of_Unity.push_back(nextRootOfUnity);
 
 	BigInteger bigModulus("1");
-	long double qDouble = q.ConvertToDouble();
-	long double nextQdouble = nextQ.ConvertToDouble();
 
-	bigModulus = BigInteger(qDouble)* BigInteger(nextQdouble);
+	bigModulus = BigInteger(q) * BigInteger(nextQ);
 
 	BigInteger bigRootOfUnity(RootOfUnity(n,bigModulus));
 

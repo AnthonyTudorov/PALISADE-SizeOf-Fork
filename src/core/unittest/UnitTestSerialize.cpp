@@ -48,8 +48,8 @@ template<typename T>
 void bigint(const string& msg) {
 	bool dbg_flag = false;
 	T small(7);
-	T medium(1ULL<<27 | 1ULL<<22);
-	T larger(1ULL<<40 | 1ULL<<22);
+	T medium(uint64_t(1)<<27 | uint64_t(1)<<22);
+	T larger(uint64_t(1)<<40 | uint64_t(1)<<22);
 
 	string ser;
 	T deser;

@@ -41,7 +41,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 	// read values for the CRT basis
 
 	size_t size = GetElementParams()->GetParams().size();
-	size_t n = GetElementParams()->GetRingDimension();
+	auto n = GetElementParams()->GetRingDimension();
 
 	vector<NativeInteger> moduli(size);
 	vector<NativeInteger> roots(size);
