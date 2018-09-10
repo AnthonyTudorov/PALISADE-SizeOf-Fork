@@ -43,7 +43,7 @@ BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, 
 
     // Initialize m_dggLargeSigma
     double c = (base + 1) * SIGMA;
-    double s = SPECTRAL_BOUND(n, m_m - 2, base);
+    double s = SPECTRAL_BOUND_D(n, m_m - 2, base, w);
 
     if (sqrt(s * s - c * c) <= 3e5)
         m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
@@ -181,7 +181,8 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
     uint32_t base = m_base;
 
     //Correctness constraint
-    auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return 32 * Berr * k * sqrt(n) * pow(sqrt(m * n) * beta * SPECTRAL_BOUND(n, m - 2, base), length); };
+    auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
+    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
 
     double qPrev = 1e6;
     double q = 0;
