@@ -260,7 +260,6 @@ namespace cpu_int{
     BigInteger(int init) : BigInteger( uint64_t(init) ) {}
     BigInteger(uint32_t init) : BigInteger( uint64_t(init) ) {}
     BigInteger(long init) : BigInteger( uint64_t(init) ) {}
-    BigInteger(unsigned long init) : BigInteger( uint64_t(init) ) {}
     BigInteger(long long init) : BigInteger( uint64_t(init) ) {}
 
     /**

@@ -329,7 +329,6 @@ public:
 	ubint(int init) : ubint( uint64_t(init) ) {}
 	ubint(uint32_t init) : ubint( uint64_t(init) ) {}
 	ubint(long init) : ubint( uint64_t(init) ) {}
-	ubint(unsigned long init) : ubint( uint64_t(init) ) {}
 	ubint(long long init) : ubint( uint64_t(init) ) {}
 
     /**

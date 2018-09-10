@@ -106,7 +106,6 @@ public:
 	myZZ(int init) : myZZ( uint64_t(init) ) {}
 	myZZ(uint32_t init) : myZZ( uint64_t(init) ) {}
 	myZZ(long init) : myZZ( uint64_t(init) ) {}
-	myZZ(unsigned long init) : myZZ( uint64_t(init) ) {}
 	myZZ(long long init) : myZZ( uint64_t(init) ) {}
 
     /**
