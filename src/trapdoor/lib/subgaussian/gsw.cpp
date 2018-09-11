@@ -34,35 +34,59 @@
 
 namespace lbcrypto {
 
-	template class Matrix<NativeInteger>;
+	// dimension Z_q^n-1
+	template <class Integer>
+	using GSWSecretKey = Matrix<Integer>;
 
-	template <class Integer,class Vector>
+	// dimension Z_q^m \times n
+	template <class Integer>
+	using GSWPublicKey = Matrix<Integer> ;
+
+	// dimension Z_q^n \times n l
+	template <class Integer>
+	using GSWCiphertext = Matrix<Integer>;
+
+	// dimension Z_q
+	template <class Integer>
+	using GSWPlaintext = Integer;
+
+	template <class Integer, class Vector>
 	shared_ptr<GSWSecretKey<Integer>> GSWScheme<Integer,Vector>::SecretKeyGen() const
 	{
-		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>([&]()
-				{return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());}, m_cryptoParams.Getn()-1, 1));
+		auto dgg_allocator = [&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());};
+		auto zero_allocator = [&](){return Integer(0);};
+
+		shared_ptr<GSWSecretKey<Integer>> sk(new GSWSecretKey<Integer>(zero_allocator, m_cryptoParams.Getn()-1, 1, dgg_allocator));
+
 		return sk;
 	}
 
-	template <class Integer,class Vector>
+	template <class Integer, class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::Encrypt(const GSWPlaintext<Integer> &plaintext,
 			const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
+
+		auto dgg_allocator = [&](){return m_cryptoParams.GetDgg().GenerateInteger(m_cryptoParams.GetModulus());};
+		auto uniform_allocator = [&](){return m_cryptoParams.GetDug().GenerateInteger();};
+		auto zero_allocator = [&](){return Integer(0);};
+
 		const Integer &modulus = m_cryptoParams.GetModulus();
-		Matrix<Integer> cbar([&](){return m_cryptoParams.GetDug().GenerateInteger();}, m_cryptoParams.Getn()-1, m_cryptoParams.Getm());
-		Matrix<Integer> et([&](){return m_cryptoParams.GetDgg().GenerateInteger(modulus);}, 1,m_cryptoParams.Getm());
-		//Matrix<Integer> et([&](){return Integer(0);}, 1,m_cryptoParams.Getm());
+
+		Matrix<Integer> cbar(zero_allocator, m_cryptoParams.Getn()-1, m_cryptoParams.Getm(), uniform_allocator);
+		Matrix<Integer> et(zero_allocator, 1,m_cryptoParams.Getm(),dgg_allocator);
 		Matrix<Integer> skt = sk->Transpose();
 		Matrix<Integer> bt = et.ModSubEq((skt.Mult(cbar)).ModEq(modulus),modulus);
-		Matrix<Integer> cStack = cbar.VStack(bt);
-		Matrix<Integer> g([&](){return Integer(0);}, m_cryptoParams.Getn(),m_cryptoParams.Getm());
+		cbar.VStack(bt);
+
+		Matrix<Integer> g(zero_allocator, m_cryptoParams.Getn(),m_cryptoParams.Getm());
 		g = g.GadgetVector(m_cryptoParams.GetBase());
-		//std::cout << g << std::endl;
-		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((cStack + (g.ScalarMult(plaintext)).ModEq(modulus)).ModEq(modulus)));
+
+		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((cbar + (g.ScalarMult(plaintext)).ModEq(modulus)).ModEq(modulus)));
+
 		return c;
 	}
 
-	template <class Integer,class Vector>
+	template <class Integer, class Vector>
 	GSWPlaintext<Integer> GSWScheme<Integer,Vector>::Decrypt(const shared_ptr<GSWCiphertext<Integer>> ciphertext,
 			const shared_ptr<GSWSecretKey<Integer>> sk) const
 	{
@@ -70,13 +94,11 @@ namespace lbcrypto {
 		GSWPlaintext<Integer> mu = Integer(0);
 		for (size_t i = 0; i <  m_cryptoParams.Getn()-1; i++)
 		{
-			mu += ((*sk)(i,0)*(*ciphertext)(i,m_cryptoParams.Getm()-2)).ModEq(modulus);
+			mu += (*sk)(i,0).ModMul((*ciphertext)(i,m_cryptoParams.Getm()-2),modulus);
 		}
 		mu += ((*ciphertext)(m_cryptoParams.Getn()-1,m_cryptoParams.Getm()-2));
 
 		mu.ModEq(modulus);
-
-		std::cout << mu << std::endl;
 
 		Integer half = modulus >> 1;
 		if (mu > half)
@@ -84,10 +106,9 @@ namespace lbcrypto {
 
 		return mu.MultiplyAndRound(m_cryptoParams.GetBase(),m_cryptoParams.GetModulus());
 
-		//return mu;
 	}
 
-	template <class Integer,class Vector>
+	template <class Integer, class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::EvalAdd(const shared_ptr<GSWCiphertext<Integer>> ct1,
 			const shared_ptr<GSWCiphertext<Integer>> ct2) {
 
@@ -98,7 +119,7 @@ namespace lbcrypto {
 
 	}
 
-	template <class Integer,class Vector>
+	template <class Integer, class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::EvalMult(const shared_ptr<GSWCiphertext<Integer>> ct1,
 			const shared_ptr<GSWCiphertext<Integer>> ct2) {
 
@@ -110,7 +131,7 @@ namespace lbcrypto {
 		return c;
 	}
 
-	template <class Integer,class Vector>
+	template <class Integer, class Vector>
 	shared_ptr<GSWCiphertext<Integer>> GSWScheme<Integer,Vector>::InverseG(const shared_ptr<GSWCiphertext<Integer>> ct) {
 		size_t cols = ct->GetCols();
 		size_t rows = ct->GetRows();
@@ -125,8 +146,7 @@ namespace lbcrypto {
 				}
 			}
 		}
-		//std::cout << *ct << std::endl;
-		//std::cout << gInverse << std::endl;
+
 		shared_ptr<Matrix<Integer>> result(new Matrix<Integer>(gInverse));
 		return result;
 	}

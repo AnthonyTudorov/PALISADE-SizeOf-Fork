@@ -60,6 +60,7 @@ public:
 		m_dug.SetModulus(q);
 		m_l = std::ceil(q.GetMSB()/log2(base));
 		m_m = m_n*m_l;
+		std::cout << " l = " << m_l << std::endl;
 	}
 
 	const DiscreteGaussianGeneratorImpl<Integer,Vector> &GetDgg() const{
@@ -100,7 +101,7 @@ private:
 	DiscreteUniformGeneratorImpl<Integer,Vector> m_dug;
 };
 
-template <class Integer,class Vector>
+template <class Integer, class Vector>
 class GSWScheme
 {
 public:

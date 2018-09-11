@@ -12,11 +12,11 @@
 
 using namespace lbcrypto;
 
+template <class Integer, class Vector>
+void RunHETests(uint32_t n, uint32_t base, const Integer &q, double std);
 
 int main()
 {
-
-	GSWScheme<BigInteger,BigVector> scheme;
 
 	uint32_t n = 16;
 	uint32_t l = 50;
@@ -26,67 +26,60 @@ int main()
 
 	BigInteger q = FirstPrime<BigInteger>(l, 2 * n);
 
-	scheme.Setup(n,base,q,std);
-	auto sk = scheme.SecretKeyGen();
-
-	auto c = scheme.Encrypt(BigInteger(1),sk);
-
-	auto cMult = scheme.EvalMult(c,c);
-
-	auto p = scheme.Decrypt(c,sk);
-
-	auto pMult = scheme.Decrypt(cMult,sk);
-
-	//std::cout << "secret key\n" <<  *sk << std::endl;
-
 	std::cout << " ==== POLY =====" << std::endl;
 
-	std::cout << "plaintext = " << p << std::endl;
-
-	std::cout << "plaintext of multiplication = " << pMult << std::endl;
-
-
-	GSWScheme<NativeInteger,NativeVector> schemeNative;
+	RunHETests<BigInteger,BigVector>(n,base,q,std);
 
 	l = 30;
 
 	NativeInteger qNative = FirstPrime<NativeInteger>(l, 2 * n);
 
-	schemeNative.Setup(n,base,qNative,std);
-	auto skNative = schemeNative.SecretKeyGen();
-
-	auto cNative = schemeNative.Encrypt(NativeInteger(1),skNative);
-
-	auto cNativePlus = schemeNative.EvalAdd(cNative,cNative);
-
-	auto cNativePlus2 = schemeNative.EvalAdd(cNativePlus,cNative);
-
-	auto cNativeMult = schemeNative.EvalMult(cNative,cNative);
-
-	auto pNative = schemeNative.Decrypt(cNative,skNative);
-
-	auto pNativePlus = schemeNative.Decrypt(cNativePlus,skNative);
-
-	auto pNativePlus2 = schemeNative.Decrypt(cNativePlus2,skNative);
-
-	auto pNativeMult = schemeNative.Decrypt(cNativeMult,skNative);
-
-	//std::cout << "secret key\n" <<  *skNative << std::endl;
-
 	std::cout << " ==== NATIVEPOLY =====" << std::endl;
 
-	std::cout << "plaintext = " << pNative << std::endl;
-
-	std::cout << "plaintext of addition = " << pNativePlus << std::endl;
-
-	std::cout << "plaintext of triple addition = " << pNativePlus2 << std::endl;
-
-	std::cout << "plaintext of multiplication = " << pNativeMult << std::endl;
+	RunHETests<NativeInteger,NativeVector>(n,base,qNative,std);
 
 	return 0;
 }
 
+template <class Integer, class Vector>
+void RunHETests(uint32_t n, uint32_t base, const Integer &q, double std) {
 
+	GSWScheme<Integer,Vector> scheme;
 
+	scheme.Setup(n,base,q,std);
+
+	auto sk = scheme.SecretKeyGen();
+
+	auto c = scheme.Encrypt(Integer(1),sk);
+
+	auto cPlus = scheme.EvalAdd(c,c);
+
+	auto cPlus2 = scheme.EvalAdd(cPlus,c);
+
+	auto cMult = scheme.EvalMult(c,c);
+
+	auto cMultByZero = scheme.EvalMult(c,cPlus);
+
+	auto p = scheme.Decrypt(c,sk);
+
+	std::cout << "plaintext = " << p << std::endl;
+
+	auto pPlus = scheme.Decrypt(cPlus,sk);
+
+	std::cout << "plaintext of addition = " << pPlus << std::endl;
+
+	auto pPlus2 = scheme.Decrypt(cPlus2,sk);
+
+	std::cout << "plaintext of triple addition = " << pPlus2 << std::endl;
+
+	auto pMult = scheme.Decrypt(cMult,sk);
+
+	std::cout << "plaintext of multiplication = " << pMult << std::endl;
+
+	auto pMultByZero = scheme.Decrypt(cMultByZero,sk);
+
+	std::cout << "plaintext of multiplication by zero = " << pMultByZero << std::endl;
+
+}
 
 
