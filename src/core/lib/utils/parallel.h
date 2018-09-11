@@ -37,8 +37,8 @@ class ParallelControls {
 public:
 	ParallelControls() {
 		machineThreads = omp_get_max_threads();
-		omp_set_dynamic(1);
-		omp_set_nested(1);
+		//omp_set_dynamic(1);
+		//omp_set_nested(1);
 		Disable();
 	}
 
