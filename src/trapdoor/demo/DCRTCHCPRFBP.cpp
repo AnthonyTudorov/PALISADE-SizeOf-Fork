@@ -30,6 +30,7 @@
 #include <iostream>
 #include "obfuscation/lwebpchcprf.cpp"
 #include "obfuscation/lwebpchcprf.h"
+#include "utils/parallel.h"
 
 #include "utils/debug.h"
 
@@ -201,6 +202,9 @@ void CVW18WitnessEncryption() {
 }
 
 int main(int argc, char* argv[]) {
+
+	PalisadeParallelControls.Enable();
+
     CC17Manual();
     CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
     CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
