@@ -28,11 +28,15 @@
 
 #include "math/matrix.h"
 #include "math/discretegaussiangenerator.h"
+#include "../sampling/trapdoor.h"
+#include "subgaussian.h"
 
 #ifndef LBCRYPTO_SUBGAUSSIAN_GSW_H
 #define LBCRYPTO_SUBGAUSSIAN_GSW_H
 
 namespace lbcrypto {
+
+enum GINVERSEMODE { DETERMINISTIC=0, RANDOM=1 };
 
 // dimension Z_q^n-1
 template <class Integer>
@@ -54,13 +58,13 @@ template <class Integer, class Vector>
 class GSWCryptoParameters
 {
 public:
-	GSWCryptoParameters() : m_n(0), m_l(0), m_m(0), m_base(0), m_modulus(Integer(0)) {;}
-	GSWCryptoParameters(uint32_t n, int64_t base, const Integer &q, double std) : m_n(n),  m_base(base), m_modulus(q) {
+	GSWCryptoParameters() : m_n(0), m_l(0), m_m(0), m_base(0), m_modulus(Integer(0)), m_mode(DETERMINISTIC), m_sampler(LatticeSubgaussianUtility<Integer>()) {;}
+	GSWCryptoParameters(uint32_t n, int64_t base, const Integer &q, double std, GINVERSEMODE mode = DETERMINISTIC) : m_n(n),  m_base(base), m_modulus(q), m_mode(mode) {
 		m_dgg.SetStd(std);
 		m_dug.SetModulus(q);
 		m_l = std::ceil(q.GetMSB()/log2(base));
 		m_m = m_n*m_l;
-		std::cout << " l = " << m_l << std::endl;
+		m_sampler = LatticeSubgaussianUtility<Integer>(base, q, m_l);
 	}
 
 	const DiscreteGaussianGeneratorImpl<Integer,Vector> &GetDgg() const{
@@ -69,6 +73,10 @@ public:
 
 	const DiscreteUniformGeneratorImpl<Integer,Vector> &GetDug() const{
 		return m_dug;
+	}
+
+	const LatticeSubgaussianUtility<Integer> &GetSampler() const{
+		return m_sampler;
 	}
 
 	uint32_t Getn() const{
@@ -81,6 +89,10 @@ public:
 
 	uint32_t Getm() const{
 		return m_m;
+	}
+
+	GINVERSEMODE GetMode() const{
+		return m_mode;
 	}
 
 	int64_t GetBase() const{
@@ -99,14 +111,17 @@ private:
 	Integer m_modulus;
 	DiscreteGaussianGeneratorImpl<Integer,Vector> m_dgg;
 	DiscreteUniformGeneratorImpl<Integer,Vector> m_dug;
+
+	GINVERSEMODE m_mode;
+	LatticeSubgaussianUtility<Integer> m_sampler;
 };
 
 template <class Integer, class Vector>
 class GSWScheme
 {
 public:
-	void Setup(uint32_t n, uint32_t base, const Integer &q, double std) {
-		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,base,q,std);
+	void Setup(uint32_t n, uint32_t base, const Integer &q, double std, GINVERSEMODE mode = DETERMINISTIC) {
+		m_cryptoParams = GSWCryptoParameters<Integer,Vector>(n,base,q,std,mode);
 	}
 
 	shared_ptr<GSWSecretKey<Integer>> SecretKeyGen() const;

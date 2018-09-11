@@ -136,13 +136,40 @@ namespace lbcrypto {
 		size_t cols = ct->GetCols();
 		size_t rows = ct->GetRows();
 		Matrix<Integer> gInverse([&](){return Integer(0);}, cols,cols);
-		for (size_t i = 0; i < cols; i++)
+
+		if (m_cryptoParams.GetMode() == DETERMINISTIC) {
+			for (size_t i = 0; i < cols; i++)
+			{
+				for (size_t j = 0; j < rows; j++) {
+					auto vector = GetDigits((*ct)(j,i),m_cryptoParams.GetBase(),m_cryptoParams.Getl());
+					for (size_t k = 0; k < vector->size(); k++)
+					{
+						gInverse(j*m_cryptoParams.Getl()+k,i) = (*vector)[k];
+					}
+				}
+			}
+		}
+		else  // RADOMIZED ROUNDING
 		{
-			for (size_t j = 0; j < rows; j++) {
-				auto vector = GetDigits((*ct)(j,i),m_cryptoParams.GetBase(),m_cryptoParams.Getl());
-				for (size_t k = 0; k < vector->size(); k++)
-				{
-					gInverse(j*m_cryptoParams.Getl()+k,i) = (*vector)[k];
+
+			const Integer &q = m_cryptoParams.GetModulus();
+
+			for (size_t i = 0; i < cols; i++)
+			{
+				for (size_t j = 0; j < rows; j++) {
+
+					vector<int64_t> vector(m_cryptoParams.Getl());
+
+					m_cryptoParams.GetSampler().InverseG((*ct)(j,i),PseudoRandomNumberGenerator::GetPRNG(),&vector);
+
+					for (size_t k = 0; k < vector.size(); k++)
+					{
+						if (vector[k] > 0)
+							gInverse(j*m_cryptoParams.Getl()+k,i) = vector[k];
+						else
+							gInverse(j*m_cryptoParams.Getl()+k,i) = q - Integer(-vector[k]);
+
+					}
 				}
 			}
 		}
