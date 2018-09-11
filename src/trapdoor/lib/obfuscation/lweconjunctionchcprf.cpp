@@ -257,9 +257,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 	//YSP this can be done using discrete Gaussian allocator later - after the dgg allocator is updated to use the same dgg instance
 	//DBC all the following have insignificant timing
 	Matrix<Element> ej(zero_alloc, 1, m);
-#ifdef OMP
 	#pragma omp parallel for
-#endif
 	for(size_t i=0; i<m; i++) {
 		ej(0,i) = Element(m_dgg, elem.GetParams(), COEFFICIENT);
 		ej(0,i).SwitchFormat();
@@ -271,9 +269,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 
 	//DBC: this loop takes all the time in encode
 	//TODO (dcousins): move gaussj generation out of the loop to enable parallelisation
-#ifdef OMP
 	#pragma omp parallel for schedule(dynamic)
-#endif
 	for(size_t i=0; i<m; i++) {
 		// the following takes approx 250 msec
 		const Matrix<Element> &gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n,k,Ai,Ti,bj(0,i), m_dgg, m_dggLargeSigma, m_base);
@@ -295,9 +291,7 @@ shared_ptr<vector<Poly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrix
 
 	shared_ptr<vector<Poly>> result(new vector<Poly>(matrix.GetCols()));
 
-#ifdef OMP
 #pragma omp parallel for
-#endif
 	for (size_t i = 0; i < matrix.GetCols(); i++) {
 		Poly poly = matrix(0, i).CRTInterpolate();
 

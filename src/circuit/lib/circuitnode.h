@@ -367,7 +367,7 @@ template<typename Element>
 class ConstPtxtWithValue : public CircuitNodeWithValue<Element> {
 public:
 	ConstPtxtWithValue(CircuitNode* in) : CircuitNodeWithValue<Element>(in) {
-		ConstInt& nn = dynamic_cast<ConstInt&>( *in );
+		ConstPtxt& nn = dynamic_cast<ConstPtxt&>( *in );
 		this->setValue(nn.GetInt());
 	}
 	OpType OpTag() const { return OpNOOP; }

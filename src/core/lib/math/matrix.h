@@ -31,8 +31,6 @@
 #include <functional>
 #include <cmath>
 #include <stdexcept>
-#include <omp.h>
-//using std::function;
 
 #include "../math/backend.h"
 #include "../lattice/backend.h"
@@ -254,9 +252,7 @@ public:
 	 */
 	Matrix<Element> ScalarMult(Element const& other) const {
 		Matrix<Element> result(*this);
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (size_t col = 0; col < result.cols; ++col) {
 			for (size_t row = 0; row < result.rows; ++row) {
 				result.data[row][col] = result.data[row][col] * other;
@@ -371,9 +367,7 @@ public:
 			throw invalid_argument("Addition operands have incompatible dimensions");
 		}
 		Matrix<Element> result(*this);
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (size_t j = 0; j < cols; ++j) {
 			for (size_t i = 0; i < rows; ++i) {
 				result.data[i][j] += other.data[i][j];
@@ -412,9 +406,7 @@ public:
 			throw invalid_argument("Subtraction operands have incompatible dimensions");
 		}
 		Matrix<Element> result(allocZero, rows, other.cols);
-#ifdef OMP
 #pragma omp parallel for
-#endif
 		for (size_t j = 0; j < cols; ++j) {
 			for (size_t i = 0; i < rows; ++i) {
 				result.data[i][j] = data[i][j] - other.data[i][j];

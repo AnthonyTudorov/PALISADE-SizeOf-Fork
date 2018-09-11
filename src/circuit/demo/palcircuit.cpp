@@ -34,7 +34,6 @@
 #include "cryptocontextgen.h"
 #include "palisadecircuit.h"
 using namespace lbcrypto;
-using std::cout;
 
 #include <fstream>
 using std::ostream;
@@ -42,30 +41,39 @@ using std::ostream;
 #include "parsedriver.h"
 
 void usage() {
-	cout << "Usage is palcircuit {Arguments} inputfile specfile" << endl;
+	cout << "Usage is palcircuit {Arguments} contextfile inputfile specfile" << endl;
 	cout << "Arguments are" << endl;
 	cout << "-d  --  debug mode on the parse" << endl;
 	cout << "-ginput[=file]  --  print a graph of the input circuit, DOT format" << endl;
 	cout << "-gproc[=file]  --  print a graph of the preprocessed input circuit, DOT format" << endl;
 	cout << "-gresult[=file]  --  print a graph of the result of executing the circuit, DOT format" << endl;
-	cout << "-econtext[=file] -- export a serialization of the context to file" << endl;
 	cout << "-elist=filename  --  save information needed for estimating in file filename; stop after generating" << endl;
 	cout << "-estats=filename  --  use this information for estimating runtime" << endl;
 	cout << "-v  --  verbose details about the circuit" << endl;
 	cout << "-null  --  use the null scheme" << endl;
 	cout << "-printall  --  prints value of every node after evaluation" << endl;
 	cout << "-otrace -- verbose details about the operations" << endl;
+	cout << "-ap -- generate application profile and stop" << endl;
 	cout << "-h  --  this message" << endl;
+	exit(0);
 }
+/*
+ * palcircuit {flags} command args
+ * where command is:
+ * exam specfile - examine circuit given in specfile, give info about circuit depth
+ * eval contextfile inputfile specfile - using the cryptocontext in contextfile, eval
+ * flags are:
+ * -ginput[=file] - generate a DOT script of the input to stdout, or to file
+ */
 
 Plaintext EncodeFunction(CryptoContext<DCRTPoly> cc, int64_t val) {
-	return cc->MakePackedPlaintext({(uint64_t)val});
+	return cc->MakeFractionalPlaintext((uint64_t)val);
 }
 
 int
 main(int argc, char *argv[])
 {
-	const PlaintextModulus ptm = 1073872897;
+//	const PlaintextModulus ptm = 1073872897;
 
 	bool debug_parse = false;
 	bool print_input_graph = false;
@@ -75,11 +83,7 @@ main(int argc, char *argv[])
 	bool evaluation_list_mode = false;
 	bool evaluation_run_mode = false;
 	bool print_all_flag = false;
-	bool print_context_flag = false;
-	bool use_null = false;
-
-	ofstream contextF;
-	ostream *ctxStr = &cout;
+	bool gen_app_profile = false;
 
 	ofstream evalListF;
 	ostream *elistStr = &cout;
@@ -91,10 +95,15 @@ main(int argc, char *argv[])
 	ostream	*procGraph = &cout;
 	ostream	*resultGraph = &cout;
 
+	string ctxtfile;
 	string inputfile;
 	string specfile;
 
 	// PROCESS USER ARGS
+
+	if( argc < 4 )
+		usage();
+
 	for( int i=1; i<argc; i++ ) {
 		string arg(argv[i]);
 		string argf(arg);
@@ -111,12 +120,15 @@ main(int argc, char *argv[])
 		if( arg == "-d" ) {
 			debug_parse = true;
 		}
+		else if( arg == "-ap" ) {
+			gen_app_profile = true;
+		}
 		else if( arg == "-otrace" ){
 			lbcrypto::CircuitOpTrace = true;
 		}
-		else if( arg == "-null" ){
-			use_null = true;
-		}
+//		else if( arg == "-null" ){
+//			use_null = true;
+//		}
 		else if( arg == "-ginput" ) {
 			print_input_graph = true;
 			if( argf.size() > 0 ) {
@@ -158,18 +170,6 @@ main(int argc, char *argv[])
 		}
 		else if( arg == "-h" ) {
 			usage();
-			return 0;
-		}
-		else if( arg == "-econtext" ) {
-			print_context_flag = true;
-			if( argf.size() > 0 ) {
-				contextF.open(argf, ostream::out);
-				if( !contextF.is_open() ) {
-					cout << "Unable to open file " << argf << endl;
-					return 1;
-				}
-				ctxStr = &contextF;
-			}
 		}
 		else if( arg == "-elist" ) {
 			evaluation_list_mode = true;
@@ -192,60 +192,17 @@ main(int argc, char *argv[])
 		}
 		else if( arg[0] == '-' ) { // an unrecognized flag
 			usage();
-			return 1;
 		}
 		else {
-			inputfile = arg;
-			if( argc != i+2 ) {
+			if( argc != i+3 )
 				usage();
-				return 1;
-			}
-			specfile = argv[i+1];
+
+			ctxtfile = argv[i];
+			inputfile = argv[i+1];
+			specfile = argv[i+2];
+
 			break;
 		}
-	}
-
-	if( inputfile.length() == 0 ) {
-		usage();
-		return 1;
-	}
-
-	if( evaluation_list_mode && evaluation_run_mode ) {
-		cout << "Cannot specify both -elist and -estats" << endl;
-		return 1;
-	}
-
-	// Prepare to process the graph
-
-	EncodingParams ep( new EncodingParamsImpl(ptm) );
-
-	CryptoContext<DCRTPoly> cc = use_null ?
-			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
-			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
-
-	std::cout << "\np = " << cc->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cc->GetRingDimension() << std::endl;
-	std::cout << "log2 q = " << log2(cc->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
-
-	cc->Enable(ENCRYPTION);
-	cc->Enable(SHE);
-	try {
-		cc->Enable(LEVELEDSHE);
-	} catch(...) {}
-
-	const usint m = cc->GetCyclotomicOrder();
-	PackedEncoding::SetParams(m, ep);
-	ep->SetBatchSize(1024);
-
-	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
-	if( print_context_flag ) {
-		Serialized serObj;
-		serObj.SetObject();
-		if( cc->Serialize(&serObj) == false ) {
-			cout << "Can't serialize CryptoContext" << endl;
-			return 1;
-		}
-		SerializableHelper::SerializationToStream(serObj, *ctxStr);
 	}
 
 	// PARSE THE CIRCUIT
@@ -255,13 +212,13 @@ main(int argc, char *argv[])
 		cout << "Parsing" << endl;
 	}
 
-	if( driver.parse(inputfile) != 0 ) {
-		cout << "Error parsing input file " << inputfile << endl;
+	if( driver.parse(specfile) != 0 ) {
+		cout << "Error parsing spec file " << specfile << endl;
 		return 1;
 	}
 
-	if( driver.parse(specfile) != 0 ) {
-		cout << "Error parsing spec file " << specfile << endl;
+	if( driver.parse(inputfile) != 0 ) {
+		cout << "Error parsing input file " << inputfile << endl;
 		return 1;
 	}
 
@@ -269,8 +226,58 @@ main(int argc, char *argv[])
 		cout << "Circuit parsed" << endl;
 	}
 
+	// GET CONTEXT
+	Serialized ser;
+	if( SerializableHelper::ReadSerializationFromFile(ctxtfile, &ser, true) == false )
+		return 0;
+
+	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ser);
+
+	const shared_ptr<const LPCryptoParametersBFVrns<DCRTPoly>> parms = dynamic_pointer_cast<const LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
+	unsigned qbits = log2(parms->GetElementParams()->GetModulus().ConvertToDouble());
+	float sp = parms->GetSecurityLevel();
+
+	//	EncodingParams ep( new EncodingParamsImpl(ptm) );
+	//
+	//	CryptoContext<DCRTPoly> cc = use_null ?
+	//			CryptoContextFactory<DCRTPoly>::genCryptoContextNull(32, ep) :
+	//			CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(ep,1.004,3.19,0,4,0,OPTIMIZED,2,30);
+
+	if( verbose ) {
+		cout << "Input Context:" << endl;
+		cout << "p = " << parms->GetPlaintextModulus() << endl;
+		cout << "n = " << cc->GetRingDimension() << endl;
+		cout << "log2 q = " << qbits << endl;
+		cout << "max depth supported = " << parms->GetMaxDepth() << endl;
+	}
+
+	cc->Enable(ENCRYPTION);
+	try {
+		cc->Enable(SHE);
+	} catch(...) {}
+	try {
+		cc->Enable(LEVELEDSHE);
+	} catch(...) {}
+
+//	// when in evaluation mode (prepare to estimate/run, then stop), save the CryptoContext
+//	if( print_context_flag ) {
+//		Serialized serObj;
+//		serObj.SetObject();
+//		if( cc->Serialize(&serObj) == false ) {
+//			cout << "Can't serialize CryptoContext" << endl;
+//			return 1;
+//		}
+//		SerializableHelper::SerializationToStream(serObj, *ctxStr);
+//	}
+
 	// From the parsed circuit, create a graph that can hold values
+	if( verbose )
+		cout << "Creating graph..." << endl;
+
 	PalisadeCircuit<DCRTPoly>	cir(cc, driver.graph, EncodeFunction);
+
+	if( verbose )
+		cout << "Graph created" << endl;
 
 	if( print_input_graph ) {
 		cir.GetGraph().DisplayGraph(*inGraph);
@@ -279,17 +286,50 @@ main(int argc, char *argv[])
 	}
 
 	// ASSIGN DEPTHS (and, eventually, optimize)
-	if( verbose ) cout << "Preprocessing" << endl;
+	if( verbose ) cout << "Optimizing circuit..." << endl;
 	cir.GetGraph().Preprocess();
-
-	if( verbose )
-		cout << "Maximum depth is " << cir.GetGraph().GetMaximumDepth() << endl;
+	if( verbose ) cout << "Done..." << endl;
 
 	if( print_preproc_graph ) {
 		cir.GetGraph().DisplayGraph(*procGraph);
 		if( procGF.is_open() )
 			procGF.close();
 	}
+
+	if( verbose ) {
+		cout << "Depth required for circuit is " << cir.GetGraph().GetMaximumDepth() << endl;
+	}
+
+	if( cir.GetGraph().GetMaximumDepth() > parms->GetMaxDepth() ) {
+		cout << "*** Context will not support circuit... Regenerate\n" << endl;
+		return cir.GetGraph().GetMaximumDepth();
+	}
+
+	auto quotS = [] (string s) { return "\"" + s + "\""; };
+	auto quotI = [] (unsigned s) { return "\"" + to_string(s) + "\""; };
+	auto quotF = [] (float s) { return "\"" + to_string(s) + "\""; };
+	if( gen_app_profile ) {
+		//cout << *parms << endl;
+		cout << qbits << endl;
+		cout << sp << endl;
+		cout << quotS( "confset" ) << ": {"
+				<< quotS("type") << ":" << quotS("MQgen") << ","
+				<< quotS("secLevel") << ":" << quotF(parms->GetSecurityLevel()) << ","
+				<< quotS("numAdds") << ":" << quotI(0) << ","
+				<< quotS("numMults") << ":" << quotI(cir.GetGraph().GetMaximumDepth()) << ","
+				<< quotS("numKS") << ":" << quotI(0) << ","
+				<< quotS("p") << ":" << quotI( cc->GetEncodingParams()->GetPlaintextModulus() ) << ","
+				<< quotS("relinWindow") << ":" << quotI(parms->GetRelinWindow()) << ","
+				<< quotS("dist") << ":" << quotF(parms->GetDistributionParameter()) << ","
+				<< quotS("qbits") << ":" << quotI(qbits) << "}";
+		return 0;
+	}
+
+
+	const usint m = cc->GetCyclotomicOrder();
+	auto ep = cc->GetEncodingParams();
+	PackedEncoding::SetParams(m, ep);
+	ep->SetBatchSize(1024);
 
 	// to do estimates we need to know what functions we called; write them out and finish up
 	if( evaluation_list_mode ) {
@@ -429,12 +469,6 @@ main(int argc, char *argv[])
 	if( print_all_flag ) {
 		for( auto& node : cir.GetGraph().getAllNodes() ) {
 			cout << "For node " << node.first << " Value: " << node.second->getValue() << " runtime " << node.second->GetRuntimeActual() << endl;
-		}
-	}
-
-	if( print_all_flag ) {
-		for( auto& node : cir.GetGraph().getAllNodes() ) {
-			cout << "For node " << node.first << " Value: " << node.second->getValue() << endl;
 		}
 	}
 

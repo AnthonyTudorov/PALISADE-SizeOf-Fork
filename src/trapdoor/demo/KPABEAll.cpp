@@ -5,8 +5,6 @@
 
 #include "utils/debug.h"
 
-#include <omp.h> //open MP header
-
 using namespace lbcrypto;
 
 	void KPABEBenchMarkCircuit(int32_t base, usint k, usint ringDimension, usint iter);

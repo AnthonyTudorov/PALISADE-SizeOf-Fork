@@ -31,6 +31,7 @@
 #include "version.h"
 
 #include "utils/inttypes.h"
+#include "utils/parallel.h"
 
  
 // use of MS VC is not permitted because of various incompatibilities

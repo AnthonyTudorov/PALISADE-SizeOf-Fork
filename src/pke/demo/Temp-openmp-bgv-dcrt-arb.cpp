@@ -54,9 +54,6 @@ We configured parameters (namely the ring dimension and ciphertext modulus) to p
 
 #include "math/nbtheory.h"
 
-#include <omp.h> //open MP header
-
-
 using namespace std;
 using namespace lbcrypto;
 

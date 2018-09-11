@@ -39,8 +39,6 @@
 #include "utils/utilities.h"
 #include "utils/debug.h"
 
-#include <omp.h>
-
 #include "../lib/lattice/dcrtpoly.h"
 using namespace std;
 using namespace lbcrypto;

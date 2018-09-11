@@ -1843,18 +1843,14 @@ namespace lbcrypto {
 			Ciphertext<Element> y0 = (*y)(indexStart, 0).GetNumerator();
 
 			result = EvalInnerProduct(x0, y0, batchSize, evalSumKeys, evalMultKey);
-#ifdef OMP
 			#pragma omp parallel for ordered schedule(dynamic)
-#endif
 			for (usint i = indexStart + 1; i < indexStart + length; i++)
 			{
 				Ciphertext<Element> xi = (*x)(i, 0).GetNumerator();
 				Ciphertext<Element> yi = (*y)(i, 0).GetNumerator();
 
 				auto product = EvalInnerProduct(xi, yi, batchSize, evalSumKeys, evalMultKey);
-#ifdef OMP
 				#pragma omp ordered
-#endif
 				{
 					result = EvalAdd(result,product);
 				}
@@ -1979,6 +1975,9 @@ namespace lbcrypto {
 
 		virtual usint GetRelinWindow() const { return 0; }
 
+		virtual int GetDepth() const { return 0; }
+		virtual size_t GetMaxDepth() const { return 0; }
+
 		virtual const typename Element::DggType &GetDiscreteGaussianGenerator() const {
 			throw std::logic_error("No DGG Available for this parameter set");
 		}
@@ -2031,13 +2030,29 @@ namespace lbcrypto {
 		EncodingParams								m_encodingParams;
 	};
 
-	
+	// forward decl so SchemeIdentifier works
+	template<typename Element> class LPPublicKeyEncryptionScheme;
+
+	template<typename Element>
+	class PalisadeSchemeIdentifier {
+		string									schemeName;
+		LPPublicKeyEncryptionScheme<Element>		*(*schemeMaker)();
+	public:
+		PalisadeSchemeIdentifier(string n, LPPublicKeyEncryptionScheme<Element> (*f)())
+			: schemeName(n), schemeMaker(f) {}
+
+		const string& GetName() const { return schemeName; }
+		LPPublicKeyEncryptionScheme<Element> *GetScheme() const { return (*schemeMaker)(); }
+	};
+
 	/**
 	 * @brief Abstract interface for public key encryption schemes
 	 * @tparam Element a ring element.
 	 */
-	template <class Element>
+	template<typename Element>
 	class LPPublicKeyEncryptionScheme {
+	protected:
+		//PalisadeSchemeIdentifier<Element> *SchemeId;
 
 	public:
 		LPPublicKeyEncryptionScheme() :
