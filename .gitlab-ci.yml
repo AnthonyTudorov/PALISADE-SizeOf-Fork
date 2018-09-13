@@ -1,3 +1,6 @@
 palisade:
+  before_script:
+    - module load gcc/7.3.0
+    - g++ --version
   script:
     make
