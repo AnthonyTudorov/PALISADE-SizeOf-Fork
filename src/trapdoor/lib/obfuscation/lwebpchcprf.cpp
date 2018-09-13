@@ -43,7 +43,7 @@ BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, 
 
     // Initialize m_dggLargeSigma
     double c = (base + 1) * SIGMA;
-    double s = SPECTRAL_BOUND(n, m_m - 2, base);
+    double s = SPECTRAL_BOUND_D(n, m_m - 2, base, w);
 
     if (sqrt(s * s - c * c) <= 3e5)
         m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
@@ -69,13 +69,14 @@ const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen()
     vector<vector<Element>> s;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
-        vector<Element> s_i;
+        vector<Element> s_i(m_chunkExponent);
 
+#pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
             Element s_ik = Element(tug, m_elemParams, COEFFICIENT);
             s_ik.SwitchFormat();
 
-            s_i.push_back(s_ik);
+            s_i[k] = s_ik;
         }
 
         s.push_back(s_i);
@@ -97,15 +98,12 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
     auto zero_alloc = Element::Allocator(m_elemParams, EVALUATION);
 
     for (int i = m_adjustedLength - 1; i >= 0; i--) {
-        // Sample trapdoor pairs (for diagonal A_i)
-        vector<pair<Matrix<Element>, RLWETrapdoorPair<Element>>> trapPairs;
-        for (usint j = 0; j < m_w; j++) {
-            trapPairs.push_back(RLWETrapdoorUtility<Element>::TrapdoorGen(m_elemParams, SIGMA, m_base));
-        }
+        pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGenSquareMat(m_elemParams, SIGMA, m_w, m_base);
 
         // Sample D_i
-        vector<Matrix<Element>> D_i;
+        vector<Matrix<Element>> D_i(m_chunkExponent, Matrix<Element>(zero_alloc));
 
+#pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
             usint w = M[0][0].GetCols();
             // Compute M_ik
@@ -119,18 +117,12 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
             }
 
             Matrix<Element> t = Gamma(M_ik, s[i][k]);
-            D_i.push_back(Encode(trapPairs, A, t));
+            D_i[k] = Encode(trapPair, A, t);
         }
 
         D.push_back(D_i);
 
-        // Construct A_i
-        A.Fill(zero_alloc());
-        for (usint j = 0; j < m_w; j++) {
-            for (usint o = 0; o < m_m; o++) {
-                A(j, j * m_m + o) = trapPairs[j].first(0, o);
-            }
-        }
+        A = trapPair.first;
     }
 
     reverse(D.begin(), D.end());
@@ -191,7 +183,8 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
     uint32_t base = m_base;
 
     //Correctness constraint
-    auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return 32 * Berr * k * sqrt(n) * pow(sqrt(m * n) * beta * SPECTRAL_BOUND(n, m - 2, base), length); };
+    auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
+    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
 
     double qPrev = 1e6;
     double q = 0;
@@ -242,7 +235,7 @@ shared_ptr<typename DCRTPoly::Params> BPCHCPRF<DCRTPoly>::GenerateElemParams(dou
 
 template <class Element>
 Matrix<Element> BPCHCPRF<Element>::Encode(
-    const vector<pair<Matrix<Element>, RLWETrapdoorPair<Element>>>& trapPairs,
+    const pair<Matrix<Element>, RLWETrapdoorPair<Element>>& trapPair,
     const Matrix<Element>& A,
     const Matrix<Element>& matrix) const {
     usint n = GetRingDimension();
@@ -262,15 +255,18 @@ Matrix<Element> BPCHCPRF<Element>::Encode(
     Matrix<Element> Y = matrix * A + E;
 
     Matrix<Element> D(zero_alloc, m_w * m_m, m_w * m_m);
+    for (usint i = 0; i < m_m; i++) {
+        Matrix<Element> Y_i(zero_alloc, m_w, m_w);
+        for (usint j = 0; j < m_w; j++) {
+            for (usint k = 0; k < m_w; k++) {
+                Y_i(j, k) = Y(j, i * m_w + k);
+            }
+        }
 
-#ifdef OMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-    for (usint i = 0; i < m_w; i++) {
+        Matrix<Element> D_i = RLWETrapdoorUtility<Element>::GaussSampSquareMat(n, m_m - 2, trapPair.first, trapPair.second, Y_i, dgg, dggLargeSigma, m_base);
         for (usint j = 0; j < m_w * m_m; j++) {
-            Matrix<Element> gaussj = RLWETrapdoorUtility<Element>::GaussSamp(n, m_m - 2, trapPairs[i].first, trapPairs[i].second, Y(i, j), dgg, dggLargeSigma, m_base);
-            for (usint k = 0; k < m_m; k++) {
-                D(i * m_m + k, j) = gaussj(k, 0);
+            for (usint k = 0; k < m_w; k++) {
+                D(j, i * m_w + k) = D_i(j, k);
             }
         }
     }
@@ -285,6 +281,7 @@ const vector<Poly> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Matrix<El
 
     vector<Poly> output(matrix.GetCols());
 
+#pragma omp parallel for schedule(dynamic)
     for (usint i = 0; i < matrix.GetCols(); i++) {
         Poly poly = matrix(0, i).CRTInterpolate();
 

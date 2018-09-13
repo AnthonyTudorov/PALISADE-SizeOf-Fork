@@ -130,7 +130,7 @@ void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& c
         }
     }
 
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 4, pattern.length(), 1024, v);
     test(algorithm, M, cases);
 }
 
@@ -205,8 +205,8 @@ int main(int argc, char* argv[]) {
 
 	PalisadeParallelControls.Enable();
 
-    CC17Manual();
-    CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
-    CVW18WitnessEncryption();
+    //CC17Manual();
+    CVW18Disjunction("10*000*110*000*1", {{"0011111000111110", true}, {"0101110001011100", false}});
+    //CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
+    //CVW18WitnessEncryption();
 }
