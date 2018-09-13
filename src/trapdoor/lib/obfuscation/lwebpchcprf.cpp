@@ -69,13 +69,14 @@ const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen()
     vector<vector<Element>> s;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
-        vector<Element> s_i;
+        vector<Element> s_i(m_chunkExponent);
 
+#pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
             Element s_ik = Element(tug, m_elemParams, COEFFICIENT);
             s_ik.SwitchFormat();
 
-            s_i.push_back(s_ik);
+            s_i[k] = s_ik;
         }
 
         s.push_back(s_i);
@@ -100,8 +101,9 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
         pair<Matrix<Element>, RLWETrapdoorPair<Element>> trapPair = RLWETrapdoorUtility<Element>::TrapdoorGenSquareMat(m_elemParams, SIGMA, m_w, m_base);
 
         // Sample D_i
-        vector<Matrix<Element>> D_i;
+        vector<Matrix<Element>> D_i(m_chunkExponent, Matrix<Element>(zero_alloc));
 
+#pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
             usint w = M[0][0].GetCols();
             // Compute M_ik
@@ -115,7 +117,7 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
             }
 
             Matrix<Element> t = Gamma(M_ik, s[i][k]);
-            D_i.push_back(Encode(trapPair, A, t));
+            D_i[k] = Encode(trapPair, A, t);
         }
 
         D.push_back(D_i);
@@ -279,6 +281,7 @@ const vector<Poly> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Matrix<El
 
     vector<Poly> output(matrix.GetCols());
 
+#pragma omp parallel for schedule(dynamic)
     for (usint i = 0; i < matrix.GetCols(); i++) {
         Poly poly = matrix(0, i).CRTInterpolate();
 
