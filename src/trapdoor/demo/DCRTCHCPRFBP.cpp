@@ -59,7 +59,7 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
         const auto value1 = algorithm.Evaluate(key, value.first);
         const auto value2 = algorithm.Evaluate(constrainedKey, value.first);
         processingTime = TOC(t);
-        cout << "Evalueation: 2 * " << processingTime / 2 << "ms" << endl;
+        cout << "Evaluation: 2 * " << processingTime / 2 << "ms" << endl;
         //cout << value1 << endl;
         //cout << value2 << endl;
         bool match = value1 == value2;
