@@ -3,4 +3,4 @@ palisade:
     - module load gcc/7.3.0
     - g++ --version
   script:
-    make
+    make -j $(nproc)

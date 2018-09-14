@@ -2,6 +2,8 @@
 *~
 *.o
 *.gcov
+# output from vagrant log
+*.log 
 bin/
 build/
 test/build
