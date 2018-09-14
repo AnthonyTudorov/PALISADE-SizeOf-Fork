@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file discretegaussiangenerator.h This code provides generation of gaussian distibutions of discrete values. 
  * Discrete uniform generator relies on the built-in C++ generator for 32-bit unsigned integers defined in <random>.
  * @author  TPOC: palisade@njit.edu
@@ -175,14 +175,14 @@ private:
 	}
 
 	/**
-	* @brief Subroutine used by Karney's Method to accept an integer with probability exp(−n/2).
+	* @brief Subroutine used by Karney's Method to accept an integer with probability exp(-n/2).
 	* @param g Mersenne Twister Engine used for deviates
 	* @param n Number to test with exp(-n/2) probability
 	* @return Accept/Reject result
 	*/
 	static bool AlgorithmP(std::mt19937 &g, int32_t n);
 	/**
-	* @brief Subroutine used by Karney's Method to generate an integer with probability exp(−k/2)(1 − exp(-1/2)).
+	* @brief Subroutine used by Karney's Method to generate an integer with probability exp(-k/2)(1 - exp(-1/2)).
 	* @param g Mersenne Twister Engine used for deviates
 	* @return Random number k
 	*/
@@ -200,7 +200,7 @@ private:
 	*/
 	static bool AlgorithmHDouble(std::mt19937 &g);
 	/**
-	* @brief Bernoulli trial with probability exp(−x(2k + x)/(2k + 2)).
+	* @brief Bernoulli trial with probability exp(-x(2k + x)/(2k + 2)).
 	* @param g Mersenne Twister Engine used for uniform deviates
 	* @param k Deviate k used for calculations
 	* @param x Deviate x used for calculations
@@ -208,7 +208,7 @@ private:
 	*/
 	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
 	/**
-	* @brief Bernoulli trial with probability exp(−x(2k + x)/(2k + 2)). Uses double precision.
+	* @brief Bernoulli trial with probability exp(-x(2k + x)/(2k + 2)). Uses double precision.
 	* @param g Mersenne Twister Engine used for uniform deviates
 	* @param k Deviate k used for calculations
 	* @param x Deviate x used for calculations
@@ -227,6 +227,7 @@ private:
 	* The standard deviation of the distribution.
 	*/
 	float m_std;
+ bool peikert=false;
 	
 };
 
