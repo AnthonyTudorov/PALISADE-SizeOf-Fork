@@ -57,9 +57,13 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
         TIC(t);
         cout << "input: " << value.first << endl;
         const auto value1 = algorithm.Evaluate(key, value.first);
+        processingTime = TOC(t);
+        cout << "EvalToken: " << processingTime << "ms" << endl;
+        TIC(t);
         const auto value2 = algorithm.Evaluate(constrainedKey, value.first);
         processingTime = TOC(t);
-        cout << "Evaluation: 2 * " << processingTime / 2 << "ms" << endl;
+        cout << "Evaluation: " << processingTime << "ms" << endl;
+
         //cout << value1 << endl;
         //cout << value2 << endl;
         bool match = value1 == value2;
@@ -130,7 +134,7 @@ void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& c
         }
     }
 
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 4, pattern.length(), 1024, v);
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 20, 8, pattern.length(), 1024, v);
     test(algorithm, M, cases);
 }
 
@@ -206,7 +210,7 @@ int main(int argc, char* argv[]) {
 	PalisadeParallelControls.Enable();
 
     //CC17Manual();
-    CVW18Disjunction("10*000*110*000*1", {{"0011111000111110", true}, {"0101110001011100", false}});
+    CVW18Disjunction("10*000*110*000*110*000*110*000*1", {{"00111110001111100011111000111110", true}, {"01011100010111000101110001011100", false}});
     //CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
     //CVW18WitnessEncryption();
 }
