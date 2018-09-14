@@ -28,9 +28,12 @@
 #include "discretegaussiangenerator.h"
 #include "nbtheory.h"
 #include "backend.h"
+ 
 
 namespace lbcrypto {
-
+  
+  const double KARNEY_THRESHOLD = 300;
+  
 	template<typename VecType>
 	DiscreteGaussianGeneratorImpl<VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator<VecType>() {
 
@@ -40,7 +43,13 @@ namespace lbcrypto {
 	template<typename VecType>
 	void DiscreteGaussianGeneratorImpl<VecType>::SetStd(float std) {
 		m_std = std;
-		Initialize();
+		if(m_std<KARNEY_THRESHOLD)
+     peikert= true;
+   else
+     peikert= false;
+   if(peikert){
+      Initialize();
+   }
 	}
 
 	template<typename VecType>
@@ -115,12 +124,13 @@ namespace lbcrypto {
 	template<typename VecType>
 	std::shared_ptr<int32_t> DiscreteGaussianGeneratorImpl<VecType>::GenerateIntVector(usint size) const {
 
-		std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
+		
+    
+    std::shared_ptr<int32_t> ans( new int32_t[size], std::default_delete<int[]>() );
 		usint val = 0;
 		double seed;
-		std::shared_ptr<int32_t> ans( new int32_t[size], std::default_delete<int[]>() );
-
+    if(peikert){
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
 		for (usint i = 0; i < size; i++) {
 			seed = distribution(PseudoRandomNumberGenerator::GetPRNG()) - 0.5; //we need to use the binary uniform generator rather than regular continuous distribution; see DG14 for details
 			if (std::abs(seed) <= m_a / 2) {
@@ -136,7 +146,12 @@ namespace lbcrypto {
 			}
 			(ans.get())[i] = val;
 		}
-
+    }
+    else{
+      for (usint i = 0; i < size; i++){
+        (ans.get())[i] = GenerateIntegerKarney(0, m_std);
+      }
+    }
 		return ans;
 	}
 
