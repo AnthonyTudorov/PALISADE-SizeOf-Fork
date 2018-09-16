@@ -25,10 +25,16 @@ template <class Element, class Element2>
 	void KPABE_NANDGATE_RANDOM(int32_t base, usint k, usint ringDimension);
 	void KPABE_NANDGATEDCRT_RANDOM(int32_t base, usint k, usint ringDimension);
 
+	bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension);
+
 int main()
 {
-
-
+/*
+	if (TestDCRTVecDecomposeOptimized(2,51,1024))
+		std::cout << "CRT decomposition test: SUCCESS" << std::endl;
+	else
+		std::cout << "CRT digit decomposition test: FAILURE" << std::endl;
+*/
 	//KPABE_BenchmarkCircuitTestDCRT(4, 32);
 	if (TestDCRTVecDecompose<DCRTPoly, Poly>(256,51,2048,1))
 		std::cout << "NAF digit decomposition test: SUCCESS" << std::endl;
@@ -39,7 +45,6 @@ int main()
 		std::cout << "Randomized digit decomposition test: SUCCESS" << std::endl;
 	else
 		std::cout << "Randomized digit decomposition test: FAILURE" << std::endl;
-
 
 	//KPABEBenchMarkCircuit(2, 51, 2048, 100);
 
@@ -424,6 +429,101 @@ bool TestDCRTVecDecompose(int32_t base, usint k, usint ringDimension, size_t typ
 			}
 	psiDCRT.SwitchFormat();
 	results = g * psiDCRT;
+
+	for(usint i = 0; i < results.GetRows(); i++){
+		for(usint j =0; j < results.GetCols(); j++){
+			if (results(i,j) != matrixTobeDecomposed(i,j)) {
+				std::cout << "index i = " << i << "; index j = " << j << std::endl;
+				std::cout<< results(i,j) <<std::endl;
+				std::cout<< matrixTobeDecomposed(i,j) <<std::endl;
+				return false;
+			}
+		}
+	}
+
+	std::cout << "PALISADE digit decomposition time: " << timeEval << " microseconds" << std::endl;
+
+	return true;
+
+}
+
+bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension){
+
+	usint n = ringDimension*2;   // cyclotomic order
+
+	NativeInteger q = NativeInteger(1) << (k-1);
+	q = lbcrypto::FirstPrime<NativeInteger>(k,n);
+	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(n, q));
+
+	NativeInteger nextQ = NativeInteger(1) << (k-1);
+	nextQ = lbcrypto::NextPrime<NativeInteger>(q, n);
+	NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
+
+	std::vector<NativeInteger> moduli;
+	std::vector<NativeInteger> roots_Of_Unity;
+	moduli.reserve(2);
+	roots_Of_Unity.reserve(2);
+
+	moduli.push_back(q);
+	moduli.push_back(nextQ);
+
+	roots_Of_Unity.push_back(rootOfUnity);
+	roots_Of_Unity.push_back(nextRootOfUnity);
+
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+
+	int64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
+
+	std::cout << "digit count = " << 2*digitCount << std::endl;
+
+	usint m = digitCount + 2;
+
+	auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
+	auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
+
+	RingMatDCRT matrixTobeDecomposed(zero_alloc, 1, m);
+
+	DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+	DCRTPoly::DugType dug = DCRTPoly::DugType();
+
+	for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++){
+		for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
+				matrixTobeDecomposed(i,j) = DCRTPoly(dug, params, COEFFICIENT);
+				matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+			}
+	}
+
+	RingMatDCRT results(zero_alloc_eval,1,m);
+	RingMatDCRT g(zero_alloc_eval, 1, m);
+
+	size_t bk = 1;
+
+	for (size_t k = 0; k < digitCount; k++) {
+		for (size_t i = 0; i < moduli.size(); i++) {
+			NativePoly temp(params->GetParams()[i]);
+			temp = bk;
+			g(0,k+i*digitCount).SetElementAtIndex(i,temp);
+		}
+		bk *= base;
+	}
+
+	std::cout << "g size = " << g.GetCols() << std::endl;
+
+	RingMatDCRT psiDCRT(zero_alloc, m, m);
+
+	TimeVar t1; //for TIC TOC
+	double timeEval;
+
+	std::vector<LatticeSubgaussianUtility<NativeInteger>> sampler;
+	sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[0],digitCount));
+	sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[1],digitCount));
+
+	TIC(t1);
+	auto psi = InverseRingVectorDCRT(sampler, matrixTobeDecomposed,1);
+	timeEval = TOC(t1);
+
+	psi->SwitchFormat();
+	results = g * (*psi);
 
 	for(usint i = 0; i < results.GetRows(); i++){
 		for(usint j =0; j < results.GetCols(); j++){

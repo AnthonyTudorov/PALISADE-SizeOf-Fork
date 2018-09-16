@@ -201,6 +201,65 @@ namespace lbcrypto {
 
 	}
 
+	shared_ptr<Matrix<DCRTPoly>> InverseRingVectorDCRT(const std::vector<LatticeSubgaussianUtility<NativeInteger>> &util,
+			const Matrix<DCRTPoly> &pubElemB, uint32_t seed){
+
+		std::shared_ptr<std::mt19937> prng;
+
+		prng.reset(new std::mt19937(seed));
+
+		usint m = pubElemB.GetCols();
+		usint n = pubElemB(0,0).GetRingDimension();
+
+		auto zero_alloc_poly = DCRTPoly::Allocator(pubElemB(0,0).GetParams(), COEFFICIENT);
+		shared_ptr<Matrix<DCRTPoly>> psi(new Matrix<DCRTPoly>(zero_alloc_poly, m, m));
+
+		auto params = pubElemB(0,0).GetParams()->GetParams();
+
+		for (usint i=0; i<m; i++) {
+			auto tB = pubElemB(0, i);
+
+			// make sure the transform ring elements are in coefficient domain
+			if(tB.GetFormat() != COEFFICIENT){
+				tB.SwitchFormat();
+			}
+
+			for (size_t u=0; u < tB.GetNumOfElements(); u++) {
+
+				uint32_t k = util[u].GetK();
+
+				vector<int64_t> digits(k);
+
+				for(size_t j=0; j<n; j++) {
+
+					util[u].InverseG(tB[j].ConvertToInt(), *prng, &digits);
+
+					/*std::cout << tB[j] << std::endl;
+					std::cout << digits<< std::endl;
+					std::cin.get();*/
+
+					for (size_t v=0; v < tB.GetNumOfElements(); v++) {
+
+						NativeInteger q = params[v]->GetModulus();
+
+						for(size_t p=0; p<k; p++) {
+							if (digits[p] > 0)
+								(*psi)(p + v*k,i)[j] = digits[p];
+							else
+								(*psi)(p + v*k,i)[j] = q - NativeInteger(-digits[p]);
+						}
+					}
+
+				}
+
+			}
+
+		}
+
+		return psi;
+
+	}
+
 }
 
 #endif

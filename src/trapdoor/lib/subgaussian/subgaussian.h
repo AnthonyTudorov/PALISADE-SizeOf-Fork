@@ -66,6 +66,9 @@ private:
 void InverseRingVector(const LatticeSubgaussianUtility<BigInteger> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB,
 		uint32_t seed, Matrix<Poly> *psi);
 
+shared_ptr<Matrix<DCRTPoly>> InverseRingVectorDCRT(const std::vector<LatticeSubgaussianUtility<NativeInteger>> &util,
+		const Matrix<DCRTPoly> &pubElemB, uint32_t seed);
+
 }
 
 #endif
