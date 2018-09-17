@@ -111,12 +111,10 @@ void CC17Manual() {
 void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& cases) {
     // "10*0" -> x0 V -x1 V -x3
     auto zero_alloc = []() { return 0; };
-    Matrix<int> I(zero_alloc, 2, 2);
+    Matrix<int> I(zero_alloc, 1, 1);
     I(0, 0) = 1;
-    I(1, 1) = 1;
-    Matrix<int> N(zero_alloc, 2, 2);
-    N(1, 1) = 1;
-    Matrix<int> v(zero_alloc, 1, 2);
+    Matrix<int> N(zero_alloc, 1, 1);
+    Matrix<int> v(zero_alloc, 1, 1);
     v(0, 0) = 1;
 
     vector<vector<Matrix<int>>> M;
@@ -204,8 +202,8 @@ int main(int argc, char* argv[]) {
 
 	PalisadeParallelControls.Enable();
 
-    CC17Manual();
+    //CC17Manual();
     CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
-    CVW18WitnessEncryption();
+    //CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
+    //CVW18WitnessEncryption();
 }
