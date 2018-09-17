@@ -29,12 +29,12 @@ template <class Element, class Element2>
 
 int main()
 {
-/*
-	if (TestDCRTVecDecomposeOptimized(2,51,1024))
+
+	if (TestDCRTVecDecomposeOptimized(2,51,16))
 		std::cout << "CRT decomposition test: SUCCESS" << std::endl;
 	else
 		std::cout << "CRT digit decomposition test: FAILURE" << std::endl;
-*/
+/*
 	//KPABE_BenchmarkCircuitTestDCRT(4, 32);
 	if (TestDCRTVecDecompose<DCRTPoly, Poly>(256,51,2048,1))
 		std::cout << "NAF digit decomposition test: SUCCESS" << std::endl;
@@ -63,7 +63,7 @@ int main()
 	std::cout << "\nSUBGAUSSIAN DCRTPoly test" << std::endl;
 
 	KPABE_NANDGATEDCRT_RANDOM(17, 8, 2048);
-
+*/
 	//KPABEANDGate(32,51,2048);
 	//KPABEANDGateDCRT(16, 8, 2048);
 	return 0;
@@ -451,32 +451,32 @@ bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension){
 
 	usint n = ringDimension*2;   // cyclotomic order
 
-	NativeInteger q = NativeInteger(1) << (k-1);
-	q = lbcrypto::FirstPrime<NativeInteger>(k,n);
-	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(n, q));
-
-	NativeInteger nextQ = NativeInteger(1) << (k-1);
-	nextQ = lbcrypto::NextPrime<NativeInteger>(q, n);
-	NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
+	size_t size = 3;
 
 	std::vector<NativeInteger> moduli;
 	std::vector<NativeInteger> roots_Of_Unity;
-	moduli.reserve(2);
-	roots_Of_Unity.reserve(2);
 
+	NativeInteger q = NativeInteger(1) << (k-1);
+	q = lbcrypto::FirstPrime<NativeInteger>(k,n);
+	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(n, q));
 	moduli.push_back(q);
-	moduli.push_back(nextQ);
-
 	roots_Of_Unity.push_back(rootOfUnity);
-	roots_Of_Unity.push_back(nextRootOfUnity);
+
+	NativeInteger nextQ = q;
+	for (size_t i = 1; i < size; i++) {
+		nextQ = lbcrypto::NextPrime<NativeInteger>(nextQ, n);
+		NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(n, nextQ));
+		moduli.push_back(nextQ);
+		roots_Of_Unity.push_back(nextRootOfUnity);
+	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
 
 	int64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
 
-	std::cout << "digit count = " << 2*digitCount << std::endl;
+	std::cout << "digit count = " << size*digitCount << std::endl;
 
-	usint m = digitCount + 2;
+	usint m = moduli.size()*digitCount + 2;
 
 	auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
 	auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
@@ -507,16 +507,17 @@ bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension){
 		bk *= base;
 	}
 
-	std::cout << "g size = " << g.GetCols() << std::endl;
+	//std::cout << g << std::endl;
 
-	RingMatDCRT psiDCRT(zero_alloc, m, m);
+	std::cout << "g size = " << g.GetCols() << std::endl;
 
 	TimeVar t1; //for TIC TOC
 	double timeEval;
 
 	std::vector<LatticeSubgaussianUtility<NativeInteger>> sampler;
-	sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[0],digitCount));
-	sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[1],digitCount));
+
+	for (size_t i = 0; i < size; i++)
+		sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[i],digitCount));
 
 	TIC(t1);
 	auto psi = InverseRingVectorDCRT(sampler, matrixTobeDecomposed,1);

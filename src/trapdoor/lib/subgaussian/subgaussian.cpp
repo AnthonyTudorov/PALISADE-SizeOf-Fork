@@ -232,9 +232,9 @@ namespace lbcrypto {
 
 				for(size_t j=0; j<n; j++) {
 
-					util[u].InverseG(tB[j].ConvertToInt(), *prng, &digits);
+					util[u].InverseG(tB.ElementAtIndex(u)[j].ConvertToInt(), *prng, &digits);
 
-					/*std::cout << tB[j] << std::endl;
+					/*std::cout << tB.ElementAtIndex(u)[j].ConvertToInt() << std::endl;
 					std::cout << digits<< std::endl;
 					std::cin.get();*/
 
@@ -244,9 +244,9 @@ namespace lbcrypto {
 
 						for(size_t p=0; p<k; p++) {
 							if (digits[p] > 0)
-								(*psi)(p + v*k,i)[j] = digits[p];
+								(*psi)(p + v*k,i).ElementAtIndex(v)[j] = digits[p];
 							else
-								(*psi)(p + v*k,i)[j] = q - NativeInteger(-digits[p]);
+								(*psi)(p + v*k,i).ElementAtIndex(v)[j] = q - NativeInteger(-digits[p]);
 						}
 					}
 

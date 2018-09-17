@@ -425,6 +425,13 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
 }
 
 template<typename VecType>
+PolyImpl<NativeVector>& DCRTPolyImpl<VecType>::ElementAtIndex(usint i)
+{
+	return m_vectors[i];
+}
+
+
+template<typename VecType>
 std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::PowersOfBase(usint baseBits) const
 {
 	bool dbg_flag = false;

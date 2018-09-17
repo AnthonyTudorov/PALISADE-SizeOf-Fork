@@ -586,6 +586,13 @@ public:
 	*/
 	const DCRTPolyType& operator*=(const DCRTPolyType &element);
 
+	/**
+	 * @brief Get value of element at index i.
+	 *
+	 * @return value at index i.
+	 */
+	PolyType& ElementAtIndex(usint i);
+
 	// multiplicative inverse operation
 	/**
 	* @brief Performs a multiplicative inverse operation and returns the result.
