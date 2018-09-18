@@ -164,7 +164,7 @@ void CVW18HammingCloseness(const string& pattern, usint threshold, const vector<
     M.back()[1] = M.back()[1] * R;
     Matrix<int> v(zero_alloc, 1, threshold + 1);
     v(0, 0) = 1;
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 20, 4, pattern.length(), 2048, v);
     test(algorithm, M, cases);
 }
 
@@ -253,7 +253,7 @@ int main(int argc, char* argv[]) {
 	PalisadeParallelControls.Enable();
 
     //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
+    CVW18HammingCloseness("0*100*10", 2, {{"10100110", true}, {"11100110", true}, {"11110110", false}});
     //CVW18WitnessEncryption();
     //CVW18CNF({{1, -2, 3}, {-1, 4, 5}}, {{"00000", true}, {"11000", false}, {"11001", true}});
 
