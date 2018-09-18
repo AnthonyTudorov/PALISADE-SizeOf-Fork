@@ -115,12 +115,10 @@ void CC17Manual() {
 void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& cases) {
     // "10*0" -> x0 V -x1 V -x3
     auto zero_alloc = []() { return 0; };
-    Matrix<int> I(zero_alloc, 2, 2);
+    Matrix<int> I(zero_alloc, 1, 1);
     I(0, 0) = 1;
-    I(1, 1) = 1;
-    Matrix<int> N(zero_alloc, 2, 2);
-    N(1, 1) = 1;
-    Matrix<int> v(zero_alloc, 1, 2);
+    Matrix<int> N(zero_alloc, 1, 1);
+    Matrix<int> v(zero_alloc, 1, 1);
     v(0, 0) = 1;
 
     vector<vector<Matrix<int>>> M;
@@ -134,40 +132,39 @@ void CVW18Disjunction(const string& pattern, const vector<pair<string, bool>>& c
         }
     }
 
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 20, 8, pattern.length(), 1024, v);
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
     test(algorithm, M, cases);
 }
 
-void CVW18HammingCloseness(const string& pattern, usint distance, const vector<pair<string, bool>>& cases) {
-    const usint w = pattern.length();
+void CVW18HammingCloseness(const string& pattern, usint threshold, const vector<pair<string, bool>>& cases) {
+    // true if distance is smaller than threshold
     auto zero_alloc = []() { return 0; };
-    Matrix<int> I(zero_alloc, w + 1, w + 1);
-    for (usint i = 0; i <= w; i++) {
+    Matrix<int> I(zero_alloc, threshold + 1, threshold + 1);
+    for (usint i = 0; i <= threshold; i++) {
         I(i, i) = 1;
     }
-    Matrix<int> N(zero_alloc, w + 1, w + 1);
-    for (usint i = 0; i < w; i++) {
-        N(i + 1, i) = 1;
+    Matrix<int> N(zero_alloc, threshold + 1, threshold + 1);
+    for (usint i = 0; i < threshold; i++) {
+        N(i, i + 1) = 1;
     }
-    N(0, w) = 1;
-    Matrix<int> R(zero_alloc, w + 1, w + 1);
-    R(0, 0) = 1;
+    N(threshold, threshold) = 1;
+    Matrix<int> R(zero_alloc, threshold + 1, threshold + 1);
+    R(threshold, threshold) = 1;
     vector<vector<Matrix<int>>> M;
     for (const char& value : pattern) {
         if (value == '0') {
             M.push_back({I, N});
         } else if (value == '1') {
             M.push_back({N, I});
+        } else {
+            M.push_back({I, I});
         }
     }
     M.back()[0] = M.back()[0] * R;
     M.back()[1] = M.back()[1] * R;
-    Matrix<int> v(zero_alloc, 1, w + 1);
-    for (usint i = distance + 1; i <= w; i++) {
-        v(0, i) = 1;
-    }
-
-    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, w, 1024, v);
+    Matrix<int> v(zero_alloc, 1, threshold + 1);
+    v(0, 0) = 1;
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, pattern.length(), 1024, v);
     test(algorithm, M, cases);
 }
 
@@ -205,12 +202,62 @@ void CVW18WitnessEncryption() {
     cout << value1 << (value1 == 1 ? " (Correct)" : " (Incorrect)") << endl;
 }
 
+void CVW18CNF(const vector<vector<int>>& cnf, const vector<pair<string, bool>>& cases) {
+    auto zero_alloc = []() { return 0; };
+    Matrix<int> Good(zero_alloc, 3, 3);
+    Good(0, 0) = 1;
+    Good(1, 2) = 1;
+    Good(2, 2) = 1;
+    Matrix<int> Bad(zero_alloc, 3, 3);
+    Bad(0, 0) = 1;
+    Bad(1, 1) = 1;
+    Bad(2, 2) = 1;
+    Matrix<int> R(zero_alloc, 3, 3);
+    R(0, 0) = 1;
+    R(1, 0) = 1;
+    R(2, 1) = 1;
+    Matrix<int> T(zero_alloc, 3, 3);
+    T(0, 0) = 1;
+    vector<vector<Matrix<int>>> M;
+    for (const auto& clause : cnf) {
+        for (int variable : clause) {
+            if (variable < 0) {
+                M.push_back({Good, Bad});
+            } else if (variable > 0) {
+                M.push_back({Bad, Good});
+            }
+        }
+        M.back()[0] = M.back()[0] * R;
+        M.back()[1] = M.back()[1] * R;
+    }
+    M.back()[0] = M.back()[0] * T;
+    M.back()[1] = M.back()[1] * T;
+    Matrix<int> v(zero_alloc, 1, 3);
+    v(0, 1) = 1;
+    vector<pair<string, bool>> adjustedCases;
+    for (const auto& c : cases) {
+        string input = "";
+        for (const auto& clause : cnf) {
+            for (int variable : clause) {
+                input.push_back(c.first[(variable > 0 ? variable : -variable) - 1]);
+            }
+        }
+        adjustedCases.push_back({input, c.second});
+    }
+    CVW18Algorithm<DCRTPoly> algorithm(1 << 15, 2, adjustedCases[0].first.length(), 1024, v);
+    test(algorithm, M, adjustedCases);
+}
+
 int main(int argc, char* argv[]) {
 
 	PalisadeParallelControls.Enable();
 
-    //CC17Manual();
-    CVW18Disjunction("10*000*110*000*110*000*110*000*1", {{"00111110001111100011111000111110", true}, {"01011100010111000101110001011100", false}});
-    //CVW18HammingCloseness("0010", 2, {{"1011", true}, {"1001", false}});
+    //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
+    CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
     //CVW18WitnessEncryption();
+    //CVW18CNF({{1, -2, 3}, {-1, 4, 5}}, {{"00000", true}, {"11000", false}, {"11001", true}});
+
+    //CC17Manual();
+    //CVW18Disjunction("10*000*110*000*110*000*110*000*1", {{"00111110001111100011111000111110", true}, {"01011100010111000101110001011100", false}});
+
 }
