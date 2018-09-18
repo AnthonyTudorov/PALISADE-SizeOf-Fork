@@ -184,7 +184,7 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
 
     //Correctness constraint
     auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
-    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
+    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length); };
 
     double qPrev = 1e6;
     double q = 0;
@@ -203,6 +203,8 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
         m = ceil(k / log2(base)) + 2;
         q = qCorrectness(n, m, k);
     }
+
+    std::cout << "q = " << q << std::endl;
 
     return q;
 }

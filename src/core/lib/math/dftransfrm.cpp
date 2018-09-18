@@ -51,7 +51,6 @@ std::vector<std::complex<double>> DiscreteFourierTransform::FFTForwardTransform(
 	std::vector<std::complex<double>> B(A);
 	usint l = floor(log2(m));
 
-
 	static usint maxMCached (65536);
 	static usint LOGM_MAX(16);
 	static std::vector<usint> cachedM(LOGM_MAX, 0);
