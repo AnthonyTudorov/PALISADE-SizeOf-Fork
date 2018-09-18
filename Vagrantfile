@@ -67,6 +67,19 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get -y install g++ bison flex
+
+    # core
+    apt-get -y install \
+    	g++ \
+	bison \
+	flex
+
+    # docs
+    
+    apt-get -y install \
+    	doxygen \
+    	texlive-latex-base \
+	ghostscript \
+	graphviz
   SHELL
 end
