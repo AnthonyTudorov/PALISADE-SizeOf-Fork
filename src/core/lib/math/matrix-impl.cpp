@@ -108,10 +108,35 @@ namespace lbcrypto {
   IDENTITY_FOR_TYPE(Field2n)
 
   GADGET_FOR_TYPE(double)
+
   GADGET_FOR_TYPE(int)
   GADGET_FOR_TYPE(int64_t)
 //  GADGET_FOR_TYPE(DCRTPoly)
   GADGET_FOR_TYPE(Field2n)
+
+template<>
+  Matrix<DCRTPoly> Matrix<DCRTPoly>::GadgetVector(int64_t base) const
+  {
+	Matrix<DCRTPoly> g(allocZero, rows, cols);
+	auto base_matrix = allocZero();
+	base_matrix = base;
+	size_t bk = 1;
+
+	auto params = g(0,9).GetParams()->GetParams();
+
+	int64_t digitCount = (long)ceil(log2(params[0]->GetModulus().ConvertToDouble())/log2(base));
+
+	for (size_t k = 0; k < digitCount; k++) {
+		for (size_t i = 0; i < params.size(); i++) {
+			NativePoly temp(params[i]);
+			temp = bk;
+			g(0,k+i*digitCount).SetElementAtIndex(i,temp);
+		}
+		bk *= base;
+	}
+
+	return g;
+  }
 
 #define NONORM_FOR_TYPE(T)					\
   template<>							\

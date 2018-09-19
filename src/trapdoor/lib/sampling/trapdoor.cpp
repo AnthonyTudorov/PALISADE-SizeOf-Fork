@@ -31,49 +31,6 @@
 #include "trapdoor.h"
 
 namespace lbcrypto {
-	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf
-
-  
-	template <class Element>
-	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGen(shared_ptr<typename Element::Params> params,
-			int stddev, int64_t base, bool bal)
-	{
-		auto zero_alloc = Element::Allocator(params, EVALUATION);
-		auto gaussian_alloc = Element::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
-		auto uniform_alloc = Element::MakeDiscreteUniformAllocator(params, EVALUATION);
-
-		double val = params->GetModulus().ConvertToDouble();
-		double nBits = floor(log2(val-1.0)+1.0);
-
-		size_t k = std::ceil(nBits/log2(base));  /* (+1) is for balanced representation */
-
-		if(bal == true){
-			k++; // for a balanced digit representation, there is an extra digit required
-		}
-
-		auto a = uniform_alloc();
-
-		Matrix<Element> r(zero_alloc, 1, k, gaussian_alloc);
-		Matrix<Element> e(zero_alloc, 1, k, gaussian_alloc);
-
-		//Converts discrete gaussians to Evaluation representation
-		r.SwitchFormat();
-		e.SwitchFormat();
-
-		Matrix<Element> g = Matrix<Element>(zero_alloc, 1, k).GadgetVector(base);
-
-		Matrix<Element> A(zero_alloc, 1, k+2);
-		A(0,0) = 1;
-		A(0,1) = a;
-
-		for (size_t i = 0; i < k; ++i) {
-			A(0, i+2) = g(0, i) - (a*r(0, i) + e(0, i));
-		}
-
-		return std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(A, RLWETrapdoorPair<Element>(r, e));
-
-	}
-
 
 	template <class Element>
 	std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> RLWETrapdoorUtility<Element>::TrapdoorGenSquareMat(shared_ptr<typename Element::Params> params,

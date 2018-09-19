@@ -330,6 +330,73 @@ TEST(UTTrapdoor,TrapDoorGaussGqSampTest) {
   DEBUG("end tests");
 }
 
+TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
+
+	usint n = 16;   // cyclotomic order
+	size_t kRes = 51;
+	size_t base = 2;
+
+	size_t size = 4;
+
+	double sigma = SIGMA;
+
+	std::vector<NativeInteger> moduli;
+	std::vector<NativeInteger> roots_Of_Unity;
+
+	NativeInteger q = NativeInteger(1) << (kRes-1);
+	q = lbcrypto::FirstPrime<NativeInteger>(kRes,2*n);
+	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(2*n, q));
+	moduli.push_back(q);
+	roots_Of_Unity.push_back(rootOfUnity);
+
+	NativeInteger nextQ = q;
+	for (size_t i = 1; i < size; i++) {
+		nextQ = lbcrypto::NextPrime<NativeInteger>(nextQ, 2*n);
+		NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(2*n, nextQ));
+		moduli.push_back(nextQ);
+		roots_Of_Unity.push_back(nextRootOfUnity);
+	}
+
+	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(2*n, moduli, roots_Of_Unity));
+
+	int64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
+
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapPair = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(params, sigma);
+
+	Matrix<DCRTPoly> eHat = trapPair.second.m_e;
+	Matrix<DCRTPoly> rHat = trapPair.second.m_r;
+
+	DCRTPoly::DggType dgg(sigma);
+	DCRTPoly::DugType dug = DCRTPoly::DugType();
+	DCRTPoly u(dug, params, COEFFICIENT);
+
+	usint k = moduli.size()*digitCount;
+
+	double c = (base + 1) * SIGMA;
+	double s = SPECTRAL_BOUND(n, k, base);
+	DCRTPoly::DggType dggLargeSigma(sqrt(s * s - c * c));
+
+	u.SwitchFormat();
+
+	Matrix<DCRTPoly> z = RLWETrapdoorUtility<DCRTPoly>::GaussSamp(n, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
+
+	//Matrix<Poly> uEst = trapPair.first * z;
+
+	EXPECT_EQ(trapPair.first.GetCols(), z.GetRows())
+		<< "Failure testing number of rows";
+	EXPECT_EQ(n, z(0, 0).GetLength())
+		<< "Failure testing ring dimension for the first ring element";
+
+	DCRTPoly uEst = (trapPair.first * z)(0, 0);
+
+	uEst.SwitchFormat();
+	u.SwitchFormat();
+
+	EXPECT_EQ(u, uEst);
+
+}
+
+
 TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 	bool dbg_flag = false;
 	DEBUG("start tests");
