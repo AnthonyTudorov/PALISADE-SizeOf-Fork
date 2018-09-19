@@ -334,7 +334,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
 
 	usint n = 16;   // cyclotomic order
 	size_t kRes = 51;
-	size_t base = 2;
+	size_t base = 8;
 
 	size_t size = 4;
 
@@ -361,7 +361,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
 
 	int64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
 
-	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapPair = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(params, sigma);
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapPair = RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(params, sigma, base);
 
 	Matrix<DCRTPoly> eHat = trapPair.second.m_e;
 	Matrix<DCRTPoly> rHat = trapPair.second.m_r;
@@ -378,7 +378,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
 
 	u.SwitchFormat();
 
-	Matrix<DCRTPoly> z = RLWETrapdoorUtility<DCRTPoly>::GaussSamp(n, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma);
+	Matrix<DCRTPoly> z = RLWETrapdoorUtility<DCRTPoly>::GaussSamp(n, k, trapPair.first, trapPair.second, u, dgg, dggLargeSigma, base);
 
 	//Matrix<Poly> uEst = trapPair.first * z;
 
