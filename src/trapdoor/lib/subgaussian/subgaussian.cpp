@@ -234,13 +234,20 @@ namespace lbcrypto {
 
 					util[u].InverseG(tB.ElementAtIndex(u)[j].ConvertToInt(), *prng, &digits);
 
-					NativeInteger q = params[u]->GetModulus();
+					/*std::cout << tB.ElementAtIndex(u)[j].ConvertToInt() << std::endl;
+					std::cout << digits<< std::endl;
+					std::cin.get();*/
 
-					for(size_t p=0; p<k; p++) {
-						if (digits[p] > 0)
-							(*psi)(p + u*k,i).ElementAtIndex(u)[j] = digits[p];
-						else
-							(*psi)(p + u*k,i).ElementAtIndex(u)[j] = q - NativeInteger(-digits[p]);
+					for (size_t v=0; v < tB.GetNumOfElements(); v++) {
+
+						NativeInteger q = params[v]->GetModulus();
+
+						for(size_t p=0; p<k; p++) {
+							if (digits[p] > 0)
+								(*psi)(p + u*k,i).ElementAtIndex(v)[j] = digits[p];
+							else
+								(*psi)(p + u*k,i).ElementAtIndex(v)[j] = q - NativeInteger(-digits[p]);
+						}
 					}
 
 				}
