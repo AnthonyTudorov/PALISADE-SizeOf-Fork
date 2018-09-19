@@ -30,7 +30,7 @@ template <class Element, class Element2>
 int main()
 {
 
-	if (TestDCRTVecDecomposeOptimized(2,51,16))
+	if (TestDCRTVecDecomposeOptimized(16,51,1024))
 		std::cout << "CRT decomposition test: SUCCESS" << std::endl;
 	else
 		std::cout << "CRT digit decomposition test: FAILURE" << std::endl;
@@ -451,7 +451,7 @@ bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension){
 
 	usint n = ringDimension*2;   // cyclotomic order
 
-	size_t size = 3;
+	size_t size = 4;
 
 	std::vector<NativeInteger> moduli;
 	std::vector<NativeInteger> roots_Of_Unity;
