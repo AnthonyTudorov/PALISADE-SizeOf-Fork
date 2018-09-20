@@ -16,7 +16,7 @@ usint EvalNANDTree(usint *x, usint ell);
 int main()
 {
 
-	KPABE_BenchmarkCircuitTestDCRT(4, 16);
+	KPABE_BenchmarkCircuitTestDCRT(4, 256);
 
 	return 0;
 }
@@ -24,7 +24,7 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 {
-	usint n = 256;   // cyclotomic order
+	usint n = 1024;   // cyclotomic order
 	size_t kRes = 50;
 	usint ell = 4; // No of attributes
 
