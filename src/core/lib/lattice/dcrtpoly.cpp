@@ -219,7 +219,7 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(const BugType& bug, const shared_ptr<DCRTPol
 	size_t numberOfTowers = dcrtParams->GetParams().size();
 	m_vectors.reserve(numberOfTowers);
 
-	PolyType ilvector(bug,dcrtParams->GetParams()[0]);
+	PolyType ilvector(bug,dcrtParams->GetParams()[0],COEFFICIENT);
 
 	for (usint i = 0; i < numberOfTowers; i++) {
 

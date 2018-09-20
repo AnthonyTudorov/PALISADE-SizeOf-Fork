@@ -24,11 +24,11 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 {
-	usint n = 64;   // cyclotomic order
-	size_t kRes = 51;
+	usint n = 256;   // cyclotomic order
+	size_t kRes = 50;
 	usint ell = 4; // No of attributes
 
-	size_t size = 1;
+	size_t size = 2;
 
 	double sigma = SIGMA;
 
@@ -64,7 +64,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 	// Trapdoor Generation
 	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA =
-			RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base, true); // A.first is the public element
+			RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base); // A.first is the public element
 
 	DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
@@ -98,7 +98,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	for(usint i=0; i<iter; i++)
 	{
 
-		std::cout << "starting iter " << i << std::endl;
+		std::cout << "running iter " << i << std::endl;
 
 		DCRTPoly ptext(bug, ilDCRTParams, COEFFICIENT);
 
@@ -117,6 +117,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 		double start, finish;
 
+		// Switches to evaluation representation
 		ptext.SwitchFormat();
 		TIC(t1);
 		sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1); // Cin and c1 are the ciphertext
@@ -148,7 +149,6 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 			return 0;
 		}
 
-		std::cout << "ended iter " << i << std::endl;
 	}
 
 	std::cout << "Encryption is successful after " << iter << " iterations!\n";

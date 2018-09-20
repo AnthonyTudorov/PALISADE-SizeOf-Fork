@@ -359,6 +359,7 @@ void KPABErns::EvalCT(
 		for(usint j=0; j<m_m; j++) {
 			(*ctCin)(0, j) = pubElemA(0, j)*s + errA(0, j);
 		}
+
 		for(usint i=1; i<m_ell+2; i++) {
 			// Si values
 			for(usint si=0; si<m_m; si++) {
@@ -380,8 +381,8 @@ void KPABErns::EvalCT(
 			(*ctCin)(i, m_m-2) = pubElemB(i-1, m_m-2)*s + errCin(0, m_m-2);
 			(*ctCin)(i, m_m-1) = pubElemB(i-1, m_m-1)*s + errCin(0, m_m-1);
 		}
-	}
 
+	}
 
 
 	/* Given public parameter d and a public key B,
