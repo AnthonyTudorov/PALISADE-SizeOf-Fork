@@ -148,7 +148,7 @@ template <class Element, class Element2>
 			if (m_mode==NAF)
 				PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
 			else
-				InverseRingVector(m_util, params, negpublicElementB, seed, &psi);
+				InverseRingVector<Element>(m_util, params, negpublicElementB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -185,7 +185,7 @@ template <class Element, class Element2>
 				if (m_mode == NAF)
 					PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
 				else
-					InverseRingVector (m_util, params, negpublicElementB, seed, &psi);
+					InverseRingVector<Element>(m_util, params, negpublicElementB, seed, &psi);
 
 				psi.SwitchFormat();
 
@@ -266,7 +266,7 @@ template <class Element, class Element2>
 			if (m_mode == NAF)
 				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 			else
-				InverseRingVector(m_util, ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+				InverseRingVector<Element2>(m_util, ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -325,7 +325,7 @@ template <class Element, class Element2>
 				if (m_mode == NAF)
 					PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix_Two, &psiPoly_Two);
 				else
-					InverseRingVector (m_util, ilParamsConsolidated, negBPolyMatrix_Two, seed, &psiPoly_Two);
+					InverseRingVector<Element2> (m_util, ilParamsConsolidated, negBPolyMatrix_Two, seed, &psiPoly_Two);
 
 				// DCRT CREATE
 
@@ -409,7 +409,7 @@ void KPABE<Element, Element2>::EvalCT(
 			if (m_mode == NAF)
 				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 			else
-				InverseRingVector (m_util,ilParams, negB, seed, &psi);
+				InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -462,7 +462,7 @@ void KPABE<Element, Element2>::EvalCT(
 				if (m_mode == NAF)
 					PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 				else
-					InverseRingVector(m_util, ilParams, negB, seed, &psi);
+					InverseRingVector<Element>(m_util, ilParams, negB, seed, &psi);
 
 				psi.SwitchFormat();
 
@@ -562,7 +562,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 			if (m_mode == NAF)
 				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 			else
-				InverseRingVector(m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+				InverseRingVector<Element2>(m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -635,7 +635,7 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 				if (m_mode == NAF)
 					PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix_two, &psiPoly_two);
 				else
-					InverseRingVector(m_util, ilParamsConsolidated, negBPolyMatrix_two, seed, &psiPoly_two);
+					InverseRingVector<Element2>(m_util, ilParamsConsolidated, negBPolyMatrix_two, seed, &psiPoly_two);
 
 				for(usint i = 0; i < psiPoly_two.GetRows(); i++){
 					for(usint j = 0; j < psiPoly_two.GetCols();j++){
@@ -874,7 +874,7 @@ void KPABE<Element, Element2>::NANDGateEvalCT(
 	if (m_mode == NAF)
 		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 	else
-		InverseRingVector(m_util,ilParams, negB, seed, &psi);
+		InverseRingVector<Element>(m_util,ilParams, negB, seed, &psi);
 
 	psi.SwitchFormat();
 
@@ -925,7 +925,7 @@ void KPABE<Element, Element2>::NANDGateEvalPK(
 			if (m_mode == NAF)
 				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 			else
-				InverseRingVector (m_util,ilParams, negB, seed, &psi);
+				InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -978,7 +978,7 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 			if (m_mode == NAF)
 				PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 			else
-				InverseRingVector (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+				InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -1045,7 +1045,7 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 		if (m_mode == NAF)
 			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 		else
-			InverseRingVector (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+			InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1100,7 +1100,7 @@ void KPABE<Element, Element2>::ANDGateEvalPK(
 		if (m_mode == NAF)
 			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 		else
-			InverseRingVector (m_util,ilParams, negB, seed, &psi);
+			InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 		psi.SwitchFormat();
 
@@ -1137,7 +1137,7 @@ void KPABE<Element, Element2>::ANDGateEvalCT(
 		if (m_mode == NAF)
 			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
 		else
-			InverseRingVector(m_util,ilParams, negB, seed, &psi);
+			InverseRingVector<Element>(m_util,ilParams, negB, seed, &psi);
 
 		psi.SwitchFormat();
 		/* x2*C1 */
@@ -1191,7 +1191,7 @@ void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
 		if (m_mode == NAF)
 			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 		else
-			InverseRingVector (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+			InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1251,7 +1251,7 @@ void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
 		if (m_mode == NAF)
 			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
 		else
-			InverseRingVector (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
+			InverseRingVector<Element2>  (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 

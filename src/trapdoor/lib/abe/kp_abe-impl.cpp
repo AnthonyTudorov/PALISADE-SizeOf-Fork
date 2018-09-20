@@ -32,6 +32,7 @@
 
 namespace lbcrypto {
 
-  template class KPABE<Poly>;
-  template class KPABE<DCRTPoly>;
+  template class KPABE<Poly,Poly>;
+  template class KPABE<DCRTPoly,Poly>;
+
 }

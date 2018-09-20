@@ -86,22 +86,6 @@ namespace lbcrypto {
 //    return *this;
 //}
 
-#define IDENTITY_FOR_TYPE(T)			\
-  template<>					\
-  Matrix<T>& Matrix<T>::Identity() {		\
-    for (size_t row = 0; row < rows; ++row) {	\
-      for (size_t col = 0; col < cols; ++col) { \
-	if (row == col) {			\
-	  data[row][col] = 1;			\
-	} else {				\
-	  data[row][col] = 0;			\
-	}					\
-      }						\
-    }						\
-    return *this;				\
-  }
-
-  IDENTITY_FOR_TYPE(int32_t)
   IDENTITY_FOR_TYPE(double)
   IDENTITY_FOR_TYPE(int)
   IDENTITY_FOR_TYPE(int64_t)
@@ -113,30 +97,6 @@ namespace lbcrypto {
   GADGET_FOR_TYPE(int64_t)
 //  GADGET_FOR_TYPE(DCRTPoly)
   GADGET_FOR_TYPE(Field2n)
-
-template<>
-  Matrix<DCRTPoly> Matrix<DCRTPoly>::GadgetVector(int64_t base) const
-  {
-	Matrix<DCRTPoly> g(allocZero, rows, cols);
-	auto base_matrix = allocZero();
-	base_matrix = base;
-	size_t bk = 1;
-
-	auto params = g(0,9).GetParams()->GetParams();
-
-	int64_t digitCount = (long)ceil(log2(params[0]->GetModulus().ConvertToDouble())/log2(base));
-
-	for (size_t k = 0; k < digitCount; k++) {
-		for (size_t i = 0; i < params.size(); i++) {
-			NativePoly temp(params[i]);
-			temp = bk;
-			g(0,k+i*digitCount).SetElementAtIndex(i,temp);
-		}
-		bk *= base;
-	}
-
-	return g;
-  }
 
 #define NONORM_FOR_TYPE(T)					\
   template<>							\

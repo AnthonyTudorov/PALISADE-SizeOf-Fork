@@ -26,12 +26,14 @@
 
 // Forward definition of implementation classes for Poly
 
-//#include "subgaussian.h"
+#include "subgaussian.cpp"
 
 namespace lbcrypto {
 
-	//template class LatticeSubgaussianUtility<BigInteger>;
-	//template class LatticeSubgaussianUtility<NativeInteger>;
+//template void InverseRingVector<Poly>(const LatticeSubgaussianUtility<typename Poly::IntType> &util, const shared_ptr<typename Poly::Params> ilParams,
+//		const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<Poly> *psi);
 
+	template class LatticeSubgaussianUtility<BigInteger>;
+	template class LatticeSubgaussianUtility<NativeInteger>;
 
 }

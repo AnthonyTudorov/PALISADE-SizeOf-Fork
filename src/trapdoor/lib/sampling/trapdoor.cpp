@@ -83,7 +83,7 @@ namespace lbcrypto {
 	}
 
 	// Gaussian sampling as described in Alogorithm 2 of https://eprint.iacr.org/2017/844.pdf
-
+/*
 	template <class Element>
 	Matrix<Element> RLWETrapdoorUtility<Element>::GaussSamp(size_t n, size_t k, const Matrix<Element>& A,
 		const RLWETrapdoorPair<Element>& T, const Element &u,
@@ -193,7 +193,7 @@ namespace lbcrypto {
 		return zHatPrime;
 
 	}
-
+*/
 	// Gaussian sampling as described in "Implementing Token-Based Obfuscation..."
 
 	template <class Element>

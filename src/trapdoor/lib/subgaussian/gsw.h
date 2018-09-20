@@ -67,11 +67,11 @@ public:
 		m_sampler = LatticeSubgaussianUtility<Integer>(base, q, m_l);
 	}
 
-	const DiscreteGaussianGeneratorImpl<Integer,Vector> &GetDgg() const{
+	const DiscreteGaussianGeneratorImpl<Vector> &GetDgg() const{
 		return m_dgg;
 	}
 
-	const DiscreteUniformGeneratorImpl<Integer,Vector> &GetDug() const{
+	const DiscreteUniformGeneratorImpl<Vector> &GetDug() const{
 		return m_dug;
 	}
 
@@ -109,8 +109,8 @@ private:
 	uint32_t m_m;
 	int64_t m_base;
 	Integer m_modulus;
-	DiscreteGaussianGeneratorImpl<Integer,Vector> m_dgg;
-	DiscreteUniformGeneratorImpl<Integer,Vector> m_dug;
+	DiscreteGaussianGeneratorImpl<Vector> m_dgg;
+	DiscreteUniformGeneratorImpl<Vector> m_dug;
 
 	GINVERSEMODE m_mode;
 	LatticeSubgaussianUtility<Integer> m_sampler;

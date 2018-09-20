@@ -32,9 +32,9 @@
 
 namespace lbcrypto {
 
-  //typedef Matrix<Poly> RingMat;
-  //typedef Matrix<DCRTPoly> RingMatDCRT;
-  //typedef Matrix<NativePoly> NativeRingMat;
+  //typedef Matrix<Poly> Matrix<Poly>;
+  //typedef Matrix<DCRTPoly> Matrix<DCRTPoly>;
+  //typedef Matrix<NativePoly> NativeMatrix<Poly>;
 
 /**
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf

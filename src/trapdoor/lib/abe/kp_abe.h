@@ -59,7 +59,7 @@ namespace lbcrypto {
    * Setup function for Private Key Generator (PKG)
    * Digit decomposition using higher bases with balanced representation
    * Limits noise growth
-   * Temporarily here; but can be made a part of RingMat class
+   * Temporarily here; but can be made a part of Matrix<Poly> class
    *
    * templated with three Element classes E1, E2, E3)
    * @param ilParams parameter set (of type E1:Params) 
@@ -158,7 +158,7 @@ enum GaussianMode{ SUBGAUSSIAN=0, NAF=1};
 * e.g. DCRTPoly is element and Poly is Element2
 */
 /*Element is the main ring element used, while Element2 is interpolated ring element. e.g. DCRTPoly is element and Poly is Element2*/
-	template <class Element, class Element2>
+	template <class Element, class Element2 = Poly>
 	class KPABE {
 	public:
 

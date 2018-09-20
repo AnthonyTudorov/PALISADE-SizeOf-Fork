@@ -8,8 +8,8 @@
 #include <cstdlib>
 #include <fstream>
 //created files
-#include "subgaussian/inv_g.h"
-#include "subgaussian/BcBD.h"
+#include "subgaussian/inv_g.cpp"
+#include "subgaussian/BcBD.cpp"
 
 #include "utils/debug.h"
 
@@ -98,8 +98,8 @@ std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds
 BigInteger testBig1 = 0; BigInteger bBig_i1 = 1;
 cout<<"********************** output = "<<endl;
 	for(int i = 0; i<kBig; i++){
-		testBig1 +=nativeOutputBig[i]*bBig_i1;
-		bBig_i1 = bBig_i1*b;
+		testBig1 +=BigInteger(nativeOutputBig[i])*bBig_i1;
+		bBig_i1 = bBig_i1*BigInteger(b);
 		std::cout<<nativeOutputBig[i]<<std::endl;
 	}
 

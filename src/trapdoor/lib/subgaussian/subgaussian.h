@@ -63,8 +63,12 @@ private:
 
 };
 
-void InverseRingVector(const LatticeSubgaussianUtility<BigInteger> &util, const shared_ptr<ILParams> ilParams, const Matrix<Poly> &pubElemB,
-		uint32_t seed, Matrix<Poly> *psi);
+template <class Element>
+void InverseRingVector(const LatticeSubgaussianUtility<typename Element::Integer> &util, const shared_ptr<typename Element::Params> ilParams,
+		const Matrix<Element> &pubElemB,
+		uint32_t seed, Matrix<Element> *psi) {
+		throw std::logic_error("InverseRingVector is not implemented for this polynomial type.");
+}
 
 shared_ptr<Matrix<DCRTPoly>> InverseRingVectorDCRT(const std::vector<LatticeSubgaussianUtility<NativeInteger>> &util,
 		const Matrix<DCRTPoly> &pubElemB, uint32_t seed);

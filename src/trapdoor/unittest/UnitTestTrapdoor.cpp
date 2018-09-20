@@ -175,7 +175,7 @@ TEST(UTTrapdoor,TrapDoorPairTestSquareMat){
 	EXPECT_EQ(d*k,stackedTrap2.GetCols())
 		<< "Failure testing number of colums";
 
-        //RingMat g = RingMat(zero_alloc, 1, k).GadgetVector();
+        //Matrix<Poly> g = Matrix<Poly>(zero_alloc, 1, k).GadgetVector();
 }
 
 TEST(UTTrapdoor,GadgetTest){

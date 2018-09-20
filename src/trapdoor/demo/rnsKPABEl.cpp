@@ -1,4 +1,4 @@
-#include "abe/kp_abe_rns.h"
+#include "abe/kp_abe_rns.cpp"
 #include <iostream>
 #include <fstream>
 
@@ -63,13 +63,13 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	DCRTPoly::BugType bug = DCRTPoly::BugType();
 
 	// Trapdoor Generation
-	std::pair<RingMatDCRT, RLWETrapdoorPair<DCRTPoly>> trapdoorA =
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> trapdoorA =
 			RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(ilDCRTParams, SIGMA, base); // A.first is the public element
 
 	DCRTPoly pubElemBeta(dug, ilDCRTParams, EVALUATION);
 
-	RingMatDCRT publicElementB(zero_alloc, ell + 1, m);
-	RingMatDCRT ctCin(zero_alloc, ell + 2, m);
+	Matrix<DCRTPoly> publicElementB(zero_alloc, ell + 1, m);
+	Matrix<DCRTPoly> ctCin(zero_alloc, ell + 2, m);
 	DCRTPoly c1(dug, ilDCRTParams, EVALUATION);
 
 	KPABErns pkg, sender, receiver;
@@ -105,12 +105,12 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 		Poly ptextInterp = ptext.CRTInterpolate();
 
 		// circuit outputs
-		RingMatDCRT evalBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
-		RingMatDCRT evalCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
-		RingMatDCRT ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
+		Matrix<DCRTPoly> evalBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
+		Matrix<DCRTPoly> evalCf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  // evaluated Cs
+		Matrix<DCRTPoly> ctCA(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m); // CA
 
 		// secret key corresponding to the circuit output
-		RingMatDCRT sk(zero_alloc, 2, m);
+		Matrix<DCRTPoly> sk(zero_alloc, 2, m);
 
 		// decrypted text
 		DCRTPoly dtext(ilDCRTParams, EVALUATION, true);

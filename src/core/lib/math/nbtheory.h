@@ -185,7 +185,7 @@ namespace lbcrypto {
 		IntType uu = u;
 		for(size_t i = 0; i<k; i++){// ****************4/1/2018 This loop is correct.
 			(*u_vec)[i] = uu.Mod(base).ConvertToInt();
-			uu = (uu - (*u_vec)[i])/base;
+			uu = (uu - IntType((*u_vec)[i]))/IntType(base);
 		}
 		return u_vec;
 	}

@@ -32,8 +32,8 @@
 
 namespace lbcrypto {
 
-	template class LatticeSubgaussianUtility<NativeInteger>;
-	template class LatticeSubgaussianUtility<BigInteger>;
+	//template class LatticeSubgaussianUtility<NativeInteger>;
+	//template class LatticeSubgaussianUtility<BigInteger>;
 
 	template <class Integer>
 	void LatticeSubgaussianUtility<Integer>::Precompute() {
@@ -44,7 +44,7 @@ namespace lbcrypto {
 		Integer qq = m_modulus;
 		for(size_t i = 0; i<m_k; i++){// ****************4/1/2018 This loop is correct.
 			m_qvec[i] = qq.Mod(m_base).ConvertToInt(); //cout<<qvec[i]<<endl;
-			qq = (qq - m_qvec[i])/m_base;
+			qq = (qq - Integer(m_qvec[i]))/Integer(m_base);
 		}
 
 		m_d = vector<float>(m_k);
@@ -70,7 +70,7 @@ namespace lbcrypto {
 		Integer uu = u;
 		for(size_t i = 0; i<m_k; i++){// ****************4/1/2018 This loop is correct.
 			uvec[i] = uu.Mod(m_base).ConvertToInt(); //cout<<uvec[i]<<endl;
-			uu = (uu - uvec[i])/m_base;
+			uu = (uu - Integer(uvec[i]))/Integer(m_base);
 		}
 
 		//compute the target = -1* S^(-1)*uvec
@@ -146,7 +146,8 @@ namespace lbcrypto {
 
 	}
 
-	void InverseRingVector(const LatticeSubgaussianUtility<BigInteger> &util, const shared_ptr<ILParams> ilParams,
+	template <>
+	void InverseRingVector<Poly>(const LatticeSubgaussianUtility<typename Poly::Integer> &util, const shared_ptr<typename Poly::Params> ilParams,
 			const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<Poly> *psi){
 
 		std::shared_ptr<std::mt19937> prng;
@@ -155,7 +156,7 @@ namespace lbcrypto {
 
 		usint n = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = pubElemB.GetCols();
-		BigInteger q = ilParams->GetModulus();
+		typename Poly::Integer q = ilParams->GetModulus();
 
 		uint32_t k = util.GetK();
 
@@ -193,7 +194,7 @@ namespace lbcrypto {
 					if (digits[p] > 0)
 						(*psi)(p,i)[j] = digits[p];
 					else
-						(*psi)(p,i)[j] = q - BigInteger(-digits[p]);
+						(*psi)(p,i)[j] = q - typename Poly::Integer(-digits[p]);
 				}
 
 			}
