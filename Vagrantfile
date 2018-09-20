@@ -75,7 +75,6 @@ Vagrant.configure("2") do |config|
 	flex
 
     # docs
-    
     apt-get -y install \
     	doxygen \
     	texlive-latex-base \
