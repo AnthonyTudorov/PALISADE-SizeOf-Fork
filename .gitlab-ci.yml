@@ -8,7 +8,7 @@ palisade:
 pages:
   script:
   - make -j $(nproc) docs
-  - mkir public
+  - mkdir public
   - mv doc/apidocs/html public
   artifacts:
     paths:
