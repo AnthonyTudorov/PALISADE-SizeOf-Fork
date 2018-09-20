@@ -12,8 +12,6 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.provider "virtualbox"
-
   config.vm.box = "ubuntu/xenial64"
 
   # Disable automatic box update checking. If you disable this, then
@@ -52,11 +50,14 @@ Vagrant.configure("2") do |config|
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
+    # Display the VirtualBox GUI when booting the machine
+    #vb.gui = true
+ 
     # Customize the amount of memory on the VM:
     vb.memory = "2048"
+
+    # Name the VM:
+    vb.name = "palisade"
   end
   #
   # View the documentation for the provider you are using for more
@@ -67,6 +68,7 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
+    apt-get -y upgrade
 
     # core
     apt-get -y install \
@@ -80,5 +82,10 @@ Vagrant.configure("2") do |config|
     	texlive-latex-base \
 	ghostscript \
 	graphviz
+
+    # lint
+    apt-get -y install \
+    	python-pip
+    pip install cpplint
   SHELL
 end
