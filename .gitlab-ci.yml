@@ -5,6 +5,13 @@ palisade:
   script:
   - make -j $(nproc)
 
+lint:
+  before_script:
+  - shopt -s globstar
+  script:
+  - cpplint src/**
+  allow_failure: true
+
 pages:
   script:
   - make -j $(nproc) docs
