@@ -32,6 +32,9 @@
 
 namespace lbcrypto {
 
+	template class LatticeSubgaussianUtility<NativeInteger>;
+	template class LatticeSubgaussianUtility<BigInteger>;
+
 	template <class Integer>
 	void LatticeSubgaussianUtility<Integer>::Precompute() {
 

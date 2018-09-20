@@ -1,6 +1,6 @@
 #define PROFILE  //define this to enable PROFILELOG and TIC/TOC
 
-#include "subgaussian/subgaussian.cpp"
+#include "subgaussian/subgaussian.h"
 #include "abe/kp_abe.h"
 #include "abe/kp_abe.cpp"
 #include <iostream>

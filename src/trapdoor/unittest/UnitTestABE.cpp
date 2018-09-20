@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "../lib/math/backend.h"
-#include "../lib/subgaussian/subgaussian.cpp"
+#include "../lib/subgaussian/subgaussian.h"
 #include "../lib/abe/cp_abe.h"
 #include "../lib/abe/ibe.h"
 #include "../lib/abe/kp_abe.h"

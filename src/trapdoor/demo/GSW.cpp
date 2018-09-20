@@ -1,6 +1,6 @@
 #define PROFILE  //define this to enable PROFILELOG and TIC/TOC
 
-#include "subgaussian/subgaussian.cpp"
+#include "subgaussian/subgaussian.h"
 #include "subgaussian/gsw.h"
 #include "subgaussian/gsw.cpp"
 #include <iostream>

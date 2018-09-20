@@ -113,9 +113,7 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
 	*/
-	DCRTPolyImpl(const BugType &bug, const shared_ptr<Params> params, Format format = EVALUATION) {
-		throw std::logic_error("Cannot use BinaryUniformGenerator with DCRTPoly; not implemented");
-	}
+	DCRTPolyImpl(const BugType &bug, const shared_ptr<Params> params, Format format = EVALUATION);
 
 	/**
 	* @brief Constructor based on ternary distribution generator.
@@ -552,7 +550,7 @@ public:
 
 	const DCRTPolyType& operator+=(const Integer &element) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
-			this->m_vectors[i] += element.ConvertToInt();
+			this->m_vectors[i] += (element.Mod(this->m_vectors[i].GetModulus())).ConvertToInt();
 		}
 		return *this;
 	}
@@ -565,7 +563,7 @@ public:
 	*/
 	const DCRTPolyType& operator-=(const Integer &element) {
 		for (usint i = 0; i < this->GetNumOfElements(); i++) {
-			this->m_vectors[i] -= element.ConvertToInt();
+			this->m_vectors[i] -= (element.Mod(this->m_vectors[i].GetModulus())).ConvertToInt();
 		}
 		return *this;
 	}

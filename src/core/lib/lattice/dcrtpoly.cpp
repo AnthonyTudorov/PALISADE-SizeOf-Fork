@@ -210,6 +210,31 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(DugType& dug, const shared_ptr<DCRTPolyImpl:
 }
 
 template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const BugType& bug, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
+{
+
+	m_format = format;
+	m_params = dcrtParams;
+
+	size_t numberOfTowers = dcrtParams->GetParams().size();
+	m_vectors.reserve(numberOfTowers);
+
+	PolyType ilvector(bug,dcrtParams->GetParams()[0]);
+
+	for (usint i = 0; i < numberOfTowers; i++) {
+
+		if (i > 0)
+			ilvector.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus(),dcrtParams->GetParams()[i]->GetRootOfUnity());
+
+		auto newVector = ilvector;
+		if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+			newVector.SwitchFormat();
+		}
+		m_vectors.push_back(newVector);
+	}
+}
+
+template<typename VecType>
 DCRTPolyImpl<VecType>::DCRTPolyImpl(const TugType& tug, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
 {
 
@@ -797,7 +822,7 @@ template<typename VecType>
 const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator*=(const Integer &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
-		this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % Integer((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+		this->m_vectors.at(i) *= (element.Mod(this->m_vectors[i].GetModulus())).ConvertToInt(); //this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
 
 	return *this;

@@ -13,7 +13,7 @@
 
 #include "utils/debug.h"
 
-#include "subgaussian/subgaussian.cpp"
+#include "subgaussian/subgaussian.h"
 
 //NTL
 
