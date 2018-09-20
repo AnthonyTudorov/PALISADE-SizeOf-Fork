@@ -1,6 +1,17 @@
 palisade:
   before_script:
-    - module load gcc/7.3.0
-    - g++ --version
+  - module load gcc/7.3.0
+  - g++ --version
   script:
-    make -j $(nproc)
+  - make -j $(nproc)
+
+pages:
+  script:
+  - make -j $(nproc) docs
+  - mkir public
+  - mv doc/apidocs/html public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
