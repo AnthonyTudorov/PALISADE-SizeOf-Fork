@@ -5,6 +5,7 @@
 #include "utils/debug.h"
 
 #include <omp.h> //open MP header
+#include "utils/parallel.h"
 
 #define PROFIILE
 
@@ -16,7 +17,9 @@ usint EvalNANDTree(usint *x, usint ell);
 int main()
 {
 
-	KPABE_BenchmarkCircuitTestDCRT(4, 2);
+	PalisadeParallelControls.Enable();
+
+	KPABE_BenchmarkCircuitTestDCRT(4, 1<<20);
 
 	return 0;
 }
@@ -24,11 +27,11 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 {
-	usint n = 2048;   // cyclotomic order
-	size_t kRes = 51;
-	usint ell = 4; // No of attributes
+	usint n = 4096;   // cyclotomic order
+	size_t kRes = 59;
+	usint ell = 8; // No of attributes
 
-	size_t size = 1;
+	size_t size = 2;
 
 	double sigma = SIGMA;
 
