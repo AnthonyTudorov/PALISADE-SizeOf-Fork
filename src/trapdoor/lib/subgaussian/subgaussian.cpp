@@ -234,6 +234,7 @@ namespace lbcrypto {
 
 				vector<int64_t> digits(k);
 
+#pragma omp parallel for schedule(dynamic)
 				for(size_t j=0; j<n; j++) {
 
 					util[u].InverseG(tB.ElementAtIndex(u)[j].ConvertToInt(), *prng, &digits);

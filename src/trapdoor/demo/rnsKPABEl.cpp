@@ -4,7 +4,7 @@
 
 #include "utils/debug.h"
 
-#include <omp.h> //open MP header
+//#include <omp.h> //open MP header
 #include "utils/parallel.h"
 
 #define PROFIILE
@@ -27,6 +27,7 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 {
+
 	usint n = 4096;   // cyclotomic order
 	size_t kRes = 60;
 	usint ell = 8; // No of attributes

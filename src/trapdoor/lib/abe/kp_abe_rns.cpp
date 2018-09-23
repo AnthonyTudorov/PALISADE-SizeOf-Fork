@@ -196,6 +196,7 @@ void KPABErns::Setup(
 		for (usint i = 0; i < t; i++) // looping to evaluate and calculate w, wB, wC and R for all first level input gates
 		{
 
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negPubElemB(0, j) = pubElemB(2*i+1, j).Negate();
 
@@ -204,6 +205,7 @@ void KPABErns::Setup(
 			psi->SwitchFormat();
 
 			/* Psi^T*C2 and B2*Psi */
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
 				wpublicElementB(i, j) = pubElemB(2*i+2, 0)*(*psi)(0, j); // B2 * BD(-Bi)
 				for (usint k = 1; k < m_m; k++) {
@@ -211,6 +213,7 @@ void KPABErns::Setup(
 				}
 			}
 
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++)
 			{
 				wpublicElementB(i, j) = pubElemB(0, j) - wpublicElementB(i, j);
@@ -231,6 +234,8 @@ void KPABErns::Setup(
 
 			for (usint i = 0; i<gCntinLeveld; i++)
 			{
+
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 					negPubElemB(0, j) = wpublicElementB(inStart+2*i, j).Negate();
 
@@ -238,6 +243,7 @@ void KPABErns::Setup(
 
 				psi->SwitchFormat();
 
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 				{
 					wpublicElementB(outStart+i, j) = wpublicElementB(inStart+2*i+1, 0)*(*psi)(0, j);  // B2 * Psi
@@ -247,6 +253,7 @@ void KPABErns::Setup(
 					}
 				}
 
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 				{
 					wpublicElementB(outStart+i, j) = pubElemB(0, j) - wpublicElementB(outStart+i, j);
@@ -254,6 +261,7 @@ void KPABErns::Setup(
 			}
 		}
 
+#pragma omp parallel for schedule(dynamic)
 		for (usint j = 0; j < m_m; j++)
 		{
 			(*evalPubElemBf)(0, j) = wpublicElementB(gateCnt-1, j);
