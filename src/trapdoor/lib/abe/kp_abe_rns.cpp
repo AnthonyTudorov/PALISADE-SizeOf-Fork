@@ -308,6 +308,7 @@ void KPABErns::EvalCT(
 		{
 			wX[i] = x[0] - x[2*i+1]*x[2*i+2]; // calculating binary wire value
 
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negB(0, j) = pubElemB(2*i+1, j).Negate();
 
@@ -316,6 +317,7 @@ void KPABErns::EvalCT(
 			psi->SwitchFormat();
 			/*Starting computation for a NAND circuit*/
 			/* x2 * C1 */
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++) {
 				if(x[2*i+2]!=0)
 					wCT(i, j) = origCT(2*i+1, j);
@@ -324,6 +326,7 @@ void KPABErns::EvalCT(
 			}
 
 			/* Psi^T*C2 and B2*Psi */
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++) { // the following two for loops are for vector matrix multiplication (a.k.a B(i+1) * BitDecompose(-Bi) and  gamma (0, 2) (for the second attribute of the circuit) * bitDecompose(-B))
 				wPublicElementB(i, j) = pubElemB(2*i+2, 0)*(*psi)(0, j); // B2 * BD(-Bi)
 				wCT(i, j) += (*psi)(0, j)*origCT(2*i+2, 0);  // BD(-Bi)*C2
@@ -334,6 +337,7 @@ void KPABErns::EvalCT(
 			}
 
 			/* B0 - B2*R and C0 - x2*C1 - C2*R */
+#pragma omp parallel for schedule(dynamic)
 			for (usint j = 0; j < m_m; j++)
 			{
 				wPublicElementB(i, j) = pubElemB(0, j) - wPublicElementB(i, j);
@@ -358,6 +362,7 @@ void KPABErns::EvalCT(
 			{
 				wX[OutStart+i] = x[0] - wX[InStart+2*i] * wX[InStart+2*i+1];
 
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 					negB(0, j) = wPublicElementB(InStart+2*i, j).Negate();
 
@@ -366,6 +371,7 @@ void KPABErns::EvalCT(
 				psi->SwitchFormat();
 
 				// x2*C1
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++) {
 					if(wX[InStart+2*i+1]!=0)
 						wCT(OutStart+i, j) = wCT(InStart+2*i, j);
@@ -373,6 +379,7 @@ void KPABErns::EvalCT(
 						wCT(OutStart+i, j).SetValuesToZero();
 				}
 
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 				{
 					wPublicElementB(OutStart+i, j) = wPublicElementB(InStart+2*i+1, 0) * (*psi)(0, j);  // B2 * psi
@@ -384,6 +391,7 @@ void KPABErns::EvalCT(
 					}
 				}
 
+#pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
 				{
 					wPublicElementB(OutStart+i, j) = pubElemB(0, j) - wPublicElementB(OutStart+i, j);
@@ -444,12 +452,14 @@ void KPABErns::EvalCT(
 		Matrix<DCRTPoly> errA(DCRTPoly::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, SIGMA), 1, m_m);
 		Matrix<DCRTPoly> errCin(zero_alloc, 1, m_m);
 
+#pragma omp parallel for schedule(dynamic)
 		for(usint j=0; j<m_m; j++) {
 			(*ctCin)(0, j) = pubElemA(0, j)*s + errA(0, j);
 		}
 
 		for(usint i=1; i<m_ell+2; i++) {
 			// Si values
+#pragma omp parallel for schedule(dynamic)
 			for(usint si=0; si<m_m; si++) {
 				errCin(0, si).SetValuesToZero();
 				for(usint sj=0; sj<m_m; sj++) {
@@ -460,6 +470,7 @@ void KPABErns::EvalCT(
 				}
 			}
 
+#pragma omp parallel for schedule(dynamic)
 			for(usint j=0; j<m_k; j++) {
 				if(x[i-1] != 0)
 					(*ctCin)(i, j) = (g(0, j) + pubElemB(i-1, j))*s + errCin(0, j);
@@ -493,6 +504,7 @@ void KPABErns::EvalCT(
 		Matrix<DCRTPoly> skB(DCRTPoly::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, s), m_m, 1);
 
 		DCRTPoly newChallenge(params, EVALUATION, true);
+#pragma omp parallel for schedule(dynamic)
 		for (usint j = 0; j<m_m; j++)
 			newChallenge += (evalPubElemBf(0, j)*skB(j, 0));
 
