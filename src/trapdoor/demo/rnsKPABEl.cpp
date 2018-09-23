@@ -20,7 +20,7 @@ int main()
 
 	PalisadeParallelControls.Enable();
 
-	KPABE_BenchmarkCircuitTestDCRT(4, 1<<20);
+	KPABE_BenchmarkCircuitTestDCRT(5, 1<<20);
 
 	return 0;
 }
@@ -103,7 +103,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	for(usint i=0; i<iter; i++)
 	{
 
-		std::cout << "running iter " << i << std::endl;
+		std::cout << "running iter " << i+1 << std::endl;
 
 		NativePoly ptext(bug, ilDCRTParams->GetParams()[0], COEFFICIENT);
 
@@ -141,7 +141,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 		TIC(t1);
 		receiver.Decrypt(ilDCRTParams, sk, ctCA, evalCf, c1, &dtext);
-		avg_dec += TOC(t1);
+		avg_dec += TOC_US(t1);
 
 		NativeVector ptext2 = ptext.GetValues();
 		ptext2.SetModulus(NativeInteger(2));
@@ -160,7 +160,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	std::cout << "Average ciphertext evaluation time : " << "\t" << (avg_evalct)/iter << " ms" << std::endl;
 	std::cout << "Average public key evaluation time : " << "\t" << (avg_evalpk)/iter << " ms" << std::endl;
 	std::cout << "Average encryption time : " << "\t" << (avg_enc)/iter << " ms" << std::endl;
-	std::cout << "Average decryption time : " << "\t" << (avg_dec)/iter << " ms" << std::endl;
+	std::cout << "Average decryption time : " << "\t" << (avg_dec)/(iter*1000) << " ms" << std::endl;
 
 
 	delete[] x;

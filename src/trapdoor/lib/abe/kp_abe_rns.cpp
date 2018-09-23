@@ -31,6 +31,9 @@
  */
 
 #include "kp_abe_rns.h"
+#include "utils/debug.h"
+
+#define PROFILE
 
 namespace lbcrypto {
 
@@ -180,6 +183,10 @@ void KPABErns::Setup(
 		uint32_t seed
 	)
 	{
+		TimeVar t1, t2;
+		double offTime(0.0);
+		double subgaussianTime(0.0);
+
 		auto zero_alloc = DCRTPoly::Allocator(params, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
@@ -200,9 +207,13 @@ void KPABErns::Setup(
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negPubElemB(0, j) = pubElemB(2*i+1, j).Negate();
 
+			TIC(t1);
+			TIC(t2);
 			auto psi = InverseRingVectorDCRT(m_util, negPubElemB,1);
+			subgaussianTime += TOC_US(t1);
 
 			psi->SwitchFormat();
+			offTime += TOC_US(t2);
 
 			/* Psi^T*C2 and B2*Psi */
 #pragma omp parallel for schedule(dynamic)
@@ -239,9 +250,13 @@ void KPABErns::Setup(
 				for (usint j = 0; j < m_m; j++)
 					negPubElemB(0, j) = wpublicElementB(inStart+2*i, j).Negate();
 
+				TIC(t1);
+				TIC(t2);
 				auto psi = InverseRingVectorDCRT(m_util, negPubElemB,1);
+				subgaussianTime += TOC_US(t1);
 
 				psi->SwitchFormat();
+				offTime += TOC_US(t2);
 
 #pragma omp parallel for schedule(dynamic)
 				for (usint j = 0; j < m_m; j++)
@@ -266,8 +281,11 @@ void KPABErns::Setup(
 		{
 			(*evalPubElemBf)(0, j) = wpublicElementB(gateCnt-1, j);
 		}
-	}
 
+		std::cerr << "Computation of G^(-1):\t" << subgaussianTime/1000 << std::endl;
+		std::cerr << "Computation of G^(-1) with NTT:\t" << offTime/1000 << std::endl;
+
+	}
 
 /*
 * Given public parameters, attribute values and ciphertexts corresponding to attributes,
