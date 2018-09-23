@@ -93,7 +93,7 @@ namespace lbcrypto {
 
 		double c = (base + 1) * SIGMA;
 
-		const typename DCRTPoly::Integer& modulus = A(0, 0).GetModulus();
+		//const typename DCRTPoly::Integer& modulus = A(0, 0).GetModulus();
 
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);
