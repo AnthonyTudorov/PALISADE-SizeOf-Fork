@@ -1,4 +1,3 @@
-#include "abe/kp_abe_rns.cpp"
 #include <iostream>
 #include <fstream>
 
@@ -8,6 +7,8 @@
 #include "utils/parallel.h"
 
 #define PROFIILE
+
+#include "abe/kp_abe_rns.cpp"
 
 using namespace lbcrypto;
 
@@ -25,7 +26,6 @@ int main()
 }
 
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
-
 {
 
 	usint n = 4096;   // cyclotomic order
@@ -34,7 +34,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 	size_t size = 2;
 
-	double sigma = SIGMA;
+	//double sigma = SIGMA;
 
 	std::vector<NativeInteger> moduli;
 	std::vector<NativeInteger> roots_Of_Unity;
@@ -117,8 +117,6 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 		// decrypted text
 		NativePoly dtext;
-
-		double start, finish;
 
 		// Switches to evaluation representation
 		//ptext.SwitchFormat();

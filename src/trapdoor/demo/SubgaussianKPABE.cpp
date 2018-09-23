@@ -472,7 +472,7 @@ bool TestDCRTVecDecomposeOptimized(int32_t base, usint k, usint ringDimension){
 
 	shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
 
-	int64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
+	uint64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
 
 	std::cout << "digit count = " << size*digitCount << std::endl;
 
@@ -650,8 +650,8 @@ void KPABE_NANDGATE_RANDOM(int32_t base, usint k, usint ringDimension){
 			q = lbcrypto::FirstPrime<BigInteger>(k,n);
 			BigInteger rootOfUnity(RootOfUnity(n, q));
 
-			double val = q.ConvertToDouble();
-			double logTwo = log(val-1.0)/log(base)+1.0;
+			//double val = q.ConvertToDouble();
+			//double logTwo = log(val-1.0)/log(base)+1.0;
 
 			size_t k_ = (long)ceil(log2(q.ConvertToDouble())/log2(base));
 

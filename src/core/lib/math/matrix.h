@@ -228,7 +228,7 @@ public:
 						\
 		auto params = g(0,0).GetParams()->GetParams(); \
 														\
-		int64_t digitCount = (long)ceil(log2(params[0]->GetModulus().ConvertToDouble())/log2(base)); \
+		uint64_t digitCount = (long)ceil(log2(params[0]->GetModulus().ConvertToDouble())/log2(base)); \
 															\
 		for (size_t k = 0; k < digitCount; k++) { \
 			for (size_t i = 0; i < params.size(); i++) { \

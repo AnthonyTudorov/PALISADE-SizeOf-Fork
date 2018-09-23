@@ -400,6 +400,7 @@ void KPABErns::EvalCT(
 			}
 		}
 
+#pragma omp parallel for schedule(dynamic)
 		for (usint j = 0; j < m_m; j++)
 		{
 			(*evalCT)(0, j) = wCT(gateCnt-1, j);
@@ -504,7 +505,6 @@ void KPABErns::EvalCT(
 		Matrix<DCRTPoly> skB(DCRTPoly::MakeDiscreteGaussianCoefficientAllocator(params, EVALUATION, s), m_m, 1);
 
 		DCRTPoly newChallenge(params, EVALUATION, true);
-#pragma omp parallel for schedule(dynamic)
 		for (usint j = 0; j<m_m; j++)
 			newChallenge += (evalPubElemBf(0, j)*skB(j, 0));
 
@@ -517,8 +517,10 @@ void KPABErns::EvalCT(
 		Matrix<DCRTPoly> skA(DCRTPoly::Allocator(params, EVALUATION), m_m, 1);
 		skA = RLWETrapdoorUtility<DCRTPoly>::GaussSamp(m_N, m_k, pubElemA, secElemTA, newChallenge, dgg, dggLargeSigma, m_base);
 
+#pragma omp parallel for schedule(dynamic)
 		for(usint i=0; i<m_m; i++)
 			(*sk)(0, i) = skA(i, 0);
+#pragma omp parallel for schedule(dynamic)
 		for(usint i=0; i<m_m; i++)
 			(*sk)(1, i) = skB(i, 0);
 	}
