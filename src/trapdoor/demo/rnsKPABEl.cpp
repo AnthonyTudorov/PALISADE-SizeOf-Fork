@@ -28,7 +28,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 {
 	usint n = 4096;   // cyclotomic order
-	size_t kRes = 59;
+	size_t kRes = 60;
 	usint ell = 8; // No of attributes
 
 	size_t size = 2;
@@ -38,11 +38,12 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	std::vector<NativeInteger> moduli;
 	std::vector<NativeInteger> roots_Of_Unity;
 
-	NativeInteger q = NativeInteger(1) << (kRes-1);
-	q = lbcrypto::FirstPrime<NativeInteger>(kRes,2*n);
-	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(2*n, q));
+	//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+	NativeInteger firstInteger = FirstPrime<NativeInteger>(kRes, 2 * n);
+	firstInteger -= 2*n*((uint64_t)(1)<<40);
+	NativeInteger q = NextPrime<NativeInteger>(firstInteger, 2 * n);
 	moduli.push_back(q);
-	roots_Of_Unity.push_back(rootOfUnity);
+	roots_Of_Unity.push_back(RootOfUnity<NativeInteger>(2 * n, moduli[0]));
 
 	NativeInteger nextQ = q;
 	for (size_t i = 1; i < size; i++) {
@@ -103,9 +104,7 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 		std::cout << "running iter " << i << std::endl;
 
-		DCRTPoly ptext(bug, ilDCRTParams, COEFFICIENT);
-
-		Poly ptextInterp = ptext.CRTInterpolate();
+		NativePoly ptext(bug, ilDCRTParams->GetParams()[0], COEFFICIENT);
 
 		// circuit outputs
 		Matrix<DCRTPoly> evalBf(DCRTPoly::Allocator(ilDCRTParams, EVALUATION), 1, m);  //evaluated Bs
@@ -116,12 +115,12 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 		Matrix<DCRTPoly> sk(zero_alloc, 2, m);
 
 		// decrypted text
-		DCRTPoly dtext(ilDCRTParams, EVALUATION, true);
+		NativePoly dtext;
 
 		double start, finish;
 
 		// Switches to evaluation representation
-		ptext.SwitchFormat();
+		//ptext.SwitchFormat();
 		TIC(t1);
 		sender.Encrypt(ilDCRTParams, trapdoorA.first, publicElementB, pubElemBeta, x, ptext, dgg, dug, bug, &ctCin, &c1); // Cin and c1 are the ciphertext
 		avg_enc += TOC(t1);
@@ -143,12 +142,15 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 		TIC(t1);
 		receiver.Decrypt(ilDCRTParams, sk, ctCA, evalCf, c1, &dtext);
-		Poly dtextPoly(dtext.CRTInterpolate());
-		receiver.Decode(&dtextPoly);
 		avg_dec += TOC(t1);
 
-		if(ptextInterp  != dtextPoly){
+		NativeVector ptext2 = ptext.GetValues();
+		ptext2.SetModulus(NativeInteger(2));
+
+		if(ptext2  != dtext.GetValues()){
 			std::cout << "Decryption fails at iteration: " << i << std::endl;
+			//std::cerr << ptext << std::endl;
+			//std::cerr << dtext << std::endl;
 			return 0;
 		}
 

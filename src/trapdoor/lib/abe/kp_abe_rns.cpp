@@ -73,16 +73,97 @@ void KPABErns::Setup(
 		m_q = q;
 		m_base = base;
 
+		size_t size = params->GetParams().size();
+
 
 		size_t digitCount = (long)ceil(log2(params->GetParams()[0]->GetModulus().ConvertToDouble())/log2(base));
-		m_k = digitCount*params->GetParams().size();
+		m_k = digitCount*size;
 
 		m_m = m_k + 2;
 
 		m_ell = ell;
 
+		vector<NativeInteger> moduli(size);
+		vector<NativeInteger> roots(size);
+		for (size_t i = 0; i < size; i++){
+			moduli[i] = params->GetParams()[i]->GetModulus();
+			roots[i] = params->GetParams()[i]->GetRootOfUnity();
+		}
+
+		ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*m_N,moduli);
+
 		for (size_t i = 0; i < params->GetParams().size(); i++)
-			m_util.push_back(LatticeSubgaussianUtility<NativeInteger>(m_base,params->GetParams()[i]->GetBigModulus(),digitCount));
+			m_util.push_back(LatticeSubgaussianUtility<NativeInteger>(m_base,params->GetParams()[i]->GetModulus(),digitCount));
+
+		const BigInteger deltaBig = q.DividedBy(NativeInteger(2));
+
+		std::vector<NativeInteger> CRTDeltaTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(params->GetParams()[i]->GetModulus().ConvertToInt());
+			BigInteger deltaI = deltaBig.Mod(qi);
+			CRTDeltaTable[i] = NativeInteger(deltaI.ConvertToInt());
+		}
+
+		m_CRTDeltaTable = CRTDeltaTable;
+
+		NativeInteger p = NativeInteger(2);
+
+		if (moduli[0].GetMSB() < 45)
+		{
+			//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+			std::vector<double> CRTDecryptionFloatTable(size);
+
+			for (size_t i = 0; i < size; i++){
+				BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+				int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+				int64_t denominator = moduli[i].ConvertToInt();
+				CRTDecryptionFloatTable[i] = (double)numerator/(double)denominator;
+			}
+			m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+		}
+		else if (moduli[0].GetMSB() < 58)
+		{
+			//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+			std::vector<long double> CRTDecryptionExtFloatTable(size);
+
+			for (size_t i = 0; i < size; i++){
+				BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+				int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+				int64_t denominator = moduli[i].ConvertToInt();
+				CRTDecryptionExtFloatTable[i] = (long double)numerator/(long double)denominator;
+			}
+			m_CRTDecryptionExtFloatTable = CRTDecryptionExtFloatTable;
+		}
+		else
+		{
+			//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+			std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
+
+			for (size_t i = 0; i < size; i++){
+				BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+				int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+				int64_t denominator = moduli[i].ConvertToInt();
+				CRTDecryptionQuadFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
+			}
+			m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+		}
+
+		//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
+
+		std::vector<NativeInteger> qDecryptionInt(size);
+		std::vector<NativeInteger> qDecryptionIntPrecon(size);
+		for( usint vi = 0 ; vi < size; vi++ ) {
+			BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+			BigInteger divBy = q / qi;
+			BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(p)/qi;
+			qDecryptionInt[vi] = quotient.Mod(p).ConvertToInt();
+			qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconOptimized(p);
+		}
+
+		m_CRTDecryptionIntTable = qDecryptionInt;
+		m_CRTDecryptionIntPreconTable = qDecryptionIntPrecon;
+
 	}
 
 	/*
@@ -211,7 +292,6 @@ void KPABErns::EvalCT(
 
 		// Temporary variables for bit decomposition operation
 		Matrix<DCRTPoly> negB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
-		std::vector<Poly> digitsC1(m_m);
 
 		// Input level of the circuit
 		usint t = m_ell >> 1;  // the number of the gates in the first level (the number of input gates)
@@ -326,7 +406,7 @@ void KPABErns::EvalCT(
 		const Matrix<DCRTPoly> &pubElemB,
 		const DCRTPoly &d, //TBA
 		const usint x[],
-		const DCRTPoly &ptext,
+		const NativePoly &ptext,
 		typename DCRTPoly::DggType &dgg, // to generate error terms (Gaussian)
 		typename DCRTPoly::DugType &dug,  // select according to uniform distribution
 		typename DCRTPoly::BugType &bug,    // select according to uniform distribution binary
@@ -338,15 +418,15 @@ void KPABErns::EvalCT(
 		DCRTPoly s(dug, params, COEFFICIENT);
 		s.SwitchFormat();
 
-		DCRTPoly qHalf(params, COEFFICIENT, true);
-		qHalf += (m_q >> 1);
-		qHalf.SwitchFormat();
-		qHalf.AddILElementOne();
+		DCRTPoly dtext(ptext,params);
+		dtext.SwitchFormat();
+
+		const std::vector<NativeInteger> &deltaTable = m_CRTDeltaTable;
 
 		DCRTPoly err1 = DCRTPoly(dgg, params, COEFFICIENT);
 		err1.SwitchFormat();
 
-		*ctC1 = s*d + err1 + ptext*qHalf;
+		*ctC1 = s*d + err1 + dtext.Times(deltaTable);
 
 		// ***
 		// Compute Cin
@@ -435,43 +515,27 @@ void KPABErns::EvalCT(
 		const Matrix<DCRTPoly> &ctA,
 		const Matrix<DCRTPoly> &evalCT,
 		const DCRTPoly &ctC1,
-		DCRTPoly *dtext
+		NativePoly *ptext
 	)
 	{
-		*dtext = ctA(0, 0)*sk(0, 0);
+		DCRTPoly dtext = ctA(0, 0)*sk(0, 0);
 		for (usint i = 1; i < m_m; i++)
-			*dtext += ctA(0, i)*sk(0, i);
+			dtext += ctA(0, i)*sk(0, i);
 
 		for (usint i = 0; i < m_m; i++)
-			*dtext += evalCT(0, i)*sk(1, i);
+			dtext += evalCT(0, i)*sk(1, i);
 
-		*dtext = ctC1 - *dtext;
-		dtext->SwitchFormat();
-	}
+		dtext = ctC1 - dtext;
+		dtext.SwitchFormat();
 
-/*
- * Decryption function takes the ciphertext pair and the secret keys
- * and yields the decrypted plaintext in COEFFICIENT form
- */
+		const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
+		const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
+		const std::vector<QuadFloat> &lyamQuadTable = m_CRTDecryptionQuadFloatTable;
+		const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
+		const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
-	void KPABErns::Decode(
-		Poly *dtext)
-	{
-
-		BigInteger dec, threshold = m_q >> 2, qHalf = m_q >> 1;
-
-		for (usint i = 0; i < m_N; i++)
-		{
-			dec = dtext->at(i);
-
-			if (dec > qHalf)
-				dec = m_q - dec;
-
-			if (dec > threshold)
-			  dtext->at(i)= BigInteger(1);
-			else
-			  dtext->at(i)= BigInteger(0);
-		}
+		// this is the resulting vector of coefficients;
+		*ptext = dtext.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	}
 

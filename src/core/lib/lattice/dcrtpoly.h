@@ -97,6 +97,8 @@ public:
 
 	const DCRTPolyType& operator=(const PolyLargeType& element);
 
+	const DCRTPolyType& operator=(const NativePoly& element);
+
 	/**
 	* @brief Constructor based on discrete Gaussian generator.
 	*
@@ -140,6 +142,15 @@ public:
 	* @param params parameter set required for DCRTPoly.
 	*/
 	DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<Params> params);
+
+	/**
+	* @brief Construct using a single NativePoly. The NativePoly is copied into every tower.
+	* Each tower will be reduced to it's corresponding modulus  via GetModuli(at tower index). The format is derived from the passed in NativePoly.
+	*
+	* @param &element Poly to build other towers from.
+	* @param params parameter set required for DCRTPoly.
+	*/
+	DCRTPolyImpl(const NativePoly &element, const shared_ptr<Params> params);
 
 	/**
 	* @brief Construct using an tower of ILVectro2ns. The params and format for the DCRTPoly will be derived from the towers.

@@ -73,8 +73,6 @@ namespace lbcrypto {
 		~KPABErns() {
 		}
 
-		usint GetM() const { return m_m; }
-
 		/**
 		* Setup function for Private Key Generator (PKG)
 		*
@@ -246,7 +244,7 @@ namespace lbcrypto {
 			const Matrix<DCRTPoly> &pubElemB,
 			const DCRTPoly &d, //TBA
 			const usint x[],
-			const DCRTPoly &pt,
+			const NativePoly &pt,
 			typename DCRTPoly::DggType &dgg,
 			typename DCRTPoly::DugType &dug,
 			typename DCRTPoly::BugType &bug,
@@ -283,7 +281,7 @@ namespace lbcrypto {
 		* @param &ctA ciphertext A as per paper
 		* @param &evalCT evaluated ciphertext Cf pertaining to a policy
 		* @param &ctC1 ciphertext C1
-		* @param *dtext decrypted ciphetext
+		* @param *ptext decrypted ciphetext
 		*/
 		void Decrypt(
 			const shared_ptr<typename DCRTPoly::Params> params,
@@ -291,17 +289,8 @@ namespace lbcrypto {
 			const Matrix<DCRTPoly> &ctA, // ciphertext CA
 			const Matrix<DCRTPoly> &evalCT, //cipher text Cf
 			const DCRTPoly &ctC1,   // ciphertext C1
-			DCRTPoly *dtext         //decrypted plaintext
+			NativePoly *ptext         //decrypted plaintext
 		);
-
-		/**
-		* Decode Function
-		*
-		* @param *dtext decoded ciphertext
-		*/
-		void Decode(
-				Poly *dtext         //decrypted plaintext
-			);
 
 	private:
 		usint m_k; //number of bits in the modulus
@@ -312,6 +301,29 @@ namespace lbcrypto {
 		int32_t m_base; //base, a power of two
 
 		vector<LatticeSubgaussianUtility<NativeInteger>> m_util;
+
+		// used during encryption
+		vector<NativeInteger> m_CRTDeltaTable;
+
+		// when log2 qi <= 44 bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<double> m_CRTDecryptionFloatTable;
+
+		// when 44 < log2 qi <= 57  bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<long double> m_CRTDecryptionExtFloatTable;
+
+		// when log2 qi = 58..60 bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
+
+		// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+		std::vector<NativeInteger> m_CRTDecryptionIntTable;
+
+		// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+		std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
+
+
 	};
 
 }
