@@ -20,7 +20,7 @@ int main()
 
 	PalisadeParallelControls.Enable();
 
-	KPABE_BenchmarkCircuitTestDCRT(5, 1<<20);
+	KPABE_BenchmarkCircuitTestDCRT(5, 1<<15);
 
 	return 0;
 }

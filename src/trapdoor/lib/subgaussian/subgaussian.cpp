@@ -233,29 +233,46 @@ namespace lbcrypto {
 
 				uint32_t k = util[u].GetK();
 
-#pragma omp parallel for schedule(dynamic)
-				for(size_t j=0; j<n; j++) {
+				size_t threads = omp_get_max_threads();
 
-					vector<int64_t> digits(k);
+				//std::cout << "threads = "<< threads << std::endl;
 
-					std::shared_ptr<std::mt19937> prng(new std::mt19937(seed));
+				size_t sizePerThread;
 
-					util[u].InverseG(tB.ElementAtIndex(u)[j].ConvertToInt(), *prng, &digits);
+				if (threads > 0)
+					sizePerThread = n/threads;
+				else {
+					sizePerThread = n;
+					threads = 1;
+				}
 
-					/*std::cout << tB.ElementAtIndex(u)[j].ConvertToInt() << std::endl;
-					std::cout << digits<< std::endl;
-					std::cin.get();*/
+#pragma omp parallel for
+				for(size_t t=0; t<threads; t++) {
 
-					for (size_t v=0; v < tB.GetNumOfElements(); v++) {
+					shared_ptr<std::mt19937> prng(new std::mt19937(seed));
 
-						NativeInteger q = params[v]->GetModulus();
+					for(size_t j=0; j<sizePerThread; j++) {
 
-						for(size_t p=0; p<k; p++) {
-							if (digits[p] > 0)
-								(*psi)(p + u*k,i).ElementAtIndex(v)[j] = digits[p];
-							else
-								(*psi)(p + u*k,i).ElementAtIndex(v)[j] = q - NativeInteger(-digits[p]);
+						vector<int64_t> digits(k);
+
+						util[u].InverseG(tB.ElementAtIndex(u)[j+t*sizePerThread].ConvertToInt(), *prng, &digits);
+
+						/*std::cout << tB.ElementAtIndex(u)[j].ConvertToInt() << std::endl;
+						std::cout << digits<< std::endl;
+						std::cin.get();*/
+
+						for (size_t v=0; v < tB.GetNumOfElements(); v++) {
+
+							NativeInteger q = params[v]->GetModulus();
+
+							for(size_t p=0; p<k; p++) {
+								if (digits[p] > 0)
+									(*psi)(p + u*k,i).ElementAtIndex(v)[j+t*sizePerThread] = digits[p];
+								else
+									(*psi)(p + u*k,i).ElementAtIndex(v)[j+t*sizePerThread] = q - NativeInteger(-digits[p]);
+							}
 						}
+
 					}
 
 				}
