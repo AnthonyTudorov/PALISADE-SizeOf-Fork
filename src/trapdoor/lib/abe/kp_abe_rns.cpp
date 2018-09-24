@@ -78,7 +78,6 @@ void KPABErns::Setup(
 
 		size_t size = params->GetParams().size();
 
-
 		size_t digitCount = (long)ceil(log2(params->GetParams()[0]->GetModulus().ConvertToDouble())/log2(base));
 		m_k = digitCount*size;
 

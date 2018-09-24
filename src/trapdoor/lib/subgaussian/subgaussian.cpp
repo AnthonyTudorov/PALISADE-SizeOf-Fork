@@ -98,6 +98,11 @@ namespace lbcrypto {
 			(*output)[i] = m_base*x[i] - x[i-1] + m_qvec[i]*x[m_k-1] + uvec[i];
 		}
 		(*output)[m_k-1] = m_qvec[m_k-1]*x[m_k-1] - x[m_k-2] + uvec[m_k-1];
+
+		//std::cerr <<" q = " << m_modulus << std::endl;
+		//std::cerr <<" u = " << u << std::endl;
+		//std::cerr << " output = " << *output << std::endl;
+		//std::cin.get();
 	}
 
 	template <class Integer>
@@ -208,10 +213,6 @@ namespace lbcrypto {
 	shared_ptr<Matrix<DCRTPoly>> InverseRingVectorDCRT(const std::vector<LatticeSubgaussianUtility<NativeInteger>> &util,
 			const Matrix<DCRTPoly> &pubElemB, uint32_t seed){
 
-		std::shared_ptr<std::mt19937> prng;
-
-		prng.reset(new std::mt19937(seed));
-
 		usint m = pubElemB.GetCols();
 		usint n = pubElemB(0,0).GetRingDimension();
 
@@ -232,10 +233,12 @@ namespace lbcrypto {
 
 				uint32_t k = util[u].GetK();
 
-				vector<int64_t> digits(k);
-
 #pragma omp parallel for schedule(dynamic)
 				for(size_t j=0; j<n; j++) {
+
+					vector<int64_t> digits(k);
+
+					std::shared_ptr<std::mt19937> prng(new std::mt19937(seed));
 
 					util[u].InverseG(tB.ElementAtIndex(u)[j].ConvertToInt(), *prng, &digits);
 

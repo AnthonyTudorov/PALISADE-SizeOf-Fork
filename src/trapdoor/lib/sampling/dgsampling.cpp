@@ -161,7 +161,7 @@ namespace lbcrypto {
 		c(0, 0) = ((int64_t)m_digits[0] )/ (double)base;
 
 		for (size_t i = 1; i < k; i++)
-			c(i, 0) = (c(i - 1, 0) + (int64_t)m_digits[i]) / base;
+			c(i, 0) = (c(i - 1, 0) + (int64_t)m_digits[i]) / (double)base;
 
 #pragma omp parallel for
 		for (size_t j = 0; j < u.GetLength(); j++)
@@ -187,7 +187,7 @@ namespace lbcrypto {
 			a(0, 0) = ((int64_t)(v_digits[0]) - p[0]) / (double)base;
 
 			for (size_t t = 1; t < k; t++) {
-				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t]) - p[t]) / base;
+				a(t, 0) = (a(t - 1, 0) + (int64_t)(v_digits[t]) - p[t]) / (double)base;
 			}
 			vector<int64_t> zj(k);
 
