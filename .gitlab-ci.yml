@@ -4,6 +4,8 @@ palisade:
   - g++ --version
   script:
   - make -j $(nproc)
+  tags:
+  - linux
 
 pages:
   script:
@@ -15,3 +17,5 @@ pages:
     - public
   only:
   - master
+  tags:
+  - doxygen
