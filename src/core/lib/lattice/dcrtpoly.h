@@ -178,7 +178,7 @@ public:
 	* @param stddev standard deviation for the discrete gaussian generator.
 	* @return the resulting vector.
 	*/
-	inline static function<DCRTPolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<Params> params, Format resultFormat, int stddev) {
+	inline static function<DCRTPolyType()> MakeDiscreteGaussianCoefficientAllocator(shared_ptr<Params> params, Format resultFormat, int64_t stddev) {
 		return [=]() {
 			DggType dgg(stddev);
 			DCRTPolyType ilvec(dgg, params, COEFFICIENT);
