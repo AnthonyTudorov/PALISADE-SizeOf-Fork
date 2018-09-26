@@ -49,7 +49,7 @@ CORE_TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
 -include $(COREDEMOOBJECTS:.o=.d)
 
 .PHONY:allcore
-allcore: $(EXTLIBDIR)/$(PALISADECORELIB) $(CORE_TEST_TARGET) allcoredemos
+allcore: ntl_all $(EXTLIBDIR)/$(PALISADECORELIB) $(CORE_TEST_TARGET) allcoredemos
 
 allcoredemos: $(EXTLIBDIR)/$(PALISADECORELIB) $(patsubst $(COREBINDIR)/demo/%,$(BINDIR)/demo/core/%,$(patsubst %.o,%$(EXESUFFIX),$(COREDEMOOBJECTS)))
 
