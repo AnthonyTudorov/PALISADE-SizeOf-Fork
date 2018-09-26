@@ -328,8 +328,10 @@ void KPABErns::EvalCT(
 			wX[i] = x[0] - x[2*i+1]*x[2*i+2]; // calculating binary wire value
 
 #pragma omp parallel for schedule(dynamic)
-			for (usint j = 0; j < m_m; j++)  // Negating Bis for bit decomposition
+			for (usint j = 0; j < m_m; j++)  { // Negating Bis for bit decomposition
 				negB(0, j) = pubElemB(2*i+1, j).Negate();
+				negB(0, j).SwitchFormat();
+			}
 
 			auto psi = InverseRingVectorDCRT(m_util, negB,1);
 
@@ -382,8 +384,10 @@ void KPABErns::EvalCT(
 				wX[OutStart+i] = x[0] - wX[InStart+2*i] * wX[InStart+2*i+1];
 
 #pragma omp parallel for schedule(dynamic)
-				for (usint j = 0; j < m_m; j++)
+				for (usint j = 0; j < m_m; j++) {
 					negB(0, j) = wPublicElementB(InStart+2*i, j).Negate();
+					negB(0, j).SwitchFormat();
+				}
 
 				auto psi = InverseRingVectorDCRT(m_util, negB,1);
 
