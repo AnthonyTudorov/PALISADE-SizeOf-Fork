@@ -92,8 +92,6 @@ void KPABErns::Setup(
 			roots[i] = params->GetParams()[i]->GetRootOfUnity();
 		}
 
-		ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots,2*m_N,moduli);
-
 		for (size_t i = 0; i < params->GetParams().size(); i++)
 			m_util.push_back(LatticeSubgaussianUtility<NativeInteger>(m_base,params->GetParams()[i]->GetModulus(),digitCount));
 
@@ -190,12 +188,12 @@ void KPABErns::Setup(
 
 		usint gateCnt = m_ell - 1;
 
-		Matrix<DCRTPoly> psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
+		//Matrix<DCRTPoly> psi(zero_alloc, m_m, m_m); // Needed for bit decomposition matrices
 		// w stands for wire
 		Matrix<DCRTPoly> wpublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
 		// Temporary variables for bit decomposition operation
 		Matrix<DCRTPoly> negPubElemB(zero_alloc, 1, m_m);       // EVALUATION (NTT domain)
-		std::vector<DCRTPoly> digitsC1(m_m);
+		//std::vector<DCRTPoly> digitsC1(m_m);
 
 		// Input level of the circuit
 		usint t = m_ell >> 1;  // the number of the gates in the first level (the number of input gates)
@@ -313,7 +311,7 @@ void KPABErns::EvalCT(
 		auto zero_alloc = DCRTPoly::Allocator(params, EVALUATION);
 
 		usint gateCnt = m_ell - 1;
-		Matrix<DCRTPoly> psi(zero_alloc, m_m, m_m);
+		//Matrix<DCRTPoly> psi(zero_alloc, m_m, m_m);
 		// w stands for Wire
 		Matrix<DCRTPoly> wPublicElementB(zero_alloc, gateCnt, m_m);   // Bis associated with internal wires of the circuit
 		Matrix<DCRTPoly> wCT(zero_alloc, gateCnt, m_m);  // Ciphertexts associated with internal wires of the circuit

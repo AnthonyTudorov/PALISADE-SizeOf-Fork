@@ -406,9 +406,9 @@ namespace lbcrypto {
 
 			double sigmaLarge = sqrt(s * s - sigma * sigma);
 
-			// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+			// for distribution parameters up to KARNEY_THRESHOLD (experimentally found threshold) use the Peikert's inversion method
 			// otherwise, use Karney's method
-			if (sigmaLarge > 3e5) {
+			if (sigmaLarge > KARNEY_THRESHOLD) {
 
 				//Karney rejection method
 				for (size_t i = 0; i < n * k; i++) {

@@ -20,7 +20,7 @@ int main()
 
 	PalisadeParallelControls.Enable();
 
-	KPABE_BenchmarkCircuitTestDCRT(5, 1<<10);
+	KPABE_BenchmarkCircuitTestDCRT(5, 1<<30);
 
 	return 0;
 }
@@ -30,11 +30,11 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 	usint n = 128;   // cyclotomic order
 	size_t kRes = 60;
-	usint ell = 2; // No of attributes
+	usint ell = 8; // No of attributes
 
 	std::cout << "Number of attributes: " << ell << std::endl;
 
-	size_t size = 1;
+	size_t size = 2;
 
 	std::cout << "n: " << n << std::endl;
 
@@ -60,6 +60,8 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 	}
 
 	shared_ptr<ILDCRTParams<BigInteger>> ilDCRTParams(new ILDCRTParams<BigInteger>(2*n, moduli, roots_Of_Unity));
+
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(roots_Of_Unity,2*n,moduli);
 
 	std::cout << "k: " << ilDCRTParams->GetModulus().GetMSB() << std::endl;
 
@@ -95,14 +97,18 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 
 	// Attribute values all are set to 1 for NAND gate evaluation
 	usint *x = new usint[ell + 1];
+	x[0]=1;
 
 	usint found = 0;
 	while (found == 0) {
 		for (usint i = 1; i<ell + 1; i++)
-			x[i] = rand() & 0x1;
+			// x[i] = rand() & 0x1;
+			x[i] = bug.GenerateInteger().ConvertToInt();
 		if (EvalNANDTree(&x[1], ell) == 0)
 			found = 1;
 	}
+
+	std::cout << *x << std::endl;
 
 	usint y;
 

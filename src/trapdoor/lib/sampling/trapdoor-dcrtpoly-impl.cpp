@@ -39,7 +39,7 @@ namespace lbcrypto {
 
 	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf
 	template <>
-	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(shared_ptr<typename DCRTPoly::Params> params, int stddev, int64_t base, bool bal)
+	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(shared_ptr<typename DCRTPoly::Params> params, double stddev, int64_t base, bool bal)
 	{
 		auto zero_alloc = DCRTPoly::Allocator(params, EVALUATION);
 		auto gaussian_alloc = DCRTPoly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);

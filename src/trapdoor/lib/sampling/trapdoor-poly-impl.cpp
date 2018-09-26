@@ -45,7 +45,7 @@ namespace lbcrypto {
 	template class Matrix<Field2n>;
 
 	template <>
-	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility<Poly>::TrapdoorGen(shared_ptr<typename Poly::Params> params, int stddev, int64_t base, bool bal)
+	std::pair<Matrix<Poly>, RLWETrapdoorPair<Poly>> RLWETrapdoorUtility<Poly>::TrapdoorGen(shared_ptr<typename Poly::Params> params, double stddev, int64_t base, bool bal)
 	{
 		auto zero_alloc = Poly::Allocator(params, EVALUATION);
 		auto gaussian_alloc = Poly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);
@@ -85,7 +85,7 @@ namespace lbcrypto {
 
 
 	template <>
-		std::pair<Matrix<NativePoly>, RLWETrapdoorPair<NativePoly>> RLWETrapdoorUtility<NativePoly>::TrapdoorGen(shared_ptr<typename NativePoly::Params> params, int stddev, int64_t base, bool bal)
+		std::pair<Matrix<NativePoly>, RLWETrapdoorPair<NativePoly>> RLWETrapdoorUtility<NativePoly>::TrapdoorGen(shared_ptr<typename NativePoly::Params> params, double stddev, int64_t base, bool bal)
 		{
 			auto zero_alloc = NativePoly::Allocator(params, EVALUATION);
 			auto gaussian_alloc = NativePoly::MakeDiscreteGaussianCoefficientAllocator(params, COEFFICIENT, stddev);

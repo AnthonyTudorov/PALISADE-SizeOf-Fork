@@ -71,7 +71,7 @@ public:
 	* @return the trapdoor pair including the public key (matrix of rings) and trapdoor itself
 	*/
 	static std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> TrapdoorGen(shared_ptr<typename Element::Params> params,
-			int stddev, int64_t base = 2, bool bal = false);
+			double stddev, int64_t base = 2, bool bal = false);
 
 	/**
 	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation...")
@@ -230,7 +230,7 @@ public:
 
 				// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
 				// otherwise, use Karney's method
-				if (sigmaLarge > 3e5) {
+				if (sigmaLarge > KARNEY_THRESHOLD) {
 
 					//Karney rejection method
 					for (size_t i = 0; i < n * k; i++) {
@@ -339,7 +339,7 @@ public:
 
 				// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
 				// otherwise, use Karney's method
-				if (sigmaLarge > 3e5) {
+				if (sigmaLarge > KARNEY_THRESHOLD) {
 
 					//Karney rejection method
 					for (size_t i = 0; i < n * k; i++) {
