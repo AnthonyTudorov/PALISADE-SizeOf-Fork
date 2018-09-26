@@ -56,7 +56,7 @@
 
 namespace lbcrypto {
 
-const double KARNEY_THRESHOLD = 3e5;
+const double KARNEY_THRESHOLD = 300;
 
 template<typename VecType>
 class DiscreteGaussianGeneratorImpl;
