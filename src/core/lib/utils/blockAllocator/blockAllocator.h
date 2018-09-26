@@ -104,7 +104,7 @@ private:
 #define DECLARE_ALLOCATOR \
     public: \
         void* operator new(size_t size) { \
-        bool dbg_flag = true;\
+        bool dbg_flag = false;\
         DEBUG( "allocating   " << size << " bytes");\
             return _allocator.Allocate(size); \
         } \

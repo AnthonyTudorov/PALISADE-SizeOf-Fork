@@ -71,7 +71,6 @@ struct NAlloc {
     template <class T> NAlloc(const NAlloc<T>&) {}
     Tp* allocate(std::size_t n) {
         n *= sizeof(Tp);
-        std::cout << "allocating   " << n << " bytes\n";
         return static_cast<Tp*>(::operator new(n));
     }
     void deallocate(Tp* p, std::size_t n) {
