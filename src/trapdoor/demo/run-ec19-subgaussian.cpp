@@ -25,7 +25,7 @@ int main(){
 
 	//RunFigure1();
 	RunFigure2A();
-	//RunFigure2B();
+	RunFigure2B();
 	
 	return 0;
 }
@@ -179,7 +179,7 @@ bool RunFigure2A() {
 				}
 			}
 
-			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10 << std::endl;
+			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10*m << std::endl;
 
 		}
 
@@ -229,7 +229,7 @@ bool RunFigure2B() {
 
 			int64_t digitCount = (long)ceil(log2(bigModulus.ConvertToDouble())/log2(base));
 
-			std::cout << "digit count = " << digitCount << std::endl;
+			//std::cout << "digit count = " << digitCount << std::endl;
 
 			usint m = digitCount + 2;
 
@@ -272,7 +272,7 @@ bool RunFigure2B() {
 			}
 			timeEval += TOC_US(t1);
 
-			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10 << std::endl;
+			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10*m << std::endl;
 
 		}
 
