@@ -285,6 +285,68 @@ namespace lbcrypto {
 
 	}
 
+	template <>
+		void InverseRingVectorSpecial<Poly>(const LatticeSubgaussianUtility<typename Poly::Integer> &util, const shared_ptr<typename Poly::Params> ilParams,
+				const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<DCRTPoly> *psi){
+
+			std::shared_ptr<std::mt19937> prng;
+
+			prng.reset(new std::mt19937(seed));
+
+			usint n = ilParams->GetCyclotomicOrder() >> 1;
+			usint m = pubElemB.GetCols();
+			typename Poly::Integer q = ilParams->GetModulus();
+
+			uint32_t k = util.GetK();
+
+			vector<int64_t> digits(k);
+
+			//int Max = 0;
+
+			for(usint i=0; i<m; i++)
+				for(usint j=0; j<m; j++) {
+					(*psi)(j, i).SetValuesToZero();
+					if ((*psi)(j, i).GetFormat() != COEFFICIENT){
+						(*psi)(j, i).SwitchFormat();
+					}
+				}
+
+			for (usint i=0; i<m; i++) {
+				auto tB = pubElemB(0, i);
+
+				// make sure the transform ring elements are in coefficient domain
+				if(tB.GetFormat() != COEFFICIENT){
+					tB.SwitchFormat();
+				}
+
+				for(size_t j=0; j<n; j++) {
+
+					util.InverseG(tB[j], *prng, &digits);
+
+					/*std::cout << tB[j] << std::endl;
+					std::cout << digits<< std::endl;
+					std::cin.get();*/
+
+					for (size_t v=0; v < (*psi)(0,0).GetNumOfElements(); v++) {
+
+						NativeInteger q = (*psi)(0,0).GetParams()->GetParams()[v]->GetModulus();
+
+						for(size_t p=0; p<k; p++) {
+							if (digits[p] > 0)
+								(*psi)(p,i).ElementAtIndex(v)[j] = digits[p];
+							else
+								(*psi)(p,i).ElementAtIndex(v)[j] = q - NativeInteger(-digits[p]);
+						}
+					}
+
+				}
+
+			}
+
+			//std::cout << "maximum = " << Max << std::endl;
+
+		}
+
 }
 
 #endif

@@ -10,17 +10,22 @@
 
 #include "utils/debug.h"
 
-#include "subgaussian/subgaussian.h"
+//#include "subgaussian/subgaussian.h"
+#include "subgaussian/subgaussian.cpp"
+#include "abe/kp_abe.h"
 
 using namespace std;
 using namespace lbcrypto;
 
 void RunFigure1();
+bool RunFigure2A();
+bool RunFigure2B();
 
 int main(){
 
-	RunFigure1();
-
+	//RunFigure1();
+	RunFigure2A();
+	//RunFigure2B();
 	
 	return 0;
 }
@@ -63,6 +68,215 @@ void RunFigure1() {
 	}
 
 	return;
+
+}
+
+bool RunFigure2A() {
+
+		usint ringDimension = 4096;
+
+		usint n = ringDimension*2;   // cyclotomic order
+
+		usint kRes = 60;
+
+		usint base = 1<<20;
+
+		for (size_t j = 1; j<11; j++)
+
+		{
+
+			size_t size = j;
+
+			std::vector<NativeInteger> moduli;
+			std::vector<NativeInteger> roots_Of_Unity;
+
+			//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+			NativeInteger firstInteger = FirstPrime<NativeInteger>(kRes, 2 * n);
+			//firstInteger -= 2*n*((uint64_t)(1)<<40);
+			firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(kRes/3));
+			NativeInteger q = NextPrime<NativeInteger>(firstInteger, 2 * n);
+			moduli.push_back(q);
+			roots_Of_Unity.push_back(RootOfUnity<NativeInteger>(2 * n, moduli[0]));
+
+			NativeInteger nextQ = q;
+			for (size_t i = 1; i < size; i++) {
+				nextQ = lbcrypto::NextPrime<NativeInteger>(nextQ, 2*n);
+				NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(2*n, nextQ));
+				moduli.push_back(nextQ);
+				roots_Of_Unity.push_back(nextRootOfUnity);
+			}
+
+			shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+
+			uint64_t digitCount = (long)ceil(log2(q.ConvertToDouble())/log2(base));
+
+			//std::cout << "digit count = " << size*digitCount << std::endl;
+
+			usint m = moduli.size()*digitCount + 2;
+
+			auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
+			auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
+
+			Matrix<DCRTPoly> matrixTobeDecomposed(zero_alloc, 1, m);
+
+			DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+			DCRTPoly::DugType dug = DCRTPoly::DugType();
+
+			for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++){
+				for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
+						matrixTobeDecomposed(i,j) = DCRTPoly(dug, params, COEFFICIENT);
+						//matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+					}
+			}
+
+			Matrix<DCRTPoly> results(zero_alloc_eval,1,m);
+			Matrix<DCRTPoly> g(zero_alloc_eval, 1, m);
+
+			size_t bk = 1;
+
+			for (size_t k = 0; k < digitCount; k++) {
+				for (size_t i = 0; i < moduli.size(); i++) {
+					NativePoly temp(params->GetParams()[i]);
+					temp = bk;
+					g(0,k+i*digitCount).SetElementAtIndex(i,temp);
+				}
+				bk *= base;
+			}
+
+			//std::cout << g << std::endl;
+
+			//std::cout << "g size = " << g.GetCols() << std::endl;
+
+			TimeVar t1; //for TIC TOC
+			double timeEval(0.0);
+
+			std::vector<LatticeSubgaussianUtility<NativeInteger>> sampler;
+
+			for (size_t i = 0; i < size; i++)
+				sampler.push_back(LatticeSubgaussianUtility<NativeInteger>(base,moduli[i],digitCount));
+
+
+			TIC(t1);
+			for (size_t k=0; k<10; k++) {
+				auto psi = InverseRingVectorDCRT(sampler, matrixTobeDecomposed,1);
+			}
+			timeEval += TOC_US(t1);
+
+			auto psi = InverseRingVectorDCRT(sampler, matrixTobeDecomposed,1);
+
+			psi->SwitchFormat();
+			results = g * (*psi);
+			matrixTobeDecomposed.SwitchFormat();
+
+			for(usint i = 0; i < results.GetRows(); i++){
+				for(usint j =0; j < results.GetCols(); j++){
+					if (results(i,j) != matrixTobeDecomposed(i,j)) {
+						std::cout << "index i = " << i << "; index j = " << j << std::endl;
+						std::cout<< results(i,j) <<std::endl;
+						std::cout<< matrixTobeDecomposed(i,j) <<std::endl;
+						return false;
+					}
+				}
+			}
+
+			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10 << std::endl;
+
+		}
+
+		return true;
+
+}
+
+bool RunFigure2B() {
+
+		usint ringDimension = 4096;
+
+		usint n = ringDimension*2;   // cyclotomic order
+
+		usint kRes = 60;
+
+		usint base = 1<<20;
+
+		for (size_t j = 1; j<11; j++)
+
+		{
+
+			size_t size = j;
+
+			std::vector<NativeInteger> moduli;
+			std::vector<NativeInteger> roots_Of_Unity;
+
+			//makes sure the first integer is less than 2^60-1 to take advangate of NTL optimizations
+			NativeInteger firstInteger = FirstPrime<NativeInteger>(kRes, 2 * n);
+			//firstInteger -= 2*n*((uint64_t)(1)<<40);
+			firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(kRes/3));
+			NativeInteger q = NextPrime<NativeInteger>(firstInteger, 2 * n);
+			moduli.push_back(q);
+			roots_Of_Unity.push_back(RootOfUnity<NativeInteger>(2 * n, moduli[0]));
+
+			NativeInteger nextQ = q;
+			for (size_t i = 1; i < size; i++) {
+				nextQ = lbcrypto::NextPrime<NativeInteger>(nextQ, 2*n);
+				NativeInteger nextRootOfUnity(RootOfUnity<NativeInteger>(2*n, nextQ));
+				moduli.push_back(nextQ);
+				roots_Of_Unity.push_back(nextRootOfUnity);
+			}
+
+			shared_ptr<ILDCRTParams<BigInteger>> params(new ILDCRTParams<BigInteger>(n, moduli, roots_Of_Unity));
+			shared_ptr<ILParams> ilParams(new ILParams(n, params->GetModulus(), BigInteger(1)));
+
+			BigInteger bigModulus = params->GetModulus();
+
+			int64_t digitCount = (long)ceil(log2(bigModulus.ConvertToDouble())/log2(base));
+
+			std::cout << "digit count = " << digitCount << std::endl;
+
+			usint m = digitCount + 2;
+
+			auto zero_alloc = DCRTPoly::Allocator(params, COEFFICIENT);
+			auto zero_alloc_eval = DCRTPoly::Allocator(params, EVALUATION);
+			auto zero_alloc_poly = Poly::Allocator(ilParams, COEFFICIENT);
+
+			Matrix<DCRTPoly> matrixTobeDecomposed(zero_alloc, 1, m);
+
+			DiscreteGaussianGenerator dgg = DiscreteGaussianGenerator(SIGMA);
+			DCRTPoly::DugType dug = DCRTPoly::DugType();
+
+			for (usint i = 0; i < matrixTobeDecomposed.GetRows(); i++){
+				for (usint j = 0; j < matrixTobeDecomposed.GetCols(); j++) {
+						matrixTobeDecomposed(i,j) = DCRTPoly(dug, params, COEFFICIENT);
+						//matrixTobeDecomposed(i, j).SwitchFormat(); // always kept in EVALUATION format
+					}
+			}
+
+			TimeVar t1; //for TIC TOC
+			double timeEval(0.0);
+
+			Matrix<DCRTPoly> psiDCRT(zero_alloc, m, m);
+			Matrix<DCRTPoly> psi(zero_alloc, m, m);
+
+			LatticeSubgaussianUtility<BigInteger> sampler(base,bigModulus,digitCount);
+
+
+			Matrix<Poly> matrixDecomposePoly(zero_alloc_poly, 1, m);
+
+			TIC(t1);
+			for (size_t k=0; k<10; k++) {
+
+				for(usint i = 0; i < m; i++){
+					matrixDecomposePoly(0,i) = matrixTobeDecomposed(0,i).CRTInterpolate();
+				}
+
+				InverseRingVectorSpecial<Poly>(sampler, ilParams, matrixDecomposePoly,1, &psi);
+
+			}
+			timeEval += TOC_US(t1);
+
+			std::cout << "size =\t" << size << "\t; PALISADE polynomial sampling rate:\t" << 1e6/timeEval*10 << std::endl;
+
+		}
+
+		return true;
 
 }
 
