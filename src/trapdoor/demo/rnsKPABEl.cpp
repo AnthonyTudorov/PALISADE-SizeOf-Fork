@@ -20,7 +20,7 @@ int main()
 
 	PalisadeParallelControls.Enable();
 
-	KPABE_BenchmarkCircuitTestDCRT(5, 1<<25);
+	KPABE_BenchmarkCircuitTestDCRT(5, 1<<5);
 
 	return 0;
 }
@@ -28,13 +28,13 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 {
 
-	usint n = 16384;   // cyclotomic order
+	usint n = 256;   // cyclotomic order
 	size_t kRes = 50;
-	usint ell = 128; // No of attributes
+	usint ell = 2; // No of attributes
 
 	std::cout << "Number of attributes: " << ell << std::endl;
 
-	size_t size = 6;
+	size_t size = 2;
 
 	std::cout << "n: " << n << std::endl;
 

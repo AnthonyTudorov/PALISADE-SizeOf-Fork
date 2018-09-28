@@ -37,7 +37,7 @@ class LatticeSubgaussianUtility
 {
 public:
 
-	LatticeSubgaussianUtility() : m_base(2), m_modulus(1), m_k(1) {};
+	LatticeSubgaussianUtility() : m_base(2), m_modulus(1), m_k(1), m_baseDigits{1} {};
 
 	LatticeSubgaussianUtility(const uint32_t &base, const Integer &modulus, const uint32_t &k) :
 		m_base(base), m_modulus(modulus), m_k(k) {Precompute();};
@@ -56,6 +56,8 @@ private:
 	uint32_t m_base;
 	Integer m_modulus;
 	uint32_t m_k;
+
+	uint32_t m_baseDigits;
 
 	// precomputed tables
 	vector<int64_t> m_qvec;

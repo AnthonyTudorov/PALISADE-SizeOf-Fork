@@ -55,6 +55,8 @@ namespace lbcrypto {
 			m_d[i] = (m_d[i-1] + (float)m_qvec[i])/(float)m_base;
 		}
 
+		m_baseDigits = (uint32_t)(std::round(log2(m_base)));
+
 	}
 
 	template <class Integer>
@@ -68,9 +70,14 @@ namespace lbcrypto {
 
 		//decompose the vectors u,q
 		Integer uu = u;
+		Integer uTemp;
 		for(size_t i = 0; i<m_k; i++){// ****************4/1/2018 This loop is correct.
-			uvec[i] = uu.Mod(m_base).ConvertToInt(); //cout<<uvec[i]<<endl;
-			uu = (uu - Integer(uvec[i]))/Integer(m_base);
+			//uvec[i] = uu.Mod(m_base).ConvertToInt(); //cout<<uvec[i]<<endl;
+			uTemp = uu >> m_baseDigits;
+			uvec[i] = (uu - (uTemp<<m_baseDigits)).ConvertToInt();
+			uu = uTemp;
+			//uvec[i] = uu.Mod(m_base).ConvertToInt(); //cout<<uvec[i]<<endl;
+			//uu = (uu - Integer(uvec[i]))/Integer(m_base);
 		}
 
 		//compute the target = -1* S^(-1)*uvec
