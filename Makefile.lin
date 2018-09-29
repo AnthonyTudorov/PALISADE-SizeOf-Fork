@@ -19,7 +19,7 @@ endif
 
 
 ##CPPSTD := -std=gnu++11 -fPIC
-CPPSTD := -std=gnu++11 -fPIC -mcmodel=large  ## static allocator requires this memory model
+CPPSTD := -std=gnu++11 -fPIC ##-mcmodel=large  ## static allocator requires this memory model
 CC := g++ $(CPPSTD)
 
 LIBSUFFIX := .so
