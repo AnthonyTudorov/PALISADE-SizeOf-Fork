@@ -81,6 +81,9 @@ namespace lbcrypto {
 		Matrix<Integer> g(zero_allocator, m_cryptoParams.Getn(),m_cryptoParams.Getm());
 		g = g.GadgetVector(m_cryptoParams.GetBase());
 
+		std::cout << "n = " << m_cryptoParams.Getn() << std::endl;
+		std::cout << "m = " << m_cryptoParams.Getm() << std::endl;
+
 		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((cbar + (g.ScalarMult(plaintext)).ModEq(modulus)).ModEq(modulus)));
 
 		return c;
@@ -124,9 +127,13 @@ namespace lbcrypto {
 			const shared_ptr<GSWCiphertext<Integer>> ct2) {
 
 		const Integer &modulus = m_cryptoParams.GetModulus();
-
+		//std::cout << "before inversion" << std::endl;
 		auto ct2Inverse = InverseG(ct2);
-		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>((ct1->Mult(*ct2Inverse)).ModEq(modulus)));
+		//std::cout << "after inversion" << std::endl;
+		auto temp = ct1->Mult(*ct2Inverse);
+		//std::cout << "after multiplication" << std::endl;
+		shared_ptr<Matrix<Integer>> c(new Matrix<Integer>(temp.ModEq(modulus)));
+		//std::cout << "after modulo operation" << std::endl;
 
 		return c;
 	}
@@ -136,6 +143,9 @@ namespace lbcrypto {
 		size_t cols = ct->GetCols();
 		size_t rows = ct->GetRows();
 		Matrix<Integer> gInverse([&](){return Integer(0);}, cols,cols);
+
+		std::cout << "cols = " << cols << std::endl;
+		std::cout << "rows = " << rows << std::endl;
 
 		if (m_cryptoParams.GetMode() == DETERMINISTIC) {
 			for (size_t i = 0; i < cols; i++)
