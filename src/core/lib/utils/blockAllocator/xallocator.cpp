@@ -55,6 +55,9 @@ static bool _xallocInitialized = false;
 	static Allocator* _allocators[MAX_ALLOCATORS];
 #endif	// STATIC_POOLS
 
+static XallocInitDestroy xallocInitDestroy;
+
+
 // For C++ applications, must define AUTOMATIC_XALLOCATOR_INIT_DESTROY to 
 // correctly ensure allocators are initialized before any static user C++ 
 // construtor/destructor executes which might call into the xallocator API. 

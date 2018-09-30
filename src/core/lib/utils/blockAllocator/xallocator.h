@@ -31,7 +31,6 @@ public:
 private:
 	static usint refCount;
 };
-static XallocInitDestroy xallocInitDestroy;
 #endif	// AUTOMATIC_XALLOCATOR_INIT_DESTROY
 #endif	// __cplusplus
 
