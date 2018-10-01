@@ -52,7 +52,7 @@ public:
 	void OnTestProgramStart(const ::testing::UnitTest& unit_test) {
 		cout << lead << "PALISADE Version " << GetPALISADEVersion() << endl;
 		cout << lead << "Date " <<
-			testing::internal::FormatEpochTimeInMillisAsIso8601(unit_test.start_timestamp()) << endl;
+				testing::internal::FormatEpochTimeInMillisAsIso8601(unit_test.start_timestamp()) << endl;
 	}
 	void OnTestIterationStart(const ::testing::UnitTest& unit_test, int iteration) {}
 	void OnEnvironmentsSetUpStart(const ::testing::UnitTest& unit_test) {}
@@ -98,30 +98,30 @@ public:
 
 	void OnTestProgramEnd(const ::testing::UnitTest& unit_test)  {
 		cout << lead << "End " << unit_test.test_to_run_count() << " cases "
-			<< unit_test.successful_test_count() << " passed "
-			<< unit_test.failed_test_count() << " failed" << endl;
+				<< unit_test.successful_test_count() << " passed "
+				<< unit_test.failed_test_count() << " failed" << endl;
 
-		  const int failed_test_count = unit_test.failed_test_count();
-		  if (failed_test_count == 0) {
-		    return;
-		  }
+		const int failed_test_count = unit_test.failed_test_count();
+		if (failed_test_count == 0) {
+			return;
+		}
 
-		  for (int i = 0; i < unit_test.total_test_case_count(); ++i) {
-		    const TestCase& test_case = *unit_test.GetTestCase(i);
-		    if (!test_case.should_run() || (test_case.failed_test_count() == 0)) {
-		      continue;
-		    }
-		    for (int j = 0; j < test_case.total_test_count(); ++j) {
-		      const TestInfo& test_info = *test_case.GetTestInfo(j);
-		      if (!test_info.should_run() || test_info.result()->Passed()) {
-		        continue;
-		      }
-		      internal::ColoredPrintf(internal::COLOR_RED, "[  FAILED  ] ");
-		      printf("%s.%s", test_case.name(), test_info.name());
-		      internal::PrintFullTestCommentIfPresent(test_info);
-		      printf("\n");
-		    }
-		  }
+		for (int i = 0; i < unit_test.total_test_case_count(); ++i) {
+			const TestCase& test_case = *unit_test.GetTestCase(i);
+			if (!test_case.should_run() || (test_case.failed_test_count() == 0)) {
+				continue;
+			}
+			for (int j = 0; j < test_case.total_test_count(); ++j) {
+				const TestInfo& test_info = *test_case.GetTestInfo(j);
+				if (!test_info.should_run() || test_info.result()->Passed()) {
+					continue;
+				}
+				internal::ColoredPrintf(internal::COLOR_RED, "[  FAILED  ] ");
+				printf("%s.%s", test_case.name(), test_info.name());
+				internal::PrintFullTestCommentIfPresent(test_info);
+				printf("\n");
+			}
+		}
 	}
 
 
@@ -137,13 +137,26 @@ int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
 
 	bool terse=false;
-	bool setall=false;
+	bool beset=false;
 	for( int i = 1; i < argc; i++ ) {
 		if( string(argv[i]) == "-t" ) {
 			terse=true;
 		}
 		else if( string(argv[i]) == "-all" ) {
-			setall=true;
+			TestB2 = TestB4 = TestB6 = true;
+			beset=true;
+		}
+		else if( string(argv[i]) == "-2" ) {
+			TestB2 = true;
+			beset=true;
+		}
+		else if( string(argv[i]) == "-4" ) {
+			TestB4 = true;
+			beset=true;
+		}
+		else if( string(argv[i]) == "-6" ) {
+			TestB6 = true;
+			beset=true;
 		}
 	}
 
@@ -156,6 +169,15 @@ int main(int argc, char **argv) {
 
 	::testing::TestEventListeners& listeners =
 			::testing::UnitTest::GetInstance()->listeners();
+
+	if( !beset ) {
+		if( MATHBACKEND == 2 )
+			TestB2 = true;
+		else if( MATHBACKEND == 4 )
+			TestB4 = true;
+		else if( MATHBACKEND == 6 )
+			TestB6 = true;
+	}
 
 	if( terse ) {
 		// Adds a listener to the end.  Google Test takes the ownership.
