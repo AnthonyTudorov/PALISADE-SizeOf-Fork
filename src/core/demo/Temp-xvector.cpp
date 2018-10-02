@@ -1,5 +1,4 @@
-/*
- * @file native-impl.cpp - native integer implementation.
+﻿/*
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,33 +22,29 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#define BLOCK_VECTOR_IMPLEMENT
-#include "math/backend.h"
-#include "lattice/backend.h"
-#include "math/matrix.cpp"
-#include "matrix-lattice-impl.cpp"
 
-#include "elemparams.cpp"
-#include "ilparams.cpp"
-#include "poly.cpp"
+// This is a main() file built to test math  operations
+// D. Cousins
 
-namespace lbcrypto
-{
+#define PROFILE // need to define in order to turn on timing reporting
 
-template class ElemParams<NativeInteger>;
-template class ILParamsImpl<NativeInteger>;
-template class PolyImpl<NativeVector>;
+#include <iostream>
+#include <fstream>
+#include "utils/inttypes.h"
+#include <chrono>
+#include <exception>
+#include "utils/blockAllocator/xvector.h"
 
-template class Matrix<NativePoly>;
-ONES_FOR_TYPE(NativePoly)
-IDENTITY_FOR_TYPE(NativePoly)
-GADGET_FOR_TYPE(NativePoly)
-NORM_FOR_TYPE(NativePoly)
-MATRIX_NOT_SERIALIZABLE(NativePoly)
-SPLIT64_FOR_TYPE(NativePoly)
-SPLIT64ALT_FOR_TYPE(NativePoly)
-SPLIT32ALT_FOR_TYPE(NativePoly)
-template Matrix<NativeVector> RotateVecResult(Matrix<NativePoly> const& inMat);
-template Matrix<NativeInteger> Rotate(Matrix<NativePoly> const& inMat);
+using namespace std;
 
+int main(int argc, char* argv[]){
+	vector<uint64_t> va;
+	vector<uint64_t,stl_allocator<uint64_t>> vb;
+
+
+	cout << va.size() << endl;
+	cout << vb.size() << endl;
+
+	return 0;
 }
+

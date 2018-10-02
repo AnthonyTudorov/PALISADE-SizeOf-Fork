@@ -676,6 +676,7 @@ bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) 
 
 }
 
-template class NativeVector<NativeInteger<uint64_t>>;
 
+template class NativeVector<NativeInteger<uint64_t>>;
+ 
 } // namespace lbcrypto ends

@@ -32,7 +32,7 @@
 
 namespace lbcrypto {
   
-  const double KARNEY_THRESHOLD = 300;
+#define KARNEY_THRESHOLD ((float)300.0)
   
 	template<typename VecType>
 	DiscreteGaussianGeneratorImpl<VecType>::DiscreteGaussianGeneratorImpl(float std) : DistributionGenerator<VecType>() {
@@ -44,12 +44,12 @@ namespace lbcrypto {
 	void DiscreteGaussianGeneratorImpl<VecType>::SetStd(float std) {
 		m_std = std;
 		if(m_std<KARNEY_THRESHOLD)
-     peikert= true;
-   else
-     peikert= false;
-   if(peikert){
-      Initialize();
-   }
+			peikert= true;
+		else
+			peikert= false;
+		if(peikert){
+			Initialize();
+		}
 	}
 
 	template<typename VecType>

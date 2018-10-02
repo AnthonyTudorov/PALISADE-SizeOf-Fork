@@ -25,8 +25,6 @@
  */
 
 #include "../math/backend.h"
-#include "../math/cpu_int/binint.cpp"
-#include "../math/cpu_int/binvect.cpp"
 #include "elemparams.cpp"
 #include "ildcrtparams.cpp"
 #include "../math/discretegaussiangenerator.cpp"

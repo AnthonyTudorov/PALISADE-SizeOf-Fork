@@ -92,14 +92,20 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (usint n = 1024; n < 2048; n = 2 * n)
-	{
-		errorflag = CONJOBF(dbg_flag, n_evals, n);
-		if (errorflag)
-			return ((int)errorflag);
-	}
+	for (auto i = 0; i<3; i++){
+	  std::cout<<"Run "<<i<<std::endl;
+	    ;
+	  for (usint n = 1024; n < 2048; n = 2 * n)
+	    {
+	      errorflag = CONJOBF(dbg_flag, n_evals, n);
+	      if (errorflag)
+		return ((int)errorflag);
+	    }
+	  xalloc_stats();
 
+	}
 	//system("PAUSE");
+
 
 	return ((int)errorflag);
 
