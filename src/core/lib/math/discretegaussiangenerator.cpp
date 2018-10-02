@@ -33,7 +33,7 @@
 namespace lbcrypto {
   
 #define KARNEY_THRESHOLD ((float)300.0)
-  
+ 
 	template<typename VecType>
 	DiscreteGaussianGeneratorImpl<VecType>::DiscreteGaussianGeneratorImpl(double std) : DistributionGenerator<VecType>() {
 
