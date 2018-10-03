@@ -65,11 +65,8 @@ $(BINDIR)/demo/trapdoor/%$(EXESUFFIX): $(TRAPDOORBINDIR)/demo/%.o $(EXTLIBDIR)/$
 $(EXTLIBDIR)/$(PALISADETRAPDOORLIB): $(TRAPDOOROBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB)
 	@echo " -- trapdoor:linking $@ from TRAPDOOROBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-ifdef COVERAGE
-	$(LIBCMD) $@ $(TRAPDOOROBJECTS)
-else
-	$(LIBCMD) $@ $(TRAPDOOROBJECTS)  #$(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
-endif
+	$(LIBCMD) $@ $(TRAPDOOROBJECTS) $(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
+	$(AR) crv $(EXTLIBDIR)/libPALISADEtrapdoor$(STATICSUFFIX) $(TRAPDOOROBJECTS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(TRAPDOORBINDIR)/%

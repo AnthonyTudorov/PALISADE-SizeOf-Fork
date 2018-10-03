@@ -15,6 +15,7 @@ BISON := /opt/local/bin/bison
 FLEX := /opt/local/bin/flex
 
 LIBSUFFIX := .dylib
+STATICSUFFIX := .a
 LIBCMD := $(CC) -dynamiclib -undefined suppress -flat_namespace -fopenmp -o #libname to follow
 
 RDYNAMIC := 

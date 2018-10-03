@@ -37,6 +37,7 @@ CPPSTD := -std=gnu++11 -fPIC ##-mcmodel=large  ## static allocator requires this
 CC := g++ $(CPPSTD)
 
 LIBSUFFIX := .so
+STATICSUFFIX := .a
 LIBCMD := $(CC) -fPIC -shared -Wl,--export-dynamic -fopenmp -o #libname to follow
 
 RDYNAMIC := -rdynamic

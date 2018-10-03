@@ -66,11 +66,8 @@ $(BINDIR)/demo/wip/%$(EXESUFFIX): $(WIPBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEW
 $(EXTLIBDIR)/$(PALISADEWIPLIB): $(WIPOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(EXTLIBDIR)/$(PALISADEPKELIB)
 	@echo " -- wip:linking $@ from WIPOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-ifdef COVERAGE
-	$(LIBCMD) $@ $(WIPOBJECTS)
-else
-	$(LIBCMD) $@ $(WIPOBJECTS)  ## $(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
-endif
+	$(LIBCMD) $@ $(WIPOBJECTS) $(EXTLIB) -lPALISADEpke -lPALISADEcore $(NTLLIB) $(GMPLIB)
+	$(AR) crv $(EXTLIBDIR)/libPALISADEwip$(STATICSUFFIX) $(WIPOBJECTS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(WIPBINDIR)/%

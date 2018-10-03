@@ -62,11 +62,8 @@ $(BINDIR)/demo/core/%$(EXESUFFIX): $(COREBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISAD
 $(EXTLIBDIR)/$(PALISADECORELIB): $(COREOBJECTS)
 	@echo " -- core:linking $@ from COREOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-ifdef COVERAGE
-	$(LIBCMD) $@ $(COREOBJECTS) 
-else
 	$(LIBCMD) $@ $(COREOBJECTS)
-endif
+	$(AR) crv $(EXTLIBDIR)/libPALISADEcore$(STATICSUFFIX) $(COREOBJECTS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(COREBINDIR)/%

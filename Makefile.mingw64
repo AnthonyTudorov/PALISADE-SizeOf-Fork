@@ -21,6 +21,7 @@ CC := g++ $(CPPSTD)
 LIBCMD := $(CC) -s -shared -Wl,--subsystem,windows  -fopenmp -o #libname to follow
 
 LIBSUFFIX := .dll
+STATICSUFFIX := .lib
 EXESUFFIX := .exe
 
 SHLWAPI := -lshlwapi
