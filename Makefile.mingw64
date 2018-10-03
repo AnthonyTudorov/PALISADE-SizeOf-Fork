@@ -8,8 +8,8 @@ BOOSTLIB := -L C:/boost_1_60_0/stage/lib/
 
 ifneq ($(wildcard third-party/include), )
   #$(info GMP/NTL directory third-party/include exists)
-  NTLLIB := third-party/lib/libntl.a
-  GMPLIB := third-party/lib/libgmp.a
+  NTLLIB := -Lthird-party/lib -lntl
+  GMPLIB := -Lthird-party/lib -lgmp
 else
   #$(info GMP/NTL directory third-party does not exist)
 endif

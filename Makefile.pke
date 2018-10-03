@@ -62,7 +62,7 @@ $(BINDIR)/demo/pke/%$(EXESUFFIX): $(PKEBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEP
 $(EXTLIBDIR)/$(PALISADEPKELIB): $(PKEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB)
 	@echo " -- pke:linking $@ from PKEOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-	$(LIBCMD) $@ $(PKEOBJECTS) $(EXTLIB) -lPALISADEcore
+	$(LIBCMD) $@ $(PKEOBJECTS) $(EXTLIB) -lPALISADEcore $(NTLLIB) $(GMPLIB)
 	$(AR) crv $(EXTLIBDIR)/libPALISADEpke$(STATICSUFFIX) $(PKEOBJECTS)
 
 ### #this builds the individual objects that make up the library .

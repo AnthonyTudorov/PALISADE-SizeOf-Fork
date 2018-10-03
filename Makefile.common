@@ -28,7 +28,7 @@
 # for making all the palisade components
 ################
 
-TEST_LIB := $(LOADTHREADFLAG) -fopenmp $(GMPLIB) -lgomp
+TEST_LIB := $(LOADTHREADFLAG) -fopenmp -lgomp
 
 # NOTE select the appropriate set of CPPFLAGS 
 # most code is checked into git with the first line active
