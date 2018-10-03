@@ -1,20 +1,84 @@
-palisade:
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
-  script:
-  - make -j $(nproc)
-  tags:
-  - linux
+stages:
+- audit
+- setup
+- build
+- test
+- deploy
+- cleanup
 
 lint:
+  stage: audit
   before_script:
   - shopt -s globstar
   script:
   - cpplint src/**
   allow_failure: true
+  tags:
+  - audit
+
+sast:
+  stage: audit
+  script:
+  - flawfinder src/
+  allow_failure: true
+  tags:
+  - audit
+
+config:
+  stage: setup
+  script:
+  - ./configure.sh
+  tags:
+  - linux
+  dependencies: []
+
+build_ext:
+  stage: setup
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make -j $(nproc) gmp_all
+  - make -j $(nproc) ntl_all
+  artifacts:
+    paths:
+    - third-party
+    expire_in: 2 hrs
+  tags:
+  - linux
+  dependencies: []
+
+build:
+  stage: build
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - bin
+    expire_in: 1 day
+  tags:
+  - linux
+  dependencies:
+  - build_ext
+
+test:
+  stage: test
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make -j $(nproc) testall
+  tags:
+  - linux
+  dependencies:
+  - build_ext
+  - build
 
 pages:
+  stage: deploy
   script:
   - make -j $(nproc) docs
   - mkdir public
@@ -22,7 +86,18 @@ pages:
   artifacts:
     paths:
     - public
+    expire_in: 1 day
   only:
   - master
   tags:
   - doxygen
+  dependencies: []
+
+clean:
+  stage: cleanup
+  script:
+  - make -j $(nproc) clobber
+  tags:
+  - linux
+  when: always
+  dependencies: []

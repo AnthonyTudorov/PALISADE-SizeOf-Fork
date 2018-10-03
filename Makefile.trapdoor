@@ -85,9 +85,8 @@ $(TRAPDOORBINDIR)/%:
 		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(TRAPDOORBINDIR)/%,$(TRAPDOORSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
-.PHONY: cleantrapdoor 
-
 #this target is used to cleanup, it is called from the top Makefile
+.PHONY: cleantrapdoor 
 cleantrapdoor: 
 	$(RM) -fr $(TRAPDOORBINDIR) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) `dirname $(TRAPDOOR_TEST_TARGET)` $(BINDIR)/demo/trapdoor
 
@@ -99,7 +98,7 @@ $(TRAPDOOR_TEST_TARGET): $(UNITTESTMAINOBJ) $(TRAPDOORUNITOBJECTS) $(EXTLIBDIR)/
 #used to run tests from make
 .PHONY: testtrapdoor
 testtrapdoor: $(TRAPDOOR_TEST_TARGET)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(EXTLIBDIR) $(TRAPDOOR_TEST_TARGET)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(TRAPDOOR_TEST_TARGET)
 
 trapdoorstrings:
 	@echo $(TRAPDOORSOURCES)
