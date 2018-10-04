@@ -20,7 +20,7 @@ int main()
 
 	PalisadeParallelControls.Enable();
 
-	KPABE_BenchmarkCircuitTestDCRT(5, 1<<5);
+	KPABE_BenchmarkCircuitTestDCRT(5, 1<<20);
 
 	return 0;
 }
@@ -28,13 +28,12 @@ int main()
 int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 {
 
-	usint n = 256;   // cyclotomic order
-	size_t kRes = 50;
-	usint ell = 2; // No of attributes
+	usint n = 1<<12;   // cyclotomic order
+	size_t kRes = 50; //CRT modulus size
+	usint ell = 4; // No of attributes
+	size_t size = 2; //Number of CRT moduli
 
 	std::cout << "Number of attributes: " << ell << std::endl;
-
-	size_t size = 2;
 
 	std::cout << "n: " << n << std::endl;
 
@@ -107,8 +106,6 @@ int KPABE_BenchmarkCircuitTestDCRT(usint iter, int32_t base)
 		if (EvalNANDTree(&x[1], ell) == 0)
 			found = 1;
 	}
-
-	std::cout << *x << std::endl;
 
 	usint y;
 
