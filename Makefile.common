@@ -133,6 +133,7 @@ PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 
 .PHONY: all
 all:
+	$(MAKE) third-party
 	$(MAKE) gmp_all
 	$(MAKE) ntl_all
 	$(MAKE) allcore allpke alltrapdoor allwip allcircuit allabe allsignature utall 
@@ -206,6 +207,7 @@ include Makefile.wip
 include Makefile.abe
 include Makefile.signature
 
+include Makefile.third-party
 include Makefile.gmp
 include Makefile.ntl
 
