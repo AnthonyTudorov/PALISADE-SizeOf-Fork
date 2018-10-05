@@ -85,9 +85,8 @@ $(WIPBINDIR)/%:
 		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(WIPBINDIR)/%,$(WIPSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
-.PHONY: cleanwip
-
 #this target is used to cleanup, it is called from the top Makefile
+.PHONY: cleanwip
 cleanwip:
 	$(RM) -fr $(WIPBINDIR) $(EXTLIBDIR)/$(PALISADEWIPLIB) `dirname $(WIP_TEST_TARGET)` $(BINDIR)/demo/wip
 
@@ -99,7 +98,7 @@ $(WIP_TEST_TARGET): $(UNITTESTMAINOBJ) $(WIPUNITOBJECTS) $(EXTLIBDIR)/$(PALISADE
 #used to run tests from make
 .PHONY: testwip
 testwip: $(WIP_TEST_TARGET)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(EXTLIBDIR) $(WIP_TEST_TARGET)
+	 LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(WIP_TEST_TARGET)
 
 wipstrings:
 	@echo $(WIPSOURCES)

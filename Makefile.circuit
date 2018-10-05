@@ -103,9 +103,8 @@ $(CIRCUITBINDIR)/%:
 		$(CC) $(CPPFLAGS) -Wno-sign-compare $(INC) -c -o $@ $(patsubst $(CIRCUITBINDIR)/%,$(CIRCUITSRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
-.PHONY: cleancircuit 
-
 #this target is used to cleanup, it is called from the top Makefile
+.PHONY: cleancircuit 
 cleancircuit: 
 	$(RM) -fr $(CIRCUITBINDIR) $(EXTLIBDIR)/$(PALISADECIRCUITLIB) `dirname $(CIRCUIT_TEST_TARGET)` $(BINDIR)/demo/circuit $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/scan.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(wildcard $(CIRCUITSRCDIR)/lib/*.hh)
 
@@ -117,5 +116,5 @@ $(CIRCUIT_TEST_TARGET): $(UNITTESTMAINOBJ) $(CIRCUITUNITOBJECTS) $(CLIBS) $(EXTL
 #used to run tests from make
 .PHONY: testcircuit
 testcircuit: $(CIRCUIT_TEST_TARGET)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(EXTLIBDIR) $(CIRCUIT_TEST_TARGET)
+	 LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(CIRCUIT_TEST_TARGET)
 
