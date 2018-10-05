@@ -83,9 +83,11 @@ Vagrant.configure("2") do |config|
 	ghostscript \
 	graphviz
 
-    # lint
+    # audit tools
     apt-get -y install \
-    	python-pip
+    	python-pip \
+	flawfinder \
+	cppcheck
     pip install cpplint
   SHELL
 end

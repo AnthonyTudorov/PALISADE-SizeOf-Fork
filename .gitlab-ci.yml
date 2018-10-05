@@ -24,6 +24,14 @@ sast:
   tags:
   - audit
 
+check:
+  stage: audit
+  script:
+  - cppcheck src/
+  allow_failure: true
+  tags:
+  - audit
+
 config:
   stage: setup
   script:
