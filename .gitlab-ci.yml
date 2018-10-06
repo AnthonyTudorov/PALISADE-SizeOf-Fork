@@ -27,7 +27,7 @@ sast:
 check:
   stage: audit
   script:
-  - cppcheck src/
+  - cppcheck -j $(nproc) src/
   allow_failure: true
   tags:
   - audit
