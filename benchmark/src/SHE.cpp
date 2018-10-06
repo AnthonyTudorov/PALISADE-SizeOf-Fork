@@ -27,7 +27,7 @@
 #define PROFILE
 
 #define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 
 #include <iostream>
@@ -158,5 +158,5 @@ void BM_baseDecompose_SHE(benchmark::State& state) { // benchmark
 BENCHMARK_PARMS(BM_baseDecompose_SHE)
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();
 

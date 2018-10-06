@@ -25,7 +25,7 @@
 /*
   This code benchmarks functions of the math directory  of the PALISADE lattice encryption library.
  */
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include "AllBackends.h"
 
@@ -158,4 +158,4 @@ DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Multeq, M4Vector)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Multeq, M6Vector)
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

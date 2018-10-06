@@ -30,5 +30,18 @@
 
 third-party: google-benchmark
 
-google-benchmark:
-	( cd third-party/google-benchmark; )
+google-benchmark: $(LIBBENCHMARK_DEPEND)
+
+$(LIBBENCHMARK_DEPEND):
+	( \
+		cd third-party/google-benchmark; \
+		[ ! -e README.md ] && git submodule update --init; \
+		mkdir -p build; \
+		cd build; \
+		[ ! -e Makefile ] && cmake -DBENCHMARK_ENABLE_GTEST_TESTS=OFF .. ; \
+		make; \
+	)
+
+LIBBENCHMARK := -L third-party/google-benchmark/build/src -lbenchmark
+LIBBENCHMARK_DEPEND := third-party/google-benchmark/build/src/libbenchmark.a
+LIBBENCHMARK_IFLAG := -I third-party/google-benchmark/include

@@ -26,7 +26,7 @@
   Description:	
   This code benchmarks functions of the math directory  of the PALISADE lattice encryption library.
 */
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include "AllBackends.h"
 
@@ -197,4 +197,4 @@ BENCHMARK_TEMPLATE(BM_BigInt_Multeq,M6Integer)->Unit(benchmark::kMicrosecond)->A
 BENCHMARK_TEMPLATE(BM_BigInt_Multeq,NativeInteger)->Unit(benchmark::kMicrosecond)->ArgName("Small")->Arg(0);
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

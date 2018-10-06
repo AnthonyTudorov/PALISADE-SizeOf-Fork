@@ -40,7 +40,7 @@ Description:
 #define PROFILE
 
 #define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 
 #include <iostream>
@@ -262,5 +262,5 @@ void BM_reencrypt(benchmark::State& state) { // benchmark
 
 BENCHMARK_PARMS(BM_reencrypt)
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();
 

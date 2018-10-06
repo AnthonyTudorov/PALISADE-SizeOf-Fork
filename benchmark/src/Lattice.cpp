@@ -28,7 +28,7 @@
   This code benchmarks functions of the src/lib/lattoce directory  of the PALISADE lattice encryption library.
  */
 
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include "AllBackends.h"
 
@@ -417,4 +417,4 @@ DO_POLY_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,M4DCRTPoly)
 DO_POLY_BENCHMARK_TEMPLATE(BM_doubleswitchformat_LATTICE,M6DCRTPoly)
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

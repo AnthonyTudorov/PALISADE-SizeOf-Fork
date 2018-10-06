@@ -37,7 +37,7 @@
 */
 
 #define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include <iostream>
 
@@ -414,4 +414,4 @@ BENCHMARK(BM_PROU3);		// register benchmark
 
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();
