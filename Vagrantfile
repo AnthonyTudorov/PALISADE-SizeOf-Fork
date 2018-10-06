@@ -12,7 +12,77 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.define "palisade", primary: true do |palisade|
+    palisade.vm.box = "ubuntu/xenial64"
+
+    # Enable provisioning with a shell script. Additional provisioners such as
+    # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+    # documentation for more information about their specific syntax and use.
+    #
+    # View the documentation for the provider you are using for more
+    # information on available options.
+    palisade.vm.provision "shell", inline: <<-SHELL
+      apt-get update
+      apt-get -y upgrade
+      
+      # core
+      apt-get -y install \
+      		g++ \
+		bison \
+		flex \
+		lzip
+
+      # docs
+      apt-get -y install \
+		doxygen \
+		texlive-latex-base \
+		ghostscript \
+		graphviz
+
+      # audit tools
+      apt-get -y install \
+		python-pip \
+		flawfinder \
+		cppcheck
+      pip install cpplint
+    SHELL
+  end
+
+  config.vm.define "debian", autostart: false do |debian|
+    debian.vm.box = "debian/stretch64"
+    debian.vm.provision "shell", inline: <<-SHELL
+	apt-get update
+
+	# core
+	apt-get -y install \
+		g++ \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
+
+  config.vm.define "fedora", autostart: false do |fedora|
+    fedora.vm.box = "fedora/28-cloud-base"
+    fedora.vm.box_version = "20180425"
+    fedora.vm.provision "shell", inline: <<-SHELL
+    	dnf update -y
+
+	# core
+	dnf -y install \
+		gcc-c++ \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
+
+  # note that centos will not build palisade out of the box
+  # because the g++ compiler that is packaged is not compatible
+  # meaning the compiler is not >=v5.*.*
+  config.vm.define "centos", autostart: false do |centos|
+    centos.vm.box = "centos/7"
+  end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -55,39 +125,5 @@ Vagrant.configure("2") do |config|
  
     # Customize the amount of memory on the VM:
     vb.memory = "2048"
-
-    # Name the VM:
-    vb.name = "palisade"
   end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get -y upgrade
-
-    # core
-    apt-get -y install \
-    	g++ \
-	bison \
-	flex
-
-    # docs
-    apt-get -y install \
-    	doxygen \
-    	texlive-latex-base \
-	ghostscript \
-	graphviz
-
-    # audit tools
-    apt-get -y install \
-    	python-pip \
-	flawfinder \
-	cppcheck
-    pip install cpplint
-  SHELL
 end
