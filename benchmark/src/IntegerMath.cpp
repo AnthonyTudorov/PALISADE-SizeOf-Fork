@@ -26,9 +26,10 @@
   Description:	
   This code benchmarks functions of the math directory  of the PALISADE lattice encryption library.
 */
+#define _USE_MATH_DEFINES
 #include "benchmark/benchmark.h"
 
-#include "AllBackends.h"
+#include "palisade.h"
 
 #include <iostream>
 #include <vector>

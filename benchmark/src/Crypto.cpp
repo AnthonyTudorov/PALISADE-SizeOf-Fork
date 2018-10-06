@@ -42,9 +42,9 @@ Description:
 #define _USE_MATH_DEFINES
 #include "benchmark/benchmark.h"
 
-
 #include <iostream>
 #include <fstream>
+
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"

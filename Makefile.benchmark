@@ -65,11 +65,11 @@ $(BMARK_BIN)/%$(EXESUFFIX): $(BMARK_BUILD)/%.o
 .PRECIOUS: $(BMARK_BUILD)/%.o
 $(BMARK_BUILD)/%.o: $(BMARK_SRC)/%.cpp
 	@mkdir -p $(BMARK_BUILD)
-	@$(CC) -MM $(CPPFLAGS) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS) $(BM_IFLAG) $(patsubst $(BMARK_BUILD)/%,$(BMARK_SRC)/%,$(patsubst %.o,%.cpp,$@))  > $(patsubst %.o,%.d,$@)
+	@$(CC) -MM $(CPPFLAGS) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS) $(patsubst $(BMARK_BUILD)/%,$(BMARK_SRC)/%,$(patsubst %.o,%.cpp,$@))  > $(patsubst %.o,%.d,$@)
 	@mv -f $(patsubst %.o,%.d,$@) $(patsubst %.o,%.d.tmp,$@)
 	@sed -e 's|.*\.o:|$@:|' < $(patsubst %.o,%.d.tmp,$@) > $(patsubst %.o,%.d,$@)
 	@rm -f $(patsubst %.o,%.d.tmp,$@)
-	$(CC) $(CPPFLAGS) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS)  $(BM_IFLAG) -c -o $@ $(patsubst $(BMARK_BUILD)/%,$(BMARK_SRC)/%,$(patsubst %.o,%.cpp,$@))
+	$(CC) $(CPPFLAGS) $(BM_IFLAG) $(LIBBENCHMARK_FLAGS) -c -o $@ $(patsubst $(BMARK_BUILD)/%,$(BMARK_SRC)/%,$(patsubst %.o,%.cpp,$@))
 
 #this target is usesd to cleanup, it is called from the top Makefile
 .PHONY: cleanbenchmark
