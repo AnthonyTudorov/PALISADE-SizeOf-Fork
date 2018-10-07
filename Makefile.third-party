@@ -34,7 +34,7 @@ LIBBENCHMARK := -L third-party/google-benchmark/build/src -lbenchmark
 LIBBENCHMARK_DEPEND := third-party/google-benchmark/build/src/libbenchmark.a
 LIBBENCHMARK_IFLAG := -I third-party/google-benchmark/include
 
-google-benchmark: google-benchmark-populate $(LIBBENCHMARK_DEPEND)
+google-benchmark: google-benchmark-populate $(LIBBENCHMARK_DEPEND) google-test-populate
 
 google-benchmark-populate:
 		cd third-party/google-benchmark; [ ! -e README.md ] && git submodule update --init || true
@@ -45,3 +45,7 @@ $(LIBBENCHMARK_DEPEND):
 	@mkdir -p $(BM_BUILDDIR)
 	[ ! -e $(BM_BUILDDIR)/Makefile ] && cd $(BM_BUILDDIR) ; cmake -DBENCHMARK_ENABLE_GTEST_TESTS=OFF ..
 	cd $(BM_BUILDDIR); make
+
+google-test-populate:
+		cd third-party/google-test; [ ! -e README.md ] && git submodule update --init || true
+

@@ -27,7 +27,7 @@
 #include <iostream>
 
 #include "include/gtest/gtest.h"
-#include "include/gtest/gtest-all.cc"
+#include "src/gtest-all.cc"
 
 #include "math/backend.h"
 #include "lattice/backend.h"

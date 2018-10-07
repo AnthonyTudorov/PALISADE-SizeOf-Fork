@@ -113,9 +113,9 @@ LIB_DEST := $(PREFIX)/lib/$(PACKAGE)/$(VERSION)
 
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) $(TCMLIB) #no profiling
 
-INC := -I src $(patsubst %,-Isrc/%/lib,$(SUBMAKEFILES)) -I test $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
-
-ABEOBJECTSALL = $(patsubst $(ABESRCDIR)/%,$(ABEBINDIR)/%,$(patsubst %.cpp,%.o,$(ABESOURCES)))
+INC := -I src $(patsubst %,-Isrc/%/lib,$(SUBMAKEFILES))
+INC += -I third-party/google-test/googletest -I third-party/google-test/googletest/include
+INC += $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
 
 #the name of the shared object library for palisade objects.  
 PALISADECORELIB := libPALISADEcore$(LIBSUFFIX)
@@ -192,7 +192,7 @@ uninstall: uninstallcore uninstallpke uninstalltrapdoor uninstallwip uninstallci
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 
-$(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backend.h 
+$(UNITTESTMAINOBJ): test/Main_TestAll.cpp src/core/lib/math/backend.h 
 	@mkdir -p $(BINDIR)/unittest
 	$(CC) -c $(CPPFLAGS) $(INC) -o $@ $<
 
