@@ -49,7 +49,7 @@ bool PackedEncoding::Encode() {
 			NativeInteger q0 = this->encodedVectorDCRT.GetParams()->GetParams()[0]->GetModulus().ConvertToInt();
 			temp = NativeVector(this->GetElementRingDimension(), q0);
 			if( q0 < mod )
-				throw std::logic_error("the plaintext modulus size is larger than the first size of CRT moduli; either decrease the plaintext modulus or increase the CRT moduli.");
+				throw std::logic_error("the plaintext modulus size is larger than the size of CRT moduli; either decrease the plaintext modulus or increase the CRT moduli.");
 		}
 
 		size_t i;
