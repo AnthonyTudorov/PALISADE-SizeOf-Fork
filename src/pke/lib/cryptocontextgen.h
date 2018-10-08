@@ -35,7 +35,7 @@
 
 using namespace lbcrypto;
 
-static const usint DefaultQbits = 50;
+static const usint DefaultQbits = 59;
 static const usint DefaultT = 3;
 
 template<typename Element>
