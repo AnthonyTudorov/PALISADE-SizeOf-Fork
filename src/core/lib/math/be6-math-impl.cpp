@@ -53,6 +53,7 @@ template const M6Integer PollardRhoFactorization(const M6Integer &n);
 template void PrimeFactorize(M6Integer n, std::set<M6Integer> &primeFactors);
 template M6Integer FirstPrime(uint64_t nBits, uint64_t m);
 template M6Integer NextPrime(const M6Integer &q, usint cyclotomicOrder);
+template M6Integer PreviousPrime(const M6Integer &q, usint cyclotomicOrder);
 template std::vector<M6Integer> GetTotientList(const M6Integer &n);
 template M6Vector PolyMod(const M6Vector &dividend, const M6Vector &divisor, const M6Integer &modulus);
 template M6Vector PolynomialMultiplication(const M6Vector &a, const M6Vector &b);
