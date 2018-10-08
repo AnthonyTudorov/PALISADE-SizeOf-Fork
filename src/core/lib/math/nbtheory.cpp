@@ -474,11 +474,13 @@ namespace lbcrypto {
 	IntType NextPrime(const IntType &q, usint m) {
 
 		IntType M(m);
-		IntType qNew = q + M;
+		IntType qOld(q), qNew(q);
 
-		while (!MillerRabinPrimalityTest(qNew)) {
+		do {
 			qNew += M;
-		}
+			if( qNew < qOld )
+				PALISADE_THROW(math_error, "NextPrime overflow growing candidate");
+		} while (!MillerRabinPrimalityTest(qNew));
 
 		return qNew;
 
