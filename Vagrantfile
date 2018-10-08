@@ -43,14 +43,31 @@ Vagrant.configure("2") do |config|
       apt-get -y install \
 		python-pip \
 		flawfinder \
-		cppcheck
+		cppcheck \
+		shellcheck
       pip install cpplint
     SHELL
   end
 
-  config.vm.define "debian", autostart: false do |debian|
-    debian.vm.box = "debian/stretch64"
-    debian.vm.provision "shell", inline: <<-SHELL
+  config.vm.define "ubuntu", autostart: false do |ubuntu|
+    ubuntu.vm.box = "ubuntu/bionic64"
+
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      apt-get update
+
+      # core
+      apt-get -y install \
+      		g++ \
+		bison \
+		flex \
+		lzip
+    SHELL
+  end
+
+  config.vm.define "debian9", autostart: false do |debian9|
+    debian9.vm.box = "debian/stretch64"
+
+    debian9.vm.provision "shell", inline: <<-SHELL
 	apt-get update
 
 	# core
@@ -62,10 +79,29 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  config.vm.define "fedora", autostart: false do |fedora|
-    fedora.vm.box = "fedora/28-cloud-base"
-    fedora.vm.box_version = "20180425"
-    fedora.vm.provision "shell", inline: <<-SHELL
+  # debian 8 jessie will not build
+  # because the palisade library requires a version of bison
+  # which is higher than the highest version packaged with the distro
+  config.vm.define "debian8", autostart: false do |debian8|
+    debian8.vm.box = "debian/jessie64"
+
+    debian8.vm.provision "shell", inline: <<-SHELL
+	apt-get update
+
+	# core
+	apt-get -y install \
+		g++ \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
+
+  config.vm.define "fedora28", autostart: false do |fedora28|
+    fedora28.vm.box = "fedora/28-cloud-base"
+    fedora28.vm.box_version = "20180425"
+
+    fedora28.vm.provision "shell", inline: <<-SHELL
     	dnf update -y
 
 	# core
@@ -77,13 +113,91 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
+  config.vm.define "fedora27", autostart: false do |fedora27|
+    fedora27.vm.box = "fedora/27-cloud-base"
+    fedora27.vm.box_version = "20171105"
+
+    fedora27.vm.provision "shell", inline: <<-SHELL
+      dnf update -y
+
+      # core
+      dnf -y install \
+      		gcc-c++ \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
+
   # note that centos will not build palisade out of the box
   # because the g++ compiler that is packaged is not compatible
   # meaning the compiler is not >=v5.*.*
   config.vm.define "centos", autostart: false do |centos|
     centos.vm.box = "centos/7"
+
+    centos.vm.provision "shell", inline: <<-SHELL
+      yum update -y
+      yum -y install \
+      		epel-release
+
+      # core
+      yum -y install \
+      		gcc-c++ \
+		flex \
+		bison \
+      		lzip
+    SHELL
   end
 
+  config.vm.define "arch", autostart: false do |arch|
+    arch.vm.box = "archlinux/archlinux"
+
+    arch.vbguest.auto_update = false
+
+    arch.vm.provision "shell", inline: <<-SHELL
+      pacman -Syu --noconfirm
+      pacman -S --noconfirm \
+      		make \
+      		gcc \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
+  
+  config.vm.define "tumbleweed", autostart: false do |tumbleweed|
+    tumbleweed.vm.box = "opensuse/openSUSE-Tumbleweed-x86_64"
+    tumbleweed.vm.box_version = "1.0.6.20180530"
+
+    tumbleweed.vbguest.auto_update = false
+
+    tumbleweed.vm.provision "shell", inline: <<-SHELL
+      zypper -n --gpg-auto-import-key refresh
+      zypper -n update
+      zypper -n install \
+    		gcc-c++ \
+     		flex \
+    		bison \
+    		lzip
+    SHELL
+  end
+
+  config.vm.define "suse", autostart: false do |suse|
+    suse.vm.box = "opensuse/openSUSE-15.0-x86_64"
+    suse.vm.synced_folder ".", "/vagrant", type: "rsync"
+
+    suse.vbguest.auto_update = false
+
+    suse.vm.provision "shell", inline: <<-SHELL
+      zypper -n --gpg-auto-import-key refresh
+      zypper -n update
+      zypper -n install \
+      		gcc-c++ \
+		flex \
+		bison \
+		lzip
+    SHELL
+  end
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
