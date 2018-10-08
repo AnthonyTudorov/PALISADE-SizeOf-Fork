@@ -6,12 +6,20 @@ stages:
 - deploy
 - cleanup
 
-lint:
+cpp_lint:
   stage: audit
   before_script:
   - shopt -s globstar
   script:
   - cpplint src/**
+  allow_failure: true
+  tags:
+  - audit
+
+shell_lint:
+  stage: audit
+  script:
+  - shellcheck *.sh
   allow_failure: true
   tags:
   - audit
