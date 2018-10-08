@@ -100,7 +100,6 @@ SUBMAKEFILES := core pke trapdoor abe signature circuit wip
 # third party directories
 THIRDPARTYDIR := third-party
 THIRDPARTYLIBDIR := $(THIRDPARTYDIR)/lib
-## THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/include -I $(THIRDPARTYDIR)/include/rapidjson 
 THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/cereal/include -I $(THIRDPARTYDIR)/include
 
 # dynamic lib directories on system

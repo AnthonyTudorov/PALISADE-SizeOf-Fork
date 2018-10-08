@@ -34,7 +34,7 @@ LIBBENCHMARK := -L third-party/google-benchmark/build/src -lbenchmark
 LIBBENCHMARK_DEPEND := third-party/google-benchmark/build/src/libbenchmark.a
 LIBBENCHMARK_IFLAG := -I third-party/google-benchmark/include
 
-google-benchmark: google-benchmark-populate $(LIBBENCHMARK_DEPEND) google-test-populate
+google-benchmark: google-benchmark-populate $(LIBBENCHMARK_DEPEND) google-test-populate rapidjson-populate
 
 google-benchmark-populate:
 		cd third-party/google-benchmark; [ ! -e README.md ] && git submodule update --init || true
@@ -48,4 +48,7 @@ $(LIBBENCHMARK_DEPEND):
 
 google-test-populate:
 		cd third-party/google-test; [ ! -e README.md ] && git submodule update --init || true
+
+rapidjson-populate:
+		cd third-party/rapidjson; [ ! -e README.md ] && git submodule update --init || true
 
