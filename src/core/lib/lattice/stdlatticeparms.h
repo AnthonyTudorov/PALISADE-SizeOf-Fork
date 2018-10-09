@@ -51,7 +51,7 @@ class StdLatticeParm {
 	SecurityLevel		minSecLev;
 	usint				maxLogQ;
 public:
-	StdLatticeParm(DistributionType distType, usint ringDim, SecurityLevels minSecLev, usint maxLogQ)
+	StdLatticeParm(DistributionType distType, usint ringDim, SecurityLevel minSecLev, usint maxLogQ)
 		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {}
 };
 
