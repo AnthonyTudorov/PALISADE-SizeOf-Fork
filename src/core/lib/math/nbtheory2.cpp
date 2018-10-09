@@ -225,12 +225,12 @@ namespace lbcrypto {
 		if (i < 0)
 		{
 			f1 = NativeInteger(5).ModInverse(m).ConvertToInt();
-			f2 = NativeInteger(3).ModInverse(m).ConvertToInt();
+			f2 = NativeInteger(m-1).ModInverse(m).ConvertToInt();
 		}
 		else
 		{
 			f1 = 5;
-			f2 = 3;
+			f2 = m-1;
 		}
 
 		uint32_t i_unsigned = (uint32_t)std::abs(i);

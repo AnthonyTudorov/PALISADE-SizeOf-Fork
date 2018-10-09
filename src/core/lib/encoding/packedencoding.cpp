@@ -363,7 +363,7 @@ void PackedEncoding::SetParams_2n(usint m, const NativeInteger &modulusNI) {
 		m_toCRTPerm[m][(curr_index - 1) / 2] = i;
 		m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
 
-		usint cofactor_index = curr_index * 3 % m;
+		usint cofactor_index = curr_index * (m-1) % m;
 		m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
 		m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
 
@@ -402,7 +402,7 @@ void PackedEncoding::SetParams_2n(usint m, EncodingParams params){
 			m_toCRTPerm[m][(curr_index - 1) / 2] = i;
 			m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
 
-			usint cofactor_index = curr_index * 3 % m;
+			usint cofactor_index = curr_index * (m-1) % m;
 			m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
 			m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
 

@@ -101,7 +101,7 @@ int main() {
 		automorphIndexList.push_back(g);
 		g = (g * g) % m;
 	}
-	automorphIndexList.push_back(3);
+	automorphIndexList.push_back(m-1);
 	const auto evalKeys = cc->EvalAutomorphismKeyGen(kp.secretKey, automorphIndexList);
 
 	usint repeatCount = 10;

@@ -487,6 +487,20 @@ namespace lbcrypto {
 	}
 
 	template<typename IntType>
+	IntType PreviousPrime(const IntType &q, usint m) {
+
+		IntType M(m);
+		IntType qNew = q - M;
+
+		while (!MillerRabinPrimalityTest(qNew)) {
+			qNew -= M;
+		}
+
+		return qNew;
+
+	}
+
+	template<typename IntType>
 	IntType NextPowerOfTwo(const IntType &n) {
 		usint result = ceil(log2(n));
 		return result;

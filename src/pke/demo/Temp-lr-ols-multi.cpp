@@ -748,7 +748,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		{
 
 			if(i == floor(log2(batchSize))-1)
-				g = 3;			
+				g = m-1;
 			
 			Serialized	esSer;
 			string tempFileName = keyDir1 + "/" + "key-eval-sum-A-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
@@ -1021,7 +1021,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		{
 
 			if(i == floor(log2(batchSize))-1)
-				g = 3;	
+				g = m-1;
 
 			Serialized	esSer;
 			string tempFileName = keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
@@ -1432,7 +1432,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		{
 
 			if(i == floor(log2(batchSize))-1)
-				g = 3;	
+				g = m-1;
 
 			Serialized	esSer;
 			string tempFileName = keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
@@ -2902,7 +2902,7 @@ shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalSumKeyGen(const LPPriva
 	for (int i = 0; i < floor(log2(batchSize)); i++)
 	{
 		if(i == floor(log2(batchSize))-1)
-			g = 3;	
+			g = m-1;
 
 		indices.push_back(g);
 		g = (g * g) % m;

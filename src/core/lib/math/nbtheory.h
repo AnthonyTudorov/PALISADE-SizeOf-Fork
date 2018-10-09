@@ -243,6 +243,16 @@ namespace lbcrypto {
 	IntType NextPrime(const IntType &q, usint cyclotomicOrder);
 
 	/**
+	* Finds the previous prime that satisfies q = 1 mod m
+	*
+	* @param &q is the prime number to start from (the number itself is not included)
+	*
+	* @return the previous prime modulus.
+	*/
+	template<typename IntType>
+	IntType PreviousPrime(const IntType &q, usint cyclotomicOrder);
+
+	/**
 	 * Multiplicative inverse for primitive unsigned integer data types
 	 *
 	 * @param a the number we need the inverse of.
