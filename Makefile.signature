@@ -63,11 +63,8 @@ $(BINDIR)/demo/signature/%$(EXESUFFIX): $(SIGNATUREBINDIR)/demo/%.o $(EXTLIBDIR)
 $(EXTLIBDIR)/$(PALISADESIGNATURELIB): $(SIGNATUREOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
 	@echo " -- signature:linking $@ from SIGNATUREOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-ifdef COVERAGE
-	$(LIBCMD) $@ $(SIGNATUREOBJECTS) 
-else
 	$(LIBCMD) $@ $(SIGNATUREOBJECTS) $(EXTLIB) -lPALISADEcore $(NTLLIB) $(GMPLIB)
-endif
+	$(AR) crv $(EXTLIBDIR)/libPALISADEsignature$(STATICSUFFIX) $(SIGNATUREOBJECTS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(SIGNATUREBINDIR)/%

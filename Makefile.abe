@@ -63,11 +63,8 @@ $(BINDIR)/demo/abe/%$(EXESUFFIX): $(ABEBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEA
 $(EXTLIBDIR)/$(PALISADEABELIB): $(ABEOBJECTS) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
 	@echo " -- abe:linking $@ from ABEOBJECTS"
 	@mkdir -p $(EXTLIBDIR)
-ifdef COVERAGE
-	$(LIBCMD) $@ $(ABEOBJECTS) 
-else
 	$(LIBCMD) $@ $(ABEOBJECTS) $(EXTLIB) -lPALISADEcore $(NTLLIB) $(GMPLIB)
-endif
+	$(AR) crv $(EXTLIBDIR)/libPALISADEabe$(STATICSUFFIX) $(ABEOBJECTS)
 
 ### #this builds the individual objects that make up the library .
 .PRECIOUS: $(ABEBINDIR)/%
