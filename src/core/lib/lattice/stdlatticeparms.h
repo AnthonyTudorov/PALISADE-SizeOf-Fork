@@ -30,8 +30,15 @@
 
 #include "backend.h"
 #include <map>
+using std::map;
 
 namespace lbcrypto {
+
+// this is the representation of the standard lattice parameters defined in the
+// Homomorphic Encryption Standard, as defined by http://homomorphicencryption.org
+
+// given a distribution type and a security level, you can get the maxQ for a given ring dimension,
+// and you can get the ring dimension given a maxQ
 
 enum DistributionType {
 	HEStd_uniform,
@@ -50,10 +57,48 @@ class StdLatticeParm {
 	usint				ringDim;
 	SecurityLevel		minSecLev;
 	usint				maxLogQ;
+
+	// NOTE!!! the declaration below relies upon there being three possible values
+	// for the first index (the distribution type), and three possible values for
+	// the second index (the security level)
+	// The values in the enums, above, meet this criteria
+	// it's also important that the different values are numbered from 0-2
+	// again, the enums above do this
+	// DO NOT change the values of the enums to be anything other than consecutive
+	// numbers starting from 0, or this code will break in strange ways, and you will suffer
+	// MAKE SURE that the number of entries in the DistributionType enum is == the first index,
+	// and MAKE SURE that the number of entries in the SecurityLevel enum is == the second index
+	static map<usint,StdLatticeParm*> byRing[3][3];
+	static map<usint,StdLatticeParm*> byLogQ[3][3];
+
 public:
 	StdLatticeParm(DistributionType distType, usint ringDim, SecurityLevel minSecLev, usint maxLogQ)
-		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {}
+		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {
+		byRing[distType][minSecLev][ringDim] = this;
+		byLogQ[distType][minSecLev][maxLogQ] = this;
+	}
+
+	static usint FindMaxQ(DistributionType distType, SecurityLevel minSecLev, usint ringDim) {
+		auto it = byRing[distType][minSecLev].find(ringDim);
+		if( it == byRing[distType][minSecLev].end() )
+			return 0;
+		return it->second->getMaxLogQ();
+	}
+
+	static usint FindRingDim(DistributionType distType, SecurityLevel minSecLev, usint maxLogQ) {
+		auto it = byLogQ[distType][minSecLev].find(maxLogQ);
+		if( it == byLogQ[distType][minSecLev].end() )
+			return 0;
+		return it->second->getRingDim();
+	}
+
+	DistributionType	getDistType() const { return distType; }
+	usint				getRingDim() const { return ringDim; }
+	SecurityLevel		getMinSecLev() const { return minSecLev; }
+	usint				getMaxLogQ() const { return maxLogQ; }
 };
+
+//map<StdLatticeParm&,StdLatticeParm&>
 
 } /* namespace lbcrypto */
 
