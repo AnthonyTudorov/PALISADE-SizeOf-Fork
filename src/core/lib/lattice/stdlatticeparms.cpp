@@ -32,6 +32,9 @@ using std::vector;
 
 namespace lbcrypto {
 
+map<usint,StdLatticeParm*> StdLatticeParm::byRing[3][3];
+map<usint,StdLatticeParm*> StdLatticeParm::byLogQ[3][3];
+
 // this is a collection of all of the parameter sets
 // the constructor for each one saves and indexes it so that you can search for it
 // with static methods in the StdLatticeParm class
@@ -93,8 +96,5 @@ static vector<StdLatticeParm> StandardLatticeParmSets( {
 	StdLatticeParm(HEStd_ternary, 32768, HEStd_192_classic, 611),
 	StdLatticeParm(HEStd_ternary, 32768, HEStd_256_classic, 476),
 } );
-
-map<usint,StdLatticeParm*> StdLatticeParm::byRing[3][3];
-map<usint,StdLatticeParm*> StdLatticeParm::byLogQ[3][3];
 
 } /* namespace lbcrypto */
