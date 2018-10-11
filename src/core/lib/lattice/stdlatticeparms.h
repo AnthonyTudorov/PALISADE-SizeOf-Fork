@@ -47,6 +47,7 @@ enum DistributionType {
 };
 
 enum SecurityLevel {
+	HEStd_NotSet,
 	HEStd_128_classic,
 	HEStd_192_classic,
 	HEStd_256_classic,
@@ -85,11 +86,17 @@ public:
 		return it->second->getMaxLogQ();
 	}
 
-	static usint FindRingDim(DistributionType distType, SecurityLevel minSecLev, usint maxLogQ) {
-		auto it = byLogQ[distType][minSecLev].find(maxLogQ);
-		if( it == byLogQ[distType][minSecLev].end() )
-			return 0;
-		return it->second->getRingDim();
+	static usint FindRingDim(DistributionType distType, SecurityLevel minSecLev, usint curLogQ) {
+		usint prev = 0;
+		map<usint,StdLatticeParm*>::iterator it;
+		for (it = byLogQ[distType][minSecLev].begin(); it != byLogQ[distType][minSecLev].end(); it++ )
+		{
+			std::cout << it->second->getMaxLogQ() << std::endl;
+			if ((curLogQ < it->second->getMaxLogQ()) && (curLogQ > prev))
+				return it->second->getRingDim();
+			prev = it->second->getMaxLogQ();
+		}
+		return 0;
 	}
 
 	DistributionType	getDistType() const { return distType; }
