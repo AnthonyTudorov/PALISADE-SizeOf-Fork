@@ -2573,6 +2573,22 @@ public:
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
 
 	/**
+	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
+	* @param encodingParams plaintext encoding parameters
+	* @param securityLevel standard security level
+	* @param distribution parameter for Gaussian noise generation
+	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
+	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
+	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
+ 	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
+	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextBFV(
+		EncodingParams encodingParams, SecurityLevel securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+
+	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus plaintext modulus
 	* @param securityLevel root Hermite factor (lattice security parameter)

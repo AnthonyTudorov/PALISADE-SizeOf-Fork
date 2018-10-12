@@ -97,11 +97,14 @@ class StdLatticeParm {
 	}
 
 	static usint FindRingDim(DistributionType distType, SecurityLevel minSecLev, usint curLogQ) {
+		std::cout << "About to initialize" << std::endl;
 		if( !initialized ) initializeLookups();
 		usint prev = 0;
+		std::cout << "bits = " << curLogQ << std::endl;
 		map<usint,StdLatticeParm*>::iterator it;
 		for (it = byLogQ[distType][minSecLev].begin(); it != byLogQ[distType][minSecLev].end(); it++ )
 		{
+			std::cout << "entered" << std::endl;
 			std::cout << it->second->getMaxLogQ() << std::endl;
 			if ((curLogQ < it->second->getMaxLogQ()) && (curLogQ > prev))
 				return it->second->getRingDim();

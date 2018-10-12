@@ -61,11 +61,13 @@ int main(int argc, char *argv[]) {
 	int relWindow = 1;
 	int plaintextModulus = 1024;
 	double sigma = 4;
-	double rootHermiteFactor = 1.006;	
+	SecurityLevel securityLevel = HEStd_128_classic;
+
+	EncodingParams encodingParams(new EncodingParamsImpl(plaintextModulus));
 
 	//Set Crypto Parameters	
 	CryptoContext<Poly> cryptoContext = CryptoContextFactory<Poly>::genCryptoContextBFV(
-			plaintextModulus, rootHermiteFactor, relWindow, sigma, 0, 2, 0);
+			encodingParams, securityLevel, relWindow, sigma, 0, 2, 0);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
