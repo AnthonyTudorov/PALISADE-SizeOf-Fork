@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
 		flawfinder \
 		cppcheck \
 		shellcheck
-      pip install cpplint
+      pip install cpplint lizard
     SHELL
   end
 
