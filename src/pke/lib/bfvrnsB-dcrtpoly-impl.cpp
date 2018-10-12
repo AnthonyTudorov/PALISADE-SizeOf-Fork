@@ -365,6 +365,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	ExtendedDouble hermiteFactor = ExtendedDouble(cryptoParamsBFVrnsB->GetSecurityLevel());
 	ExtendedDouble p = ExtendedDouble(cryptoParamsBFVrnsB->GetPlaintextModulus());
 	uint32_t relinWindow = cryptoParamsBFVrnsB->GetRelinWindow();
+	SecurityLevel stdLevel = cryptoParamsBFVrnsB->GetStdLevel();
 
 	//Bound of the Gaussian error polynomial
 	ExtendedDouble Berr = sigma*sqrt(alpha);
@@ -372,11 +373,18 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	//Bound of the key polynomial
 	ExtendedDouble Bkey;
 
+	DistributionType distType;
+
 	//supports both discrete Gaussian (RLWE) and ternary uniform distribution (OPTIMIZED) cases
-	if (cryptoParamsBFVrnsB->GetMode() == RLWE)
+	if (cryptoParamsBFVrnsB->GetMode() == RLWE) {
 		Bkey = sigma*sqrt(alpha);
+		distType = HEStd_error;
+	}
 	else
+	{
 		Bkey = 1;
+		distType = HEStd_ternary;
+	}
 
 	//expansion factor delta
 	// We use the worst-case bound as the central limit theorem cannot be applied in this case
@@ -385,7 +393,15 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
 	//RLWE security constraint
-	auto nRLWE = [&](ExtendedDouble q) -> ExtendedDouble { return log(q / sigma) / (ExtendedDouble(4) * log(hermiteFactor));  };
+	auto nRLWE = [&](ExtendedDouble q) -> ExtendedDouble {
+		if (stdLevel == HEStd_NotSet) {
+			return log(q / sigma) / (ExtendedDouble(4) * log(hermiteFactor));
+		}
+		else
+		{
+			return StdLatticeParm::FindRingDim(distType,stdLevel,to_long(ceil(log(q)/(ExtendedDouble)log(2))));
+		}
+	};
 
 	//initial values
 	uint32_t n = 512;

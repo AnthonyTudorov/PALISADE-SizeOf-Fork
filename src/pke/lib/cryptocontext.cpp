@@ -1515,6 +1515,44 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrns(
+	EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+	uint32_t relinWindow, size_t dcrtBits)
+{
+	int nonZeroCount = 0;
+
+	if (numAdds > 0) nonZeroCount++;
+	if (numMults > 0) nonZeroCount++;
+	if (numKeyswitches > 0) nonZeroCount++;
+
+	if (nonZeroCount > 1)
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrns context constructor");
+
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
+
+	shared_ptr<LPCryptoParametersBFVrns<T>> params(
+			new LPCryptoParametersBFVrns<T>(
+				ep,
+				encodingParams,
+				dist,
+				36.0,
+				securityLevel,
+				relinWindow,
+				mode,
+				1,
+				maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrns<T>());
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
+
+
 
 template <typename T>
 CryptoContext<T>
@@ -1589,6 +1627,42 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 	return CryptoContextFactory<T>::GetContext(params,scheme);
 }
 
+template <typename T>
+CryptoContext<T>
+CryptoContextFactory<T>::genCryptoContextBFVrnsB(
+	EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
+	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+	uint32_t relinWindow, size_t dcrtBits)
+{
+	int nonZeroCount = 0;
+
+	if (numAdds > 0) nonZeroCount++;
+	if (numMults > 0) nonZeroCount++;
+	if (numKeyswitches > 0) nonZeroCount++;
+
+	if (nonZeroCount > 1)
+		throw std::logic_error("only one of (numAdds,numMults,numKeyswitches) can be nonzero in BFVrnsB context constructor");
+
+	shared_ptr<typename T::Params> ep(new typename T::Params(0, typename T::Integer(0), typename T::Integer(0)));
+
+	shared_ptr<LPCryptoParametersBFVrnsB<T>> params(
+			new LPCryptoParametersBFVrnsB<T>(
+				ep,
+				encodingParams,
+				dist,
+				36.0,
+				securityLevel,
+				relinWindow,
+				mode,
+				1,
+				maxDepth) );
+
+	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsB<T>());
+
+	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
+
+	return CryptoContextFactory<T>::GetContext(params,scheme);
+}
 
 template <typename T>
 CryptoContext<T>

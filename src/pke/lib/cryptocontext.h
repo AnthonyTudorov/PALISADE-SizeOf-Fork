@@ -2627,6 +2627,25 @@ public:
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);
 
 	/**
+	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
+	* @param encodingParams plaintext encoding parameters
+	* @param securityLevel standard security level
+	* @param dist distribution parameter for Gaussian noise generation
+	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
+	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
+	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
+ 	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
+	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
+	* @param dcrtBits size of "small" CRT moduli
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextBFVrns(
+		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
+		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+
+	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
 	* @param plaintextModulus plaintext modulus
 	* @param securityLevel root Hermite factor (lattice security parameter)
@@ -2661,6 +2680,25 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		EncodingParams encodingParams, float securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
+		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+
+	/**
+	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
+	* @param encodingParams plaintext encoding parameters
+	* @param securityLevel standard security level
+	* @param dist distribution parameter for Gaussian noise generation
+	* @param numAdds additive depth for homomorphic computations (assumes numMults and numKeySwitches are set to zero)
+	* @param numMults multiplicative depth for homomorphic computations (assumes numAdds and numKeySwitches are set to zero)
+	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
+ 	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
+	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
+	* @param dcrtBits size of "small" CRT moduli
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextBFVrnsB(
+		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
 		uint32_t relinWindow = 0, size_t dcrtBits = 60);
 

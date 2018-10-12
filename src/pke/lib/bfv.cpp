@@ -268,7 +268,6 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 			return log2(q / sigma) / (4 * log2(hermiteFactor));
 		}
 		else {
-			std::cerr << "About to enter"  << std::endl;
 			return StdLatticeParm::FindRingDim(distType,stdLevel,(uint32_t)std::ceil(log2(q)));
 		}
 	};
