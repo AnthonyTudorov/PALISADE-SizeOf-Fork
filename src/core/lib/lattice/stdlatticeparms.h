@@ -40,6 +40,9 @@ namespace lbcrypto {
 // given a distribution type and a security level, you can get the maxQ for a given ring dimension,
 // and you can get the ring dimension given a maxQ
 
+// The code below is very specific to the layout of the DistributionType and SecurityLevel enums
+// IF you change them, go look at and change byRing and byLogQ
+
 enum DistributionType {
 	HEStd_uniform,
 	HEStd_error,
@@ -47,10 +50,10 @@ enum DistributionType {
 };
 
 enum SecurityLevel {
-	HEStd_NotSet,
 	HEStd_128_classic,
 	HEStd_192_classic,
 	HEStd_256_classic,
+	HEStd_NotSet,
 };
 
 class StdLatticeParm {
@@ -80,6 +83,7 @@ class StdLatticeParm {
 		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {}
 
 	static void initializeLookups() {
+		std::cout << "init" << std::endl;
 		for(size_t i=0; i<StandardLatticeParmSets.size(); i++) {
 			StdLatticeParm& s = StandardLatticeParmSets[i];
 			byRing[s.distType][s.minSecLev][s.ringDim] = &s;
