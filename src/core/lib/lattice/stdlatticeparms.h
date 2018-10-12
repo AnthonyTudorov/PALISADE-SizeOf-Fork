@@ -72,14 +72,24 @@ class StdLatticeParm {
 	static map<usint,StdLatticeParm*> byRing[3][3];
 	static map<usint,StdLatticeParm*> byLogQ[3][3];
 
-public:
+	static vector<StdLatticeParm> StandardLatticeParmSets;
+	static bool initialized;
+
+	public:
 	StdLatticeParm(DistributionType distType, usint ringDim, SecurityLevel minSecLev, usint maxLogQ)
-		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {
-		byRing[distType][minSecLev][ringDim] = this;
-		byLogQ[distType][minSecLev][maxLogQ] = this;
+		: distType(distType), ringDim(ringDim), minSecLev(minSecLev), maxLogQ(maxLogQ) {}
+
+	static void initializeLookups() {
+		for(size_t i=0; i<StandardLatticeParmSets.size(); i++) {
+			StdLatticeParm& s = StandardLatticeParmSets[i];
+			byRing[s.distType][s.minSecLev][s.ringDim] = &s;
+			byLogQ[s.distType][s.minSecLev][s.maxLogQ] = &s;
+		}
+		initialized = true;
 	}
 
 	static usint FindMaxQ(DistributionType distType, SecurityLevel minSecLev, usint ringDim) {
+		if( !initialized ) initializeLookups();
 		auto it = byRing[distType][minSecLev].find(ringDim);
 		if( it == byRing[distType][minSecLev].end() )
 			return 0;
@@ -87,6 +97,7 @@ public:
 	}
 
 	static usint FindRingDim(DistributionType distType, SecurityLevel minSecLev, usint curLogQ) {
+		if( !initialized ) initializeLookups();
 		usint prev = 0;
 		map<usint,StdLatticeParm*>::iterator it;
 		for (it = byLogQ[distType][minSecLev].begin(); it != byLogQ[distType][minSecLev].end(); it++ )
