@@ -48,7 +48,7 @@ CORE_TEST_TARGET := $(EXTTESTDIR)/core/tests$(EXESUFFIX)
 -include $(COREUNITOBJECTS:.o=.d)
 -include $(COREDEMOOBJECTS:.o=.d)
 
-.PHONY:allcore
+.PHONY: allcore
 allcore: ntl_all $(EXTLIBDIR)/$(PALISADECORELIB) $(CORE_TEST_TARGET) allcoredemos
 
 allcoredemos: $(EXTLIBDIR)/$(PALISADECORELIB) $(patsubst $(COREBINDIR)/demo/%,$(BINDIR)/demo/core/%,$(patsubst %.o,%$(EXESUFFIX),$(COREDEMOOBJECTS)))
@@ -96,6 +96,10 @@ $(CORE_TEST_TARGET): $(UNITTESTMAINOBJ) $(COREUNITOBJECTS) $(EXTLIBDIR)/$(PALISA
 .PHONY: testcore
 testcore: $(CORE_TEST_TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(CORE_TEST_TARGET)
+
+.PHONY: installcore
+installcore:  libdir
+	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADECORELIB)
 
 corestrings:
 	@echo $(CORESOURCES)

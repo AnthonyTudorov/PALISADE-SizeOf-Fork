@@ -23,7 +23,6 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 
-
 ################
 # Makefile contains core definitions and then includes  build instructions
 # for making all the palisade components
@@ -70,6 +69,9 @@ endif
 # base directory of project
 ROOTDIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+PROJECT := palisade
+VERSION := 1.2.0
+
 #build directory
 BUILDDIR := build
 
@@ -95,10 +97,15 @@ THIRDPARTYDIR := third-party
 THIRDPARTYLIBDIR := $(THIRDPARTYDIR)/lib
 THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/include -I $(THIRDPARTYDIR)/include/rapidjson
 
+# dynamic lib directories on system
+ifeq ($(PREFIX),)
+	PREFIX := /usr/local
+endif
+LIB_DEST := $(PREFIX)/lib/$(PROJECT)/$(VERSION)
+
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
 INC := -I src $(patsubst %,-Isrc/%/lib,$(SUBMAKEFILES)) -I test $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
-
 
 ABEOBJECTSALL = $(patsubst $(ABESRCDIR)/%,$(ABEBINDIR)/%,$(patsubst %.cpp,%.o,$(ABESOURCES)))
 
@@ -143,6 +150,13 @@ clean: cleancore cleanpke cleantrapdoor cleanwip cleancircuit cleandocs cleanben
 
 .PHONY: clobber
 clobber: clean clean_gmp clean_ntl
+
+.PHONY: libdir
+libdir:
+	install --directory $(LIB_DEST)
+
+.PHONY: install
+install: installcore installpke installtrapdoor installwip installcircuit installcircuit installabe installsignature
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 
