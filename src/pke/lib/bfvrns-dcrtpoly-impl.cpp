@@ -353,7 +353,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		}
 		else
 		{
-			return StdLatticeParm::FindRingDim(distType,stdLevel,to_long(ceil(log(q)/(ExtendedDouble)log(2))));
+			return (ExtendedDouble)StdLatticeParm::FindRingDim(distType,stdLevel,to_long(ceil(log(q)/(ExtendedDouble)log(2))));
 		}
 	};
 
