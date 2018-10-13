@@ -44,7 +44,9 @@ Vagrant.configure("2") do |config|
 		python-pip \
 		flawfinder \
 		cppcheck \
-		shellcheck
+		shellcheck \
+		lcov \
+		gcovr
       pip install cpplint
     SHELL
   end
