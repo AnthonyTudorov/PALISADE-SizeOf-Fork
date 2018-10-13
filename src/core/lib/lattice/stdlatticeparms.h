@@ -109,7 +109,7 @@ class StdLatticeParm {
 				return it->second->getRingDim();
 			prev = it->second->getMaxLogQ();
 		}
-		return 0;
+		return 65536;
 	}
 
 	DistributionType	getDistType() const { return distType; }
