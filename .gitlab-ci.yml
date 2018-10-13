@@ -1,13 +1,12 @@
 stages:
-- audit
 - setup
 - build
 - test
 - deploy
 - cleanup
 
-cpp_lint:
-  stage: audit
+code_quality:
+  stage: test
   before_script:
   - shopt -s globstar
   script:
@@ -15,30 +14,34 @@ cpp_lint:
   allow_failure: true
   tags:
   - audit
+  dependencies: []
 
 shell_lint:
-  stage: audit
+  stage: test
   script:
   - shellcheck *.sh
   allow_failure: true
   tags:
   - audit
+  dependencies: []
 
 sast:
-  stage: audit
+  stage: test
   script:
   - flawfinder src/
   allow_failure: true
   tags:
   - audit
+  dependencies: []
 
 check:
-  stage: audit
+  stage: test
   script:
   - cppcheck -j $(nproc) src/
   allow_failure: true
   tags:
   - audit
+  dependencies: []
 
 config:
   stage: setup
@@ -80,7 +83,7 @@ build:
   dependencies:
   - build_ext
 
-test:
+unit_test:
   stage: test
   before_script:
   - module load gcc/7.3.0
@@ -92,6 +95,15 @@ test:
   dependencies:
   - build_ext
   - build
+
+cyclo:
+  stage: test
+  script:
+  - lizard -t $(nproc) src/
+  tags:
+  - audit
+  allow_failure: true
+  dependencies: []
 
 pages:
   stage: deploy
