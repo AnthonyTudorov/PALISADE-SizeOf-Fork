@@ -60,6 +60,7 @@ using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 
 #include "math/backend.h"
 #include "lattice/backend.h"
+#include "lattice/stdlatticeparms.h"
 
 #include "math/distrgen.h"
 #include "math/matrix.h"
