@@ -121,3 +121,7 @@ testcircuit: $(CIRCUIT_TEST_TARGET)
 .PHONY: installcircuit
 installcircuit: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
+
+.PHONY: uninstallcircuit
+uninstallcircuit:
+	rm $(LIB_DEST)/$(PALISADECIRCUITLIB)

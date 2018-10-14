@@ -101,3 +101,7 @@ testpke: $(PKE_TEST_TARGET)
 .PHONY: installpke
 installpke: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADEPKELIB)
+
+.PHONY: uninstallpke
+uninstallpke:
+	rm $(LIB_DEST)/$(PALISADEPKELIB)

@@ -101,3 +101,7 @@ testsignature: $(SIGNATURE_TEST_TARGET)
 .PHONY: installsignature
 installsignature: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADESIGNATURELIB)
+
+.PHONY: uninstallsignature
+uninstallsignature:
+	rm $(LIB_DEST)/$(PALISADESIGNATURELIB)

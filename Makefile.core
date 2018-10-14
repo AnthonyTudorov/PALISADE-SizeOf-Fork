@@ -101,6 +101,10 @@ testcore: $(CORE_TEST_TARGET)
 installcore:  libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADECORELIB)
 
+.PHONY: uninstallcore
+uninstallcore:
+	rm $(LIB_DEST)/$(PALISADECORELIB)
+
 corestrings:
 	@echo $(CORESOURCES)
 	@echo $(COREOBJECTS)
