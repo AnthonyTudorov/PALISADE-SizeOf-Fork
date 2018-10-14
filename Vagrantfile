@@ -24,6 +24,10 @@ Vagrant.configure("2") do |config|
     palisade.vm.provision "shell", inline: <<-SHELL
       apt-get update
       apt-get -y upgrade
+
+      # dependencies
+      apt-get -y install \
+      		cmake
       
       # core
       apt-get -y install \
