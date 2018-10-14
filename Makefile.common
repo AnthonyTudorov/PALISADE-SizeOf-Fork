@@ -156,7 +156,10 @@ libdir:
 	install --directory $(LIB_DEST)
 
 .PHONY: install
-install: installcore installpke installtrapdoor installwip installcircuit installcircuit installabe installsignature
+install: installcore installpke installtrapdoor installwip installcircuit installabe installsignature
+
+.PHONY: uninstall
+uninstall: uninstallcore uninstallpke uninstalltrapdoor uninstallwip uninstallcircuit uninstallabe uninstallsignature
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 

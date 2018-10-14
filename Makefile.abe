@@ -101,3 +101,7 @@ testabe: $(ABE_TEST_TARGET)
 .PHONY: installabe
 installabe: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADEABELIB)
+
+.PHONY: uninstallabe
+uninstallabe:
+	rm $(LIB_DEST)/$(PALISADEABELIB)

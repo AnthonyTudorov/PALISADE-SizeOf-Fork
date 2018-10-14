@@ -104,6 +104,10 @@ testtrapdoor: $(TRAPDOOR_TEST_TARGET)
 installtrapdoor: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
 
+.PHONY: uninstalltrapdoor
+uninstalltrapdoor:
+	rm $(LIB_DEST)/$(PALISADETRAPDOORLIB)
+
 trapdoorstrings:
 	@echo $(TRAPDOORSOURCES)
 	@echo $(TRAPDOOROBJECTS)

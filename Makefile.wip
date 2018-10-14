@@ -104,6 +104,10 @@ testwip: $(WIP_TEST_TARGET)
 installwip: libdir
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADEWIPLIB)
 
+.PHONY: uninstallwip
+uninstallwip:
+	rm $(LIB_DEST)/$(PALISADEWIPLIB)
+
 wipstrings:
 	@echo $(WIPSOURCES)
 	@echo $(WIPOBJECTS)
