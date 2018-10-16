@@ -105,12 +105,32 @@ cyclo:
   allow_failure: true
   dependencies: []
 
+coverage:
+  stage: test
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make -j $(nproc) all COVERAGE=1
+  - make -j $(nproc) testall COVERAGE=1
+  - mkdir -p doc/coverage
+  - gcovr --verbose -r . --html --html-details -o doc/coverage/palisade-coverage.html --print-summary
+  allow_failure: true
+  tags: 
+  - audit
+  dependencies: []
+  artifacts:
+    paths:
+    - doc/coverage
+    expire_in: 3 hours
+
 pages:
   stage: deploy
   script:
   - make -j $(nproc) docs
   - mkdir public
   - mv doc/apidocs/html public
+  - mv doc/coverage public
   artifacts:
     paths:
     - public
@@ -119,7 +139,9 @@ pages:
   - master
   tags:
   - doxygen
-  dependencies: []
+  allow_failure: true
+  dependencies:
+  - coverage
 
 clean:
   stage: cleanup
