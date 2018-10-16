@@ -35,5 +35,3 @@ LIBPYTHON := -lpython2.7
 
 COMPTHREADFLAG := -pthread
 LOADTHREADFLAG := -pthread
-
-

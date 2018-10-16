@@ -58,7 +58,7 @@ circuitstring:
 	@echo $(CIRCUITOBJECTSALL)
 	@echo $(CIRCUITOBJECTS)
 
-.PHONY:allcircuit
+.PHONY: allcircuit
 allcircuit: $(CLIBS) gram $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(CIRCUIT_TEST_TARGET) $(CIRCUITDEMOSOURCES) allcircuitdemos
 
 gram: $(CIRCUITSRCDIR)/lib/parse.cpp $(CIRCUITSRCDIR)/lib/parse.hpp $(CIRCUITSRCDIR)/lib/scan.cpp
@@ -119,7 +119,7 @@ testcircuit: $(CIRCUIT_TEST_TARGET)
 	 LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(CIRCUIT_TEST_TARGET)
 
 .PHONY: installcircuit
-installcircuit: libdir
+installcircuit: installdirs
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADECIRCUITLIB)
 
 .PHONY: uninstallcircuit

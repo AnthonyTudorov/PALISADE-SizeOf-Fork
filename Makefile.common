@@ -69,7 +69,7 @@ endif
 # base directory of project
 ROOTDIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-PROJECT := palisade
+PACKAGE := palisade
 VERSION := 1.3.0
 
 #build directory
@@ -101,7 +101,7 @@ THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/include -I $(THIRDPARTYDIR)/include/rap
 ifeq ($(PREFIX),)
 	PREFIX := /usr/local
 endif
-LIB_DEST := $(PREFIX)/lib/$(PROJECT)/$(VERSION)
+LIB_DEST := $(PREFIX)/lib/$(PACKAGE)/$(VERSION)
 
 EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
 
@@ -123,19 +123,25 @@ PALISADEPYLIB := pycrypto$(LIBSUFFIX)
 # run make for all components. you can run any individual component separately
 #  by invoking   "make allxxx"  for example, make allcore makes everything in core only
 
+.PHONY: all
 all:
 	$(MAKE) gmp_all
 	$(MAKE) ntl_all
 	$(MAKE) allcore allpke alltrapdoor allwip allcircuit allabe allsignature utall 
 
+.PHONY: docs
 docs: apidocs
 
+.PHONY: alljava
 alljava: allcore allpke jwrapper
 
+.PHONY: allpython
 allpython: allcore allpke alltrapdoor allwip pywrapper
 
+.PHONY: alldemos
 alldemos: allcoredemos allpkedemos alltrapdoordemos allwipdemos allcircuitdemos allabedemos allsignaturedemos
 
+.PHONY: testall
 testall: $(CORE_TEST_TARGET) $(PKE_TEST_TARGET) $(TRAPDOOR_TEST_TARGET) $(WIP_TEST_TARGET) $(CIRCUIT_TEST_TARGET) $(ABE_TEST_TARGET) $(SIGNATURE_TEST_TARGET) utall
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(BINDIR)/unittest/tests$(EXESUFFIX) -t
 
@@ -151,8 +157,8 @@ clean: cleancore cleanpke cleantrapdoor cleanwip cleancircuit cleandocs cleanben
 .PHONY: clobber
 clobber: clean clean_gmp clean_ntl
 
-.PHONY: libdir
-libdir:
+.PHONY: installdirs
+installdirs:
 	install --directory $(LIB_DEST)
 
 .PHONY: install
@@ -167,6 +173,7 @@ $(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backen
 	@mkdir -p $(BINDIR)/unittest
 	$(CC) -c $(CPPFLAGS) $(INC) -o $@ $<
 
+.PHONY: utall
 utall: $(BINDIR)/unittest/tests$(EXESUFFIX)
 
 include Makefile.core

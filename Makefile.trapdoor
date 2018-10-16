@@ -52,7 +52,7 @@ TRAPDOOR_TEST_TARGET := $(EXTTESTDIR)/trapdoor/tests$(EXESUFFIX)
 -include $(TRAPDOORUNITOBJECTS:.o=.d)
 -include $(TRAPDOORDEMOOBJECTS:.o=.d)
 
-.PHONY:alltrapdoor
+.PHONY: alltrapdoor
 alltrapdoor: $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(TRAPDOOR_TEST_TARGET) alltrapdoordemos
 
 alltrapdoordemos: $(patsubst $(TRAPDOORBINDIR)/demo/%,$(BINDIR)/demo/trapdoor/%,$(patsubst %.o,%$(EXESUFFIX),$(TRAPDOORDEMOOBJECTS)))
@@ -101,13 +101,14 @@ testtrapdoor: $(TRAPDOOR_TEST_TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(TRAPDOOR_TEST_TARGET)
 
 .PHONY: installtrapdoor
-installtrapdoor: libdir
+installtrapdoor: installdirs
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADETRAPDOORLIB)
 
 .PHONY: uninstalltrapdoor
 uninstalltrapdoor:
 	rm $(LIB_DEST)/$(PALISADETRAPDOORLIB)
 
+.PHONY: trapdoorstrings
 trapdoorstrings:
 	@echo $(TRAPDOORSOURCES)
 	@echo $(TRAPDOOROBJECTS)

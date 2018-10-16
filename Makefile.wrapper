@@ -99,7 +99,7 @@ $(BUILDDIR)/wrappers/java/%:
 	fi
 
 #this target is used to cleanup, it is called from the top Makefile
-.PHONEY: cleanwrappers
+.PHONY: cleanwrappers
 cleanwrappers:
 	@echo " Cleaning targets...";
 	$(RM) -r  build/wrappers/java/PalisadeCryptoWrapper.o
@@ -108,4 +108,3 @@ cleanwrappers:
 	$(RM) -r $(PYBINDIR)/*.o
 	$(RM) -r $(PYBINDIR)/*.d
 	$(RM) -r $(EXTLIBDIR)/$(PALISADEPYLIB)
-

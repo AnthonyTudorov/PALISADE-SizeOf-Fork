@@ -49,9 +49,10 @@ ABE_TEST_TARGET := $(EXTTESTDIR)/abe/tests$(EXESUFFIX)
 -include $(ABEUNITOBJECTS:.o=.d)
 -include $(ABEDEMOOBJECTS:.o=.d)
 
-.PHONY:allabe
+.PHONY: allabe
 allabe: allcore $(EXTLIBDIR)/$(PALISADEABELIB) $(ABE_TEST_TARGET) allabedemos
 
+.PHONY: allabedemos
 allabedemos: $(patsubst $(ABEBINDIR)/demo/%,$(BINDIR)/demo/abe/%,$(patsubst %.o,%$(EXESUFFIX),$(ABEDEMOOBJECTS)))
 
 $(BINDIR)/demo/abe/%$(EXESUFFIX): $(ABEBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEABELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
@@ -82,9 +83,8 @@ $(ABEBINDIR)/%:
 		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(ABEBINDIR)/%,$(ABESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
-.PHONY: cleanabe 
-
 #this target is used to cleanup, it is called from the top Makefile
+.PHONY: cleanabe 
 cleanabe: 
 	$(RM) -fr $(ABEBINDIR) $(EXTLIBDIR)/$(PALISADEABELIB) `dirname $(ABE_TEST_TARGET)` $(BINDIR)/demo/abe
 
@@ -99,7 +99,7 @@ testabe: $(ABE_TEST_TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(ABE_TEST_TARGET)
 
 .PHONY: installabe
-installabe: libdir
+installabe: installdirs
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADEABELIB)
 
 .PHONY: uninstallabe

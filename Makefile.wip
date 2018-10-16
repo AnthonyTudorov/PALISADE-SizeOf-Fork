@@ -52,9 +52,10 @@ WIP_TEST_TARGET := $(EXTTESTDIR)/wip/tests$(EXESUFFIX)
 -include $(WIPUNITOBJECTS:.o=.d)
 -include $(WIPDEMOOBJECTS:.o=.d)
 
-.PHONY:allwip
+.PHONY: allwip
 allwip: $(EXTLIBDIR)/$(PALISADEWIPLIB) $(WIP_TEST_TARGET) allwipdemos
 
+.PHONY: allwipdemos
 allwipdemos: $(patsubst $(WIPBINDIR)/demo/%,$(BINDIR)/demo/wip/%,$(patsubst %.o,%$(EXESUFFIX),$(WIPDEMOOBJECTS)))
 
 $(BINDIR)/demo/wip/%$(EXESUFFIX): $(WIPBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADEWIPLIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
@@ -101,7 +102,7 @@ testwip: $(WIP_TEST_TARGET)
 	 LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(WIP_TEST_TARGET)
 
 .PHONY: installwip
-installwip: libdir
+installwip: installdirs
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADEWIPLIB)
 
 .PHONY: uninstallwip
