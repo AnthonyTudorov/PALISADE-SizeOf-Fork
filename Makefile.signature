@@ -49,9 +49,10 @@ SIGNATURE_TEST_TARGET := $(EXTTESTDIR)/signature/tests$(EXESUFFIX)
 -include $(SIGNATUREUNITOBJECTS:.o=.d)
 -include $(SIGNATUREDEMOOBJECTS:.o=.d)
 
-.PHONY:allsignature
+.PHONY: allsignature
 allsignature: allcore $(EXTLIBDIR)/$(PALISADESIGNATURELIB) $(SIGNATURE_TEST_TARGET) allsignaturedemos
 
+.PHONY: allsignaturedemos
 allsignaturedemos: $(patsubst $(SIGNATUREBINDIR)/demo/%,$(BINDIR)/demo/signature/%,$(patsubst %.o,%$(EXESUFFIX),$(SIGNATUREDEMOOBJECTS)))
 
 $(BINDIR)/demo/signature/%$(EXESUFFIX): $(SIGNATUREBINDIR)/demo/%.o $(EXTLIBDIR)/$(PALISADESIGNATURELIB) $(EXTLIBDIR)/$(PALISADECORELIB) $(NTLLIB) $(GMPLIB)
@@ -82,9 +83,8 @@ $(SIGNATUREBINDIR)/%:
 		$(CC) $(CPPFLAGS) $(INC) -c -o $@ $(patsubst $(SIGNATUREBINDIR)/%,$(SIGNATURESRCDIR)/%,$(patsubst %.o,%.cpp,$@))  ;\
 	fi
 
-.PHONY: cleansignature 
-
 #this target is used to cleanup, it is called from the top Makefile
+.PHONY: cleansignature 
 cleansignature: 
 	$(RM) -fr $(SIGNATUREBINDIR) $(EXTLIBDIR)/$(PALISADESIGNATURELIB) `dirname $(SIGNATURE_TEST_TARGET)` $(BINDIR)/demo/signature
 
@@ -99,7 +99,7 @@ testsignature: $(SIGNATURE_TEST_TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTDIR)/$(THIRDPARTYLIBDIR):$(ROOTDIR)/$(EXTLIBDIR) $(SIGNATURE_TEST_TARGET)
 
 .PHONY: installsignature
-installsignature: libdir
+installsignature: installdirs
 	install -t $(LIB_DEST) $(EXTLIBDIR)/$(PALISADESIGNATURELIB)
 
 .PHONY: uninstallsignature
