@@ -2,6 +2,8 @@ stages:
 - setup
 - build
 - test
+- unit
+- memory
 - deploy
 - cleanup
 
@@ -19,7 +21,13 @@ code_quality:
 shell_lint:
   stage: test
   script:
-  - shellcheck *.sh
+  - shellcheck configure.sh
+  - shellcheck test/benchmark_all_backends.sh
+  - shellcheck test/build_all_backends.sh
+  - shellcheck test/build_cov_test_backends.sh
+  - shellcheck test/test_all_backends.sh
+  - shellcheck test/test_cov_backends.sh
+  - shellcheck test/valgrind_all_backends.sh
   allow_failure: true
   tags:
   - audit
@@ -84,7 +92,7 @@ build:
   - build_ext
 
 unit_test:
-  stage: test
+  stage: unit
   before_script:
   - module load gcc/7.3.0
   - g++ --version
@@ -151,3 +159,18 @@ clean:
   - linux
   when: always
   dependencies: []
+
+memleak:
+  stage: memory
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make $(nproc) all MEM=1
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib valgrind --leak-check=yes ./bin/unittest/tests
+  only:
+  - scedules
+  tags:
+  - linux
+  dependencies:
+  - build_ext
