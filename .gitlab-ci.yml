@@ -122,11 +122,12 @@ coverage:
   - make -j $(nproc) all COVERAGE=1
   - make -j $(nproc) testall COVERAGE=1
   - mkdir -p doc/coverage
-  - gcovr --verbose -r . --html --html-details -o doc/coverage/palisade-coverage.html --print-summary
+  - gcovr -j $(nproc) --verbose -r . --filter src/[^/]+/lib/* --filter src/* --html --html-details -o doc/coverage/index.html --print-summary
   allow_failure: true
   tags: 
   - audit
-  dependencies: []
+  dependencies:
+  - build_ext
   artifacts:
     paths:
     - doc/coverage

@@ -169,8 +169,22 @@ installdirs:
 .PHONY: install
 install: installcore installpke installtrapdoor installwip installcircuit installabe installsignature
 
+.PHONY: dist
+dist:
+	mkdir $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADECORELIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADEPKELIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADETRAPDOORLIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADEWIPLIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADECIRCUITLIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADEABELIB) $(PACKAGE)-$(VERSION)
+	cp $(EXTLIBDIR)/$(PALISADESIGNATURELIB) $(PACKAGE)-$(VERSION)
+	tar -zcvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
+	rm -rf $(PACKAGE)-$(VERSION)
+
 .PHONY: uninstall
 uninstall: uninstallcore uninstallpke uninstalltrapdoor uninstallwip uninstallcircuit uninstallabe uninstallsignature
+
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 
