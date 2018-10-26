@@ -43,7 +43,7 @@ RemoteSystemTempFiles/
 .DS_Store
 
 # Ignore intellij project files/cmake files
-CMakeLists.txt
+# CMakeLists.txt
 .idea/
 
 src/circuit/lib/scan.cpp
