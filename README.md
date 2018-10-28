@@ -30,3 +30,4 @@ You build the entirety of PALISADE by running make. There are various command li
 * BINDIR=directory builds the library with a different target directory
 * BACKEND=n builds the library with MATHBACKEND set to n (you may want to touch the src/core/lib/math/backend.h file to force the build)
 * COVERAGE=any builds the library with coverage testing enabled
+* MEM=any builds the library without optimizations

@@ -50,7 +50,12 @@ ifdef COVERAGE
 	LIBSUFFIX=.a
 	LIBCMD=$(AR) crv
 else
-	CPPFLAGS += -O3 -fopenmp $(COMPTHREADFLAG) ##optimize and threads
+	ifdef MEM
+		CPPFLAGS += -O0 
+	else
+		CPPFLAGS += -O3
+	endif
+	CPPFLAGS += -fopenmp $(COMPTHREADFLAG) ##optimize and threads 
 endif
 
 ## set backend if user set it on the command line

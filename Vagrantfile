@@ -50,7 +50,8 @@ Vagrant.configure("2") do |config|
 		cppcheck \
 		shellcheck \
 		lcov \
-		gcovr
+		gcovr \
+		valgrind
       pip install cpplint
     SHELL
   end
