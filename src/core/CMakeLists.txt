@@ -22,5 +22,5 @@ add_library (PALISADEcore_static STATIC
 	${UTILS_SRC_FILES} )
 
 file (GLOB CORE_TEST_SRC_FILES unittest/*.cpp)
-add_executable( core_tests ${CORE_TEST_SRC_FILES} )
+add_executable( core_tests ${CORE_TEST_SRC_FILES} ${UNITTESTMAIN} )
 target_link_libraries ( core_tests ${CORELIBS} )
