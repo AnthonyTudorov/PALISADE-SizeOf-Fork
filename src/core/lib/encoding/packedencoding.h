@@ -112,6 +112,12 @@ public:
 	const vector<uint64_t>&	GetPackedValue() const { return value; }
 
 	/**
+	 * SetIntVectorValue
+	 * @param val integer vector to initialize the plaintext
+	 */
+	void SetUintVectorValue(const vector<uint64_t>& val) { value = val; }
+
+	/**
 	 * GetEncodingType
 	 * @return this is a Packed encoding
 	 */
