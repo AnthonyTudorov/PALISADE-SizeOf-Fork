@@ -65,8 +65,9 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 ### Library directories
 add_subdirectory(src/core)
 add_subdirectory(src/pke)
-#add_subdirectory(src/trapdoor)
+add_subdirectory(src/trapdoor)
+add_subdirectory(src/wip)
+add_subdirectory(src/circuit)
+
 #add_subdirectory(src/abe)
 #add_subdirectory(src/signature)
-#add_subdirectory(src/wip)
-#add_subdirectory(src/circuit)

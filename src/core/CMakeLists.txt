@@ -24,3 +24,11 @@ add_library (PALISADEcore_static STATIC
 file (GLOB CORE_TEST_SRC_FILES unittest/*.cpp)
 add_executable( core_tests ${CORE_TEST_SRC_FILES} ${UNITTESTMAIN} )
 target_link_libraries ( core_tests ${CORELIBS} )
+
+file (GLOB CORE_DEMO_SRC_FILES demo/*.cpp)
+foreach (app ${CORE_DEMO_SRC_FILES})
+	string ( REGEX REPLACE "/\.*/" "" FN ${app})
+	string ( REPLACE ".cpp" "" APP ${FN})
+	add_executable( ${APP} ${app} )
+	target_link_libraries ( ${APP} ${CORELIBS} )
+endforeach()
