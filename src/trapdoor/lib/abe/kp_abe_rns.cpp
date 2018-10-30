@@ -283,8 +283,8 @@ void KPABErns::Setup(
 			(*evalPubElemBf)(0, j) = wpublicElementB(gateCnt-1, j);
 		}
 
-		std::cerr << "Computation of G^(-1):\t" << subgaussianTime/1000 << std::endl;
-		std::cerr << "Computation of G^(-1) with NTT:\t" << offTime/1000 << std::endl;
+		//std::cerr << "Computation of G^(-1):\t" << subgaussianTime/1000 << std::endl;
+		//std::cerr << "Computation of G^(-1) with NTT:\t" << offTime/1000 << std::endl;
 
 	}
 
@@ -586,8 +586,7 @@ void KPABErns::EvalCT(
 
 void KPABErns::NANDGateEvalPK(
 		const shared_ptr<typename DCRTPoly::Params> params,
-		const Matrix<DCRTPoly> &pubElemB0,
-		const Matrix<DCRTPoly> &origPubElem,
+		const Matrix<DCRTPoly> &pubElemB,
 		Matrix<DCRTPoly> *evalPubElem,
 		uint32_t seed)
 	{
@@ -597,7 +596,7 @@ void KPABErns::NANDGateEvalPK(
 
 			/* -B1 */
 			for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
-				negB(0, j) = origPubElem(0, j).Negate();
+				negB(0, j) = pubElemB(1, j).Negate();
 
 			auto psi = InverseRingVectorDCRT(m_util, negB,1);
 
@@ -605,14 +604,14 @@ void KPABErns::NANDGateEvalPK(
 
 			/* B2*Psi; Psi*C2 */
 			for (usint i = 0; i < m_m; i++) {
-				(*evalPubElem)(0, i) = origPubElem(1, 0) * (*psi)(0, i);
+				(*evalPubElem)(0, i) = pubElemB(2, 0) * (*psi)(0, i);
 				for (usint j = 1; j < m_m; j++) {
-					(*evalPubElem)(0, i) += origPubElem(1, j) * (*psi)(j, i);
+					(*evalPubElem)(0, i) += pubElemB(2, j) * (*psi)(j, i);
 				}
 			}
 
 			for (usint i = 0; i < m_m; i++) {
-				(*evalPubElem)(0, i) = pubElemB0(0, i) - (*evalPubElem)(0, i);
+				(*evalPubElem)(0, i) = pubElemB(0, i) - (*evalPubElem)(0, i);
 			}
 
 	}
@@ -620,9 +619,8 @@ void KPABErns::NANDGateEvalPK(
 
 void KPABErns::NANDGateEvalCT(
 		const shared_ptr<typename DCRTPoly::Params> params,
-		const Matrix<DCRTPoly> &ctC0,
-		const usint x[],
 		const Matrix<DCRTPoly> &origPubElem,
+		const usint x[],
 		const Matrix<DCRTPoly> &origCT,
 		usint *evalAttribute,
 		Matrix<DCRTPoly> *evalCT,
@@ -637,7 +635,7 @@ void KPABErns::NANDGateEvalCT(
 
 		/* -B1 */
 		for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
-			negB(0, j) = origPubElem(0, j).Negate();
+			negB(0, j) = origPubElem(1, j).Negate();
 
 		auto psi = InverseRingVectorDCRT(m_util, negB,1);
 
@@ -646,21 +644,21 @@ void KPABErns::NANDGateEvalCT(
 		/* x2*C1 */
 		for (usint i = 0; i < m_m; i++) {
 			if(x[1] != 0)
-				(*evalCT)(0, i) = origCT(0, i);
+				(*evalCT)(0, i) = origCT(1, i);
 			else
 				(*evalCT)(0, i).SetValuesToZero();
 		}
 
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalCT)(0, i) += (*psi)(0, i) * origCT(1, 0);
+			(*evalCT)(0, i) += (*psi)(0, i) * origCT(2, 0);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalCT)(0, i) += (*psi)(j, i) * origCT(1, j);
+				(*evalCT)(0, i) += (*psi)(j, i) * origCT(2, j);
 			}
 		}
 
 		for (usint i = 0; i < m_m; i++) {
-			(*evalCT)(0, i) = ctC0(0, i) - (*evalCT)(0, i);
+			(*evalCT)(0, i) = origCT(0, i) - (*evalCT)(0, i);
 		}
 
 	}
@@ -678,7 +676,7 @@ void KPABErns::ANDGateEvalPK(
 
 		/* -B1 */
 		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
-			negB(0, j) = origPubElemB(0, j).Negate();
+			negB(0, j) = origPubElemB(1, j).Negate();
 		}
 
 		auto psi = InverseRingVectorDCRT(m_util, negB,1);
@@ -687,9 +685,9 @@ void KPABErns::ANDGateEvalPK(
 
 		/* B2*Psi; Psi*C2 */
 		for (usint i = 0; i < m_m; i++) {
-			(*evalPubElemBf)(0, i) = origPubElemB(1, 0) * (*psi)(0, i);
+			(*evalPubElemBf)(0, i) = origPubElemB(2, 0) * (*psi)(0, i);
 			for (usint j = 1; j < m_m; j++) {
-				(*evalPubElemBf)(0, i) += origPubElemB(1, j) * (*psi)(j, i);
+				(*evalPubElemBf)(0, i) += origPubElemB(2, j) * (*psi)(j, i);
 			}
 		}
 	 }
@@ -697,8 +695,8 @@ void KPABErns::ANDGateEvalPK(
 
 void KPABErns::ANDGateEvalCT(
 		const shared_ptr<typename DCRTPoly::Params> params,
-		const usint x[2], //TBA
 		const Matrix<DCRTPoly> &origPubElemB,
+		const usint x[2], //TBA
 		const Matrix<DCRTPoly> &origCT,
 		usint *evalAttribute,
 		Matrix<DCRTPoly> *evalCT,
@@ -711,7 +709,7 @@ void KPABErns::ANDGateEvalCT(
 
 		/* -B1 */
 		for (usint j = 0; j < m_m; j++) {    // Negating B1 for bit decomposition
-			negB(0, j) = origPubElemB(0, j).Negate();
+			negB(0, j) = origPubElemB(1, j).Negate();
 		}
 
 		auto psi = InverseRingVectorDCRT(m_util, negB,1);

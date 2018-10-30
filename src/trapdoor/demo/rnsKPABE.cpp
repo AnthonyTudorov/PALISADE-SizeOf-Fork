@@ -8,7 +8,7 @@
 
 #define PROFIILE
 
-#include "abe/kp_abe_rns.cpp"
+#include "abe/kp_abe_rns.h"
 
 using namespace lbcrypto;
 

@@ -154,12 +154,10 @@ namespace lbcrypto {
 		 */
 		void NANDGateEvalPK(
 			const shared_ptr<typename DCRTPoly::Params> ilParams,
-			const Matrix<DCRTPoly> &pubElemB0,
-			const Matrix<DCRTPoly> &origPubElem,
+			const Matrix<DCRTPoly> &pubElemB,
 			Matrix<DCRTPoly> *evalPubElem,
 			uint32_t seed=1
 		);
-
 
 		/**
 		* Evaluation of a single NAND gate
@@ -167,9 +165,8 @@ namespace lbcrypto {
 		* any Boolean function can be constructed from NAND gates
 		*
 		* @param ilParams parameter set
-		* @param &ctC0
-		* @param x[] array of attributes
 		* @param &origPubElem original matrix of public vectors for each attribute
+		* @param x[] array of attributes
 		* @param &origCT original ciphertext
 		* @param *evalAttribute evaluated value of circuit
 		* @param *evalCT evaluated ciphertext value
@@ -179,15 +176,13 @@ namespace lbcrypto {
 		 */
 		void NANDGateEvalCT(
 			const shared_ptr<typename DCRTPoly::Params> ilParams,
-			const Matrix<DCRTPoly> &ctC0,
-			const usint x[],
 			const Matrix<DCRTPoly> &origPubElem,
+			const usint x[],
 			const Matrix<DCRTPoly> &origCT,
 			usint *evalAttribute,
 			Matrix<DCRTPoly> *evalCT,
 			uint32_t seed=1
 		);
-
 
 		/**
 		*Evaluation of simple AND Gate
@@ -202,26 +197,26 @@ namespace lbcrypto {
 			Matrix<DCRTPoly> *evalPubElemBf,
 			uint32_t seed=1
 		);
+
 		/**
 		*Evaluation of simple AND Gate
 		*
 		* @param ilParams parameter set
-		* @param x[] array of attributes
 		* @param &origPubElemB original matrix of public vectors for each attribute
+		* @param x[] array of attributes
 		* @param &origCT original ciphertext
 		* @param *evalAttribute evaluated value of circuit
 		* @param *evalCT evaluated ciphertext value
 		*/
 		void ANDGateEvalCT(
 			const shared_ptr<typename DCRTPoly::Params> ilParams,
-			const usint x[2], //TBA
 			const Matrix<DCRTPoly> &origPubElemB,
+			const usint x[2], //TBA
 			const Matrix<DCRTPoly> &origCT,
 			usint *evalAttribute,
 			Matrix<DCRTPoly> *evalCT,
 			uint32_t seed=1
 		);
-
 
 		/**
 		* Encrypt Function
