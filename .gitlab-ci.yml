@@ -170,7 +170,7 @@ memleak:
   - make $(nproc) all MEM=1
   - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib valgrind --leak-check=yes ./bin/unittest/tests
   only:
-  - scedules
+  - schedules
   tags:
   - linux
   dependencies:
