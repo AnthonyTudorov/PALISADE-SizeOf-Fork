@@ -1132,35 +1132,36 @@ public:
 private:
 	static Plaintext
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> evp, EncodingParams ep) {
-		Plaintext pt;
+//		Plaintext pt;
 		shared_ptr<typename NativePoly::Params> vp(
 				new typename NativePoly::Params(evp->GetCyclotomicOrder(), ep->GetPlaintextModulus(), 1) );
-
-		switch(pte) {
-		case Unknown:
-			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
-			break;
-		case Scalar:
-			pt.reset( new ScalarEncoding(vp,ep) );
-			break;
-		case Integer:
-			pt.reset( new IntegerEncoding(vp,ep) );
-			break;
-		case CoefPacked:
-			pt.reset( new CoefPackedEncoding(vp,ep) );
-			break;
-		case Packed:
-			pt.reset( new PackedEncoding(vp,ep) );
-			break;
-		case String:
-			pt.reset( new StringEncoding(vp,ep) );
-			break;
-		case Fractional:
-			pt.reset( new FractionalEncoding(vp,ep) );
-			break;
-		}
-
-		return pt;
+		return PlaintextFactory::MakePlaintext(pte, evp, ep);
+//
+//		switch(pte) {
+//		case Unknown:
+//			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
+//			break;
+//		case Scalar:
+//			pt.reset( new ScalarEncoding(vp,ep) );
+//			break;
+//		case Integer:
+//			pt.reset( new IntegerEncoding(vp,ep) );
+//			break;
+//		case CoefPacked:
+//			pt.reset( new CoefPackedEncoding(vp,ep) );
+//			break;
+//		case Packed:
+//			pt.reset( new PackedEncoding(vp,ep) );
+//			break;
+//		case String:
+//			pt.reset( new StringEncoding(vp,ep) );
+//			break;
+//		case Fractional:
+//			pt.reset( new FractionalEncoding(vp,ep) );
+//			break;
+//		}
+//
+//		return pt;
 	}
 
 public:
