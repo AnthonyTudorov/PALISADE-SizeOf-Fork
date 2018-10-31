@@ -45,7 +45,7 @@ BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, 
     double c = (base + 1) * SIGMA;
     double s = SPECTRAL_BOUND_D(n, m_m - 2, base, w);
 
-    if (sqrt(s * s - c * c) <= 3e5)
+    if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
         m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
     else
         m_dggLargeSigma = m_dgg;

@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
 	const auto value3 = algorithm.Evaluate(           key, input2);
 	const auto value4 = algorithm.Evaluate(constrainedKey, input2);
 	processingTime = TOC(t);
-	//std::cout << value1 << std::endl;
-	//std::cout << value2 << std::endl;
+	//std::cout << *value1 << std::endl;
+	//std::cout << *value2 << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
 	std::cout << "input 1: " << input1 << std::endl;
 	std::cout << (*value1 == *value2 ? "Matched (Correct)" : "Did not match (Incorrect)") << std::endl;
