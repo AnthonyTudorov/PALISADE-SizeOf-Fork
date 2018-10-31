@@ -1038,6 +1038,7 @@ public:
 	}
 
 	// PLAINTEXT FACTORY METHODS
+	// FIXME to be deprecated in 2.0
 	/**
 	 * MakeScalarPlaintext constructs a ScalarEncoding in this context
 	 * @param value
@@ -1045,8 +1046,7 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeScalarPlaintext(int64_t value) const {
-		auto p = Plaintext( new ScalarEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
+		auto p = PlaintextFactory::MakePlaintext( Scalar, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}
 
@@ -1056,8 +1056,7 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeStringPlaintext(const string& str) const {
-		auto p = Plaintext( new StringEncoding( this->GetElementParams(), this->GetEncodingParams(), str ) );
-		p->Encode();
+		auto p = PlaintextFactory::MakePlaintext( String, this->GetElementParams(), this->GetEncodingParams(), str );
 		return p;
 	}
 
@@ -1067,43 +1066,28 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakeIntegerPlaintext(int64_t value) const {
-		auto p = Plaintext( new IntegerEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
+		auto p = PlaintextFactory::MakePlaintext( Integer, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}
 
 	/**
 	 * MakeIntegerPlaintext constructs a FractionalEncoding in this context
 	 * @param value
+	 * @param truncatedBits limit on fractional
 	 * @return plaintext
 	 */
-	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
-		auto p =  Plaintext( new FractionalEncoding( this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits) );
-		p->Encode();
+	Plaintext MakeFractionalPlaintext(int64_t value) const {
+		auto p =  PlaintextFactory::MakePlaintext( Fractional, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}
 
 	/**
 	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
 	 * @param value
-	 * @param isSigned
 	 * @return plaintext
 	 */
 	Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
-		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
-		return p;
-	}
-
-	/**
-	 * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
-	 * @param value
-	 * @param isSigned
-	 * @return plaintext
-	 */
-	Plaintext MakeCoefPackedPlaintext(const std::initializer_list<int64_t>& value) const {
-		auto p = Plaintext( new CoefPackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
+		auto p = PlaintextFactory::MakePlaintext( CoefPacked, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}
 
@@ -1113,55 +1097,21 @@ public:
 	 * @return plaintext
 	 */
 	Plaintext MakePackedPlaintext(const vector<uint64_t>& value) const {
-		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
+		auto p = PlaintextFactory::MakePlaintext( Packed, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}
 
-	/**
-	 * MakePackedPlaintext constructs a PackedEncoding in this context
-	 * @param value
-	 * @return plaintext
-	 */
-	Plaintext MakePackedPlaintext(const std::initializer_list<uint64_t>& value) const {
-		auto p = Plaintext( new PackedEncoding( this->GetElementParams(), this->GetEncodingParams(), value ) );
-		p->Encode();
-		return p;
+	template<typename CTXElement, typename Value>
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<CTXElement> cc, Value value) {
+		auto p = PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value );
 	}
 
 private:
 	static Plaintext
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> evp, EncodingParams ep) {
-//		Plaintext pt;
 		shared_ptr<typename NativePoly::Params> vp(
 				new typename NativePoly::Params(evp->GetCyclotomicOrder(), ep->GetPlaintextModulus(), 1) );
-		return PlaintextFactory::MakePlaintext(pte, evp, ep);
-//
-//		switch(pte) {
-//		case Unknown:
-//			throw std::logic_error("Unknown plaintext encoding type in GetPlaintextForDecrypt");
-//			break;
-//		case Scalar:
-//			pt.reset( new ScalarEncoding(vp,ep) );
-//			break;
-//		case Integer:
-//			pt.reset( new IntegerEncoding(vp,ep) );
-//			break;
-//		case CoefPacked:
-//			pt.reset( new CoefPackedEncoding(vp,ep) );
-//			break;
-//		case Packed:
-//			pt.reset( new PackedEncoding(vp,ep) );
-//			break;
-//		case String:
-//			pt.reset( new StringEncoding(vp,ep) );
-//			break;
-//		case Fractional:
-//			pt.reset( new FractionalEncoding(vp,ep) );
-//			break;
-//		}
-//
-//		return pt;
+		return PlaintextFactory::MakePlaintext(pte, vp, ep);
 	}
 
 public:

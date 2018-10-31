@@ -130,90 +130,84 @@ public:
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntegerValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntegerValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntegerValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, const vector<int64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntVectorValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, const vector<int64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntVectorValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, const vector<int64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetIntVectorValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, const string& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetStringValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, const string& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetStringValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, const string& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetStringValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetUintVectorValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetUintVectorValue(value);
+		pt->Encode();
 		return pt;
 	}
 
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetUintVectorValue(value);
-		return pt;
-	}
-
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetFractionalValues(scalar,divisorBits);
-		return pt;
-	}
-
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetFractionalValues(scalar,divisorBits);
-		return pt;
-	}
-
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetFractionalValues(scalar,divisorBits);
+		pt->Encode();
 		return pt;
 	}
 };

@@ -53,14 +53,14 @@ public:
 	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep) :
 		PlaintextImpl(vp,ep), m_integer(0), m_separator(0), m_numerator(0), m_denominator(0) {}
 
-	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
-		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0) {}
+	FractionalEncoding(shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(0), m_numerator(0), m_denominator(0) {}
 
-	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
-		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0)  {}
+	FractionalEncoding(shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(0), m_numerator(0), m_denominator(0)  {}
 
-	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits = 0) :
-		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(divisorBits), m_numerator(0), m_denominator(0) {}
+	FractionalEncoding(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar) :
+		PlaintextImpl(vp,ep), m_integer(scalar), m_separator(0), m_numerator(0), m_denominator(0) {}
 
 	virtual ~FractionalEncoding() {}
 
