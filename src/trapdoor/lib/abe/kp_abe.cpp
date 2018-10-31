@@ -36,6 +36,8 @@
 
 namespace lbcrypto {
 
+template <class Element, class Element2>
+KPABE<Element, Element2>::KPABE(GaussianMode mode) : m_k(0), m_ell(0), m_N(0), m_q(0), m_m(0), m_base(0), m_mode(mode) {}
 
   /*
  * This is a setup function for Private Key Generator (PKG);

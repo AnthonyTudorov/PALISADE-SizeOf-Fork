@@ -32,7 +32,14 @@
 
 namespace lbcrypto {
 
-  template class KPABE<Poly,Poly>;
-  template class KPABE<DCRTPoly,Poly>;
+  	template class KPABE<Poly,Poly>;
+
+	template <>
+	KPABE<DCRTPoly,Poly>::KPABE(GaussianMode mode) : m_k(0), m_ell(0), m_N(0), m_q(0), m_m(0), m_base(0), m_mode(mode) {
+		std::string errMsg = "KPABE does not support DCRTPoly. Use KPABErns instead.";
+		throw std::runtime_error(errMsg);
+	}
+
+	template class KPABE<DCRTPoly,Poly>;
 
 }

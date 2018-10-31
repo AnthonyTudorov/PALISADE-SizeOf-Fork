@@ -166,8 +166,7 @@ enum GaussianMode{ SUBGAUSSIAN=0, NAF=1};
 		 * Default Constructor
 		 *
 		 */
-		KPABE(GaussianMode mode = NAF) : m_k(0), m_ell(0), m_N(0), m_q(0), m_m(0), m_base(0), m_mode(mode) {
-		}
+		KPABE(GaussianMode mode = NAF);
 
 		/**
 		 * Destructor for releasing dynamic memory
