@@ -37,6 +37,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
+#include "lattice/backend.h"
 #include "lattice/poly.h"
 #include "lattice/dcrtpoly.h"
 #include "utils/utilities.h"
