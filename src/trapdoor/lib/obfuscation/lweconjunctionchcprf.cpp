@@ -237,6 +237,8 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 
 	Matrix<Element> y = (*m_A)[m_adjustedLength]*yCurrent;
 
+	y.SwitchFormat();
+
 	return TransformMatrixToPRFOutput(y);
 
 }
@@ -253,6 +255,8 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 
 		y = y * *(*D)[i][k];
 	}
+
+	y.SwitchFormat();
 
 	return TransformMatrixToPRFOutput(y);
 
@@ -374,18 +378,7 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 
 	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(matrix.GetCols()));
 
-//#pragma omp parallel for
 	for (size_t i = 0; i < matrix.GetCols(); i++) {
-		/*Poly poly = matrix(0, i).CRTInterpolate();
-
-		// Transform negative numbers so that they could be rounded correctly
-		for (usint k = 0; k < poly.GetLength(); k++) {
-			if (poly[k] > half)
-				poly[k] = q - poly[k];
-		}
-
-		poly = poly.DivideAndRound(half); */
-
 		(*result)[i] = matrix(0, i).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 	}
 
