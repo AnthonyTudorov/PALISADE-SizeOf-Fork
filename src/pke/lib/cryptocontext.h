@@ -1,3 +1,4 @@
+
 /**
  * @file cryptocontext.h -- Control for encryption operations.
  * @author  TPOC: palisade@njit.edu
@@ -1076,8 +1077,8 @@ public:
 	 * @param truncatedBits limit on fractional
 	 * @return plaintext
 	 */
-	Plaintext MakeFractionalPlaintext(int64_t value) const {
-		auto p =  PlaintextFactory::MakePlaintext( Fractional, this->GetElementParams(), this->GetEncodingParams(), value );
+	Plaintext MakeFractionalPlaintext(int64_t value, size_t truncatedBits = 0) const {
+		auto p =  PlaintextFactory::MakePlaintext( Fractional, this->GetElementParams(), this->GetEncodingParams(), value, truncatedBits );
 		return p;
 	}
 
@@ -1101,10 +1102,10 @@ public:
 		return p;
 	}
 
-	template<typename CTXElement, typename Value>
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<CTXElement> cc, Value value) {
-		auto p = PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value );
-	}
+//	template<typename CTXElement, typename Value>
+//	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<CTXElement> cc, Value value) {
+//		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value );
+//	}
 
 private:
 	static Plaintext

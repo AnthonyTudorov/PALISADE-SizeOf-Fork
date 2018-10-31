@@ -210,6 +210,28 @@ public:
 		pt->Encode();
 		return pt;
 	}
+
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits) {
+		Plaintext pt = MakePlaintext(encoding, vp, ep);
+		pt->SetFractionalValues(scalar,divisorBits);
+		pt->Encode();
+		return pt;
+	}
+
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits) {
+		Plaintext pt = MakePlaintext(encoding, vp, ep);
+		pt->SetFractionalValues(scalar,divisorBits);
+		pt->Encode();
+		return pt;
+	}
+
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits) {
+		Plaintext pt = MakePlaintext(encoding, vp, ep);
+		pt->SetFractionalValues(scalar,divisorBits);
+		pt->Encode();
+		return pt;
+	}
+
 };
 
 } /* namespace lbcrypto */
