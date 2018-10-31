@@ -249,8 +249,8 @@ int main(int argc, char* argv[]) {
 	PalisadeParallelControls.Enable();
 
     //CC17Manual();
-    //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    //CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
-    //CVW18WitnessEncryption();
+    CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
+    CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
+    CVW18WitnessEncryption();
     CVW18CNF({{1, -2, 3}, {-1, 4, 5}}, {{"00000", true}, {"11000", false}, {"11001", true}});
 }

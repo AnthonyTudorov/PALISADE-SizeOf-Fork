@@ -239,6 +239,12 @@ public:
 			bk *= base; \
 		} \
 			\
+		size_t kCols = cols/rows; 						\
+		for (size_t row = 1; row < rows; row++) {		\
+			for (size_t i = 0; i < kCols; i++) { 		\
+	    	    g(row, i + row*kCols) = g(0, i);		\
+	    	} 							\
+	  	}							\
 		return g; \
 	  }
 
