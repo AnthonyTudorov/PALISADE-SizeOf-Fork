@@ -66,7 +66,7 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
 
         //cout << value1 << endl;
         //cout << value2 << endl;
-        bool match = value1 == value2;
+        bool match = *value1 == *value2;
         cout << (match ? "Matched " : "Did not match ") << (match == value.second ? "(Correct)" : "(Incorrect)") << endl;
     }
 }

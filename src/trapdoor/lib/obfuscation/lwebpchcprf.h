@@ -97,7 +97,7 @@ class BPCHCPRF {
      * @param input PRF input
      * @return PRF output
      */
-    const vector<Poly> Evaluate(
+    shared_ptr<vector<NativePoly>> Evaluate(
         const pair<vector<vector<Element>>, Matrix<Element>>& key,
         const string& input) const;
 
@@ -107,7 +107,7 @@ class BPCHCPRF {
      * @param input PRF input
      * @return PRF output
      */
-    const vector<Poly> Evaluate(
+    shared_ptr<vector<NativePoly>> Evaluate(
         const pair<Matrix<Element>, vector<vector<Matrix<Element>>>>& constrainedKey,
         const string& input) const;
 
@@ -133,6 +133,27 @@ class BPCHCPRF {
 
     typename Element::DggType m_dgg;
     typename Element::DggType m_dggLargeSigma;
+
+	// used during encryption
+	vector<NativeInteger> m_CRTDeltaTable;
+
+	// when log2 qi <= 44 bits
+	// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+	std::vector<double> m_CRTDecryptionFloatTable;
+
+	// when 44 < log2 qi <= 57  bits
+	// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+	std::vector<long double> m_CRTDecryptionExtFloatTable;
+
+	// when log2 qi = 58..60 bits
+	// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+	std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
+
+	// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+	std::vector<NativeInteger> m_CRTDecryptionIntTable;
+
+	// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+	std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
 
    private:
     /**
@@ -171,7 +192,7 @@ class BPCHCPRF {
      * @param matrix matrix to transform
      * @return PRF output
      */
-    const vector<Poly> TransformMatrixToPRFOutput(const Matrix<Element>& matrix) const;
+    shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Matrix<Element>& matrix) const;
 };
 
 template <>
