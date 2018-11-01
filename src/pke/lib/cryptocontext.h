@@ -1102,10 +1102,22 @@ public:
 		return p;
 	}
 
-//	template<typename CTXElement, typename Value>
-//	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<CTXElement> cc, Value value) {
-//		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value );
-//	}
+	/**
+	 * MakePlaintext static that takes a cc and calls the Plaintext Factory
+	 * @param encoding
+	 * @param cc
+	 * @param value
+	 * @return
+	 */
+	template<typename Value1>
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<Element> cc, const Value1& value) {
+		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value );
+	}
+
+	template<typename Value1, typename Value2>
+	static Plaintext MakePlaintext(PlaintextEncodings encoding, CryptoContext<Element> cc, const Value1& value, const Value2& value2) {
+		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value, value2 );
+	}
 
 private:
 	static Plaintext
