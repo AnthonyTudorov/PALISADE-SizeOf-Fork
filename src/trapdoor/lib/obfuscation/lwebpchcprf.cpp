@@ -247,6 +247,13 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
         std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
         int k = std::stoi(chunk, nullptr, 2);
         y = y * constrainedKey.second[i][k];
+        
+        auto temp = constrainedKey.second[i][k];
+        temp.SwitchFormat();
+        
+        std::cout << "norm = " << temp.Norm() << std::endl;
+
+	std::cout << "rows = " << temp.GetRows() << "; cols = " << temp.GetCols() << std::endl;
     }
 
     y.SwitchFormat();
@@ -273,7 +280,7 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
 
     //Correctness constraint
     auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
-    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
+    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1)*pow(sqrt(n),length); };
 
     double qPrev = 1e6;
     double q = 0;

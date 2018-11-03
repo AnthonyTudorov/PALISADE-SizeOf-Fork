@@ -282,7 +282,7 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	uint32_t base = m_base;
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length-1);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length-1)*pow(sqrt(n),length);  };
 
 	double qPrev = 1e6;
 	double q = 0;
