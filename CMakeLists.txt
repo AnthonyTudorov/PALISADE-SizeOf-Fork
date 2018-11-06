@@ -1,6 +1,52 @@
 cmake_minimum_required (VERSION 3.1)
 
 project (PALISADE CXX)
+find_package (Git REQUIRED)
+#find_package (Flex REQUIRED)
+#find_package (Bison REQUIRED)
+
+include (ExternalProject)
+
+# handle rapidjson as an include-only submodule
+#find_path(RAPIDJSON_INCLUDE_DIR third-party/rapidjson/include)
+#message(${RAPIDJSON_INCLUDE_DIR})
+
+find_path(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include PATHS ${CMAKE_CURRENT_SOURCE_DIR})
+message(${RAPIDJSON_INCLUDE_DIR})
+
+#find_path(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include )
+#message(${RAPIDJSON_INCLUDE_DIR})
+
+if((NOT RAPIDJSON_INCLUDE_DIR) OR (NOT EXISTS ${RAPIDJSON_INCLUDE_DIR}))
+    # we couldn't find the header files for FOO or they don't exist
+    message("Unable to find rapidjson")
+
+    # we have a submodule setup for rapidjson
+    # now we need to clone this submodule
+    execute_process(COMMAND git submodule update --init -- third-party/rapidjson
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # set RAPIDJSON_INCLUDE_DIR properly
+    set(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
+        CACHE PATH "rapidjson include directory")
+
+    # also install it?
+    #install(DIRECTORY ${RAPIDJSON_INCLUDE_DIR}/foo DESTINATION ${some_dest})
+
+    # need to export target as well
+    #install(TARGETS foo EXPORT my_export_set DESTINATION ${some_dest})
+else()
+    # set RAPIDJSON_INCLUDE_DIR properly
+    set(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
+        CACHE PATH "rapidjson include directory")
+endif()
+
+message("xxx")
+message(${RAPIDJSON_INCLUDE_DIR})
+# for convenience setup a target
+add_library(rapidjson INTERFACE)
+include_directories( ${RAPIDJSON_INCLUDE_DIR} )
+		       ##$<INSTALL_INTERFACE:${some_dest}>)
 
 if(APPLE)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
@@ -28,7 +74,7 @@ find_library(GMPlib NAMES gmp PATHS ${THIRDPARTYLIBDIR})
 find_library(NTLlib NAMES ntl PATHS ${THIRDPARTYLIBDIR})
 
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
-include_directories( ${THIRDPARTYDIR}/include ${THIRDPARTYDIR}/rapidjson/include )
+include_directories( ${THIRDPARTYDIR}/include ) #${THIRDPARTYDIR}/rapidjson/include )
 
 find_package(OpenMP REQUIRED)
 
