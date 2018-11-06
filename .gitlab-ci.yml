@@ -167,11 +167,10 @@ memleak:
   - module load gcc/7.3.0
   - g++ --version
   script:
-  - make $(nproc) all MEM=1
+  - make -j $(nproc) all MEM=1
   - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib valgrind --leak-check=yes ./bin/unittest/tests
   only:
   - schedules
   tags:
   - linux
-  dependencies:
-  - build_ext
+  dependencies: []
