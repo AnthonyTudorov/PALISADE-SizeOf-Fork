@@ -24,7 +24,7 @@
  *
  */
  /*
-  This code tests the transform feature of the PALISADE lattice encryption library.
+ This code tests the transform feature of the PALISADE lattice encryption library.
 */
 
 #include "include/gtest/gtest.h"
@@ -45,119 +45,113 @@ void testDCRTPolyConstructorNegative(std::vector<NativePoly> &towers);
 
 /*-TESTING METHODS OF LATTICE ELEMENTS    ----------------*/
 
-// template for operations tests
+// template for operatiors tests
+// works for Poly and DCRTPoly
 template<typename Element>
-static void operators_tests(const string& msg) {
-
-	using VecType = typename Element::Vector;
+static void common_basic_ops(const string& msg) {
+        bool dbg_flag = true;
+	//using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
+	//using IntType = typename Element::Vector::Integer;
 
 	usint m = 8;
-	shared_ptr<typename Element::Params> ilparams = ElemParamFactory::GenElemParams<typename Element::Params>(m);
+
+#if 0
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+#else
+	usint bits = 20;
+
+	//	shared_ptr<ParmType> ilparams = ElemParamFactory::GenElemParams<ParmType>(m,bits,towersize); //note this works too. 
+
+	shared_ptr<ParmType> ilparams = ElemParamFactory::GenElemParams<ParmType>(m,bits);
+
+#endif
+	
+	
+	//shared_ptr<ParmType> ilparams = ElemParamFactory::GenElemParams<ParmType>(m,60,2);
+
+
 	//GenerateDCRTParams<typename Element::Integer>(8, 3, 20) );
-
+	DEBUGEXP(*ilparams);
 	Element ilvector2n1(ilparams);
-	ilvector2n1 = {1,2,0,1};
+	ilvector2n1 = {"1","2","0","1"};
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n1.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
 
+	DEBUGEXP(ilvector2n1);
 	Element ilvector2n2(ilparams);
 	ilvector2n2 = {1,2,0,1};
+	EXPECT_EQ(ilvector2n2.GetLength(), m/2) 
+			<< msg << " Failure: ={init list int}";	
+	DEBUGEXP(ilvector2n2);
 
-	EXPECT_EQ(ilvector2n1, ilvector2n2) << msg << " Failure: Operator ==";
+	// test ctor(ilparams), ==
+	EXPECT_EQ(ilvector2n1, ilvector2n2) << msg << " Failure:  ctor(ilparams) or op ==";
 
-	{//test constructor
+	{//test copy ctor(Element)
 		Element ilv1(ilvector2n1);
-		EXPECT_EQ(ilvector2n1, ilv1) << msg << " Failure: copy constructor";
+		EXPECT_EQ(ilvector2n1, ilv1) << msg << " Failure: copy ctor";
 	}
-
+	//FIXME does not test any other ctor
 	{//test operator=
 		Element ilv1 = ilvector2n1;
-		EXPECT_EQ(ilvector2n1, ilv1) << msg << " Failure: operator=";
+		EXPECT_EQ(ilvector2n1, ilv1) << msg << " Failure: op=";
 	}
-
-	{//test SwitchModulus, !=
-		Element ilv1 = ilvector2n1;
-		try {
-			ilv1.SwitchModulus(typename VecType::Integer("123467"), typename VecType::Integer("1234"));
-			EXPECT_NE(ilvector2n1, ilv1)
-				<< msg << " Failure: Operator!= switchmodulus comparison";
-
-			Element ilv2 = ilvector2n1;
-			ilv2.at(2)= 2;
-			EXPECT_NE(ilvector2n1, ilv2)
-				<< msg << " Failure: Operator!= value comparison";
-		} catch (std::exception& e) {
-			// ignore for dcrtpoly
-		}
-	}
-
-	// FIXME
-#ifdef OUT
-	NOTE at not supported for dcrtpoly; needs a fix
+	DEBUGEXP(ilvector2n1);
+	//FIXME move += -= to arithmetic ops
 	{//test operator-=
-		Element ilv1 = ilvector2n1;
+	        Element ilv1 = ilvector2n1;
+		DEBUGEXP(ilvector2n1);
+		DEBUGEXP(ilv1);
+		Element zero(ilparams);
+		zero = {0,0,0,0};
+		DEBUGEXP(zero);
 		ilv1 -= ilvector2n1;
-		for (usint i = 0; i < m/2; ++i) {
-			EXPECT_EQ(0, ilv1.at(i))
-				<< "Faiure: Operator-= @ index "<<i;
-		}
+		DEBUGEXP(ilv1);
+		EXPECT_EQ(zero, ilv1)
+		  <<msg<< "Failure: Operator-=";
+
+		//test !=
+		EXPECT_NE(ilvector2n1, zero)
+		  << msg << " Failure: Operator!= value comparison";
+		DEBUGEXP(ilvector2n1);
+		DEBUGEXP(ilv1);
 	}
 
 	{//test operator+=
 		Element ilv1 = ilvector2n1;
+		DEBUGEXP(ilv1);
+		Element two(ilparams);
+		two = {2,2,2,2};
 		ilv1 += ilvector2n1;
-		for (usint i = 0; i < m/2; ++i)
-			{//we expect a+a == 2*a
-			EXPECT_EQ(2 * ilvector2n1.at(i),
-				  ilv1.at(i))
-				<< "Faiure: Operator+= @ index "<<i;
-		}
+		EXPECT_EQ(two * ilvector2n1, ilv1)
+		  <<msg<< "Failure: Operator+= ";
 	}
 
-	SetValues and GetValues and etc not supported for dcrtpoly; needs a fix
-	{//test getters //todo: this should be in its own test
-		Element ilvector2n(ilparams);
-		VecType bbv(m/2, ilparams->GetModulus());
-		bbv = {"1", "2", "0", "1"};
-		ilvector2n.SetValues(bbv, ilvector2n.GetFormat());
-		bbv[3] = 11;
-		EXPECT_EQ(ilparams->GetModulus(), ilvector2n.GetModulus())
-			<< "Failure: GetModulus()";
-		EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder())
-			<< "Failure: GetCyclotomicOrder()";
-		EXPECT_EQ(ilparams->GetRootOfUnity(), ilvector2n.GetRootOfUnity())
-			<< "Failure: GetRootOfUnity()";
-		EXPECT_EQ(bbv, ilvector2n.GetValues()) 
-			<< "Failure: GetValues()";
-		EXPECT_EQ(Format::EVALUATION, ilvector2n.GetFormat())
-			<< "Failure: GetFormat()";
-		EXPECT_EQ(m/2, ilvector2n.GetLength())
-			<< "Failure: GetLength()";
-
-		 for (usint i = 0; i < m/2; ++i) {
-		 	EXPECT_EQ(bbv.at(i), 
-		 		  ilvector2n.at(i)) 
-		 		<< " Failure: at("<<i<< ")";
-		 }
-	}
-#endif
 }
 
-//instantiate ops_tests for various backend combos
-TEST(UTPoly, ops_tests) {
-	RUN_ALL_POLYS(operators_tests, "operators_tests")
+
+
+//instantiate ops for various backend combos
+TEST(UTPoly, common_basic_ops) {
+        RUN_ALL_POLYS(common_basic_ops, "Poly basic_ops")
 }
 
-TEST(UTDCRTPoly, ops_tests) {
-	RUN_BIG_DCRTPOLYS(operators_tests, "operators_tests")
+TEST(UTDCRTPoly, common_basic_ops) {
+	RUN_BIG_DCRTPOLYS(common_basic_ops, "DCRT basic_ops")
 }
 
-// template for rounding_operations tests
+// template for rounding_ops tests
 template<typename Element>
-void rounding_operations(const string& msg) {
-
+void rounding_ops(const string& msg) {
+        bool dbg_flag = true;
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
 
-  bool dbg_flag = false;
 	usint m = 8;
 
 	typename VecType::Integer q("73");
@@ -174,58 +168,58 @@ void rounding_operations(const string& msg) {
 
 	Element ilvector2n1(ilparams,COEFFICIENT);
 	ilvector2n1 = { "31","21","15","34"};
-
-	DEBUG("ilvector2n1 a "<<ilvector2n1);
+	DEBUGEXP(ilvector2n1);
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n1.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
 
 	Element ilvector2n2(ilparams,COEFFICIENT);
 	ilvector2n2 = { "21","11","35","32" };
+	DEBUGEXP(ilvector2n2);
 
-	DEBUG("ilvector2n2 a "<<ilvector2n2);
-
-	//unit test for MultiplyAndRound
-
+	DEBUG("unit test for MultiplyAndRound");
 	Element roundingCorrect1(ilparams, COEFFICIENT);
 	roundingCorrect1 = { "3","2","2","4" };
 
-	DEBUG("ilvector2n1 b "<<ilvector2n1);
+	DEBUGEXP(ilvector2n1);
 
 	Element rounding1 = ilvector2n1.MultiplyAndRound(p, q);
 
 	EXPECT_EQ(roundingCorrect1, rounding1) 
 		<< msg << " Failure: Rounding p*polynomial/q";
 
-	//unit test for MultiplyAndRound after a polynomial
-	//multiplication using the larger modulus
+	DEBUG("unit test for MultiplyAndRound after a polynomial");
+	DEBUG("multiplication using the larger modulus");
 
 	Element roundingCorrect2(ilparams2, COEFFICIENT);
 	roundingCorrect2 = { "16316","16320","60","286" };
 
 	ilvector2n1.SwitchModulus(q2, primitiveRootOfUnity2);
 	ilvector2n2.SwitchModulus(q2, primitiveRootOfUnity2);
-	DEBUG("ilvector2n1 c "<<ilvector2n1);
-	DEBUG("ilvector2n2 c "<<ilvector2n2);
+	DEBUGEXP(ilvector2n1);
+	DEBUGEXP(ilvector2n2);
 
 
 	ilvector2n1.SwitchFormat();
 	ilvector2n2.SwitchFormat();
-	DEBUG("ilvector2n1 d "<<ilvector2n1);
-	DEBUG("ilvector2n2 d "<<ilvector2n2);
+	DEBUGEXP(ilvector2n1);
+	DEBUGEXP(ilvector2n2);
 
 	Element rounding2 = ilvector2n1 * ilvector2n2;
 
-	DEBUG("rounding2 d "<<rounding2);
+	DEBUGEXP(rounding2);
 	rounding2.SwitchFormat();
-	DEBUG("rounding2 e "<<rounding2);
+	DEBUGEXP(rounding2);
 	rounding2 = rounding2.MultiplyAndRound(p, q);
-	DEBUG("rounding2 f "<<rounding2);
+	DEBUGEXP(rounding2);
 	EXPECT_EQ(roundingCorrect2, rounding2) 
 		<< msg << " Failure: Rounding p*polynomial1*polynomial2/q";
 
-	//makes sure the result is correct after going back to the
-	//original modulus
+	DEBUG("makes sure the result is correct after");
+	DEBUG("going back to the original modulus");
 
 	rounding2.SwitchModulus(q, primitiveRootOfUnity);
-	DEBUG("rounding2 g "<<rounding2);
+	DEBUGEXP(rounding2);
 
 	Element roundingCorrect3(ilparams, COEFFICIENT);
 	roundingCorrect3 = { "45","49","60","67" };
@@ -234,20 +228,94 @@ void rounding_operations(const string& msg) {
 		<< msg << " Failure p*polynomial1*polynomial2/q (mod q)";
 }
 
-// instantiate various test for rounding_operations()
-TEST(UTPoly, rounding_operations) {
-	RUN_ALL_POLYS(rounding_operations, "rounding_operations");
+// instantiate various test for rounding_ops()
+TEST(UTPoly, rounding_ops) {
+	RUN_ALL_POLYS(rounding_ops, "Poly rounding_ops");
 }
 
 // FIXME DCRTPoly needs an assignment op/ctor
-//TEST(UTDCRTPoly, rounding_operations) {
-//	rounding_operations<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, rounding_ops) {
+  RUN_BIG_DCRTPOLYS(rounding_ops, "DCRT rounding_ops");
+}
 
-//template for setters_tests()
+//template for set_get_values()
 template<typename Element>
-void setters_tests(const string& msg) {
+void set_get_values(const string& msg) {
+        bool dbg_flag = false;
+	using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
 
+	usint m = 8;
+
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+	{ //test SetValues()
+	  Element ilvector2n(ilparams);
+	  VecType bbv(m/2, primeModulus);
+	  bbv = {	"3","0","0","0"};
+	  ilvector2n.SetValues(bbv, Format::COEFFICIENT);
+	  DEBUGEXP(ilvector2n);
+	  //test for bug where length was 0
+	  EXPECT_EQ(ilvector2n.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
+	
+	  Element ilvector2n2(ilparams);
+	  VecType bbv2(m/2, primeModulus);
+	  bbv2={"3","3","3","3"};
+	  ilvector2n2.SetValues(bbv2, Format::COEFFICIENT);
+
+	  // test SetValues()
+	  EXPECT_NE(ilvector2n, ilvector2n2) << msg << " Failure: SetValues NE";
+	  bbv2=bbv;
+	  ilvector2n2.SetValues(bbv2, Format::COEFFICIENT);
+	  EXPECT_EQ(ilvector2n, ilvector2n2) << msg << " Failure: SetValues EQ";
+	}
+	{//test GetValue() and at()
+	        Element ilvector2n(ilparams);
+		ilvector2n  = {"1", "2", "0", "1"};
+		Element bbv(ilparams);
+		bbv = {"1", "2", "0", "1"};
+		DEBUGEXP(ilvector2n);
+		DEBUGEXP(bbv);
+	
+		EXPECT_EQ(bbv.GetValues(), ilvector2n.GetValues()) 
+			<<msg<< "Failure: GetValues()";
+	
+		usint index = 3;
+		bbv[index] = 11;
+		for (usint i = 0; i < m/2; ++i) {
+		  if (i ==index) {
+		    EXPECT_NE(bbv.at(i), 
+			      ilvector2n.at(i)) 
+		      <<msg<< " Failure: lhs[] at("<<i<< ")";
+		  }else{
+		    EXPECT_EQ(bbv.at(i), 
+			      ilvector2n.at(i)) 
+		      <<msg<< " Failure: lhs[] at("<<i<< ")";
+		  }
+		}
+
+	}	
+	
+}
+
+// instantiate various test for set_get_values()
+TEST(UTPoly, set_get_values) {
+  RUN_ALL_POLYS(set_get_values, "Poly set_get_values");
+}
+
+// FIXME DCRTPoly needs a set_get_values()
+TEST(UTDCRTPoly, set_get_values) {
+  std::cerr<<"*** skipping DCRT set_get_values till coded"<<std::endl;
+  //RUN_BIG_DCRTPOLYS(set_get_values, "DCRT set_values");
+}
+
+//template for at()
+template<typename Element>
+void at(const string& msg) {
+        bool dbg_flag = false;
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
 
@@ -258,16 +326,77 @@ void setters_tests(const string& msg) {
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
-	Element ilvector2n(ilparams);
-	VecType bbv(m/2, primeModulus);
-	bbv = {	"3","0","0","0"};
-	ilvector2n.SetValues(bbv, Format::COEFFICIENT);
+	{//test and at() and []
+	  Element ilvector2n(ilparams);
+	  ilvector2n  = {"1", "2", "0", "1"};
+	  Element bbv(ilparams);
+	  bbv = {"1", "2", "0", "1"};
+	  DEBUGEXP(ilvector2n);
+	  DEBUGEXP(bbv);
+	  //test for bug where length was 0
+	  EXPECT_EQ(ilvector2n.GetLength(), m/2) 
+	    << msg << " Failure: ={init list string}";	
 
-	Element ilvector2nInEval(ilparams);
-	VecType bbvEval(m/2, primeModulus);
-	bbvEval={"3","3","3","3"};
-	ilvector2nInEval.SetValues(bbvEval, Format::EVALUATION);
+	  usint index = 3;
+	  bbv[index] = 11;
+	  for (usint i = 0; i < m/2; ++i) {
+	    if (i ==index) {
+	      EXPECT_NE(bbv.at(i), 
+			ilvector2n.at(i)) 
+		<<msg<< " Failure: lhs[] at("<<i<< ")";
+	    }else{
+	      EXPECT_EQ(bbv.at(i), 
+			ilvector2n.at(i)) 
+		<<msg<< " Failure: lhs[] at("<<i<< ")";
+	    }
+	  }
+	  bbv.at(index) = 1;
+	  for (usint i = 0; i < m/2; ++i) {
+	    EXPECT_EQ(bbv.at(i), 
+		      ilvector2n.at(i)) 
+	      <<msg<< " Failure: lhs[] at("<<i<< ")";
+	  }
+	}
+}
 
+// instantiate various test for at()
+TEST(UTPoly, at) {
+  RUN_ALL_POLYS(at, "Poly at");
+}
+
+// FIXME DCRTPoly needs a at() and []
+TEST(UTDCRTPoly, at) {
+  std::cerr<<"*** skipping DCRT at till coded"<<std::endl;
+  //RUN_BIG_DCRTPOLYS(at, "DCRT at");
+}
+
+//template for set_format()
+template<typename Element>
+void set_format(const string& msg) {
+        bool dbg_flag = false;
+	using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
+
+	usint m = 8;
+
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+#if 0
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+#else
+	shared_ptr<ParmType> ilparams = ElemParamFactory::GenElemParams<ParmType>(m, primeModulus, primitiveRootOfUnity);
+#endif
+	
+	Element ilvector2n(ilparams, COEFFICIENT);
+	ilvector2n = {	"3","0","0","0"};
+	DEBUGEXP(ilvector2n);
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";
+	Element ilvector2nInEval(ilparams, EVALUATION);
+	ilvector2nInEval={"3","3","3","3"};
+	DEBUGEXP(ilvector2nInEval);
 	{// test SetFormat()
 		Element ilv(ilvector2n);
 
@@ -277,34 +406,76 @@ void setters_tests(const string& msg) {
 		ilv.SetFormat(Format::EVALUATION);
 		EXPECT_EQ(ilvector2nInEval, ilv) << msg << " Failure: SetFormat() to EVALUATION";
 	}
+}
 
-	// this is here because it's a vectors-only test
-	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"56","1","37","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
+// instantiate various test for set_format()
+TEST(UTPoly, set_format) {
+  RUN_ALL_POLYS(set_format, "Poly set_format");
+}
 
-		EXPECT_EQ(36, ilv.Norm())
-			<< msg << " Failure: Norm()";
+// FIXME DCRTPoly needs a set_format()
+TEST(UTDCRTPoly, set_format) {
+  RUN_BIG_DCRTPOLYS(set_format, "DCRT set_format");
+}
+
+//template for setters_getters()
+template<typename Element>
+void setters_getters(const string& msg) {
+        bool dbg_flag = true;
+	using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
+
+	usint m = 8;
+
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+
+
+	{//test getters 
+	        Element ilvector2n(ilparams);
+		ilvector2n  = {"1", "2", "0", "1"};
+		Element bbv(ilparams);
+		bbv = {"1", "2", "0", "1"};
+		DEBUGEXP(ilvector2n);
+		DEBUGEXP(bbv);
+		
+		//test for bug where length was 0
+		EXPECT_EQ(ilvector2n.GetLength(), m/2) 
+		  << msg << " Failure: ={init list string}";	
+
+		EXPECT_EQ(ilparams->GetModulus(), ilvector2n.GetModulus())
+			<<msg<< "Failure: GetModulus()";
+		EXPECT_EQ(m, ilvector2n.GetCyclotomicOrder())
+			<<msg<< "Failure: GetCyclotomicOrder()";
+		EXPECT_EQ(ilparams->GetRootOfUnity(), ilvector2n.GetRootOfUnity())
+			<<msg<< "Failure: GetRootOfUnity()";
+		EXPECT_EQ(Format::EVALUATION, ilvector2n.GetFormat())
+			<<msg<< "Failure: GetFormat()";
+		EXPECT_EQ(m/2, ilvector2n.GetLength())
+			<<msg<< "Failure: GetLength()";
+	
 	}
 }
 
-// instantiate setters_tests() for various combos
-TEST(UTPoly, setters_tests) {
-	RUN_ALL_POLYS(setters_tests, "setters_tests");
+// instantiate setters_getters() for various combos
+TEST(UTPoly, setters_getters) {
+	RUN_ALL_POLYS(setters_getters, "setters_getters");
 }
 
 // FIXME DCRTPoly? ^^^^^
+TEST(UTDCRTPoly, setters_getters) {
+	RUN_BIG_DCRTPOLYS(setters_getters, "setters_getters");
+}
 
 //template for binary_ops()
 template<typename Element>
 void binary_ops(const string& msg) {
-
+        bool dbg_flag = true;
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
 
-	bool dbg_flag = false;
 	usint m = 8;
 
 	typename VecType::Integer primeModulus("73");
@@ -313,90 +484,86 @@ void binary_ops(const string& msg) {
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
 	Element ilvector2n1(ilparams);
-	VecType bbv1(m/2, primeModulus);
-	bbv1 = {"2","1","1","1"};
-	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
-	DEBUG("ilvector2n1 a "<<ilvector2n1);
+	ilvector2n1 = {"2","1","1","1"};
+	DEBUGEXP(ilvector2n1);
+
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n1.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
 
 	Element ilvector2n2(ilparams);
-	VecType bbv2(m/2, primeModulus);
-	bbv2 = {"1","0","1","1"};
-	ilvector2n2.SetValues(bbv2, ilvector2n2.GetFormat());
-	DEBUG("ilvector2n2 a "<<ilvector2n2);
+	ilvector2n2 = {"1","0","1","1"};
+	DEBUGEXP(ilvector2n2);
 
 	Element ilvector2n3(ilparams, COEFFICIENT);
-	VecType bbv3(m / 2, primeModulus);
-	bbv3 = {"2","1","1","1"};
-	ilvector2n3.SetValues(bbv3, ilvector2n3.GetFormat());
-	DEBUG("ilvector2n3 a "<<ilvector2n3);
+	ilvector2n3 = {"2","1","1","1"};
+	DEBUGEXP(ilvector2n3);
 
 	Element ilvector2n4(ilparams, COEFFICIENT);
-	VecType bbv4(m / 2, primeModulus);
-	bbv4 = {"1","0","1","1"};
-	ilvector2n4.SetValues(bbv4, ilvector2n4.GetFormat());
-	DEBUG("ilvector2n4 a "<<ilvector2n4);
+	ilvector2n4 = {"1","0","1","1"};
+	DEBUGEXP(ilvector2n4);
 
-	{
+	{// test Plus
 		Element ilv1(ilvector2n1);
-		DEBUG("ilv1 a "<<ilv1);
+		DEBUGEXP(ilv1);
 		Element ilv2 = ilv1.Plus(ilvector2n2);
-		DEBUG("ilv2 a "<<ilv2);
-		VecType expected(4, primeModulus);
+		DEBUGEXP(ilv2);
+		Element expected(ilparams, EVALUATION);
 		expected = {"3","1","2","2"};
-		EXPECT_EQ(expected, ilv2.GetValues())
-			<< msg << " Failure: Plus()";
+		EXPECT_EQ(expected, ilv2)
+		  << msg << " Failure: Plus()";
 	}
-	{
+	{// test Minus
 		Element ilv1(ilvector2n1);
-		DEBUG("ilv1 b "<<ilv1);
+		DEBUGEXP(ilv1);
 		Element ilv2 = ilv1.Minus(ilvector2n2);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams, EVALUATION);
 		expected = {"1","1","0","0"};
-		EXPECT_EQ(expected, ilv2.GetValues())
+		EXPECT_EQ(expected, ilv2)
 			<< msg << " Failure: Minus()";
 	}
 	
-	{
+	
+	{// test times
 		Element ilv1(ilvector2n1);
-		DEBUG("ilv1 c "<<ilv1);
+		DEBUGEXP(ilv1);
 		Element ilv2 = ilv1.Times(ilvector2n2);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams, EVALUATION);
 		expected = {"2","0","1","1"};
-		EXPECT_EQ(expected, ilv2.GetValues())
+		EXPECT_EQ(expected, ilv2)
 			<< msg << " Failure: Times()";
 	}
 
-	{
+	{// test SwitchFormat()
 		ilvector2n3.SwitchFormat();
-		DEBUG("ilvector2n3 "<<ilvector2n3);
+		DEBUGEXP(ilvector2n3);
 		ilvector2n4.SwitchFormat();
-		DEBUG("ilvector2n4 "<<ilvector2n4);
+		DEBUGEXP(ilvector2n4);
 
 		Element ilv3(ilvector2n3);
 		Element ilv4 = ilv3.Times(ilvector2n4);
-		DEBUG("ilv3 "<<ilv3);
-		DEBUG("ilv4 "<<ilv4);
+		DEBUGEXP(ilv3);
+		DEBUGEXP(ilv4);
 
 		ilv4.SwitchFormat();
-		DEBUG("ilv4 "<<ilv4);
-
-		VecType expected(4, primeModulus);
-		expected = {"0","72","2","4"};
-		EXPECT_EQ(expected, ilv4.GetValues())
+		DEBUGEXP(ilv4);
+		Element expected(ilparams, COEFFICIENT);
+		expected = {0,72,2,4};
+		EXPECT_EQ(expected, ilv4)
 			<< msg << " Failure: Times() using SwitchFormat()";
 	}
 }
 
 // Instantiations of binary_ops
 TEST(UTPoly, binary_ops) {
-	RUN_ALL_POLYS(binary_ops, "binary_ops");
+	RUN_ALL_POLYS(binary_ops, "Poly binary_ops");
 }
 
 // FIXME DCRTPoly?
 
-//TEST(UTDCRTPoly, binary_ops) {
-//	binary_ops<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, binary_ops) {
+	RUN_BIG_DCRTPOLYS(binary_ops, "DCRT binary_ops");
+}
 
 //templet for clone_ops
 template<typename Element>
@@ -412,9 +579,12 @@ void clone_ops(const string& msg) {
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
 	Element ilv(ilparams);
-	VecType bbv(m/2, primeModulus);
-	bbv = {"2","1","1","1"};
-	ilv.SetValues(bbv, ilv.GetFormat());
+	ilv = {"2","1","1","1"};
+
+	//test for bug where length was 0
+	EXPECT_EQ(ilv.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
+
 	{
 		Element ilvClone = ilv.CloneParametersOnly();
 
@@ -450,9 +620,9 @@ TEST(UTPoly, clone_ops) {
 }
 
 //FIXME
-//TEST(UTDCRTPoly, clone_ops) {
-//	clone_ops<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, clone_ops) {
+	RUN_BIG_DCRTPOLYS(clone_ops, "clone_ops");
+}
 
 //template for arithmetic_ops_element()
 template<typename Element>
@@ -468,81 +638,142 @@ void arithmetic_ops_element(const string& msg) {
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
 	Element ilv(ilparams);
-	VecType bbv(m/2, primeModulus);
-	bbv = {"2","1","4","1"};
-	ilv.SetValues(bbv, ilv.GetFormat());
+	ilv = {"2","1","4","1"};
+
+	//test for bug where length was 0
+	EXPECT_EQ(ilv.GetLength(), m/2) 
+			<< msg << " Failure: ={init list string}";	
 
 	typename VecType::Integer element("1");
 
 	{
 		Element ilvector2n(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 = {"1","3","4","1"};
-		ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
+		ilvector2n = {"1","3","4","1"};
 
 		ilvector2n = ilvector2n.Plus(element);
-		VecType expected(4, primeModulus);
+
+		Element expected(ilparams);
 		expected = {"2","3","4","1"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: Plus()";
 	}
 	{
 		Element ilvector2n = ilv.Minus(element);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams);
 		expected = {"1","0","3","0"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: Minus()";
 	}
 	{
 		typename VecType::Integer ele("2");
 		Element ilvector2n = ilv.Times(ele);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams);
 		expected = {"4","2","8","2"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: Times()";
 	}
 	{
 		Element ilvector2n(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 = {"1","3","4","1"};
-		ilvector2n.SetValues(bbv1, Format::COEFFICIENT);
+		ilvector2n = {"1","3","4","1"};
 
 		ilvector2n += element;
-		VecType expected(4, primeModulus);
+		Element expected(ilparams);
 		expected = {"2","3","4","1"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: op+=";
 	}
 	{
 		Element ilvector2n = ilv.Minus(element);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams);
 		expected = {"1","0","3","0"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: Minus()";
 
 	}
 	{
 		Element ilvector2n(ilv);
 		ilvector2n -= element;
-		VecType expected(4, primeModulus);
+		Element expected(ilparams);
 		expected = {"1","0","3","0"};
-		EXPECT_EQ(expected, ilvector2n.GetValues())
+		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: op-=";
 	}
 }
+
 //instantiations for arithmetic_ops_element()
 TEST(UTPoly, arithmetic_ops_element) {
-	RUN_ALL_POLYS(arithmetic_ops_element, "arithmetic_ops_element");
+	RUN_ALL_POLYS(arithmetic_ops_element, "Poly arithmetic_ops_element");
 }
 
 // FIXME
-//TEST(UTDCRTPoly, arithmetic_ops_element) {
-//	arithmetic_ops_element<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, arithmetic_ops_element) {
+	RUN_BIG_DCRTPOLYS(arithmetic_ops_element, "DCRT arithmetic_ops_element");
+}
 
-//template fore other_methods()
+//template for switch_modulus
+
 template<typename Element>
-void other_methods(const string& msg) {
+void switch_modulus(const string& msg) {
+        bool dbg_flag = false;
+	using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
+	//using IntType = typename Element::Vector::Integer;
+
+	usint m = 8;
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+	DEBUG("SwitchModulus");
+	{
+	        Element ilv(ilparams, COEFFICIENT);
+		ilv ={"56","1","37","2"};
+		//test for bug where length was 0
+		EXPECT_EQ(ilv.GetLength(), m/2) 
+		  << msg << " Failure: ={init list string}";
+
+		typename VecType::Integer modulus("17");
+		typename VecType::Integer rootOfUnity("15");
+
+		ilv.SwitchModulus(modulus, rootOfUnity);
+
+		shared_ptr<ParmType> ilparams2( new ParmType(m,
+							     modulus,
+							     rootOfUnity) );
+		Element expected(ilparams2,COEFFICIENT);
+		expected = {"0","1","15","2"};
+		EXPECT_EQ(expected, ilv)
+			<< msg << " Failure: SwitchModulus()";
+
+		Element ilv1(ilparams, COEFFICIENT);
+		ilv1 ={"56","43","35","28"};
+		typename VecType::Integer modulus1("193");
+		typename VecType::Integer rootOfUnity1("150");
+
+		ilv1.SwitchModulus(modulus1, rootOfUnity1);
+		shared_ptr<ParmType> ilparams3( new ParmType(m,
+							     modulus1,
+							     rootOfUnity1) );
+		Element expected2(ilparams3,COEFFICIENT);
+		expected2 = {"176","163","35","28"};
+		EXPECT_EQ(expected2, ilv1)
+			<< msg << " Failure: SwitchModulus()";
+	}
+
+}
+//instantiations for switch_modulus()
+TEST(UTPoly, switch_modulus) {
+	RUN_ALL_POLYS(switch_modulus, "Poly switch_modulus");
+}
+
+
+TEST(UTDCRTPoly, switch_modulus) {
+  std::cerr<<"*** skipping DCRT switch_modulus till coded"<<std::endl;	//RUN_BIG_DCRTPOLYS(switch_modulus, "Poly switch_modulus");
+}
+
+//template fore rn_generators()
+template<typename Element>
+void rn_generators(const string& msg) {
 
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
@@ -560,111 +791,13 @@ void other_methods(const string& msg) {
 
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
-	Element ilvector2n(ilparams);
-	VecType bbv1(m/2, primeModulus);
-	bbv1 = {"2","1","3","2"};
-	ilvector2n.SetValues(bbv1, Format::EVALUATION);
-
-	DEBUG("1");
+	DEBUG("DestroyPreComputedSamples");
 	{
-		Element ilv(ilvector2n);
-
-		ilv.AddILElementOne();
-		VecType expected(4, primeModulus);
-		expected = {"3","2","4","3"};
-		EXPECT_EQ(expected, ilv.GetValues())
-			<< msg << " Failure: AddILElementOne()";
-	}
-
-	DEBUG("2");
-	{
-		Element ilv(ilvector2n);
-		ilv = ilv.ModByTwo();
-		VecType expected(4, primeModulus);
-		expected = {"0","1","1","0"};
-		EXPECT_EQ(expected, ilv.GetValues())
-			<< msg << " Failure: ModByTwo()";
-	}
-
-	DEBUG("3");
-	{
-		Element ilv(ilvector2n);
-		ilv.MakeSparse(2);
-		VecType expected(4, primeModulus);
-		expected = {"2","0","3","0"};
-		EXPECT_EQ(expected, ilv.GetValues())
-			<< msg << " Failure: MakeSparse(2)";
-
-		Element ilv1(ilvector2n);
-		ilv1.MakeSparse(3);
-		expected = {"2","0","0","2"};
-
-		EXPECT_EQ(expected, ilv1.GetValues())
-			<< msg << " Failure: MakeSparse(3)";
-	}
-
-	DEBUG("4");
-	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"2","1","3","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
-
-		ilv.Decompose();
-
-		EXPECT_EQ(2U, ilv.GetLength())
-			<< msg << " Failure: Decompose() length";
-
-		EXPECT_EQ(ilv.at(0), typename Element::Integer(2))
-			<< msg << " Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
-		
-		EXPECT_EQ(ilv.at(1), typename Element::Integer(3))
-			<< msg << " Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
-	}
-
-	DEBUG("5");
-	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"2","1","3","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
-
-		ilv.SwitchFormat();
-
-		EXPECT_EQ(primeModulus, ilv.GetModulus())
-			<< msg << " Failure: SwitchFormat() ilv modulus";
-		EXPECT_EQ(primitiveRootOfUnity, ilv.GetRootOfUnity())
-			<< msg << " Failure: SwitchFormat() ilv rootOfUnity";
-		EXPECT_EQ(Format::EVALUATION, ilv.GetFormat())
-			<< msg << " Failure: SwitchFormat() ilv format";
-		VecType expected(4, primeModulus);
-		expected = {"69","44","65","49"};
-		EXPECT_EQ(expected, ilv.GetValues())
-			<< msg << " Failure: ivl.SwitchFormat() values";
-
-		Element ilv1(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 = {"2","1","3","2"};
-		ilv1.SetValues(bbv1, Format::EVALUATION);
-
-		ilv1.SwitchFormat();
-
-		EXPECT_EQ(primeModulus, ilv1.GetModulus())
-			<< msg << " Failure: SwitchFormat() ilv1 modulus";
-		EXPECT_EQ(primitiveRootOfUnity, ilv1.GetRootOfUnity())
-			<< msg << " Failure: SwitchFormat() ilv1 rootOfUnity";
-		EXPECT_EQ(Format::COEFFICIENT, ilv1.GetFormat())
-			<< msg << " Failure: SwitchFormat() ilv1 format";
-		expected = {"2","3","50","3"};
-		EXPECT_EQ(expected, ilv1.GetValues())
-			<< msg << " Failure: ivl1.SwitchFormat() values";
-	}
-	DEBUG("6");
-	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"2","1","3","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
+   	        Element ilv(ilparams, COEFFICIENT);
+		ilv = {"2","1","3","2"};
+		//test for bug where length was 0
+		EXPECT_EQ(ilv.GetLength(), m/2) 
+		  << msg << " Failure: ={init list string}";
 
 		Element ilvector2n1(ilparams);
 		Element ilvector2n2(ilparams);
@@ -686,54 +819,140 @@ void other_methods(const string& msg) {
 		EXPECT_EQ(false, ilvector2n6.IsEmpty())
 			<< msg << " Failure: DestroyPreComputedSamples() 2n6";
 	}
+}
 
-	DEBUG("7");
+//Instantiations of rn_generators()
+TEST(UTPoly, rn_generators) {
+	RUN_ALL_POLYS(rn_generators, "Poly rn_generators");
+}
+
+TEST(UTDCRTPoly, rn_generators) {
+  std::cerr<<"*** skipping DCRT rn_generators till coded"<<std::endl;
+  //RUN_BIG_DCRTPOLYS(rn_generators, "DCRT rn_generators");
+}
+
+
+//template fore other_methods()
+template<typename Element>
+void other_methods(const string& msg) {
+
+	using VecType = typename Element::Vector;
+	using ParmType = typename Element::Params;
+
+	bool dbg_flag = true;
+	usint m = 8;
+	typename VecType::Integer primeModulus("73");
+	typename VecType::Integer primitiveRootOfUnity("22");
+
+	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
+
+	Element ilvector2n(ilparams);
+	ilvector2n = {"2","1","3","2"};
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n.GetLength(), m/2) 
+		  << msg << " Failure: ={init list string}";
+
+	DEBUG("AddILElementOne");
 	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv ={"56","1","37","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
+		Element ilv(ilvector2n);
 
-		typename VecType::Integer modulus("17");
-		typename VecType::Integer rootOfUnity("15");
-
-		ilv.SwitchModulus(modulus, rootOfUnity);
-		VecType expected(4, modulus);
-		expected = {"0","1","15","2"};
-		EXPECT_EQ(expected, ilv.GetValues())
-			<< msg << " Failure: SwitchModulus()";
-
-		Element ilv1(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 ={"56","43","35","28"};
-		ilv1.SetValues(bbv1, Format::COEFFICIENT);
-
-		typename VecType::Integer modulus1("193");
-		typename VecType::Integer rootOfUnity1("150");
-
-		ilv1.SwitchModulus(modulus1, rootOfUnity1);
-		VecType expected2(4, modulus1);
-		expected2 = {"176","163","35","28"};
-		EXPECT_EQ(expected2, ilv1.GetValues())
-			<< msg << " Failure: SwitchModulus()";
+		ilv.AddILElementOne();
+		Element expected(ilparams);
+		expected = {"3","2","4","3"};
+		EXPECT_EQ(expected, ilv)
+			<< msg << " Failure: AddILElementOne()";
 	}
 
-	DEBUG("8");
+	DEBUG("ModByTwo");
 	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"2","4","3","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
+		Element ilv(ilvector2n);
+		ilv = ilv.ModByTwo();
+		Element expected(ilparams);
+		expected = {"0","1","1","0"};
+		EXPECT_EQ(expected, ilv)
+			<< msg << " Failure: ModByTwo()";
+	}
 
-		Element ilv1(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 = {"2","0","3","2"};
-		ilv1.SetValues(bbv1, Format::COEFFICIENT);
+	DEBUG("MakeSparse(2)");
+	{
+		Element ilv(ilvector2n);
+		ilv.MakeSparse(2);
+		Element expected(ilparams);
+		expected = {"2","0","3","0"};
+		EXPECT_EQ(expected, ilv)
+			<< msg << " Failure: MakeSparse(2)";
 
-		Element ilv2(ilparams);
-		VecType bbv2(m/2, primeModulus);
-		bbv2 = {"2","1","3","2"};
-		ilv2.SetValues(bbv2, Format::COEFFICIENT);
+		Element ilv1(ilvector2n);
+		ilv1.MakeSparse(3);
+		expected = {"2","0","0","2"};
+
+		EXPECT_EQ(expected, ilv1)
+			<< msg << " Failure: MakeSparse(3)";
+	}
+
+	DEBUG("Decompose");
+	{
+	        Element ilv(ilparams,COEFFICIENT);
+		ilv = {"2","1","3","2"};
+
+		ilv.Decompose();
+
+		EXPECT_EQ(2U, ilv.GetLength())
+			<< msg << " Failure: Decompose() length";
+
+		EXPECT_EQ(ilv.at(0), typename Element::Integer(2))
+			<< msg << " Failure: Decompose(): mismatch between original and decomposed elements at index 0.";
+		
+		EXPECT_EQ(ilv.at(1), typename Element::Integer(3))
+			<< msg << " Failure: Decompose(): mismatch between original and decomposed elements at index 1.";
+	}
+
+	DEBUG("SwitchFormat");
+	{
+	        Element ilv(ilparams,COEFFICIENT);
+		ilv = {"2","1","3","2"};
+
+		ilv.SwitchFormat();
+
+		EXPECT_EQ(primeModulus, ilv.GetModulus())
+			<< msg << " Failure: SwitchFormat() ilv modulus";
+		EXPECT_EQ(primitiveRootOfUnity, ilv.GetRootOfUnity())
+			<< msg << " Failure: SwitchFormat() ilv rootOfUnity";
+		EXPECT_EQ(Format::EVALUATION, ilv.GetFormat())
+			<< msg << " Failure: SwitchFormat() ilv format";
+		Element expected(ilparams);
+		expected = {"69","44","65","49"};
+		EXPECT_EQ(expected, ilv)
+			<< msg << " Failure: ivl.SwitchFormat() values";
+
+		Element ilv1(ilparams, EVALUATION);
+		ilv1 = {"2","1","3","2"};
+
+		ilv1.SwitchFormat();
+
+		EXPECT_EQ(primeModulus, ilv1.GetModulus())
+			<< msg << " Failure: SwitchFormat() ilv1 modulus";
+		EXPECT_EQ(primitiveRootOfUnity, ilv1.GetRootOfUnity())
+			<< msg << " Failure: SwitchFormat() ilv1 rootOfUnity";
+		EXPECT_EQ(Format::COEFFICIENT, ilv1.GetFormat())
+			<< msg << " Failure: SwitchFormat() ilv1 format";
+		Element expected2(ilparams,COEFFICIENT);
+		expected2 = {"2","3","50","3"};
+		EXPECT_EQ(expected2, ilv1)
+			<< msg << " Failure: ivl1.SwitchFormat() values";
+	}
+
+
+	DEBUG("InverseExists");
+	{
+	        Element ilv(ilparams, COEFFICIENT);
+		ilv = {"2","4","3","2"};
+
+		Element ilv1(ilparams, COEFFICIENT);
+		ilv1 = {"2","0","3","2"};
+
+		Element ilv2(ilparams, COEFFICIENT);
+		ilv2 = {"2","1","3","2"};
 
 		EXPECT_EQ(true, ilv.InverseExists())
 			<< msg << " Failure: ilv.InverseExists()";
@@ -743,12 +962,10 @@ void other_methods(const string& msg) {
 			<< msg << " Failure: ilv2.InverseExists()";
 	}
 
-	DEBUG("9");
+	DEBUG("MultiplicativeInverse");
 	{
-		Element ilv1(ilparams);
-		VecType bbv1(m/2, primeModulus);
-		bbv1 = {"2","4","3","2"};
-		ilv1.SetValues(bbv1, Format::EVALUATION);
+	        Element ilv1(ilparams, EVALUATION);
+		ilv1 = {"2","4","3","2"};
 
 		Element ilvInverse1 = ilv1.MultiplicativeInverse();
 		Element ilvProduct1 = ilv1 * ilvInverse1;
@@ -760,27 +977,23 @@ void other_methods(const string& msg) {
 		}
 	}
 
-	DEBUG("A");
+	DEBUG("Norm");
 	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"56","1","37","1"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
-		
+	        Element ilv(ilparams, COEFFICIENT);
+		ilv = {"56","1","37","1"};
 		EXPECT_EQ(36, ilv.Norm()) << msg << " Failure: Norm()";
 	}
-	DEBUG("B");	
+	
+	DEBUG("AutomorphismTransform");	
 	{
-		Element ilv(ilparams);
-		VecType bbv(m/2, primeModulus);
-		bbv = {"56","1","37","2"};
-		ilv.SetValues(bbv, Format::COEFFICIENT);
+	        Element ilv(ilparams, COEFFICIENT);
+		ilv = {"56","1","37","2"};
 
 		usint index = 3;
 		Element ilvAuto(ilv.AutomorphismTransform(index));
-		VecType expected(4, primeModulus);
+		Element expected(ilparams,COEFFICIENT);
 		expected = {"56","2","36","1"};
-		EXPECT_EQ(expected, ilvAuto.GetValues())
+		EXPECT_EQ(expected, ilvAuto)
 			<< msg << " Failure: AutomorphismTransform()";
 	}
 }
@@ -789,13 +1002,12 @@ TEST(UTPoly, other_methods) {
 	RUN_ALL_POLYS(other_methods, "other_methods");
 }
 
-// FIXME
-//TEST(UTDCRTPoly, other_methods) {
-//	other_methods<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, other_methods) {
+ 	RUN_BIG_DCRTPOLYS(other_methods, "DCRT other_methods");
+ }
 
 template<typename Element>
-void cyclotomicOrder_test(const string& msg) {
+void cyclotomicOrder(const string& msg) {
 
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
@@ -807,17 +1019,17 @@ void cyclotomicOrder_test(const string& msg) {
 		<< msg << " Failure: GetCyclotomicOrder()";
 }
 
-//Instantiations of cyclotomicOrder_test()
-TEST(UTPoly, cyclotomicOrder_test) {
-	RUN_ALL_POLYS(cyclotomicOrder_test, "cyclotomicOrder_test");
+//Instantiations of cyclotomicOrder()
+TEST(UTPoly, cyclotomicOrder) {
+	RUN_ALL_POLYS(cyclotomicOrder, "cyclotomicOrder");
 }
 
-TEST(UTDCRTPoly, cyclotomicOrder_test) {
-	RUN_BIG_DCRTPOLYS(cyclotomicOrder_test, "cyclotomicOrder_test");
+TEST(UTDCRTPoly, cyclotomicOrder) {
+	RUN_BIG_DCRTPOLYS(cyclotomicOrder, "cyclotomicOrder");
 }
 
 template<typename Element>
-void constructors_test(const string& msg) {
+void DCRT_constructors(const string& msg) {
 
 	bool dbg_flag = false;
 	usint m = 8;
@@ -969,14 +1181,14 @@ void constructors_test(const string& msg) {
 
 }
 
-TEST(UTDCRTPoly, constructors_test) {
-	RUN_BIG_DCRTPOLYS(constructors_test, "constructors_test");
+TEST(UTDCRTPoly, DCRT_constructors) {
+	RUN_BIG_DCRTPOLYS(DCRT_constructors, "DCRT constructors");
 }
 
 // Signed mod must handle the modulo operation for both positive and negative numbers
 // It is used in decoding/decryption of homomorphic encryption schemes
 template<typename Element>
-void signed_mod_tests(const string& msg) {
+void signed_mod(const string& msg) {
 
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
@@ -989,45 +1201,48 @@ void signed_mod_tests(const string& msg) {
 	shared_ptr<ParmType> ilparams( new ParmType(m, primeModulus, primitiveRootOfUnity) );
 
 	Element ilvector2n1(ilparams,COEFFICIENT);
-	VecType bbv1(m / 2, primeModulus);
-	bbv1 = {"62","7","65","8"};
-	ilvector2n1.SetValues(bbv1, ilvector2n1.GetFormat());
+	ilvector2n1 = {"62","7","65","8"};
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n1.GetLength(), m/2) 
+	  << msg << " Failure: ={init list string}";
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
 		ilv1 = ilvector2n1.Mod(2);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams, COEFFICIENT);
 		expected = {"1","1","0","0"};
-		EXPECT_EQ(expected, ilv1.GetValues())
+		EXPECT_EQ(expected, ilv1)
 			<< msg << " Failure: ilv1.Mod(TWO)";
 	}
 
 	{
 		Element ilv1(ilparams, COEFFICIENT);
 		ilv1 = ilvector2n1.Mod(5);
-		VecType expected(4, primeModulus);
+		Element expected(ilparams, COEFFICIENT);
 		expected = {"4","2","2","3"};
-		EXPECT_EQ(expected, ilv1.GetValues())
+		EXPECT_EQ(expected, ilv1)
 			<< msg << " Failure: ilv1.Mod(FIVE)";
 	}
 }
-//Instantiations of signed_mod_tests()
-TEST(UTPoly, signed_mod_tests) {
-	RUN_ALL_POLYS(signed_mod_tests, "signed_mod_tests");
+//Instantiations of signed_mod()
+TEST(UTPoly, signed_mod) {
+	RUN_ALL_POLYS(signed_mod, "signed_mod");
 }
 
 // FIXME
-//TEST(UTDCRTPoly, signed_mod_tests) {
-//	signed_mod_tests<BigVector, ILDCRTParams, DCRTPoly>();
-//}
+TEST(UTDCRTPoly, signed_mod) {
+std::cerr<<"*** skipping DCRT signed_mod till coded"<<std::endl;
+//	RUN_BIG_DCRTPOLYS(signed_mod, "signed_mod");
+}
+
 
 template<typename Element>
-void transposition_test(const string& msg) {
+void transposition(const string& msg) {
 
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
 
-  bool dbg_flag = false;
+        bool dbg_flag = false;
 	usint m = 8;
 
 	typename VecType::Integer q("73");
@@ -1037,6 +1252,9 @@ void transposition_test(const string& msg) {
 
 	Element ilvector2n1(ilparams, COEFFICIENT);
 	ilvector2n1 = {"31","21","15","34"};
+	//test for bug where length was 0
+	EXPECT_EQ(ilvector2n1.GetLength(), m/2) 
+	  << msg << " Failure: ={init list string}";
 
 	// converts to evaluation representation
 	ilvector2n1.SwitchFormat();
@@ -1050,25 +1268,24 @@ void transposition_test(const string& msg) {
 
 	DEBUG("ilvector2n1 c "<<ilvector2n1);
 
-	Element ilvector2n2(ilparams);
-
-	VecType bbv0(m / 2, q);
-	bbv0 = {"31","39","58","52"};
-	ilvector2n2.SetValues(bbv0, Format::COEFFICIENT);
+	Element ilvector2n2(ilparams,COEFFICIENT);
+	ilvector2n2 = {"31","39","58","52"};
 
 	DEBUG("ilvector2n2 a "<<ilvector2n2);
 
 	EXPECT_EQ(ilvector2n2, ilvector2n1)
 		<< msg << " Failure: transposition test";
 }
-//Instantiations of transposition_test()
-TEST(UTPoly, transposition_test) {
-	RUN_ALL_POLYS(transposition_test, "transposition_test");
+//Instantiations of transposition()
+TEST(UTPoly, transposition) {
+	RUN_ALL_POLYS(transposition, "transposition");
 }
 // FIXME DCRT?
-
+TEST(UTDCRTPoly, transposition) {
+	RUN_BIG_DCRTPOLYS(transposition, "transposition");
+}
 template<typename Element>
-void getters_and_operators(const string& msg) {
+void DCRT_getters_and_ops(const string& msg) {
 	usint m = 8;
 	usint towersize = 3;
 
@@ -1162,12 +1379,12 @@ void getters_and_operators(const string& msg) {
 
 }
 
-TEST(UTDCRTPoly, getters_and_operators) {
-	RUN_BIG_DCRTPOLYS(getters_and_operators, "getters_and_operators");
+TEST(UTDCRTPoly, DCRT_getters_and_ops) {
+	RUN_BIG_DCRTPOLYS(DCRT_getters_and_ops, "DCRT getters_and_ops");
 }
 
 template<typename Element>
-void arithmetic_ops_element_2(const string& msg) {
+void DCRT_arithmetic_ops_element(const string& msg) {
 	usint m = 8;
 	usint towersize = 3;
 
@@ -1450,12 +1667,12 @@ void arithmetic_ops_element_2(const string& msg) {
 
 }
 
-TEST(UTDCRTPoly, arithmetic_ops_element_2) {
-	RUN_BIG_DCRTPOLYS(arithmetic_ops_element_2, "arithmetic_ops_element_2");
+TEST(UTDCRTPoly, DCRT_arithmetic_ops_element) {
+	RUN_BIG_DCRTPOLYS(DCRT_arithmetic_ops_element, "DCRT_arithmetic_ops_element");
 }
 
 template<typename Element>
-void decompose_test(const string& msg) {
+void decompose(const string& msg) {
 	usint order = 16;
 	usint nBits = 24;
 	usint towersize = 3;
@@ -1487,12 +1704,12 @@ void decompose_test(const string& msg) {
 
 }
 
-TEST(UTDCRTPoly, decompose_test) {
-	RUN_BIG_DCRTPOLYS(decompose_test, "decompose_test");
+TEST(UTDCRTPoly, decompose) {
+	RUN_BIG_DCRTPOLYS(decompose, "decompose");
 }
 
 template<typename Element>
-void mod__ops_on_two_Polys(const string& msg) {
+void mod_ops_on_two_Polys(const string& msg) {
 
 	using VecType = typename Element::Vector;
 	using ParmType = typename Element::Params;
@@ -1534,12 +1751,12 @@ void mod__ops_on_two_Polys(const string& msg) {
 
 }
 
-TEST(UTPoly, mod__ops_on_two_Polys) {
-	RUN_ALL_POLYS(mod__ops_on_two_Polys, "mod__ops_on_two_Polys");
+TEST(UTPoly, mod_ops_on_two_Polys) {
+	RUN_ALL_POLYS(mod_ops_on_two_Polys, "Poly mod_ops_on_two_Polys");
 }
 
 template<typename Element>
-void mod__ops_on_two_DCRTPolys(const string& msg) {
+void mod_ops_on_two_DCRTPolys(const string& msg) {
 
 	usint order = 16;
 	usint nBits = 24;
@@ -1578,8 +1795,8 @@ void mod__ops_on_two_DCRTPolys(const string& msg) {
 
 }
 
-TEST(UTDCRTPoly, mod__ops_on_two_DCRTPolys) {
-	RUN_BIG_DCRTPOLYS(mod__ops_on_two_DCRTPolys, "mod__ops_on_two_DCRTPolys");
+TEST(UTDCRTPoly, mod_ops_on_two_DCRTPolys) {
+	RUN_BIG_DCRTPOLYS(mod_ops_on_two_DCRTPolys, "DCRT mod_ops_on_two_DCRTPolys");
 }
 
 // only need to try this with one
