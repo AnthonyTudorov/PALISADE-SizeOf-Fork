@@ -27,12 +27,16 @@
 BFV RNS testing programs
 */
 
+#define PROFILE
+
+#define _USE_MATH_DEFINES
+#include "benchmark/benchmark_api.h"
+
 #include <iostream>
 #include <fstream>
 #include <limits>
 
 #include "palisade.h"
-
 
 #include "cryptocontexthelper.h"
 
@@ -51,20 +55,6 @@ using namespace lbcrypto;
 
 #include <iterator>
 
-//Poly tests
-void BFVrns();
-void NTT();
-
-int main() {
-
-	BFVrns();
-
-	NTT();
-
-	return 0;
-}
-
-#define PROFILE
 
 void BFVrns() {
 
@@ -186,7 +176,7 @@ void BFVrns() {
 
 }
 
-void NTT() {
+static void NTTTransform(benchmark::State& state) {
 
 	usint m = 2048;
 	usint phim = 1024;
@@ -195,9 +185,6 @@ void NTT() {
 	NativeInteger rootOfUnity("64073710037604316");
 
 	uint64_t nRep;
-
-	double timeRun(0.0);
-	TimeVar t1;
 
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
@@ -216,19 +203,18 @@ void NTT() {
 	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
 
 
-	nRep = 10000;
-	TIC(t1);
-	for(uint64_t n=0; n<nRep; n++){
+	for( auto _ : state ){
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
-	timeRun = TOC_US(t1);
 
-	std::cout << "\n===========BENCHMARKING FOR NTT===============: " << std::endl;
-
-	std::cout << "\nn = " << m / 2 << std::endl;
-	std::cout << "log2 q = " << log2(modulusQ.ConvertToDouble()) << std::endl;
-
-	std::cout << "\nNTT Average NTT time: " << timeRun/(nRep*1000) << " ms" << std::endl;
+//	std::cout << "\n===========BENCHMARKING FOR NTT===============: " << std::endl;
+//
+//	std::cout << "\nn = " << m / 2 << std::endl;
+//	std::cout << "log2 q = " << log2(modulusQ.ConvertToDouble()) << std::endl;
+//
+//	std::cout << "\nNTT Average NTT time: " << timeRun/(nRep*1000) << " ms" << std::endl;
 
 }
+
+BENCHMARK(NTTTransform)
 
