@@ -422,12 +422,14 @@ int main() {
 	//std::cout << xx << std::endl;
 
 	nRep = 10000;
-	start = currentDateTime();
+	TimeVar tt;
+
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
-	stop = currentDateTime();
-	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
+	std::cout << " Library Transform: " << (double)TOC_US(tt)/nRep << std::endl;
+	return 0;
 
 	start = currentDateTime();
 	for(uint64_t n=0; n<nRep; n++){

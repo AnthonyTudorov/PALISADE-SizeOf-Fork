@@ -274,9 +274,9 @@ public:
 	 * @return result of the subtraction operation of type BigInteger.
 	 */
 	const NativeInteger& MinusEq(const NativeInteger& b) {
-		if( m_value <= b.m_value )
-			m_value = 0;
-		else
+//		if( m_value <= b.m_value )
+//			m_value = 0;
+//		else
 			m_value -= b.m_value;
 		return *this;
 	}

@@ -121,6 +121,8 @@ template<typename VecType>
 void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity,
 		const usint CycloOrder, VecType *OpFFT) {
 
+//	TimeVar tt;
+
 	if( OpFFT->GetLength() != CycloOrder/2 )
 		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
 
@@ -137,7 +139,9 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
 
 	//Precompute the Barrett mu parameter
+//	TIC(tt);
 	IntType mu = ComputeMu<IntType>(element.GetModulus());
+//	std::cout << "ComputeMu: " << TOC_US(tt) << std::endl;
 
 	const VecType *rootOfUnityTable = NULL;
 
@@ -146,6 +150,7 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 	if( mapSearch == m_rootOfUnityTableByModulus.end() || mapSearch->second[1] != rootOfUnity ) {
 #pragma omp critical
 		{
+//			TIC(tt);
 			IntType modulus(element.GetModulus());
 			VecType rTable(CycloOrder / 2,modulus);
 			IntType x(1);
@@ -172,6 +177,7 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 				}
 				m_rootOfUnityPreconTableByModulus[modulus] = std::move(preconTable);
 			}
+//			std::cout << "PreCalc: " << TOC_US(tt) << std::endl;
 		}
 	}
 	else {
@@ -182,6 +188,7 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 
 	usint ringDimensionFactor = rootOfUnityTable->GetLength() / (CycloOrder / 2);
 
+//	TIC(tt);
 	//Fermat Theoretic Transform (FTT)
 	if (typeid(IntType) == typeid(NativeInteger)) {
 		const NativeVector &preconTable = m_rootOfUnityPreconTableByModulus[element.GetModulus()];
@@ -208,12 +215,15 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 		for (usint i = 0; i<CycloOrder / 2; i++)
 			InputToFFT[i]= element[i].ModBarrettMul((*rootOfUnityTable)[i*ringDimensionFactor], element.GetModulus(), mu);
 	}
+//	std::cout << "CalculatingInput: " << TOC_US(tt) << std::endl;
 
+//	TIC(tt);
 	if (typeid(IntType) == typeid(NativeInteger))
 		NumberTheoreticTransform<VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable,
 				m_rootOfUnityPreconTableByModulus[element.GetModulus()], CycloOrder / 2, OpFFT);
 	else
 		NumberTheoreticTransform<VecType>::ForwardTransformIterative(InputToFFT, *rootOfUnityTable, CycloOrder / 2, OpFFT);
+//	std::cout << "ForwardTransformIterative: " << TOC_US(tt) << std::endl;
 
 	return;
 }
