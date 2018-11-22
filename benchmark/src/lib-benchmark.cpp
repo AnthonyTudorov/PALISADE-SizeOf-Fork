@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file lib-benchmark : library benchmark routines for comparison by build
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,61 +23,32 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- /*
-BFV RNS testing programs
-*/
+
+/*
+ * This file benchmarks a small number of operations in order to exercise large pieces of the library
+ */
 
 #define PROFILE
-
 #define _USE_MATH_DEFINES
 #include "benchmark/benchmark_api.h"
 
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <iterator>
+#include <random>
 
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
 
-#include "encoding/encodings.h"
-
 #include "utils/debug.h"
-#include <random>
-
-#include "math/nbtheory.h"
-
-typedef std::numeric_limits< double > dbl;
 
 using namespace std;
 using namespace lbcrypto;
 
-
-#include <iterator>
-
-
-void BFVrns() {
-
-	int nthreads, tid;
-
-	// Fork a team of threads giving them their own copies of variables
-	//so we can see how many threads we have to work with
-    #pragma omp parallel private(nthreads, tid)
-	{
-
-		/* Obtain thread number */
-		tid = omp_get_thread_num();
-
-		/* Only master thread does this */
-		if (tid == 0)
-		{
-			nthreads = omp_get_num_threads();
-			std::cout << "Number of threads = " << nthreads << std::endl;
-		}
-	}
-
-	std::cout << "\n===========BENCHMARKING FOR BFVRNS===============: " << std::endl;
-
+CryptoContext<DCRTPoly>
+GenerateContext() {
 	usint ptm = 2;
 	double sigma = 3.19;
 	double rootHermiteFactor = 1.0048;
@@ -92,39 +63,47 @@ void BFVrns() {
 	cryptoContext->Enable(ENCRYPTION);
 	cryptoContext->Enable(SHE);
 
-	std::cout << "\np = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
-	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+//	std::cout << "\np = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
+//	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
+//	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
-	// Initialize Public Key Containers
+	return cryptoContext;
+}
+
+void KeyGen(benchmark::State& state) {
+
+	CryptoContext<DCRTPoly> cryptoContext = GenerateContext();
+
 	LPKeyPair<DCRTPoly> keyPair;
 
-	////////////////////////////////////////////////////////////
-	// Perform Key Generation Operation
-	////////////////////////////////////////////////////////////
-
-	double timeKeyGen(0.0);
-	TimeVar t1;
-
-	std::cout << "Running key generation (used for source data)..." << std::endl;
-
-	TIC(t1);
-
-	keyPair = cryptoContext->KeyGen();
-
-	timeKeyGen = TOC_US(t1);
-	cout << "\nKey generation time: " << "\t" << timeKeyGen/1000 << " ms" << endl;
-
-	if( !keyPair.good() ) {
-		std::cout << "Key generation failed!" << std::endl;
-		exit(1);
+	while (state.KeepRunning()) {
+		keyPair = cryptoContext->KeyGen();
 	}
+}
 
-	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+BENCHMARK(KeyGen)->Unit(benchmark::kMicrosecond);
 
-	////////////////////////////////////////////////////////////
-	// Encode source data
-	////////////////////////////////////////////////////////////
+void Encryption(benchmark::State& state) {
+
+	CryptoContext<DCRTPoly> cryptoContext = GenerateContext();
+
+	LPKeyPair<DCRTPoly> keyPair = cryptoContext->KeyGen();
+
+	std::vector<int64_t> vectorOfInts1 = {1,0,1,0,1,1,1,0,1,1,1,0};
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+
+	while (state.KeepRunning()) {
+		auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	}
+}
+
+BENCHMARK(Encryption)->Unit(benchmark::kMicrosecond);
+
+void MultNoRelin(benchmark::State& state) {
+
+	CryptoContext<DCRTPoly> cryptoContext = GenerateContext();
+
+	LPKeyPair<DCRTPoly> keyPair = cryptoContext->KeyGen();
 
 	std::vector<int64_t> vectorOfInts1 = {1,0,1,0,1,1,1,0,1,1,1,0};
 	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
@@ -132,51 +111,59 @@ void BFVrns() {
 	std::vector<int64_t> vectorOfInts2 = {1,1,1,1,1,1,1,0,1,1,1,0};
 	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
 
-	double timeDecrypt(0.0);
-	double timeEncrypt(0.0);
-	double timeMult(0.0);
-	double timeRelin(0.0);
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
 
-	for (size_t k=0; k < count; k++) {
-
-		TimeVar tDecrypt;
-		TimeVar tMult;
-		TimeVar tRelin;
-		TimeVar tEncrypt;
-
-		auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
-
-		TIC(tEncrypt);
-		auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
-		timeEncrypt+=TOC_US(tEncrypt);
-
-		Plaintext plaintextDec1;
-		cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintextDec1);
-
-		Plaintext plaintextDec2;
-		TIC(tDecrypt);
-		cryptoContext->Decrypt(keyPair.secretKey, ciphertext2, &plaintextDec2);
-		timeDecrypt+=TOC_US(tDecrypt);
-
-		TIC(tMult);
+	while (state.KeepRunning()) {
 		auto ciphertextMul = cryptoContext->EvalMultNoRelin(ciphertext1,ciphertext2);
-		timeMult+=TOC_US(tMult);
-
-		TIC(tRelin);
-		auto ciphertextMulRelin = cryptoContext->EvalMult(ciphertext1,ciphertext2);
-		timeRelin+=TOC_US(tRelin);
-
 	}
-
-	std::cout << "Average encryption time:\t" << timeEncrypt/(1000*count) << " ms" << std::endl;
-	std::cout << "Average decryption time:\t" << timeDecrypt/(1000*count) << " ms" << std::endl;
-	std::cout << "Average multiplication time:\t" << timeMult/(1000*count) << " ms" <<  std::endl;
-	std::cout << "Average relinearization time:\t" << (timeRelin-timeMult)/(1000*count) << " ms" << std::endl;
-	std::cout << "Average multiplication + relinearization time:\t" << timeRelin/(1000*count) << " ms" <<  std::endl;
-
 }
 
-static void NTTTransform(benchmark::State& state) {
+BENCHMARK(MultNoRelin)->Unit(benchmark::kMicrosecond);
+
+void MultRelin(benchmark::State& state) {
+
+	CryptoContext<DCRTPoly> cryptoContext = GenerateContext();
+
+	LPKeyPair<DCRTPoly> keyPair = cryptoContext->KeyGen();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+
+	std::vector<int64_t> vectorOfInts1 = {1,0,1,0,1,1,1,0,1,1,1,0};
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+
+	std::vector<int64_t> vectorOfInts2 = {1,1,1,1,1,1,1,0,1,1,1,0};
+	Plaintext plaintext2 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts2);
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	auto ciphertext2 = cryptoContext->Encrypt(keyPair.publicKey, plaintext2);
+
+	while (state.KeepRunning()) {
+		auto ciphertextMul = cryptoContext->EvalMult(ciphertext1,ciphertext2);
+	}
+}
+
+BENCHMARK(MultRelin)->Unit(benchmark::kMicrosecond);
+
+void Decryption(benchmark::State& state) {
+
+	CryptoContext<DCRTPoly> cryptoContext = GenerateContext();
+
+	LPKeyPair<DCRTPoly> keyPair = cryptoContext->KeyGen();
+
+	std::vector<int64_t> vectorOfInts1 = {1,0,1,0,1,1,1,0,1,1,1,0};
+	Plaintext plaintext1 = cryptoContext->MakeCoefPackedPlaintext(vectorOfInts1);
+
+	auto ciphertext1 = cryptoContext->Encrypt(keyPair.publicKey, plaintext1);
+	Plaintext plaintextDec1;
+
+	while (state.KeepRunning()) {
+		cryptoContext->Decrypt(keyPair.secretKey, ciphertext1, &plaintextDec1);
+	}
+}
+
+BENCHMARK(Decryption)->Unit(benchmark::kMicrosecond);
+
+void NTTTransform(benchmark::State& state) {
 
 	usint m = 2048;
 	usint phim = 1024;
@@ -203,18 +190,11 @@ static void NTTTransform(benchmark::State& state) {
 	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
 
 
-	for( auto _ : state ){
+	while (state.KeepRunning()) {
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
-
-//	std::cout << "\n===========BENCHMARKING FOR NTT===============: " << std::endl;
-//
-//	std::cout << "\nn = " << m / 2 << std::endl;
-//	std::cout << "log2 q = " << log2(modulusQ.ConvertToDouble()) << std::endl;
-//
-//	std::cout << "\nNTT Average NTT time: " << timeRun/(nRep*1000) << " ms" << std::endl;
-
 }
 
-BENCHMARK(NTTTransform)
+BENCHMARK(NTTTransform)->Unit(benchmark::kMicrosecond);
 
+BENCHMARK_MAIN()
