@@ -69,15 +69,17 @@ int main(int argc, char* argv[]) {
 
 	PalisadeParallelControls.Enable();
 
+	uint32_t sizeAtt = 16;
+
 	TimeVar t;
 
 	double processingTime(0.0);
 
-	uint32_t N = 1048576;
 	uint32_t n = 2048;
 	uint32_t numAtt = 16;
+	uint32_t wordSize = 1<<sizeAtt;
+	uint32_t N = numAtt*wordSize;
 	PlaintextModulus p = 1099511627776; //2^40
-	uint32_t wordSize = 65536;
 
 	// vector of thresholds
 	vector<uint32_t> thresholds = {134, 90, 56, 89, 200,134, 90, 56, 89, 200,134, 90, 56, 89, 200,100};
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
 			{135, 80, 60, 95, 210,135, 80, 60, 95, 210,135, 80, 60, 95, 210,10},
 			{135, 100, 40, 95, 210,135, 100, 40, 95, 210,135, 100, 40, 95, 210,101},
 			{135, 100, 60, 85, 210,135, 100, 60, 85, 210,135, 100, 60, 85, 210,101},
-			{255, 254, 200, 150, 215,255, 254, 200, 150, 215,255, 254, 200, 150, 215,1001},
+			{255, 254, 200, 150, 215,255, 254, 200, 150, 215,255, 254, 200, 150, 215,201},
 	};
 
 	bool errorFlag = false;
