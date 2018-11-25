@@ -151,9 +151,17 @@ shared_ptr<NativeVector> LWETBOLinearSecret::TokenGen(shared_ptr<LWETBOKeys> &ke
 
 	shared_ptr<NativeVector> token(new NativeVector(m_n,m_modulus));
 
+	vector<NativeVector> secretKey = vector<NativeVector>(inputIndices.size());
+
+#pragma omp parallel for schedule(dynamic)
 	for (size_t i = 0; i < inputIndices.size(); i++)
 	{
-		token->ModAddEq(*keys->GetSecretKey(inputIndices[i]));
+		secretKey[i] = *keys->GetSecretKey(inputIndices[i]);
+	}
+
+	for (size_t i = 0; i < inputIndices.size(); i++)
+	{
+		token->ModAddEq(secretKey[i]);
 	}
 
 	return token;
