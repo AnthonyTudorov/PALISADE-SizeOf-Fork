@@ -278,11 +278,14 @@ double LWEConjunctionCHCPRFAlgorithm<Element>::EstimateRingModulus(usint n) {
 	//Bound of the Gaussian error Elementnomial
 	double Berr = sigma*sqrt(alpha);
 
+    //probability of hitting the "danger" zone that affects the rounding result
+	double Pe = 1 << 20;
+
 	uint32_t length = m_adjustedLength;
 	uint32_t base = m_base;
 
 	//Correctness constraint
-	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  16*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length-1)*pow(sqrt(n),length);  };
+	auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double { return  1024*Pe*Berr*pow(sqrt(m*n)*beta*SPECTRAL_BOUND(n,m-2,base),length-1);  };
 
 	double qPrev = 1e6;
 	double q = 0;
@@ -376,11 +379,14 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 	const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
 	const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
-	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(matrix.GetCols()));
+	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(1));
 
-	for (size_t i = 0; i < matrix.GetCols(); i++) {
-		(*result)[i] = matrix(0, i).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
-	}
+	//for (size_t i = 0; i < matrix.GetCols(); i++) {
+	//	(*result)[i] = matrix(0, i).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+	//}
+
+	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
+	(*result)[0] = matrix(0, 1).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return result;
 

@@ -272,6 +272,9 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
     //empirical parameter
     double beta = 6;
 
+    //probability of hitting the "danger" zone that affects the rounding result
+	double Pe = 1 << 20;
+
     //Bound of the Gaussian error Elementnomial
     double Berr = sigma * sqrt(alpha);
 
@@ -280,7 +283,7 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
 
     //Correctness constraint
     auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
-    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1)*pow(sqrt(n),length); };
+    		{ return 1024 * Berr * Pe * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
 
     double qPrev = 1e6;
     double q = 0;
@@ -381,11 +384,18 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(con
 	const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
 	const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
+	/*
 	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(matrix.GetCols()));
 
 	for (size_t i = 0; i < matrix.GetCols(); i++) {
 		(*result)[i] = matrix(0, i).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 	}
+	*/
+
+	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(1));
+
+	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
+	(*result)[0] = matrix(0, 1).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return result;
 
