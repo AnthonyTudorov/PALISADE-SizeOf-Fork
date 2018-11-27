@@ -237,8 +237,6 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 
 	Matrix<Element> y = (*m_A)[m_adjustedLength]*yCurrent;
 
-	y.SwitchFormat();
-
 	return TransformMatrixToPRFOutput(y);
 
 }
@@ -255,8 +253,6 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 
 		y = y * *(*D)[i][k];
 	}
-
-	y.SwitchFormat();
 
 	return TransformMatrixToPRFOutput(y);
 
@@ -386,7 +382,11 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 	//}
 
 	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
-	(*result)[0] = matrix(0, 1).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+
+	auto element = matrix(0, 1);
+	element.SwitchFormat();
+
+	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return result;
 

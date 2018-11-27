@@ -232,8 +232,6 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
 
     Matrix<Element> y = yCurrent * key.second.ExtractRow(0);
 
-    y.SwitchFormat();
-
     return TransformMatrixToPRFOutput(y);
 }
 
@@ -247,18 +245,10 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
         std::string chunk = input.substr(i * m_chunkSize, m_chunkSize);
         int k = std::stoi(chunk, nullptr, 2);
         y = y * constrainedKey.second[i][k];
-        
-        auto temp = constrainedKey.second[i][k];
-        temp.SwitchFormat();
-        
-        std::cout << "norm = " << temp.Norm() << std::endl;
-
-	std::cout << "rows = " << temp.GetRows() << "; cols = " << temp.GetCols() << std::endl;
     }
 
-    y.SwitchFormat();
-
     return TransformMatrixToPRFOutput(y);
+
 }
 
 template <class Element>
@@ -394,8 +384,11 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(con
 
 	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(1));
 
+        auto element = matrix(0, 1);
+        element.SwitchFormat();
+
 	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
-	(*result)[0] = matrix(0, 1).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
 
 	return result;
 

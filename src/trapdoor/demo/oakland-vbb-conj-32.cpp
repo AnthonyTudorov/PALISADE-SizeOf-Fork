@@ -158,7 +158,7 @@ bool CONJOBF(bool dbg_flag, size_t n_evals, int n) {
 	usint m = 2*n;
 
 	usint chunkSize = 8;
-	usint base = 1<<20;
+	usint base = 1<<15;
 
 	//if (n > 1<<11)
 	//	base = 1<<18;

@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
 	PalisadeParallelControls.Enable();
 
-	uint32_t sizeAtt = 16;
+	uint32_t sizeAtt = 24;
 
 	TimeVar t;
 

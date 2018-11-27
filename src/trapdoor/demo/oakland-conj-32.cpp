@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	  std::cerr << "Running " << argv[0] << " with security parameter "
-	  	    << std::to_string(1<<n_bits) << ". Pattern length is 40 bits." << std::endl;
+	  	    << std::to_string(1<<n_bits) << ". Pattern length is 32 bits." << std::endl;
 
 	// Fork a team of threads giving them their own copies of variables
 	//so we can see how many threads we have to work with
