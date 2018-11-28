@@ -57,12 +57,12 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
         cout << "input: " << value.first << endl;
         TIC(t);
         const auto value1 = algorithm.Evaluate(key, value.first);
-        processingTime = TOC(t);
-        cout << "EvalToken: " << processingTime << "ms" << endl;
+        processingTime = TOC_US(t);
+        cout << "EvalToken: " << processingTime/1000 << "ms" << endl;
         TIC(t);
         const auto value2 = algorithm.Evaluate(constrainedKey, value.first);
-        processingTime = TOC(t);
-        cout << "Evaluation: " << processingTime << "ms" << endl;
+        processingTime = TOC_US(t);
+        cout << "Evaluation: " << processingTime/1000 << "ms" << endl;
 
         //cout << value1 << endl;
         //cout << value2 << endl;
