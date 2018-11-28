@@ -29,6 +29,10 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 #define LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
+
+#include "utils/debug.h"
+
 #include "lwebpchcprf.h"
 
 namespace lbcrypto {
@@ -218,6 +222,7 @@ template <class Element>
 shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
     const pair<vector<vector<Element>>, Matrix<Element>>& key,
     const string& input) const {
+
     Element yCurrent;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
@@ -230,9 +235,10 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
             yCurrent *= key.first[i][k];
     }
 
-    Matrix<Element> y = yCurrent * key.second.ExtractRow(0);
+    Element y = key.second(0,1) * yCurrent;
 
     return TransformMatrixToPRFOutput(y);
+
 }
 
 template <class Element>
@@ -247,7 +253,7 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
         y = y * constrainedKey.second[i][k];
     }
 
-    return TransformMatrixToPRFOutput(y);
+    return TransformMatrixToPRFOutput(y(0,1));
 
 }
 
@@ -366,7 +372,7 @@ Matrix<Element> BPCHCPRF<Element>::Encode(
 }
 
 template <class Element>
-shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Matrix<Element>& matrix) const {
+shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Element& input) const {
 
 	const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
 	const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
@@ -384,7 +390,7 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(con
 
 	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(1));
 
-        auto element = matrix(0, 1);
+        auto element = input;
         element.SwitchFormat();
 
 	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients

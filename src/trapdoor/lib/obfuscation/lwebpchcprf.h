@@ -192,7 +192,7 @@ class BPCHCPRF {
      * @param matrix matrix to transform
      * @return PRF output
      */
-    shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Matrix<Element>& matrix) const;
+    shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Element& input) const;
 };
 
 template <>

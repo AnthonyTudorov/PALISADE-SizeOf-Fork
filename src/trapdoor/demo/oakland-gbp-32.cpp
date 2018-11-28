@@ -54,8 +54,8 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
     cout << "Constrained Key Generation: " << processingTime << "ms" << endl;
 
     for (const auto& value : cases) {
-        TIC(t);
         cout << "input: " << value.first << endl;
+        TIC(t);
         const auto value1 = algorithm.Evaluate(key, value.first);
         processingTime = TOC(t);
         cout << "EvalToken: " << processingTime << "ms" << endl;
@@ -253,7 +253,7 @@ int main(int argc, char* argv[]) {
 	PalisadeParallelControls.Enable();
 
     //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    CVW18HammingCloseness("0*100*100*100*100*100*10", 1, {{"101001100010011000100110", true}, {"111001101110011011100110", false}, {"111101111111011111110111", false}});
+    CVW18HammingCloseness("0*100*100*100*100*100*10", 3, {{"101001100010011000100110", true}, {"111001101110011011100110", false}, {"111101111111011111110111", false}});
     //CVW18WitnessEncryption();
     //CVW18CNF({{1, -2, 3}, {-1, 4, 5}}, {{"00000", true}, {"11000", false}, {"11001", true}});
 

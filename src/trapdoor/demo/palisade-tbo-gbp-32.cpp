@@ -54,8 +54,8 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
     cout << "Constrained Key Generation: " << processingTime << "ms" << endl;
 
     for (const auto& value : cases) {
-        TIC(t);
         cout << "input: " << value.first << endl;
+        TIC(t);
         const auto value1 = algorithm.Evaluate(key, value.first);
         processingTime = TOC(t);
         cout << "EvalToken: " << processingTime << "ms" << endl;
