@@ -166,7 +166,7 @@ shared_ptr<vector<vector<Element>>> LWEConjunctionCHCPRFAlgorithm<Element>::KeyG
 		vector<Element> s_i;
 
 		for (usint k = 0; k < m_chunkExponent; k++) {
-			Element s_ik = Element(m_tug, m_elemParams, COEFFICIENT);
+			Element s_ik = Element(m_dgg, m_elemParams, COEFFICIENT);
 			s_ik.SwitchFormat();
 
 			s_i.push_back(s_ik);
@@ -205,7 +205,7 @@ shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> LWEConjunctionCHCPRFAlgo
 			Element s_ik = (*s)[i][k];
 
 			if ((k & chunkMask) != chunkTarget) {
-				s_ik = Element(m_tug, m_elemParams, COEFFICIENT);
+				s_ik = Element(m_dgg, m_elemParams, COEFFICIENT);
 				s_ik.SwitchFormat();
 			}
 

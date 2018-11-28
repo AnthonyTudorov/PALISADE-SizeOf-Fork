@@ -168,7 +168,7 @@ namespace lbcrypto {
 
 		DCRTPoly::DggType m_dgg;
 		DCRTPoly::DggType m_dggLargeSigma;
-		DCRTPoly::TugType m_tug;
+		//DCRTPoly::TugType m_tug;
 
 		shared_ptr<vector<Matrix<Element>>> m_A;
 		shared_ptr<vector<RLWETrapdoorPair<Element>>> m_T;

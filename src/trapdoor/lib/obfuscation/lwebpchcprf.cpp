@@ -150,7 +150,7 @@ usint BPCHCPRF<Element>::GetLogModulus() const {
 
 template <class Element>
 const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen() const {
-    typename Element::TugType tug;
+    //typename Element::TugType tug;
     vector<vector<Element>> s;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
@@ -158,7 +158,7 @@ const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen()
 
 #pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
-            Element s_ik = Element(tug, m_elemParams, COEFFICIENT);
+            Element s_ik = Element(m_dgg, m_elemParams, COEFFICIENT);
             s_ik.SwitchFormat();
 
             s_i[k] = s_ik;
