@@ -156,7 +156,7 @@ namespace lbcrypto {
 		 */
 		shared_ptr<Matrix<Element>> Encode(usint i, usint j, const Element &elem);
 
-		shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const;
+		shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Element &input) const;
 
 		usint m_base;
 		usint m_chunkSize;

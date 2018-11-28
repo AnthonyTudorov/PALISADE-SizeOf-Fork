@@ -235,7 +235,7 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 			yCurrent *= (*s)[i][k];
 	}
 
-	Matrix<Element> y = (*m_A)[m_adjustedLength]*yCurrent;
+	Element y = (*m_A)[m_adjustedLength](0,1)*yCurrent;
 
 	return TransformMatrixToPRFOutput(y);
 
@@ -254,7 +254,7 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Evaluate(
 		y = y * *(*D)[i][k];
 	}
 
-	return TransformMatrixToPRFOutput(y);
+	return TransformMatrixToPRFOutput(y(0,1));
 
 };
 
@@ -367,7 +367,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionCHCPRFAlgorithm<Element>::Encode(usint
 };
 
 template <class Element>
-shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const {
+shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::TransformMatrixToPRFOutput(const Element &input) const {
 
 	const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
 	const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
@@ -383,7 +383,7 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 
 	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
 
-	auto element = matrix(0, 1);
+	auto element = input;
 	element.SwitchFormat();
 
 	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
