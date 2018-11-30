@@ -91,6 +91,22 @@ build:
   dependencies:
   - build_ext
 
+build_benchmark:
+  stage: build
+  before_script:
+  - module load gcc/7.3.0
+  - g++ --version
+  script:
+  - make -j $(nproc) benchmark
+  dependencies:
+  - build_ext
+  tags:
+  - linux
+  artifacts:
+    paths:
+      - bin
+    expire_in: 1 day
+
 unit_test:
   stage: unit
   before_script:
