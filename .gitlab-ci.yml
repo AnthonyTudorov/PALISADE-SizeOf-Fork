@@ -3,9 +3,14 @@ stages:
 - build
 - test
 - unit
+- benchmark
 - memory
 - deploy
 - cleanup
+
+before_script:
+- module load gcc/7.3.0
+- g++ --version
 
 code_quality:
   stage: test
@@ -190,3 +195,11 @@ memleak:
   tags:
   - linux
   dependencies: []
+
+benchmark_basic:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/basic_test
+  dependencies:
+  - build_benchmark
+  - build_ext
