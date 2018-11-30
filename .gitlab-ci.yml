@@ -185,3 +185,59 @@ benchmark_basic:
   dependencies:
   - build_benchmark
   - build_ext
+
+benchmark_crypto:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Crypto
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_encoding:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Encoding
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_integermath:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/IntegerMath
+  dependencies:
+  - build_benchmark
+  - build_ext
+ 
+benchmark_lattice:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Lattice
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_nbtheory:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/NbTheory
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_she:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/SHE
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_vectormath:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/VectorMath
+  dependencies:
+  - build_benchmark
+  - build_ext
