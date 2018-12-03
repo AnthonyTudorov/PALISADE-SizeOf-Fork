@@ -3,9 +3,14 @@ stages:
 - build
 - test
 - unit
+- benchmark
 - memory
 - deploy
 - cleanup
+
+before_script:
+- module load gcc/7.3.0
+- g++ --version
 
 code_quality:
   stage: test
@@ -61,9 +66,6 @@ config:
 
 build_ext:
   stage: setup
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
   script:
   - make -j $(nproc) gmp_all
   - make -j $(nproc) ntl_all
@@ -77,9 +79,6 @@ build_ext:
 
 build:
   stage: build
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
   script:
   - make -j $(nproc) all
   artifacts:
@@ -91,11 +90,21 @@ build:
   dependencies:
   - build_ext
 
+build_benchmark:
+  stage: build
+  script:
+  - make -j $(nproc) benchmark
+  dependencies:
+  - build_ext
+  tags:
+  - linux
+  artifacts:
+    paths:
+      - bin
+    expire_in: 1 day
+
 unit_test:
   stage: unit
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
   script:
   - make -j $(nproc) testall
   tags:
@@ -115,9 +124,6 @@ cyclo:
 
 coverage:
   stage: test
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
   script:
   - make -j $(nproc) all COVERAGE=1
   - make -j $(nproc) testall COVERAGE=1
@@ -163,9 +169,6 @@ clean:
 
 memleak:
   stage: memory
-  before_script:
-  - module load gcc/7.3.0
-  - g++ --version
   script:
   - make -j $(nproc) all MEM=1
   - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib valgrind --leak-check=yes ./bin/unittest/tests
@@ -174,3 +177,67 @@ memleak:
   tags:
   - linux
   dependencies: []
+
+benchmark_basic:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/basic_test
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_crypto:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Crypto
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_encoding:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Encoding
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_integermath:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/IntegerMath
+  dependencies:
+  - build_benchmark
+  - build_ext
+ 
+benchmark_lattice:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/Lattice
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_nbtheory:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/NbTheory
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_she:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/SHE
+  dependencies:
+  - build_benchmark
+  - build_ext
+
+benchmark_vectormath:
+  stage: benchmark
+  script:
+  - LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib ./bin/benchmark/VectorMath
+  dependencies:
+  - build_benchmark
+  - build_ext
