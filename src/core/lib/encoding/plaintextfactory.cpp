@@ -1,5 +1,5 @@
 /**
- * @file palisade.h -- PALISADE.
+ * @file plaintextfactory.h Manufactures plaintext objects in Palisade.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,69 +24,10 @@
  *
  */
 
-#ifndef SRC_LIB_PALISADE_H_
-#define SRC_LIB_PALISADE_H_
+#include "plaintextfactory.h"
 
-#include "version.h"
-
-#include <initializer_list>
-
-#include <string>
-using std::string;
-
-#include <memory>
-using std::shared_ptr;
-
-#include <utility>
-using std::move;
 
 namespace lbcrypto {
 
-template<typename Element>
-class CryptoContextImpl;
 
-template<typename Element>
-using CryptoContext = shared_ptr<CryptoContextImpl<Element>>;
-
-template<typename Element>
-class CiphertextImpl;
-
-template<typename Element>
-using Ciphertext = shared_ptr<CiphertextImpl<Element>>;
-
-template<typename Element>
-using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
-}
-
-#include "math/backend.h"
-#include "lattice/backend.h"
-#include "lattice/stdlatticeparms.h"
-
-#include "math/distrgen.h"
-#include "math/matrix.h"
-
-#include "utils/inttypes.h"
-#include "utils/exception.h"
-
-#include "encoding/encodings.h"
-#include "encoding/plaintextfactory.h"
-
-#include "pubkeylp.h"
-
-#include "rlwe.h"
-#include "ltv.h"
-#include "stst.h"
-#include "bgv.h"
-#include "bfv.h"
-#include "bfvrns.h"
-#include "bfvrnsB.h"
-#include "nullscheme.h"
-
-#include "utils/serializable.h"
-
-#include "ciphertext.h"
-#include "rationalciphertext.h"
-
-
-
-#endif /* SRC_LIB_PALISADE_H_ */
+} /* namespace lbcrypto */
