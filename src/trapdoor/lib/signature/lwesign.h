@@ -147,7 +147,7 @@ namespace lbcrypto {
 			m_k = ceil(nBits / log2(base));
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
-			if (sqrt(s * s - c * c) <= 3e5)
+			if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
 				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
 				dggLargeSigma = dgg;
@@ -206,7 +206,7 @@ namespace lbcrypto {
 			m_k = ceil(nBits / log2(base));
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
-			if (sqrt(s * s - c * c) <= 3e5)
+			if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
 				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
 				dggLargeSigma = dgg;

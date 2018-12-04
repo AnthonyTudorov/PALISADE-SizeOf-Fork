@@ -108,7 +108,9 @@ ifeq ($(PREFIX),)
 endif
 LIB_DEST := $(PREFIX)/lib/$(PACKAGE)/$(VERSION)
 
-EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) #no profiling
+
+
+EXTLIB := -L$(EXTLIBDIR) $(TEST_LIB) $(TCMLIB) #no profiling
 
 INC := -I src $(patsubst %,-Isrc/%/lib,$(SUBMAKEFILES)) -I test $(OMPINCLUDE) $(THIRDPARTYINCLUDE)
 

@@ -102,6 +102,41 @@ DCRTPolyImpl<VecType>::operator=(const PolyLargeType &element)
 	return *this;
 }
 
+template<typename VecType>
+const DCRTPolyImpl<VecType>&
+DCRTPolyImpl<VecType>::operator=(const NativePoly &element)
+{
+
+	if( element.GetModulus() > m_params->GetModulus() ) {
+		throw std::logic_error("Modulus of element passed to constructor is bigger that DCRT big modulus");
+	}
+
+	size_t vecCount = m_params->GetParams().size();
+	m_vectors.clear();
+	m_vectors.reserve(vecCount);
+
+	// fill up with vectors with the proper moduli
+	for(usint i = 0; i < vecCount; i++ ) {
+		PolyType newvec(m_params->GetParams()[i], m_format, true);
+		m_vectors.push_back( std::move(newvec) );
+	}
+
+	// gets moduli
+	std::vector<NativeInteger> mods;
+	mods.reserve(vecCount);
+	for( usint i = 0; i < vecCount; i++ )
+		mods.push_back( NativeInteger(m_params->GetParams()[i]->GetModulus().ConvertToInt()) );
+
+	// copy each coefficient mod the new modulus
+	for(usint p = 0; p < element.GetLength(); p++ ) {
+		for( usint v = 0; v < vecCount; v++ ) {
+			m_vectors[v][p] = element[p].Mod(mods[v]);
+		}
+	}
+
+	return *this;
+}
+
 /* Construct from a single Poly. The format is derived from the passed in Poly.*/
 template<typename VecType>
 DCRTPolyImpl<VecType>::DCRTPolyImpl(const PolyLargeType &element, const shared_ptr<DCRTPolyImpl::Params> params)
@@ -111,6 +146,26 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(const PolyLargeType &element, const shared_p
 		format = element.GetFormat();
 	} catch (const std::exception& e) {
 		throw std::logic_error("There is an issue with the format of the Poly passed to the constructor of DCRTPolyImpl");
+	}
+
+	if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
+		throw std::logic_error("Cyclotomic order mismatch on input vector and parameters");
+
+	m_format = format;
+	m_params = params;
+
+	*this = element;
+}
+
+/* Construct from a single Poly. The format is derived from the passed in Poly.*/
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const NativePoly &element, const shared_ptr<DCRTPolyImpl::Params> params)
+{
+	Format format;
+	try {
+		format = element.GetFormat();
+	} catch (const std::exception& e) {
+		throw std::logic_error("There is an issue with the format of the NativePoly passed to the constructor of DCRTPolyImpl");
 	}
 
 	if( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
@@ -206,6 +261,31 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(DugType& dug, const shared_ptr<DCRTPolyImpl:
 			ilvector.SwitchFormat();
 		}
 		m_vectors.push_back(ilvector);
+	}
+}
+
+template<typename VecType>
+DCRTPolyImpl<VecType>::DCRTPolyImpl(const BugType& bug, const shared_ptr<DCRTPolyImpl::Params> dcrtParams, Format format)
+{
+
+	m_format = format;
+	m_params = dcrtParams;
+
+	size_t numberOfTowers = dcrtParams->GetParams().size();
+	m_vectors.reserve(numberOfTowers);
+
+	PolyType ilvector(bug,dcrtParams->GetParams()[0],COEFFICIENT);
+
+	for (usint i = 0; i < numberOfTowers; i++) {
+
+		if (i > 0)
+			ilvector.SwitchModulus(dcrtParams->GetParams()[i]->GetModulus(),dcrtParams->GetParams()[i]->GetRootOfUnity());
+
+		auto newVector = ilvector;
+		if (m_format == Format::EVALUATION) {  // if the input format is evaluation, then once random values are set in coefficient format, switch the format to achieve what the caller asked for.
+			newVector.SwitchFormat();
+		}
+		m_vectors.push_back(newVector);
 	}
 }
 
@@ -423,6 +503,13 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
 
 	return std::move(result);
 }
+
+template<typename VecType>
+PolyImpl<NativeVector>& DCRTPolyImpl<VecType>::ElementAtIndex(usint i)
+{
+	return m_vectors[i];
+}
+
 
 template<typename VecType>
 std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::PowersOfBase(usint baseBits) const
@@ -790,7 +877,7 @@ template<typename VecType>
 const DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator*=(const Integer &element)
 {
 	for (usint i = 0; i < this->m_vectors.size(); i++) {
-		this->m_vectors.at(i) *= element.ConvertToInt(); //this->m_vectors.at(i) * (element % Integer((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
+		this->m_vectors.at(i) *= (element.Mod(this->m_vectors[i].GetModulus())).ConvertToInt(); //this->m_vectors.at(i) * (element % IntType((*m_params)[i]->GetModulus().ConvertToInt())).ConvertToInt();
 	}
 
 	return *this;

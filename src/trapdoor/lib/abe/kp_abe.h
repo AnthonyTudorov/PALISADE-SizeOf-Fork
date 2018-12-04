@@ -48,6 +48,7 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "../sampling/trapdoor.h"
+#include "../subgaussian/subgaussian.h"
 /**
  * @namespace lbcrypto
  * The namespace of lbcrypto
@@ -58,7 +59,7 @@ namespace lbcrypto {
    * Setup function for Private Key Generator (PKG)
    * Digit decomposition using higher bases with balanced representation
    * Limits noise growth
-   * Temporarily here; but can be made a part of RingMat class
+   * Temporarily here; but can be made a part of Matrix<Poly> class
    *
    * templated with three Element classes E1, E2, E3)
    * @param ilParams parameter set (of type E1:Params) 
@@ -148,13 +149,15 @@ namespace lbcrypto {
 
   }
 
+enum GaussianMode{ SUBGAUSSIAN=0, NAF=1};
 
-  /**
-   * KPABE class definition template
-   * Element is the main ring element used, 
-   * while Element2 is interpolated ring element. 
-   * e.g. DCRTPoly is element and Poly is Element2
-   */
+/**
+* KPABE class definition template
+* Element is the main ring element used,
+* while Element2 is interpolated ring element.
+* e.g. DCRTPoly is element and Poly is Element2
+*/
+/*Element is the main ring element used, while Element2 is interpolated ring element. e.g. DCRTPoly is element and Poly is Element2*/
 	template <class Element, class Element2 = Poly>
 	class KPABE {
 	public:
@@ -163,8 +166,7 @@ namespace lbcrypto {
 		 * Default Constructor
 		 *
 		 */
-		KPABE() {
-		}
+		KPABE(GaussianMode mode = NAF);
 
 		/**
 		 * Destructor for releasing dynamic memory
@@ -216,7 +218,8 @@ namespace lbcrypto {
 		void EvalPK(
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemB,
-			Matrix<Element> *evalPubElementBf
+			Matrix<Element> *evalPubElementBf,
+			uint32_t seed=1
 		);
 
 		/**
@@ -231,7 +234,8 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &pubElemB,
 			Matrix<Element> *evalPubElementBf,
-			const shared_ptr<typename Element2::Params> ilParams
+			const shared_ptr<typename Element2::Params> ilParams,
+			uint32_t seed=1
 		);
 
 		/**
@@ -252,7 +256,8 @@ namespace lbcrypto {
 			const Matrix<Element> &origCT, // original ciphtertext
 			usint *evalAttribute, // evaluated circuit
 			Matrix<Element> *evalCT, //evaluated ciphertext,
-			const shared_ptr<typename Element2::Params> ilParams
+			const shared_ptr<typename Element2::Params> ilParams,
+			uint32_t seed=1
 		);
 
 		/**
@@ -272,7 +277,8 @@ namespace lbcrypto {
 			const usint x[],  //attributes
 			const Matrix<Element> &origCT, // original ciphtertext
 			usint *evalAttribute, // evaluated circuit
-			Matrix<Element> *evalCT //evaluated ciphertext
+			Matrix<Element> *evalCT, //evaluated ciphertext
+			uint32_t seed=1
 		);
 
 		/**
@@ -292,7 +298,8 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> ilParams,
 			const Matrix<Element> &pubElemB0,
 			const Matrix<Element> &origPubElem,
-			Matrix<Element> *evalPubElem
+			Matrix<Element> *evalPubElem,
+			uint32_t seed=1
 		);
 
 
@@ -319,7 +326,8 @@ namespace lbcrypto {
 			const Matrix<Element> &origPubElem,
 			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			Matrix<Element> *evalCT
+			Matrix<Element> *evalCT,
+			uint32_t seed=1
 		);
 
 
@@ -333,7 +341,8 @@ namespace lbcrypto {
 		void ANDGateEvalPK(
 			shared_ptr<typename Element::Params> ilParams,
 			const Matrix<Element> &origPubElemB,
-			Matrix<Element> *evalPubElemBf
+			Matrix<Element> *evalPubElemBf,
+			uint32_t seed=1
 		);
 		/**
 		*Evaluation of simple AND Gate
@@ -351,7 +360,8 @@ namespace lbcrypto {
 			const Matrix<Element> &origPubElemB,
 			const Matrix<Element> &origCT,
 			usint *evalAttribute,
-			Matrix<Element> *evalCT
+			Matrix<Element> *evalCT,
+			uint32_t seed=1
 		);
 
 		/**
@@ -452,7 +462,8 @@ namespace lbcrypto {
 			const Matrix<Element> &pubElemB0,
 			const Matrix<Element> &origPubElem,
 			Matrix<Element> *evalPubElem,
-			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+			uint32_t seed=1
 		);
 
 
@@ -481,7 +492,8 @@ namespace lbcrypto {
 			const Matrix<Element> &origCT,
 			usint *evalAttribute,
 			Matrix<Element> *evalCT,
-			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+			uint32_t seed=1
 		);
 
 
@@ -497,7 +509,8 @@ namespace lbcrypto {
 			const shared_ptr<typename Element::Params> params,
 			const Matrix<Element> &origPubElemB,
 			Matrix<Element> *evalPubElemBf,
-			const shared_ptr<typename Element2::Params> ilParamsConsolidated
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+			uint32_t seed=1
 		);
 		/**
 		*Evaluation of simple Ciphertext AND Gate
@@ -517,9 +530,10 @@ namespace lbcrypto {
 			const Matrix<Element> &origCT,
 			usint *evalAttribute,
 			Matrix<Element> *evalCT,
-			const shared_ptr<typename Element2::Params> ilParamsConsolidated
-				       );
-		
+			const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+			uint32_t seed=1
+		);
+
 	private:
 		usint m_k; //number of bits of the modulus
 		usint m_ell; //number of attributes
@@ -527,6 +541,9 @@ namespace lbcrypto {
 		BigInteger m_q; // modulus
 		usint m_m; // m = k+2
 		int32_t m_base; //base, a power of two
+
+		GaussianMode m_mode;
+		LatticeSubgaussianUtility<typename Element2::Integer> m_util;
 	};
 
 }

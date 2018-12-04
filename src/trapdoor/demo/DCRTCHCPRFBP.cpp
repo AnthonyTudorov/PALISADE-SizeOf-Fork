@@ -54,15 +54,15 @@ void test(const BPCHCPRF<DCRTPoly>& algorithm, const vector<vector<Matrix<int>>>
     cout << "Constrained Key Generation: " << processingTime << "ms" << endl;
 
     for (const auto& value : cases) {
-        TIC(t);
         cout << "input: " << value.first << endl;
+        TIC(t);
         const auto value1 = algorithm.Evaluate(key, value.first);
         const auto value2 = algorithm.Evaluate(constrainedKey, value.first);
         processingTime = TOC(t);
         cout << "Evaluation: 2 * " << processingTime / 2 << "ms" << endl;
         //cout << value1 << endl;
         //cout << value2 << endl;
-        bool match = value1 == value2;
+        bool match = *value1 == *value2;
         cout << (match ? "Matched " : "Did not match ") << (match == value.second ? "(Correct)" : "(Incorrect)") << endl;
     }
 }
@@ -249,8 +249,8 @@ int main(int argc, char* argv[]) {
 	PalisadeParallelControls.Enable();
 
     //CC17Manual();
-    //CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
-    //CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
-    //CVW18WitnessEncryption();
+    CVW18Disjunction("10*000*1", {{"00111110", true}, {"01011100", false}});
+    CVW18HammingCloseness("0*10", 2, {{"1010", true}, {"1110", true}, {"1111", false}});
+    CVW18WitnessEncryption();
     CVW18CNF({{1, -2, 3}, {-1, 4, 5}}, {{"00000", true}, {"11000", false}, {"11001", true}});
 }

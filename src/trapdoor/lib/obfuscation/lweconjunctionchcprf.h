@@ -97,7 +97,7 @@ namespace lbcrypto {
 		 * @param input PRF input
 		 * @return PRF output
 		 */
-		shared_ptr<vector<Poly>> Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const;
+		shared_ptr<vector<NativePoly>> Evaluate(const shared_ptr<vector<vector<Element>>> s, const std::string &input) const;
 
 		/**
 		 * Method to evaluate PRF using constrained PRF key and input
@@ -106,7 +106,7 @@ namespace lbcrypto {
 		 * @param input PRF input
 		 * @return PRF output
 		 */
-		shared_ptr<vector<Poly>> Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const;
+		shared_ptr<vector<NativePoly>> Evaluate(const shared_ptr<vector<vector<shared_ptr<Matrix<Element>>>>> D, const std::string &input) const;
 
 		/**
 		 * Compares the evaluation results using constrained and unconstrained keys
@@ -115,7 +115,7 @@ namespace lbcrypto {
 		 * @param yPrime evaluation result using the unconstrained key
 		 * @return true if the inputs match
 		 */
-		bool EqualTest(shared_ptr<vector<Poly>> y, shared_ptr<vector<Poly>> yPrime) const{
+		bool EqualTest(shared_ptr<vector<NativePoly>> y, shared_ptr<vector<NativePoly>> yPrime) const{
 			return (*y == *yPrime);
 		}
 
@@ -156,7 +156,7 @@ namespace lbcrypto {
 		 */
 		shared_ptr<Matrix<Element>> Encode(usint i, usint j, const Element &elem);
 
-		shared_ptr<vector<Poly>> TransformMatrixToPRFOutput(const Matrix<Element> &matrix) const;
+		shared_ptr<vector<NativePoly>> TransformMatrixToPRFOutput(const Element &input) const;
 
 		usint m_base;
 		usint m_chunkSize;
@@ -168,10 +168,31 @@ namespace lbcrypto {
 
 		DCRTPoly::DggType m_dgg;
 		DCRTPoly::DggType m_dggLargeSigma;
-		DCRTPoly::TugType m_tug;
+		//DCRTPoly::TugType m_tug;
 
 		shared_ptr<vector<Matrix<Element>>> m_A;
 		shared_ptr<vector<RLWETrapdoorPair<Element>>> m_T;
+
+		// used during encryption
+		vector<NativeInteger> m_CRTDeltaTable;
+
+		// when log2 qi <= 44 bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<double> m_CRTDecryptionFloatTable;
+
+		// when 44 < log2 qi <= 57  bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<long double> m_CRTDecryptionExtFloatTable;
+
+		// when log2 qi = 58..60 bits
+		// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
+		std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
+
+		// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+		std::vector<NativeInteger> m_CRTDecryptionIntTable;
+
+		// Stores an NTL precomputation for the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
+		std::vector<NativeInteger> m_CRTDecryptionIntPreconTable;
 
 	};
 

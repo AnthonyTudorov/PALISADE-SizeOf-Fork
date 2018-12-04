@@ -29,6 +29,7 @@
 #define LBCRYPTO_OBFMATH_DGSAMPLING_H
 
 #include "math/matrix.h"
+#include "math/nbtheory.h"
 #include "lattice/field2n.h"
 
 namespace lbcrypto {

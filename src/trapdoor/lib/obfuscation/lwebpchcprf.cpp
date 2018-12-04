@@ -29,6 +29,10 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 #define LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
+
+#include "utils/debug.h"
+
 #include "lwebpchcprf.h"
 
 namespace lbcrypto {
@@ -37,18 +41,103 @@ template <class Element>
 BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, usint w)
     : m_base(base), m_chunkSize(chunkSize), m_length(length), m_adjustedLength(length / chunkSize), m_chunkExponent(1 << m_chunkSize), m_w(w), m_dgg(SIGMA) {
     // Generate ring parameters
-    double q = EstimateRingModulus(n);
-    m_elemParams = GenerateElemParams(q, n);
+    double qEst = EstimateRingModulus(n);
+    m_elemParams = GenerateElemParams(qEst, n);
     m_m = ceil(GetLogModulus() / log2(base)) + 2;
 
     // Initialize m_dggLargeSigma
     double c = (base + 1) * SIGMA;
     double s = SPECTRAL_BOUND_D(n, m_m - 2, base, w);
 
-    if (sqrt(s * s - c * c) <= 3e5)
+    if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
+    {
         m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
+    }
     else
+    {
         m_dggLargeSigma = m_dgg;
+    }
+
+	size_t size = m_elemParams->GetParams().size();
+
+	BigInteger q(m_elemParams->GetModulus());
+
+	vector<NativeInteger> moduli(size);
+	vector<NativeInteger> roots(size);
+	for (size_t i = 0; i < size; i++){
+		moduli[i] = m_elemParams->GetParams()[i]->GetModulus();
+		roots[i] = m_elemParams->GetParams()[i]->GetRootOfUnity();
+	}
+
+	const BigInteger deltaBig = q.DividedBy(NativeInteger(2));
+
+	std::vector<NativeInteger> CRTDeltaTable(size);
+
+	for (size_t i = 0; i < size; i++){
+		BigInteger qi = BigInteger(m_elemParams->GetParams()[i]->GetModulus().ConvertToInt());
+		BigInteger deltaI = deltaBig.Mod(qi);
+		CRTDeltaTable[i] = NativeInteger(deltaI.ConvertToInt());
+	}
+
+	m_CRTDeltaTable = CRTDeltaTable;
+
+	NativeInteger p = NativeInteger(2);
+
+	if (moduli[0].GetMSB() < 45)
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<double> CRTDecryptionFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionFloatTable[i] = (double)numerator/(double)denominator;
+		}
+		m_CRTDecryptionFloatTable = CRTDecryptionFloatTable;
+	}
+	else if (moduli[0].GetMSB() < 58)
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<long double> CRTDecryptionExtFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionExtFloatTable[i] = (long double)numerator/(long double)denominator;
+		}
+		m_CRTDecryptionExtFloatTable = CRTDecryptionExtFloatTable;
+	}
+	else
+	{
+		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
+		std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
+
+		for (size_t i = 0; i < size; i++){
+			BigInteger qi = BigInteger(moduli[i].ConvertToInt());
+			int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
+			int64_t denominator = moduli[i].ConvertToInt();
+			CRTDecryptionQuadFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
+		}
+		m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+	}
+
+	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
+
+	std::vector<NativeInteger> qDecryptionInt(size);
+	std::vector<NativeInteger> qDecryptionIntPrecon(size);
+	for( usint vi = 0 ; vi < size; vi++ ) {
+		BigInteger qi = BigInteger(moduli[vi].ConvertToInt());
+		BigInteger divBy = q / qi;
+		BigInteger quotient = (divBy.ModInverse(qi))*BigInteger(p)/qi;
+		qDecryptionInt[vi] = quotient.Mod(p).ConvertToInt();
+		qDecryptionIntPrecon[vi] = qDecryptionInt[vi].PrepModMulPreconOptimized(p);
+	}
+
+	m_CRTDecryptionIntTable = qDecryptionInt;
+	m_CRTDecryptionIntPreconTable = qDecryptionIntPrecon;
+
 }
 
 template <class Element>
@@ -65,7 +154,7 @@ usint BPCHCPRF<Element>::GetLogModulus() const {
 
 template <class Element>
 const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen() const {
-    typename Element::TugType tug;
+    //typename Element::TugType tug;
     vector<vector<Element>> s;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
@@ -73,7 +162,7 @@ const pair<vector<vector<Element>>, Matrix<Element>> BPCHCPRF<Element>::KeyGen()
 
 #pragma omp parallel for schedule(dynamic)
         for (usint k = 0; k < m_chunkExponent; k++) {
-            Element s_ik = Element(tug, m_elemParams, COEFFICIENT);
+            Element s_ik = Element(m_dgg, m_elemParams, COEFFICIENT);
             s_ik.SwitchFormat();
 
             s_i[k] = s_ik;
@@ -130,9 +219,10 @@ const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> BPCHCPRF<Element>::
 }
 
 template <class Element>
-const vector<Poly> BPCHCPRF<Element>::Evaluate(
+shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
     const pair<vector<vector<Element>>, Matrix<Element>>& key,
     const string& input) const {
+
     Element yCurrent;
 
     for (usint i = 0; i < m_adjustedLength; i++) {
@@ -145,13 +235,14 @@ const vector<Poly> BPCHCPRF<Element>::Evaluate(
             yCurrent *= key.first[i][k];
     }
 
-    Matrix<Element> y = yCurrent * key.second.ExtractRow(0);
+    Element y = key.second(0,1) * yCurrent;
 
     return TransformMatrixToPRFOutput(y);
+
 }
 
 template <class Element>
-const vector<Poly> BPCHCPRF<Element>::Evaluate(
+shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::Evaluate(
     const pair<Matrix<Element>, vector<vector<Matrix<Element>>>>& constrainedKey,
     const string& input) const {
     Matrix<Element> y = constrainedKey.first;
@@ -162,7 +253,8 @@ const vector<Poly> BPCHCPRF<Element>::Evaluate(
         y = y * constrainedKey.second[i][k];
     }
 
-    return TransformMatrixToPRFOutput(y);
+    return TransformMatrixToPRFOutput(y(0,1));
+
 }
 
 template <class Element>
@@ -176,6 +268,9 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
     //empirical parameter
     double beta = 6;
 
+    //probability of hitting the "danger" zone that affects the rounding result
+	double Pe = 1 << 20;
+
     //Bound of the Gaussian error Elementnomial
     double Berr = sigma * sqrt(alpha);
 
@@ -184,7 +279,7 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
 
     //Correctness constraint
     auto qCorrectness = [&](uint32_t n, uint32_t m, uint32_t k) -> double
-    		{ return 16 * Berr * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
+    		{ return 1024 * Berr * Pe * m_w * pow(sqrt(m_w * m * n) * beta * SPECTRAL_BOUND_D(n, m - 2, base, m_w), length-1); };
 
     double qPrev = 1e6;
     double q = 0;
@@ -203,6 +298,8 @@ double BPCHCPRF<Element>::EstimateRingModulus(usint n) const {
         m = ceil(k / log2(base)) + 2;
         q = qCorrectness(n, m, k);
     }
+
+    std::cout << "q = " << q << std::endl;
 
     return q;
 }
@@ -275,26 +372,32 @@ Matrix<Element> BPCHCPRF<Element>::Encode(
 }
 
 template <class Element>
-const vector<Poly> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Matrix<Element>& matrix) const {
-    const BigInteger& q = m_elemParams->GetModulus();
-    const BigInteger& half = m_elemParams->GetModulus() >> 1;
+shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(const Element& input) const {
 
-    vector<Poly> output(matrix.GetCols());
+	const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
+	const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
+	const std::vector<QuadFloat> &lyamQuadTable = m_CRTDecryptionQuadFloatTable;
+	const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
+	const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
-#pragma omp parallel for schedule(dynamic)
-    for (usint i = 0; i < matrix.GetCols(); i++) {
-        Poly poly = matrix(0, i).CRTInterpolate();
+	/*
+	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(matrix.GetCols()));
 
-        // Transform negative numbers so that they could be rounded correctly
-        for (usint k = 0; k < poly.GetLength(); k++) {
-            if (poly[k] > half)
-                poly[k] = q - poly[k];
-        }
+	for (size_t i = 0; i < matrix.GetCols(); i++) {
+		(*result)[i] = matrix(0, i).ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+	}
+	*/
 
-        output[i] = poly.DivideAndRound(half);
-    }
+	shared_ptr<vector<NativePoly>> result(new vector<NativePoly>(1));
 
-    return output;
+        auto element = input;
+        element.SwitchFormat();
+
+	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
+	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+
+	return result;
+
 }
 
 template <class Element>
@@ -392,12 +495,12 @@ template <class Element>
 usint WitnessEncryption<Element>::Decrypt(
     const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> ciphertext,
     const string& x) const {
-    const vector<Poly> output = this->Evaluate(ciphertext, x);
+    shared_ptr<vector<NativePoly>> output = this->Evaluate(ciphertext, x);
     BigInteger zero("0");
     usint value = 0;
-    for (usint i = 0; i < output.size(); i++) {
-        for (usint k = 0; k < output[i].GetLength(); k++) {
-            if (output[i][k] > zero) {
+    for (usint i = 0; i < output->size(); i++) {
+        for (usint k = 0; k < (*output)[i].GetLength(); k++) {
+            if ((*output)[i][k] > zero) {
                 value = 1;
             }
         }

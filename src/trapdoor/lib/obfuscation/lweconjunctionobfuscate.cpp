@@ -1111,7 +1111,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 
 	typename Element::DggType dggLargeSigma;
 
-	if (sqrt(s * s - c * c) <= 3e5)
+	if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
 		dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 	else
 		dggLargeSigma = dgg;

@@ -36,6 +36,8 @@
 
 namespace lbcrypto {
 
+template <class Element, class Element2>
+KPABE<Element, Element2>::KPABE(GaussianMode mode) : m_k(0), m_ell(0), m_N(0), m_q(0), m_m(0), m_base(0), m_mode(mode) {}
 
   /*
  * This is a setup function for Private Key Generator (PKG);
@@ -58,11 +60,17 @@ void KPABE<Element, Element2>::Setup(
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+
+		if (m_mode == NAF)
+			m_k = (usint)floor(logTwo) + 1;
+		else
+			m_k = (long)ceil(log2(val)/log2(base));
 
 		m_m = m_k + 2;
 
 		m_ell = ell;
+
+		m_util = LatticeSubgaussianUtility<typename Element2::Integer>(m_base,q,m_k);
 
 		for (usint i = 0; i < (*pubElemB).GetRows(); i++)
 			for (usint j = 0; j < (*pubElemB).GetCols(); j++) {
@@ -92,11 +100,18 @@ void KPABE<Element, Element2>::Setup(
 
 		double val = q.ConvertToDouble();
 		double logTwo = log(val - 1.0) / log(base) + 1.0;
-		m_k = (usint)floor(logTwo) + 1;
+
+		if (m_mode == NAF)
+			m_k = (usint)floor(logTwo) + 1;
+		else
+			m_k = (long)ceil(log2(val)/log2(base));
 
 		m_m = m_k + 2;
 
 		m_ell = ell;
+
+		m_util = LatticeSubgaussianUtility<typename Element2::Integer>(m_base,q,m_k);
+
 	}
 
 /*
@@ -109,7 +124,8 @@ template <class Element, class Element2>
 	void KPABE<Element, Element2>::EvalPK(
 		const shared_ptr<typename Element::Params> params,
 		const Matrix<Element> &pubElemB,
-		Matrix<Element> *evalPubElemBf
+		Matrix<Element> *evalPubElemBf,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -131,7 +147,10 @@ template <class Element, class Element2>
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negpublicElementB(0, j) = pubElemB(2*i+1, j).Negate();
 
-			PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
+			if (m_mode==NAF)
+				PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
+			else
+				InverseRingVector<Element>(m_util, params, negpublicElementB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -165,7 +184,10 @@ template <class Element, class Element2>
 				for (usint j = 0; j < m_m; j++)
 					negpublicElementB(0, j) = wpublicElementB(inStart+2*i, j).Negate();
 
-				PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
+				if (m_mode == NAF)
+					PolyVec2BalDecom<Element>(params, m_base, m_k, negpublicElementB, &psi);
+				else
+					InverseRingVector<Element>(m_util, params, negpublicElementB, seed, &psi);
 
 				psi.SwitchFormat();
 
@@ -202,7 +224,8 @@ template <class Element, class Element2>
 		const shared_ptr<typename Element::Params> params,
 		const Matrix<Element> &pubElemB,
 		Matrix<Element> *evalPubElemBf,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -242,8 +265,10 @@ template <class Element, class Element2>
 					}
 				}
 
-
-			PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			if (m_mode == NAF)
+				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			else
+				InverseRingVector<Element2>(m_util, ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -299,7 +324,10 @@ template <class Element, class Element2>
 					}
 				}
 
-				PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix_Two, &psiPoly_Two);
+				if (m_mode == NAF)
+					PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix_Two, &psiPoly_Two);
+				else
+					InverseRingVector<Element2> (m_util, ilParamsConsolidated, negBPolyMatrix_Two, seed, &psiPoly_Two);
 
 				// DCRT CREATE
 
@@ -348,7 +376,8 @@ void KPABE<Element, Element2>::EvalCT(
 		const usint x[],  // Attributes
 		const Matrix<Element> &origCT,
 		usint *evalAttributes,
-		Matrix<Element> *evalCT
+		Matrix<Element> *evalCT,
+		uint32_t seed
 	)
 	{
 		// Part pertaining to A (does not change)
@@ -379,7 +408,10 @@ void KPABE<Element, Element2>::EvalCT(
 			for (usint j = 0; j < m_m; j++)     // Negating Bis for bit decomposition
 				negB(0, j) = pubElemB(2*i+1, j).Negate();
 
-			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+			if (m_mode == NAF)
+				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+			else
+				InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -429,8 +461,10 @@ void KPABE<Element, Element2>::EvalCT(
 				for (usint j = 0; j < m_m; j++)
 					negB(0, j) = wPublicElementB(InStart+2*i, j).Negate();
 
-
-				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+				if (m_mode == NAF)
+					PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+				else
+					InverseRingVector<Element>(m_util, ilParams, negB, seed, &psi);
 
 				psi.SwitchFormat();
 
@@ -484,7 +518,8 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 		const Matrix<Element> &origCT,
 		usint *evalAttributes,
 		Matrix<Element> *evalCT,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	){
 	// Part pertaining to A (does not change)
 		for (usint i = 0; i < m_m; i++)
@@ -526,9 +561,10 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 					}
 				}
 
-
-			PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
-
+			if (m_mode == NAF)
+				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			else
+				InverseRingVector<Element2>(m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -598,9 +634,10 @@ void KPABE<Element, Element2>::EvalCTDCRT(
 					}
 				}
 
-
-				PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix_two, &psiPoly_two);
-
+				if (m_mode == NAF)
+					PolyVec2BalDecom<Element2>(ilParamsConsolidated, m_base, m_k, negBPolyMatrix_two, &psiPoly_two);
+				else
+					InverseRingVector<Element2>(m_util, ilParamsConsolidated, negBPolyMatrix_two, seed, &psiPoly_two);
 
 				for(usint i = 0; i < psiPoly_two.GetRows(); i++){
 					for(usint j = 0; j < psiPoly_two.GetCols();j++){
@@ -820,7 +857,8 @@ void KPABE<Element, Element2>::NANDGateEvalCT(
 	const Matrix<Element> &origPubElem,
 	const Matrix<Element> &origCT,
 	usint *evalAttribute,
-	Matrix<Element> *evalCT
+	Matrix<Element> *evalCT,
+	uint32_t seed
 )
 {
 	auto zero_alloc = Element::Allocator(ilParams, EVALUATION);
@@ -835,7 +873,10 @@ void KPABE<Element, Element2>::NANDGateEvalCT(
 	for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 		negB(0, j) = origPubElem(0, j).Negate();
 
-	PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+	if (m_mode == NAF)
+		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+	else
+		InverseRingVector<Element>(m_util,ilParams, negB, seed, &psi);
 
 	psi.SwitchFormat();
 
@@ -869,7 +910,8 @@ void KPABE<Element, Element2>::NANDGateEvalPK(
 			const shared_ptr<typename Element::Params> ilParams,
 			const Matrix<Element> &pubElemB0,
 			const Matrix<Element> &origPubElem,
-			Matrix<Element> *evalPubElem
+			Matrix<Element> *evalPubElem,
+			uint32_t seed
 		)
 		{
 			auto zero_alloc = Element::Allocator(ilParams, EVALUATION);
@@ -882,7 +924,10 @@ void KPABE<Element, Element2>::NANDGateEvalPK(
 			for (usint j = 0; j < m_m; j++)     // Negating B1 for bit decomposition
 				negB(0, j) = origPubElem(0, j).Negate();
 
-			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+			if (m_mode == NAF)
+				PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+			else
+				InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 			psi.SwitchFormat();
 
@@ -906,7 +951,8 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 		const Matrix<Element> &pubElemB0,
 		const Matrix<Element> &origPubElem,
 		Matrix<Element> *evalPubElem,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	)
 	{
 			auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -931,7 +977,10 @@ void KPABE<Element, Element2>::NANDGateEvalPKDCRT(
 				}
 			}
 
-			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			if (m_mode == NAF)
+				PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+			else
+				InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 			// DCRT CREATE
 
@@ -967,7 +1016,8 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 		const Matrix<Element> &origCT,
 		usint *evalAttribute,
 		Matrix<Element> *evalCT,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -994,7 +1044,10 @@ void KPABE<Element, Element2>::NANDGateEvalCTDCRT(
 				}
 			}
 
-		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		if (m_mode == NAF)
+			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		else
+			InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1033,7 +1086,8 @@ template <class Element, class Element2>
 void KPABE<Element, Element2>::ANDGateEvalPK(
 		shared_ptr<typename Element::Params> ilParams,
 		const Matrix<Element> &origPubElemB,
-		Matrix<Element> *evalPubElemBf
+		Matrix<Element> *evalPubElemBf,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(ilParams, EVALUATION);
@@ -1045,7 +1099,10 @@ void KPABE<Element, Element2>::ANDGateEvalPK(
 			negB(0, j) = origPubElemB(0, j).Negate();
 		}
 
-		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+		if (m_mode == NAF)
+			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+		else
+			InverseRingVector<Element> (m_util,ilParams, negB, seed, &psi);
 
 		psi.SwitchFormat();
 
@@ -1066,7 +1123,8 @@ void KPABE<Element, Element2>::ANDGateEvalCT(
 		const Matrix<Element> &origPubElemB,
 		const Matrix<Element> &origCT,
 		usint *evalAttribute,
-		Matrix<Element> *evalCT
+		Matrix<Element> *evalCT,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(ilParams, EVALUATION);
@@ -1078,7 +1136,10 @@ void KPABE<Element, Element2>::ANDGateEvalCT(
 			negB(0, j) = origPubElemB(0, j).Negate();
 		}
 
-		PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+		if (m_mode == NAF)
+			PolyVec2BalDecom<Element> (ilParams, m_base, m_k, negB, &psi);
+		else
+			InverseRingVector<Element>(m_util,ilParams, negB, seed, &psi);
 
 		psi.SwitchFormat();
 		/* x2*C1 */
@@ -1103,7 +1164,8 @@ void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
 		const shared_ptr<typename Element::Params> params,
 		const Matrix<Element> &origPubElemB,
 		Matrix<Element> *evalPubElemBf,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -1128,8 +1190,10 @@ void KPABE<Element, Element2>::ANDGateEvalPKDCRT(
 			}
 		}
 
-
-		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		if (m_mode == NAF)
+			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		else
+			InverseRingVector<Element2> (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 
@@ -1159,7 +1223,8 @@ void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
 		const Matrix<Element> &origCT,
 		usint *evalAttribute,
 		Matrix<Element> *evalCT,
-		const shared_ptr<typename Element2::Params> ilParamsConsolidated
+		const shared_ptr<typename Element2::Params> ilParamsConsolidated,
+		uint32_t seed
 	)
 	{
 		auto zero_alloc = Element::Allocator(params, EVALUATION);
@@ -1185,7 +1250,10 @@ void KPABE<Element, Element2>::ANDGateEvalCTDCRT(
 			}
 		}
 
-		PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		if (m_mode == NAF)
+			PolyVec2BalDecom<Element2> (ilParamsConsolidated, m_base, m_k, negBPolyMatrix, &psiPoly);
+		else
+			InverseRingVector<Element2>  (m_util,ilParamsConsolidated, negBPolyMatrix, seed, &psiPoly);
 
 		// DCRT CREATE
 

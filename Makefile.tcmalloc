@@ -1,0 +1,84 @@
+#Makefile to build and install tcmalloc (gperfools-master) in palisade
+#note this is only tested for centos 7 right now. it should be verified on other *nix systems
+
+TAR ?= tar
+UNZIP ?= unzip
+
+#note change the following directory to the correct one on your install
+
+PALISADE_DIR := $(PWD)
+TCM_VER :=
+
+#check if the palisade directory is correct
+#ifneq ($(wildcard $(PALISADE_DIR)), )
+# $(info Makefile.gmp running)
+#else
+# $(info Makefile.gmp needs to be updated for correct PALISADE_DIR directory)
+#endif
+
+THIRD_PARTY_DIR := $(PALISADE_DIR)/third-party
+DISTROS_DIR := $(THIRD_PARTY_DIR)/distros
+TCM_DISTRO_DIR := $(DISTROS_DIR)/gperftools-master
+
+
+#check if tcm has been unpacked into the correct directory
+# and installs it if not.
+ifneq ($(wildcard $(TCM_DISTRO_DIR)), )
+ #$(info Makefile.tcm: TCM already unpacked)
+ TCM_UNPACK_NEEDED := 
+else
+ #$(info Makefile.tcm: unpacking TCM)
+ TCM_UNPACK_NEEDED := tcm_unpack
+endif
+
+#check if tcm has been installed into the correct directory
+# and installs it if not.
+ifneq ($(wildcard $(THIRD_PARTY_DIR)/lib/libtcmalloc_minimal.a), )
+ #$(info Makefile.tcmalloc: TCMALLOC already installed)
+ TCM_CONFIG_NEEDED := 
+ TCM_MAKE_NEEDED := 
+ TCM_CHECK_NEEDED :=
+ TCM_INSTALL_NEEDED :=
+else
+ #$(info Makefile.tcmalloc: installing TCMALLOC)
+ TCM_CONFIG_NEEDED := tcm_config
+ TCM_MAKE_NEEDED := tcm_make
+ #TCM_CHECK_NEEDED := tcm_check
+ TCM_INSTALL_NEEDED := tcm_install
+endif
+
+$(TCMLIB): tcm_all
+
+tcm_all: $(TCM_UNPACK_NEEDED) $(TCM_CONFIG_NEEDED) $(TCM_MAKE_NEEDED) $(TCM_CHECK_NEEDED) $(TCM_INSTALL_NEEDED)
+
+tcm_unpack: 
+	@echo 'Unpacking tcmalloc_minimal for Palisade into $(TCM_DISTRO_DIR)'
+	cd $(DISTROS_DIR);\
+	$(UNZIP)  ./gperftools-master.zip
+
+tcm_config: $(TCM_UNPACK_NEEDED)
+	@echo 'Configuring tcmalloc_minimal for Palisade in $(TCM_DISTRO_DIR)'
+	cd $(TCM_DISTRO_DIR); \
+	pwd ;\
+	./autogen.sh ; \
+	./configure --prefix=$(THIRD_PARTY_DIR) --enable-minimal
+	
+tcm_make: tcm_config
+	@echo 'making tcmalloc_minimal for Palisade in $(TCM_DISTRO_DIR)'
+	cd $(TCM_DISTRO_DIR); \
+	$(MAKE)
+
+tcm_check: $(TCM_MAKE_NEEDED)
+	@echo 'checking tcmalloc_minimal for Palisade in $(TCM_DISTRO_DIR)'
+	cd $(TCM_DISTRO_DIR); \
+	$(MAKE) check
+tcm_install: $(TCM_CHECK_NEEDED) $(TCM_MAKE_NEEDED)
+	@echo 'installing tcm_install for Palisade in $(THIRD_PARTY_DIR)'
+	cd $(TCM_DISTRO_DIR); \
+	$(MAKE) install
+clean_tcm:
+	@echo 'Cleaning tcm installation'
+	cd $(DISTROS_DIR);\
+	$(RM) -rf $(TCM_DISTRO_DIR)
+	cd $(THIRD_PARTY_DIR); \
+	$(RM) -rf include/gperftools lib/libtcmalloc_minimal* lib/pkgconfig/libtcmalloc* lib/pkgconfig/libprofiler.pc share/doc/gperftools share/doc/gperftools 
