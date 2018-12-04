@@ -80,7 +80,7 @@ build_ext:
 build:
   stage: build
   script:
-  - make -j $(nproc) all
+  - make -j $(nproc) all benchmark
   artifacts:
     paths:
     - bin
@@ -107,6 +107,7 @@ unit_test:
   stage: unit
   script:
   - make -j $(nproc) testall
+  - bin/benchmark/lib-benchmark
   tags:
   - linux
   dependencies:

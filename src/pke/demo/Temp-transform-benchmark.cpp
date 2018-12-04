@@ -402,7 +402,6 @@ int main() {
 	std::cout << "temp = " << temp << std::endl;
 
 	uint64_t nRep;
-	double start, stop;
 
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
@@ -422,14 +421,15 @@ int main() {
 	//std::cout << xx << std::endl;
 
 	nRep = 10000;
-	start = currentDateTime();
+	TimeVar tt;
+
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
 	}
-	stop = currentDateTime();
-	std::cout << " Library Transform: " << (stop-start)/nRep << std::endl;
+	std::cout << " Library Transform: " << (double)TOC_US(tt)/nRep << std::endl;
 
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		NativeVector InputToFFT(x);
 		usint ringDimensionFactor = rootOfUnityTable.GetLength() / (m / 2);
@@ -439,26 +439,23 @@ int main() {
 			InputToFFT.at(i)= x.at(i).ModBarrettMul(rootOfUnityTable.at(i*ringDimensionFactor), x.GetModulus(), mu);
 		NumberTheoreticTransform<NativeVector>::ForwardTransformIterative(InputToFFT, rootOfUnityTable, m / 2, &X);
 	}
-	stop = currentDateTime();
-	std::cout << " Forward Iterative (with local cache) Transform: " << (stop-start)/nRep << std::endl;
+	std::cout << " Forward Iterative (with local cache) Transform: " << (double)TOC_US(tt)/nRep << std::endl;
 
 	NativeVector output;
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		output = baselineTransform(phim, modulusQ, x, rootOfUnity);
 	}
-	stop = currentDateTime();
-	std::cout << " Ttran_baseline: " << (stop-start)/nRep << std::endl;
+	std::cout << " Ttran_baseline: " << (double)TOC_US(tt)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
 
 	NativeVector result(1<<10);
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		output = precomputedTransform(10, modulusQ, x, rootOfUnityTable);
 	}
-	stop = currentDateTime();
-	std::cout << " Ttran_precomputed - this is our target: " << (stop-start)/nRep << std::endl;
+	std::cout << " Ttran_precomputed - this is our target: " << (double)TOC_US(tt)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	//std::cout << output << std::endl;
 
@@ -473,12 +470,11 @@ int main() {
 		zVec[i] = zi;
 		zi = mod_mul(zi, z, q, d2);
 	}
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		outVec = primitiveTransform(10, q, xVec, zVec);
 	}
-	stop = currentDateTime();
-	std::cout << " Ttran_prim: " << (stop-start)/nRep << std::endl;
+	std::cout << " Ttran_prim: " << (double)TOC_US(tt)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	std::cout << "[";
 	for(usint i = 0; i < phim; i++){
@@ -498,12 +494,11 @@ int main() {
 		zVec[i] = zi;
 		zi = NTL::MulMod(zi, z, q);
 	}
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		outVec = NTLprimitiveTransform(10, q, xVec, zVec);
 	}
-	stop = currentDateTime();
-	std::cout << " NTL_Ttran_prim: " << (stop-start)/nRep << std::endl;
+	std::cout << " NTL_Ttran_prim: " << (double)TOC_US(tt)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	std::cout << "[";
 	for(usint i = 0; i < phim; i++){
@@ -526,12 +521,11 @@ int main() {
 		zi = NTL::MulMod(zi, z, q);
 		pVec[i] = NTL::PrepMulModPrecon(zi, q);
 	}
-	start = currentDateTime();
+	TIC(tt);
 	for(uint64_t n=0; n<nRep; n++){
 		outVec = NTLprimitiveTransformPrecon(10, q, xVec, zVec, pVec);
 	}
-	stop = currentDateTime();
-	std::cout << " NTL_Ttran_prim: " << (stop-start)/nRep << std::endl;
+	std::cout << " NTL_Ttran_prim: " << (double)TOC_US(tt)/nRep << std::endl;
 	//std::cout << X << std::endl;
 	std::cout << "[";
 	for(usint i = 0; i < phim; i++){
