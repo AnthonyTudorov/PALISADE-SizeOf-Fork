@@ -72,7 +72,8 @@ build:
   - make -j $(nproc) all
   artifacts:
     paths:
-    - bin
+    - bin/lib
+    - bin/unittest
     expire_in: 1 day
   dependencies:
   - build_tpp
