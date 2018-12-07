@@ -3,9 +3,10 @@ stages:
 - build
 - build_etc
 - test
-- unit
+- unit_test
 - benchmark
 - memory
+- checksum
 - deploy
 - cleanup
 
@@ -63,7 +64,7 @@ build_tpp:
   artifacts:
     paths:
     - third-party
-    expire_in: 2 hrs
+    expire_in: 2 hours
   dependencies: []
 
 build:
@@ -91,7 +92,7 @@ build_benchmark:
     expire_in: 1 day
 
 unit_test:
-  stage: unit
+  stage: unit_test
   script:
   - ./bin/unittest/tests -t
   dependencies:
@@ -271,3 +272,539 @@ benchmark_lib:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
     expire_in: 1 month
+
+md5_abe:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEabe.so > abe.md5
+  after_script:
+  - mv abe.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - abe.md5
+  only:
+  - master
+
+sha1_abe:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEabe.so > abe.sha1
+  after_script:
+  - mv abe.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - abe.sha1
+  only:
+  - master
+
+sha256_abe:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEabe.so > abe.sha256
+  after_script:
+  - mv abe.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - abe.sha256
+  only:
+  - master
+
+sha512_abe:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEabe.so > abe.sha512
+  after_script:
+  - mv abe.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - abe.sha512
+  only:
+  - master
+
+md5_circuit:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEcircuit.so > circuit.md5
+  after_script:
+  - mv circuit.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - circuit.md5
+  only:
+  - master
+
+sha1_circuit:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEcircuit.so > circuit.sha1
+  after_script:
+  - mv circuit.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - circuit.sha1
+  only:
+  - master
+
+sha256_circuit:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEcircuit.so > circuit.sha256
+  after_script:
+  - mv circuit.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - circuit.sha256
+  only:
+  - master
+
+sha512_circuit:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEcircuit.so > circuit.sha512
+  after_script:
+  - mv circuit.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - circuit.sha512
+  only:
+  - master
+
+md5_core:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEcore.so > core.md5
+  after_script:
+  - mv core.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - core.md5
+  only:
+  - master
+
+sha1_core:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEcore.so > core.sha1
+  after_script:
+  - mv core.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - core.sha1
+  only:
+  - master
+
+sha256_core:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEcore.so > core.sha256
+  after_script:
+  - mv core.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - core.sha256
+  only:
+  - master
+
+sha512_core:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEcore.so > core.sha512
+  after_script:
+  - mv core.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - core.sha512
+  only:
+  - master
+
+md5_pke:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEpke.so > pke.md5
+  after_script:
+  - mv pke.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - pke.md5
+  only:
+  - master
+
+sha1_pke:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEpke.so > pke.sha1
+  after_script:
+  - mv pke.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - pke.sha1
+  only:
+  - master
+
+sha256_pke:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEpke.so > pke.sha256
+  after_script:
+  - mv pke.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - pke.sha256
+  only: 
+  - master
+
+sha512_pke:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEpke.so > pke.sha512
+  after_script:
+  - mv pke.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - pke.sha512
+  only:
+  - master
+
+md5_signature:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEsignature.so > signature.md5
+  after_script:
+  - mv signature.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - signature.md5
+  only:
+  - master
+
+sha1_signature:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEsignature.so > signature.sha1
+  after_script:
+  - mv signature.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - signature.sha1
+  only: 
+  - master
+
+sha256_signature:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEsignature.so > signature.sha256
+  after_script:
+  - mv signature.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - signature.sha256
+  only: 
+  - master
+
+sha512_signature:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEsignature.so > signature.sha512
+  after_script:
+  - mv signature.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - signature.sha512
+  only: 
+  - master
+
+md5_trapdoor:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEtrapdoor.so > trapdoor.md5
+  after_script:
+  - mv trapdoor.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - trapdoor.md5
+  only:
+  - master
+
+sha1_trapdoor:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEtrapdoor.so > trapdoor.sha1
+  after_script:
+  - mv trapdoor.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - trapdoor.sha1
+  only: 
+  - master
+
+sha256_trapdoor:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEtrapdoor.so > trapdoor.sha256
+  after_script:
+  - mv trapdoor.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - trapdoor.sha256
+  only: 
+  - master
+
+sha512_trapdoor:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEtrapdoor.so > trapdoor.sha512
+  after_script:
+  - mv trapdoor.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - trapdoor.sha512
+  only: 
+  - master
+
+md5_wip:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - md5sum libPALISADEwip.so > wip.md5
+  after_script:
+  - mv wip.md5 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - wip.md5
+  only:
+  - master
+
+sha1_wip:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha1sum libPALISADEwip.so > wip.sha1
+  after_script:
+  - mv wip.sha1 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - wip.sha1
+  only:
+  - master
+
+sha256_wip:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha256sum libPALISADEwip.so > wip.sha256
+  after_script:
+  - mv wip.sha256 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - wip.sha256
+  only:
+  - master
+
+sha512_wip:
+  stage: checksum
+  before_script:
+  - cd bin/lib
+  script:
+  - sha512sum libPALISADEwip.so > wip.sha512
+  after_script:
+  - mv wip.sha512 ../../
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - wip.sha512
+  only:
+  - master
+
+md5_checksums:
+  stage: deploy
+  script:
+  - touch palisade.md5
+  - cat abe.md5 >> palisade.md5
+  - cat circuit.md5 >> palisade.md5
+  - cat core.md5 >> palisade.md5
+  - cat pke.md5 >> palisade.md5
+  - cat signature.md5 >> palisade.md5
+  - cat trapdoor.md5 >> palisade.md5
+  - cat wip.md5 >> palisade.md5
+  dependencies:
+  - md5_abe
+  - md5_circuit
+  - md5_core
+  - md5_pke
+  - md5_signature
+  - md5_trapdoor
+  - md5_wip
+  only:
+  - master
+
+sha1_checksums:
+  stage: deploy
+  script:
+  - touch palisade.sha1
+  - cat abe.sha1 >> palisade.sha1
+  - cat circuit.sha1 >> palisade.sha1
+  - cat core.sha1 >> palisade.sha1
+  - cat pke.sha1 >> palisade.sha1
+  - cat signature.sha1 >> palisade.sha1
+  - cat trapdoor.sha1 >> palisade.sha1
+  - cat wip.sha1 >> palisade.sha1
+  dependencies:
+  - sha1_abe
+  - sha1_circuit
+  - sha1_core
+  - sha1_pke
+  - sha1_signature
+  - sha1_trapdoor
+  - sha1_wip
+  only:
+  - master
+
+sha256_checksums:
+  stage: deploy
+  script:
+  - touch palisade.sha256
+  - cat abe.sha256 >> palisade.sha256
+  - cat circuit.sha256 >> palisade.sha256
+  - cat core.sha256 >> palisade.sha256
+  - cat pke.sha256 >> palisade.sha256
+  - cat signature.sha256 >> palisade.sha256
+  - cat trapdoor.sha256 >> palisade.sha256
+  - cat wip.sha256 >> palisade.sha256
+  dependencies:
+  - sha256_abe
+  - sha256_circuit
+  - sha256_core
+  - sha256_pke
+  - sha256_signature
+  - sha256_trapdoor
+  - sha256_wip
+  only:
+  - master
+
+sha512_checksums:
+  stage: deploy
+  script:
+  - touch palisade.sha512
+  - cat abe.sha512 >> palisade.sha512
+  - cat circuit.sha512 >> palisade.sha512
+  - cat core.sha512 >> palisade.sha512
+  - cat pke.sha512 >> palisade.sha512
+  - cat signature.sha512 >> palisade.sha512
+  - cat trapdoor.sha512 >> palisade.sha512
+  - cat wip.sha512 >> palisade.sha512
+  dependencies:
+  - sha512_abe
+  - sha512_circuit
+  - sha512_core
+  - sha512_pke
+  - sha512_signature
+  - sha512_trapdoor
+  - sha512_wip
+  only:
+  - master
