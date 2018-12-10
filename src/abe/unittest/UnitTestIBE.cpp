@@ -1,5 +1,5 @@
 /**
- * @file abecontext-impl.cpp - Forward declarations for ABEContext
+ * @file UnitTestIBE.cpp - Unit test file for identity based encryption
 
  * @author  TPOC: palisade@njit.edu
  *
@@ -24,11 +24,60 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "abecontext.cpp"
+#include "include/gtest/gtest.h"
+#include <iostream>
+#include <vector>
 
-namespace lbcrypto{
+#include "../lib/math/backend.h"
+#include "../lib/abecontext.h"
 
-    template class ABEContext<NativePoly>;
 
-    template class ABEContext<Poly>;
+using namespace std;
+using namespace lbcrypto;
+
+template <class T>
+class UTIBE : public ::testing::Test {
+
+public:
+
+
+protected:
+	UTIBE() {}
+
+	virtual void SetUp() {
+
+	}
+
+	virtual void TearDown() {
+
+	}
+
+	virtual ~UTIBE() {  }
+
+};
+template <class Element>
+void UnitTestIBE(int32_t base, usint k, usint ringDimension){
+	
+    ABEContext<Element> context;
+    context.GenerateIBEContext(ringDimension,k,base,SIGMA,false);
+    IBEMasterPublicKey<Element> mpk;
+	IBEMasterSecretKey<Element> msk;
+    context.Setup(&mpk,&msk);
+    IBEUserIdentifier<Element> id(context.GenerateRandomElement());
+    IBESecretKey<Element> sk;
+	context.KeyGen(msk,mpk,id,&sk);
+    IBEPlaintext<Element> pt(context.GenerateRandomBinaryElement());
+    IBECiphertext<Element> ct;
+	context.Encrypt(mpk,id,pt,&ct);
+    IBEPlaintext<Element> dt;
+	context.Decrypt(id,id,sk,ct,&dt);
+
+	EXPECT_EQ(pt.GetPText(),dt.GetPText());
+}
+TEST(UTIBE, ibe_base_32_poly) {
+	UnitTestIBE<Poly>(32,32,1024);
+}
+
+TEST(UTIBE, ibe_base_32_native) {
+	UnitTestIBE<NativePoly>(32,32,1024);
 }

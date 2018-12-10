@@ -103,7 +103,7 @@ namespace lbcrypto{
 
 			const Matrix<Element> & pubElemBPos = mpk.GetBPos();
 			const Matrix<Element> & pubElemBNeg = mpk.GetBNeg();
-			usint *s = id.GetS();
+			const std::vector<usint> s = id.GetS();
 			const Element & pubElemD = mpk.GetPubElemD();
 		//#pragma omp parallel for firstprivate(z) num_threads(4)
 			for(usint i=0; i<m_ell; i++) {
@@ -224,7 +224,7 @@ namespace lbcrypto{
     	usint m_ell = m_params->GetEll();
     	usint m_N = m_params->GetTrapdoorParams()->GetN();
     	usint m_m = m_params->GetTrapdoorParams()->GetK() + 2;
-    	int32_t* w= ap.GetW();
+    	const std::vector<int32_t> & w = ap.GetW();
 		auto ep = m_params->GetTrapdoorParams()->GetElemParams();
 
 		for(usint i=0; i<m_ell; i++)
@@ -340,8 +340,8 @@ namespace lbcrypto{
 
 		typename Element::Integer m_q = m_params->GetTrapdoorParams()->GetElemParams()->GetModulus();
 		usint m_m = m_params->GetTrapdoorParams()->GetK() + 2;
-		int32_t* w = ap.GetW();
-		usint* s = ua.GetS();
+		const std::vector<int32_t> & w = ap.GetW();
+		const std::vector<usint> & s = ua.GetS();
 
 		for(usint j=0; j<m_m; j++)
 			dtext += ctW(0, j)*sk(j, 0);

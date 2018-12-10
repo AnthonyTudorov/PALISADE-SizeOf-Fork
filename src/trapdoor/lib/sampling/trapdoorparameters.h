@@ -55,7 +55,7 @@ namespace lbcrypto{
             *@brief Accessor function for ring element params
             *@return Ring element params
             */
-            shared_ptr<typename Element::Params> GetElemParams(){return m_elemparams;}
+            shared_ptr<typename Element::Params> GetElemParams()const{return m_elemparams;}
             /*
             *@brief Mutator function for ring element params
             *@param elemparams Ring element params
@@ -197,7 +197,7 @@ namespace lbcrypto{
             *@brief Accessor for perturbation vector
             *@return Vector containing ring elements
             */
-            const shared_ptr<Matrix<Element>> GetVector() const{return m_pvector;}
+            shared_ptr<Matrix<Element>> GetVector() const{return m_pvector;}
         private:
             //Perturbation vector represented as a vector of ring elements
             shared_ptr<Matrix<Element>> m_pvector;

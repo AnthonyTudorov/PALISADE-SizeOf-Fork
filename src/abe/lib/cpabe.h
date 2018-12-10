@@ -169,25 +169,25 @@ namespace lbcrypto{
             /*
         	*@brief Default constructor
         	*/
-            CPABEAccessPolicy(){m_w = NULL;}
+            CPABEAccessPolicy(){}
              /*
             *@brief Constructor for access policy
             *@param w Attribute set for the access policy
             */
-            CPABEAccessPolicy(int32_t * w):m_w(w){}
+            CPABEAccessPolicy(const std::vector<int32_t> & w):m_w(w){}
              /*
             *@brief Accessor function for the attribute set for the access policy
             *@return Attribute set for the access policy
             */
-            int32_t* GetW() const{return m_w;};
+            const std::vector<int32_t>& GetW() const{return m_w;};
             /*
             *@brief Mutator function for the attribute set for the access policy
             *@return w Attribute set for the access policy
             */
-            void SetW(int32_t* w){this->m_w = w;}
+            void SetW(const std::vector<int32_t> & w){this->m_w = w;}
         protected:
             //Array of integers to represent access scheme defined on attributes
-            int32_t* m_w;
+            std::vector<int32_t> m_w;
     };
     /*
     *@brief Templated class for attribute set usedby user in CPABE scheme, derived from ABE one
@@ -203,25 +203,25 @@ namespace lbcrypto{
             /*
         	*@brief Default constructor
         	*/
-            CPABEUserAccess(){m_s = NULL;}
+            CPABEUserAccess(){}
              /*
             *@brief Constructor for user access capabilities
             *@param s Attribute set for user access capabilities
             */
-            CPABEUserAccess(usint * s):m_s(s){}
+            CPABEUserAccess(const std::vector<usint> & s):m_s(s){}
             /*
             *@brief Accessor function for the attribute set of user
             *@return Attribute set of user
             */
-            usint* GetS() const{return m_s;};
+            const std::vector<usint> & GetS() const{return m_s;};
             /*
             *@brief Mutator function for the attribute set of user
             *@return s Attribute set of user
             */
-            void SetS(usint* s){this->m_s = s;}
+            void SetS(const std::vector<usint> & s){this->m_s = s;}
         protected:
             //Array of integers to represent user's attribute set
-            usint* m_s;
+            std::vector<usint> m_s;
     };
      /*
 	*@brief Templated class for plaintext in CPABE scheme derived from main ABE one

@@ -167,7 +167,7 @@ namespace lbcrypto {
 		*
 		*@return Parameters held
 		*/
-		shared_ptr<typename Element::Params> GetILParams() { return m_params; }
+		shared_ptr<typename Element::Params> GetILParams() const{ return m_params; }
 
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
