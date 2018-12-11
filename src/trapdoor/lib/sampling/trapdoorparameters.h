@@ -110,7 +110,7 @@ namespace lbcrypto{
             *@param bal Flag for balanced generation in trapdoor
             */
             RLWETrapdoorParams(shared_ptr<typename Element::Params> elemparams,typename Element::DggType& dgg,double stddev,
-                          int64_t base, bool bal):TrapdoorParams<Element>(elemparams,dgg,stddev){
+                          int64_t base, bool bal=false):TrapdoorParams<Element>(elemparams,dgg,stddev){
                               m_base = base;
                               m_bal = bal;
                               double val = elemparams->GetModulus().ConvertToDouble();

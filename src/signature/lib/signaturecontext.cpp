@@ -26,32 +26,47 @@
 #include "signaturecontext.h"
 
 namespace lbcrypto{
+    //Method for setting up a GPV context with specific parameters
     template <class Element>
-    void SignatureContext<Element>::GenerateGPVContext(usint ringsize,usint bits,usint base){
-        usint sm = ringsize * 2;
-        double stddev = 4;
-        typename Element::DggType dgg(stddev);
-        typename Element::Integer smodulus;
-        typename Element::Integer srootOfUnity;
-        smodulus = FirstPrime<typename Element::Integer>(bits,sm);
-        srootOfUnity = RootOfUnity(sm, smodulus);
-		ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
+    void SignatureContext<Element>::GenerateGPVContext(SecurityLevel level,usint ringsize,usint base){
+       std::pair<SecurityLevel,usint> key = std::make_pair(level,ringsize);
+        if(signparammap.count(key)>0){
+            usint bits = signparammap.at(key);
+            usint sm = ringsize * 2;
+            double stddev = 4.578;
+            typename Element::DggType dgg(stddev);
+            typename Element::Integer smodulus;
+            typename Element::Integer srootOfUnity;
+            smodulus = FirstPrime<typename Element::Integer>(bits,sm);
+            srootOfUnity = RootOfUnity(sm, smodulus);
+		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
 
-        ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
-		DiscreteFourierTransform::PreComputeTable(sm);
+            ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
+		    DiscreteFourierTransform::PreComputeTable(sm);
 
         
-        shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
-		shared_ptr<LPSignatureParameters<Element>> signparams(new GPVSignatureParameters<Element>(silparams,dgg,base));
-        shared_ptr<LPSignatureScheme<Element>> scheme(new GPVSignatureScheme<Element>());
-        m_params = signparams;
-        m_scheme = scheme;
+            shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
+            shared_ptr<LPSignatureParameters<Element>> signparams(new GPVSignatureParameters<Element>(silparams,dgg,base));
+            shared_ptr<LPSignatureScheme<Element>> scheme(new GPVSignatureScheme<Element>());
+            m_params = signparams;
+            m_scheme = scheme;
+        }else{
+            throw std::logic_error("No parameter set matches with the given values");
+        }
     }
+    //Method for setting up a GPV context with desired security level only
     template <class Element>
-    void SignatureContext<Element>::GenerateGPVContext(SignatureSecurityLevel level){
-        SignatureParamSet set = SignatureParamsSets[level];
-        GenerateGPVContext(set.ringsize,set.modulusbitwidth,set.base);
+    void SignatureContext<Element>::GenerateGPVContext(SecurityLevel level){
+        if(minringsizemap.count(level)>0){
+            usint ringsize = minringsizemap.at(level);
+            GenerateGPVContext(level,ringsize);
+        }
+        else{
+            throw std::logic_error("Unknown minimum ringsize for given security level");
+        }
+        
     }
+    //Method for key generation
     template <class Element>
         void SignatureContext<Element>::KeyGen(LPSignKey<Element>* sk, LPVerificationKey<Element>* vk){
         m_scheme->KeyGen(m_params,sk,vk);

@@ -31,18 +31,50 @@
 
 
 namespace lbcrypto{
-   
+   /**
+    *@brief Context class for signature schemes, including GPV
+    *@tparam Element ring element 
+    */
     template <class Element>
     class SignatureContext{
         public:
             /*
-            *Default constructor
+            *@brief Default constructor
             */
             SignatureContext(){}
-            void GenerateGPVContext(usint ringsize,usint bits,usint base);
-            void GenerateGPVContext(SignatureSecurityLevel level);
+            /**
+             *@brief Method for setting up a GPV context with specific parameters
+             *@param level Desired security level
+             *@param ringsize Desired ringsize
+             *@param base Base of the gadget matrix
+             */
+            void GenerateGPVContext(SecurityLevel level,usint ringsize,usint base=2);
+            /**
+             *@brief Method for setting up a GPV context with desired security level only 
+             *@param level Desired security level
+             */
+            void GenerateGPVContext(SecurityLevel level);
+            /**
+             *@brief Method for key generation
+             *@param sk Signing key for sign operation - Output 
+             *@param vk Verification key for verify operation - Output 
+             */
             void KeyGen(LPSignKey<Element>* sk, LPVerificationKey<Element>* vk);
+            /**
+             *@brief Method for signing a given plaintext 
+             *@param pt Plaintext to be signed 
+             *@param sk Sign key 
+             *@param vk Verification key
+             *@param sign Signature corresponding to the plaintext - Output 
+             */
             void Sign(const LPSignPlaintext<Element> & pt,const LPSignKey<Element> & sk, const LPVerificationKey<Element> & vk,LPSignature<Element>* sign);
+            /**
+             *@brief Method for verifying the plaintext and signature
+             *@param pt Plaintext 
+             *@param signature Signature to be verified
+             *@param vk Key used for verification
+             *@return Verification result 
+             */
             bool Verify(const LPSignPlaintext<Element> & pt, const LPSignature<Element> & signature, const LPVerificationKey<Element> & vk);
 
         private:

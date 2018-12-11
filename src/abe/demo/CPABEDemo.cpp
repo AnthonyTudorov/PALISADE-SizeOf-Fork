@@ -30,7 +30,7 @@
 using namespace lbcrypto;
 int main(){
     
-
+    //Prepare parameters for the execution
     usint sm = 1024 * 2;
     typename NativePoly::DggType dgg(SIGMA);
     typename NativePoly::DugType dug;
@@ -43,18 +43,18 @@ int main(){
 
     ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
 	DiscreteFourierTransform::PreComputeTable(sm);
-
-        
-        
     shared_ptr<ILParamsImpl<typename NativePoly::Integer>> silparams = std::make_shared<ILParamsImpl<typename NativePoly::Integer>>(ilParams);
     RLWETrapdoorParams<NativePoly> tparams(silparams,dgg,SIGMA,2,false);
 	CPABEParams<NativePoly> abeparams(std::make_shared<RLWETrapdoorParams<NativePoly>>(tparams),6,dug);
     CPABEScheme<NativePoly> sch;
     shared_ptr<CPABEParams<NativePoly>>params = std::make_shared<CPABEParams<NativePoly>>(abeparams);
+    
+    //Create and generate master key pair
     CPABEMasterPublicKey<NativePoly> mpk;
     CPABEMasterSecretKey<NativePoly> msk;
     sch.Setup(params,&mpk,&msk);
-    
+
+    //Generate a random attribute set of user and access policy 
     std::vector<usint> s(6);
 	std::vector<int> w(6);
 
@@ -78,18 +78,25 @@ int main(){
     CPABEUserAccess<NativePoly> ua(s);
     CPABEAccessPolicy<NativePoly> ap(w);
 
+    //Define a secret key for the policy and generate it
     CPABESecretKey<NativePoly> sk;
-    
     sch.KeyGen(params,msk,mpk,ua,&sk);
+    
+    //Generate a random plaintext
     typename NativePoly::BugType bug = typename NativePoly::BugType();
     NativePoly u(params->GetDUG(),params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT);
     u.SetValues(bug.GenerateVector(params->GetTrapdoorParams()->GetN(),smodulus), COEFFICIENT);
     CPABEPlaintext<NativePoly> pt(u);
+    
+    //Encrypt the plaintext
     CPABECiphertext<NativePoly> ct;
     sch.Encrypt(params,mpk,ap,pt,&ct);
+    
+    //Decrypt the ciphertext
     CPABEPlaintext<NativePoly> dt;
      sch.Decrypt(params,ap,ua,sk,ct,&dt);
 
+    //Check if original plaintext and decrypted plaintext match
     if(pt.GetPText()==dt.GetPText()){
         std::cout<<"Encryption & decryption successful"<<std::endl;
     }else{

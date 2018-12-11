@@ -56,9 +56,9 @@ protected:
 
 };
 template <class Element>
-void UnitTestCPABE(int32_t base, usint k, usint ringDimension,usint ell){
+void UnitTestCPABE(SecurityLevel level,usint ell){
     ABEContext<Element> context;
-    context.GenerateCPABEContext(ringDimension,k,base,ell,SIGMA,false);
+    context.GenerateCPABEContext(level,ell);
     CPABEMasterPublicKey<Element> mpk;
 	CPABEMasterSecretKey<Element> msk;
     context.Setup(&mpk,&msk);
@@ -99,9 +99,9 @@ void UnitTestCPABE(int32_t base, usint k, usint ringDimension,usint ell){
 
 }
 TEST(UTCPABE, cp_abe_base_poly_32) {
-	UnitTestCPABE<Poly>(32,34, 1024,4);
+	UnitTestCPABE<Poly>(HEStd_128_classic,4);
 }
 
 TEST(UTCPABE, cp_abe_base_native_32) {
-	UnitTestCPABE<NativePoly>(32,34, 1024,4);
+	UnitTestCPABE<NativePoly>(HEStd_128_classic,4);
 }

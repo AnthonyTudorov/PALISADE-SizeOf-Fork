@@ -28,19 +28,29 @@
 
 using namespace lbcrypto;
     int main(){
+        //We generate a signature context and make it a GPV context with security level
         SignatureContext<Poly> context;
-        context.GenerateGPVContext(8,27,2);
+        context.GenerateGPVContext(HEStd_128_classic);
+        
+        //Create our sign and verification keys and generate them
         GPVVerificationKey<Poly> vk;
         GPVSignKey<Poly> sk;
         context.KeyGen(&sk,&vk);
+        
+        //Create different plaintexts
         GPVPlaintext<Poly> plaintext, plaintext2;
         plaintext.SetPlaintext("This is a test");
         plaintext2.SetPlaintext("This is the wrong one");
         
+        //Sign the first plaintext with generated keys
         GPVSignature<Poly> signature;
         context.Sign(plaintext,sk,vk,&signature);
+        
+        //Try to verify the signature with two different plaintexts
         bool result1 = context.Verify(plaintext,signature,vk);
         bool result2 = context.Verify(plaintext2,signature,vk);
+        
+        //Show the verification results
         std::cout<<"Verif result 1: "<<result1<<std::endl;
         std::cout<<"Verif result 2: "<<result2<<std::endl;    
         return 0;    

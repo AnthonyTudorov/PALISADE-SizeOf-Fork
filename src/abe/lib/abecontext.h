@@ -32,29 +32,98 @@
 #include "abeparamset.h"
 
  namespace lbcrypto{
+     /**
+      *@brief Context class for ABE schemes, including IBE and CPABE 
+      *@tparam Element ring element
+      */
     template <class Element>
     class ABEContext{
         public:
             /*
-            *Default constructor
+            *@brief Default constructor
             */
             ABEContext(){}
-            void GenerateCPABEContext(usint ringsize,usint bits,usint base,usint ell,double stddev, bool bal=false);
-            void GenerateIBEContext(usint ringsize,usint bits,usint base,double stddev, bool bal=false);
-            void GenerateIBEContext(ABESecurityLevel security);
-            void GenerateCPABEContext(ABESecurityLevel security);
+            /**
+             *@brief Method for setting up a CPABE context with specific parameters
+             *@param level Desired security level
+             *@param ell Number of attributes
+             *@param ringsize Desired ringsize
+             *@param base Base of the gadget matrix
+             */
+            void GenerateCPABEContext(SecurityLevel level,usint ell,usint ringsize,usint base);
+            /**
+             *@brief Method for setting up a IBE context with specific parameters
+             *@param level Desired security level
+             *@param ell Number of attributes
+             *@param ringsize Desired ringsize
+             *@param base Base of the gadget matrix
+             */
+            void GenerateIBEContext(SecurityLevel level,usint ringsize,usint base=2);
+             /**
+             *@brief Method for setting up a IBE context with desired security level only 
+             *@param level Desired security level
+             */
+            void GenerateIBEContext(SecurityLevel level);
+             /**
+             *@brief Method for setting up a CPABE context with desired security level and number of attributes only 
+             *@param level Desired security level
+             *@param ell Number of attributes
+             */
+            void GenerateCPABEContext(SecurityLevel level,usint ell);
+            /**
+             *@brief Method for setup phases in ABE related schemes 
+             *@param pk Master public key - Output 
+             *@param sk Master secret key - Output 
+             */
             void Setup(ABECoreMasterPublicKey<Element>* pk,ABECoreMasterSecretKey<Element>* sk);
-            void KeyGen(const ABECoreMasterSecretKey<Element> & msk,const ABECoreMasterPublicKey<Element>& mpk, const ABECoreAccessPolicy<Element> &,ABECoreSecretKey<Element>* sk);
+            /**
+             *@brief Method for individual/policy specific key generation for decryption 
+             *@param msk Master secret key 
+             *@param mpk Master public key 
+             *@param ap Access policy/user identifier
+             *@param sk Secret key defined for the given policy/identifier - Output 
+             */
+            void KeyGen(const ABECoreMasterSecretKey<Element> & msk,const ABECoreMasterPublicKey<Element>& mpk, const ABECoreAccessPolicy<Element> & ap,ABECoreSecretKey<Element>* sk);
+            /**
+             *@brief Method for encryption
+             *@param mpk Master public key
+             *@param ap Access structure
+             *@param ptext Plaintext to be encrypted
+             *@param ct Corresponding ciphertext - Output 
+             */ 
             void Encrypt(const ABECoreMasterPublicKey<Element> & mpk,const ABECoreAccessPolicy<Element> & ap,const ABECorePlaintext<Element> & ptext,ABECoreCiphertext<Element>* ct);
+            /**
+             *@brief Method for decryption with access to identifier/policy 
+             *@param ap Access structure 
+             *@param ua User's access rights 
+             *@param sk User's secret key 
+             *@param ct Ciphertext to be decrypted
+             *@param dt Decrypted plaintext - Output 
+             */
             void Decrypt(const ABECoreAccessPolicy<Element> & ap, const ABECoreAccessPolicy<Element>& ua,const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt);
+            /**
+             *@brief Method for decryption - for the cases without access policy 
+             *@param sk Secret key for the user 
+             *@param ct Ciphertext to be decrypted 
+             *@param dt Decrypted plaintext - Output 
+             */
             void Decrypt(const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt);
+            /**
+             *@brief Method for generating a random ring element with context parameters - demo purposes only 
+             *@return Random ring element 
+             */
             Element GenerateRandomElement();
+            /**
+             * @brief Method for generating a random binary ring element with context parameters - demo purposes only 
+             * @return Random binary ring element
+             */
             Element GenerateRandomBinaryElement();
         private:
+            //Pointer to the scheme used
             shared_ptr<ABECoreScheme<Element>> m_scheme;
+            //Pointer to the parameters used for the scheme
             shared_ptr<ABECoreParams<Element>> m_params;
     };
  }
 
 #endif
- 

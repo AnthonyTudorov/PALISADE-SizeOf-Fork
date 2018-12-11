@@ -56,10 +56,10 @@ protected:
 
 };
 template <class Element>
-void UnitTestIBE(int32_t base, usint k, usint ringDimension){
+void UnitTestIBE(SecurityLevel level){
 	
     ABEContext<Element> context;
-    context.GenerateIBEContext(ringDimension,k,base,SIGMA,false);
+    context.GenerateIBEContext(level);
     IBEMasterPublicKey<Element> mpk;
 	IBEMasterSecretKey<Element> msk;
     context.Setup(&mpk,&msk);
@@ -75,9 +75,9 @@ void UnitTestIBE(int32_t base, usint k, usint ringDimension){
 	EXPECT_EQ(pt.GetPText(),dt.GetPText());
 }
 TEST(UTIBE, ibe_base_32_poly) {
-	UnitTestIBE<Poly>(32,32,1024);
+	UnitTestIBE<Poly>(HEStd_128_classic);
 }
 
 TEST(UTIBE, ibe_base_32_native) {
-	UnitTestIBE<NativePoly>(32,32,1024);
+	UnitTestIBE<NativePoly>(HEStd_128_classic);
 }
