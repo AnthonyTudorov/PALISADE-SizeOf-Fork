@@ -29,10 +29,8 @@
 namespace lbcrypto{
 
 
-//Map holding minimum ring size for the given security level
-static std::map<SecurityLevel,usint> minringsizemap = {};
-//Map holding the parameters for desired security level and ringsize
-static std::map<std::pair<SecurityLevel,usint>,usint> signparammap = {};
+//Map holding minimum ring size and appropriate base for the given security level
+static std::map<SecurityLevel,std::pair<usint,usint>> minRingSizeMap = {};
 }
     
 #endif

@@ -45,20 +45,18 @@
             ABEContext(){}
             /**
              *@brief Method for setting up a CPABE context with specific parameters
-             *@param level Desired security level
              *@param ell Number of attributes
              *@param ringsize Desired ringsize
              *@param base Base of the gadget matrix
              */
-            void GenerateCPABEContext(SecurityLevel level,usint ell,usint ringsize,usint base);
+            void GenerateCPABEContext(usint ell,usint ringsize,usint base);
             /**
              *@brief Method for setting up a IBE context with specific parameters
-             *@param level Desired security level
              *@param ell Number of attributes
              *@param ringsize Desired ringsize
              *@param base Base of the gadget matrix
              */
-            void GenerateIBEContext(SecurityLevel level,usint ringsize,usint base=2);
+            void GenerateIBEContext(usint ringsize,usint base=2);
              /**
              *@brief Method for setting up a IBE context with desired security level only 
              *@param level Desired security level
@@ -123,6 +121,24 @@
             shared_ptr<ABECoreScheme<Element>> m_scheme;
             //Pointer to the parameters used for the scheme
             shared_ptr<ABECoreParams<Element>> m_params;
+            /**
+            *@brief Method for checking/adjusting modulus according to correctness constraint of CPABE 
+            *@param ringsize Ring dimension of elements
+            *@param ell Number of attributes
+            *@param stddev Distribution parameter 
+            *@param base Base of the gadget matrix
+            *@param smodulus Modulus 
+            */
+            void CheckCorrectnessCPABE(usint ringsize,usint ell,double stddev,usint base,typename Element::Integer &smodulus);
+            /**
+            *@brief Method for checking/adjusting modulus according to correctness constraint of IBE
+            *@param ringsize Ring dimension of elements 
+            *@param ell Number of attributes 
+            *@param stddev Distribution parameter 
+            *@param base Base of the gadget matrix 
+            *@param smodulus Modulus 
+            */ 
+            void CheckCorrectnessIBE(usint ringsize,double stddev,usint base,typename Element::Integer &smodulus);
     };
  }
 

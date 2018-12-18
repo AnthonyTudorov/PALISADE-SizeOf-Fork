@@ -44,11 +44,10 @@ namespace lbcrypto{
             SignatureContext(){}
             /**
              *@brief Method for setting up a GPV context with specific parameters
-             *@param level Desired security level
              *@param ringsize Desired ringsize
              *@param base Base of the gadget matrix
              */
-            void GenerateGPVContext(SecurityLevel level,usint ringsize,usint base=2);
+            void GenerateGPVContext(usint ringsize,usint base=2);
             /**
              *@brief Method for setting up a GPV context with desired security level only 
              *@param level Desired security level

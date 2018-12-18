@@ -26,14 +26,11 @@
 #ifndef ABE_PARAMS_SET_H
 #define ABE_PARAMS_SET_H
 namespace lbcrypto{
-//Map holding minimum ring size in IBE for the given security level
-static std::map<SecurityLevel,usint> IBEminringsizemap = {};
-//Map holding the IBE parameters for desired security level and ringsize
-static std::map<std::pair<SecurityLevel,usint>,usint> IBEparammap = {};
+//Map holding minimum ring size and appropriate base in IBE for the given security level
+static std::map<SecurityLevel,std::pair<usint,usint>> IBEMinRingSizeMap = {};
 
 //Map holding minimum ring size and base in CPABE for the given security level and number of attributes
-static std::map<std::pair<SecurityLevel,usint>,std::pair<usint,usint>> CPABEminbaseringsizemap = {};
-//Map holding the CPABE parameters for desired security level,number of attributes, base and ringsize
-static std::map<std::pair<std::pair<std::pair<SecurityLevel,usint>,usint>,usint>,usint> CPABEparammap = {};
+static std::map<std::pair<SecurityLevel,usint>,std::pair<usint,usint>> CPABEMinRingSizeMap = {};
+
 }
 #endif

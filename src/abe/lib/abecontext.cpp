@@ -29,17 +29,18 @@
 namespace lbcrypto{
     //Method for setting up a CPABE context with specific parameters
     template <class Element>
-    void ABEContext<Element>::GenerateCPABEContext(SecurityLevel level,usint ell,usint ringsize,usint base){
-        std::pair<std::pair<std::pair<SecurityLevel,usint>,usint>,usint> key = std::make_pair(std::make_pair(std::make_pair(level,ell),ringsize),base);
-        if(CPABEparammap.count(key)>0){
-            usint bits = CPABEparammap.at(key);
+    void ABEContext<Element>::GenerateCPABEContext(usint ell,usint ringsize,usint base){      
             usint sm = ringsize * 2;
             double stddev = 4.578;
             typename Element::DggType dgg(stddev);
             typename Element::DugType dug;
             typename Element::Integer smodulus;
             typename Element::Integer srootOfUnity;
+            //TODO: Find Minimum bit size
+            usint bits = 10;
             smodulus = FirstPrime<typename Element::Integer>(bits,sm);
+
+            CheckCorrectnessCPABE(ringsize,ell,stddev,base,smodulus);
             srootOfUnity = RootOfUnity(sm, smodulus);
             dug.SetModulus(smodulus);
 		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
@@ -53,34 +54,33 @@ namespace lbcrypto{
             shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug));
             m_scheme = sch;
             m_params = abeparams;
-        }  else{
-            throw std::logic_error("No parameter set matches with the given values");
-        } 
     }
     //Method for setting up a CPABE context with desired security level and number of attributes only     
     template <class Element>
     void ABEContext<Element>::GenerateCPABEContext(SecurityLevel level,usint ell){
         std::pair<SecurityLevel,usint> key = make_pair(level,ell);
-        if(CPABEminbaseringsizemap.count(key)>0){
-            std::pair<usint,usint> ringSizeAndBase = CPABEminbaseringsizemap.at(key);
-            GenerateCPABEContext(level,ell,ringSizeAndBase.first,ringSizeAndBase.second);
+        if(CPABEMinRingSizeMap.count(key)>0){
+            std::pair<usint,usint> ringSizeAndBase = CPABEMinRingSizeMap.at(key);
+            GenerateCPABEContext(ell,ringSizeAndBase.first,ringSizeAndBase.second);
         }else{
             throw std::logic_error("Unknown minimum ring size and base for given security level and number of attributes");
         }
     }
     //Method for setting up a IBE context with specific parameters
     template <class Element>
-    void ABEContext<Element>::GenerateIBEContext(SecurityLevel level, usint ringsize,usint base){
-        std::pair<SecurityLevel, usint> key = std::make_pair(level,ringsize);
-        if(IBEparammap.count(key)>0){
-            usint bits = IBEparammap.at(key);
+    void ABEContext<Element>::GenerateIBEContext(usint ringsize,usint base){
             usint sm = ringsize * 2;
             double stddev = 4.578;
             typename Element::DggType dgg(stddev);
             typename Element::DugType dug;
             typename Element::Integer smodulus;
             typename Element::Integer srootOfUnity;
+            //TODO: Find minimum bitsize
+            usint bits = 10;
             smodulus = FirstPrime<typename Element::Integer>(bits,sm);
+            
+            CheckCorrectnessIBE(ringsize,stddev,base,smodulus);
+            
             srootOfUnity = RootOfUnity(sm, smodulus);
             dug.SetModulus(smodulus);
 		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
@@ -92,16 +92,14 @@ namespace lbcrypto{
             shared_ptr<ABECoreParams<Element>> ibeparams(new IBEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),dug));
             m_scheme = sch;
             m_params = ibeparams;
-        }else {
-            throw std::logic_error("No parameter set matches with the given values");
-        }
     }
     //Method for setting up a IBE context with desired security level only
     template<class Element>
     void ABEContext<Element>::GenerateIBEContext(SecurityLevel level){
-        if(IBEminringsizemap.count(level)>0){
-            usint ringsize = IBEminringsizemap.at(level);
-            GenerateIBEContext(level,ringsize);
+        if(IBEMinRingSizeMap.count(level)>0){
+            usint ringsize = IBEMinRingSizeMap.at(level).first;
+            usint base = IBEMinRingSizeMap.at(level).second;
+            GenerateIBEContext(ringsize,base);
         }else{
             throw std::logic_error("Unknown minimun ring size for given security level");
         }
@@ -145,6 +143,38 @@ namespace lbcrypto{
         Element r(m_params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT,true);
         r.SetValues(bug.GenerateVector(m_params->GetTrapdoorParams()->GetN(), m_params->GetTrapdoorParams()->GetElemParams()->GetModulus()), COEFFICIENT);
         return r;
+    }
+    //Method for checking/adjusting modulus according to correctness constraint of CPABE 
+    template <class Element>
+    void ABEContext<Element>::CheckCorrectnessCPABE(usint ringsize,usint ell,double stddev,usint base,typename Element::Integer &smodulus){
+       
+        typename Element::Integer q = smodulus;
+        double val = q.ConvertToDouble();
+	    double logTwo = log(val-1.0)/log(base)+1.0;
+	    usint k = (usint) floor(logTwo);
+	    while( q.ConvertToDouble() <= 256 * stddev * SPECTRAL_BOUND(ringsize,k,base) * std::sqrt(ringsize * (k + 2) * (ell + 1))){
+            q = NextPrime<typename Element::Integer>(q,ringsize * 2);
+            val = q.ConvertToDouble();
+	        logTwo = log(val-1.0)/log(base)+1.0;
+	        k = (usint) floor(logTwo);
+        }
+        smodulus = q;
+    }
+    //Method for checking/adjusting modulus according to correctness constraint of IBE
+    template <class Element>
+    void ABEContext<Element>::CheckCorrectnessIBE(usint ringsize,double stddev,usint base,typename Element::Integer &smodulus){
+        
+        typename Element::Integer q = smodulus;
+        double val = q.ConvertToDouble();
+	    double logTwo = log(val-1.0)/log(base)+1.0;
+	    usint k = (usint) floor(logTwo);
+	    while( q.ConvertToDouble() <= 256 * stddev * SPECTRAL_BOUND(ringsize,k,base) * std::sqrt(ringsize * (k + 2))){
+            q = NextPrime<typename Element::Integer>(q,ringsize * 2);
+            val = q.ConvertToDouble();
+	        logTwo = log(val-1.0)/log(base)+1.0;
+	        k = (usint) floor(logTwo);
+        }
+        smodulus = q;
     }
 
 }
