@@ -25,36 +25,20 @@
  *
  */
 #include "palisade.h"
-#include "../lib/cpabe.h"
+#include "../lib/abecontext.h"
 
 using namespace lbcrypto;
 int main(){
+    //Create context under security level and number of attributes
+    ABEContext<NativePoly> context;
+    context.GenerateCPABEContext(HEStd_128_classic,6);
     
-    //Prepare parameters for the execution
-    usint sm = 1024 * 2;
-    typename NativePoly::DggType dgg(SIGMA);
-    typename NativePoly::DugType dug;
-    typename NativePoly::Integer smodulus;
-    typename NativePoly::Integer srootOfUnity;
-    smodulus = FirstPrime<typename NativePoly::Integer>(34,sm);
-    srootOfUnity = RootOfUnity(sm, smodulus);
-    dug.SetModulus(smodulus);
-	ILParamsImpl<typename NativePoly::Integer> ilParams = ILParamsImpl<typename NativePoly::Integer>(sm, smodulus, srootOfUnity);
-
-    ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
-	DiscreteFourierTransform::PreComputeTable(sm);
-    shared_ptr<ILParamsImpl<typename NativePoly::Integer>> silparams = std::make_shared<ILParamsImpl<typename NativePoly::Integer>>(ilParams);
-    RLWETrapdoorParams<NativePoly> tparams(silparams,dgg,SIGMA,2,false);
-	CPABEParams<NativePoly> abeparams(std::make_shared<RLWETrapdoorParams<NativePoly>>(tparams),6,dug);
-    CPABEScheme<NativePoly> sch;
-    shared_ptr<CPABEParams<NativePoly>>params = std::make_shared<CPABEParams<NativePoly>>(abeparams);
-    
-    //Create and generate master key pair
+    //Generate master keys
     CPABEMasterPublicKey<NativePoly> mpk;
-    CPABEMasterSecretKey<NativePoly> msk;
-    sch.Setup(params,&mpk,&msk);
+	CPABEMasterSecretKey<NativePoly> msk;
+    context.Setup(&mpk,&msk);
 
-    //Generate a random attribute set of user and access policy 
+    //Create a random access policy and user attribute set
     std::vector<usint> s(6);
 	std::vector<int> w(6);
 
@@ -78,23 +62,20 @@ int main(){
     CPABEUserAccess<NativePoly> ua(s);
     CPABEAccessPolicy<NativePoly> ap(w);
 
-    //Define a secret key for the policy and generate it
+    //Create the key corresponding to the access policy
     CPABESecretKey<NativePoly> sk;
-    sch.KeyGen(params,msk,mpk,ua,&sk);
+	context.KeyGen(msk,mpk,ua,&sk);
     
-    //Generate a random plaintext
-    typename NativePoly::BugType bug = typename NativePoly::BugType();
-    NativePoly u(params->GetDUG(),params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT);
-    u.SetValues(bug.GenerateVector(params->GetTrapdoorParams()->GetN(),smodulus), COEFFICIENT);
-    CPABEPlaintext<NativePoly> pt(u);
+    //Create a random plaintext
+    CPABEPlaintext<NativePoly> pt(context.GenerateRandomBinaryElement());
     
     //Encrypt the plaintext
     CPABECiphertext<NativePoly> ct;
-    sch.Encrypt(params,mpk,ap,pt,&ct);
+	context.Encrypt(mpk,ap,pt,&ct);
     
     //Decrypt the ciphertext
     CPABEPlaintext<NativePoly> dt;
-     sch.Decrypt(params,ap,ua,sk,ct,&dt);
+	context.Decrypt(ap,ua,sk,ct,&dt);
 
     //Check if original plaintext and decrypted plaintext match
     if(pt.GetPText()==dt.GetPText()){
@@ -102,5 +83,4 @@ int main(){
     }else{
         std::cout<<"Encryption & decryption failed"<<std::endl;
     }
-    return 0;
 }
