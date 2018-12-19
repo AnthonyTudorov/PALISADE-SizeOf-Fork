@@ -99,7 +99,7 @@ TEST(UTSignatureGPV,simple_sign_verify_native_above_sixty_bits) {
 
   DEBUG("Context Generation");
 	SignatureContext<NativePoly> context;
-  context.GenerateGPVContext(1024);
+  context.GenerateGPVContext(1024,61,64);
   DEBUG("Key Generation");
   GPVVerificationKey<NativePoly> vk;
   GPVSignKey<NativePoly> sk;

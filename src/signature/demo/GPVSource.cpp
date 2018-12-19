@@ -30,7 +30,7 @@ using namespace lbcrypto;
     int main(){
         //We generate a signature context and make it a GPV context with security level
         SignatureContext<Poly> context;
-        context.GenerateGPVContext(HEStd_128_classic);
+        context.GenerateGPVContext(1024);
         
         //Create our sign and verification keys and generate them
         GPVVerificationKey<Poly> vk;
