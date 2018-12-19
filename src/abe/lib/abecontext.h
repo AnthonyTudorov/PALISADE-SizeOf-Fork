@@ -126,16 +126,17 @@
             *@param ringsize Ring dimension of elements
             *@param ell Number of attributes
             *@param base Base of the gadget matrix
+            *@param m_params Modified params
             */
-            void ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>> m_params);
+            void ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>>& m_params);
             /**
             *@brief Method for parameter genaration for IBE
             *@param ringsize Ring dimension of elements 
             *@param ell Number of attributes 
             *@param base Base of the gadget matrix 
-            *@param smodulus Modulus 
+            *@param m_params Modified params
             */ 
-            void ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>> m_params);
+            void ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>>& m_params);
     };
  }
 

@@ -94,7 +94,7 @@ namespace lbcrypto{
     //ethod for generating a random ring element with context parameters - demo purposes only 
     template <class Element>
     Element ABEContext<Element>::GenerateRandomElement(){
-        Element r(m_params->GetDUG(),m_params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT);
+        Element r(m_params->GetDUG(),m_params->GetTrapdoorParams()->GetElemParams(), EVALUATION);
         return r;
     }
     //ethod for generating a random binary ring element with context parameters - demo purposes only 
@@ -107,12 +107,12 @@ namespace lbcrypto{
     }
     //Method for parameter generation for CPABE 
     template <class Element>
-    void ABEContext<Element>::ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>> m_params){
+    void ABEContext<Element>::ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>>& m_params){
         //smoothing parameter - also standard deviation for noise Elementnomials
 	    double sigma = SIGMA;
 
 	    //Correctness constraint
-	    auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  256 * sigma * SPECTRAL_BOUND(n,m-2,base) * sqrt( m * n * (ell-1));  };
+	    auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  256 * sigma * SPECTRAL_BOUND(n,m-2,base) * sqrt( m * n * (ell + 1));  };
 
 	    double qPrev = 1e6;
 	    double q = 0;
@@ -154,7 +154,7 @@ namespace lbcrypto{
     }
     //Method for parameter generation for IBE
     template <class Element>
-    void ABEContext<Element>::ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>> m_params){
+    void ABEContext<Element>::ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>>& m_params){
         //smoothing parameter - also standard deviation for noise Elementnomials
 	    double sigma = SIGMA;
 

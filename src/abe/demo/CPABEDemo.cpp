@@ -31,7 +31,7 @@ using namespace lbcrypto;
 int main(){
     //Create context under security level and number of attributes
     ABEContext<NativePoly> context;
-    context.GenerateCPABEContext(HEStd_128_classic,6);
+    context.GenerateCPABEContext(6,1024,64);
     
     //Generate master keys
     CPABEMasterPublicKey<NativePoly> mpk;

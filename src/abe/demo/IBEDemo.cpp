@@ -30,9 +30,9 @@
 using namespace lbcrypto;
 
 int main(){
-    //Create context under given security level
+    //Create context under given ringsize and base
      ABEContext<NativePoly> context;
-    context.GenerateIBEContext(HEStd_128_classic);
+    context.GenerateIBEContext(1024,512);
     
     //Generate master keys
     IBEMasterPublicKey<NativePoly> mpk;
