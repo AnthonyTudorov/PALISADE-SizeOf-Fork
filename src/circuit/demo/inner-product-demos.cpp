@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 	}
 
 	std::vector<int64_t> vectorOfInts;
-	std::vector<uint64_t> vectorOfUInts;
+	std::vector<int64_t> vectorOfUInts;
 
 	for( int i=0; i<64; i++ ) {
 		vectorOfInts.push_back(i%16);

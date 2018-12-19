@@ -1097,7 +1097,7 @@ public:
 	 * @param value
 	 * @return plaintext
 	 */
-	Plaintext MakePackedPlaintext(const vector<uint64_t>& value) const {
+	Plaintext MakePackedPlaintext(const vector<int64_t>& value) const {
 		auto p = PlaintextFactory::MakePlaintext( Packed, this->GetElementParams(), this->GetEncodingParams(), value );
 		return p;
 	}

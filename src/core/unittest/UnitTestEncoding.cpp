@@ -130,7 +130,7 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding) {
 
 	PackedEncoding::SetParams(m, ep);
 
-	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<int64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(lp, ep, vectorOfInts1);
 	se.Encode();
 	se.Decode();
@@ -187,7 +187,7 @@ TEST_F(UTEncoding,packed_int_ptxt_encoding_DCRTPoly_prime_cyclotomics) {
 
 	PackedEncoding::SetParams(m, ep);
 
-	std::vector<uint64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
+	std::vector<int64_t> vectorOfInts1 = { 1,2,3,4,5,6,7,8,0,0 };
 	PackedEncoding	se(paramsDCRT, ep, vectorOfInts1);
 
 	se.Encode();

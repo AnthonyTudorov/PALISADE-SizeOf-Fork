@@ -453,7 +453,7 @@ void GLMEncrypt(GLMContext &context, pathList &path, glmParams &params)
         Matrix<Plaintext> bP = Matrix<Plaintext>(zeroAllocPlaintext, 1, numRegressors);
         std::cout << "Completed" << std::endl;
 
-	    std::vector<uint64_t> vectorOfInts1;
+	    std::vector<int64_t> vectorOfInts1;
 	    for(size_t i=0; i<cc->GetRingDimension(); i++){
 	    	vectorOfInts1.push_back(0);
 	    }
@@ -1486,7 +1486,7 @@ void LinkFunctionLogisticSigned(vector<CryptoContext<DCRTPoly>> &cc,
 
 		size_t matrixRowIndex = 0;
 		for(size_t l = 0; l < matrixRowSize; l++) {
-			vector<uint64_t> vectorOfMu, vectorOfS;
+			vector<int64_t> vectorOfMu, vectorOfS;
 
 			if(l == matrixRowSize-1){
 				if((entrySize%cc[0]->GetRingDimension()/*params.ENTRYSIZE*/) != 0)
@@ -2059,7 +2059,7 @@ void ConvertMatrixBigIntegerToPlaintextEncoding(const CryptoContext<DCRTPoly> &c
 		size_t rowIndex = 0;
 		for(size_t i = 0; i < outMat.GetRows(); i++){
 
-			vector<uint64_t> vectorOfX;
+			vector<int64_t> vectorOfX;
 			for(size_t k=0; k<batchSize; k++){
 
 				vectorOfX.push_back(inMat(rowIndex, j).ConvertToDouble());
@@ -2128,7 +2128,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
     for(size_t i = 0; i < 1; i++) {
 	// rows
 		for(size_t k = 0; k < matrixRowSize; k++) {
-			vector<uint64_t> vectorOfX;
+			vector<int64_t> vectorOfX;
 
 			//Set Entry Size of each rowws in the matrix
 			if(k == matrixRowSize-1){
@@ -2155,7 +2155,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
     // rows
     	size_t matrixRowIndex = 0;
     	for(size_t k = 0; k < matrixRowSize; k++) {
-    		vector<uint64_t> vectorOfX;
+    		vector<int64_t> vectorOfX;
     			//Set Entry Size of each rowws in the matrix
    			if(k == matrixRowSize-1){
    				if((entrySize%cc->GetRingDimension() /*params.ENTRYSIZE*/) != 0)
@@ -2181,7 +2181,7 @@ void EncodeData(CryptoContext<DCRTPoly> &cc, const vector<vector<double> >& data
 	// rows
     	size_t matrixRowIndex = 0;
 		for(size_t k = 0; k < matrixRowSize; k++) {
-			vector<uint64_t> vectorOfY;
+			vector<int64_t> vectorOfY;
 
 			//Set Entry Size of each rowws in the matrix
 			if(k == matrixRowSize-1){
@@ -2226,7 +2226,7 @@ void EncodeC0Matrix(vector<CryptoContext<DCRTPoly>> &cc, vector<Matrix<double>> 
 
 		for(size_t i=0; i<CList.size(); i++){
 			for(size_t l=0; l< CList[k].GetRows(); l++){
-				std::vector<uint64_t> vectorOfInts1;
+				std::vector<int64_t> vectorOfInts1;
 				for(size_t j=0; j<batchSize; j++){
 
 					if( CList[i](l, j)<0)
@@ -2268,7 +2268,7 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<double> &CList, 
 		for(size_t i=0; i< CList.GetRows(); i++){
 			for(size_t j=0; j< CList.GetCols(); j++){
 
-				std::vector<uint64_t> vectorOfInts1;
+				std::vector<int64_t> vectorOfInts1;
 
 				if( CList(i, j)<0){
 					double  negT = CList(i, j)*(-1);
@@ -2314,7 +2314,7 @@ void EncodeC1Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<BigInteger> &CLi
 		for(size_t i=0; i< CList.GetRows(); i++){
 			for(size_t j=0; j< CList.GetCols(); j++){
 				//FIXME: MAKE MORE EFFICIENT
-				std::vector<uint64_t> vectorOfInts1;
+				std::vector<int64_t> vectorOfInts1;
 
 				temp = CList(i, j);
 
@@ -2352,7 +2352,7 @@ void EncodeC2Matrix(vector<CryptoContext<DCRTPoly>> &cc, Matrix<double> &CList, 
 		Matrix<Plaintext> CPt (zeroPackingAlloc, CList.GetRows(), 1);
 
 			for(size_t l=0; l< CList.GetRows(); l++){
-				std::vector<uint64_t> vectorOfInts1;
+				std::vector<int64_t> vectorOfInts1;
 				for(size_t j=0; j<batchSize; j++){
 
 					if( CList(l, j)<0)

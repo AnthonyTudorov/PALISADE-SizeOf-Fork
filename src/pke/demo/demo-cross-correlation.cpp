@@ -379,8 +379,8 @@ void Encrypt() {
 
 		for (size_t i = 0; i < VECTORS; i++)
 		{
-			std::vector<uint64_t> tempX(batchSize);
-			std::vector<uint64_t> tempY(batchSize);
+			std::vector<int64_t> tempX(batchSize);
+			std::vector<int64_t> tempY(batchSize);
 			for (size_t j = 0; j < batchSize; j++)
 			{
 				tempX[j] = x(i, j);

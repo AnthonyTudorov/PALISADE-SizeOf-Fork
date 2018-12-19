@@ -485,10 +485,10 @@ void SHETestPacked() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////
@@ -688,10 +688,10 @@ void SHETestPackedRelin() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////
@@ -1207,10 +1207,10 @@ void SHETestPackedInnerProduct() {
 	// Encode source data
 	////////////////////////////////////////////////////////////
 
-	std::vector<uint64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext1 = cryptoContext->MakePackedPlaintext(vectorOfInts1);
 
-	std::vector<uint64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
+	std::vector<int64_t> vectorOfInts2 = {1,2,3,4,5,6,7,8,9,10,11,12};
 	Plaintext plaintext2 = cryptoContext->MakePackedPlaintext(vectorOfInts2);
 
 	////////////////////////////////////////////////////////////

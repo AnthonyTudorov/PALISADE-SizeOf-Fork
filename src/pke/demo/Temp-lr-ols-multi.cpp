@@ -1088,10 +1088,10 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 		std::cout << "Encrypting some test data...";
 
-		std::vector<uint64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
+		std::vector<int64_t> vectorOfInts = { 1,2,3,4,5,6,7,8,0,0 };
 		Plaintext intArray = cc->MakePackedPlaintext(vectorOfInts);
 
-		std::vector<uint64_t> vectorOfInts2 = { 3,2,3,1,5,6,7,8,0,0 };
+		std::vector<int64_t> vectorOfInts2 = { 3,2,3,1,5,6,7,8,0,0 };
 		Plaintext intArray2 = cc->MakePackedPlaintext(vectorOfInts2);
 
 		auto ciphertext1 = cc->Encrypt(pk, intArray);
@@ -2585,8 +2585,8 @@ void EncodeData(CryptoContext<DCRTPoly> cc, const std::vector<string> &headers, 
 
 	//counter on non-regressors
 	size_t counter = 0;
-	vector<uint64_t> yInts;
-	vector<uint64_t> xInts;
+	vector<int64_t> yInts;
+	vector<int64_t> xInts;
 
 	// i corresponds to columns
 	for (size_t i = 0; i < dataColumns.size(); i++)
