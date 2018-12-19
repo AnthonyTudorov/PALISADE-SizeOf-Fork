@@ -38,7 +38,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "../../trapdoor/lib/sampling/trapdoorparameters.h"
+#include "lattice/trapdoorparameters.h"
 
 namespace lbcrypto{
       /*

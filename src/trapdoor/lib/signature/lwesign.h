@@ -35,7 +35,7 @@
 #ifndef _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 #define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
 
-#include "../sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 #include "encoding/stringencoding.h"
 
 namespace lbcrypto {

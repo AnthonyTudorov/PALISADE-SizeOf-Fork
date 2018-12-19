@@ -28,15 +28,14 @@
 namespace lbcrypto{
     //Method for setting up a GPV context with specific parameters
     template <class Element>
-    void SignatureContext<Element>::GenerateGPVContext(usint ringsize,usint base){
+    void SignatureContext<Element>::GenerateGPVContext(usint ringsize,usint bits,usint base){
        
             usint sm = ringsize * 2;
-            double stddev = 4.578;
+            double stddev = SIGMA;
             typename Element::DggType dgg(stddev);
             typename Element::Integer smodulus;
             typename Element::Integer srootOfUnity;
-            //TODO: Calculate bitsize based on security requirements and n
-            usint bits = 10;
+   
             smodulus = FirstPrime<typename Element::Integer>(bits,sm);
             srootOfUnity = RootOfUnity(sm, smodulus);
 		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
@@ -52,16 +51,22 @@ namespace lbcrypto{
     }
     //Method for setting up a GPV context with desired security level only
     template <class Element>
-    void SignatureContext<Element>::GenerateGPVContext(SecurityLevel level){
-        if(minRingSizeMap.count(level)>0){
-            usint ringsize = minRingSizeMap.at(level).first;
-            usint base = minRingSizeMap.at(level).second;
-            GenerateGPVContext(ringsize,base);
-        }
-        else{
-            throw std::logic_error("Unknown minimum ringsize and base for given security level");
-        }
-        
+    void SignatureContext<Element>::GenerateGPVContext(usint ringsize){
+            
+            usint base, k;
+            switch(ringsize){
+                case 512:
+                    k = 24;
+                    base = 8;
+                    break;
+                case 1024:
+                    k = 27;
+                    base = 64;
+                    break;
+                default:
+                    throw std::logic_error("Unknown ringsize");
+            }
+            GenerateGPVContext(ringsize,k,base);
     }
     //Method for key generation
     template <class Element>

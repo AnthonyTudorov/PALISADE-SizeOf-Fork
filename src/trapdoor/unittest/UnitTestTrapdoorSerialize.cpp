@@ -40,7 +40,7 @@
 #include "lattice/elemparamfactory.h"
 #include "utils/serializablehelper.h"
 #include "utils/tdserializeablehelper.h"
-#include "sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 
 using namespace std;
 using namespace lbcrypto;

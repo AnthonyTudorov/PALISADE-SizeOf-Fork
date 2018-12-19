@@ -30,30 +30,11 @@ namespace lbcrypto{
     //Method for setting up a CPABE context with specific parameters
     template <class Element>
     void ABEContext<Element>::GenerateCPABEContext(usint ell,usint ringsize,usint base){      
-            usint sm = ringsize * 2;
-            double stddev = 4.578;
-            typename Element::DggType dgg(stddev);
-            typename Element::DugType dug;
-            typename Element::Integer smodulus;
-            typename Element::Integer srootOfUnity;
-            //TODO: Find Minimum bit size
-            usint bits = 10;
-            smodulus = FirstPrime<typename Element::Integer>(bits,sm);
-
-            CheckCorrectnessCPABE(ringsize,ell,stddev,base,smodulus);
-            srootOfUnity = RootOfUnity(sm, smodulus);
-            dug.SetModulus(smodulus);
-		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
-
-            ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
-		    DiscreteFourierTransform::PreComputeTable(sm);
-
-            shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
-            RLWETrapdoorParams<Element> tparams(silparams,dgg,stddev,base);
+            
+            this->ParamsGenCPABE(ringsize,ell,base,m_params);
             shared_ptr<ABECoreScheme<Element>> sch(new CPABEScheme<Element>());
-            shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug));
             m_scheme = sch;
-            m_params = abeparams;
+            
     }
     //Method for setting up a CPABE context with desired security level and number of attributes only     
     template <class Element>
@@ -69,31 +50,11 @@ namespace lbcrypto{
     //Method for setting up a IBE context with specific parameters
     template <class Element>
     void ABEContext<Element>::GenerateIBEContext(usint ringsize,usint base){
-            usint sm = ringsize * 2;
-            double stddev = 4.578;
-            typename Element::DggType dgg(stddev);
-            typename Element::DugType dug;
-            typename Element::Integer smodulus;
-            typename Element::Integer srootOfUnity;
-            //TODO: Find minimum bitsize
-            usint bits = 10;
-            smodulus = FirstPrime<typename Element::Integer>(bits,sm);
-            
-            CheckCorrectnessIBE(ringsize,stddev,base,smodulus);
-            
-            srootOfUnity = RootOfUnity(sm, smodulus);
-            dug.SetModulus(smodulus);
-		    ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
-            ChineseRemainderTransformFTT<BigVector>::PreCompute(srootOfUnity, sm, smodulus);
-		    DiscreteFourierTransform::PreComputeTable(sm);
-            shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
-            RLWETrapdoorParams<Element> tparams(silparams,dgg,stddev,base);
+            this->ParamsGenIBE(ringsize,base,m_params);
             shared_ptr<ABECoreScheme<Element>> sch(new IBEScheme<Element>());
-            shared_ptr<ABECoreParams<Element>> ibeparams(new IBEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),dug));
             m_scheme = sch;
-            m_params = ibeparams;
     }
-    //Method for setting up a IBE context with desired security level only
+    //Method for setting shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug)); a IBE context with desired security level only
     template<class Element>
     void ABEContext<Element>::GenerateIBEContext(SecurityLevel level){
         if(IBEMinRingSizeMap.count(level)>0){
@@ -144,37 +105,99 @@ namespace lbcrypto{
         r.SetValues(bug.GenerateVector(m_params->GetTrapdoorParams()->GetN(), m_params->GetTrapdoorParams()->GetElemParams()->GetModulus()), COEFFICIENT);
         return r;
     }
-    //Method for checking/adjusting modulus according to correctness constraint of CPABE 
+    //Method for parameter generation for CPABE 
     template <class Element>
-    void ABEContext<Element>::CheckCorrectnessCPABE(usint ringsize,usint ell,double stddev,usint base,typename Element::Integer &smodulus){
-       
-        typename Element::Integer q = smodulus;
-        double val = q.ConvertToDouble();
-	    double logTwo = log(val-1.0)/log(base)+1.0;
-	    usint k = (usint) floor(logTwo);
-	    while( q.ConvertToDouble() <= 256 * stddev * SPECTRAL_BOUND(ringsize,k,base) * std::sqrt(ringsize * (k + 2) * (ell + 1))){
-            q = NextPrime<typename Element::Integer>(q,ringsize * 2);
-            val = q.ConvertToDouble();
-	        logTwo = log(val-1.0)/log(base)+1.0;
-	        k = (usint) floor(logTwo);
+    void ABEContext<Element>::ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>> m_params){
+        //smoothing parameter - also standard deviation for noise Elementnomials
+	    double sigma = SIGMA;
+
+	    //Correctness constraint
+	    auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  256 * sigma * SPECTRAL_BOUND(n,m-2,base) * sqrt( m * n * (ell-1));  };
+
+	    double qPrev = 1e6;
+	    double q = 0;
+	    usint k = 0;
+	    usint m = 0;
+
+	    //initial value
+	    k = floor(log2(qPrev-1.0)+1.0);
+	    m = ceil(k / log2(base)) + 2;
+	    q = qCorrectness(ringsize, m);
+
+	    //get a more accurate value of q
+	    while (std::abs(q - qPrev) > 0.001*q) {
+	        qPrev = q;
+		    k = floor(log2(qPrev - 1.0) + 1.0);
+		    m = ceil(k / log2(base)) + 2;
+		    q = qCorrectness(ringsize, m);
+		
         }
-        smodulus = q;
+        usint sm = ringsize * 2;
+        typename Element::DggType dgg(sigma);
+        typename Element::DugType dug;
+        typename Element::Integer smodulus;
+        typename Element::Integer srootOfUnity;
+
+        smodulus = FirstPrime<typename Element::Integer>(floor(log2(q - 1.0)) + 1.0, 2 * ringsize);
+        srootOfUnity = RootOfUnity(sm, smodulus);
+        dug.SetModulus(smodulus);
+		ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
+
+        ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
+		DiscreteFourierTransform::PreComputeTable(sm);
+
+        shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
+        RLWETrapdoorParams<Element> tparams(silparams,dgg,sigma,base);
+        shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug));
+        m_params = abeparams;
+	
     }
-    //Method for checking/adjusting modulus according to correctness constraint of IBE
+    //Method for parameter generation for IBE
     template <class Element>
-    void ABEContext<Element>::CheckCorrectnessIBE(usint ringsize,double stddev,usint base,typename Element::Integer &smodulus){
-        
-        typename Element::Integer q = smodulus;
-        double val = q.ConvertToDouble();
-	    double logTwo = log(val-1.0)/log(base)+1.0;
-	    usint k = (usint) floor(logTwo);
-	    while( q.ConvertToDouble() <= 256 * stddev * SPECTRAL_BOUND(ringsize,k,base) * std::sqrt(ringsize * (k + 2))){
-            q = NextPrime<typename Element::Integer>(q,ringsize * 2);
-            val = q.ConvertToDouble();
-	        logTwo = log(val-1.0)/log(base)+1.0;
-	        k = (usint) floor(logTwo);
+    void ABEContext<Element>::ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>> m_params){
+        //smoothing parameter - also standard deviation for noise Elementnomials
+	    double sigma = SIGMA;
+
+	    //Correctness constraint
+	    auto qCorrectness = [&](uint32_t n, uint32_t m) -> double { return  256 * sigma * SPECTRAL_BOUND(n,m-2,base) * sqrt( m * n );  };
+
+	    double qPrev = 1e6;
+	    double q = 0;
+	    usint k = 0;
+	    usint m = 0;
+
+	    //initial value
+	    k = floor(log2(qPrev-1.0)+1.0);
+	    m = ceil(k / log2(base)) + 2;
+	    q = qCorrectness(ringsize, m);
+
+	    //get a more accurate value of q
+	    while (std::abs(q - qPrev) > 0.001*q) {
+	        qPrev = q;
+		    k = floor(log2(qPrev - 1.0) + 1.0);
+		    m = ceil(k / log2(base)) + 2;
+		    q = qCorrectness(ringsize, m);
+		
         }
-        smodulus = q;
+        usint sm = ringsize * 2;
+        typename Element::DggType dgg(sigma);
+        typename Element::DugType dug;
+        typename Element::Integer smodulus;
+        typename Element::Integer srootOfUnity;
+
+        smodulus = FirstPrime<typename Element::Integer>(floor(log2(q - 1.0)) + 1.0, 2 * ringsize);
+        srootOfUnity = RootOfUnity(sm, smodulus);
+        dug.SetModulus(smodulus);
+		ILParamsImpl<typename Element::Integer> ilParams = ILParamsImpl<typename Element::Integer>(sm, smodulus, srootOfUnity);
+
+        ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
+		DiscreteFourierTransform::PreComputeTable(sm);
+
+        shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
+        RLWETrapdoorParams<Element> tparams(silparams,dgg,sigma,base);
+        shared_ptr<ABECoreParams<Element>> ibeparams(new IBEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),dug));
+        m_params = ibeparams;
     }
+
 
 }

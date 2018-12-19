@@ -47,8 +47,8 @@
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
 #include "encoding/stringencoding.h"
-#include "../../trapdoor/lib/sampling/trapdoor.h"
-#include "../../trapdoor/lib/sampling/trapdoorparameters.h"
+#include "lattice/trapdoor.h"
+#include "lattice/trapdoorparameters.h"
 #include "signaturecore.h"
 
 namespace lbcrypto {

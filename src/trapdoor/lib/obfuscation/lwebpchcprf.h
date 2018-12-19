@@ -37,7 +37,7 @@
 #include "lattice/ilparams.h"
 #include "math/backend.h"
 #include "math/distrgen.h"
-#include "sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 #include "utils/inttypes.h"
 
 /**

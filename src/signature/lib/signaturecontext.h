@@ -27,7 +27,6 @@
 #define SIGNATURE_SIGNATURECONTEXT_H
 
 #include "gpv.h"
-#include "signatureparamset.h"
 
 
 namespace lbcrypto{
@@ -45,14 +44,15 @@ namespace lbcrypto{
             /**
              *@brief Method for setting up a GPV context with specific parameters
              *@param ringsize Desired ringsize
+             *@param bitwidth Desired modulus bitwidth
              *@param base Base of the gadget matrix
              */
-            void GenerateGPVContext(usint ringsize,usint base=2);
+            void GenerateGPVContext(usint ringsize,usint bitwidth,usint base);
             /**
-             *@brief Method for setting up a GPV context with desired security level only 
-             *@param level Desired security level
+             *@brief Method for setting up a GPV context with desired ring size only 
+             *@param ringsize Desired ring size
              */
-            void GenerateGPVContext(SecurityLevel level);
+            void GenerateGPVContext(usint ringsize);
             /**
              *@brief Method for key generation
              *@param sk Signing key for sign operation - Output 

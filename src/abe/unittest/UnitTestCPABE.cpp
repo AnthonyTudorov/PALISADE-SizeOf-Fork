@@ -99,9 +99,9 @@ void UnitTestCPABE(SecurityLevel level,usint ell){
 
 }
 TEST(UTCPABE, cp_abe_base_poly_32) {
-	UnitTestCPABE<Poly>(HEStd_128_classic,4);
+	UnitTestCPABE<Poly>(HEStd_128_classic,6);
 }
 
 TEST(UTCPABE, cp_abe_base_native_32) {
-	UnitTestCPABE<NativePoly>(HEStd_128_classic,4);
+	UnitTestCPABE<NativePoly>(HEStd_128_classic,6);
 }

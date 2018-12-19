@@ -48,7 +48,7 @@ TEST(UTSignatureGPV,simple_sign_verify) {
 
   DEBUG("Context Generation");
 	SignatureContext<Poly> context;
-  context.GenerateGPVContext(HEStd_128_classic);
+  context.GenerateGPVContext(1024);
   DEBUG("Key Generation");
   GPVVerificationKey<Poly> vk;
   GPVSignKey<Poly> sk;
@@ -72,7 +72,7 @@ TEST(UTSignatureGPV,simple_sign_verify_native_below_sixty_bits) {
 
   DEBUG("Context Generation");
 	SignatureContext<NativePoly> context;
-  context.GenerateGPVContext(HEStd_192_classic);
+  context.GenerateGPVContext(1024);
   DEBUG("Key Generation");
   GPVVerificationKey<NativePoly> vk;
   GPVSignKey<NativePoly> sk;
@@ -99,7 +99,7 @@ TEST(UTSignatureGPV,simple_sign_verify_native_above_sixty_bits) {
 
   DEBUG("Context Generation");
 	SignatureContext<NativePoly> context;
-  context.GenerateGPVContext(HEStd_256_classic);
+  context.GenerateGPVContext(1024);
   DEBUG("Key Generation");
   GPVVerificationKey<NativePoly> vk;
   GPVSignKey<NativePoly> sk;
@@ -164,7 +164,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_texts) {
   
   DEBUG("Context Generation");
 	SignatureContext<Poly> context;
-  context.GenerateGPVContext(HEStd_128_classic);
+  context.GenerateGPVContext(1024);
   DEBUG("Key Generation");
   GPVVerificationKey<Poly> vk;
   GPVSignKey<Poly> sk;
@@ -202,7 +202,7 @@ TEST(UTSignatureGPV, sign_verify_multiple_keys) {
   
   DEBUG("Context Generation");
 	SignatureContext<Poly> context;
-  context.GenerateGPVContext(HEStd_128_classic);
+  context.GenerateGPVContext(1024);
   DEBUG("Key Generation - Key Pair 1");
   GPVVerificationKey<Poly> vk,vk2;
   GPVSignKey<Poly> sk,sk2;

@@ -35,7 +35,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
-#include "sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 #include "obfuscation/lweconjunctionobfuscate.h"
 
 //using namespace std;

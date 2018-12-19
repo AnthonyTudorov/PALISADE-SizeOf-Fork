@@ -49,7 +49,7 @@
 #include "math/backend.h"
 #include "lattice/backend.h"
 #include "math/matrix.h"
-#include "sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 

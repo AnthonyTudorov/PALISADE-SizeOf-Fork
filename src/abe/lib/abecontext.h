@@ -122,23 +122,20 @@
             //Pointer to the parameters used for the scheme
             shared_ptr<ABECoreParams<Element>> m_params;
             /**
-            *@brief Method for checking/adjusting modulus according to correctness constraint of CPABE 
+            *@brief Method for parameter genaration for CPABE 
             *@param ringsize Ring dimension of elements
             *@param ell Number of attributes
-            *@param stddev Distribution parameter 
             *@param base Base of the gadget matrix
-            *@param smodulus Modulus 
             */
-            void CheckCorrectnessCPABE(usint ringsize,usint ell,double stddev,usint base,typename Element::Integer &smodulus);
+            void ParamsGenCPABE(usint ringsize,usint ell,usint base,shared_ptr<ABECoreParams<Element>> m_params);
             /**
-            *@brief Method for checking/adjusting modulus according to correctness constraint of IBE
+            *@brief Method for parameter genaration for IBE
             *@param ringsize Ring dimension of elements 
             *@param ell Number of attributes 
-            *@param stddev Distribution parameter 
             *@param base Base of the gadget matrix 
             *@param smodulus Modulus 
             */ 
-            void CheckCorrectnessIBE(usint ringsize,double stddev,usint base,typename Element::Integer &smodulus);
+            void ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>> m_params);
     };
  }
 
