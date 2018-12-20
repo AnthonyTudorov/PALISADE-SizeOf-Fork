@@ -1,5 +1,5 @@
 /*
-* @file trapdoorparams.h - Parameter definitions for trapdoor related schemes.
+* @file trapdoorparams.h - Parameter definitions for trapdoor-related schemes (GPV signature, IBE, ABE).
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -43,7 +43,7 @@ namespace lbcrypto{
             /*
             *@brief Default constructor
             */
-            TrapdoorParams(){}
+            TrapdoorParams():m_stddev(0){}
             /*
             *@brief Constructor for trapdoor parameters
             *@param elemparams Parameters for the ring element
@@ -100,7 +100,7 @@ namespace lbcrypto{
             /*
         	*@brief Default constructor
         	*/
-            RLWETrapdoorParams():TrapdoorParams<Element>(){}
+            RLWETrapdoorParams():m_n(0),m_bal(0),m_k(0),m_base(0),TrapdoorParams<Element>(){}
              /*
             *@brief Constructor for trapdoor parameters
             *@param elemparams Parameters for the ring element

@@ -1,5 +1,6 @@
 /**
  * @file trapdoor.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -113,8 +114,6 @@ namespace lbcrypto {
 		size_t k = Tprime0.GetCols();
 
 			const shared_ptr<DCRTPoly::Params> params = Tprime0(0, 0).GetParams();
-			//NativePoly::Params nParams(params->GetCyclotomicOrder(), params->GetModulus(), params->GetRootOfUnity(), params->GetBigModulus(), params->GetBigRootOfUnity());
-
 
 			DEBUG("z1a: "<<TOC(t1)); //0
 			TIC(t1);
@@ -169,7 +168,7 @@ namespace lbcrypto {
 			// otherwise, use Karney's method
 			if (sigmaLarge > KARNEY_THRESHOLD) {
 
-				//Karney rejection method
+				//Karney rejection sampling method
 				for (size_t i = 0; i < n * k; i++) {
 					p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
 				}
@@ -177,7 +176,7 @@ namespace lbcrypto {
 			else
 			{
 
-				//Peikert's inversion method
+				//Peikert's inversion sampling method
 				std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
 
 				for (size_t i = 0; i < n * k; i++) {
@@ -197,10 +196,7 @@ namespace lbcrypto {
 			p2.SwitchFormat();
 
 			DEBUG("z1g: "<<TOC(t1));  //17
-			TIC(t1);
 
-			//Matrix<DCRTPoly> TprimeMatrix = Tprime0.VStack(Tprime1);
-			DEBUG("z1h1: "<<TOC(t1));
 			TIC(t1);
 
 			auto zero_alloc = NativePoly::Allocator((*params)[0], EVALUATION);

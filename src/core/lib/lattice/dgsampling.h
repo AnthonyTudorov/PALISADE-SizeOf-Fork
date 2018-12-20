@@ -1,5 +1,6 @@
 /**
- * @file dgsampling.h Provides detailed algorithms for G-sampling and perturbation sampling as described in https://eprint.iacr.org/2017/844.pdf
+ * @file dgsampling.h Provides detailed algorithms for G-sampling and perturbation sampling as described in https://eprint.iacr.org/2017/844.pdf,
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -44,11 +45,13 @@ const int32_t N_MAX = 16384;
 //Smoothing parameter also used as a "standard deviation" for generating error polynomials
 const double SIGMA = std::sqrt(std::log(2 * N_MAX / DG_ERROR) / M_PI);
 
+//Spectral norm for preimage samples
 const double SPECTRAL_CONSTANT = 1.3;
 const auto SPECTRAL_BOUND = [](uint64_t n, uint64_t k, uint64_t base) -> double {
 	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(n*k) + std::sqrt(2*n) + 4.7);
 };
 
+//Spectral norm for preimage samples - for the case of matrices of ring elements
 const auto SPECTRAL_BOUND_D = [](uint64_t n, uint64_t k, uint64_t base, uint64_t d) -> double {
 	return SPECTRAL_CONSTANT*(base+1)*SIGMA*SIGMA*(std::sqrt(d*n*k) + std::sqrt(2*n) + 4.7);
 };
@@ -103,13 +106,13 @@ public:
 	* @param d field element in DFT format
 	* @param c a vector of field elements in Coefficient format
 	* @param dgg discrete Gaussian generator
-	* @param *p non-spherical perturbation vector; output of the function
+	* @param p non-spherical perturbation vector; output of the function
 	*/
 	static void ZSampleSigma2x2(const Field2n & a, const Field2n & b,
 		const Field2n & d, const Matrix<Field2n> &c, const typename Element::DggType & dgg, shared_ptr<Matrix<int64_t>> p);
 
 	/**
-	* Subroutine used by SamplePertSquareMat as described in "Implementing Token-Based Obfuscation..."
+	* Subroutine used by SamplePertSquareMat as described in "Implementing Token-Based Obfuscation under (Ring) LWE"
 	*
 	* @param A a matrix of field elements in DFT format
 	* @param B a matrix of field elements in DFT format

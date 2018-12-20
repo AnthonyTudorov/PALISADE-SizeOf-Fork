@@ -1,5 +1,6 @@
 /**
  * @file trapdoor-dcrtpoly-impl.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -37,7 +38,8 @@ namespace lbcrypto {
 	template class RLWETrapdoorUtility<DCRTPoly>;
 	template class Matrix<DCRTPoly>;
 
-	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf
+	//Trapdoor generation method as described in Algorithm 1 of https://eprint.iacr.org/2017/844.pdf and
+	// "Implementing Token-Based Obfuscation under (Ring) LWE"
 	template <>
 	std::pair<Matrix<DCRTPoly>, RLWETrapdoorPair<DCRTPoly>> RLWETrapdoorUtility<DCRTPoly>::TrapdoorGen(shared_ptr<typename DCRTPoly::Params> params, double stddev, int64_t base, bool bal)
 	{
@@ -144,8 +146,6 @@ namespace lbcrypto {
 
 		double c = (base + 1) * SIGMA;
 
-		//const typename DCRTPoly::Integer& modulus = A(0, 0).GetModulus();
-
 		//spectral bound s
 		double s = SPECTRAL_BOUND(n,k,base);
 
@@ -162,7 +162,7 @@ namespace lbcrypto {
 		// perturbedSyndrome is in the evaluation representation
 		DCRTPoly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-//		DEBUG("t1c: "<<TOC(t1)); //takes 2
+		DEBUG("t1c: "<<TOC(t1)); //takes 2
 		TIC(t1);
 		DEBUG("t1d: "<<TOC(t1)); //takes 0
 		Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
@@ -205,7 +205,7 @@ namespace lbcrypto {
 		zHat.SwitchFormat();
 		DEBUG("t2d: "<<TOC(t2)); //takes 17
 		DEBUG("t2: "<<TOC(t2_tot));
-		//TIC(t3); seems trivial
+
 		Matrix<DCRTPoly> zHatPrime(zero_alloc, k + 2, 1);
 
 		zHatPrime(0, 0) = (*pHat)(0, 0) + T.m_e.Mult(zHat)(0, 0);
@@ -218,7 +218,7 @@ namespace lbcrypto {
 
 	}
 
-	// Gaussian sampling as described in "Implementing Token-Based Obfuscation..."
+	// Gaussian sampling as described in "Implementing Token-Based Obfuscation under Ring (LWE)"
 
 	template <>
 	Matrix<DCRTPoly> RLWETrapdoorUtility<DCRTPoly>::GaussSampSquareMat(size_t n, size_t k, const Matrix<DCRTPoly>& A,
@@ -303,12 +303,6 @@ namespace lbcrypto {
 				}
 			}
 		}
-
-		//pHat->SwitchFormat();
-
-		//std::cerr << "s = " << s << std::endl;
-
-		//std::cerr << "pHat = " << *pHat << std::endl;
 
 		return zHatPrime;
 
