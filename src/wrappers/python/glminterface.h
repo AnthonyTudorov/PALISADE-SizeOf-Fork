@@ -117,10 +117,10 @@ namespace glmcrypto {
 			GLMContext context;
 	};
 
-	vector<uint64_t> pythonListToCppIntVector(const boost::python::list& pythonList);
+	vector<int64_t> pythonListToCppIntVector(const boost::python::list& pythonList);
 	vector<string> pythonListToCppStringVector(const boost::python::list& pythonList);
 
-	void vectorToGlmParams(glmParams &g, vector<uint64_t> &l);
+	void vectorToGlmParams(glmParams &g, vector<int64_t> &l);
 	void vectorToPathList(pathList &path, vector<string> &vecList);
 
 }
