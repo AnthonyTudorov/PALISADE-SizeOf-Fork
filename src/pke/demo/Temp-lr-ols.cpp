@@ -1127,12 +1127,13 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,
 		for(size_t j = 0; j < result.GetCols(); j++) {
 			NativeInteger value = 0;
 			for(size_t i = 0; i < crtVector.size(); i++) {
-				if ((*crtVector[i])(k, j)->GetPackedValue()[0] > 0)
-					value = NativeInteger((*crtVector[i])(k, j)->GetPackedValue()[0]);
+				NativeInteger tempValue;
+				if ((*crtVector[i])(k, j)->GetPackedValue()[0] < 0)
+					tempValue = NativeInteger(q[i]-NativeInteger((uint64_t)std::llabs((*crtVector[i])(k, j)->GetPackedValue()[0])));
 				else
-					value = NativeInteger(q[i]-NativeInteger((uint64_t)std::llabs((*crtVector[i])(k, j)->GetPackedValue()[0])));
+					tempValue = NativeInteger((*crtVector[i])(k, j)->GetPackedValue()[0]);
 
-				value += ((value * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
+				value += ((tempValue * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}
