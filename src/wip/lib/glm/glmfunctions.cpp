@@ -1896,7 +1896,7 @@ void CRTInterpolateMatrix(const vector<Matrix<Plaintext>> &crtVector, Matrix<Big
 			for (size_t i = 0; i < primeList.size(); i++) {
 				BigInteger tempValue;
 				if (crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex] < 0)
-					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex])));
+					tempValue = BigInteger(q[i]-BigInteger((uint64_t)std::llabs(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex])));
 				else
 					tempValue = BigInteger(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex]);
 
@@ -1939,7 +1939,7 @@ void CRTInterpolateMatrixEntrySelect(const vector<Matrix<Plaintext>> &crtVector,
 			for (size_t i = 0; i < primeList.size(); i++) {
 				BigInteger tempValue;
 				if (crtVector[i](k, colIndex)->GetPackedValue()[j] < 0)
-					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](k, colIndex)->GetPackedValue()[j])));
+					tempValue = BigInteger(q[i]-BigInteger((uint64_t)std::llabs(crtVector[i](k, colIndex)->GetPackedValue()[j])));
 				else
 					tempValue = BigInteger(crtVector[i](k, colIndex)->GetPackedValue()[j]);
 
@@ -1988,7 +1988,7 @@ void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigI
 			for(size_t i = 0; i < crtVector.size(); i++) {
 				BigInteger tempValue;
 				if (crtVector[i](k,j)->GetPackedValue()[0]< 0)
-					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](k,j)->GetPackedValue()[0])));
+					tempValue = BigInteger(q[i]-BigInteger((uint64_t)std::llabs(crtVector[i](k,j)->GetPackedValue()[0])));
 				else
 					tempValue = BigInteger(crtVector[i](k,j)->GetPackedValue()[0]);
 
