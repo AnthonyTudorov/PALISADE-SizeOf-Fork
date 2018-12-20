@@ -128,6 +128,61 @@ TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt) {
 }
 
 
+/*Simple Encrypt-Decrypt check for DCRTPoly with negative plaintext integers. The assumption is this test case is that everything with respect to lattice and math
+* layers and cryptoparameters work. This test case is only testing if the resulting plaintext from an encrypt/decrypt returns the same
+* plaintext
+* The cyclotomic order is set 2048
+*tower size is set to 3*/
+TEST_F(UTLTVBATCHING, Poly_Encrypt_Decrypt_Negative) {
+
+	float stdDev = 4;
+
+	usint m = 8;
+	BigInteger modulus("2199023288321");
+	BigInteger rootOfUnity;
+
+	modulus = NextPrime(modulus, m);
+	rootOfUnity = RootOfUnity(m, modulus);
+
+	std::vector<int64_t> vectorOfInts1 = { 1,-2,3,-4 };
+
+	shared_ptr<Poly::Params> ep( new Poly::Params(m, modulus, rootOfUnity) );
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(ep, 17, 8, stdDev);
+
+	cc->Enable(ENCRYPTION);
+
+	Plaintext intArray1 = cc->MakePackedPlaintext(vectorOfInts1);
+
+	//Regular LWE-NTRU encryption algorithm
+
+	////////////////////////////////////////////////////////////
+	//Perform the key generation operation.
+	///////////////////////////////////////////////////////////
+
+	LPKeyPair<Poly> kp = cc->KeyGen();
+
+
+	////////////////////////////////////////////////////////////
+	//Encryption
+	////////////////////////////////////////////////////////////
+	Ciphertext<Poly> ciphertext;
+
+	ciphertext = cc->Encrypt(kp.publicKey, intArray1);
+
+
+	////////////////////////////////////////////////////////////
+	//Decryption
+	////////////////////////////////////////////////////////////
+
+	Plaintext intArrayNew;
+
+	DecryptResult result = cc->Decrypt(kp.secretKey, ciphertext, &intArrayNew);
+
+	ASSERT_TRUE(result.isValid) << "Decryption failed!";
+	EXPECT_EQ(intArrayNew->GetPackedValue(), vectorOfInts1);
+}
+
+
 TEST_F(UTLTVBATCHING, Poly_EVALADD) {
 
 	float stdDev = 4;

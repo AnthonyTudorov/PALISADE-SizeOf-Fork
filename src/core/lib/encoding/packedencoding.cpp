@@ -71,7 +71,7 @@ bool PackedEncoding::Encode() {
 			if( value[i] < 0 ) {
 				//It is more efficient to encode negative numbers using the ciphertext modulus
 				//no noise growth occurs
-				entry = q - NativeInteger((uint64_t)llabs(value[i]));
+				entry = NativeInteger(mod) - NativeInteger((uint64_t)llabs(value[i]));
 			}
 			else
 				entry = NativeInteger(value[i]);
@@ -126,7 +126,7 @@ bool PackedEncoding::Encode() {
 			if( value[i] < 0 ) {
 				//It is more efficient to encode negative numbers using the ciphertext modulus
 				//no noise growth occurs
-				entry = q - BigInteger((uint64_t)llabs(value[i]));
+				entry = BigInteger(mod) - BigInteger((uint64_t)llabs(value[i]));
 			}
 			else
 				entry = BigInteger(value[i]);
@@ -152,15 +152,15 @@ static void fillVec(const T& poly, const PlaintextModulus &mod, vector<int64_t>&
 	vec.clear();
 
 	int64_t half = int64_t(mod)/2;
-	const typename T::Integer &q = poly.GetModulus();
-	typename T::Integer qHalf = q>>1;
+	//const typename T::Integer &q = poly.GetModulus();
+	//typename T::Integer qHalf = q>>1;
 
 	for( size_t i = 0; i < poly.GetLength(); i++ ) {
-		int64_t val;
-		if (poly[i] > qHalf)
+		int64_t val = poly[i].ConvertToInt();;
+		/*if (poly[i] > qHalf)
 			val = (-(q-poly[i]).ConvertToInt());
 		else
-			val = poly[i].ConvertToInt();
+			val = poly[i].ConvertToInt();*/
 		if( val > half )
 			val -= mod;
 		vec.push_back(val);
