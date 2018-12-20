@@ -74,6 +74,11 @@ TEST_F(UTEvalIP, Test_LTV_EvalInnerProduct) {
 	int64_t expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
 
+	int64_t half = int64_t(plainttextMod)/2;
+
+	if( expectedResult > half )
+		expectedResult-= plainttextMod;
+
 	try {
 		int64_t result = ArbLTVInnerProductPackedArray(input1, input2);
 
@@ -101,6 +106,11 @@ TEST_F(UTEvalIP, Test_BGV_EvalInnerProduct) {
 
 	int64_t expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
+
+	int64_t half = int64_t(plainttextMod)/2;
+
+	if( expectedResult > half )
+		expectedResult-= plainttextMod;
 
 	try {
 		int64_t result = ArbBGVInnerProductPackedArray(input1, input2);
@@ -130,6 +140,11 @@ TEST_F(UTEvalIP, Test_BFV_EvalInnerProduct) {
 
 	int64_t expectedResult = std::inner_product(input1.begin(), input1.end(), input2.begin(), 0);
 	expectedResult %= plainttextMod;
+
+	int64_t half = int64_t(plainttextMod)/2;
+
+	if( expectedResult > half )
+		expectedResult-= plainttextMod;
 
 	try {
 		int64_t result = ArbBFVInnerProductPackedArray(input1, input2);
