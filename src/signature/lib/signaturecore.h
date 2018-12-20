@@ -41,6 +41,10 @@ class LPSignature{
          *@brief Default constructor 
          */
         LPSignature(){}
+        /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 /**
  *@brief Virtual templated class for plaintext 
@@ -57,6 +61,10 @@ class LPSignPlaintext{
          *@brief Default constructor
          */
         LPSignPlaintext(){}
+        /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 /**
  * @brief Virtual templated class for parameters used in signing process
@@ -73,6 +81,10 @@ class LPSignatureParameters{
          *@brief Default constructor
          */
         LPSignatureParameters(){}
+        /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 /**
  *@brief Virtual templated class for private key used in signing 
@@ -89,6 +101,10 @@ class LPSignKey{
          * @brief Default constructor
          */
         LPSignKey(){}
+        /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 /**l
  * @brief Virtual templated class for public key used in verification
@@ -105,6 +121,10 @@ class LPVerificationKey{
          *@brief Default constructor 
          */
         LPVerificationKey(){}
+        /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 /**
  *@brief Virtual templated class for signature schemes
@@ -146,5 +166,9 @@ class LPSignatureScheme{
      * @return verification result
      */
     virtual bool Verify(shared_ptr<LPSignatureParameters<Element>> m_params,const LPVerificationKey<Element> & vk,const LPSignature<Element> & sign, const LPSignPlaintext<Element> & pt);
+    /*
+        *@brief Dummy method to force abstract base class
+        */
+        virtual void forceImplement()=0;
 };
 #endif

@@ -39,7 +39,7 @@ namespace lbcrypto{
         	/*
         	*@brief Default destructor
         	*/
-            ~CPABEParams(){};
+            ~CPABEParams(){}
              /*
             @brief Constructor for ABE core params
             @param tparams Parameters related to trapdoor
@@ -47,6 +47,10 @@ namespace lbcrypto{
             @param ell Number of attributes
             */
             CPABEParams(shared_ptr<RLWETrapdoorParams<Element>> params,int32_t ell,typename Element::DugType& dug):ABECoreParams<Element>(params,dug,ell){}     
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for master public key that CPABE scheme use, derived from the main ABE one
@@ -111,6 +115,10 @@ namespace lbcrypto{
             shared_ptr<Matrix<Element>> m_Bpos, m_Bneg;
             //Public Element D
             Element m_pubElemD; 
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for master secret key  that CPABE scheme use, derived from main ABE one
@@ -132,6 +140,10 @@ namespace lbcrypto{
             *@param TA the trapdoor pair
             */
             CPABEMasterSecretKey(shared_ptr<RLWETrapdoorPair<Element>> TA): ABECoreMasterSecretKey<Element>(TA){}
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
     /*
 	*@brief Templated class for secret key used by user in CPABE scheme, derived from the main one
@@ -153,6 +165,10 @@ namespace lbcrypto{
             *@param sk Matrix of ring elements that acts as the secret key
             */
             CPABESecretKey(shared_ptr<Matrix<Element>> sk): ABECoreSecretKey<Element>(sk){}
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
 
     };
     /*
@@ -188,6 +204,10 @@ namespace lbcrypto{
         protected:
             //Array of integers to represent access scheme defined on attributes
             std::vector<int32_t> m_w;
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
     /*
     *@brief Templated class for attribute set usedby user in CPABE scheme, derived from ABE one
@@ -222,6 +242,10 @@ namespace lbcrypto{
         protected:
             //Array of integers to represent user's attribute set
             std::vector<usint> m_s;
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for plaintext in CPABE scheme derived from main ABE one
@@ -243,6 +267,11 @@ namespace lbcrypto{
             *@param ptext Actual plaintext in form of a ring element
             */
             CPABEPlaintext(const Element & ptext):ABECorePlaintext<Element>(ptext){}
+        protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for ciphertext in CPABE scheme, derived from main ABE one
@@ -305,6 +334,10 @@ namespace lbcrypto{
         protected:
                 //Vectors used to help decryption process
                 shared_ptr<Matrix<Element>> m_cPos, m_cNeg,m_CW ;
+                /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for CPABE scheme, derived from general ABE scheme
@@ -394,7 +427,11 @@ namespace lbcrypto{
                          const ABECoreCiphertext<Element> & ctext, 
                          ABECorePlaintext<Element>* ptext
                          );
-    	private:
+    	protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
 
 }

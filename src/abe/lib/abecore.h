@@ -92,6 +92,10 @@ namespace lbcrypto{
             int32_t m_ell;
             //Discrete uniform generator
             typename Element::DugType m_dug;
+            /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
 
      /*
@@ -128,6 +132,10 @@ namespace lbcrypto{
         protected:
             //Public key from trapdoor
             shared_ptr<Matrix<Element>> m_A;
+               /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
     /*
 	*@brief Virtual templated class for master secret key  that ABE schemes use
@@ -162,6 +170,10 @@ namespace lbcrypto{
     protected:
         //Private key from trapdoor
         shared_ptr<RLWETrapdoorPair<Element>> m_TA;
+           /**
+             *@brief Dummy method to achieve abstract base class
+             */
+        virtual void forceImplement()=0;
     };
     /*
 	*@brief Virtual templated class for secret key used by user in ABE schemes
@@ -196,6 +208,10 @@ namespace lbcrypto{
         protected:
             //Matrix of ring elements acting as secret key
             shared_ptr<Matrix<Element>> m_sk;
+               /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
       /*
 	*@brief Virtual templated class for defining accessibility of ciphertext in ABE schemes
@@ -212,6 +228,11 @@ namespace lbcrypto{
         	*@brief Default constructor
         	*/
             ABECoreAccessPolicy(){}
+        protected:
+           /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
      /*
 	*@brief Virtual templated class for plaintext in ABE schemes
@@ -245,6 +266,10 @@ namespace lbcrypto{
             void SetPText(const Element & ptext){this->m_ptext = ptext;}
         protected:
             Element m_ptext;
+               /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
      /*
 	*@brief Virtual templated class for ciphertext in ABE schemes
@@ -278,6 +303,10 @@ namespace lbcrypto{
             void SetC1(const Element & c1){this->m_c1 = c1;}
         protected:
             Element m_c1;
+               /**
+             *@brief Dummy method to achieve abstract base class
+             */
+            virtual void forceImplement()=0;
     };
      /*
 	*@brief Virtual templated class for ABE schemes in general
@@ -368,6 +397,11 @@ namespace lbcrypto{
                                  const ABECoreSecretKey<Element> & sk, 
                                  const ABECoreCiphertext<Element> & ctext, 
                                  ABECorePlaintext<Element>* ptext){};
+            protected:
+               /**
+             *@brief Dummy method to achieve abstract base class
+             */
+                virtual void forceImplement()=0;
     };
 }
 

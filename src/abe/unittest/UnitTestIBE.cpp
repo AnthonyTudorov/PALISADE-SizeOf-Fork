@@ -55,6 +55,7 @@ protected:
 	virtual ~UTIBE() {  }
 
 };
+//Body of the unittest
 template <class Element>
 void UnitTestIBE(SecurityLevel level){
 	
@@ -74,10 +75,25 @@ void UnitTestIBE(SecurityLevel level){
 
 	EXPECT_EQ(pt.GetPText(),dt.GetPText());
 }
-TEST(UTIBE, ibe_base_32_poly) {
+//Tests for 128 bit security
+TEST(UTIBE, ibe_128_poly) {
 	UnitTestIBE<Poly>(HEStd_128_classic);
 }
-
-TEST(UTIBE, ibe_base_32_native) {
+TEST(UTIBE, ibe_128_native) {
 	UnitTestIBE<NativePoly>(HEStd_128_classic);
+}
+TEST(UTIBE, ibe_192_poly) {
+	UnitTestIBE<Poly>(HEStd_192_classic);
+}
+//Tests for 192 bit security
+TEST(UTIBE, ibe_192_native) {
+	UnitTestIBE<NativePoly>(HEStd_192_classic);
+}
+//Tests for 256 bit security
+TEST(UTIBE, ibe_256_poly) {
+	UnitTestIBE<Poly>(HEStd_256_classic);
+}
+
+TEST(UTIBE, ibe_256_native) {
+	UnitTestIBE<NativePoly>(HEStd_256_classic);
 }

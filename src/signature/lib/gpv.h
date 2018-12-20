@@ -85,10 +85,14 @@ namespace lbcrypto {
 		*Destructor
 		*/
 		~GPVSignature() { }
-
+	
 	private:
 		//Matrix of polynomials acting as actual signature
 		shared_ptr<Matrix<Element>> m_signature;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/*
@@ -134,6 +138,10 @@ namespace lbcrypto {
 	private:
 		//String as plaintext to be signed
 		string m_plaintext;
+		/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/**
@@ -228,6 +236,10 @@ namespace lbcrypto {
 		usint m_base;
 		//Trapdoor length
 		usint m_k;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/**
@@ -276,6 +288,10 @@ namespace lbcrypto {
 	private:
 		//Trapdoor pair acting as signing key
 		shared_ptr<RLWETrapdoorPair<Element>> m_sk;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/**
@@ -323,6 +339,10 @@ namespace lbcrypto {
 	private:
 		//Public key from trapdoor acting as verification key
 		shared_ptr<Matrix<Element>> m_vk;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 	/**
 	*@brief Implementation of Ring LWE variant of GPV signature scheme. Currently it supports only one type of vectors, therefore it is not templated
@@ -387,6 +407,10 @@ namespace lbcrypto {
 		void KeyGen(shared_ptr<LPSignatureParameters<Element>> m_params,LPSignKey<Element>* sk, LPVerificationKey<Element>* vk);
 	private:
 		std::vector<char> seed;
+		/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 }
 #endif

@@ -48,6 +48,11 @@ namespace lbcrypto{
             @param ell Number of attributes
             */
             IBEParams(shared_ptr<RLWETrapdoorParams<Element>> tparams,typename Element::DugType& dug):ABECoreParams<Element>(tparams,dug,1){}
+        protected:    
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
       /*
 	*@brief Templated class for master public key that IBE scheme use, derived from the main ABE one
@@ -69,6 +74,11 @@ namespace lbcrypto{
             *@param A Matrix of element generated during trapdoor generation
             */
             IBEMasterPublicKey(shared_ptr<Matrix<Element>> A):ABECoreMasterPublicKey<Element>(A){}
+        protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};    
     };
     /*
 	*@brief Templated class for master secret key  that IBE scheme uses, derived from main ABE one
@@ -90,6 +100,11 @@ namespace lbcrypto{
             *@param TA the trapdoor pair
             */
             IBEMasterSecretKey(shared_ptr<RLWETrapdoorPair<Element>> TA): ABECoreMasterSecretKey<Element>(TA){}
+        protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
     /*
 	*@brief Templated class for secret key used by user in IBE scheme, derived from the main one
@@ -111,7 +126,11 @@ namespace lbcrypto{
             *@param sk Matrix of ring elements that acts as the secret key
             */
             IBESecretKey(shared_ptr<Matrix<Element>> sk): ABECoreSecretKey<Element>(sk){}
-
+            protected:
+            /**
+             *@brief Overloaded dummy method 
+             */
+                void forceImplement(){};
     };
     /*
 	*@brief Templated class for user identifier used for accessibility controls in IBE scheme, derived from ABE one
@@ -146,6 +165,10 @@ namespace lbcrypto{
         protected:
             //User id represented in element form
             Element m_id;
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for plaintext in IBE scheme derived from main ABE one
@@ -167,6 +190,11 @@ namespace lbcrypto{
             *@param ptext Actual plaintext in form of a ring element
             */
             IBEPlaintext(const Element & ptext):ABECorePlaintext<Element>(ptext){}
+        protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for ciphertext in IBE scheme, derived from main ABE one
@@ -204,6 +232,10 @@ namespace lbcrypto{
         protected:
             //Helper vector for decryption process
         	shared_ptr<Matrix<Element>> m_C0;
+            /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
     /*
     *@brief Templated class for ciphertext in IBE scheme, derived from main ABE one. Assumes it has been evaluated under user identifier beforehand
@@ -225,6 +257,11 @@ namespace lbcrypto{
             *@param c1 Evaluated ciphertext in form of a ring element
             */
             IBEEvalCiphertext(shared_ptr<Matrix<Element>> C0, const Element & c1):IBECiphertext<Element>(C0,c1){}
+        protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
      /*
 	*@brief Templated class for IBE scheme, derived from general ABE scheme
@@ -325,7 +362,11 @@ namespace lbcrypto{
                          const ABECoreSecretKey<Element> & sk,  
                          const ABECoreCiphertext<Element> & ectext, 
                          ABECorePlaintext<Element>* ptext);
-    	private:
+    	protected:
+        /**
+             *@brief Overloaded dummy method 
+             */
+            void forceImplement(){};
     };
 }
 

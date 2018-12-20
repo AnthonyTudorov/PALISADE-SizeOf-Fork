@@ -25,12 +25,32 @@
  */
 #ifndef ABE_PARAMS_SET_H
 #define ABE_PARAMS_SET_H
+#include "lattice/stdlatticeparms.h"
 namespace lbcrypto{
 //Map holding minimum ring size and appropriate base in IBE for the given security level
-static std::map<SecurityLevel,std::pair<usint,usint>> IBEMinRingSizeMap = {};
+static std::map<SecurityLevel,std::pair<usint,usint>> IBEMinRingSizeMap = {
+    {HEStd_128_classic,{1024,2}},
+    {HEStd_192_classic,{2048,512}},
+    {HEStd_256_classic,{2048,64}}
+};
 
 //Map holding minimum ring size and base in CPABE for the given security level and number of attributes
-static std::map<std::pair<SecurityLevel,usint>,std::pair<usint,usint>> CPABEMinRingSizeMap = {};
-
+static std::map<std::pair<SecurityLevel,usint>,std::pair<usint,usint>> CPABEMinRingSizeMap = {
+    {{HEStd_128_classic,6},{1024,2}},
+    {{HEStd_128_classic,8},{1024,2}},
+    {{HEStd_128_classic,16},{1024,2}},
+    {{HEStd_128_classic,20},{1024,2}},
+    {{HEStd_128_classic,32},{1024,2}},
+    {{HEStd_192_classic,6},{2048,512}},
+    {{HEStd_192_classic,8},{2048,512}},
+    {{HEStd_192_classic,16},{2048,512}},
+    {{HEStd_192_classic,20},{2048,512}},
+    {{HEStd_192_classic,32},{2048,512}},
+    {{HEStd_256_classic,6},{2048,1024}},
+    {{HEStd_256_classic,8},{2048,1024}},
+    {{HEStd_256_classic,16},{2048,1024}},
+    {{HEStd_256_classic,20},{2048,1024}},
+    {{HEStd_256_classic,32},{2048,1024}},
+};
 }
 #endif
