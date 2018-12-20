@@ -1892,8 +1892,16 @@ void CRTInterpolateMatrix(const vector<Matrix<Plaintext>> &crtVector, Matrix<Big
 			matrixRowIndex = rowIndex/crtVector[0](0, 0)->GetElementRingDimension() /*params.ENTRYSIZE*/;
 			messageIndex   = rowIndex%crtVector[0](0, 0)->GetElementRingDimension() /*params.ENTRYSIZE*/;
 			BigInteger value = 0;
-			for (size_t i = 0; i < primeList.size(); i++)
-				value += ((BigInteger(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex])*qInverse[i]).Mod(q[i])*(Q/q[i])).Mod(Q);
+
+			for (size_t i = 0; i < primeList.size(); i++) {
+				BigInteger tempValue;
+				if (crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex] < 0)
+					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex])));
+				else
+					tempValue = BigInteger(crtVector[i](matrixRowIndex, colIndex)->GetPackedValue()[messageIndex]);
+
+				value += ((tempValue*qInverse[i]).Mod(q[i])*(Q/q[i])).Mod(Q);
+			}
 
 			value = value.Mod(Q);
 			result(rowIndex, colIndex).SetValue(value.ToString());
@@ -1928,8 +1936,15 @@ void CRTInterpolateMatrixEntrySelect(const vector<Matrix<Plaintext>> &crtVector,
 		for (size_t j = 0; j < result.GetCols(); j++){
 			BigInteger value = 0;
 
-			for (size_t i = 0; i < primeList.size(); i++)
-				value += ((BigInteger(crtVector[i](k, colIndex)->GetPackedValue()[j])*qInverse[i]).Mod(q[i])*(qI[i]));//.Mod(Q);
+			for (size_t i = 0; i < primeList.size(); i++) {
+				BigInteger tempValue;
+				if (crtVector[i](k, colIndex)->GetPackedValue()[j] < 0)
+					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](k, colIndex)->GetPackedValue()[j])));
+				else
+					tempValue = BigInteger(crtVector[i](k, colIndex)->GetPackedValue()[j]);
+
+				value += ((tempValue*qInverse[i]).Mod(q[i])*(qI[i]));//.Mod(Q);
+			}
 
 			value = value.Mod(Q);
 			result(k, j) = (value);
@@ -1969,6 +1984,16 @@ void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigI
 			BigInteger value = 0;
 			for (size_t i = 0; i < crtVector.size(); i++)
 				value += ((BigInteger(crtVector[i](k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*(qI[i])); //.Mod(Q);
+
+			for(size_t i = 0; i < crtVector.size(); i++) {
+				BigInteger tempValue;
+				if (crtVector[i](k,j)->GetPackedValue()[0]< 0)
+					tempValue = BigInteger(q[i]-NativeInteger((uint64_t)std::llabs(crtVector[i](k,j)->GetPackedValue()[0])));
+				else
+					tempValue = BigInteger(crtVector[i](k,j)->GetPackedValue()[0]);
+
+				value += ((tempValue * qInverse[i]).Mod(q[i])*(qI[i])); //.Mod(Q);
+			}
 
 			value = value.Mod(Q);
 			result(k, j) = value; //SetValue(value.ToString());
