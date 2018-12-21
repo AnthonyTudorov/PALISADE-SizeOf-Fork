@@ -276,450 +276,450 @@ benchmark_lib:
 md5_abe:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEabe.so > abe.md5
+  - cat abe.md5
   after_script:
-  - mv abe.md5 ../../
+  - mv $(pwd)/bin/lib/abe.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - abe.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_abe:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEabe.so > abe.sha1
+  - cat abe.sha1
   after_script:
-  - mv abe.sha1 ../../
+  - mv $(pwd)/bin/lib/abe.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - abe.sha1
-  only:
-  - master
+  allow_failure: true
 
 sha256_abe:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEabe.so > abe.sha256
+  - cat abe.sha256
   after_script:
-  - mv abe.sha256 ../../
+  - mv $(pwd)/bin/lib/abe.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - abe.sha256
-  only:
-  - master
+  allow_failure: true
 
 sha512_abe:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEabe.so > abe.sha512
+  - cat abe.sha512
   after_script:
-  - mv abe.sha512 ../../
+  - mv $(pwd)/bin/lib/abe.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - abe.sha512
-  only:
-  - master
+  allow_failure: true
 
 md5_circuit:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEcircuit.so > circuit.md5
+  - cat circuit.md5
   after_script:
-  - mv circuit.md5 ../../
+  - mv $(pwd)/bin/lib/circuit.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - circuit.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_circuit:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEcircuit.so > circuit.sha1
+  - cat circuit.sha1
   after_script:
-  - mv circuit.sha1 ../../
+  - mv $(pwd)/bin/lib/circuit.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - circuit.sha1
-  only:
-  - master
+  allow_failure: true
 
 sha256_circuit:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEcircuit.so > circuit.sha256
+  - cat circuit.sha256
   after_script:
-  - mv circuit.sha256 ../../
+  - mv $(pwd)/bin/lib/circuit.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - circuit.sha256
-  only:
-  - master
+  allow_failure: true
 
 sha512_circuit:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEcircuit.so > circuit.sha512
+  - cat circuit.sha512
   after_script:
-  - mv circuit.sha512 ../../
+  - mv $(pwd)/bin/lib/circuit.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - circuit.sha512
-  only:
-  - master
+  allow_failure: true
 
 md5_core:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEcore.so > core.md5
+  - cat core.md5
   after_script:
-  - mv core.md5 ../../
+  - mv $(pwd)/bin/lib/core.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - core.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_core:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEcore.so > core.sha1
+  - cat core.sha1
   after_script:
-  - mv core.sha1 ../../
+  - mv $(pwd)/bin/lib/core.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - core.sha1
-  only:
-  - master
+  allow_failure: true
 
 sha256_core:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEcore.so > core.sha256
+  - cat core.sha256
   after_script:
-  - mv core.sha256 ../../
+  - mv $(pwd)/bin/lib/core.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - core.sha256
-  only:
-  - master
+  allow_failure: true
 
 sha512_core:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEcore.so > core.sha512
+  - cat core.sha512
   after_script:
-  - mv core.sha512 ../../
+  - mv $(pwd)/bin/lib/core.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - core.sha512
-  only:
-  - master
+  allow_failure: true
 
 md5_pke:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEpke.so > pke.md5
+  - cat pke.md5
   after_script:
-  - mv pke.md5 ../../
+  - mv $(pwd)/bin/lib/pke.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - pke.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_pke:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEpke.so > pke.sha1
+  - cat pke.sha1
   after_script:
-  - mv pke.sha1 ../../
+  - mv $(pwd)/bin/lib/pke.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - pke.sha1
-  only:
-  - master
+  allow_failure: true
 
 sha256_pke:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEpke.so > pke.sha256
+  - cat pke.sha256
   after_script:
-  - mv pke.sha256 ../../
+  - mv $(pwd)/bin/lib/pke.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - pke.sha256
-  only: 
-  - master
+  allow_failure: true
 
 sha512_pke:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEpke.so > pke.sha512
+  - cat pke.sha512
   after_script:
-  - mv pke.sha512 ../../
+  - mv $(pwd)/bin/lib/pke.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - pke.sha512
-  only:
-  - master
+  allow_failure: true
 
 md5_signature:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEsignature.so > signature.md5
+  - cat signature.md5
   after_script:
-  - mv signature.md5 ../../
+  - mv $(pwd)/bin/lib/signature.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - signature.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_signature:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEsignature.so > signature.sha1
+  - cat signature.sha1
   after_script:
-  - mv signature.sha1 ../../
+  - mv $(pwd)/bin/lib/signature.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - signature.sha1
-  only: 
-  - master
+  allow_failure: true
 
 sha256_signature:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEsignature.so > signature.sha256
+  - cat signature.sha256
   after_script:
-  - mv signature.sha256 ../../
+  - mv $(pwd)/bin/lib/signature.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - signature.sha256
-  only: 
-  - master
+  allow_failure: true
 
 sha512_signature:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEsignature.so > signature.sha512
+  - cat signature.sha512
   after_script:
-  - mv signature.sha1 ../../
+  - mv $(pwd)/bin/lib/signature.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - signature.sha512
-  only: 
-  - master
+  allow_failure: true
 
 md5_trapdoor:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEtrapdoor.so > trapdoor.md5
+  - cat trapdoor.md5
   after_script:
-  - mv trapdoor.md5 ../../
+  - mv $(pwd)/bin/lib/trapdoor.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - trapdoor.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_trapdoor:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEtrapdoor.so > trapdoor.sha1
+  - cat trapdoor.sha1
   after_script:
-  - mv trapdoor.sha1 ../../
+  - mv $(pwd)/bin/lib/trapdoor.sha1 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - trapdoor.sha1
-  only: 
-  - master
+  allow_failure: true
 
 sha256_trapdoor:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEtrapdoor.so > trapdoor.sha256
+  - cat trapdoor.sha256
   after_script:
-  - mv trapdoor.sha256 ../../
+  - mv $(pwd)/bin/lib/trapdoor.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - trapdoor.sha256
-  only: 
-  - master
+  allow_failure: true
 
 sha512_trapdoor:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEtrapdoor.so > trapdoor.sha512
+  - cat trapdoor.sha512
   after_script:
-  - mv trapdoor.sha512 ../../
+  - mv $(pwd)/bin/lib/trapdoor.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - trapdoor.sha512
-  only: 
-  - master
+  allow_failure: true
 
 md5_wip:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - md5sum libPALISADEwip.so > wip.md5
+  - cat wip.md5
   after_script:
-  - mv wip.md5 ../../
+  - mv $(pwd)/bin/lib/wip.md5 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - wip.md5
-  only:
-  - master
+  allow_failure: true
 
 sha1_wip:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha1sum libPALISADEwip.so > wip.sha1
+  - cat wip.sha1
   after_script:
-  - mv wip.sha1 ../../
+  - mv $(pwd)/bin/lib/wip.sha1 $(pwd) 
   dependencies:
   - build
   artifacts:
     paths:
     - wip.sha1
-  only:
-  - master
+  allow_failure: true
 
 sha256_wip:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha256sum libPALISADEwip.so > wip.sha256
+  - cat wip.sha256
   after_script:
-  - mv wip.sha256 ../../
+  - mv $(pwd)/bin/lib/wip.sha256 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - wip.sha256
-  only:
-  - master
+  allow_failure: true
 
 sha512_wip:
   stage: checksum
   before_script:
-  - cd bin/lib
+  - cd $(pwd)/bin/lib
   script:
   - sha512sum libPALISADEwip.so > wip.sha512
+  - cat wip.sha512
   after_script:
-  - mv wip.sha512 ../../
+  - mv wip.sha512 $(pwd)
   dependencies:
   - build
   artifacts:
     paths:
     - wip.sha512
-  only:
-  - master
+  allow_failure: true
 
 md5_checksums:
   stage: deploy
@@ -740,8 +740,7 @@ md5_checksums:
   - md5_signature
   - md5_trapdoor
   - md5_wip
-  only:
-  - master
+  allow_failure: true
 
 sha1_checksums:
   stage: deploy
@@ -762,8 +761,7 @@ sha1_checksums:
   - sha1_signature
   - sha1_trapdoor
   - sha1_wip
-  only:
-  - master
+  allow_failure: true
 
 sha256_checksums:
   stage: deploy
@@ -784,8 +782,7 @@ sha256_checksums:
   - sha256_signature
   - sha256_trapdoor
   - sha256_wip
-  only:
-  - master
+  allow_failure: true
 
 sha512_checksums:
   stage: deploy
@@ -806,5 +803,4 @@ sha512_checksums:
   - sha512_signature
   - sha512_trapdoor
   - sha512_wip
-  only:
-  - master
+  allow_failure: true
