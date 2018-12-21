@@ -65,4 +65,4 @@ SPLIT32ALT_FOR_TYPE(M6DCRTPoly)
 template Matrix<M6Vector> RotateVecResult(Matrix<M6DCRTPoly> const& inMat);
 template Matrix<M6Integer> Rotate(Matrix<M6DCRTPoly> const& inMat);
 
-}
+}  // namespace lbcrypto
