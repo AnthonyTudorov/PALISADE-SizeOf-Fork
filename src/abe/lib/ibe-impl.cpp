@@ -32,7 +32,6 @@ namespace lbcrypto{
     template class IBEMasterPublicKey<NativePoly>;
     template class IBEUserIdentifier<NativePoly>;
     template class IBESecretKey<NativePoly>;
-    template class IBEPlaintext<NativePoly>;
     template class IBECiphertext<NativePoly>;
     template class IBEScheme<NativePoly>;
     template class IBEMasterSecretKey<NativePoly>;
@@ -41,7 +40,6 @@ namespace lbcrypto{
     template class IBEMasterPublicKey<Poly>;
     template class IBEUserIdentifier<Poly>;
     template class IBESecretKey<Poly>;
-    template class IBEPlaintext<Poly>;
     template class IBECiphertext<Poly>;
     template class IBEScheme<Poly>;
     template class IBEMasterSecretKey<Poly>;

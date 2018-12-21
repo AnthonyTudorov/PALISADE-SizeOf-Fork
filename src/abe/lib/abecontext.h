@@ -89,23 +89,23 @@
              *@param ptext Plaintext to be encrypted
              *@param ct Corresponding ciphertext - Output 
              */ 
-            void Encrypt(const ABECoreMasterPublicKey<Element> & mpk,const ABECoreAccessPolicy<Element> & ap,const ABECorePlaintext<Element> & ptext,ABECoreCiphertext<Element>* ct);
+            void Encrypt(const ABECoreMasterPublicKey<Element> & mpk,const ABECoreAccessPolicy<Element> & ap,const Plaintext & ptext,ABECoreCiphertext<Element>* ct);
             /**
              *@brief Method for decryption with access to identifier/policy 
              *@param ap Access structure 
              *@param ua User's access rights 
              *@param sk User's secret key 
              *@param ct Ciphertext to be decrypted
-             *@param dt Decrypted plaintext - Output 
+             *@return Decrypted plaintext
              */
-            void Decrypt(const ABECoreAccessPolicy<Element> & ap, const ABECoreAccessPolicy<Element>& ua,const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt);
+            Plaintext Decrypt(const ABECoreAccessPolicy<Element> & ap, const ABECoreAccessPolicy<Element>& ua,const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct);
             /**
              *@brief Method for decryption - for the cases without access policy 
              *@param sk Secret key for the user 
              *@param ct Ciphertext to be decrypted 
-             *@param dt Decrypted plaintext - Output 
+             *@return Decrypted plaintext 
              */
-            void Decrypt(const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt);
+            Plaintext Decrypt(const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct);
             /**
              *@brief Method for generating a random ring element with context parameters - demo purposes only 
              *@return Random ring element 
@@ -116,6 +116,15 @@
              * @return Random binary ring element
              */
             Element GenerateRandomBinaryElement();
+             /**
+	         * MakeCoefPackedPlaintext constructs a CoefPackedEncoding in this context
+	        * @param value
+	        * @return plaintext
+	        */
+	        Plaintext MakeCoefPackedPlaintext(const vector<int64_t>& value) const {
+		        auto p = PlaintextFactory::MakePlaintext( CoefPacked, this->m_params->GetTrapdoorParams()->GetElemParams(), this->m_params->GetEncodingParams(), value );
+		        return p;
+	        }
         private:
             //Pointer to the scheme used
             shared_ptr<ABECoreScheme<Element>> m_scheme;
@@ -137,6 +146,8 @@
             *@param m_params Modified params
             */ 
             void ParamsGenIBE(usint ringsize,usint base,shared_ptr<ABECoreParams<Element>>& m_params);
+
+	       
     };
  }
 

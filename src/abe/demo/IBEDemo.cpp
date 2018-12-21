@@ -46,19 +46,19 @@ int main(){
     IBESecretKey<NativePoly> sk;
 	context.KeyGen(msk,mpk,id,&sk);
     
-    //Generate a random plaintext
-    IBEPlaintext<NativePoly> pt(context.GenerateRandomBinaryElement());
+    //Generate a plaintext
+    std::vector<int64_t> vectorOfInts = { 1,0,0,1,1,0,1,0, 1, 0};
+    Plaintext pt = context.MakeCoefPackedPlaintext(vectorOfInts);
     
     //Encrypt the plaintext
     IBECiphertext<NativePoly> ct;
 	context.Encrypt(mpk,id,pt,&ct);
     
     //Decrypt the ciphertext
-    IBEPlaintext<NativePoly> dt;
-	context.Decrypt(id,id,sk,ct,&dt);
-
+	Plaintext dt = context.Decrypt(id,id,sk,ct);
+    
     //Check if original plaintext and decrypted plaintext match
-    if(pt.GetPText()==dt.GetPText()){
+    if(pt->GetElement<NativePoly>() == dt->GetElement<NativePoly>()){
         std::cout<<"Encryption & decryption successful"<<std::endl;
     }else{
         std::cout<<"Encryption & decryption failed"<<std::endl;

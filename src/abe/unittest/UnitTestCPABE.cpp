@@ -89,14 +89,14 @@ void UnitTestCPABE(SecurityLevel level,usint ell){
 
     CPABESecretKey<Element> sk;
 	context.KeyGen(msk,mpk,ua,&sk);
-    CPABEPlaintext<Element> pt(context.GenerateRandomBinaryElement());
+    std::vector<int64_t> vectorOfInts = { 1,0,0,1,1,0,1,0, 1, 0};
+    Plaintext pt = context.MakeCoefPackedPlaintext(vectorOfInts);
     CPABECiphertext<Element> ct;
 	context.Encrypt(mpk,ap,pt,&ct);
-    CPABEPlaintext<Element> dt;
-	context.Decrypt(ap,ua,sk,ct,&dt);
+	Plaintext dt = context.Decrypt(ap,ua,sk,ct);
 
 
-    EXPECT_EQ(pt.GetPText(),dt.GetPText());
+    EXPECT_EQ(pt->GetElement<Element>(),dt->GetElement<Element>());
 
 }
 //Test for 128 bit security and 6,8,16,20,32 attributes

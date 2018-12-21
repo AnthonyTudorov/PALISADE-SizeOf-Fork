@@ -31,7 +31,6 @@ namespace lbcrypto{
     template class ABECoreMasterPublicKey<NativePoly>;
     template class ABECoreAccessPolicy<NativePoly>;
     template class ABECoreSecretKey<NativePoly>;
-    template class ABECorePlaintext<NativePoly>;
     template class ABECoreCiphertext<NativePoly>;
     template class ABECoreScheme<NativePoly>;
     template class ABECoreMasterSecretKey<NativePoly>;
@@ -40,7 +39,6 @@ namespace lbcrypto{
     template class ABECoreMasterPublicKey<Poly>;
     template class ABECoreAccessPolicy<Poly>;
     template class ABECoreSecretKey<Poly>;
-    template class ABECorePlaintext<Poly>;
     template class ABECoreCiphertext<Poly>;
     template class ABECoreScheme<Poly>;
     template class ABECoreMasterSecretKey<Poly>;

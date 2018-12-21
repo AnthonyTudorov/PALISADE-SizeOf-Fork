@@ -44,9 +44,10 @@ namespace lbcrypto{
             @brief Constructor for ABE core params
             @param tparams Parameters related to trapdoor
             @param dug Discrete Uniform Generator used to generate random numbers
+            @param encParams Encoding params used
             @param ell Number of attributes
             */
-            CPABEParams(shared_ptr<RLWETrapdoorParams<Element>> params,int32_t ell,typename Element::DugType& dug):ABECoreParams<Element>(params,dug,ell){}     
+            CPABEParams(shared_ptr<RLWETrapdoorParams<Element>> params,int32_t ell,typename Element::DugType& dug,const EncodingParams & encparams):ABECoreParams<Element>(params,dug,encparams,ell){}     
             /**
              *@brief Overloaded dummy method 
              */
@@ -248,32 +249,6 @@ namespace lbcrypto{
             void forceImplement(){};
     };
      /*
-	*@brief Templated class for plaintext in CPABE scheme derived from main ABE one
-	*@tparam Element ring element
-	*/
-    template <class Element>
-    class CPABEPlaintext:public ABECorePlaintext<Element>{
-        public:
-        	/*
-        	*@brief Default destructor
-        	*/
-            ~CPABEPlaintext(){}
-            /*
-        	*@brief Default constructor
-        	*/
-            CPABEPlaintext(){}
-             /*
-            *@brief Constructor for plaintext
-            *@param ptext Actual plaintext in form of a ring element
-            */
-            CPABEPlaintext(const Element & ptext):ABECorePlaintext<Element>(ptext){}
-        protected:
-        /**
-             *@brief Overloaded dummy method 
-             */
-            void forceImplement(){};
-    };
-     /*
 	*@brief Templated class for ciphertext in CPABE scheme, derived from main ABE one
 	*@tparam Element ring element
 	*/
@@ -409,7 +384,7 @@ namespace lbcrypto{
     		void Encrypt(shared_ptr<ABECoreParams<Element>> m_params,
                          const ABECoreMasterPublicKey<Element> & mpk,
                          const ABECoreAccessPolicy<Element> & ap,
-                         const ABECorePlaintext<Element> & ptext,
+                         Element ptext,
                          ABECoreCiphertext<Element> * ctext);
     		/*
     		*@brief Method for decryption phase of a CPABE cycle
@@ -425,8 +400,7 @@ namespace lbcrypto{
                          const ABECoreAccessPolicy<Element>& ua,
                          const ABECoreSecretKey<Element> & usk,
                          const ABECoreCiphertext<Element> & ctext, 
-                         ABECorePlaintext<Element>* ptext
-                         );
+                         Element* ptext);
     	protected:
         /**
              *@brief Overloaded dummy method 

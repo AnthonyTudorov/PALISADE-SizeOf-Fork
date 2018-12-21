@@ -33,7 +33,6 @@ namespace lbcrypto{
     template class CPABEAccessPolicy<NativePoly>;
     template class CPABEUserAccess<NativePoly>;
     template class CPABESecretKey<NativePoly>;
-    template class CPABEPlaintext<NativePoly>;
     template class CPABECiphertext<NativePoly>;
     template class CPABEScheme<NativePoly>;
     template class CPABEMasterSecretKey<NativePoly>;
@@ -43,7 +42,6 @@ namespace lbcrypto{
     template class CPABEAccessPolicy<Poly>;
     template class CPABEUserAccess<Poly>;
     template class CPABESecretKey<Poly>;
-    template class CPABEPlaintext<Poly>;
     template class CPABECiphertext<Poly>;
     template class CPABEScheme<Poly>;
     template class CPABEMasterSecretKey<Poly>;

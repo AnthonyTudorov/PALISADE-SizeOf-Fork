@@ -67,13 +67,14 @@ void UnitTestIBE(SecurityLevel level){
     IBEUserIdentifier<Element> id(context.GenerateRandomElement());
     IBESecretKey<Element> sk;
 	context.KeyGen(msk,mpk,id,&sk);
-    IBEPlaintext<Element> pt(context.GenerateRandomBinaryElement());
+    
+    std::vector<int64_t> vectorOfInts = { 1,0,0,1,1,0,1,0, 1, 0};
+    Plaintext pt = context.MakeCoefPackedPlaintext(vectorOfInts);
     IBECiphertext<Element> ct;
 	context.Encrypt(mpk,id,pt,&ct);
-    IBEPlaintext<Element> dt;
-	context.Decrypt(id,id,sk,ct,&dt);
+	Plaintext dt = context.Decrypt(sk,ct);
 
-	EXPECT_EQ(pt.GetPText(),dt.GetPText());
+	EXPECT_EQ(pt->GetElement<Element>(),dt->GetElement<Element>());
 }
 //Tests for 128 bit security
 TEST(UTIBE, ibe_128_poly) {

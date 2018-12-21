@@ -69,11 +69,10 @@ namespace lbcrypto{
 	}
 	//Method for encryption phase of an IBE cycle
 	template<class Element>
-	void IBEScheme<Element>::Encrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreMasterPublicKey<Element> & bmpk,  const ABECoreAccessPolicy<Element> & bid, const ABECorePlaintext<Element> & bptext, ABECoreCiphertext<Element> * bctext){
+	void IBEScheme<Element>::Encrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreMasterPublicKey<Element> & bmpk,  const ABECoreAccessPolicy<Element> & bid, Element pt, ABECoreCiphertext<Element> * bctext){
 		shared_ptr<IBEParams<Element>> m_params = dynamic_pointer_cast<IBEParams<Element>>(bm_params);
 		const IBEMasterPublicKey<Element> & mpk = dynamic_cast<const IBEMasterPublicKey<Element>&>(bmpk);
 		const IBEUserIdentifier<Element> & id = dynamic_cast<const IBEUserIdentifier<Element> &>(bid);
-		const IBEPlaintext<Element> & ptext = dynamic_cast<const IBEPlaintext<Element> &>(bptext);
 		IBECiphertext<Element>* ctext = dynamic_cast<IBECiphertext<Element>*>(bctext);
 		usint m_m = m_params->GetTrapdoorParams()->GetK()+2;
 
@@ -100,7 +99,6 @@ namespace lbcrypto{
 		qHalf.AddILElementOne();
 
 		Element  uid = id.GetID();
-		Element  pt = ptext.GetPText();
 		
 		if(uid.GetFormat() != EVALUATION)
 			uid.SwitchFormat();
@@ -115,78 +113,73 @@ namespace lbcrypto{
 	}
 	//Method for decryption phase of an IBE cycle
 	template <class Element>
-    void IBEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreAccessPolicy<Element> & bap,const ABECoreAccessPolicy<Element> & bua,const ABECoreSecretKey<Element> & busk,  const ABECoreCiphertext<Element> & bctext, ABECorePlaintext<Element>* bptext){
+    void IBEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreAccessPolicy<Element> & bap,const ABECoreAccessPolicy<Element> & bua,const ABECoreSecretKey<Element> & busk,  const ABECoreCiphertext<Element> & bctext, Element* dtext){
 		shared_ptr<IBEParams<Element>> m_params = dynamic_pointer_cast<IBEParams<Element>>(bm_params);
 		const IBESecretKey<Element> & usk = dynamic_cast<const IBESecretKey<Element>&>(busk);
-		IBEPlaintext<Element>* ptext = dynamic_cast<IBEPlaintext<Element>*>(bptext);
 		const IBECiphertext<Element> & ctext = dynamic_cast<const IBECiphertext<Element> &>(bctext);
 		usint m_m = m_params->GetTrapdoorParams()->GetK()+2;
 
-    	Element dtext(m_params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT, true);
     	const Matrix<Element> & ctC0 = ctext.GetC0();
     	const Element & ctC1 = ctext.GetC1();
     	const Matrix<Element> & sk = usk.GetSK();
-    	dtext.SetValuesToZero();
-		if(dtext.GetFormat() != EVALUATION)
-			dtext.SwitchFormat();
+    	dtext->SetValuesToZero();
+		if(dtext->GetFormat() != EVALUATION)
+			dtext->SwitchFormat();
 
 		for(usint j=0; j<m_m; j++)
-			dtext += ctC0(0, j)*sk(j, 0);
+			*dtext += ctC0(0, j)*sk(j, 0);
 
-		dtext = ctC1 - dtext;
-		dtext.SwitchFormat();
+		*dtext = ctC1 - *dtext;
+		dtext->SwitchFormat();
 
 		typename Element::Integer m_q(m_params->GetTrapdoorParams()->GetElemParams()->GetModulus());
 		typename Element::Integer dec, threshold = m_q >> 2, qHalf = m_q >> 1;
 		for (usint i = 0; i < m_params->GetTrapdoorParams()->GetN(); i++)
 		{
-			dec = dtext.at(i);
+			dec = dtext->at(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-			  dtext.at(i)= typename Element::Integer(1);
+			  dtext->at(i)= typename Element::Integer(1);
 			else
-			  dtext.at(i)= typename Element::Integer(0);
+			  dtext->at(i)= typename Element::Integer(0);
 		}
-		ptext->SetPText(dtext);
     }
 	// Method for decryption phase of an IBE cycle, assumes that ciphertext was evaluated under the identifier beforehand
 	template <class Element>
-    void IBEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreSecretKey<Element> & busk,  const ABECoreCiphertext<Element> & bectext, ABECorePlaintext<Element>* bptext){
+    void IBEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreSecretKey<Element> & busk,  const ABECoreCiphertext<Element> & bectext, Element* dtext){
 		shared_ptr<IBEParams<Element>> m_params = dynamic_pointer_cast<IBEParams<Element>>(bm_params);
 		const IBESecretKey<Element> & usk = dynamic_cast<const IBESecretKey<Element>&>(busk);
-		IBEPlaintext<Element>* ptext = dynamic_cast<IBEPlaintext<Element>*>(bptext);
 		const IBECiphertext<Element> & ectext = dynamic_cast<const IBECiphertext<Element> &>(bectext);
 		usint m_m = m_params->GetTrapdoorParams()->GetK()+2;
 
-    	Element dtext(m_params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT, true);
+    	
     	const Matrix<Element> & ctC0 = ectext.GetC0();
     	const Element & ctC1 = ectext.GetC1();
     	const Matrix<Element> & sk = usk.GetSK();
-    	dtext.SetValuesToZero();
-		if(dtext.GetFormat() != EVALUATION)
-			dtext.SwitchFormat();
+    	dtext->SetValuesToZero();
+		if(dtext->GetFormat() != EVALUATION)
+			dtext->SwitchFormat();
 
 		for(usint j=0; j<m_m; j++)
-			dtext += ctC0(0, j)*sk(j, 0);
+			*dtext += ctC0(0, j)*sk(j, 0);
 
-		dtext = ctC1 - dtext;
-		dtext.SwitchFormat();
+		*dtext = ctC1 - *dtext;
+		dtext->SwitchFormat();
 
 		typename Element::Integer m_q(m_params->GetTrapdoorParams()->GetElemParams()->GetModulus());
 		typename Element::Integer dec, threshold = m_q >> 2, qHalf = m_q >> 1;
 		for (usint i = 0; i < m_params->GetTrapdoorParams()->GetN(); i++)
 		{
-			dec = dtext.at(i);
+			dec = dtext->at(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-			  dtext.at(i)= typename Element::Integer(1);
+			  dtext->at(i)= typename Element::Integer(1);
 			else
-			  dtext.at(i)= typename Element::Integer(0);
+			  dtext->at(i)= typename Element::Integer(0);
 		}
-		ptext->SetPText(dtext);
     }
 }

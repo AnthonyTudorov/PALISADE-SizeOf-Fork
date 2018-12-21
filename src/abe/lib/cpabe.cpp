@@ -214,11 +214,10 @@ namespace lbcrypto{
 	}
     //Method for encryption phase of a CPABE cycle
     template <class Element>
-    void CPABEScheme<Element>::Encrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreMasterPublicKey<Element> & bmpk, const ABECoreAccessPolicy<Element> & bap, const ABECorePlaintext<Element> & bptext, ABECoreCiphertext<Element>* bctext){
+    void CPABEScheme<Element>::Encrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreMasterPublicKey<Element> & bmpk, const ABECoreAccessPolicy<Element> & bap, Element ptxt, ABECoreCiphertext<Element>* bctext){
     	shared_ptr<CPABEParams<Element>> m_params = dynamic_pointer_cast<CPABEParams<Element>>(bm_params);
 		const CPABEMasterPublicKey<Element> & mpk = dynamic_cast<const CPABEMasterPublicKey<Element> &>(bmpk);
 		const CPABEAccessPolicy<Element> & ap = dynamic_cast<const CPABEAccessPolicy<Element> &>(bap);
-		const CPABEPlaintext<Element> & ptext = dynamic_cast<const CPABEPlaintext<Element> &>(bptext);
 		CPABECiphertext<Element>* ctext = dynamic_cast<CPABECiphertext<Element>*>(bctext);
 		usint lenW = 0;
     	usint m_ell = m_params->GetEll();
@@ -301,7 +300,6 @@ namespace lbcrypto{
 		Element err1(m_params->GetTrapdoorParams()->GetElemParams(), COEFFICIENT, true); // error term
 		err1.SetValues(m_params->GetTrapdoorParams()->GetDGG().GenerateVector(m_N,m_q), COEFFICIENT);
 		err1.SwitchFormat();
-		Element ptxt = ptext.GetPText();
 		if(ptxt.GetFormat()!=EVALUATION)
 			ptxt.SwitchFormat();
 		if(pubElemD.GetFormat()!=EVALUATION){
@@ -317,20 +315,18 @@ namespace lbcrypto{
     }
     //Method for decryption phase of a CPABE cycle
     template <class Element>
-    void CPABEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreAccessPolicy<Element> & bap, const ABECoreAccessPolicy<Element>& bua, const ABECoreSecretKey<Element> & busk, const ABECoreCiphertext<Element> & bctext, ABECorePlaintext<Element>* bptext){
-    	shared_ptr<CPABEParams<Element>> m_params = dynamic_pointer_cast<CPABEParams<Element>>(bm_params);
+    void CPABEScheme<Element>::Decrypt(shared_ptr<ABECoreParams<Element>> bm_params,const ABECoreAccessPolicy<Element> & bap, const ABECoreAccessPolicy<Element>& bua, const ABECoreSecretKey<Element> & busk, const ABECoreCiphertext<Element> & bctext, Element* dtext){
+		shared_ptr<CPABEParams<Element>> m_params = dynamic_pointer_cast<CPABEParams<Element>>(bm_params);
 		const CPABESecretKey<Element> & usk = dynamic_cast<const CPABESecretKey<Element> &>(busk);
 		const CPABEAccessPolicy<Element> & ap = dynamic_cast<const CPABEAccessPolicy<Element> &>(bap);
 		const CPABEUserAccess<Element> & ua = dynamic_cast<const CPABEUserAccess<Element> &>(bua);
-		CPABEPlaintext<Element>* ptext = dynamic_cast<CPABEPlaintext<Element>*>(bptext);
 		const CPABECiphertext<Element> & ctext = dynamic_cast<const CPABECiphertext<Element>&>(bctext);
-		Element dtext( m_params->GetTrapdoorParams()->GetElemParams(), EVALUATION, true);
 		usint m_ell = m_params->GetEll();
 		usint m_N = m_params->GetTrapdoorParams()->GetN();
     	
-		dtext.SetValuesToZero();
-		if(dtext.GetFormat() != EVALUATION)
-			dtext.SwitchFormat();
+		dtext->SetValuesToZero();
+		if(dtext->GetFormat() != EVALUATION)
+			dtext->SwitchFormat();
 		
 		const Matrix<Element> & sk = usk.GetSK();
 		const Matrix<Element> & ctW = ctext.GetCW();
@@ -344,7 +340,7 @@ namespace lbcrypto{
 		const std::vector<usint> & s = ua.GetS();
 
 		for(usint j=0; j<m_m; j++)
-			dtext += ctW(0, j)*sk(j, 0);
+			*dtext += ctW(0, j)*sk(j, 0);
 
 		usint iW=0;
 		usint iAW=0;
@@ -352,36 +348,35 @@ namespace lbcrypto{
 		for(usint i=0; i<m_ell; i++) {
 			if (w[i] == 1  || w[i] == -1) {
 				for(usint j=0; j<m_m; j++)
-					dtext += ctW(iW+1, j)*sk(j, i+1);
+					*dtext += ctW(iW+1, j)*sk(j, i+1);
 				iW++;
 			}
 			else {
 				if(s[i]==1)
 					for(usint j=0; j<m_m; j++)
-						dtext += cPos(iAW, j)*sk(j, i+1);
+						*dtext += cPos(iAW, j)*sk(j, i+1);
 				else
 					for(usint j=0; j<m_m; j++)
-						dtext += cNeg(iAW, j)*sk(j, i+1);
+						*dtext += cNeg(iAW, j)*sk(j, i+1);
 				iAW++;
 			}
 		}
 
-		dtext = ctC1 - dtext;
-		dtext.SwitchFormat();
+		*dtext = ctC1 - *dtext;
+		dtext->SwitchFormat();
 
 		typename Element::Integer dec, threshold = m_q >> 2, qHalf = m_q >> 1;
 		for (usint i = 0; i < m_N; i++)
 		{
-			dec = dtext.at(i);
+			dec = dtext->at(i);
 
 			if (dec > qHalf)
 				dec = m_q - dec;
 			if (dec > threshold)
-			  dtext.at(i)= 1;
+			  dtext->at(i)= 1;
 			else
-			  dtext.at(i)= typename Element::Integer(0);
+			  dtext->at(i)= typename Element::Integer(0);
 		}
-		ptext->SetPText(dtext);
     }
 
 }

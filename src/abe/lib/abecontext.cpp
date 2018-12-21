@@ -78,18 +78,22 @@ namespace lbcrypto{
     }
     //Method for encryption
     template <class Element>
-    void ABEContext<Element>::Encrypt(const ABECoreMasterPublicKey<Element> & mpk,const ABECoreAccessPolicy<Element> & ap,const ABECorePlaintext<Element> & ptext,ABECoreCiphertext<Element>* ct){
-        m_scheme->Encrypt(m_params,mpk,ap,ptext,ct);
+    void ABEContext<Element>::Encrypt(const ABECoreMasterPublicKey<Element> & mpk,const ABECoreAccessPolicy<Element> & ap,const Plaintext & ptext,ABECoreCiphertext<Element>* ct){
+        m_scheme->Encrypt(m_params,mpk,ap,ptext->GetElement<Element>(),ct);
     }
     //Method for decryption with access to identifier/policy 
     template <class Element>
-    void ABEContext<Element>::Decrypt(const ABECoreAccessPolicy<Element> & ap, const ABECoreAccessPolicy<Element> & ua,const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt){
-        m_scheme->Decrypt(m_params,ap,ua,sk,ct,dt);
+    Plaintext ABEContext<Element>::Decrypt(const ABECoreAccessPolicy<Element> & ap, const ABECoreAccessPolicy<Element> & ua,const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct){
+        Plaintext dtext =PlaintextFactory::MakePlaintext( CoefPacked, this->m_params->GetTrapdoorParams()->GetElemParams(), this->m_params->GetEncodingParams());
+        m_scheme->Decrypt(m_params,ap,ua,sk,ct,&(dtext->GetElement<Element>()));
+        return dtext;
     }
     //Method for decryption - for the cases without access policy
     template <class Element>
-    void ABEContext<Element>::Decrypt(const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct, ABECorePlaintext<Element>* dt){
-        m_scheme->Decrypt(m_params,sk,ct,dt);
+    Plaintext ABEContext<Element>::Decrypt(const ABECoreSecretKey<Element>& sk, const ABECoreCiphertext<Element>& ct){
+        Plaintext dtext =PlaintextFactory::MakePlaintext( CoefPacked, this->m_params->GetTrapdoorParams()->GetElemParams(), this->m_params->GetEncodingParams());
+        m_scheme->Decrypt(m_params,sk,ct,&(dtext->GetElement<Element>()));
+        return dtext;
     }
     //ethod for generating a random ring element with context parameters - demo purposes only 
     template <class Element>
@@ -145,10 +149,10 @@ namespace lbcrypto{
 
         ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::PreComputeTable(sm);
-
+        EncodingParams eparams(new EncodingParamsImpl(2));
         shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
         RLWETrapdoorParams<Element> tparams(silparams,dgg,sigma,base);
-        shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug));
+        shared_ptr<ABECoreParams<Element>> abeparams(new CPABEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),ell,dug,eparams));
         m_params = abeparams;
 	
     }
@@ -193,9 +197,10 @@ namespace lbcrypto{
         ChineseRemainderTransformFTT<typename Element::Vector>::PreCompute(srootOfUnity, sm, smodulus);
 		DiscreteFourierTransform::PreComputeTable(sm);
 
+        EncodingParams eparams(new EncodingParamsImpl(2));
         shared_ptr<ILParamsImpl<typename Element::Integer>> silparams = std::make_shared<ILParamsImpl<typename Element::Integer>>(ilParams);
         RLWETrapdoorParams<Element> tparams(silparams,dgg,sigma,base);
-        shared_ptr<ABECoreParams<Element>> ibeparams(new IBEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),dug));
+        shared_ptr<ABECoreParams<Element>> ibeparams(new IBEParams<Element>(std::make_shared<RLWETrapdoorParams<Element>>(tparams),dug,eparams));
         m_params = ibeparams;
     }
 

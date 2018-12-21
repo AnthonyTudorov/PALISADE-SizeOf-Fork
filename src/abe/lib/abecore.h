@@ -56,9 +56,10 @@ namespace lbcrypto{
             @brief Constructor for ABE core params
             @param tparams Parameters related to trapdoor
             @param dug Discrete Uniform Generator used to generate random numbers
+            @param eparams Encoding params used
             @param ell Number of attributes
             */
-            ABECoreParams(shared_ptr<RLWETrapdoorParams<Element>> tparams,typename Element::DugType& dug, int32_t ell=1):m_tparams(tparams),m_ell(ell),m_dug(dug){}
+            ABECoreParams(shared_ptr<RLWETrapdoorParams<Element>> tparams,typename Element::DugType& dug,const EncodingParams & eparams, int32_t ell=1):m_tparams(tparams),m_ell(ell),m_dug(dug),m_encParams(eparams){}
             /*
             @brief Accessor function for trapdoor parameters
             @return Parameters related to trapdoor
@@ -84,6 +85,11 @@ namespace lbcrypto{
             @return Discrete Uniform Generator used
             */
             typename Element::DugType& GetDUG(){return m_dug;}
+            /*
+            *@brief Accessor function for Encoding Params
+            *@return Encoding params used 
+            */
+            const EncodingParams GetEncodingParams() const {return m_encParams;}
 
         protected:
             //Trapdoor parameters
@@ -92,6 +98,8 @@ namespace lbcrypto{
             int32_t m_ell;
             //Discrete uniform generator
             typename Element::DugType m_dug;
+            //Encoding parameters
+            EncodingParams m_encParams;
             /**
              *@brief Dummy method to achieve abstract base class
              */
@@ -235,43 +243,6 @@ namespace lbcrypto{
             virtual void forceImplement()=0;
     };
      /*
-	*@brief Virtual templated class for plaintext in ABE schemes
-	*@tparam Element ring element
-	*/
-    template <class Element>
-    class ABECorePlaintext{
-        public:
-        	/*
-        	*@brief Default destructor
-        	*/
-            virtual ~ABECorePlaintext(){};
-             /*
-        	*@brief Default constructor
-        	*/
-            ABECorePlaintext(){}
-            /*
-            *@brief Constructor for plaintext
-            *@param ptext Actual plaintext in form of a ring element
-            */
-            ABECorePlaintext(const Element & ptext):m_ptext(ptext){}
-            /*
-            *@brief Accessor function for the plaintext
-            *@return Plaintext
-            */
-            const Element & GetPText() const {return m_ptext;}
-            /*
-            *@brief Mutator function for the plaintext
-            *@param ptext Plaintext
-            */
-            void SetPText(const Element & ptext){this->m_ptext = ptext;}
-        protected:
-            Element m_ptext;
-               /**
-             *@brief Dummy method to achieve abstract base class
-             */
-            virtual void forceImplement()=0;
-    };
-     /*
 	*@brief Virtual templated class for ciphertext in ABE schemes
 	*@tparam Element ring element
 	*/
@@ -361,7 +332,7 @@ namespace lbcrypto{
     		virtual void Encrypt(shared_ptr<ABECoreParams<Element>> m_params,
                                  const ABECoreMasterPublicKey<Element> & mpk,
                                  const ABECoreAccessPolicy<Element> & ap,
-                                 const ABECorePlaintext<Element> & ptext,
+                                 Element ptext,
                                  ABECoreCiphertext<Element>* ctext){};
             /*
     		*@brief Method for encryption phase of an ABE cycle, tailored to the case where target audience is not known beforehand
@@ -371,7 +342,7 @@ namespace lbcrypto{
     		*/
     		virtual void Encrypt(shared_ptr<ABECoreParams<Element>> m_params,
                                  const ABECoreMasterPublicKey<Element> & mpk,
-                                 const ABECorePlaintext<Element> & ptext,
+                                 Element ptext,
                                  ABECoreCiphertext<Element>* ctext){};
     		/*
     		*@brief Method for decryption phase of an ABE cycle
@@ -386,7 +357,7 @@ namespace lbcrypto{
                                  const ABECoreAccessPolicy<Element> & ua,
                                  const ABECoreSecretKey<Element> & sk, 
                                  const ABECoreCiphertext<Element> & ctext, 
-                                 ABECorePlaintext<Element>* ptext){};
+                                 Element* ptext){};
             /*
     		*@brief Method for decryption phase of an ABE cycle, tailored to the case where target audience is not known beforehand
     		*@param sk Secret key to be used for decryption
@@ -396,7 +367,7 @@ namespace lbcrypto{
     		virtual void Decrypt(shared_ptr<ABECoreParams<Element>> m_params,
                                  const ABECoreSecretKey<Element> & sk, 
                                  const ABECoreCiphertext<Element> & ctext, 
-                                 ABECorePlaintext<Element>* ptext){};
+                                 Element* ptext){};
             protected:
                /**
              *@brief Dummy method to achieve abstract base class

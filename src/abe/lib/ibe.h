@@ -45,9 +45,10 @@ namespace lbcrypto{
             @brief Constructor for ABE core params
             @param tparams Parameters related to trapdoor
             @param dug Discrete Uniform Generator used to generate random numbers
+            @param encParams Encoding params used
             @param ell Number of attributes
             */
-            IBEParams(shared_ptr<RLWETrapdoorParams<Element>> tparams,typename Element::DugType& dug):ABECoreParams<Element>(tparams,dug,1){}
+            IBEParams(shared_ptr<RLWETrapdoorParams<Element>> tparams,typename Element::DugType& dug,const EncodingParams & encParams):ABECoreParams<Element>(tparams,dug,encParams,1){}
         protected:    
         /**
              *@brief Overloaded dummy method 
@@ -166,32 +167,6 @@ namespace lbcrypto{
             //User id represented in element form
             Element m_id;
             /**
-             *@brief Overloaded dummy method 
-             */
-            void forceImplement(){};
-    };
-     /*
-	*@brief Templated class for plaintext in IBE scheme derived from main ABE one
-	*@tparam Element ring element
-	*/
-    template <class Element>
-    class IBEPlaintext:public ABECorePlaintext<Element>{
-        public:
-        	/*
-        	*@brief Default destructor
-        	*/
-            ~IBEPlaintext(){}
-             /*
-        	*@brief Default constructor
-        	*/
-            IBEPlaintext(){}
-             /*
-            *@brief Constructor for plaintext
-            *@param ptext Actual plaintext in form of a ring element
-            */
-            IBEPlaintext(const Element & ptext):ABECorePlaintext<Element>(ptext){}
-        protected:
-        /**
              *@brief Overloaded dummy method 
              */
             void forceImplement(){};
@@ -334,7 +309,7 @@ namespace lbcrypto{
     		void Encrypt(shared_ptr<ABECoreParams<Element>> m_params,
                          const ABECoreMasterPublicKey<Element> & mpk, 
                          const ABECoreAccessPolicy<Element> & ap, 
-                         const ABECorePlaintext<Element> & ptext,
+                         Element ptext,
                          ABECoreCiphertext<Element> * ctext);
     		/*
     		*@brief Method for decryption phase of an IBE cycle
@@ -350,7 +325,7 @@ namespace lbcrypto{
                          const ABECoreAccessPolicy<Element> & ua,
                          const ABECoreSecretKey<Element> & sk,  
                          const ABECoreCiphertext<Element> & ctext, 
-                         ABECorePlaintext<Element>* ptext);
+                         Element* ptext);
             /*
     		*@brief Method for decryption phase of an IBE cycle, assumes that ciphertext was evaluated under the identifier beforehand
             *@param m_params Parameters used in operations
@@ -361,7 +336,7 @@ namespace lbcrypto{
     		void Decrypt(shared_ptr<ABECoreParams<Element>> m_params,
                          const ABECoreSecretKey<Element> & sk,  
                          const ABECoreCiphertext<Element> & ectext, 
-                         ABECorePlaintext<Element>* ptext);
+                         Element* ptext);
     	protected:
         /**
              *@brief Overloaded dummy method 

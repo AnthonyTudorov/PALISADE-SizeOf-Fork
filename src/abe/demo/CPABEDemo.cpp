@@ -66,19 +66,18 @@ int main(){
     CPABESecretKey<NativePoly> sk;
 	context.KeyGen(msk,mpk,ua,&sk);
     
-    //Create a random plaintext
-    CPABEPlaintext<NativePoly> pt(context.GenerateRandomBinaryElement());
+    //Create a plaintext
+    std::vector<int64_t> vectorOfInts = { 1,0,0,1,1,0,1,0, 1, 0};
+    Plaintext pt = context.MakeCoefPackedPlaintext(vectorOfInts);
     
     //Encrypt the plaintext
     CPABECiphertext<NativePoly> ct;
 	context.Encrypt(mpk,ap,pt,&ct);
     
     //Decrypt the ciphertext
-    CPABEPlaintext<NativePoly> dt;
-	context.Decrypt(ap,ua,sk,ct,&dt);
-
+	Plaintext dt = context.Decrypt(ap,ua,sk,ct);
     //Check if original plaintext and decrypted plaintext match
-    if(pt.GetPText()==dt.GetPText()){
+    if(pt->GetElement<NativePoly>() == dt->GetElement<NativePoly>()){
         std::cout<<"Encryption & decryption successful"<<std::endl;
     }else{
         std::cout<<"Encryption & decryption failed"<<std::endl;
