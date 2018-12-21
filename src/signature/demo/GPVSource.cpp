@@ -28,27 +28,48 @@
 
 using namespace lbcrypto;
     int main(){
-        //We generate a signature context and make it a GPV context with security level
+    	std::cout<<"This is a demo file of the GPV signature scheme"<<std::endl<<std::endl;
+        //We generate a signature context and make it a GPV context with ring size, you can also explicitly define ringsize, modulus bitwidth and base
         SignatureContext<Poly> context;
-        context.GenerateGPVContext(1024);
+        usint ringsize = 1024;
+        std::cout<<"Used ring size for calculations: "<<ringsize<<std::endl;
+        std::cout<<"Generating context for GPV signature"<<std::endl<<std::endl;
+        context.GenerateGPVContext(ringsize);
         
         //Create our sign and verification keys and generate them
         GPVVerificationKey<Poly> vk;
         GPVSignKey<Poly> sk;
+        std::cout<<"Generating signing and verification keys"<<std::endl;
+        double duration = 0.0;
+        TimeVar t1;
+        TIC(t1);
         context.KeyGen(&sk,&vk);
-        
+        duration = TOC(t1);
+        std::cout<<"Keygen: "<<duration<<" ms"<<std::endl<<std::endl;
         //Create different plaintexts
         GPVPlaintext<Poly> plaintext, plaintext2;
-        plaintext.SetPlaintext("This is a test");
-        plaintext2.SetPlaintext("This is the wrong one");
+        string pt1 = "This is a test";
+        string pt2 = "This is the wrong one";
+        std::cout<<"First plaintext: "<<pt1<<std::endl;
+        std::cout<<"Second plaintext: "<<pt2<<std::endl<<std::endl;
+        plaintext.SetPlaintext(pt1);
+        plaintext2.SetPlaintext(pt2);
         
+
         //Sign the first plaintext with generated keys
         GPVSignature<Poly> signature;
+        std::cout<<"Signing first plaintext"<<std::endl;
+        TIC(t1);
         context.Sign(plaintext,sk,vk,&signature);
-        
+        duration = TOC(t1);
+        std::cout<<"Signing: "<<duration<<" ms"<<std::endl<<std::endl;
         //Try to verify the signature with two different plaintexts
+        std::cout<<"Trying to verify the signature with first plaintext and second plaintext"<<std::endl;
+        TIC(t1);
         bool result1 = context.Verify(plaintext,signature,vk);
         bool result2 = context.Verify(plaintext2,signature,vk);
+        duration = TOC(t1);
+        std::cout<<"Average verify time: "<<duration / 2.0 <<" ms"<<std::endl<<std::endl;
         
         //Show the verification results
         std::cout<<"Verif result 1: "<<result1<<std::endl;

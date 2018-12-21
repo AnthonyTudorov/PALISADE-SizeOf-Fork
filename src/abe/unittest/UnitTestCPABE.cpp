@@ -112,82 +112,43 @@ TEST(UTCPABE, cp_abe_128_poly_8) {
 TEST(UTCPABE, cp_abe_128_native_8) {
 	UnitTestCPABE<NativePoly>(HEStd_128_classic,8);
 }
-TEST(UTCPABE, cp_abe_128_poly_16) {
-	UnitTestCPABE<Poly>(HEStd_128_classic,16);
-}
 TEST(UTCPABE, cp_abe_128_native_16) {
 	UnitTestCPABE<NativePoly>(HEStd_128_classic,16);
-}
-TEST(UTCPABE, cp_abe_128_poly_20) {
-	UnitTestCPABE<Poly>(HEStd_128_classic,20);
 }
 TEST(UTCPABE, cp_abe_128_native_20) {
 	UnitTestCPABE<NativePoly>(HEStd_128_classic,20);
 }
-TEST(UTCPABE, cp_abe_128_poly_32) {
-	UnitTestCPABE<Poly>(HEStd_128_classic,32);
-}
 TEST(UTCPABE, cp_abe_128_native_32) {
 	UnitTestCPABE<NativePoly>(HEStd_128_classic,32);
 }
-//Test for 192 bit security and 6,8,16,20,32 attributes
-TEST(UTCPABE, cp_abe_192_poly_6) {
-	UnitTestCPABE<Poly>(HEStd_192_classic,6);
-}
+//Test for 192 bit security and 6,8,16,20,32 attributes native poly only
 TEST(UTCPABE, cp_abe_192_native_6) {
 	UnitTestCPABE<NativePoly>(HEStd_192_classic,6);
-}
-TEST(UTCPABE, cp_abe_192_poly_8) {
-	UnitTestCPABE<Poly>(HEStd_192_classic,8);
 }
 TEST(UTCPABE, cp_abe_192_native_8) {
 	UnitTestCPABE<NativePoly>(HEStd_192_classic,8);
 }
-TEST(UTCPABE, cp_abe_192_poly_16) {
-	UnitTestCPABE<Poly>(HEStd_192_classic,16);
-}
 TEST(UTCPABE, cp_abe_192_native_16) {
 	UnitTestCPABE<NativePoly>(HEStd_192_classic,16);
-}
-TEST(UTCPABE, cp_abe_192_poly_20) {
-	UnitTestCPABE<Poly>(HEStd_192_classic,20);
 }
 TEST(UTCPABE, cp_abe_192_native_20) {
 	UnitTestCPABE<NativePoly>(HEStd_192_classic,20);
 }
-TEST(UTCPABE, cp_abe_192_poly_32) {
-	UnitTestCPABE<Poly>(HEStd_192_classic,32);
-}
 TEST(UTCPABE, cp_abe_192_native_32) {
 	UnitTestCPABE<NativePoly>(HEStd_192_classic,32);
 }
-//Test for 256 bit security and 6,8,16,20,32 attributes
-TEST(UTCPABE, cp_abe_256_poly_6) {
-	UnitTestCPABE<Poly>(HEStd_256_classic,6);
-}
+//Test for 256 bit security and 6,8,16,20,32 attributes native poly only
 TEST(UTCPABE, cp_abe_256_native_6) {
 	UnitTestCPABE<NativePoly>(HEStd_256_classic,6);
-}
-TEST(UTCPABE, cp_abe_256_poly_8) {
-	UnitTestCPABE<Poly>(HEStd_256_classic,8);
 }
 TEST(UTCPABE, cp_abe_256_native_8) {
 	UnitTestCPABE<NativePoly>(HEStd_256_classic,8);
 }
-TEST(UTCPABE, cp_abe_256_poly_16) {
-	UnitTestCPABE<Poly>(HEStd_256_classic,16);
-}
 TEST(UTCPABE, cp_abe_256_native_16) {
 	UnitTestCPABE<NativePoly>(HEStd_256_classic,16);
 }
-TEST(UTCPABE, cp_abe_256_poly_20) {
-	UnitTestCPABE<Poly>(HEStd_256_classic,20);
-}
 TEST(UTCPABE, cp_abe_256_native_20) {
 	UnitTestCPABE<NativePoly>(HEStd_256_classic,20);
-}
-TEST(UTCPABE, cp_abe_256_poly_32) {
-	UnitTestCPABE<Poly>(HEStd_256_classic,32);
 }
 TEST(UTCPABE, cp_abe_256_native_32) {
 	UnitTestCPABE<NativePoly>(HEStd_256_classic,32);

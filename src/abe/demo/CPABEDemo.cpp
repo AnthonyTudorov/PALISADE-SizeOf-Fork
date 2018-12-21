@@ -30,15 +30,31 @@
 using namespace lbcrypto;
 int main(){
     //Create context under security level and number of attributes
-    ABEContext<NativePoly> context;
-    context.GenerateCPABEContext(6,1024,64);
+	std::cout<<"This is a demo file of the CPABE scheme"<<std::endl<<std::endl;
+	usint ringsize = 1024;
+	usint numAttributes = 6;
+	usint base = 64;
+	TimeVar t1;
+	std::cout<<"Used parameters:"<<std::endl;
+	std::cout<<"Ring size: "<<ringsize<<std::endl;
+	std::cout<<"Number of attributes: "<<numAttributes<<std::endl;
+	std::cout<<"Base: "<<base<<std::endl<<std::endl;
+
+	ABEContext<NativePoly> context;
+	std::cout<<"Generating a context under these parameters"<<std::endl<<std::endl;
+    context.GenerateCPABEContext(numAttributes,ringsize,base);
     
+    std::cout<<"Generating master secret key and master public key"<<std::endl;
     //Generate master keys
+    TIC(t1);
     CPABEMasterPublicKey<NativePoly> mpk;
 	CPABEMasterSecretKey<NativePoly> msk;
     context.Setup(&mpk,&msk);
+    double duration = TOC(t1);
+    std::cout<<"Setup: "<<duration<<" ms"<<std::endl<<std::endl;
 
     //Create a random access policy and user attribute set
+    std::cout<<" Creating access policy and user attribute sets"<<std::endl;
     std::vector<usint> s(6);
 	std::vector<int> w(6);
 
@@ -58,24 +74,40 @@ int main(){
 			w[j] = -1;
 			break;
 		}
-    
+    std::cout<<"User attribute set: "<<s<<std::endl;
+    std::cout<<"Access policy defined:"<<w<<std::endl<<std::endl;
     CPABEUserAccess<NativePoly> ua(s);
     CPABEAccessPolicy<NativePoly> ap(w);
 
     //Create the key corresponding to the access policy
     CPABESecretKey<NativePoly> sk;
+    std::cout<<"Creating secret key for the attribute set"<<std::endl;
+    TIC(t1);
 	context.KeyGen(msk,mpk,ua,&sk);
+	duration = TOC(t1);
+	std::cout<<"KeyGen: "<<duration<<" ms"<<std::endl<<std::endl;
     
     //Create a plaintext
     std::vector<int64_t> vectorOfInts = { 1,0,0,1,1,0,1,0, 1, 0};
     Plaintext pt = context.MakeCoefPackedPlaintext(vectorOfInts);
+    std::cout<<"Plaintext vector of bits: "<<vectorOfInts<<std::endl<<std::endl;
     
     //Encrypt the plaintext
+    std::cout<<"Encrypting the plaintext under the access policy"<<std::endl;
+    TIC(t1);
     CPABECiphertext<NativePoly> ct;
 	context.Encrypt(mpk,ap,pt,&ct);
+	duration = TOC(t1);
+	std::cout<<"Encryption: "<<duration<<" ms"<<std::endl<<std::endl;
     
     //Decrypt the ciphertext
+	std::cout<<"Decrpyting the ciphertext"<<std::endl;
+	TIC(t1);
 	Plaintext dt = context.Decrypt(ap,ua,sk,ct);
+	duration = TOC(t1);
+	std::cout<<"Decryption: "<<duration<<" ms"<<std::endl<<std::endl;
+
+	std::cout<<"Checking if the plaintext & decrypted text match"<<std::endl;
     //Check if original plaintext and decrypted plaintext match
     if(pt->GetElement<NativePoly>() == dt->GetElement<NativePoly>()){
         std::cout<<"Encryption & decryption successful"<<std::endl;
