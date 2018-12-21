@@ -42,7 +42,6 @@ void RunFigure1() {
 	NativeInteger firstInteger = FirstPrime<NativeInteger>(kRes, 2 * n);
 	firstInteger -= (int64_t)(2*n)*((int64_t)(1)<<(kRes/3));
 	NativeInteger q = NextPrime<NativeInteger>(firstInteger, 2 * n);
-	NativeInteger rootOfUnity(RootOfUnity<NativeInteger>(2 * n, q));
 
 	const size_t count = 100000;
 
