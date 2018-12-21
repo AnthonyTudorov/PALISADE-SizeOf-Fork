@@ -1071,8 +1071,8 @@ void EncodeData(CryptoContext<DCRTPoly> cc,
 		Plaintext* y)
 {
 	Plaintext ptx;
-	vector<vector<uint64_t>> xmat;
-	vector<uint64_t> yvec;
+	vector<vector<int64_t>> xmat;
+	vector<int64_t> yvec;
 
 	for(size_t i = 0; i < dataColumns.size(); i++)
 		xmat.push_back({});
@@ -1127,8 +1127,13 @@ void CRTInterpolate(const vector<shared_ptr<Matrix<Plaintext>>>& crtVector,
 		for(size_t j = 0; j < result.GetCols(); j++) {
 			NativeInteger value = 0;
 			for(size_t i = 0; i < crtVector.size(); i++) {
-				// std::cout << crtVector[i](k,j)[0] <<std::endl;
-				value += ((NativeInteger((*crtVector[i])(k, j)->GetPackedValue()[0]) * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
+				NativeInteger tempValue;
+				if ((*crtVector[i])(k, j)->GetPackedValue()[0] < 0)
+					tempValue = NativeInteger(q[i]-NativeInteger((uint64_t)std::llabs((*crtVector[i])(k, j)->GetPackedValue()[0])));
+				else
+					tempValue = NativeInteger((*crtVector[i])(k, j)->GetPackedValue()[0]);
+
+				value += ((tempValue * qInverse[i]).Mod(q[i]) * Q / q[i]).Mod(Q);
 			}
 			result(k, j) = value.Mod(Q);
 		}

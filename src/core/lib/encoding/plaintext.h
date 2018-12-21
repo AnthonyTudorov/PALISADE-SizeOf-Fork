@@ -233,12 +233,11 @@ public:
 	virtual const int64_t			GetIntegerValue() const { throw std::logic_error("not an integer"); }
 	virtual const int64_t			GetScalarValue() const { throw std::logic_error("not a scalar"); }
 	virtual const vector<int64_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
-	virtual const vector<uint64_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const vector<int64_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 
 	virtual void SetStringValue(const std::string&) { throw std::logic_error("does not support a string"); }
 	virtual void SetIntegerValue(const int64_t) { throw std::logic_error("does not support an integer"); }
 	virtual void SetIntVectorValue(const vector<int64_t>&) { throw std::logic_error("does not support an int vector"); }
-	virtual void SetUintVectorValue(const vector<uint64_t>&) { throw std::logic_error("does not support an unsigned int vector"); }
 	virtual void SetFractionalValues(int64_t scalar, size_t divisorBits = 0) { throw std::logic_error("does not support a fractional value"); }
 
 	/**

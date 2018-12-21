@@ -49,7 +49,7 @@ namespace glmcrypto{
 
 	void GLMClient::SetGLMParams(const boost::python::list& pythonList){
 
-		std::vector<uint64_t> glmParamVector = pythonListToCppIntVector(pythonList);
+		std::vector<int64_t> glmParamVector = pythonListToCppIntVector(pythonList);
 		vectorToGlmParams(glmParam, glmParamVector);
 	}
 
@@ -174,7 +174,7 @@ namespace glmcrypto{
 		//This prevents problems in OpenMP threading.
 		for(size_t k = 0; k < glmParam.PLAINTEXTPRIMESIZE; k++) {
 
-			std::vector<uint64_t> vectorOfInts1;
+			std::vector<int64_t> vectorOfInts1;
 			vectorOfInts1.push_back(0);
 
 			Plaintext intArray1 = context.cc[k]->MakePackedPlaintext(vectorOfInts1);
@@ -194,7 +194,7 @@ namespace glmcrypto{
 
 	void GLMServer::SetGLMParams(const boost::python::list& pythonList){
 
-		std::vector<uint64_t> glmParamVector = pythonListToCppIntVector(pythonList);
+		std::vector<int64_t> glmParamVector = pythonListToCppIntVector(pythonList);
 		vectorToGlmParams(glmParam, glmParamVector);
 	}
 
@@ -223,12 +223,12 @@ namespace glmcrypto{
 ////////////////////////////    UTIL    /////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-	vector<uint64_t> pythonListToCppIntVector(const boost::python::list& pythonList) {
+	vector<int64_t> pythonListToCppIntVector(const boost::python::list& pythonList) {
 
-		vector<uint64_t> cppVector;
+		vector<int64_t> cppVector;
 
 		for (unsigned int i = 0; i < len(pythonList); i++) {
-			cppVector.push_back(boost::python::extract<uint64_t>(pythonList[i]));
+			cppVector.push_back(boost::python::extract<int64_t>(pythonList[i]));
 		}
 
 		return cppVector;
@@ -245,7 +245,7 @@ namespace glmcrypto{
 		return cppVector;
 	}
 
-	void vectorToGlmParams(glmParams &g, vector<uint64_t> &l){
+	void vectorToGlmParams(glmParams &g, vector<int64_t> &l){
 
 		g.MAXVALUE = l[0];
 		g.PRECISION = l[1];

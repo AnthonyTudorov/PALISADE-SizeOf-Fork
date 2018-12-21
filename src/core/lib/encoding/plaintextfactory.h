@@ -190,27 +190,6 @@ public:
 		return pt;
 	}
 
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetUintVectorValue(value);
-		pt->Encode();
-		return pt;
-	}
-
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<NativePoly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetUintVectorValue(value);
-		pt->Encode();
-		return pt;
-	}
-
-	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, const vector<uint64_t>& value) {
-		Plaintext pt = MakePlaintext(encoding, vp, ep);
-		pt->SetUintVectorValue(value);
-		pt->Encode();
-		return pt;
-	}
-
 	static Plaintext MakePlaintext(PlaintextEncodings encoding, shared_ptr<Poly::Params> vp, EncodingParams ep, int64_t scalar, size_t divisorBits) {
 		Plaintext pt = MakePlaintext(encoding, vp, ep);
 		pt->SetFractionalValues(scalar,divisorBits);

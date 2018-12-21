@@ -28,7 +28,7 @@ public:
 BOOST_PYTHON_MODULE(pycrypto) {
 
 	// Whenever a vector<int> is returned by a function, it will automatically be converted to a Python list.
-	to_python_converter<vector<uint64_t>, cppVectorToPythonList<uint64_t> >();
+	to_python_converter<vector<int64_t>, cppVectorToPythonList<int64_t> >();
 	to_python_converter<vector<double>, cppVectorToPythonList<double> >();
 
     // no_init tells boost.python that Ciphertext's constructor shouldn't be accessed by the Python interface.

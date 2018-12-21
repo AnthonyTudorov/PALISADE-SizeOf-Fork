@@ -97,11 +97,11 @@ cout << "Here is the context I am using: " << *info.cryptocontext->GetCryptoPara
 		return 0;
 	}
 	
-	vector<uint64_t> *v = new vector<uint64_t>();
+	vector<int64_t> *v = new vector<int64_t>();
 	v->push_back(86);
 cout << "Here's my vector" << *v << endl;
 	Ciphertext<Poly> ciphertext;
-	vector<uint64_t> vectorOfInts = move(*v);
+	vector<int64_t> vectorOfInts = move(*v);
 	Plaintext intArray = info.cryptocontext->MakePackedPlaintext(vectorOfInts);
 cout << "I am about to encrypt this: " << intArray << endl;
 
@@ -237,15 +237,15 @@ int encrypt_content( string& content_file ) {
 		return 0;
 	}
 	while ( file.good() ) {	
-		vector<uint64_t> *v = new vector<uint64_t>();
+		vector<int64_t> *v = new vector<int64_t>();
 		getline ( file, value ); 
 		tokens = split(value, ',');
-		for ( vector<uint64_t>::size_type i = 0; i != tokens.size(); i++ ) {
+		for ( vector<int64_t>::size_type i = 0; i != tokens.size(); i++ ) {
 			v->push_back(tokens[i]);
 		}
 
 		Ciphertext<Poly> ciphertext;
-		vector<uint64_t> vectorOfInts = move(*v);
+		vector<int64_t> vectorOfInts = move(*v);
 		Plaintext intArray = info.cryptocontext->MakePackedPlaintext(vectorOfInts); // TODO INCORPORATE NEGATIVE VALUES AS WELL
 	
 		ciphertext = info.cryptocontext->Encrypt(info.keypair.publicKey, intArray);
