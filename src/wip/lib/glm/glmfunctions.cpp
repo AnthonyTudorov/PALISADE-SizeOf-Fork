@@ -1982,8 +1982,6 @@ void CRTInterpolate(const std::vector<Matrix<Plaintext>> &crtVector, Matrix<BigI
 		for (size_t j = 0; j < result.GetCols(); j++)
 		{
 			BigInteger value = 0;
-			for (size_t i = 0; i < crtVector.size(); i++)
-				value += ((BigInteger(crtVector[i](k,j)->GetPackedValue()[0])*qInverse[i]).Mod(q[i])*(qI[i])); //.Mod(Q);
 
 			for(size_t i = 0; i < crtVector.size(); i++) {
 				BigInteger tempValue;
