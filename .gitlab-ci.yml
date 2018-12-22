@@ -133,10 +133,86 @@ build_benchmark:
       - bin/benchmark
     expire_in: 1 day
 
-unit_test:
+test_abe:
   stage: unit_test
   script:
-  - ./bin/unittest/tests -t
+  - ./bin/unittest/abe/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_circuit:
+  stage: unit_test
+  script:
+  - ./bin/unittest/circuit/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_core:
+  stage: unit_test
+  script:
+  - ./bin/unittest/core/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_pke:
+  stage: unit_test
+  script:
+  - ./bin/unittest/pke/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_signature:
+  stage: unit_test
+  script:
+  - ./bin/unittest/signature/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_trapdoor:
+  stage: unit_test
+  script:
+  - ./bin/unittest/trapdoor/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - build_tpp
+  - build
+
+test_wip:
+  stage: unit_test
+  script:
+  - ./bin/unittest/wip/tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
   dependencies:
   - build_tpp
   - build
