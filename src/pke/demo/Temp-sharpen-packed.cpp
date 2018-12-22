@@ -358,8 +358,8 @@ void Encrypt(size_t size) {
 
 	vector<Plaintext> plaintext;
 
-	vector<uint64_t> ptxtVector(batchSize);
-	vector<uint64_t> ptxtVectorTemp(batchSize);
+	vector<int64_t> ptxtVector(batchSize);
+	vector<int64_t> ptxtVectorTemp(batchSize);
 
 	size_t counter = 0;
 
@@ -374,7 +374,7 @@ void Encrypt(size_t size) {
 			counter++;
 			if (((i*width+k+slack)%batchSize==0)&&(i+k)>0) {
 				plaintext.push_back(cryptoContext->MakePackedPlaintext(ptxtVector));
-				ptxtVectorTemp = std::vector<uint64_t>(batchSize);
+				ptxtVectorTemp = std::vector<int64_t>(batchSize);
 				for (int j = 0; j < 2*width; j++)
 					ptxtVectorTemp[j] = ptxtVector[batchSize-2*width+j];
 				slack += 2*width;
@@ -493,16 +493,16 @@ void Evaluate(size_t size)
 
 	TIC(t1);
 
-	vector<uint64_t> eight(batchSize,8);
+	vector<int64_t> eight(batchSize,8);
 	Plaintext ptxtEight = cryptoContext->MakePackedPlaintext(eight);
 
-	vector<uint64_t> two(batchSize,2);
+	vector<int64_t> two(batchSize,2);
 	Plaintext ptxtTwo = cryptoContext->MakePackedPlaintext(two);
 
-	vector<uint64_t> one(batchSize,1);
+	vector<int64_t> one(batchSize,1);
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
-	vector<uint64_t> mask(batchSize);
+	vector<int64_t> mask(batchSize);
 	for (int i=0; i < batchSize; i++)
 	{
 		if ((i>width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=width-1))
@@ -661,7 +661,7 @@ void Decrypt(size_t size) {
 	usint half = ptm >> 1;
 	for(size_t i = 0; i < result.size(); i++)
 	{
-		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
+		vector<int64_t> vectorRes = result[i]->GetPackedValue();
 
 		std::cout << " [ ";
 		for(size_t k = 0; k < std::min(batchSize,width*height); k++) {
@@ -680,7 +680,7 @@ void Decrypt(size_t size) {
 	unsigned char *data = new unsigned char[height*width];
 	for(size_t i = 0; i < height; i++)
 	{
-		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
+		vector<int64_t> vectorRes = result[i]->GetPackedValue();
 		for(size_t k = 0; k < width; k++) {
 			if( vectorRes[k] > half )
 				data[i*width + k] = std::floor((int)(vectorRes[k]-ptm)/2);
@@ -753,8 +753,8 @@ void Sharpen() {
 
 	vector<Plaintext> plaintext;
 
-	vector<uint64_t> ptxtVector(batchSize);
-	vector<uint64_t> ptxtVectorTemp(batchSize);
+	vector<int64_t> ptxtVector(batchSize);
+	vector<int64_t> ptxtVectorTemp(batchSize);
 
 	size_t counter = 0;
 
@@ -769,7 +769,7 @@ void Sharpen() {
 			counter++;
 			if (((i*width+k+slack)%batchSize==0)&&(i+k)>0) {
 				plaintext.push_back(cryptoContext->MakePackedPlaintext(ptxtVector));
-				ptxtVectorTemp = std::vector<uint64_t>(batchSize);
+				ptxtVectorTemp = std::vector<int64_t>(batchSize);
 				for (int j = 0; j < 2*width; j++)
 					ptxtVectorTemp[j] = ptxtVector[batchSize-2*width+j];
 				slack += 2*width;
@@ -788,16 +788,16 @@ void Sharpen() {
 	for(size_t i = 0; i < plaintext.size(); i++)
 		image[i] = cryptoContext->Encrypt(keyPair.publicKey, plaintext[i]);
 
-	vector<uint64_t> eight(batchSize,8);
+	vector<int64_t> eight(batchSize,8);
 	Plaintext ptxtEight = cryptoContext->MakePackedPlaintext(eight);
 
-	vector<uint64_t> two(batchSize,2);
+	vector<int64_t> two(batchSize,2);
 	Plaintext ptxtTwo = cryptoContext->MakePackedPlaintext(two);
 
-	vector<uint64_t> one(batchSize,1);
+	vector<int64_t> one(batchSize,1);
 	Plaintext ptxtOne = cryptoContext->MakePackedPlaintext(one);
 
-	vector<uint64_t> mask(batchSize);
+	vector<int64_t> mask(batchSize);
 	for (size_t i = 0; i < batchSize; i++)
 	{
 		if ((i>(size_t)width)&&(i<batchSize-width)&&(i%width!=0)&&(i%width!=(size_t)width-1))
@@ -834,7 +834,7 @@ void Sharpen() {
 
 	for(size_t i = 0; i < result.size(); i++)
 	{
-		vector<uint64_t> vectorRes = result[i]->GetPackedValue();
+		vector<int64_t> vectorRes = result[i]->GetPackedValue();
 
 		usint half = ptm >> 1;
 
