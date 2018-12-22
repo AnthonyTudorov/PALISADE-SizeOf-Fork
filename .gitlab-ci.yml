@@ -43,10 +43,52 @@ sast:
   allow_failure: true
   dependencies: []
 
-check:
+check_abe:
   stage: test
   script:
-  - cppcheck -j $(nproc) src/
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/abe/lib
+  allow_failure: true
+  dependencies: []
+
+check_circuit:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/circuit/lib
+  allow_failure: true
+  dependencies: []
+
+check_core:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/core/lib
+  allow_failure: true
+  dependencies: []
+
+check_pke:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/pke/lib
+  allow_failure: true
+  dependencies: []
+
+check_signature:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/signature/lib
+  allow_failure: true
+  dependencies: []
+
+check_trapdoor:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/trapdoor/lib
+  allow_failure: true
+  dependencies: []
+
+check_wip:
+  stage: test
+  script:
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/wip/lib
   allow_failure: true
   dependencies: []
 
