@@ -28,7 +28,7 @@
 
 #include "math/matrix.h"
 #include "math/discretegaussiangenerator.h"
-#include "../sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 #include "subgaussian.h"
 
 #ifndef LBCRYPTO_SUBGAUSSIAN_GSW_H

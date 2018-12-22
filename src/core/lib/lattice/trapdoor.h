@@ -1,5 +1,6 @@
 /**
  * @file trapdoor.h Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -32,10 +33,6 @@
 
 namespace lbcrypto {
 
-  //typedef Matrix<Poly> Matrix<Poly>;
-  //typedef Matrix<DCRTPoly> Matrix<DCRTPoly>;
-  //typedef Matrix<NativePoly> NativeMatrix<Poly>;
-
 /**
 * @brief Class to store a lattice trapdoor pair generated using construction 1 in section 3.2 of https://eprint.iacr.org/2013/297.pdf
 * This construction is based on the hardness of Ring-LWE problem
@@ -43,13 +40,13 @@ namespace lbcrypto {
 template <class Element>
 class RLWETrapdoorPair {
 public:
-	// matrix of noise polyanomials
+	// matrix of noise polynomials
 	Matrix<Element> m_r;
 	// matrix
 	Matrix<Element> m_e;
 	//CTOR with empty trapdoor pair for deserialization
         RLWETrapdoorPair(): m_r(Matrix<Element> ([](){ return Element(); }, 0,0)),
-	  m_e(Matrix<Element> ([](){ return Element(); }, 0,0)) {};
+        		m_e(Matrix<Element> ([](){ return Element(); }, 0,0)) {};
 
         RLWETrapdoorPair(const Matrix<Element> &r, const Matrix<Element> &e): m_r(r), m_e(e) {};
 };
@@ -74,7 +71,7 @@ public:
 			double stddev, int64_t base = 2, bool bal = false);
 
 	/**
-	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation...")
+	* Generalized trapdoor generation method (described in "Implementing Token-Based Obfuscation under (Ring) LWE")
 	*
 	* @param params ring element parameters
 	* @param sttdev distribution parameter used in sampling noise polynomials of the trapdoor
@@ -104,7 +101,7 @@ public:
 		typename Element::DggType &dgg, typename Element::DggType &dggLargeSigma, int64_t base = 2);
 
 	/**
-	* Gaussian sampling (described in "Implementing Token-Based Obfuscation...")
+	* Gaussian sampling (described in "Implementing Token-Based Obfuscation under (Ring) LWE")
 	*
 	* @param n ring dimension
 	* @param k matrix sample dimension; k = log2(q)/log2(base) + 2
@@ -153,7 +150,7 @@ public:
 		int64_t base = 2);
 
 	/**
-	* New method for perturbation generation as described in Algorithm 4 of https://eprint.iacr.org/2017/844.pdf
+	* Method for perturbation generation as described in Algorithm 4 of https://eprint.iacr.org/2017/844.pdf
 	*
 	*@param n ring dimension
 	*@param s parameter Gaussian distribution
@@ -232,7 +229,7 @@ public:
 				// otherwise, use Karney's method
 				if (sigmaLarge > KARNEY_THRESHOLD) {
 
-					//Karney rejection method
+					//Karney rejection sampling method
 					for (size_t i = 0; i < n * k; i++) {
 						p2ZVector(i, 0) = dgg.GenerateIntegerKarney(0, sigmaLarge);
 					}
@@ -240,7 +237,7 @@ public:
 				else
 				{
 
-					//Peikert's inversion method
+					//Peikert's inversion sampling method
 					std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k);
 
 					for (size_t i = 0; i < n * k; i++) {
@@ -260,10 +257,7 @@ public:
 				p2.SwitchFormat();
 
 				DEBUG("z1g: "<<TOC(t1));  //17
-				TIC(t1);
 
-				//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
-				DEBUG("z1h1: "<<TOC(t1));
 				TIC(t1);
 
 				//the dimension is 2x1 - a vector of 2 ring elements
@@ -309,10 +303,10 @@ public:
 			}
 
 	/**
-		* New method for perturbation generation as described in "Implementing Token-Based Obfuscation..."
+		* Method for perturbation generation as described in "Implementing Token-Based Obfuscation under (Ring) LWE"
 		*
 		*@param n ring dimension
-		*@param s parameter Gaussian distribution
+		*@param s spectral norm
 		*@param sigma standard deviation
 		*@param &Tprime compact trapdoor matrix
 		*@param &dgg discrete Gaussian generator for error sampling
@@ -337,11 +331,11 @@ public:
 
 				double sigmaLarge = sqrt(s * s - sigma * sigma);
 
-				// for distribution parameters up to 3e5 (experimentally found threshold) use the Peikert's inversion method
+				// for distribution parameters up to the experimentally found threshold, use the Peikert's inversion method
 				// otherwise, use Karney's method
 				if (sigmaLarge > KARNEY_THRESHOLD) {
 
-					//Karney rejection method
+					//Karney rejection sampling method
 					for (size_t i = 0; i < n * k; i++) {
 						for (size_t j = 0; j < d; j ++) {
 							p2ZVector(i, j) = dgg.GenerateIntegerKarney(0, sigmaLarge);
@@ -351,7 +345,7 @@ public:
 				else
 				{
 
-					//Peikert's inversion method
+					//Peikert's inversion sampling method
 					std::shared_ptr<int32_t> dggVector = dggLargeSigma.GenerateIntVector(n*k*d);
 
 					for (size_t i = 0; i < n * k; i++) {
@@ -370,8 +364,6 @@ public:
 
 				//now converting to evaluation representation before multiplication
 				p2.SwitchFormat();
-
-				//Matrix<Element> TprimeMatrix = Tprime0.VStack(Tprime1);
 
 				auto zero_alloc = Element::Allocator(params, EVALUATION);
 
@@ -405,12 +397,6 @@ public:
 					}
 				}
 
-				/*if (d==2) {
-					std::cerr << AF << std::endl;
-					std::cerr << BF << std::endl;
-					std::cerr << DF << std::endl;
-				}*/
-
 				//converts the field elements to DFT representation
 				AF.SwitchFormat();
 				BF.SwitchFormat();
@@ -435,15 +421,7 @@ public:
 
 					shared_ptr<Matrix<int64_t>> p1ZVector(new Matrix<int64_t>([]() { return 0; }, n * 2 * d, 1));
 
-					//if (d==2) {
-					//	std::cerr << " c= " << c << std::endl;
-					//}
-
 					LatticeGaussSampUtility<Element>::SampleMat(AF,BF,DF, c, dgg, p1ZVector);
-
-					//if (d==2) {
-					//	std::cerr << " p1ZVector = " << *p1ZVector << std::endl;
-					//}
 
 					if (j == 0)
 						p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, params);
@@ -458,12 +436,6 @@ public:
 				*perturbationVector = p1.VStack(p2);
 
 				p1.SwitchFormat();
-				//p2.SwitchFormat();
-
-				/*if (d==2) {
-					std::cerr << "p1 = " << p1 << std::endl;
-					std::cerr << "p2 = " << p2 << std::endl;
-				}*/
 
 			}
 

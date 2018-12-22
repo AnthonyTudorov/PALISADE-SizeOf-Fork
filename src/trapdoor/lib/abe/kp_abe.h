@@ -47,7 +47,7 @@
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "../sampling/trapdoor.h"
+#include "lattice/trapdoor.h"
 #include "../subgaussian/subgaussian.h"
 /**
  * @namespace lbcrypto

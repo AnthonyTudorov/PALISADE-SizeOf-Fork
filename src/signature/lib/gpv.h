@@ -32,106 +32,123 @@
 * This code provides the utility for GPV Ring-LWE signature scheme with trapdoors. The scheme implemented can be found in the paper https://eprint.iacr.org/2013/297.pdf. Construction 1 of the section 3.2 is used in this implementation.
 */
 
-#ifndef _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
-#define _SRC_LIB_CRYPTO_SIGNATURE_LWESIGN_H
+#ifndef SIGNATURE_LWESIGN_H
+#define SIGNATURE_LWESIGN_H
 
-#include "lattice/trapdoor.h"
+#include <cmath>
+#include <vector>
+#include "palisade.h"
+#include "cryptocontexthelper.h"
+#include "utils/inttypes.h"
+#include "math/distrgen.h"
+#include "math/backend.h"
+#include "lattice/elemparams.h"
+#include "lattice/ilparams.h"
+#include "lattice/ildcrtparams.h"
+#include "lattice/ilelement.h"
 #include "encoding/stringencoding.h"
+#include "lattice/trapdoor.h"
+#include "lattice/trapdoorparameters.h"
+#include "signaturecore.h"
 
 namespace lbcrypto {
 
 	/*
-	*  @brief Templated class for holding signatures. Although the scheme only valid for one type of scheme, implementation is done considering possible future
+	*  @brief Templated class for holding signatures.
 	*  @tparam is the ring element
 	*/
 	template <class Element>
-	class Signature {
+	class GPVSignature: public LPSignature<Element> {
 	public:
 		/**
 		* Default constructor
 		*/
-		Signature() { m_element = nullptr; }
+		GPVSignature(){
+		}
 
 		/**
 		*Method for setting the element in signature
 		*
-		*@param element Element to be set as the signature
+		*@param signature Element vector to be set as the signature
 		*/
-		void SetElement(Element element) {
-			if (m_element != nullptr) {
-				delete m_element;
-			}
-			m_element = new Element(element);
+		void SetSignature(shared_ptr<Matrix<Element>> signature) {
+			m_signature = signature;
 		}
 		/**
 		*Method for getting the element in signature
 		*
 		*@return the element held as signature
 		*/
-		const Element& GetElement() const { return *m_element; }
+		const Matrix<Element>& GetSignature() const { return *m_signature; }
 
 		/**
 		*Destructor
 		*/
-		~Signature() { delete m_element; }
+		~GPVSignature() { }
+	
 	private:
-		Element* m_element;
+		//Matrix of polynomials acting as actual signature
+		shared_ptr<Matrix<Element>> m_signature;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
-	/**
-	* @brief Abstract class for signing keys, not implemented currently
-	*
-	* @tparam is the ring element
-	*/
-	template <class Element>
-	class LPSignKey {
-	public:
-		virtual ~LPSignKey() {}
-
-		/**
-		*Method for getting the element in key
-		*
-		*@return the element held as key
-		*/
-		virtual const Element &GetPrivateElement();
-		/**
-		*Method for setting the element key
-		*
-		*@param element Element to be set as the key
-		*/
-		virtual void SetPrivateElement(Element element);
-	};
-
-	/**
-	*  @brief Abstract class for verification keys, not implemented currently
+	/*
+	*  @brief Templated class for holding signatures.
 	*  @tparam is the ring element
 	*/
 	template <class Element>
-	class LPVerificationKey {
+	class GPVPlaintext : public LPSignPlaintext<Element> {
 	public:
-		virtual ~LPVerificationKey() {}
+		/**
+		* Default constructor
+		*/
+		GPVPlaintext(){
+		}
+		/**
+		*@brief Constructor
+		*@param plaintext Plaintext to be set for signing
+		*/
+		GPVPlaintext(const string & plaintext){
+			this->m_plaintext = plaintext;
+		}
 
 		/**
-		* Method for getting the element in key
+		*Method for setting the element in plaintext
 		*
-		* @return the element held as key
+		*@param plaintext Plaintext to be set for signing
 		*/
-		virtual const Element & GetPublicElement();
+		void SetPlaintext(const string & plaintext) {
+			this->m_plaintext = plaintext;
+		}
+		/**
+		*Method for getting the element in plaintext
+		*
+		*@return the element held as plaintext
+		*/
+		const string& GetPlaintext() const { return m_plaintext; }
 
 		/**
-		*Method for setting the element key
-		*
-		*@param element Element to be set as the key
+		*Destructor
 		*/
-		virtual void SetPublicElement(const Element& element);
+		~GPVPlaintext() { }
+
+	private:
+		//String as plaintext to be signed
+		string m_plaintext;
+		/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
-
 
 	/**
 	* @brief  Class holding parameters required for calculations in signature schemes
 	*/
 	template <class Element>
-	class LPSignatureParameters {
+	class GPVSignatureParameters : public LPSignatureParameters<Element> {
 	public:
 		/**
 		*Method for setting the ILParams held in this class
@@ -148,9 +165,9 @@ namespace lbcrypto {
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
 			if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
-				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
+				m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
-				dggLargeSigma = dgg;
+				m_dggLargeSigma = m_dgg;
 		};
 
 		/**
@@ -158,14 +175,14 @@ namespace lbcrypto {
 		*
 		*@return Parameters held
 		*/
-		shared_ptr<typename Element::Params> GetILParams() { return m_params; }
+		shared_ptr<typename Element::Params> GetILParams() const{ return m_params; }
 
 		/**
 		*Method for accessing the DiscreteGaussianGenerator object held in this class
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		typename Element::DggType & GetDiscreteGaussianGenerator() { return dgg; }
+		typename Element::DggType & GetDiscreteGaussianGenerator() { return m_dgg; }
 
 		/**
 		*Method for accessing the base for Gadget matrix
@@ -186,19 +203,14 @@ namespace lbcrypto {
 		*
 		*@return DiscreteGaussianGenerator object held
 		*/
-		typename Element::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return dggLargeSigma; }
-
-		/**
-		*Default constructor
-		*/
-		LPSignatureParameters() : m_base(0), m_k(0) {}
+		typename Element::DggType & GetDiscreteGaussianGeneratorLargeSigma() { return m_dggLargeSigma; }
 
 		/**
 		*Constructor
 		*@param params Parameters used in Element construction
 		*@param dgg DiscreteGaussianGenerator used in sampling
 		*/
-		LPSignatureParameters(shared_ptr<typename Element::Params> params, typename Element::DggType dgg, usint base = 2) : dgg(dgg), m_base(base) {
+		GPVSignatureParameters(shared_ptr<typename Element::Params> params, typename Element::DggType& dgg, usint base = 2) : m_dgg(dgg), m_base(base) {
 			m_params = params;
 			const typename Element::Integer & q = params->GetModulus();
 			size_t n = params->GetRingDimension();
@@ -207,18 +219,27 @@ namespace lbcrypto {
 			double c = (base + 1) * SIGMA;
 			double s = SPECTRAL_BOUND(n, m_k, base);
 			if (sqrt(s * s - c * c) <= KARNEY_THRESHOLD)
-				dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
+				m_dggLargeSigma = typename Element::DggType(sqrt(s * s - c * c));
 			else
-				dggLargeSigma = dgg;
+				m_dggLargeSigma = m_dgg;
 		}
 
 
 	private:
+		//Parameters related to elements
 		shared_ptr<typename Element::Params> m_params;
-		typename Element::DggType dgg;
-		typename Element::DggType dggLargeSigma;
+		//Discrete Gaussian Generator for random number generation
+		typename Element::DggType m_dgg;
+		//Discrete Gaussian Generator with high distribution parameter for random number generation
+		typename Element::DggType m_dggLargeSigma;
+		//Trapdoor base
 		usint m_base;
+		//Trapdoor length
 		usint m_k;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/**
@@ -226,62 +247,51 @@ namespace lbcrypto {
 	*  @tparam is the ring element
 	*/
 	template <class Element>
-	class LPSignKeyGPVGM {
+	class GPVSignKey : public LPSignKey<Element>{
 	public:
 		/**
 		* Default constructor
 		*/
-		LPSignKeyGPVGM() { m_sk = nullptr; }
+		GPVSignKey(){
+		}
 
 		/**Constructor
 		*
-		* @param signParams parameters used in signing process
+		* @param x trapdoor pair used for signing
 		*/
-		LPSignKeyGPVGM(LPSignatureParameters<Element>&signParams) {
-			this->SetSignatureParameters(signParams);
-			m_sk = nullptr;
+		GPVSignKey(shared_ptr<RLWETrapdoorPair<Element>> x) {
+			this->m_sk = (x);
 		}
 
 		/**
 		*Destructor
 		*/
-		~LPSignKeyGPVGM() {
-			delete m_sk;
+		~GPVSignKey() {
 		}
 
-		/**
-		*Method for accessing parameters used in signing process
-		*
-		*@return Parameters used in signing
-		*/
-		LPSignatureParameters<Element> & GetSignatureParameters() { return m_signParameters; }
 
 		/**
 		*Method for accessing key in signing process
 		*
 		*@return Key used in signing
 		*/
-		const  std::pair<Matrix<Element>, RLWETrapdoorPair<Element>> & GetPrivateElement() const { return *m_sk; }
-		/**
-		*Method for setting parameters used in signing process
-		*
-		*@param signParams Parameters used in signing
-		*/
-		void SetSignatureParameters(const LPSignatureParameters<Element> & signParams) { m_signParameters = signParams; }
+		const  RLWETrapdoorPair<Element> & GetSignKey() const { return *m_sk; }
 		/**
 		*Method for setting the private key used in the signing process
 		*
-		*@param &x a pair of public key and trapdoor used for signing
+		*@param &x a trapdoor pair used for signing
 		*/
-		void SetPrivateElement(const std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>& x) {
-			if (m_sk != nullptr) {
-				delete m_sk;
-			}
-			m_sk = new std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>(x);
+		void SetSignKey(shared_ptr<RLWETrapdoorPair<Element>> x) {
+			
+			this->m_sk = (x);
 		}
 	private:
-		LPSignatureParameters<Element> m_signParameters;
-		std::pair<Matrix<Element>, RLWETrapdoorPair<Element>>* m_sk;
+		//Trapdoor pair acting as signing key
+		shared_ptr<RLWETrapdoorPair<Element>> m_sk;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 
 	/**
@@ -289,128 +299,118 @@ namespace lbcrypto {
 	* @tparam is the ring element
 	*/
 	template <class Element>
-	class LPVerificationKeyGPVGM {
+	class GPVVerificationKey: public LPVerificationKey<Element> {
 	public:
 
 		/**
 		*  Default constructor
 		*/
-		LPVerificationKeyGPVGM() { m_vk = nullptr; }
+		GPVVerificationKey(){
+		}
 
 		/**
 		* Constructor
-		* @param signParams parameters used in verification process
+		* @param vk Verification key
 		*/
-		LPVerificationKeyGPVGM(LPSignatureParameters<Element> &signParams) {
-			this->SetSignatureParameters(signParams);
-			m_vk = nullptr;
+		GPVVerificationKey(shared_ptr<Matrix<Element>> vk) {
+			this->m_vk = vk;
 		}
 
 		/**
 		*  Destructor
 		*/
-		~LPVerificationKeyGPVGM() {
-			delete m_vk;
+		~GPVVerificationKey() {
 		}
-
-		/**
-		*Method for accessing parameters used in verification process
-		*
-		*@return Parameters used in verification
-		*/
-		LPSignatureParameters<Element> & GetSignatureParameters() { return m_signParameters; }
-
 		/**
 		*Method for accessing key in verification process
 		*
 		*@return Key used in verification
 		*/
-		const Matrix<Element> & GetPublicElement() const { return *m_vk; }
-
-		/**
-		* Method for setting parameters used in verification process
-		*
-		* @param &signParams Parameters used in verification
-		*/
-		void SetSignatureParameters(const LPSignatureParameters<Element> & signParams) { m_signParameters = signParams; }
-
+		const Matrix<Element> & GetVerificationKey() const { return *m_vk; }
 		/**
 		* Method for setting key used in verification process
 		*
 		* @param x Key used in verification
 		*/
-		void SetPublicElement(const Matrix<Element>& x) {
-			if (m_vk != nullptr) {
-				delete m_vk;
-			}
-			m_vk = new Matrix<Element>(x);
+		void SetVerificationKey(shared_ptr<Matrix<Element>> x) {
+			
+			this->m_vk = x;
 		}
 	private:
-		LPSignatureParameters<Element> m_signParameters;
-		Matrix<Element>* m_vk;
+		//Public key from trapdoor acting as verification key
+		shared_ptr<Matrix<Element>> m_vk;
+			/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
-	
 	/**
 	*@brief Implementation of Ring LWE variant of GPV signature scheme. Currently it supports only one type of vectors, therefore it is not templated
 	*  @tparam is the ring element
 	*/
 	template <class Element>
-	class LPSignatureSchemeGPVGM {
+	class GPVSignatureScheme: public LPSignatureScheme<Element>{
 	public:
 		/**
 		* Default constructor
 		*/
-		LPSignatureSchemeGPVGM() : seed(0) {}
+		GPVSignatureScheme() : seed(0) {}
 
 		/**
 		*Method for signing given text
-		*@param signKey private signing key
-		*@param plainText encoding of the text to be signed
-		*@param signatureText signature generated after the signing process - output of the function
+		*@param m_params parameters for signing 
+		*@param sk private signing key
+		*@param vk public verification key
+		*@param pt encoding of the text to be signed
+		*@param sign signature generated after the signing process - output of the function
 		*/
-		void Sign(LPSignKeyGPVGM<Element> &signKey, const string &plainText,
-			Signature<Matrix<Element>>*signatureText);
+		void Sign(shared_ptr<LPSignatureParameters<Element>> m_params,const LPSignKey<Element> & sk,const LPVerificationKey<Element> &vk, const LPSignPlaintext<Element> & pt, LPSignature<Element>* sign);
 
 		/**
 		*Method for offline perturbation sampling
+		*@param m_params parameters used for signing
 		*@param signKey private signing key
 		*return perturbation vector
 		*/
-		shared_ptr<Matrix<Element>> SampleOffline(LPSignKeyGPVGM<Element> &signKey);
+		shared_ptr<Matrix<Element>> SampleOffline(shared_ptr<GPVSignatureParameters<Element>> m_params,const GPVSignKey<Element> &signKey);
 
 		/**
 		*Method for signing given text
+		*@param m_params parameters used for signing
 		*@param signKey private signing key
+		*@param verificationKey public verification key
 		*@param Pre-computed perturbation vector
 		*@param plainText encoding of the text to be signed
 		*@param signatureText signature generated after the signing process - output of the function
 		*/
-		void SignOnline(LPSignKeyGPVGM<Element> &signKey, const shared_ptr<Matrix<Element>> parturbationVector, const string &plainText,
-			Signature<Matrix<Element>>*signatureText);
+		void SignOnline(shared_ptr<GPVSignatureParameters<Element>> m_params,const GPVSignKey<Element> &signKey,const GPVVerificationKey<Element> &verificationKey, const shared_ptr<Matrix<Element>> parturbationVector, const string &plainText,
+			GPVSignature<Element> * signatureText);
 
 		/**
 		*Method for verifying given text & signature
-		*
-		*@param verificationKey public verification key
-		*@param signatureText signature to be verified
-		*@param plainText encoding of the text to be verified
+		*@param m_params parameters used for the scheme
+		*@param vk public verification key
+		*@param sign signature to be verified
+		*@param pt encoding of the text to be verified
 		*@return result of the verification process
 		*/
-		bool Verify(LPVerificationKeyGPVGM<Element> &verificationKey,
-			const Signature<Matrix<Element>> &signatureText,
-			const string& plainText);
+		bool Verify(shared_ptr<LPSignatureParameters<Element>> m_params,const LPVerificationKey<Element> & vk,
+		const LPSignature<Element> & sign, const LPSignPlaintext<Element> & pt);
 
 		/**
 		*
 		*Method for generating signing and verification keys
-		*
-		*@param signKey private signing key generated after trapdoor & perturbation matrix - output of the function
-		*@param verificationKey public verification key generated after trapdoor - output of the function
+		*@param m_params parameters used for the scheme
+		*@param sk private signing key generated after trapdoor & perturbation matrix - output of the function
+		*@param vk public verification key generated after trapdoor - output of the function
 		*/
-		void KeyGen(LPSignKeyGPVGM<Element> *signKey,
-			LPVerificationKeyGPVGM<Element> *verificationKey);
+		void KeyGen(shared_ptr<LPSignatureParameters<Element>> m_params,LPSignKey<Element>* sk, LPVerificationKey<Element>* vk);
 	private:
 		std::vector<char> seed;
+		/*
+		*@brief Overloaded dummy method
+		*/
+		void forceImplement(){} 
 	};
 }
 #endif

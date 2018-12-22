@@ -1,5 +1,6 @@
 /**
  * @file trapdoor-poly-impl.cpp Provides the utility for sampling trapdoor lattices as described in https://eprint.iacr.org/2017/844.pdf
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -256,7 +257,7 @@ namespace lbcrypto {
 			// perturbedSyndrome is in the evaluation representation
 			Poly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-	//		DEBUG("t1c: "<<TOC(t1)); //takes 2
+			DEBUG("t1c: "<<TOC(t1)); //takes 2
 			TIC(t1);
 			Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
 			DEBUG("t1d: "<<TOC(t1)); //takes 0
@@ -325,7 +326,7 @@ namespace lbcrypto {
 			// perturbedSyndrome is in the evaluation representation
 			NativePoly perturbedSyndrome = u - (A.Mult(*pHat))(0, 0);
 
-	//		DEBUG("t1c: "<<TOC(t1)); //takes 2
+			DEBUG("t1c: "<<TOC(t1)); //takes 2
 			TIC(t1);
 			Matrix<int64_t> zHatBBI([]() { return 0; }, k, n);
 			DEBUG("t1d: "<<TOC(t1)); //takes 0
@@ -361,7 +362,7 @@ namespace lbcrypto {
 
 		}
 
-		// Gaussian sampling as described in "Implementing Token-Based Obfuscation..."
+		// Gaussian sampling as described in "Implementing Token-Based Obfuscation under Ring (LWE)"
 
 		template <>
 		Matrix<Poly> RLWETrapdoorUtility<Poly>::GaussSampSquareMat(size_t n, size_t k, const Matrix<Poly>& A,
@@ -430,12 +431,6 @@ namespace lbcrypto {
 					}
 				}
 			}
-
-			//pHat->SwitchFormat();
-
-			//std::cerr << "s = " << s << std::endl;
-
-			//std::cerr << "pHat = " << *pHat << std::endl;
 
 			return zHatPrime;
 
@@ -508,12 +503,6 @@ namespace lbcrypto {
 					}
 				}
 			}
-
-			//pHat->SwitchFormat();
-
-			//std::cerr << "s = " << s << std::endl;
-
-			//std::cerr << "pHat = " << *pHat << std::endl;
 
 			return zHatPrime;
 

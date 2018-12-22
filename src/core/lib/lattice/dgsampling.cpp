@@ -1,5 +1,6 @@
 /**
- * @file dgsampling.cpp Provides detailed algorithms for G-sampling and perturbation sampling as described in https://eprint.iacr.org/2017/844.pdf
+ * @file dgsampling.cpp Provides detailed algorithms for G-sampling and perturbation sampling as described in https://eprint.iacr.org/2017/844.pdf,
+ * https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -45,13 +46,9 @@ namespace lbcrypto {
 		typename Element::PolyLargeType u = syndrome.CRTInterpolate();
 
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
-		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
 
 		std::vector<int64_t> m_digits = *(GetDigits(modulus,base,k));
-		//for(size_t i=1;i<=k;i++){
-		//	m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
-		//}
 
 		// main diagonal of matrix L
 		std::vector<double> l(k);
@@ -91,12 +88,9 @@ namespace lbcrypto {
 			Matrix<double> a([]() { return 0.0; }, k, 1);
 
 			std::vector<int64_t> v_digits = *(GetDigits(v,base,k));
-			//for(size_t i=1;i<=k;i++){
-			//	v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
-			//}
-			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
-			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
-			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
+
+			// int64_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
+			// when the result is negative, a(0,0) gets values close to 2^64 if the cast is not used
 			// (double) is added to avoid integer division
 			a(0, 0) = ((int64_t)(v_digits[0]) - p[0]) / (double)base;
 
@@ -130,13 +124,10 @@ namespace lbcrypto {
 		typename Element::PolyLargeType u = syndrome.CRTInterpolate();
 
 		const typename Poly::Integer& modulus = u.GetParams()->GetModulus();
-		// std::cout << "modulus = " << modulus << std::endl;
 		double sigma = stddev / (base + 1);
 
 		std::vector<int64_t> m_digits = *(GetDigits(modulus,base,k));
-		//for(size_t i=1;i<=k;i++){
-		//	m_digits[i] = (int64_t)((int64_t)(modulus.GetDigitAtIndexForBase(i, base)));
-		//}
+
 		// main diagonal of matrix L
 		std::vector<double> l(k);
 		//upper diagonal of matrix L
@@ -169,9 +160,6 @@ namespace lbcrypto {
 			typename Element::Integer v(u.at(j));
 
 			std::vector<int64_t> v_digits = *(GetDigits(v,base,k));;
-			//for(size_t i=1;i<=k;i++){
-			// v_digits[i] = (int64_t)((int64_t)(v.GetDigitAtIndexForBase(i, base)));
-			//}
 
 			vector<double> p(k);
 
@@ -179,11 +167,9 @@ namespace lbcrypto {
 
 			Matrix<double> a([]() { return 0.0; }, k, 1);
 
-			// int32_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
-			// when the result is negative, a(0,0) gets values close to 2^32 if the cast is not used
-			//****a(0, 0) = ((int32_t)(v.GetDigitAtIndexForBase(1, base)) - p[0]) / base;
+			// int64_t cast is needed here as GetDigitAtIndexForBase returns an unsigned int
+			// when the result is negative, a(0,0) gets values close to 2^64 if the cast is not used
 			// (double) is added to avoid integer division
-
 			a(0, 0) = ((int64_t)(v_digits[0]) - p[0]) / (double)base;
 
 			for (size_t t = 1; t < k; t++) {
@@ -218,7 +204,6 @@ namespace lbcrypto {
 		for (size_t i = 0; i < k; i++)
 		{
 			z[i] = dgg.GenerateIntegerKarney(d / l[i], sigma / l[i]);
-			//z[i] = dgg.GenerateInteger(d / l[i], sigma / l[i], n);
 			d = -z[i] * h[i];
 		}
 
@@ -264,12 +249,10 @@ namespace lbcrypto {
 		double sigma, typename Element::DggType &dgg, Matrix<double> *a, vector<int64_t> *z)
 	{
 		(*z)[k - 1] = dgg.GenerateIntegerKarney(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0));
-		//(*z)[k - 1] = dgg.GenerateInteger(-(*a)(k - 1, 0) / c(k - 1, 0), sigma / c(k - 1, 0),n);
 		*a = *a - ((double)((*z)[k - 1]))*c;
 
 		for (size_t i = 0; i < k - 1; i++) {
 			(*z)[i] = dgg.GenerateIntegerKarney(-(*a)(i, 0), sigma);
-			//(*z)[i] = dgg.GenerateInteger(-(*a)(i, 0), sigma, n);
 		}
 
 	}
@@ -319,6 +302,8 @@ namespace lbcrypto {
 			}
 
 	}
+
+	// Subroutine used by SamplePertSquareMat as described in "Implementing Token-Based Obfuscation under (Ring) LWE"
 
 	template <class Element>
 	void LatticeGaussSampUtility<Element>::SampleMat(const Matrix<Field2n> & A, const Matrix<Field2n> & B,
@@ -427,7 +412,7 @@ namespace lbcrypto {
 
 		Matrix<Field2n> cNew = c0 + B*Dinverse*diff;
 
-		// Swtich to coefficient representation
+		// Switch to coefficient representation
 		cNew.SwitchFormat();
 
 		size_t newDimA = (size_t)std::ceil((double)dimA/2);
@@ -471,9 +456,7 @@ namespace lbcrypto {
 		if (f.Size() == 1)
 		{
 			shared_ptr<Matrix<int64_t>> p(new Matrix<int64_t>([]() { return 0; }, 1, 1));
-			//std::cout << "sigma = " << sqrt(f[0].real()) << "; c = " << c[0].real() << std::endl;
 			(*p)(0, 0) = dgg.GenerateIntegerKarney(c[0].real(), sqrt(f[0].real()));
-			//p(0, 0) = dgg.GenerateInteger(c[0].real(), sqrt(f[0].real()),n);
 			return p;
 		}
 		else {
@@ -530,8 +513,8 @@ namespace lbcrypto {
 	void LatticeGaussSampUtility<Element>::InversePermute(shared_ptr<Matrix<int64_t>> p)
 	{
 
-		// a vector of int32_t is used for intermediate storage because it is faster
-		// than a Matrix of unique pointers to int32_t
+		// a vector of int64_t is used for intermediate storage because it is faster
+		// than a Matrix of unique pointers to int64_t
 
 		std::vector<int64_t> vectorPermuted(p->GetRows());
 
