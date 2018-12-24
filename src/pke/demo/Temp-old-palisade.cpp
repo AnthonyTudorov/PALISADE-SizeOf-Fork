@@ -496,19 +496,19 @@ struct {
 	cmdparser<DCRTPoly>	dfunc;
 	string				helpline;
 } cmds[] = {
-		{"makekey", keymaker<Poly>, keymaker<DCRTPoly>, " [optional parms] keyname\n"
+		{"makekey", keymaker<Poly>, keymaker<DCRTPoly>, " [flags] keyname\n"
 		"\tcreate a new keypair\n\t\tsave keynamePUB, keynamePRI, keynameCTXT and keynameEMK"},
-		{"makerekey", rekeymaker<Poly>, rekeymaker<DCRTPoly>, " [optional parms] pubkey_file secretkey_file rekey_file\n"
+		{"makerekey", rekeymaker<Poly>, rekeymaker<DCRTPoly>, " [flags] pubkey_file secretkey_file rekey_file\n"
 		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file\n\tsave in rekey_file"},
-		{"encrypt", encrypter<Poly>, encrypter<DCRTPoly>, " [optional parms] plaintext_file pubkey_file ciphertext_file\n"
+		{"encrypt", encrypter<Poly>, encrypter<DCRTPoly>, " [flags] plaintext_file pubkey_file ciphertext_file\n"
 		"\tencrypt the contents of plaintext_file using the contents of pubkey_file\n\tsave results in ciphertext_file"},
-		{"reencrypt", reencrypter<Poly>, reencrypter<DCRTPoly>, " [optional parms] encrypted_file rekey_file reencrypted_file\n"
+		{"reencrypt", reencrypter<Poly>, reencrypter<DCRTPoly>, " [flags] encrypted_file rekey_file reencrypted_file\n"
 		"\treencrypt the contents of encrypted_file using the contents of rekey_file\n\tsave results in reencrypted_file"},
-		{"decrypt", decrypter<Poly>, decrypter<DCRTPoly>, " [optional parms] ciphertext_file prikey_file cleartext_file\n"
+		{"decrypt", decrypter<Poly>, decrypter<DCRTPoly>, " [flags] ciphertext_file prikey_file cleartext_file\n"
 		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file\n\tsave results in cleartext_file"},
-		{"evaladd", evaladder<Poly>, evaladder<DCRTPoly>, " [optional parms] ciphertext1 ciphertext2 addresult\n"
+		{"evaladd", evaladder<Poly>, evaladder<DCRTPoly>, " [flags] ciphertext1 ciphertext2 addresult\n"
 		"\teval-add both ciphertexts\n\tsave result in addresult"},
-		{"evalmult", evalmulter<Poly>, evalmulter<DCRTPoly>, " [optional parms] ciphertext1 ciphertext2 multresult\n"
+		{"evalmult", evalmulter<Poly>, evalmulter<DCRTPoly>, " [flags] ciphertext1 ciphertext2 multresult\n"
 		"\teval-mult both ciphertexts\n\tsave result in multresult"},
 };
 
@@ -524,9 +524,8 @@ usage(const string& cmd, const string& msg)
 	}
 
 	cerr << endl;
-	cerr << "[optional params] are:" << endl;
-	cerr << "-poly: (default) use Poly" << endl;
-	cerr << "-dcrt: use DCRTPoly instead of Poly" << endl;
+	cerr << "[flags] are:" << endl;
+	cerr << "-poly: (default) use Poly, -dcrt: use DCRTPoly" << endl;
 	cerr << "-integers: use integer plaintext with " << IntVectorLen << " integers\n\tplaintext file is ascii ints delimited by whitespace" << endl;
 	cerr << "-intlen N: use integer plaintext with N integers; default is " << IntVectorLen << endl;
 	cerr << "-list: list all the parameter sets, then exit" << endl;
@@ -537,6 +536,20 @@ usage(const string& cmd, const string& msg)
 int
 main( int argc, char *argv[] )
 {
+	// for text, ptm must be == 256, so search for valid parm sets
+	vector<string> textParmsets;
+
+	//map<string, map<string,string>>
+	for( auto mapIt = CryptoContextParameterSets.begin();
+			mapIt != CryptoContextParameterSets.end();
+			mapIt++ ) {
+		if( mapIt->second["plaintextModulus"] == "256" )
+			textParmsets.push_back(mapIt->first);
+	}
+
+	for( size_t i=0; i<textParmsets.size(); i++ )
+		cout << textParmsets[i] << endl;
+
 	if( argc < 2 ) {
 		usage("ALL");
 		return 1;
