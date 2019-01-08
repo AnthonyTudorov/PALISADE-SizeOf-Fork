@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.4)
 
 project (PALISADE CXX)
 find_package (Git REQUIRED)
@@ -7,27 +7,19 @@ find_package (Git REQUIRED)
 
 include (ExternalProject)
 
-# handle rapidjson as an include-only submodule
-#find_path(RAPIDJSON_INCLUDE_DIR third-party/rapidjson/include)
-#message(${RAPIDJSON_INCLUDE_DIR})
+### Handle third-party RAPIDJSON
+find_file(RAPIDJSONINC include PATHS ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson NO_DEFAULT_PATH)
 
-find_path(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include PATHS ${CMAKE_CURRENT_SOURCE_DIR})
-message(${RAPIDJSON_INCLUDE_DIR})
-
-#find_path(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include )
-#message(${RAPIDJSON_INCLUDE_DIR})
-
-if((NOT RAPIDJSON_INCLUDE_DIR) OR (NOT EXISTS ${RAPIDJSON_INCLUDE_DIR}))
-    # we couldn't find the header files for FOO or they don't exist
+if((NOT RAPIDJSONINC) OR (NOT EXISTS ${RAPIDJSONINC}))
     message("Unable to find rapidjson")
 
     # we have a submodule setup for rapidjson
-    # now we need to clone this submodule
+    # so we need to clone this submodule
     execute_process(COMMAND git submodule update --init -- third-party/rapidjson
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     # set RAPIDJSON_INCLUDE_DIR properly
-    set(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
+    set(RAPIDJSONINC ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
         CACHE PATH "rapidjson include directory")
 
     # also install it?
@@ -35,18 +27,26 @@ if((NOT RAPIDJSON_INCLUDE_DIR) OR (NOT EXISTS ${RAPIDJSON_INCLUDE_DIR}))
 
     # need to export target as well
     #install(TARGETS foo EXPORT my_export_set DESTINATION ${some_dest})
-else()
-    # set RAPIDJSON_INCLUDE_DIR properly
-    set(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
-        CACHE PATH "rapidjson include directory")
 endif()
 
-message("xxx")
-message(${RAPIDJSON_INCLUDE_DIR})
 # for convenience setup a target
 add_library(rapidjson INTERFACE)
-include_directories( ${RAPIDJSON_INCLUDE_DIR} )
-		       ##$<INSTALL_INTERFACE:${some_dest}>)
+include_directories( ${RAPIDJSONINC} )
+
+### Handle third-party libgmp
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/gmp-6.1.2)
+    # unpack distro
+    execute_process(COMMAND tar xf gmp-6.1.2.tar.lz
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros)
+endif()
+add_subdirectory( third-party/distros/gmp-6.1.2 )
+
+### Handle third-party libntl
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/ntl-10.5.0)
+    # unpack distro
+    execute_process(COMMAND tar xf ntl-10.5.0.tar.gz
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros)
+endif()
 
 if(APPLE)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
