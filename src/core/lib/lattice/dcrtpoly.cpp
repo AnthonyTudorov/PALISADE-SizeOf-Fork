@@ -465,12 +465,21 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
 
             for ( usint k=0; k<m_vectors.size(); k++ ){
                 PolyType temp(input.m_vectors[i]);
-                if (i!=k)
+                if (i!=k) {
                     temp.SwitchModulus(input.m_vectors[k].GetModulus(),input.m_vectors[k].GetRootOfUnity());
-                currentDCRTPoly.m_vectors[k] = temp;
+                    // Switch to evaluation representation
+                    temp.SwitchFormat();
+                	currentDCRTPoly.m_vectors[k] = temp;
+                }
+                // saves an extra NTT
+                else
+                {
+                	currentDCRTPoly.m_vectors[k] = this->m_vectors[k];
+                	currentDCRTPoly.m_vectors[k].SetFormat(EVALUATION);
+                }
             }
 
-            currentDCRTPoly.SwitchFormat();
+            currentDCRTPoly.m_format = EVALUATION;
 
             result[i] = std::move(currentDCRTPoly);
         }
