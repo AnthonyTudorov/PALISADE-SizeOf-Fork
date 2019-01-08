@@ -471,6 +471,7 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
                     temp.SwitchFormat();
                 	currentDCRTPoly.m_vectors[k] = temp;
                 }
+                // saves an extra NTT
                 else
                 {
                 	currentDCRTPoly.m_vectors[k] = this->m_vectors[k];
@@ -479,8 +480,6 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::CRTDecompose(uint32_t 
             }
 
             currentDCRTPoly.m_format = EVALUATION;
-
-            //currentDCRTPoly.SwitchFormat();
 
             result[i] = std::move(currentDCRTPoly);
         }
