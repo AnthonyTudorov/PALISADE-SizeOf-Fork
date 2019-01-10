@@ -149,9 +149,10 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(const PolyLargeType &element, const shared_p
 
     if ( element.GetCyclotomicOrder() != params->GetCyclotomicOrder() )
         throw std::logic_error("Cyclotomic order mismatch on input vector and parameters");
-    m_params->SetOriginalModulus(element.GetModulus());
+
     m_format = format;
     m_params = params;
+    m_params->SetOriginalModulus(element.GetModulus());
 
     *this = element;
 }
