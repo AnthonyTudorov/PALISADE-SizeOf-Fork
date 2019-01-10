@@ -615,7 +615,7 @@ PolyImpl<VecType> PolyImpl<VecType>::Times(const PolyImpl &element) const
 template<typename VecType>
 const PolyImpl<VecType>& PolyImpl<VecType>::operator+=(const PolyImpl &element)
 {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 	if (!(*this->m_params == *element.m_params)){
 		DEBUGEXP(*this->m_params);
 		DEBUGEXP(*element.m_params);
