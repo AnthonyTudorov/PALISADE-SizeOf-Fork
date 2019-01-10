@@ -72,42 +72,46 @@ public:
 	ILDCRTParams(const usint cyclotomic_order, const IntType &modulus, const IntType& rootOfUnity)
 		: ElemParams<IntType>(cyclotomic_order, modulus, 0, 0, 0) {
 
-		// FIXME this ctor is just used as a placeholder in parms gen, so it really should do nothing
-		// parms gen will populate new parms
-	  
-// 	          bool dbg_flag(false);
-//		  DEBUG("in ILDCRTParams(const usint cyclotomic_order, const IntType &modulus, const IntType& rootOfUnity");
-//		  DEBUGEXP(cyclotomic_order);
-//		  DEBUGEXP(modulus);
-//		  DEBUGEXP(rootOfUnity);
-//		  usint numOfTower = 1;
-//		  std::vector<NativeInteger> moduli;
-//		  std::vector<NativeInteger> rootsOfUnity;
-//
-//		  NativeInteger q = FirstPrime<NativeInteger>(DEFAULT_NBITS, cyclotomic_order);
-//		  IntType compositeModulus(1);
-//
-//		  for(;;) {
-//		    moduli.push_back(q);
-//		    rootsOfUnity.push_back(RootOfUnity(cyclotomic_order, q));
-//		    compositeModulus = compositeModulus * IntType(q.ConvertToInt());
-//		    if( compositeModulus >= modulus )
-//		      break;
-//
-//		    q = NextPrime(q, cyclotomic_order);
-//		    numOfTower++;
-//		  }
-//		  originalModulus = modulus;
-//		  DEBUGEXP(compositeModulus);
-//		  DEBUGEXP(moduli);
-//		  DEBUGEXP(rootsOfUnity);
-//		  DEBUGEXP(m_parms.size());
-//		  for (size_t i = 0; i < moduli.size(); i++) {
-//		    m_parms.push_back(std::shared_ptr<ILNativeParams>(new ILNativeParams(cyclotomic_order, moduli[i], rootsOfUnity[i])));
-//		  }
-//
-//		  RecalculateModulus();
-//		  DEBUGEXP(m_parms.size());
+		// NOTE parms generation uses this constructor to make an empty parms that it will later
+		// populate during the gen process. For that special case... we don't populate, and
+		// we just return
+
+		if( cyclotomic_order == 0 )
+			return;
+
+ 	          bool dbg_flag(false);
+		  DEBUG("in ILDCRTParams(const usint cyclotomic_order, const IntType &modulus, const IntType& rootOfUnity");
+		  DEBUGEXP(cyclotomic_order);
+		  DEBUGEXP(modulus);
+		  DEBUGEXP(rootOfUnity);
+		  usint numOfTower = 1;
+		  std::vector<NativeInteger> moduli;
+		  std::vector<NativeInteger> rootsOfUnity;
+
+		  NativeInteger q = FirstPrime<NativeInteger>(DEFAULT_NBITS, cyclotomic_order);
+		  IntType compositeModulus(1);
+
+		  for(;;) {
+		    moduli.push_back(q);
+		    rootsOfUnity.push_back(RootOfUnity(cyclotomic_order, q));
+		    compositeModulus = compositeModulus * IntType(q.ConvertToInt());
+		    if( compositeModulus >= modulus )
+		      break;
+
+		    q = NextPrime(q, cyclotomic_order);
+		    numOfTower++;
+		  }
+		  originalModulus = modulus;
+		  DEBUGEXP(compositeModulus);
+		  DEBUGEXP(moduli);
+		  DEBUGEXP(rootsOfUnity);
+		  DEBUGEXP(m_parms.size());
+		  for (size_t i = 0; i < moduli.size(); i++) {
+		    m_parms.push_back(std::shared_ptr<ILNativeParams>(new ILNativeParams(cyclotomic_order, moduli[i], rootsOfUnity[i])));
+		  }
+
+		  RecalculateModulus();
+		  DEBUGEXP(m_parms.size());
 	}
 
 	/**
