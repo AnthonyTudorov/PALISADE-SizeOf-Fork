@@ -1,76 +1,31 @@
 cmake_minimum_required (VERSION 3.4)
 
-project (PALISADE C CXX)
-find_package (Git REQUIRED)
-#find_package (Flex REQUIRED)
-#find_package (Bison REQUIRED)
-
-include (ExternalProject)
-
-### Handle third-party RAPIDJSON
-find_file(RAPIDJSONINC include PATHS ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson NO_DEFAULT_PATH)
-
-if((NOT RAPIDJSONINC) OR (NOT EXISTS ${RAPIDJSONINC}))
-    message("Unable to find rapidjson")
-
-    # we have a submodule setup for rapidjson
-    # so we need to clone this submodule
-    execute_process(COMMAND git submodule update --init -- third-party/rapidjson
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
-    # set RAPIDJSON_INCLUDE_DIR properly
-    set(RAPIDJSONINC ${CMAKE_CURRENT_SOURCE_DIR}/third-party/rapidjson/include
-        CACHE PATH "rapidjson include directory")
-
-    # also install it?
-    #install(DIRECTORY ${RAPIDJSON_INCLUDE_DIR}/foo DESTINATION ${some_dest})
-
-    # need to export target as well
-    #install(TARGETS foo EXPORT my_export_set DESTINATION ${some_dest})
+set(TAR "tar")
+if(APPLE)
+	set(TAR "gnutar")
 endif()
-
-# for convenience setup a target
-add_library(rapidjson INTERFACE)
-include_directories( ${RAPIDJSONINC} )
 
 if(APPLE)
+	set(CMAKE_C_COMPILER /opt/local/bin/clang)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
-#	set(OPENMP_LIBRARIES "/usr/local/lib/libomp")
-#	set(OPENMP_INCLUDES "/opt/local/include/libopenmp")
-#	#CPPSTD := -std=c++11 -stdlib=libc++ -fPIC
-#	#CC := /opt/local/bin/clang++ $(CPPSTD)
+	set(OPENMP_LIBRARIES "/opt/local/lib/openmpi-clang38/openmpi")
+	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang38")
 endif()
+
+project (PALISADE C CXX)
 
 set (CMAKE_CXX_STANDARD 11)
-
-include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature circuit wip)
-foreach( dir ${SUBMAKEFILES} )
-	include_directories( src/${dir}/lib )
-endforeach( dir )
-
-# third party directories
-set( THIRDPARTYDIR third-party )
-include_directories( ${THIRDPARTYDIR}/include )
-
-set( THIRDPARTYLIBDIR ${THIRDPARTYDIR}/lib )
-
-# find the third party libraries
-link_directories( ${THIRDPARTYLIBDIR} )
-
-include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
-include_directories( ${THIRDPARTYDIR}/include ) #${THIRDPARTYDIR}/rapidjson/include )
-
-find_package(OpenMP REQUIRED)
-
-if (OPENMP_FOUND)
-    #include_directories("${OPENMP_INCLUDES}")
-    #link_directories("${OPENMP_LIBRARIES}")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+if(APPLE)
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+set(COMPILEFLAGS "-g -Wall -Werror -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
+
+OPTION (USE_OpenMP "Use OpenMP to enamble <omp.h>" ON)
+
+# Find OpenMP
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
         set(OpenMP_C "${CMAKE_C_COMPILER}")
@@ -90,54 +45,118 @@ if(APPLE AND USE_OpenMP)
     endif()
 endif()
 
+if(USE_OpenMP)
+	include(FindOpenMP)
+endif()
+
+if (OPENMP_FOUND)
+    include_directories("${OPENMP_INCLUDES}")
+    link_directories("${OPENMP_LIBRARIES}")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
+find_package (Git REQUIRED)
+#find_package (Flex REQUIRED)
+#find_package (Bison REQUIRED)
+
+include (ExternalProject)
+
+# third party directories
+set( THIRDPARTYDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party )
+include_directories( ${THIRDPARTYDIR}/include )
+
+### Handle third-party RAPIDJSON
+set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
+
+add_custom_command(
+	OUTPUT ${RAPIDJSONINC}
+	COMMAND git submodule update --init -- third-party/rapidjson
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+include_directories( ${RAPIDJSONINC} )
+
+include_directories( src )
+set (SUBMAKEFILES core pke trapdoor abe signature circuit wip)
+foreach( dir ${SUBMAKEFILES} )
+	include_directories( src/${dir}/lib )
+endforeach( dir )
+
+set( THIRDPARTYLIBDIR ${THIRDPARTYDIR}/lib )
+
+# find the third party libraries
+link_directories( ${THIRDPARTYLIBDIR} )
+
+include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
+
 ## for tests
 set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
-set(GMPDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/gmp-6.1.2)
+set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
+set(GMPLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp.a)
+set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack distro
 add_custom_command(
-	OUTPUT ${GMPDIR}
-	COMMAND tar xf gmp-6.1.2.tar.lz
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros
+	OUTPUT ${GMPSRCDIR}
+	COMMAND ${TAR} xf gmp-6.1.2.tar.lz
+	WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
 )
 
-add_custom_target(GMPlib ALL
-    DEPENDS GMPlib-config
-    COMMAND make
-    WORKING_DIRECTORY ${GMPDIR}
+add_custom_command(
+	OUTPUT ${GMPCONF}
+	DEPENDS ${GMPSRCDIR}
+	COMMAND ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
+	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
-add_custom_target(GMPlib-config
-    DEPENDS ${GMPDIR}
-    COMMAND ./configure
-    WORKING_DIRECTORY ${GMPDIR}
-    BYPRODUCTS config.h
+add_custom_command(
+	OUTPUT ${GMPLIBFILE}
+	DEPENDS ${GMPCONF}
+	COMMAND make 
+	COMMAND make install
+	WORKING_DIRECTORY ${GMPSRCDIR}
 )
+
+add_library(gmp STATIC IMPORTED GLOBAL)
+add_library(gmp_shared SHARED IMPORTED GLOBAL)
 
 ### Handle third-party libntl
-set(NTLDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/ntl-10.5.0)
+set(NTLSRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/ntl-10.5.0/src)
+set(NTLLIBFILE third-party/lib/libntl.a)
+set(NTLCONF ${NTLSRCDIR}/config.h)
 
 # unpack distro
 add_custom_command(
-    OUTPUT ${NTLDIR}
-    COMMAND tar xf ntl-10.5.0.tar.gz
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros
+    OUTPUT ${NTLSRCDIR}
+    COMMAND ${TAR} xf ntl-10.5.0.tar.gz
+    WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
 )
 
-add_custom_target(NTLlib ALL
-    DEPENDS NTLlib-config
-    COMMAND make
-    WORKING_DIRECTORY ${NTLDIR}
+add_custom_command(
+    OUTPUT ${NTLCONF}
+    DEPENDS ${NTLSRCDIR}
+    COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR} NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+
+    WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
-add_custom_target(NTLlib-config
-    DEPENDS ${NTLDIR}
-    COMMAND ./configure
-    WORKING_DIRECTORY ${NTLDIR}
-    BYPRODUCTS config.h
+add_custom_command(
+	OUTPUT ${NTLLIBFILE}
+	DEPENDS ${NTLCONF} ${GMPLIBFILE}
+	COMMAND make 
+	COMMAND make install
+	WORKING_DIRECTORY ${NTLSRCDIR}
 )
+
+add_library(ntl STATIC IMPORTED GLOBAL)
+add_library(ntl_shared SHARED IMPORTED GLOBAL)
+
+add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
 
 add_subdirectory(src/core)
 ##add_subdirectory(src/pke)
