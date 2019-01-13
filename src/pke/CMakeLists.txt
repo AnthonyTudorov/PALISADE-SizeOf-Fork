@@ -1,4 +1,4 @@
-file (GLOB PKE_SRC_FILES lib/*-impl.cpp)
+file (GLOB PKE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
 add_library (pkeobj OBJECT ${PKE_SRC_FILES})
 add_dependencies(pkeobj PALISADEcore)
@@ -14,11 +14,11 @@ set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${Open
 target_link_libraries (PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
 
-file (GLOB PKE_TEST_SRC_FILES unittest/*.cpp)
+file (GLOB PKE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (pke_tests ${PKE_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( pke_tests ${PKELIBS} )
 
-file (GLOB PKE_DEMO_SRC_FILES demo/*.cpp)
+file (GLOB PKE_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${PKE_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})

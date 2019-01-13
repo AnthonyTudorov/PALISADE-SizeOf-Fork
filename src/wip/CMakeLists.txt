@@ -1,4 +1,4 @@
-file (GLOB WIP_SRC_FILES lib/*.cpp lib/*/*.cpp)
+file (GLOB WIP_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp lib/*/*.cpp)
 
 add_library(wipobj OBJECT ${WIP_SRC_FILES})
 add_dependencies(wipobj PALISADEpke)
@@ -14,11 +14,11 @@ set (WIPLIBS PUBLIC PALISADEwip PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gm
 target_link_libraries (PALISADEwip PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 target_link_libraries (PALISADEwip_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
 
-file (GLOB WIP_TEST_SRC_FILES unittest/*.cpp)
-add_executable (wiptests ${WIP_TEST_SRC_FILES} ${UNITTESTMAIN})
-target_link_libraries ( wiptests ${WIPLIBS} )
+file (GLOB WIP_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
+add_executable (wip_tests ${WIP_TEST_SRC_FILES} ${UNITTESTMAIN})
+target_link_libraries ( wip_tests ${WIPLIBS} )
 
-file (GLOB WIP_DEMO_SRC_FILES demo/*.cpp)
+file (GLOB WIP_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${WIP_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})

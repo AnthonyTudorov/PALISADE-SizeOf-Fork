@@ -1,4 +1,4 @@
-file (GLOB SIG_SRC_FILES lib/*-impl.cpp)
+file (GLOB SIG_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
 add_library(sigobj OBJECT ${SIG_SRC_FILES})
 add_dependencies(sigobj PALISADEpke)
@@ -14,11 +14,11 @@ set (SIGLIBS PUBLIC PALISADEsignature PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl 
 target_link_libraries (PALISADEsignature PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 target_link_libraries (PALISADEsignature_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
 
-file (GLOB SIG_TEST_SRC_FILES unittest/*.cpp)
+file (GLOB SIG_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (sig_tests ${SIG_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( sig_tests ${SIGLIBS} )
 
-file (GLOB SIG_DEMO_SRC_FILES demo/*.cpp)
+file (GLOB SIG_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${SIG_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})

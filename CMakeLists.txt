@@ -169,9 +169,10 @@ add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
 
+file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)
 add_executable( all_tests
+	${ALLTESTOBJ}
 	${ABE_TEST_SRC_FILES}
-	${CORE_TEST_SRC_FILES}
 	${PKE_TEST_SRC_FILES}
 	${SIG_TEST_SRC_FILES}
 	${TRAPDOOR_TEST_SRC_FILES}
