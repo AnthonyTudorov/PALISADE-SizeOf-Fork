@@ -12,16 +12,18 @@ set(coresrc
 	${UTILS_SRC_FILES} )
 
 add_library(coreobj OBJECT ${coresrc})
-
+add_dependencies(coreobj third-party)
 set_property(TARGET coreobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library (PALISADEcore SHARED $<TARGET_OBJECTS:coreobj>)
 add_library (PALISADEcore_static STATIC $<TARGET_OBJECTS:coreobj>)
 
-add_dependencies(coreobj third-party)
+target_include_directories (PALISADEcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-set (CORELIBS PALISADEcore gmp ntl ${OpenMP_CXX_FLAGS})
-target_link_libraries (${CORELIBS})
+set (CORELIBS PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+
+target_link_libraries (PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+target_link_libraries (PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
 
 file (GLOB CORE_TEST_SRC_FILES unittest/*.cpp)
 add_executable( core_tests ${CORE_TEST_SRC_FILES} ${UNITTESTMAIN} )

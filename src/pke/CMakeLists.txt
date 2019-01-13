@@ -1,10 +1,18 @@
 file (GLOB PKE_SRC_FILES lib/*-impl.cpp)
 
-set (PKELIBS PALISADEpke PALISADEcore ${GMPlib} ${NTLlib} ${OpenMP_CXX_FLAGS})
+add_library (pkeobj OBJECT ${PKE_SRC_FILES})
+add_dependencies(pkeobj PALISADEcore)
+set_property(TARGET pkeobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-add_library (PALISADEpke SHARED ${PKE_SRC_FILES} )
-add_library (PALISADEpke_static STATIC ${PKE_SRC_FILES} )
-target_link_libraries (${PKELIBS})
+add_library (PALISADEpke SHARED $<TARGET_OBJECTS:pkeobj>)
+add_library (PALISADEpke_static STATIC $<TARGET_OBJECTS:pkeobj>)
+
+target_include_directories (PALISADEpke PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+
+target_link_libraries (PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
 
 file (GLOB PKE_TEST_SRC_FILES unittest/*.cpp)
 add_executable (pke_tests ${PKE_TEST_SRC_FILES} ${UNITTESTMAIN})

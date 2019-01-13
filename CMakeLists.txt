@@ -58,8 +58,6 @@ if (OPENMP_FOUND)
 endif()
 
 find_package (Git REQUIRED)
-#find_package (Flex REQUIRED)
-#find_package (Bison REQUIRED)
 
 include (ExternalProject)
 
@@ -72,7 +70,7 @@ set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
 
 add_custom_command(
 	OUTPUT ${RAPIDJSONINC}
-	COMMAND git submodule update --init -- third-party/rapidjson
+	COMMAND git submodule foreach git pull origin master
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -97,7 +95,7 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
-set(GMPLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp.a)
+set(GMPLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack distro
@@ -109,7 +107,6 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT ${GMPCONF}
-	DEPENDS ${GMPSRCDIR}
 	COMMAND ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
@@ -122,13 +119,17 @@ add_custom_command(
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
-add_library(gmp STATIC IMPORTED GLOBAL)
-add_library(gmp_shared SHARED IMPORTED GLOBAL)
+add_library(gmp_static STATIC IMPORTED GLOBAL)
+set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+add_library(gmp SHARED IMPORTED GLOBAL)
+set_target_properties(gmp PROPERTIES 
+	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
+
 
 ### Handle third-party libntl
-set(NTLSRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/distros/ntl-10.5.0/src)
-set(NTLLIBFILE third-party/lib/libntl.a)
-set(NTLCONF ${NTLSRCDIR}/config.h)
+set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
+set(NTLLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(NTLCONF ${THIRDPARTYDIR}/distros/ntl-10.5.0/include/NTL/config.h)
 
 # unpack distro
 add_custom_command(
@@ -139,8 +140,7 @@ add_custom_command(
 
 add_custom_command(
     OUTPUT ${NTLCONF}
-    DEPENDS ${NTLSRCDIR}
-    COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR} NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+    COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 
     WORKING_DIRECTORY ${NTLSRCDIR}
 )
@@ -153,16 +153,31 @@ add_custom_command(
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
-add_library(ntl STATIC IMPORTED GLOBAL)
-add_library(ntl_shared SHARED IMPORTED GLOBAL)
+add_library(ntl_static STATIC IMPORTED GLOBAL)
+set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
+add_library(ntl SHARED IMPORTED GLOBAL)
+set_target_properties(ntl PROPERTIES
+	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+
 
 add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
 
 add_subdirectory(src/core)
-##add_subdirectory(src/pke)
-##add_subdirectory(src/trapdoor)
-##add_subdirectory(src/wip)
-##add_subdirectory(src/circuit)
+add_subdirectory(src/pke)
+add_subdirectory(src/trapdoor)
+add_subdirectory(src/abe)
+add_subdirectory(src/signature)
+add_subdirectory(src/wip)
 
-#add_subdirectory(src/abe)
-#add_subdirectory(src/signature)
+add_executable( all_tests
+	${ABE_TEST_SRC_FILES}
+	${CORE_TEST_SRC_FILES}
+	${PKE_TEST_SRC_FILES}
+	${SIG_TEST_SRC_FILES}
+	${TRAPDOOR_TEST_SRC_FILES}
+	${WIP_TEST_SRC_FILES}
+	${UNITTESTMAIN}
+)
+target_link_libraries( all_tests PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature PALISADEwip ntl gmp )
+## add_subdirectory(src/circuit)
+
