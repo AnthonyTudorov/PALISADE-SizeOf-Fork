@@ -71,8 +71,8 @@ include_directories( ${THIRDPARTYDIR}/include )
 ### Handle third-party RAPIDJSON
 set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
 
-add_custom_command(
-	OUTPUT ${RAPIDJSONINC}
+execute_process(
+	COMMAND git submodule foreach git submodule update --init
 	COMMAND git submodule foreach git pull origin master
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -102,11 +102,12 @@ set(GMPLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp${CMAKE_STATIC_
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack distro
-add_custom_command(
-	OUTPUT ${GMPSRCDIR}
-	COMMAND ${TAR} xf gmp-6.1.2.tar.lz
-	WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
-)
+if( NOT EXISTS "${GMPSRCDIR}" )
+	execute_process(
+		COMMAND ${TAR} xf gmp-6.1.2.tar.lz
+		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
+	)
+endif()
 
 add_custom_command(
 	OUTPUT ${GMPCONF}
@@ -117,6 +118,7 @@ add_custom_command(
 add_custom_command(
 	OUTPUT ${GMPLIBFILE}
 	DEPENDS ${GMPCONF}
+	COMMAND echo ${GMPLIBFILE}
 	COMMAND make 
 	COMMAND make install
 	WORKING_DIRECTORY ${GMPSRCDIR}
@@ -147,11 +149,12 @@ set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # unpack distro
-add_custom_command(
-    OUTPUT ${NTLSRCDIR}
-    COMMAND ${TAR} xf ${NTLZIPNAME}
-    WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
-)
+if( NOT EXISTS "${NTLSRCDIR}" )
+	execute_process(
+		COMMAND ${TAR} xf ${NTLZIPNAME}
+		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
+	)
+endif()
 
 add_custom_command(
     OUTPUT ${NTLCONF}

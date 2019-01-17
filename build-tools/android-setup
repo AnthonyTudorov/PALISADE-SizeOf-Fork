@@ -1,0 +1,17 @@
+export NDK_HOME=/home/palisade/Desktop/android-ndk-r18b
+export APP_PLATFORM=android-28
+export PATH=$PATH:$NDK_HOME
+
+export PATH=/home/palisade/share-toolchain-x86_64/bin:$PATH
+
+target_host=x86_64-linux-android
+export AR=$target_host-ar
+export AS=$target_host-clang
+export CC=$target_host-clang
+export CXX=$target_host-clang++
+export LD=$target_host-ld
+export STRIP=$target_host-strip
+
+# Tell configure what flags Android requires.
+export CFLAGS="-fPIE -fPIC"
+##export LDFLAGS="-pie"
