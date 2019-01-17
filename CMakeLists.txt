@@ -50,11 +50,14 @@ if(USE_OpenMP)
 endif()
 
 if (OPENMP_FOUND)
-    include_directories("${OPENMP_INCLUDES}")
-    link_directories("${OPENMP_LIBRARIES}")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+	if( APPLE )
+		include_directories("${OPENMP_INCLUDES}")
+		link_directories("${OPENMP_LIBRARIES}")
+	endif()
+
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 find_package (Git REQUIRED)
@@ -107,7 +110,7 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT ${GMPCONF}
-	COMMAND ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
+	COMMAND ./configure --host=${CROSS_TRIPLE} --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
@@ -127,20 +130,32 @@ set_target_properties(gmp PROPERTIES
 
 
 ### Handle third-party libntl
-set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
+### NOTE NTL doesn't (easily) cross compile; we use a hand-tuned Android version
+### there's likely a better way to do this
+
+if(CMAKE_SYSTEM_NAME MATCHES "Android")
+	set(NTLSRCDIR ${THIRDPARTYDIR}/distros/cross-ntl-10.5.0/src)
+	set(NTLZIPNAME cross-ntl-10.5.0.tar.gz)
+	set(NTLTARGET ntl.a)
+
+else()
+	set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
+	set(NTLZIPNAME ntl-10.5.0.tar.gz)
+	set(NTLTARGET all)
+endif()
+set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(NTLCONF ${THIRDPARTYDIR}/distros/ntl-10.5.0/include/NTL/config.h)
 
 # unpack distro
 add_custom_command(
     OUTPUT ${NTLSRCDIR}
-    COMMAND ${TAR} xf ntl-10.5.0.tar.gz
+    COMMAND ${TAR} xf ${NTLZIPNAME}
     WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
 )
 
 add_custom_command(
     OUTPUT ${NTLCONF}
-    COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+    COMMAND ./configure2 ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 
     WORKING_DIRECTORY ${NTLSRCDIR}
 )
@@ -148,7 +163,7 @@ add_custom_command(
 add_custom_command(
 	OUTPUT ${NTLLIBFILE}
 	DEPENDS ${NTLCONF} ${GMPLIBFILE}
-	COMMAND make 
+	COMMAND make ${NTLTARGET}
 	COMMAND make install
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
