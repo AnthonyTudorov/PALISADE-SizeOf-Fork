@@ -71,11 +71,13 @@ include_directories( ${THIRDPARTYDIR}/include )
 ### Handle third-party RAPIDJSON
 set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
 
-execute_process(
-	COMMAND git submodule foreach git submodule update --init
-	COMMAND git submodule foreach git pull origin master
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+#execute_process(
+#	COMMAND git submodule update --init third-party/rapidjson
+#	COMMAND git submodule update --init third-party/google-test
+#	COMMAND git submodule update --init third-party/google-benchmark
+#	COMMAND git submodule foreach git pull origin master
+#	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#)
 
 include_directories( ${RAPIDJSONINC} )
 
@@ -158,7 +160,7 @@ endif()
 
 add_custom_command(
     OUTPUT ${NTLCONF}
-    COMMAND ./configure2 ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+    COMMAND ./configure ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 
     WORKING_DIRECTORY ${NTLSRCDIR}
 )
