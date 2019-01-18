@@ -169,7 +169,10 @@ add_custom_command(
 	OUTPUT ${NTLLIBFILE}
 	DEPENDS ${NTLCONF} ${GMPLIBFILE}
 	COMMAND make ${NTLTARGET}
-	COMMAND make install
+	COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
+	COMMAND cp ${NTLSRCDIR}/.libs/libntl.* ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
+	COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
+	COMMAND cp ${NTLSRCDIR}/../include/NTL/* ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
