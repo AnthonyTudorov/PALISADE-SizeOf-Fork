@@ -14,6 +14,8 @@ endif()
 
 project (PALISADE C CXX)
 
+set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
+
 set (CMAKE_CXX_STANDARD 11)
 if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -100,7 +102,9 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
-set(GMPLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
+set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack distro
@@ -127,11 +131,11 @@ add_custom_command(
 )
 
 add_library(gmp_static STATIC IMPORTED GLOBAL)
-set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
 add_library(gmp SHARED IMPORTED GLOBAL)
-set_target_properties(gmp PROPERTIES 
-	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
+set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
 
+install(FILES ${GMPLIBFILE} ${GMPLIBFILE_STATIC} DESTINATION lib)
 
 ### Handle third-party libntl
 ### NOTE NTL doesn't (easily) cross compile; we use a hand-tuned Android version
@@ -148,7 +152,9 @@ else()
 	set(NTLTARGET all)
 endif()
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
-set(NTLLIBFILE ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
+set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # unpack distro
 if( NOT EXISTS "${NTLSRCDIR}" )
@@ -182,6 +188,7 @@ add_library(ntl SHARED IMPORTED GLOBAL)
 set_target_properties(ntl PROPERTIES
 	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
 
+install(FILES ${NTLLIBFILE} ${NTLLIBFILE_STATIC} DESTINATION lib)
 
 add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
 
@@ -191,6 +198,7 @@ add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
+## add_subdirectory(src/circuit)
 
 file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)
 add_executable( all_tests
@@ -203,5 +211,5 @@ add_executable( all_tests
 	${UNITTESTMAIN}
 )
 target_link_libraries( all_tests PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature PALISADEwip ntl gmp )
-## add_subdirectory(src/circuit)
 
+install(TARGETS all_tests DESTINATION unittest)

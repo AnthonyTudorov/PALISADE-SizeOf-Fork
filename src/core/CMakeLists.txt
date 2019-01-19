@@ -23,6 +23,11 @@ file (GLOB CORE_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${CORE_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
-	add_executable( ${APP} ${app} )
+	add_executable ( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${CORELIBS} )
+	install ( TARGETS ${APP} DESTINATION demo/core )
 endforeach()
+
+install(TARGETS PALISADEcore PALISADEcore_static DESTINATION lib)
+
+install(TARGETS core_tests DESTINATION unittest)

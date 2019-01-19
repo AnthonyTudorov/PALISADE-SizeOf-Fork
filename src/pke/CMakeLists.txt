@@ -24,4 +24,10 @@ foreach (app ${PKE_DEMO_SRC_FILES})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${PKELIBS} )
+        install ( TARGETS ${APP} DESTINATION demo/pke )
 endforeach()
+
+install(TARGETS PALISADEpke PALISADEpke_static DESTINATION lib)
+
+install(TARGETS pke_tests DESTINATION unittest)
+

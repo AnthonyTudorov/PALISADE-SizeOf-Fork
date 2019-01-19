@@ -25,4 +25,10 @@ foreach (app ${CIRCUIT_DEMO_SRC_FILES})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${CIRCUITLIBS} )
+        install ( TARGETS ${APP} DESTINATION demo/circuit )
 endforeach()
+
+install(TARGETS PALISADEcircuit PALISADEcircuit_static DESTINATION lib)
+
+install(TARGETS circuit_tests DESTINATION unittest)
+

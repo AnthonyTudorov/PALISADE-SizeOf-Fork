@@ -24,4 +24,9 @@ foreach (app ${ABE_DEMO_SRC_FILES})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${ABELIBS} )
+        install ( TARGETS ${APP} DESTINATION demo/abe )
 endforeach()
+
+install(TARGETS PALISADEabe PALISADEabe_static DESTINATION lib)
+
+install(TARGETS abe_tests DESTINATION unittest)

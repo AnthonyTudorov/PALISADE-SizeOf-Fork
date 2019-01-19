@@ -24,4 +24,10 @@ foreach (app ${WIP_DEMO_SRC_FILES})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${WIPLIBS} )
+        install ( TARGETS ${APP} DESTINATION demo/wip )
 endforeach()
+
+install(TARGETS PALISADEwip PALISADEwip_static DESTINATION lib)
+
+install(TARGETS wip_tests DESTINATION unittest)
+

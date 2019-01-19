@@ -24,4 +24,10 @@ foreach (app ${TRAPDOOR_DEMO_SRC_FILES})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
 	target_link_libraries ( ${APP} ${TRAPDOORLIBS} )
+        install ( TARGETS ${APP} DESTINATION demo/trapdoor )
 endforeach()
+
+install(TARGETS PALISADEtrapdoor PALISADEtrapdoor_static DESTINATION lib)
+
+install(TARGETS trapdoor_tests DESTINATION unittest)
+

@@ -3,6 +3,7 @@
 *.o
 *.gcov
 bin/
+installed/
 build/
 test/build
 test/bin
