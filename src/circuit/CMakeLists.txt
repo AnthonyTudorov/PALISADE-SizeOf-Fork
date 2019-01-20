@@ -8,12 +8,18 @@ add_dependencies(circobj PALISADEpke)
 set_property(TARGET circobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library (PALISADEcircuit SHARED $<TARGET_OBJECTS:circobj>)
-add_library (PALISADEcircuit_static STATIC $<TARGET_OBJECTS:circobj>)
+install(TARGETS PALISADEcircuit DESTINATION lib)
+if( ${BUILD_STATIC} MATCHES "YES" )
+	add_library (PALISADEcircuit_static STATIC $<TARGET_OBJECTS:circobj>)
+	install(TARGETS PALISADEcircuit_static DESTINATION lib)
+endif()
 
 set (CIRCUITLIBS PUBLIC PALISADEcircuit PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 
 target_link_libraries (PALISADEcircuit PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
-target_link_libraries (PALISADEcircuit_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+if( ${BUILD_STATIC} MATCHES "YES" )
+	target_link_libraries (PALISADEcircuit_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+endif()
 
 file (GLOB CIRCUIT_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (circuit_tests ${CIRCUIT_TEST_SRC_FILES} ${UNITTESTMAIN})
@@ -27,8 +33,6 @@ foreach (app ${CIRCUIT_DEMO_SRC_FILES})
 	target_link_libraries ( ${APP} ${CIRCUITLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/circuit )
 endforeach()
-
-install(TARGETS PALISADEcircuit PALISADEcircuit_static DESTINATION lib)
 
 install(TARGETS circuit_tests DESTINATION unittest)
 

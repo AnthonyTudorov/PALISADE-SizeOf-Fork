@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.4)
 
+set(BUILD_STATIC "NO") # set to yes to build static libs and apps
+
 set(TAR "tar")
 if(APPLE)
 	set(TAR "gnutar")

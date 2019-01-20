@@ -5,14 +5,20 @@ add_dependencies(pkeobj PALISADEcore)
 set_property(TARGET pkeobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library (PALISADEpke SHARED $<TARGET_OBJECTS:pkeobj>)
-add_library (PALISADEpke_static STATIC $<TARGET_OBJECTS:pkeobj>)
+install(TARGETS PALISADEpke DESTINATION lib)
+if( ${BUILD_STATIC} MATCHES "YES" )
+	add_library (PALISADEpke_static STATIC $<TARGET_OBJECTS:pkeobj>)
+	install(TARGETS PALISADEpke_static DESTINATION lib)
+endif()
 
 target_include_directories (PALISADEpke PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 
 target_link_libraries (PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
-target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+if( ${BUILD_STATIC} MATCHES "YES" )
+	target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+endif()
 
 file (GLOB PKE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (pke_tests ${PKE_TEST_SRC_FILES} ${UNITTESTMAIN})
@@ -26,8 +32,6 @@ foreach (app ${PKE_DEMO_SRC_FILES})
 	target_link_libraries ( ${APP} ${PKELIBS} )
         install ( TARGETS ${APP} DESTINATION demo/pke )
 endforeach()
-
-install(TARGETS PALISADEpke PALISADEpke_static DESTINATION lib)
 
 install(TARGETS pke_tests DESTINATION unittest)
 

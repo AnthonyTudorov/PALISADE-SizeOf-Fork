@@ -5,14 +5,20 @@ add_dependencies(trapdoorobj PALISADEpke)
 set_property(TARGET trapdoorobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library (PALISADEtrapdoor SHARED $<TARGET_OBJECTS:trapdoorobj>)
-add_library (PALISADEtrapdoor_static STATIC $<TARGET_OBJECTS:trapdoorobj>)
+install(TARGETS PALISADEtrapdoor DESTINATION lib)
+if( ${BUILD_STATIC} MATCHES "YES" )
+	add_library (PALISADEtrapdoor_static STATIC $<TARGET_OBJECTS:trapdoorobj>)
+	install(TARGETS PALISADEtrapdoor_static DESTINATION lib)
+endif()
 
 target_include_directories (PALISADEtrapdoor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (TRAPDOORLIBS PUBLIC PALISADEtrapdoor PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 
 target_link_libraries (PALISADEtrapdoor PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
-target_link_libraries (PALISADEtrapdoor_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+if( ${BUILD_STATIC} MATCHES "YES" )
+	target_link_libraries (PALISADEtrapdoor_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+endif()
 
 file (GLOB TRAPDOOR_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (trapdoor_tests ${TRAPDOOR_TEST_SRC_FILES} ${UNITTESTMAIN})
@@ -26,8 +32,6 @@ foreach (app ${TRAPDOOR_DEMO_SRC_FILES})
 	target_link_libraries ( ${APP} ${TRAPDOORLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/trapdoor )
 endforeach()
-
-install(TARGETS PALISADEtrapdoor PALISADEtrapdoor_static DESTINATION lib)
 
 install(TARGETS trapdoor_tests DESTINATION unittest)
 

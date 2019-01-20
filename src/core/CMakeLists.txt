@@ -5,14 +5,20 @@ add_dependencies(coreobj third-party)
 set_property(TARGET coreobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library (PALISADEcore SHARED $<TARGET_OBJECTS:coreobj>)
-add_library (PALISADEcore_static STATIC $<TARGET_OBJECTS:coreobj>)
+install(TARGETS PALISADEcore DESTINATION lib)
+if( ${BUILD_STATIC} MATCHES "YES" )
+	add_library (PALISADEcore_static STATIC $<TARGET_OBJECTS:coreobj>)
+	install(TARGETS PALISADEcore_static DESTINATION lib)
+endif()
 
 target_include_directories (PALISADEcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (CORELIBS PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 
 target_link_libraries (PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
-target_link_libraries (PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+if( ${BUILD_STATIC} MATCHES "YES" )
+	target_link_libraries (PALISADEcore_static PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+endif()
 
 file (GLOB CORE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 set (CORE_TEST_SRC_FILES ${CORE_TEST_SRC_FILES})
@@ -27,7 +33,5 @@ foreach (app ${CORE_DEMO_SRC_FILES})
 	target_link_libraries ( ${APP} ${CORELIBS} )
 	install ( TARGETS ${APP} DESTINATION demo/core )
 endforeach()
-
-install(TARGETS PALISADEcore PALISADEcore_static DESTINATION lib)
 
 install(TARGETS core_tests DESTINATION unittest)
