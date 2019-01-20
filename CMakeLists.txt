@@ -15,6 +15,7 @@ endif()
 project (PALISADE C CXX)
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
+set (CMAKE_INSTALL_MESSAGE LAZY)
 
 set (CMAKE_CXX_STANDARD 11)
 if(APPLE)
@@ -124,9 +125,9 @@ add_custom_command(
 add_custom_command(
 	OUTPUT ${GMPLIBFILE}
 	DEPENDS ${GMPCONF}
-	COMMAND echo ${GMPLIBFILE}
 	COMMAND make 
 	COMMAND make install
+	#COMMAND cp ${GMPSRCDIR}/gmp.h ${THIRDPARTYDIR}/include
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
@@ -135,7 +136,8 @@ set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATI
 add_library(gmp SHARED IMPORTED GLOBAL)
 set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
 
-install(FILES ${GMPLIBFILE} ${GMPLIBFILE_STATIC} DESTINATION lib)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	FILES_MATCHING PATTERN "libgmp.*" )
 
 ### Handle third-party libntl
 ### NOTE NTL doesn't (easily) cross compile; we use a hand-tuned Android version
@@ -151,6 +153,7 @@ else()
 	set(NTLZIPNAME ntl-10.5.0.tar.gz)
 	set(NTLTARGET all)
 endif()
+
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
 set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -162,23 +165,21 @@ if( NOT EXISTS "${NTLSRCDIR}" )
 		COMMAND ${TAR} xf ${NTLZIPNAME}
 		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
 	)
+	execute_process(
+		COMMAND ./configure ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+		WORKING_DIRECTORY ${NTLSRCDIR}
+	)
 endif()
-
-add_custom_command(
-    OUTPUT ${NTLCONF}
-    COMMAND ./configure ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
-
-    WORKING_DIRECTORY ${NTLSRCDIR}
-)
 
 add_custom_command(
 	OUTPUT ${NTLLIBFILE}
 	DEPENDS ${NTLCONF} ${GMPLIBFILE}
 	COMMAND make ${NTLTARGET}
-	COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
-	COMMAND cp ${NTLSRCDIR}/.libs/libntl.* ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
-	COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
-	COMMAND cp ${NTLSRCDIR}/../include/NTL/* ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
+	COMMAND make install
+	#COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
+	#COMMAND cp ${NTLSRCDIR}/.libs/libntl.* ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
+	#COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
+	#COMMAND cp ${NTLSRCDIR}/../include/NTL/* ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
@@ -188,9 +189,10 @@ add_library(ntl SHARED IMPORTED GLOBAL)
 set_target_properties(ntl PROPERTIES
 	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
 
-install(FILES ${NTLLIBFILE} ${NTLLIBFILE_STATIC} DESTINATION lib)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	FILES_MATCHING PATTERN "libntl.*" )
 
-add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
+add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE_STATIC} ${NTLLIBFILE_STATIC})
 
 add_subdirectory(src/core)
 add_subdirectory(src/pke)
@@ -199,6 +201,10 @@ add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
 ## add_subdirectory(src/circuit)
+
+## add_subdirectory(third-party/google-test)
+## add_subdirectory(third-party/google-benchmark)
+## add_subdirectory(benchmark)
 
 file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)
 add_executable( all_tests
