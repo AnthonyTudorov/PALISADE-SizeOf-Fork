@@ -5,6 +5,7 @@ export PATH=$NDK_HOME:$TOOLCHAIN:$PATH
 
 target_host=i686-linux-android
 export AR=${target_host}-ar
+export RANLIB=${target_host}-ranlib
 export AS=${target_host}26-clang
 export CC=${target_host}26-clang
 export CXX=${target_host}26-clang++
