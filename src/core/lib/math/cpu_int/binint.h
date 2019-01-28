@@ -211,7 +211,6 @@ namespace cpu_int{
 	template<typename uint_type,usint BITLENGTH>
 	class BigInteger : public lbcrypto::BigIntegerInterface<BigInteger<uint_type,BITLENGTH>>
 	{
-
 	public:
 
     /**
@@ -251,7 +250,7 @@ namespace cpu_int{
      * Construct a BigInteger from a NativeInteger
      * @param native
      */
-    BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
+    BigInteger(const native_int::NativeInteger& native);
 
     /**
      * Constructors from smaller basic types
@@ -307,7 +306,7 @@ namespace cpu_int{
       return *this;
     }
 
-    const BigInteger& operator=(const NativeInteger& val) {
+    const BigInteger& operator=(const native_int::NativeInteger& val) {
       *this = BigInteger(val);
       return *this;
     }

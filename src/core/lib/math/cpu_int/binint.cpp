@@ -112,6 +112,13 @@ BigInteger<uint_type,BITLENGTH>::BigInteger(const std::string& str){
 	AssignVal(str);
 }
 
+/**
+ * Construct a BigInteger from a NativeInteger
+ * @param native
+ */
+template<typename uint_type,usint BITLENGTH>
+BigInteger<uint_type,BITLENGTH>::BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
+
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH>::BigInteger(const BigInteger& bigInteger){
 	m_MSB = bigInteger.m_MSB;

@@ -105,7 +105,7 @@ const DCRTPolyImpl<VecType>&
 DCRTPolyImpl<VecType>::operator=(const NativePoly &element)
 {
 
-    if ( element.GetModulus() > m_params->GetModulus() ) {
+    if ( typename Params::Integer(element.GetModulus()) > m_params->GetModulus() ) {
         throw std::logic_error("Modulus of element passed to constructor is bigger that DCRT big modulus");
     }
 
@@ -1459,7 +1459,7 @@ template<typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
         const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<NativeInteger> &qInvModqi,
         const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
-        const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) const{
+        const std::vector<DoubleNativeInt> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) const{
 
     DCRTPolyType ans(params,m_format,true);
 
@@ -1490,7 +1490,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
 
         for (usint newvIndex = 0; newvIndex < nTowersNew; newvIndex ++ ) {
 
-            DoubleNativeInteger curValue = 0;
+            DoubleNativeInt curValue = 0;
 
             const NativeInteger &si = ans.m_vectors[newvIndex].GetModulus();
 
@@ -1521,7 +1521,7 @@ template<typename VecType>
 void DCRTPolyImpl<VecType>::ExpandCRTBasis(const shared_ptr<DCRTPolyImpl::Params> paramsExpanded,
         const shared_ptr<DCRTPolyImpl::Params> params, const std::vector<NativeInteger> &qInvModqi,
         const std::vector<std::vector<NativeInteger>> &qDivqiModsi, const std::vector<NativeInteger> &qModsi,
-        const std::vector<DoubleNativeInteger> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) {
+        const std::vector<DoubleNativeInt> &siModulimu, const std::vector<NativeInteger> &qInvModqiPrecon) {
 
     std::vector<PolyType> polyInNTT;
 
@@ -1640,7 +1640,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
         const shared_ptr<DCRTPolyImpl::Params> paramsBsk,
         const std::vector<NativeInteger> &qModuli,
         const std::vector<NativeInteger> &BskmtildeModuli,
-        const std::vector<DoubleNativeInteger> &BskmtildeModulimu,
+        const std::vector<DoubleNativeInt> &BskmtildeModulimu,
         const std::vector<NativeInteger> &mtildeqDivqiModqi,
         const std::vector<NativeInteger> &mtildeqDivqiModqiPrecon,
         const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
@@ -1708,7 +1708,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
 #pragma omp parallel for
         for ( uint32_t k = 0; k < n; k++ )
         {
-            DoubleNativeInteger result = 0;
+            DoubleNativeInt result = 0;
             for (uint32_t i = 0; i < numq; i++)
             {
                 const NativeInteger &qDivqiModBjValue = qDivqiModBj[i][j];
@@ -1791,7 +1791,7 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
     const NativeInteger &t,
     const std::vector<NativeInteger> &qModuli,
     const std::vector<NativeInteger> &BskModuli,
-    const std::vector<DoubleNativeInteger> &BskModulimu,
+    const std::vector<DoubleNativeInt> &BskModulimu,
     const std::vector<NativeInteger> &tqDivqiModqi,
     const std::vector<NativeInteger> &tqDivqiModqiPrecon,
     const std::vector<std::vector<NativeInteger>> &qDivqiModBj,
@@ -1829,7 +1829,7 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
     for (uint32_t j = 0; j < numBsk; j++) {
 #pragma omp parallel for
         for ( uint32_t k = 0; k < n; k++ ) {
-            DoubleNativeInteger aq = 0;
+            DoubleNativeInt aq = 0;
             for (uint32_t i = 0; i < numq; i++) {
                 const NativeInteger &qDivqiModBjValue = qDivqiModBj[i][j];
                 NativeInteger &xi = m_vectors[i][k];
@@ -1878,9 +1878,9 @@ void DCRTPolyImpl<VecType>::FastRNSFloorq(
 template<typename VecType>
 void DCRTPolyImpl<VecType>::FastBaseConvSK(
     const std::vector<NativeInteger> &qModuli,
-    const std::vector<DoubleNativeInteger> &qModulimu,
+    const std::vector<DoubleNativeInt> &qModulimu,
     const std::vector<NativeInteger> &BskModuli,
-    const std::vector<DoubleNativeInteger> &BskModulimu,
+    const std::vector<DoubleNativeInt> &BskModulimu,
     const std::vector<NativeInteger> &BDivBiModBi,
     const std::vector<NativeInteger> &BDivBiModBiPrecon,
     const std::vector<NativeInteger> &BDivBiModmsk,
@@ -1914,7 +1914,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     for (uint32_t j = 0; j < numq; j++) {
 #pragma omp parallel for
         for (uint32_t k = 0; k < n; k++) {
-            DoubleNativeInteger result = 0;
+            DoubleNativeInt result = 0;
             for (uint32_t i = 0; i < numBsk-1; i++) {  // exclude msk residue
                 const NativeInteger &currentBDivBiModqj = BDivBiModqj[i][j];
                 const NativeInteger &xi = m_vectors[numq+i][k];
@@ -1936,7 +1936,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvSK(
     NativeInteger *alphaskxVector = new NativeInteger[n];
 #pragma omp parallel for
     for (uint32_t k = 0; k < n; k++) {
-        DoubleNativeInteger result = 0;
+        DoubleNativeInt result = 0;
         for (uint32_t i = 0; i < numBsk-1; i++) {
             const NativeInteger &currentBDivBiModmsk = BDivBiModmsk[i];
             result +=
@@ -2026,7 +2026,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(
     const shared_ptr<DCRTPolyImpl::Params> params,
     const std::vector<std::vector<NativeInteger>> &alpha,
     const std::vector<long double> &beta,
-    const std::vector<DoubleNativeInteger> &siModulimu
+    const std::vector<DoubleNativeInt> &siModulimu
 ) const {
     DCRTPolyType ans(params, m_format, true);
 
@@ -2048,7 +2048,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(
             NativeInteger rounded = std::llround(nu);
 
             for ( usint newvIndex = 0; newvIndex < newSize; newvIndex++ ) {
-                DoubleNativeInteger curValue = 0;
+                DoubleNativeInt curValue = 0;
 
                 const NativeInteger &si =
                     params->GetParams()[newvIndex]->GetModulus();

@@ -320,7 +320,7 @@ public:
 	 * Construct from a NativeInteger
 	 * @param n
 	 */
-	ubint(const NativeInteger& n) : ubint(n.ConvertToInt()) {}
+	ubint(const native_int::NativeInteger& n);
 
     /**
      * Constructors from smaller basic types

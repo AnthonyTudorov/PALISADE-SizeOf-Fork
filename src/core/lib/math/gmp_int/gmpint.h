@@ -97,7 +97,7 @@ public:
 	//todo: figure out how to do && for wrapper
 	//myZZ(NTL::myZZ_p &&a);
 
-	myZZ(const NativeInteger& n) : myZZ(n.ConvertToInt()) {}
+	myZZ(const native_int::NativeInteger& n);
 
     /**
      * Constructors from smaller basic types

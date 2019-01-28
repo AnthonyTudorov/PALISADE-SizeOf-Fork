@@ -178,17 +178,17 @@ namespace lbcrypto {
 
 			std::vector<NativeInteger> const &GetDCRTParamsqModuli() const { return m_qModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskModuli() const { return m_BskModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
 
 			NativeInteger const &GetDCRTParamsmtilde() const { return m_mtilde; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
 
@@ -301,7 +301,7 @@ namespace lbcrypto {
 
 			// 6) Stores the crt moduli of base B (size of B moduli is chosen such that )
 			std::vector<NativeInteger> m_qModuli;
-			std::vector<DoubleNativeInteger> m_qModulimu;
+			std::vector<DoubleNativeInt> m_qModulimu;
 
 			// 7) Stores the auxilliary base B moduli
 			std::vector<NativeInteger> m_BModuli;
@@ -311,11 +311,11 @@ namespace lbcrypto {
 
 			// 9) Stores the crt moduli of base Bsk = {B U msk}
 			std::vector<NativeInteger> m_BskModuli;
-			std::vector<DoubleNativeInteger> m_BskModulimu;
+			std::vector<DoubleNativeInt> m_BskModulimu;
 
 			// 10) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
 			std::vector<NativeInteger> m_BskmtildeModuli;
-			std::vector<DoubleNativeInteger> m_BskmtildeModulimu; // Barrett constant
+			std::vector<DoubleNativeInt> m_BskmtildeModulimu; // Barrett constant
 
 			// 11) Stores (q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_qDivqiModqiTable;

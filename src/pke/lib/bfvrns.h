@@ -168,14 +168,14 @@ namespace lbcrypto {
 			*
 			* @return the precomputed table
 			*/
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsQModulimu() const { return m_qModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsQModulimu() const { return m_qModulimu; }
 
 			/**
 			* Gets the Barrett modulo reduction precomputations for S
 			*
 			* @return the precomputed table
 			*/
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsSModulimu() const { return m_sModulimu; }
 
 			/**
 			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus < 45 bits
@@ -338,10 +338,10 @@ namespace lbcrypto {
 			shared_ptr<ILDCRTParams<BigInteger>> m_paramsQS;
 
 			// Barrett modulo reduction precomputation
-			std::vector<DoubleNativeInteger> m_qModulimu;
+			std::vector<DoubleNativeInt> m_qModulimu;
 
 			// Barrett modulo reduction precomputation
-			std::vector<DoubleNativeInteger> m_sModulimu;
+			std::vector<DoubleNativeInt> m_sModulimu;
 
 			// when log2 qi <= 44 bits
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi

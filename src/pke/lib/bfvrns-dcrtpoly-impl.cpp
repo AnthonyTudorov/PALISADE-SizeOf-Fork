@@ -95,24 +95,24 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	m_qModulimu.resize(size);
 	for (uint32_t i = 0; i< moduli.size(); i++ )
 	{
-		BigInteger mu = BarrettBase128Bit/moduli[i];
+		BigInteger mu = BarrettBase128Bit/BigInteger(moduli[i]);
 		uint64_t val[2];
 		val[0] = (mu % TwoPower64).ConvertToInt();
 		val[1] = mu.RShift(64).ConvertToInt();
 
-		memcpy(&m_qModulimu[i], val, sizeof(DoubleNativeInteger));
+		memcpy(&m_qModulimu[i], val, sizeof(DoubleNativeInt));
 	}
 
 	// Precomputations for Barrett modulo reduction
 	m_sModulimu.resize(sizeS);
 	for (uint32_t i = 0; i< moduliS.size(); i++ )
 	{
-		BigInteger mu = BarrettBase128Bit/moduliS[i];
+		BigInteger mu = BarrettBase128Bit/BigInteger(moduliS[i]);
 		uint64_t val[2];
 		val[0] = (mu % TwoPower64).ConvertToInt();
 		val[1] = mu.RShift(64).ConvertToInt();
 
-		memcpy(&m_sModulimu[i], val, sizeof(DoubleNativeInteger));
+		memcpy(&m_sModulimu[i], val, sizeof(DoubleNativeInt));
 	}
 
 	const BigInteger modulusQ = GetElementParams()->GetModulus();

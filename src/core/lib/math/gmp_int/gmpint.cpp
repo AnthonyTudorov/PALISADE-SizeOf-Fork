@@ -52,6 +52,8 @@ namespace NTL {
 
   myZZ::myZZ():ZZ() {SetMSB();}
 
+  myZZ::myZZ(const NativeInteger& n) : myZZ(n.ConvertToInt()) {}
+
   myZZ::myZZ(uint64_t d): ZZ(0) {
 
     bool dbg_flag = false;

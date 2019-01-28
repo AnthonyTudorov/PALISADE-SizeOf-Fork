@@ -496,7 +496,7 @@ usint WitnessEncryption<Element>::Decrypt(
     const pair<Matrix<Element>, vector<vector<Matrix<Element>>>> ciphertext,
     const string& x) const {
     shared_ptr<vector<NativePoly>> output = this->Evaluate(ciphertext, x);
-    BigInteger zero("0");
+    NativeInteger zero("0");
     usint value = 0;
     for (usint i = 0; i < output->size(); i++) {
         for (usint k = 0; k < (*output)[i].GetLength(); k++) {

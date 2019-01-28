@@ -962,7 +962,7 @@ void MessagePrimeListGen(vector<NativeInteger> &primeList, usint &m, glmParams &
 	primeList.push_back(p);
 	for(size_t i=1; i<params.PLAINTEXTPRIMESIZE; i++){
 		p = lbcrypto::NextPrime(p, m);
-		modulusP = modulusP*p;
+		modulusP = modulusP*BigInteger(p);
 		primeList.push_back(p);
 	}
 }
