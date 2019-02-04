@@ -10,3 +10,6 @@
 [submodule "third-party/rapidjson"]
 	path = third-party/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "src/jni/gmp"]
+	path = src/jni/gmp
+	url = https://github.com/Rupan/gmp.git
