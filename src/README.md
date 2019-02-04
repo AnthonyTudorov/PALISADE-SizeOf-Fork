@@ -15,4 +15,4 @@ libPALISADEpke.so
 libgmp.so
 libPALISADEjni.so
 
-copy all EXCEPT libc++_shared.so into the jniLibs directory of the app
+copy all into the jniLibs directory of the app
