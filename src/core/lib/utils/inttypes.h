@@ -45,6 +45,13 @@ typedef uint16_t usshort;
  */
 typedef uint32_t usint;
 
+#define ABSL_HAVE_INTRINSIC_INT128 1
+/*************************************************
+ *********** this does not work for android so
+ *********** i am temporarily commenting it out
+ ***********
+ *********** for now, we assume everyone has an int128
+ ***********
 // the following useful snippet comes from the Abseil library
 
 // ABSL_HAVE_INTRINSIC_INT128
@@ -79,6 +86,7 @@ typedef uint32_t usint;
 #endif  // __CUDACC_VER__ >= 70000
 #endif  // defined(__CUDACC__)
 #endif  // ABSL_HAVE_INTRINSIC_INT128
+*************************************************/
 
 /**
  * @brief Represents whether the polynomial ring is in EVALUATION or COEFFICIENT representation.

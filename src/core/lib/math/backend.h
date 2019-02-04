@@ -201,13 +201,21 @@ namespace lbcrypto {
 	using BigInteger = M6Integer;
 	using BigVector = M6Vector;
 
-	// if we do not have an int128 built in, then we must use a multiprecision type
+	typedef unsigned __int128 DoubleNativeInt;
+
+	// it would be better, instead of the line above, to use the
+	// commented lines, but (a) the HAVE_INTRINSIC define's broken,
+	// for some compilers, and (b) some code doesn't work nicely
+	// when you plonk in BigInteger...
+	/********************************************************
+	// if we do not have an int128 built in,
+	// then we must use a multiprecision type
 	#if ABSL_HAVE_INTRINSIC_INT128
 	typedef unsigned __int128 DoubleNativeInt;
-	// UNCOMMENT FOR TESTING typedef BigInteger DoubleNativeInt;
 	#else
 	typedef BigInteger DoubleNativeInt;
 	#endif
+	********************************************************/
 
 #endif
 }

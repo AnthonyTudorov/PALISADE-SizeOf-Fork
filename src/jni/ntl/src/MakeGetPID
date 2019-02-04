@@ -1,0 +1,33 @@
+
+if test -f GetPID.cpp
+then
+   rm GetPID.cpp
+fi
+
+echo "who am I?"
+
+
+sh RemoveProg TestGetPID
+# cppkonsultants: i don't think android is necessary here, as program is not run
+# also should check other files used in setup.
+sh AndroidRemoveProg $3/TestGetPID
+echo $1 TestGetPID.cpp GetPID1.cpp
+$1 TestGetPID.cpp GetPID1.cpp
+echo $2 -o TestGetPID TestGetPID.o GetPID1.o
+$2 -o TestGetPID TestGetPID.o GetPID1.o
+
+adb push TestGetPID $3/
+
+if test -f TestGetPID
+then
+cp GetPID1.cpp GetPID.cpp
+echo "using GetPID1.cpp"
+exit 0
+fi
+
+
+cp GetPID2.cpp GetPID.cpp
+echo "using GetPID2.cpp"
+echo "warning: this GetPID function always returns 0"
+exit 0
+

@@ -1,0 +1,39 @@
+
+# invoked as: sh MakeCheckFeatures "$(FEATURES)" "$(COMPILE)" "$(LINK)" "$(ANDROID_DIR)"
+
+for f in $1
+do
+
+   printf '*** Checking for feature: %s ' "$f"
+
+   echo "" > "../include/NTL/HAVE_$f.h"
+
+   sh RemoveProg CheckFeatures
+   sh AndroidRemoveProg $4/CheckFeatures
+   echo $2 Check$f.cpp >> "CheckFeatures.log" 2>&1
+   $2 Check$f.cpp >> "CheckFeatures.log" 2>&1
+   echo $3 Check$f.o -o CheckFeatures >> "CheckFeatures.log" 2>&1
+   $3 Check$f.o -o CheckFeatures >> "CheckFeatures.log" 2>&1
+
+   if test -f CheckFeatures
+   then
+      adb push CheckFeatures $4/
+      if adb shell $4/CheckFeatures
+      then
+	 echo "[yes]"
+	 echo "#ifndef NTL_HAVE_$f" >  "../include/NTL/HAVE_$f.h"
+	 echo "#define NTL_HAVE_$f" >> "../include/NTL/HAVE_$f.h"
+	 echo "#endif"              >> "../include/NTL/HAVE_$f.h"
+      else
+	 echo "[no]"
+      fi
+   else
+      echo "[no]"
+   fi
+   sh RemoveProg CheckFeatures
+   sh AndroidRemoveProg $4/CheckFeatures
+
+done
+
+exit 0
+
