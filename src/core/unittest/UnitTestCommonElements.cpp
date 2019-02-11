@@ -425,12 +425,12 @@ void common_arithmetic_ops_element(const string& msg) {
 	typename VecType::Integer element("1");
 
 	{
-		Element ilvector2n(ilparams);
+		Element ilvector2n(ilparams,COEFFICIENT);
 		ilvector2n = {"1","3","4","1"};
 
 		ilvector2n = ilvector2n.Plus(element);
 
-		Element expected(ilparams);
+		Element expected(ilparams,COEFFICIENT);
 		expected = {"2","3","4","1"};
 		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: Plus()";
@@ -451,11 +451,11 @@ void common_arithmetic_ops_element(const string& msg) {
 			<< msg << " Failure: Times()";
 	}
 	{
-		Element ilvector2n(ilparams);
+		Element ilvector2n(ilparams,COEFFICIENT);
 		ilvector2n = {"1","3","4","1"};
 
 		ilvector2n += element;
-		Element expected(ilparams);
+		Element expected(ilparams,COEFFICIENT);
 		expected = {"2","3","4","1"};
 		EXPECT_EQ(expected, ilvector2n)
 			<< msg << " Failure: op+=";
