@@ -531,7 +531,10 @@ template<typename VecType>
 PolyImpl<VecType> PolyImpl<VecType>::Plus(const Integer &element) const
 {
 	PolyImpl<VecType> tmp = CloneParametersOnly();
-	tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
+	if (this->m_format == COEFFICIENT)
+		tmp.SetValues( GetValues().ModAddAtIndex(0, element), this->m_format );
+	else
+		tmp.SetValues( GetValues().ModAdd(element), this->m_format );
 	return std::move( tmp );
 }
 
