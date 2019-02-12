@@ -300,9 +300,6 @@ SFILES=$(SFI3)
 NTL_INCLUDE = -I../include -I.
 # NTL needs this to find its include files
 
-#####--sysroot=$(PLATFORM_DIR) 
-#####-isystem $(NDK_DIR)/sources/android/support/include 
-#####-isystem $(NDK_DIR)/sources/cxx-stl/llvm-libc++abi/include 
 CFLAGS = -I$(PLATFORM_DIR)/usr/include -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-short-enums -fomit-frame-pointer \
     -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=300 \
     -Wno-psabi -Wa,--noexecstack \
@@ -431,6 +428,9 @@ setup4:
 ntl.a:	$(OBJ) 
 	$(AR) $(ARFLAGS) ntl.a $(OBJ) #LSTAT
 	- $(RANLIB) ntl.a #LSTAT
+	$(CXX) -fPIC -shared -Wl,--export-dynamic -fopenmp \
+		--sysroot=$(PLATFORM_DIR) \
+		-o libntl.so $(OBJ) $(LINK_LIBRARIES) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB)
 # 	$(LIBTOOL) --tag=CXX --mode=link $(LINK) -o libntl.la $(OBJ:.o=.lo) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB) $(GF2X_OPT_LIBDIR) $(GF2X_OPT_LIB) $(LDLIBS) -rpath $(LIBDIR) -version-info `cat VERSION_INFO` #LSHAR
 
 LCOMP= #LSTAT
@@ -456,7 +456,7 @@ CheckPCLMUL: CheckPCLMUL.cpp
 	$(LCOMP) $(COMPILE) $(GF2X_OPT_INCDIR) $<
 
 .c: 
-	$(LINKER_CMD) -o $@ $< ntl.a $(LINK_LIBRARIES) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB) $(GF2X_OPT_LIBDIR) $(GF2X_OPT_LIB)
+	$(LINKER_CMD) -dynamiclib -o $@ $< ntl.a $(LINK_LIBRARIES) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB) $(GF2X_OPT_LIBDIR) $(GF2X_OPT_LIB)
 # 	$(LIBTOOL) --tag=CXX --mode=link $(LINK) -o $@ $< libntl.la #LSHAR
 
 #################################################################
