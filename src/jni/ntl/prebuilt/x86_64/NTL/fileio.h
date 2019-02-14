@@ -47,7 +47,7 @@ void CloseWrite(NTL_SNS ofstream& s);
 const char *FileName(const char* stem, long d);
 // builds the name from stem-DDDDD, returns pointer to buffer
 
-extern const NTL_SNS string& UniqueID();
+const NTL_SNS string& UniqueID();
 // ideally, a unique ID (across all processes and threads),
 // but it may not be perfect (useful for generating unique 
 // file names and seeding PRG).

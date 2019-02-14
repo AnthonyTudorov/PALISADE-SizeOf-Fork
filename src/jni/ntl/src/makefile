@@ -28,7 +28,7 @@ endif
 CXX=$(TOOLCHAIN_PREFIX)-g++
 # A C++ compiler, e.g., g++, CC, xlC
 
-CXXFLAGS=-g -O2
+CXXFLAGS=-g -O2 -fPIC
 # Flags for the C++ compiler
 
 CXXAUTOFLAGS= -std=c++11 -pthread 
@@ -166,13 +166,6 @@ SRC=FFT.cpp FacVec.cpp GF2.cpp GF2E.cpp GF2EX.cpp GF2EXFactoring.cpp GF2X.cpp  \
 	G_LLL_FP.cpp G_LLL_QP.cpp G_LLL_XD.cpp G_LLL_RR.cpp thread.cpp  \
 	BasicThreadPool.cpp MatPrime.cpp
 
-# library source files that are header files
-
-SINC = c_lip_impl.h g_lip_impl.h
-
-
-
-
 
 # library header files
 INCL=FFT.h FacVec.h GF2.h GF2E.h GF2EX.h GF2EXFactoring.h GF2X.h  \
@@ -208,7 +201,7 @@ TS=QuickTest.cpp ZZTest.cpp BerlekampTest.cpp CanZassTest.cpp ZZXFacTest.cpp  \
 
 # scripts
 
-SCRIPTS1=MakeGetTime MakeGetPID MakeCheckCLZL MakeCheckLL TestScript dosify unixify RemoveProg AndroidRemoveProg
+SCRIPTS1=MakeGetTime MakeGetPID TestScript dosify unixify RemoveProg AndroidRemoveProg
 SCRIPTS2=$(SCRIPTS1) configure DoConfig mfile cfile ppscript
 
 SCRIPTS=$(SCRIPTS2)
@@ -218,7 +211,6 @@ SCRIPTS=$(SCRIPTS2)
 MD=MakeDesc.cpp MakeDescAux.cpp newnames.cpp gen_gmp_aux.cpp CheckPCLMUL.cpp
 GT=GetTime0.cpp GetTime1.cpp GetTime2.cpp GetTime3.cpp GetTime4.cpp GetTime5.cpp TestGetTime.cpp
 GP=GetPID1.cpp GetPID2.cpp TestGetPID.cpp
-CH=CheckCLZL.cpp CheckCLZLAux.cpp CheckLL.cpp CheckLLAux.cpp
 
 
 FEATURES=ALIGNED_ARRAY BUILTIN_CLZL LL_TYPE SSSE3 AVX PCLMUL AVX2 FMA \
@@ -336,7 +328,7 @@ else
 endif
 TARGET_LDLIBS += $(NDK_DIR)/sources/cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)/libc++_static.a $(NDK_DIR)/sources/cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)/libc++abi.a $(NDK_DIR)/sources/cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)/libandroid_support.a -latomic
 
-CFLAGS += $(CXXFLAGS) -frtti -fexceptions -DANDROID -fvisibility=hidden
+CFLAGS += $(CXXFLAGS) -frtti -fexceptions -DANDROID #-fvisibility=hidden
 
 COMPILE = $(CXX) $(NTL_INCLUDE) \
     -Bdynamic \
@@ -399,11 +391,10 @@ setup1:
 # setup2 does some dynamic checks for GetTime, GetPID, __builtin_clzl, and LL types 
 
 setup2:
+	echo "*** CheckFeatures log ***" > CheckFeatures.log
 	adb shell mkdir -p $(PHONE_TMP_DIR)
 	sh MakeGetTime "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
 	sh MakeGetPID "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
-	#sh MakeCheckCLZL "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
-	#sh MakeCheckLL "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
 	sh MakeCheckFeatures "$(FEATURES)" "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
 
 # setup3 generates the file ../include/NTL/gmp_aux.h
@@ -430,13 +421,16 @@ ntl.a:	$(OBJ)
 	- $(RANLIB) ntl.a #LSTAT
 	$(CXX) -fPIC -shared -Wl,--export-dynamic -fopenmp \
 		--sysroot=$(PLATFORM_DIR) \
-		-o libntl.so $(OBJ) $(LINK_LIBRARIES) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB)
+		-o libntl.so \
+		$(OBJ) \
+		$(LINK_LIBRARIES) \
+		$(GMP_OPT_LIBDIR) $(GMP_OPT_LIB) $(GF2X_OPT_LIBDIR) $(GF2X_OPT_LIB)
 # 	$(LIBTOOL) --tag=CXX --mode=link $(LINK) -o libntl.la $(OBJ:.o=.lo) $(GMP_OPT_LIBDIR) $(GMP_OPT_LIB) $(GF2X_OPT_LIBDIR) $(GF2X_OPT_LIB) $(LDLIBS) -rpath $(LIBDIR) -version-info `cat VERSION_INFO` #LSHAR
 
 LCOMP= #LSTAT
 # LCOMP=$(LIBTOOL) --tag=CXX --mode=compile #LSHAR
 
-lip.o:	lip.cpp g_lip_impl.h c_lip_impl.h 
+lip.o:	lip.cpp 
 	$(LCOMP) $(COMPILE) $(GMP_OPT_INCDIR) lip.cpp
 
 ctools.o:	ctools.cpp
@@ -531,8 +525,6 @@ uninstall:
 
 clobber:	
 	rm -f ntl.a mach_desc.h ../include/NTL/mach_desc.h  GetTime.cpp GetPID.cpp
-	cp ../include/NTL/have_LL_no.h ../include/NTL/have_LL.h
-	cp ../include/NTL/have_builtin_clzl_no.h ../include/NTL/have_builtin_clzl.h
 	rm -f ../include/NTL/gmp_aux.h
 	sh RemoveProg $(PROGS) MakeDesc TestGetTime TestGetPID gen_gmp_aux
 #	sh AndroidRemoveProg $(PHONE_TMP_DIR)/$(PROGS) $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetTime  $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetPID $(PHONE_TMP_DIR)/gen_gmp_aux

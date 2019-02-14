@@ -382,7 +382,7 @@ using the configure script.
  * FFT modulo single-precision primes is implemented.
  */
 
-#if 0
+#if 1
 #define NTL_FFT_BIGTAB
 
 /*
@@ -395,7 +395,7 @@ using the configure script.
 #endif
 
 
-#if 0
+#if 1
 #define  NTL_FFT_LAZYMUL
 
 /*
@@ -426,7 +426,7 @@ using the configure script.
 
 
 
-#if 0
+#if 1
 #define NTL_TBL_REM
 
 /*
@@ -440,7 +440,7 @@ using the configure script.
 
 
 
-#if 0
+#if 1
 #define NTL_CRT_ALTCODE
 
 /*
