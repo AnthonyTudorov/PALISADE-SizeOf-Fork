@@ -3,9 +3,6 @@
 export NDK_DIR=$HOME/Desktop/android-ndk-r16b/
 ORIG_PATH=$PATH
 
-# Only one build type uncommented because there must be one device
-# connected at the time of build.
-
 case "$1" in
 
 armeabi)
