@@ -44,11 +44,52 @@ using namespace std;
 using namespace lbcrypto;
 using namespace testing;
 
+#include <android/log.h>
+
+class androidbuf : public std::streambuf {
+public:
+    enum { bufsize = 128 }; // ... or some other suitable buffer size
+    androidbuf() { this->setp(buffer, buffer + bufsize - 1); }
+
+private:
+    int overflow(int c)
+    {
+        if (c == traits_type::eof()) {
+            *this->pptr() = traits_type::to_char_type(c);
+            this->sbumpc();
+        }
+        return this->sync()? traits_type::eof(): traits_type::not_eof(c);
+    }
+
+    int sync()
+    {
+        int rc = 0;
+        if (this->pbase() != this->pptr()) {
+            char writebuf[bufsize+1];
+            memcpy(writebuf, this->pbase(), this->pptr() - this->pbase());
+            writebuf[this->pptr() - this->pbase()] = '\0';
+
+            rc = __android_log_write(ANDROID_LOG_INFO, "std", writebuf) > 0;
+            this->setp(buffer, buffer + bufsize - 1);
+        }
+        return rc;
+    }
+
+    char buffer[bufsize];
+};
+
 static string lead = "****** ";
 
 class MinimalistPrinter : public EmptyTestEventListener {
 
 public:
+	MinimalistPrinter() {
+		std::cout.rdbuf(new androidbuf);
+	}
+	~MinimalistPrinter() {
+		delete std::cout.rdbuf(0);
+	}
+
 	void OnTestProgramStart(const ::testing::UnitTest& unit_test) {
 		cout << lead << "PALISADE Version " << GetPALISADEVersion() << endl;
 		cout << lead << "Date " <<
@@ -75,9 +116,8 @@ public:
 			if( pr.passed() )
 				continue;
 
-			internal::ColoredPrintf(internal::COLOR_GREEN,  "[ RUN      ] ");
-			printf("%s.%s\n", test_info.test_case_name(), test_info.name());
-			fflush(stdout);
+			cout << "[ RUN      ] ";
+			cout << test_info.test_case_name() << "." << test_info.name() << endl;
 
 			auto n = pr.file_name();
 			if( n != NULL )
@@ -85,9 +125,8 @@ public:
 
 			cout << pr.summary() << endl;
 
-			internal::ColoredPrintf(internal::COLOR_RED, "[  FAILED  ] ");
-			printf("%s.%s\n", test_info.test_case_name(), test_info.name());
-			fflush(stdout);
+			cout << "[  FAILED  ] ";
+			cout << test_info.test_case_name() << test_info.name() << endl;
 			internal::PrintFullTestCommentIfPresent(test_info);
 		}
 	}
@@ -127,48 +166,12 @@ public:
 
 };
 
-#include <android/log.h>
-
-class androidbuf : public std::streambuf {
-public:
-    enum { bufsize = 128 }; // ... or some other suitable buffer size
-    androidbuf() { this->setp(buffer, buffer + bufsize - 1); }
-
-private:
-    int overflow(int c)
-    {
-        if (c == traits_type::eof()) {
-            *this->pptr() = traits_type::to_char_type(c);
-            this->sbumpc();
-        }
-        return this->sync()? traits_type::eof(): traits_type::not_eof(c);
-    }
-
-    int sync()
-    {
-        int rc = 0;
-        if (this->pbase() != this->pptr()) {
-            char writebuf[bufsize+1];
-            memcpy(writebuf, this->pbase(), this->pptr() - this->pbase());
-            writebuf[this->pptr() - this->pbase()] = '\0';
-
-            rc = __android_log_write(ANDROID_LOG_INFO, "std", writebuf) > 0;
-            this->setp(buffer, buffer + bufsize - 1);
-        }
-        return rc;
-    }
-
-    char buffer[bufsize];
-};
-
 bool TestB2 = false;
 bool TestB4 = false;
 bool TestB6 = false;
 bool TestNative = true;
 
 int testmain(int argc, char *argv[]) {
-
-	std::cout.rdbuf(new androidbuf);
 
 	::testing::InitGoogleTest(&argc, argv);
 
@@ -215,26 +218,9 @@ int testmain(int argc, char *argv[]) {
 			TestB6 = true;
 	}
 
-	if( terse ) {
-		// Adds a listener to the end.  Google Test takes the ownership.
-		delete listeners.Release(listeners.default_result_printer());
-		listeners.Append(new MinimalistPrinter);
-	}
-	else {
-		cout << "PALISADE Version " << GetPALISADEVersion() << endl;
-		cout << "Compiled for " << GetMathBackendParameters() << endl;
-		cout << "Testing backend: ";
-		if( TestB2 )
-			cout << "2 ";
-		else if( TestB4 )
-			cout << "4 ";
-		else if( TestB6 )
-			cout << "6 ";
-		cout << endl;
-	}
-
+	delete listeners.Release(listeners.default_result_printer());
+	listeners.Append(new MinimalistPrinter);
 	auto ret = RUN_ALL_TESTS();
-	delete std::cout.rdbuf(0);
 	return ret;
 }
 
@@ -244,13 +230,17 @@ int testmain(int argc, char *argv[]) {
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_lgs_palisadeunittest_MainActivity_RunUnitTest(
         JNIEnv *env,
-        jobject /* this */) {
+        jobject /* this */,
+	jstring filter) {
+
+	const char *cstr = env->GetStringUTFChars(filter, NULL);
 
     char *args[] = {
 	(char *)"none",
+	(char *)cstr,
 	(char *)0
     };
-    testmain(1, args);
+    testmain(2, args);
     std::string hello = "Done";
     return env->NewStringUTF(hello.c_str());
 }
