@@ -52,10 +52,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libPALISADEjni
 
-JNI_FILE_LIST := $(shell find wrappers/PALISADEjni -name '*.cpp')
+JNI_FILE_LIST := $(shell find jni/PALISADE -name '*.cpp')
 LOCAL_SRC_FILES := $(JNI_FILE_LIST:$(LOCAL_PATH)/%=%)
 
-LOCAL_C_INCLUDES := jni/gmp/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/rapidjson/include core/lib pke/lib wrappers/PALISADEjni
+LOCAL_C_INCLUDES := jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/rapidjson/include core/lib pke/lib jni/PALISADE
 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS=true
