@@ -1,1 +1,0 @@
-../mpn/arm64/gcd_1.asm
