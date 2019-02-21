@@ -125,7 +125,7 @@ add_custom_command(
 )
 
 add_custom_command(
-	OUTPUT ${GMPLIBFILE_STATIC}
+	OUTPUT ${GMPLIBFILE}
 	DEPENDS ${GMPCONF}
 	COMMAND make 
 	COMMAND make install
@@ -145,15 +145,9 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 ### NOTE NTL doesn't (easily) cross compile; we use a hand-tuned Android version
 ### there's likely a better way to do this
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
-	set(NTLSRCDIR ${THIRDPARTYDIR}/distros/cross-ntl-10.5.0/src)
-	set(NTLZIPNAME cross-ntl-10.5.0.tar.gz)
-	set(NTLTARGET ntl.a)
-else()
-	set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
-	set(NTLZIPNAME ntl-10.5.0.tar.gz)
-	set(NTLTARGET all)
-endif()
+set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
+set(NTLZIPNAME ntl-10.5.0.tar.gz)
+set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
@@ -166,26 +160,13 @@ if( NOT EXISTS "${NTLSRCDIR}" )
 		COMMAND ${TAR} xf ${NTLZIPNAME}
 		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
 	)
-	if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
-		execute_process(
-			COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
-			COMMAND cp ${NTLSRCDIR}/.libs/libntl.* ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib
-			COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
-			COMMAND cp ${NTLSRCDIR}/../include/NTL/* ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL
-			WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
-		)
-	else()
-		execute_process(
-			COMMAND ./configure ${NTLCROSS} PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
-			WORKING_DIRECTORY ${NTLSRCDIR}
-		)
-	endif()
 endif()
 
 add_custom_command(
 	OUTPUT ${NTLLIBFILE}
-	DEPENDS ${NTLCONF} ${GMPLIBFILE}
-	COMMAND make ${NTLTARGET}
+	DEPENDS ${GMPLIBFILE}
+	COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+	COMMAND make
 	COMMAND make install
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
