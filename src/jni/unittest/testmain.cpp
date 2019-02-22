@@ -1,5 +1,6 @@
 /*
- * @file 
+ * @file testmain.cpp ; main for Android version of test
+ * (because Android does not support stdout)
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -105,16 +106,12 @@ public:
 	void OnTestPartResult(const ::testing::TestPartResult& test_part_result) {}
 
 	void OnTestEnd(const ::testing::TestInfo& test_info) {
-		if (test_info.result()->Passed() ) {
-			return;
-		}
-
 		auto tr = test_info.result();
 
 		for( int i=0; i < tr->total_part_count(); i++ ) {
 			auto pr = tr->GetTestPartResult(i);
-			if( pr.passed() )
-				continue;
+			//if( pr.passed() )
+				//continue;
 
 			cout << "[ RUN      ] ";
 			cout << test_info.test_case_name() << "." << test_info.name() << endl;
@@ -125,7 +122,10 @@ public:
 
 			cout << pr.summary() << endl;
 
-			cout << "[  FAILED  ] ";
+			if( pr.passed() )
+				cout << "[  OK      ] ";
+			else
+				cout << "[  FAILED  ] ";
 			cout << test_info.test_case_name() << test_info.name() << endl;
 			internal::PrintFullTestCommentIfPresent(test_info);
 		}
