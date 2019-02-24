@@ -119,6 +119,12 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_reencrypt
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_decrypt
   (JNIEnv *, jobject, jint, jint);
 
+JNIEXPORT jstring JNICALL Java_com_palisade_PALISADE_version
+  (JNIEnv *, jobject);
+
+JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_runtest
+  (JNIEnv *, jobject, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif
