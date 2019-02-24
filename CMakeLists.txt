@@ -180,6 +180,8 @@ set_target_properties(ntl PROPERTIES
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
+
 add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
 
 add_subdirectory(src/core)
