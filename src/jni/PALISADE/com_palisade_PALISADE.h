@@ -55,6 +55,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkey
   (JNIEnv *, jobject, jbyteArray);
 
+JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_genprekey
+  (JNIEnv *, jobject, jint publicKeyId, jint secretKeyId);
+
 /*
  * Class:     com_palisade_PALISADE
  * Method:    serprivkey
@@ -109,7 +112,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_encrypt
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_reencrypt
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint ctid, jint pkid);
 
 /*
  * Class:     com_palisade_PALISADE
