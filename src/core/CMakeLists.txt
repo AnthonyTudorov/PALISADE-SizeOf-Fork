@@ -25,13 +25,18 @@ set (CORE_TEST_SRC_FILES ${CORE_TEST_SRC_FILES})
 add_executable( core_tests ${CORE_TEST_SRC_FILES} ${UNITTESTMAIN} )
 target_link_libraries ( core_tests ${CORELIBS} )
 
+set( COREAPPS "" )
 file (GLOB CORE_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${CORE_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable ( ${APP} ${app} )
+	set( COREAPPS ${COREAPPS} ${APP} )
 	target_link_libraries ( ${APP} ${CORELIBS} )
 	install ( TARGETS ${APP} DESTINATION demo/core )
 endforeach()
 
 install(TARGETS core_tests DESTINATION unittest)
+
+add_custom_target( allcore )
+add_dependencies( allcore PALISADEcore ${COREAPPS} core_tests )

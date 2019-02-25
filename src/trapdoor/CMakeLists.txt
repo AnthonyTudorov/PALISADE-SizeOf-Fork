@@ -24,14 +24,18 @@ file (GLOB TRAPDOOR_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (trapdoor_tests ${TRAPDOOR_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( trapdoor_tests ${TRAPDOORLIBS} )
 
+set (TRAPDOORAPPS "")
 file (GLOB TRAPDOOR_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${TRAPDOOR_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set (TRAPDOORAPPS ${TRAPDOORAPPS} ${APP})
 	target_link_libraries ( ${APP} ${TRAPDOORLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/trapdoor )
 endforeach()
 
 install(TARGETS trapdoor_tests DESTINATION unittest)
 
+add_custom_target( alltrapdoor )
+add_dependencies( alltrapdoor PALISADEtrapdoor ${TRAPDOORAPPS} trapdoor_tests )

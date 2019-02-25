@@ -24,13 +24,18 @@ file (GLOB ABE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (abe_tests ${ABE_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( abe_tests ${ABELIBS} )
 
+set (ABEAPPS "")
 file (GLOB ABE_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${ABE_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set( ABEAPPS ${ABEAPPS} ${APP} )
 	target_link_libraries ( ${APP} ${ABELIBS} )
         install ( TARGETS ${APP} DESTINATION demo/abe )
 endforeach()
 
 install(TARGETS abe_tests DESTINATION unittest)
+
+add_custom_target( allabe )
+add_dependencies( allabe PALISADEabe ${ABEAPPS} abe_tests )

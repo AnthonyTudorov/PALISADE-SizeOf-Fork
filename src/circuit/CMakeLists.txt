@@ -25,14 +25,18 @@ file (GLOB CIRCUIT_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (circuit_tests ${CIRCUIT_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( circuit_tests ${CIRCUITLIBS} )
 
+set (CIRCUITAPPS "")
 file (GLOB CIRCUIT_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${CIRCUIT_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set (CIRCUITAPPS ${CIRCUITAPPS} ${APP})
 	target_link_libraries ( ${APP} ${CIRCUITLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/circuit )
 endforeach()
 
 install(TARGETS circuit_tests DESTINATION unittest)
 
+add_custom_target( allcircuit )
+add_dependencies( allcircuit PALISADEcircuit ${CIRCUITAPPS} circuit_tests )

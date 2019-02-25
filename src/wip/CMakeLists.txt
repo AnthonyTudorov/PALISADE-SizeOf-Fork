@@ -24,14 +24,18 @@ file (GLOB WIP_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (wip_tests ${WIP_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( wip_tests ${WIPLIBS} )
 
+set (WIPAPPS "")
 file (GLOB WIP_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${WIP_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set (WIPAPPS ${WIPAPPS} ${APP})
 	target_link_libraries ( ${APP} ${WIPLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/wip )
 endforeach()
 
 install(TARGETS wip_tests DESTINATION unittest)
 
+add_custom_target( allwip )
+add_dependencies( allwip PALISADEwip ${WIPAPPS} wip_tests )

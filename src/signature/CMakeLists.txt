@@ -24,14 +24,18 @@ file (GLOB SIG_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (signature_tests ${SIG_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( signature_tests ${SIGLIBS} )
 
+set (SIGAPPS "")
 file (GLOB SIG_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${SIG_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set (SIGAPPS ${SIGAPPS} ${APP})
 	target_link_libraries ( ${APP} ${SIGLIBS} )
         install ( TARGETS ${APP} DESTINATION demo/signature )
 endforeach()
 
 install(TARGETS signature_tests DESTINATION unittest)
 
+add_custom_target( allsignature )
+add_dependencies( allsignature PALISADEsignature ${SIGAPPS} signature_tests )

@@ -192,8 +192,13 @@ add_subdirectory(src/signature)
 add_subdirectory(src/wip)
 ## add_subdirectory(src/circuit)
 
-## add_subdirectory(third-party/google-test)
-## add_subdirectory(third-party/google-benchmark)
+add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
+
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable testing of the benchmark library." FORCE)
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Enable installation of benchmark. (Projects embedding benchmark may want to turn this OFF.)" FORCE)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests which depend on gtest" FORCE)
+add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
+
 ## add_subdirectory(benchmark)
 
 file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)

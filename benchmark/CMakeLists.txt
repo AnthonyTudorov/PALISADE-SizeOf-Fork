@@ -8,6 +8,7 @@ endif()
 
 set (BMLIBS PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
 
+set (BMAPPS "")
 file (GLOB BMARK_SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 foreach (app ${BMARK_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
@@ -17,7 +18,9 @@ foreach (app ${BMARK_SRC_FILES})
 	set_target_properties( ${APP} PROPERTIES COMPILE_FLAGS
 		"${REGEX_FLAG} -DHAVE_STEADY_CLOCK -DNDEBUG ${WARNING_FLAG} -Wno-unused-variable" )
 	target_link_libraries ( ${APP} ${BMLIBS} )
+	set (BMAPPS ${BMAPPS} ${APP})
         install ( TARGETS ${APP} DESTINATION benchmark )
 endforeach()
 
-
+add_custom_target( allbenchmark )
+add_dependencies( allbenchmark ${BMAPPS} )

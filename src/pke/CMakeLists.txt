@@ -24,14 +24,19 @@ file (GLOB PKE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (pke_tests ${PKE_TEST_SRC_FILES} ${UNITTESTMAIN})
 target_link_libraries ( pke_tests ${PKELIBS} )
 
+set(PKEAPPS "")
 file (GLOB PKE_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
 foreach (app ${PKE_DEMO_SRC_FILES})
 	string ( REGEX REPLACE "/\.*/" "" FN ${app})
 	string ( REPLACE ".cpp" "" APP ${FN})
 	add_executable( ${APP} ${app} )
+	set(PKEAPPS ${PKEAPPS} ${APP} )
 	target_link_libraries ( ${APP} ${PKELIBS} )
         install ( TARGETS ${APP} DESTINATION demo/pke )
 endforeach()
 
 install(TARGETS pke_tests DESTINATION unittest)
+
+add_custom_target( allpke )
+add_dependencies( allpke PALISADEpke ${PKEAPPS} pke_tests )
 

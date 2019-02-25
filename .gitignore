@@ -6,6 +6,8 @@
 bin/
 installed/
 build/
+installed/
+
 test/build
 test/bin
 output.txt
@@ -23,10 +25,7 @@ gmon.out
 ## .gitattributes
 # Except this file
 !.gitignore
-output.txt
-bin
-test/bin
-test/build
+
 .idea
 */**/*.gch
 *.a
@@ -52,6 +51,8 @@ src/circuit/lib/scan.cpp
 src/circuit/lib/parse.cpp
 src/circuit/lib/parse.hpp
 src/circuit/lib/*.hh
+
+src/obj
 
 # vagrant output
 .vagrant/
