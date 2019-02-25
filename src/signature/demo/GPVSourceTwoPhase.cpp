@@ -63,7 +63,7 @@ using namespace lbcrypto;
         TIC(t1);
         context.SignOfflinePhase(sk,pv);
         duration = TOC(t1);
-        std::cout<<"Signing (Offline): "<<duration<<" ms"<<std::endl<<std::endl;
+        std::cout<<"Signing (Offline): "<<duration<<" ms"<<std::endl;
         TIC(t1);
         context.SignOnlinePhase(plaintext,sk,vk,pv,&signature);
         duration = TOC(t1);
