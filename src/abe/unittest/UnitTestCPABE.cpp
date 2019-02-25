@@ -63,7 +63,6 @@ void UnitTestCPABE(SecurityLevel level,usint ell){
     CPABEMasterPublicKey<Element> mpk;
 	CPABEMasterSecretKey<Element> msk;
     context.Setup(&mpk,&msk);
-
     std::vector<usint> s(ell);
 	std::vector<int> w(ell);
 
@@ -94,7 +93,6 @@ void UnitTestCPABE(SecurityLevel level,usint ell){
     CPABECiphertext<Element> ct;
 	context.Encrypt(mpk,ap,pt,&ct);
 	Plaintext dt = context.Decrypt(ap,ua,sk,ct);
-
 
     EXPECT_EQ(pt->GetElement<Element>(),dt->GetElement<Element>());
 

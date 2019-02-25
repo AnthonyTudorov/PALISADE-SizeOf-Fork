@@ -127,9 +127,7 @@ namespace lbcrypto{
 			y = pubElemD - y;
 
 			Matrix<Element> skA(Element::Allocator(m_params->GetTrapdoorParams()->GetElemParams(), EVALUATION), m_m, 1);
-
 			skA = RLWETrapdoorUtility<Element>::GaussSamp(m_N, m_k, mpk.GetA(), msk.GetTA(), y, m_params->GetTrapdoorParams()->GetDGG(), m_params->GetTrapdoorParams()->GetDGGLargeSigma(), m_base);
-
 			Matrix<Element> sk(Element::Allocator(ep, COEFFICIENT), m_m, m_ell+1);
 			for(usint i=0; i<m_m; i++)
 				(sk)(i, 0) = skA(i, 0);
