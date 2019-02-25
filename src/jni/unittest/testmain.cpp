@@ -99,7 +99,9 @@ public:
 	void OnTestIterationStart(const ::testing::UnitTest& unit_test, int iteration) {}
 	void OnEnvironmentsSetUpStart(const ::testing::UnitTest& unit_test) {}
 	void OnEnvironmentsSetUpEnd(const ::testing::UnitTest& unit_test) {}
-	void OnTestCaseStart(const ::testing::TestCase& test_case) {}
+	void OnTestCaseStart(const ::testing::TestCase& test_case) {
+		cout << test_case.name() << " start" << endl;
+	}
 	void OnTestStart(const ::testing::TestInfo& test_info) {}
 
 	// Called after a failed assertion or a SUCCEED() invocation.
@@ -107,6 +109,7 @@ public:
 
 	void OnTestEnd(const ::testing::TestInfo& test_info) {
 		auto tr = test_info.result();
+		cout << "** " << test_info.test_case_name() << " " << tr->total_part_count() << endl;
 
 		for( int i=0; i < tr->total_part_count(); i++ ) {
 			auto pr = tr->GetTestPartResult(i);
@@ -130,7 +133,9 @@ public:
 			internal::PrintFullTestCommentIfPresent(test_info);
 		}
 	}
-	void OnTestCaseEnd(const ::testing::TestCase& test_case) {}
+	void OnTestCaseEnd(const ::testing::TestCase& test_case) {
+		cout << test_case.name() << " end" << endl;
+	}
 	void OnEnvironmentsTearDownStart(const ::testing::UnitTest& unit_test) {}
 	void OnEnvironmentsTearDownEnd(const ::testing::UnitTest& /*unit_test*/) {}
 	void OnTestIterationEnd(const ::testing::UnitTest& unit_test, int iteration) {}
