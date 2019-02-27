@@ -753,28 +753,16 @@ public:
 	}
 
 	/**
-	* ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
-	* @param newKey (private)
-	* @param oldKey (private)
-	* @return new evaluation key
-	*/
+	 * ReKeyGen produces an Eval Key that PALISADE can use for Proxy Re Encryption
+	 * NOTE this functionality has been completely removed from PALISADE
+	 * @param newKey (private)
+	 * @param oldKey (private)
+	 * @return new evaluation key
+	 */
 	LPEvalKey<Element> ReKeyGen(
-		const LPPrivateKey<Element> newKey,
-		const LPPrivateKey<Element> oldKey) const {
-
-		if (newKey == NULL || oldKey == NULL ||
-				Mismatched(newKey->GetCryptoContext()) ||
-				Mismatched(oldKey->GetCryptoContext()) )
-			throw std::logic_error("Keys passed to ReKeyGen were not generated with this crypto context");
-
-		TimeVar t;
-		if( doTiming ) TIC(t);
-		auto r = GetEncryptionAlgorithm()->ReKeyGen(newKey, oldKey);
-		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpReKeyGenPriPri, TOC_US(t)) );
-		}
-		return r;
-	}
+			const LPPrivateKey<Element> newKey,
+			const LPPrivateKey<Element> oldKey) const
+					__attribute__ ((deprecated("functionality removed from PALISADE")));
 
 	/**
 	* EvalMultKeyGen creates a key that can be used with the PALISADE EvalMult operator
