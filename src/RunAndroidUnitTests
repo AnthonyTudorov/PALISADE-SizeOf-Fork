@@ -1,0 +1,3 @@
+adb shell mkdir -p /data/local/tmp/test
+adb push libs/x86_64/PALISADEunit /data/local/tmp/test/PALISADEunit
+adb shell /data/local/tmp/test/PALISADEunit
