@@ -76,14 +76,6 @@ include_directories( ${THIRDPARTYDIR}/include )
 ### Handle third-party RAPIDJSON
 set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
 
-#execute_process(
-#	COMMAND git submodule update --init third-party/rapidjson
-#	COMMAND git submodule update --init third-party/google-test
-#	COMMAND git submodule update --init third-party/google-benchmark
-#	COMMAND git submodule foreach git pull origin master
-#	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#)
-
 include_directories( ${RAPIDJSONINC} )
 
 include_directories( src )
@@ -110,7 +102,7 @@ set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
-# unpack distro
+# unpack gmp distro
 if( NOT EXISTS "${GMPSRCDIR}" )
 	execute_process(
 		COMMAND ${TAR} xf gmp-6.1.2.tar.lz
@@ -142,8 +134,6 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
 
 ### Handle third-party libntl
-### NOTE NTL doesn't (easily) cross compile; we use a hand-tuned Android version
-### there's likely a better way to do this
 
 set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
 set(NTLZIPNAME ntl-10.5.0.tar.gz)
@@ -154,7 +144,7 @@ set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
 set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-# unpack distro
+# unpack ntl distro
 if( NOT EXISTS "${NTLSRCDIR}" )
 	execute_process(
 		COMMAND ${TAR} xf ${NTLZIPNAME}
@@ -184,6 +174,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
 add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
 
+### add each of the subdirs of src
 add_subdirectory(src/core)
 add_subdirectory(src/pke)
 add_subdirectory(src/trapdoor)
@@ -192,14 +183,16 @@ add_subdirectory(src/signature)
 add_subdirectory(src/wip)
 ## add_subdirectory(src/circuit)
 
+### build the google test handlers
 add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
 
+### build the google benchmark handlers (just the parts we need)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable testing of the benchmark library." FORCE)
 set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Enable installation of benchmark. (Projects embedding benchmark may want to turn this OFF.)" FORCE)
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests which depend on gtest" FORCE)
 add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
-## add_subdirectory(benchmark)
+add_subdirectory(benchmark)
 
 file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)
 add_executable( all_tests

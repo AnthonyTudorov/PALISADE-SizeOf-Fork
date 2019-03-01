@@ -30,7 +30,7 @@
 
 #define PROFILE
 #define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include <iostream>
 #include <fstream>
@@ -197,4 +197,4 @@ void NTTTransform(benchmark::State& state) {
 
 BENCHMARK(NTTTransform)->Unit(benchmark::kMicrosecond);
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();
