@@ -121,7 +121,6 @@ add_custom_command(
 	DEPENDS ${GMPCONF}
 	COMMAND make 
 	COMMAND make install
-	#COMMAND cp ${GMPSRCDIR}/gmp.h ${THIRDPARTYDIR}/include
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
@@ -181,7 +180,7 @@ add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
-## add_subdirectory(src/circuit)
+add_subdirectory(src/circuit)
 
 ### build the google test handlers
 add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
@@ -194,16 +193,5 @@ add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
 add_subdirectory(benchmark)
 
-file (GLOB ALLTESTOBJ CONFIGURE_DEPENDS src/core/CMakeFiles/core_tests.dir/unittest/*.o)
-add_executable( all_tests
-	${ALLTESTOBJ}
-	${ABE_TEST_SRC_FILES}
-	${PKE_TEST_SRC_FILES}
-	${SIG_TEST_SRC_FILES}
-	${TRAPDOOR_TEST_SRC_FILES}
-	${WIP_TEST_SRC_FILES}
-	${UNITTESTMAIN}
-)
-target_link_libraries( all_tests PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature PALISADEwip ntl gmp )
-
-install(TARGETS all_tests DESTINATION unittest)
+## add_executable(testall $<TARGET_OBJECTS:core_tests>)
+## install(TARGETS testall DESTINATION unittest)
