@@ -6,20 +6,27 @@ package com.palisade;
  * This object provides PALISADE services to Java applications
  *
  * NOTES:
- * 1. This is an initial implementation
- * 2. Operations to generate CryptoContexts and keys are NOT exposed; we assume
+ * 1. Operations to generate CryptoContexts and keys are NOT exposed; we assume
  *    that these objects are generated from outside the application and preloaded
- * 3. The PALISADE object can be initialized by loading a serialized context,
+ * 2. The PALISADE object can be initialized by loading a serialized context,
  *    OR by preloading a serialized key that contains a context serialization
- * 4. There is intended to be a 1:1 correspondence between this object and
+ * 3. There is intended to be a 1:1 correspondence between this object and
  *    the PALISADE CryptoContext that it represents
- * 5. Objects such as keys and Ciphertexts are maintained in the C++ layer;
+ * 4. Objects such as keys and Ciphertexts are maintained in the C++ layer;
  *    these objects are identified by small non-negative integers that are
  *    used as arguments to the crypto methods
- * 6. There needs to be, but is not yet, a mechanism to clean up the
+ * 5. There needs to be, but is not yet, a mechanism to clean up the
  *    objects at the C++ layer when we're done with them
  */
 public class PALISADE {
+    static {
+        System.loadLibrary("gmp");
+        System.loadLibrary("ntl");
+        System.loadLibrary("PALISADEcore");
+        System.loadLibrary("PALISADEpke");
+        System.loadLibrary("PALISADEjni");
+    }
+
     private boolean initialized;
 
     /**

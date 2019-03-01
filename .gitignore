@@ -53,6 +53,7 @@ src/circuit/lib/parse.hpp
 src/circuit/lib/*.hh
 
 src/obj
+src/libs
 
 # vagrant output
 .vagrant/
