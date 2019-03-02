@@ -142,6 +142,20 @@ public class PALISADE {
     }
 
     /**
+     * Generate a PRE key from a given keypair
+     *
+     * @param publicKeyId non negative integer identifying an existing public key (installed or created)
+     * @param secretKeyId non negative integer identifying an existing secret key (installed or created)
+     * @return non-negative int identifying the new PRE key; other values indicate failure
+     */
+    public int ReKeyGen(int publicKeyId, int secretKeyId) {
+        if (!initialized) {
+            return -1;
+        }
+        return genprekey(publicKeyId, secretKeyId);
+    }
+
+    /**
      * Install a serialized proxy re-encryption key into PALISADE
      *
      * @param serializedPREKey the serialized pre key
@@ -186,7 +200,7 @@ public class PALISADE {
      * @param ctid non negative integer identifying an existing ciphertext (installed or created)
      * @return byte array containing the serialization of the ciphertext; nil on failure
      */
-    public byte[] SerializeCipherext(int ctid) {
+    public byte[] SerializeCiphertext(int ctid) {
         if( !initialized ) {
             return null;
         }
@@ -240,6 +254,8 @@ public class PALISADE {
 
     }
 
+    public native String version();
+
     // hooks into library
 
     private native boolean loadcontext(byte[] serializedContext);
@@ -249,6 +265,8 @@ public class PALISADE {
     private native byte[] serpubkey(int keyid);
     private native int loadprivkey(byte[] serializedPrivKey);
     private native byte[] serprivkey(int keyid);
+
+    private native int genprekey(int publicKeyId, int secretKeyId);
     private native int loadprekey(byte[] serializedPREKey);
     private native byte[] serprekey(int keyid);
     private native int loadct(byte[] serializedCiphertext);
