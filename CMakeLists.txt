@@ -73,10 +73,8 @@ include (ExternalProject)
 set( THIRDPARTYDIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party )
 include_directories( ${THIRDPARTYDIR}/include )
 
-### Handle third-party RAPIDJSON
-set(RAPIDJSONINC ${THIRDPARTYDIR}/rapidjson/include )
-
-include_directories( ${RAPIDJSONINC} )
+### Handle third-party CEREAL
+include_directories( ${THIRDPARTYDIR}/cereal/include )
 
 include_directories( src )
 set (SUBMAKEFILES core pke trapdoor abe signature circuit wip)
@@ -180,7 +178,7 @@ add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
-add_subdirectory(src/circuit)
+## add_subdirectory(src/circuit)
 
 ### build the google test handlers
 add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)

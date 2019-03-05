@@ -7,6 +7,6 @@
 [submodule "third-party/google-test"]
 	path = third-party/google-test
 	url = https://github.com/google/googletest.git
-[submodule "third-party/rapidjson"]
-	path = third-party/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
+[submodule "third-party/cereal"]
+	path = third-party/cereal
+	url = https://github.com/USCiLab/cereal.git
