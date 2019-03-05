@@ -663,8 +663,24 @@ namespace lbcrypto {
 			const LPPrivateKey<Element> origPrivateKey) const;
 
 		/**
-		* DISABLED. Function to generate a re-encryption key as 1..log(q) encryptions for each bit of the original private key
-		* Variant that uses the public key for the new secret key. Not implemented for BFV.
+		* The generation of re-encryption keys is based on the BG-PRE scheme described in
+		* Polyakov, et. al., "Fast proxy re-encryption for publish/subscribe systems".
+		*
+		* The above scheme was found to have a weakness in Cohen, "What about Bob? The
+		* inadequacy of CPA Security for proxy re-encryption". Section 5.1 shows an attack
+		* where given an original ciphertext c=(c0,c1) and a re-encrypted ciphertext
+		* c'=(c'0, c'1), the subscriber (Bob) can compute the secret key of the publisher
+		* (Alice).
+		*
+		* We fix this vulnerability by making re-encryption keys be encryptions of the
+		* s*(2^{i*r}) terms, instead of simple addition as previously defined. This makes
+		* retrieving the secret key using the above attack as hard as breaking the RLWE
+		* assumption.
+		*
+		* Our modification makes the scheme CPA-secure, but does not achieve HRA-security
+		* as it was defined in the Cohen paper above. Please look at the ReEncrypt method
+		* for an explanation of the two security definitions and how to achieve each in
+		* Palisade.
 		*
 		* @param newKey public key for the new private key.
 		* @param origPrivateKey original private key used for decryption.
