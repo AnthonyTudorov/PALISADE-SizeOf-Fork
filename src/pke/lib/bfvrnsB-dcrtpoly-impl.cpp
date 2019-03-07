@@ -592,7 +592,7 @@ Ciphertext<DCRTPoly> LPAlgorithmBFVrnsB<DCRTPoly>::Encrypt(const LPPublicKey<DCR
 
 	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParams->GetElementParams();
 
-	ptxt.SwitchFormat();
+	ptxt.SetFormat(Format::EVALUATION);
 
 	const std::vector<NativeInteger> &deltaTable = cryptoParams->GetCRTDeltaTable();
 
@@ -1151,6 +1151,113 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMultAndRelinearize(Con
 
 	return newCiphertext;
 
+}
+
+template <>
+LPEvalKey<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRTPoly> newPK,
+	const LPPrivateKey<DCRTPoly> origPrivateKey) const
+{
+	// Get crypto context of new public key.
+	auto cc = newPK->GetCryptoContext();
+
+	// Create an evaluation key that will contain all the re-encryption key elements.
+	LPEvalKeyRelin<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(cc));
+
+	// Get crypto and elements parameters
+	const shared_ptr<LPCryptoParametersRLWE<DCRTPoly>> cryptoParamsLWE =
+		std::dynamic_pointer_cast<LPCryptoParametersRLWE<DCRTPoly>>(newPK->GetCryptoParameters());
+	const shared_ptr<DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
+
+	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> BFVrnsBCryptoParamsLWE =
+			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(newPK->GetCryptoParameters());
+
+	const vector<NativeInteger> &deltaTable = BFVrnsBCryptoParamsLWE->GetCRTDeltaTable();
+
+	auto elems = newPK->GetPublicElements()[0].GetAllElements();
+	vector<NativeInteger> moduli(elems.size());
+	vector<NativeInteger> invDeltaTable(elems.size());
+	for (usint i=0; i<elems.size(); i++) {
+		moduli[i] = elems[i].GetModulus();
+		invDeltaTable[i] = deltaTable[i].ModInverse(moduli[i]);
+	}
+
+	// Get parameters needed for PRE key gen
+	// r = relinWindow
+	usint relinWin = cryptoParamsLWE->GetRelinWindow();
+
+	// nBits = log2(q), where q: ciphertext modulus
+	usint nBits = elementParams->GetModulus().GetLengthForBase(2);
+
+	// K = log2(q)/r, i.e., number of digits in PRE decomposition
+	usint K = nBits / relinWin;
+	if (nBits % relinWin > 0)
+		K++;
+
+	// invDelta_sTable = (1/D)*s(2^r)^i, s: secret key, D: deltas, r: relin window
+	DCRTPoly s = origPrivateKey->GetPrivateElement();
+	DCRTPoly invDelta_sTable = s.Times(invDeltaTable);
+
+	std::vector<DCRTPoly> evalKeyElementsA(K);
+	std::vector<DCRTPoly> evalKeyElementsB(K);
+
+	// The re-encryption key is K ciphertexts, one for each (1/D)*s(2^r)^i
+	for (usint i=0; i<K; i++) {
+		int numTowers = invDelta_sTable.GetAllElements().size();
+		BigInteger bb = BigInteger(1) << i*relinWin;
+		vector<NativeInteger> b(numTowers);
+
+		for (int j=0; j<numTowers; j++) {
+			auto mod = invDelta_sTable.ElementAtIndex(j).GetModulus();
+			auto bbmod = bb.Mod(mod);
+			b[j] = bbmod.ConvertToInt();
+		}
+
+		DCRTPoly elem = invDelta_sTable.Times(b);
+
+		auto tmp = cc->GetEncryptionAlgorithm()->Encrypt(newPK, invDelta_sTable.Times(b));
+		evalKeyElementsA[i] = tmp->GetElements()[0];
+		evalKeyElementsB[i] = tmp->GetElements()[1];
+	}
+
+	ek->SetAVector(std::move(evalKeyElementsA));
+	ek->SetBVector(std::move(evalKeyElementsB));
+
+	return std::move(ek);
+}
+
+template <>
+Ciphertext<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReEncrypt(const LPEvalKey<DCRTPoly> ek,
+	ConstCiphertext<DCRTPoly> cipherText) const
+{
+	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
+
+	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(ek->GetCryptoParameters());
+
+	LPEvalKeyRelin<DCRTPoly> evalKey = std::static_pointer_cast<LPEvalKeyRelinImpl<DCRTPoly>>(ek);
+
+	const std::vector<DCRTPoly> &c = cipherText->GetElements();
+
+	const std::vector<DCRTPoly> &b = evalKey->GetAVector();
+	const std::vector<DCRTPoly> &a = evalKey->GetBVector();
+
+	uint32_t relinWindow = cryptoParamsLWE->GetRelinWindow();
+	std::vector<DCRTPoly> digitsC2;
+
+	DCRTPoly ct0(c[0]);
+	DCRTPoly ct1;
+
+	digitsC2 = c[1].BaseDecompose(relinWindow);
+	ct1 = digitsC2[0] * a[0];
+	ct0 += digitsC2[0] * b[0];
+
+	for (usint i = 1; i < digitsC2.size(); ++i)	{
+		ct0 += digitsC2[i] * b[i];
+		ct1 += digitsC2[i] * a[i];
+	}
+
+	newCiphertext->SetElements({ ct0, ct1 });
+
+	return newCiphertext;
 }
 
 template <>
