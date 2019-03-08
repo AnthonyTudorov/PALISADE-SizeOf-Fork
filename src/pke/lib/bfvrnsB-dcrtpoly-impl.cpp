@@ -1227,7 +1227,8 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReKeyGen(const LPPublicKey<
 
 template <>
 Ciphertext<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReEncrypt(const LPEvalKey<DCRTPoly> ek,
-	ConstCiphertext<DCRTPoly> cipherText) const
+	ConstCiphertext<DCRTPoly> cipherText,
+	const LPPublicKey<DCRTPoly> publicKey) const
 {
 	Ciphertext<DCRTPoly> newCiphertext = cipherText->CloneEmpty();
 
@@ -1257,7 +1258,95 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReEncrypt(const LPEvalKey<
 
 	newCiphertext->SetElements({ ct0, ct1 });
 
-	return newCiphertext;
+	if (publicKey == nullptr) { // Recipient PK is not provided - CPA-secure PRE
+		return newCiphertext;
+	} else { // Recipient PK provided - HRA-secure PRE
+		// To obtain HRA security, we a fresh encryption of zero to the result
+		// with noise scaled by K (=log2(q)/relinWin).
+		CryptoContext<DCRTPoly> cc = publicKey->GetCryptoContext();
+
+		// Creating the correct plaintext of zeroes, based on the
+		// encoding type of the ciphertext.
+		PlaintextEncodings encType = newCiphertext->GetEncodingType();
+		Plaintext zeroPlaintext;
+		switch (encType) {
+		case Scalar:
+			zeroPlaintext = cc->MakeScalarPlaintext(0);
+			break;
+		case Integer:
+			zeroPlaintext = cc->MakeIntegerPlaintext(0);
+			break;
+		case CoefPacked:
+			zeroPlaintext = cc->MakeCoefPackedPlaintext({0});
+			break;
+		case Packed:
+			zeroPlaintext = cc->MakePackedPlaintext({0});
+			break;
+		case String:
+			zeroPlaintext = cc->MakeStringPlaintext(std::string(cc->GetRingDimension(), '\0'));
+			break;
+		case Fractional:
+			zeroPlaintext = cc->MakeFractionalPlaintext(0.0);
+			break;
+		default:
+			std::string errMsg = "LPAlgorithmPREBFVrnsB::ReEncrypt unexpected type of encoding.";
+			throw std::runtime_error(errMsg);
+		}
+
+		// Encrypting with noise scaled by K
+		const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoPars =
+				std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(publicKey->GetCryptoParameters());
+		const shared_ptr<DCRTPoly::Params> elementParams = cryptoPars->GetElementParams();
+
+		usint relinWin = cryptoPars->GetRelinWindow();
+		usint nBits = elementParams->GetModulus().GetLengthForBase(2);
+		// K = log2(q)/r, i.e., number of digits in PRE decomposition
+		usint K = nBits / relinWin;
+		if (nBits % relinWin > 0)
+			K++;
+
+		// Changing the distribution standard deviation
+		LPCryptoParametersBFVrnsB<DCRTPoly> cryptoParams(*cryptoPars);
+		cryptoParams.PrecomputeCRTTables();
+		auto stdDev = cryptoParams.GetDistributionParameter();
+		cryptoParams.SetDistributionParameter(K*stdDev);
+
+		Ciphertext<DCRTPoly> zeroCiphertext(new CiphertextImpl<DCRTPoly>(publicKey));
+		zeroCiphertext->SetEncodingType(encType);
+
+		zeroPlaintext->GetElement<DCRTPoly>().SetFormat(Format::EVALUATION);
+
+		const std::vector<NativeInteger> &deltaTable = cryptoParams.GetCRTDeltaTable();
+
+		const typename DCRTPoly::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+		typename DCRTPoly::TugType tug;
+
+		const DCRTPoly &p0 = publicKey->GetPublicElements().at(0);
+		const DCRTPoly &p1 = publicKey->GetPublicElements().at(1);
+
+
+		DCRTPoly u;
+		if (cryptoParams.GetMode() == RLWE)
+			u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
+		else
+			u = DCRTPoly(tug, elementParams, Format::EVALUATION);
+
+		DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
+		DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
+
+		DCRTPoly c0(elementParams);
+		DCRTPoly c1(elementParams);
+
+		c0 = p0*u + e1 + zeroPlaintext->GetElement<DCRTPoly>().Times(deltaTable);
+		c1 = p1*u + e2;
+
+		zeroCiphertext->SetElements({ c0, c1 });
+		//
+
+		newCiphertext->SetKeyTag(zeroCiphertext->GetKeyTag());
+
+		return cc->EvalAdd(newCiphertext, zeroCiphertext);
+	}
 }
 
 template <>

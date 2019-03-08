@@ -588,10 +588,12 @@ namespace lbcrypto {
 		*
 		* @param evalKey the evaluation key.
 		* @param ciphertext the input ciphertext.
+		* @param publicKey the public key of the recipient of the re-encrypted ciphertext.
 		* @return resulting ciphertext after the re-encryption operation.
 		*/
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> EK,
-			ConstCiphertext<Element> ciphertext) const;
+			ConstCiphertext<Element> ciphertext,
+			const LPPublicKey<DCRTPoly> publicKey = nullptr) const;
 
 	};
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file ltv.h -- Operations for the LTV cryptoscheme.
  * @author  TPOC: palisade@njit.edu
  *
@@ -347,10 +347,12 @@ public:
 	*
 	* @param evalKey the evaluation key.
 	* @param ciphertext the input ciphertext.
+	* @param publicKey the public key of the recipient of the re-encrypted ciphertext.
 	* @return A shared pointer to the resulting ciphertext.
 	*/
 	Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
-		ConstCiphertext<Element> ciphertext) const;
+		ConstCiphertext<Element> ciphertext,
+		const LPPublicKey<Element> publicKey = nullptr) const;
 	
 };
 

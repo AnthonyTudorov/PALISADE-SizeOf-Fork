@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file pubkeylp.h -- Public key type for lattice crypto operations.
  * @author  TPOC: palisade@njit.edu
  *
@@ -1131,10 +1131,12 @@ namespace lbcrypto {
 			 *
 			 * @param &evalKey proxy re-encryption key.
 			 * @param &ciphertext the input ciphertext.
+			 * @param publicKey the public key of the recipient of the re-encrypted ciphertext.
 			 * @param *newCiphertext the new ciphertext.
 			 */
 			virtual Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
-				ConstCiphertext<Element> ciphertext) const = 0;
+				ConstCiphertext<Element> ciphertext,
+				const LPPublicKey<Element> publicKey) const = 0;
 
 	};
 
@@ -2185,9 +2187,10 @@ namespace lbcrypto {
 		}
 
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
-				ConstCiphertext<Element> ciphertext) const {
+				ConstCiphertext<Element> ciphertext,
+				const LPPublicKey<Element> publicKey) const {
 			if(this->m_algorithmPRE) {
-				auto ct = this->m_algorithmPRE->ReEncrypt(evalKey,ciphertext);
+				auto ct = this->m_algorithmPRE->ReEncrypt(evalKey, ciphertext, publicKey);
 				ct->SetKeyTag( evalKey->GetKeyTag() );
 				return ct;
 			} else {
