@@ -1161,9 +1161,12 @@ LPEvalKey<Element> LPAlgorithmPREBFV<Element>::ReKeyGen(const LPPublicKey<Elemen
 	usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 
 	// K = log2(q)/r, i.e., number of digits in PRE decomposition
-	usint K = nBits / relinWin;
-	if (nBits % relinWin > 0)
-		K++;
+	usint K = 1;
+	if (relinWin > 0) {
+		K = nBits / relinWin;
+		if (nBits % relinWin > 0)
+			K++;
+	}
 
 	// invDelta_s = (1/D)*s, s: secret key, r: relin window
 	Element s = origPrivateKey->GetPrivateElement();
@@ -1245,9 +1248,12 @@ Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Elemen
 			usint relinWin = cryptoPars->GetRelinWindow();
 			usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 			// K = log2(q)/r, i.e., number of digits in PRE decomposition
-			usint K = nBits / relinWin;
-			if (nBits % relinWin > 0)
-				K++;
+			usint K = 1;
+			if (relinWin > 0) {
+				K = nBits / relinWin;
+				if (nBits % relinWin > 0)
+					K++;
+			}
 
 			// Changing the distribution standard deviation
 			LPCryptoParametersBFV<Element> cryptoParams(*cryptoPars);

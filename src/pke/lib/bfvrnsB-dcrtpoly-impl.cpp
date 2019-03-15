@@ -1153,76 +1153,113 @@ Ciphertext<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::EvalMultAndRelinearize(Con
 
 }
 
+
 template <>
 LPEvalKey<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRTPoly> newPK,
-	const LPPrivateKey<DCRTPoly> origPrivateKey) const
-{
+		const LPPrivateKey<DCRTPoly> origPrivateKey) const {
+
 	// Get crypto context of new public key.
 	auto cc = newPK->GetCryptoContext();
 
 	// Create an evaluation key that will contain all the re-encryption key elements.
 	LPEvalKeyRelin<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(cc));
 
-	// Get crypto and elements parameters
-	const shared_ptr<LPCryptoParametersRLWE<DCRTPoly>> cryptoParamsLWE =
-		std::dynamic_pointer_cast<LPCryptoParametersRLWE<DCRTPoly>>(newPK->GetCryptoParameters());
-	const shared_ptr<DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
-
-	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> BFVrnsBCryptoParamsLWE =
+	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(newPK->GetCryptoParameters());
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
 
-	const vector<NativeInteger> &deltaTable = BFVrnsBCryptoParamsLWE->GetCRTDeltaTable();
+	const typename DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	typename DCRTPoly::DugType dug;
+	typename DCRTPoly::TugType tug;
 
-	auto elems = newPK->GetPublicElements()[0].GetAllElements();
-	vector<NativeInteger> moduli(elems.size());
-	vector<NativeInteger> invDeltaTable(elems.size());
-	for (usint i=0; i<elems.size(); i++) {
-		moduli[i] = elems[i].GetModulus();
-		invDeltaTable[i] = deltaTable[i].ModInverse(moduli[i]);
-	}
+	const DCRTPoly &oldKey = origPrivateKey->GetPrivateElement();
 
-	// Get parameters needed for PRE key gen
-	// r = relinWindow
-	usint relinWin = cryptoParamsLWE->GetRelinWindow();
+	std::vector<DCRTPoly> evalKeyElements;
+	std::vector<DCRTPoly> evalKeyElementsGenerated;
 
-	// nBits = log2(q), where q: ciphertext modulus
-	usint nBits = elementParams->GetModulus().GetLengthForBase(2);
+	uint32_t relinWindow = cryptoParamsLWE->GetRelinWindow();
 
-	// K = log2(q)/r, i.e., number of digits in PRE decomposition
-	usint K = nBits / relinWin;
-	if (nBits % relinWin > 0)
-		K++;
+	const DCRTPoly &p0 = newPK->GetPublicElements().at(0);
+	const DCRTPoly &p1 = newPK->GetPublicElements().at(1);
 
-	// invDelta_sTable = (1/D)*s(2^r)^i, s: secret key, D: deltas, r: relin window
-	DCRTPoly s = origPrivateKey->GetPrivateElement();
-	DCRTPoly invDelta_sTable = s.Times(invDeltaTable);
+	for (usint i = 0; i < oldKey.GetNumOfElements(); i++)
+	{
 
-	std::vector<DCRTPoly> evalKeyElementsA(K);
-	std::vector<DCRTPoly> evalKeyElementsB(K);
+		if (relinWindow>0)
+		{
+			vector<typename DCRTPoly::PolyType> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
 
-	// The re-encryption key is K ciphertexts, one for each (1/D)*s(2^r)^i
-	for (usint i=0; i<K; i++) {
-		int numTowers = invDelta_sTable.GetAllElements().size();
-		BigInteger bb = BigInteger(1) << i*relinWin;
-		vector<NativeInteger> b(numTowers);
+			for (size_t k = 0; k < decomposedKeyElements.size(); k++)
+			{
 
-		for (int j=0; j<numTowers; j++) {
-			auto mod = invDelta_sTable.ElementAtIndex(j).GetModulus();
-			auto bbmod = bb.Mod(mod);
-			b[j] = bbmod.ConvertToInt();
+				// Creates an element with all zeroes
+				DCRTPoly filtered(elementParams,EVALUATION,true);
+
+				filtered.SetElementAtIndex(i,decomposedKeyElements[k]);
+
+				DCRTPoly u;
+
+				if (cryptoParamsLWE->GetMode() == RLWE)
+					u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
+				else
+					u = DCRTPoly(tug, elementParams, Format::EVALUATION);
+
+				DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
+				DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
+
+				DCRTPoly c0(elementParams);
+				DCRTPoly c1(elementParams);
+
+				c0 = p0*u + e1 + filtered;
+
+				c1 = p1*u + e2;
+
+				DCRTPoly a(dug, elementParams, Format::EVALUATION);
+				evalKeyElementsGenerated.push_back(c1);
+
+				DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+				evalKeyElements.push_back(c0);
+			}
+		}
+		else
+		{
+
+			// Creates an element with all zeroes
+			DCRTPoly filtered(elementParams,EVALUATION,true);
+
+			filtered.SetElementAtIndex(i,oldKey.GetElementAtIndex(i));
+
+			DCRTPoly u;
+
+			if (cryptoParamsLWE->GetMode() == RLWE)
+				u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
+			else
+				u = DCRTPoly(tug, elementParams, Format::EVALUATION);
+
+			DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
+			DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
+
+			DCRTPoly c0(elementParams);
+			DCRTPoly c1(elementParams);
+
+			c0 = p0*u + e1 + filtered;
+
+			c1 = p1*u + e2;
+
+			DCRTPoly a(dug, elementParams, Format::EVALUATION);
+			evalKeyElementsGenerated.push_back(c1);
+
+			DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+			evalKeyElements.push_back(c0);
 		}
 
-		DCRTPoly elem = invDelta_sTable.Times(b);
-
-		auto tmp = cc->GetEncryptionAlgorithm()->Encrypt(newPK, invDelta_sTable.Times(b));
-		evalKeyElementsA[i] = tmp->GetElements()[0];
-		evalKeyElementsB[i] = tmp->GetElements()[1];
 	}
 
-	ek->SetAVector(std::move(evalKeyElementsA));
-	ek->SetBVector(std::move(evalKeyElementsB));
+	ek->SetAVector(std::move(evalKeyElements));
+	ek->SetBVector(std::move(evalKeyElementsGenerated));
 
-	return std::move(ek);
+	return ek;
+
 }
 
 template <>
@@ -1247,7 +1284,7 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReEncrypt(const LPEvalKey<
 	DCRTPoly ct0(c[0]);
 	DCRTPoly ct1;
 
-	digitsC2 = c[1].BaseDecompose(relinWindow);
+	digitsC2 = c[1].CRTDecompose(relinWindow);
 	ct1 = digitsC2[0] * a[0];
 	ct0 += digitsC2[0] * b[0];
 
@@ -1301,9 +1338,12 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrnsB<DCRTPoly>::ReEncrypt(const LPEvalKey<
 		usint relinWin = cryptoPars->GetRelinWindow();
 		usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 		// K = log2(q)/r, i.e., number of digits in PRE decomposition
-		usint K = nBits / relinWin;
-		if (nBits % relinWin > 0)
-			K++;
+		usint K = 1;
+		if (relinWin > 0) {
+			K = nBits / relinWin;
+			if (nBits % relinWin > 0)
+				K++;
+		}
 
 		// Changing the distribution standard deviation
 		LPCryptoParametersBFVrnsB<DCRTPoly> cryptoParams(*cryptoPars);

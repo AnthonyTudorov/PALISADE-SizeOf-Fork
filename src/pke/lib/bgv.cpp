@@ -607,9 +607,12 @@ namespace lbcrypto {
 		usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 		
 		// K = log2(q)/r, i.e., number of digits in PRE decomposition
-		usint K = nBits / relinWin;
-		if (nBits % relinWin > 0)
-			K++;
+	    usint K = 1;
+	    if (relinWin > 0) {
+	        K = nBits / relinWin;
+	        if (nBits % relinWin > 0)
+	            K++;
+	    }
 
 		// minus_skElem = -s(2^r)^i, s: secret key, r: relin window
 		Element s = origPrivateKey->GetPrivateElement();
@@ -687,9 +690,12 @@ namespace lbcrypto {
 			usint relinWin = cryptoPars->GetRelinWindow();
 			usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 			// K = log2(q)/r, i.e., number of digits in PRE decomposition
-			usint K = nBits / relinWin;
-			if (nBits % relinWin > 0)
-				K++;
+			usint K = 1;
+			if (relinWin > 0) {
+				K = nBits / relinWin;
+				if (nBits % relinWin > 0)
+					K++;
+			}
 
 			// Changing the distribution standard deviation
 			LPCryptoParametersBGV<Element> cryptoParams(*cryptoPars);
