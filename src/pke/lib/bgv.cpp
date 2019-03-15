@@ -657,30 +657,6 @@ namespace lbcrypto {
 			// Creating the correct plaintext of zeroes, based on the
 			// encoding type of the ciphertext.
 			PlaintextEncodings encType = c->GetEncodingType();
-			Plaintext zeroPlaintext;
-			switch (encType) {
-			case Scalar:
-				zeroPlaintext = cc->MakeScalarPlaintext(0);
-				break;
-			case Integer:
-				zeroPlaintext = cc->MakeIntegerPlaintext(0);
-				break;
-			case CoefPacked:
-				zeroPlaintext = cc->MakeCoefPackedPlaintext({0});
-				break;
-			case Packed:
-				zeroPlaintext = cc->MakePackedPlaintext({0});
-				break;
-			case String:
-				zeroPlaintext = cc->MakeStringPlaintext(std::string(cc->GetRingDimension(), '\0'));
-				break;
-			case Fractional:
-				zeroPlaintext = cc->MakeFractionalPlaintext(0.0);
-				break;
-			default:
-				std::string errMsg = "LPAlgorithmPREBGV::ReEncrypt unexpected type of encoding.";
-				throw std::runtime_error(errMsg);
-			}
 
 			// Encrypting with noise scaled by K
 			const shared_ptr<LPCryptoParametersBGV<Element>> cryptoPars =
@@ -709,8 +685,6 @@ namespace lbcrypto {
 			const typename Element::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 			typename Element::TugType tug;
 
-			zeroPlaintext->GetElement<Element>().SetFormat(Format::EVALUATION);
-
 			std::vector<Element> cVector;
 
 			const Element &a = publicKey->GetPublicElements().at(0);
@@ -725,7 +699,7 @@ namespace lbcrypto {
 			Element e0(dgg, elementParams, Format::EVALUATION);
 			Element e1(dgg, elementParams, Format::EVALUATION);
 
-			Element c0(b*v + p*e0 + zeroPlaintext->GetElement<Element>());
+			Element c0(b*v + p*e0);
 			Element c1(a*v + p*e1);
 
 			cVector.push_back(std::move(c0));

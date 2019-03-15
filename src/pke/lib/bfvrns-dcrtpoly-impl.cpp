@@ -1143,30 +1143,6 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReEncrypt(const LPEvalKey<D
 		// Creating the correct plaintext of zeroes, based on the
 		// encoding type of the ciphertext.
 		PlaintextEncodings encType = newCiphertext->GetEncodingType();
-		Plaintext zeroPlaintext;
-		switch (encType) {
-		case Scalar:
-			zeroPlaintext = cc->MakeScalarPlaintext(0);
-			break;
-		case Integer:
-			zeroPlaintext = cc->MakeIntegerPlaintext(0);
-			break;
-		case CoefPacked:
-			zeroPlaintext = cc->MakeCoefPackedPlaintext({0});
-			break;
-		case Packed:
-			zeroPlaintext = cc->MakePackedPlaintext({0});
-			break;
-		case String:
-			zeroPlaintext = cc->MakeStringPlaintext(std::string(cc->GetRingDimension(), '\0'));
-			break;
-		case Fractional:
-			zeroPlaintext = cc->MakeFractionalPlaintext(0.0);
-			break;
-		default:
-			std::string errMsg = "LPAlgorithmPREBFVrns::ReEncrypt unexpected type of encoding.";
-			throw std::runtime_error(errMsg);
-		}
 
 		// Encrypting with noise scaled by K
 		const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoPars =
@@ -1192,10 +1168,6 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReEncrypt(const LPEvalKey<D
 		Ciphertext<DCRTPoly> zeroCiphertext(new CiphertextImpl<DCRTPoly>(publicKey));
 		zeroCiphertext->SetEncodingType(encType);
 
-		zeroPlaintext->GetElement<DCRTPoly>().SetFormat(Format::EVALUATION);
-
-		const std::vector<NativeInteger> &deltaTable = cryptoParams.GetCRTDeltaTable();
-
 		const typename DCRTPoly::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 		typename DCRTPoly::TugType tug;
 
@@ -1215,7 +1187,7 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReEncrypt(const LPEvalKey<D
 		DCRTPoly c0(elementParams);
 		DCRTPoly c1(elementParams);
 
-		c0 = p0*u + e1 + zeroPlaintext->GetElement<DCRTPoly>().Times(deltaTable);
+		c0 = p0*u + e1;
 		c1 = p1*u + e2;
 
 		zeroCiphertext->SetElements({ c0, c1 });

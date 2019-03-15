@@ -1215,30 +1215,6 @@ Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Elemen
 			// Creating the correct plaintext of zeroes, based on the
 			// encoding type of the ciphertext.
 			PlaintextEncodings encType = c->GetEncodingType();
-			Plaintext zeroPlaintext;
-			switch (encType) {
-			case Scalar:
-				zeroPlaintext = cc->MakeScalarPlaintext(0);
-				break;
-			case Integer:
-				zeroPlaintext = cc->MakeIntegerPlaintext(0);
-				break;
-			case CoefPacked:
-				zeroPlaintext = cc->MakeCoefPackedPlaintext({0});
-				break;
-			case Packed:
-				zeroPlaintext = cc->MakePackedPlaintext({0});
-				break;
-			case String:
-				zeroPlaintext = cc->MakeStringPlaintext(std::string(cc->GetRingDimension(), '\0'));
-				break;
-			case Fractional:
-				zeroPlaintext = cc->MakeFractionalPlaintext(0.0);
-				break;
-			default:
-				std::string errMsg = "LPAlgorithmPREBFV::ReEncrypt unexpected type of encoding.";
-				throw std::runtime_error(errMsg);
-			}
 
 			// Encrypting with noise scaled by K
 			const shared_ptr<LPCryptoParametersBFV<Element>> cryptoPars =
@@ -1263,10 +1239,6 @@ Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Elemen
 			Ciphertext<Element> zeroCiphertext(new CiphertextImpl<Element>(publicKey));
 			zeroCiphertext->SetEncodingType(encType);
 
-			zeroPlaintext->GetElement<Element>().SetFormat(Format::EVALUATION);
-
-			const typename Element::Integer &delta = cryptoParams.GetDelta();
-
 			const typename Element::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
 			typename Element::TugType tug;
 
@@ -1286,7 +1258,7 @@ Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Elemen
 			Element c0(elementParams);
 			Element c1(elementParams);
 
-			c0 = p0*u + e1 + delta*zeroPlaintext->GetElement<Element>();
+			c0 = p0*u + e1;
 			c1 = p1*u + e2;
 
 			zeroCiphertext->SetElements({ c0, c1 });
