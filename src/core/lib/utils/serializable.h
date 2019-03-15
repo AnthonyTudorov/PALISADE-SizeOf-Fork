@@ -25,32 +25,49 @@
  */ 
 #ifndef LBCRYPTO_SERIALIZABLE_H
 #define LBCRYPTO_SERIALIZABLE_H
+
 #include <vector>
 #include <unordered_map>
 #include <sstream>
 #include <string>
 #include <iomanip>
-#ifndef RAPIDJSON_HAS_STDSTRING
-#define RAPIDJSON_HAS_STDSTRING 1
+#include <iostream>
+
+#ifndef CEREAL_RAPIDJSON_HAS_STDSTRING
+#define CEREAL_RAPIDJSON_HAS_STDSTRING 1
 #endif
-#ifndef RAPIDJSON_HAS_CXX11_RVALUE_REFS
-#define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
+#ifndef CEREAL_RAPIDJSON_HAS_CXX11_RVALUE_REFS
+#define CEREAL_RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
 #endif
+#define CEREAL_RAPIDJSON_HAS_CXX11_NOEXCEPT 0
+
 
 #ifdef __GNUC__
 #if __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 #endif
-#include "rapidjson/document.h"
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
+
+#include "cereal/archives/json.hpp"
+#include "cereal/types/string.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/memory.hpp"
+#include "cereal/types/polymorphic.hpp"
+
 #ifdef __GNUC__
 #if __GNUC__ >= 8
 #pragma GCC diagnostic pop
 #endif
 #endif
-#include "rapidjson/pointer.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/error/en.h"
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 /**
 * @namespace lbcrypto
@@ -58,12 +75,8 @@
 */
 namespace lbcrypto {
 
-	// C+11 "using" is not supported in VS 2012 - so it was replaced with C+03 "typedef"
-	typedef rapidjson::Value SerialItem;
-	typedef rapidjson::Document Serialized;
-
-	//using SerialItem = rapidjson::Value;
-	//using Serialized = rapidjson::Document;
+	using SerialItem = rapidjson::Value;
+	using Serialized = rapidjson::Document;
 
 	class Serializable
 	{

@@ -267,6 +267,17 @@ private:
 	uint32_t			m_batchSize;
 
 public:
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( CEREAL_NVP(m_plaintextModulus) );
+		ar( CEREAL_NVP(m_plaintextRootOfUnity) );
+		ar( CEREAL_NVP(m_plaintextBigModulus) );
+		ar( CEREAL_NVP(m_plaintextBigRootOfUnity) );
+		ar( CEREAL_NVP(m_plaintextGenerator) );
+		ar( CEREAL_NVP(m_batchSize) );
+	}
+
 	/**
 	 * Serialize the object into a Serialized
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());

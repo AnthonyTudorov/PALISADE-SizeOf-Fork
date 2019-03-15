@@ -36,15 +36,11 @@
 
 #include "serializable.h"
 
-#include "rapidjson/document.h"
-#include "rapidjson/pointer.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/filereadstream.h"
-#include "rapidjson/filewritestream.h"
-#include "rapidjson/error/en.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/stringbuffer.h"
+#include "cereal/external/rapidjson/encodings.h"
+#include "cereal/external/rapidjson/filereadstream.h"
+#include "cereal/external/rapidjson/filewritestream.h"
+#include "cereal/external/rapidjson/error/en.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -53,12 +49,11 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
+#include <cassert>
 
 #include "../math/backend.h"
 #include "../lattice/backend.h"
 #include "../math/matrix.h"
-
-#define RAPIDJSON_NO_SIZETYPEDEFINE
 
 namespace lbcrypto {
 
