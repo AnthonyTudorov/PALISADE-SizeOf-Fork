@@ -540,6 +540,15 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	*/
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( CEREAL_NVP(m_data),
+				CEREAL_NVP(m_modulus) );
+	}
+
+
+
 private:
 	//m_data is a pointer to the vector
 

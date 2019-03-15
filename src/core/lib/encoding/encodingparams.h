@@ -270,12 +270,12 @@ public:
 	template <class Archive>
 	void serialize( Archive & ar )
 	{
-		ar( CEREAL_NVP(m_plaintextModulus) );
-		ar( CEREAL_NVP(m_plaintextRootOfUnity) );
-		ar( CEREAL_NVP(m_plaintextBigModulus) );
-		ar( CEREAL_NVP(m_plaintextBigRootOfUnity) );
-		ar( CEREAL_NVP(m_plaintextGenerator) );
-		ar( CEREAL_NVP(m_batchSize) );
+		ar( CEREAL_NVP(m_plaintextModulus),
+				CEREAL_NVP(m_plaintextRootOfUnity),
+				CEREAL_NVP(m_plaintextBigModulus),
+				CEREAL_NVP(m_plaintextBigRootOfUnity),
+				CEREAL_NVP(m_plaintextGenerator),
+				CEREAL_NVP(m_batchSize) );
 	}
 
 	/**
@@ -292,6 +292,8 @@ public:
 	 */
 	bool Deserialize(const Serialized& serObj);
 };
+
+//CEREAL_REGISTER_TYPE(EncodingParamsImpl);
 
 
 } // namespace lbcrypto ends

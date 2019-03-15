@@ -1549,6 +1549,12 @@ protected:
 		}
 	}
 
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( CEREAL_NVP(m_value) );
+	}
+
 private:
 
 	// representation as a
