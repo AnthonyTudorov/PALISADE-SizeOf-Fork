@@ -224,6 +224,31 @@ public:
 	 */
 	bool Deserialize(const Serialized& serObj);
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("co", cyclotomicOrder) );
+		ar( cereal::make_nvp("rd", ringDimension) );
+		ar( cereal::make_nvp("2n", isPowerOfTwo) );
+		ar( cereal::make_nvp("cm", ciphertextModulus) );
+		ar( cereal::make_nvp("ru", rootOfUnity) );
+		ar( cereal::make_nvp("bm", bigCiphertextModulus) );
+		ar( cereal::make_nvp("br", bigRootOfUnity) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("co", cyclotomicOrder) );
+		ar( cereal::make_nvp("rd", ringDimension) );
+		ar( cereal::make_nvp("2n", isPowerOfTwo) );
+		ar( cereal::make_nvp("cm", ciphertextModulus) );
+		ar( cereal::make_nvp("ru", rootOfUnity) );
+		ar( cereal::make_nvp("bm", bigCiphertextModulus) );
+		ar( cereal::make_nvp("br", bigRootOfUnity) );
+	}
+
+	std::string SerializedObjectName() const { return "ElemParams"; }
 
 protected:
 	usint			cyclotomicOrder;		/**< Cyclotomic order */

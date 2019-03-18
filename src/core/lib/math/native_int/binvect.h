@@ -541,15 +541,22 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
 	template <class Archive>
-	void serialize( Archive & ar )
+	void save( Archive & ar ) const
 	{
 		ar( CEREAL_NVP(m_data),
-				CEREAL_NVP(m_modulus) );
+				cereal::make_nvp("m",m_modulus) );
 	}
 
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( CEREAL_NVP(m_data),
+				cereal::make_nvp("m",m_modulus) );
+	}
 
+	std::string SerializedObjectName() const { return "NativeVector"; }
 
-private:
+ private:
 	//m_data is a pointer to the vector
 
 #if BLOCK_VECTOR_ALLOCATION != 1

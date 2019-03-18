@@ -459,6 +459,32 @@ public:
 	 */
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("l", this->GetLength()) );
+		for(size_t i=0; i<this->GetLength(); i++ ) {
+			ar( cereal::make_nvp(std::to_string(i), (*this)[i]) );
+		}
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		size_t len;
+		ar( cereal::make_nvp("l", len) );
+		this->resize(len);
+		for(size_t i=0; i<len; i++ ) {
+			ar( cereal::make_nvp(std::to_string(i), (*this)[i]) );
+		}
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
+
+	std::string SerializedObjectName() const { return "NTLVector"; }
+
 private:
 	//utility function to warn if modulus is no good
 	//use when argument to function is myT

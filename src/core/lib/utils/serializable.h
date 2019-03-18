@@ -53,9 +53,13 @@
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #endif
 
+#include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
+#include "cereal/archives/binary.hpp"
+#include "cereal/archives/portable_binary.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/vector.hpp"
+#include "cereal/types/map.hpp"
 #include "cereal/types/memory.hpp"
 #include "cereal/types/polymorphic.hpp"
 
@@ -80,14 +84,10 @@ namespace lbcrypto {
 
 	class Serializable
 	{
-		/**
-		* Version number of the serialization; defaults to 1
-		* @return version of the serialization
-		*/
-		virtual int getVersion() { return 1; }
-
 	public:
 		virtual ~Serializable() {}
+
+		enum Type {JSON,BINARY,PORTABLEBINARY};
 
 		/**
 		* Serialize the object into a Serialized
@@ -95,6 +95,8 @@ namespace lbcrypto {
 		* @return true if successfully serialized
 		*/
 		virtual bool Serialize(Serialized* serObj) const = 0;
+
+		virtual std::string SerializedObjectName() const { return ""; } // FIXME =0
 
 		/**
 		 * SerializeWithoutContext serializes the object but does NOT include the context -
@@ -114,6 +116,39 @@ namespace lbcrypto {
 		*/
 		virtual bool Deserialize(const Serialized& serObj) = 0;
 	};
+
+	/**
+	 * SERIALIZE - macro to serialize OBJ into STREAM using serialization SERTYPE
+	 * @param OBJ - the object to be serialized; cereal requires archiver functions
+	 * @param WITHNAME - the label to use for the object to be serialized
+	 * @param STREAM - the ostream to save the serialization to
+	 * @param SERTYPE - a Serializable::Type
+	 */
+#define SERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {				\
+		if( SERTYPE == Serializable::Type::JSON ) {						\
+			cereal::JSONOutputArchive archive( STREAM, 					\
+					cereal::JSONOutputArchive::Options::NoIndent() );	\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+		else if( SERTYPE == Serializable::Type::BINARY ) {				\
+			cereal::BinaryOutputArchive archive( STREAM );				\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+		else if( SERTYPE == Serializable::Type::PORTABLEBINARY ) {		\
+			cereal::PortableBinaryOutputArchive archive( STREAM );		\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+	}
+
+#define SERIALIZEPTR(OBJ, STREAM, SERTYPE) {							\
+		std::string label = OBJ->SerializedObjectName();				\
+		SERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);					\
+	}
+
+#define SERIALIZEOBJ(OBJ, STREAM, SERTYPE) {							\
+		std::string label = OBJ.SerializedObjectName();					\
+		SERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);					\
+	}
 
 //helper template to stream vector contents provided T has an stream operator<< 
 template < typename T >

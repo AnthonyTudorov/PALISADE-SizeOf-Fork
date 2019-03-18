@@ -514,6 +514,24 @@ public:
 	  return ret;
 	}
 	
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("n", ToString()) );
+		ar( cereal::make_nvp("mb", m_MSB) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		std::string s;
+		ar( cereal::make_nvp("n", s) );
+		*this = s;
+		ar( cereal::make_nvp("mb", m_MSB) );
+	}
+
+	std::string SerializedObjectName() const { return "NTLInteger"; }
+
 private:
 	//adapter kits
 	void SetMSB();

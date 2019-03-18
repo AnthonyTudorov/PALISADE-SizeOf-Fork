@@ -1524,6 +1524,20 @@ public:
 	 */
 	static NativeInteger<uint_type> Allocator() { return 0; }
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("v", m_value) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("v", m_value) );
+	}
+
+	std::string SerializedObjectName() const { return "NativeInteger"; }
+
 protected:
 
 	/**
@@ -1549,12 +1563,6 @@ protected:
 		}
 	}
 
-	template <class Archive>
-	void serialize( Archive & ar )
-	{
-		ar( CEREAL_NVP(m_value) );
-	}
-
 private:
 
 	// representation as a
@@ -1570,6 +1578,6 @@ private:
 	typedef typename DoubleDataType<uint_type>::T Duint_type;
 };
 
-}//namespace ends
+}
 
 #endif

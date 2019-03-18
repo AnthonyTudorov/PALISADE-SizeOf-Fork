@@ -41,7 +41,7 @@ typedef uint64_t							PlaintextModulus;
  * @class EncodingParamsImpl
  * @brief All parameters for plaintext encodings into ciphertext space.
  */
-class EncodingParamsImpl : public Serializable
+class EncodingParamsImpl : public lbcrypto::Serializable
 {
 public:
 
@@ -268,15 +268,28 @@ private:
 
 public:
 	template <class Archive>
-	void serialize( Archive & ar )
+	void save( Archive & ar ) const
 	{
-		ar( CEREAL_NVP(m_plaintextModulus),
-				CEREAL_NVP(m_plaintextRootOfUnity),
-				CEREAL_NVP(m_plaintextBigModulus),
-				CEREAL_NVP(m_plaintextBigRootOfUnity),
-				CEREAL_NVP(m_plaintextGenerator),
-				CEREAL_NVP(m_batchSize) );
+		ar( cereal::make_nvp("m", m_plaintextModulus),
+				cereal::make_nvp("ru", m_plaintextRootOfUnity),
+				cereal::make_nvp("bm", m_plaintextBigModulus),
+				cereal::make_nvp("bru", m_plaintextBigRootOfUnity),
+				cereal::make_nvp("g", m_plaintextGenerator),
+				cereal::make_nvp("bs", m_batchSize) );
 	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("m", m_plaintextModulus),
+				cereal::make_nvp("ru", m_plaintextRootOfUnity),
+				cereal::make_nvp("bm", m_plaintextBigModulus),
+				cereal::make_nvp("bru", m_plaintextBigRootOfUnity),
+				cereal::make_nvp("g", m_plaintextGenerator),
+				cereal::make_nvp("bs", m_batchSize) );
+	}
+
+	std::string SerializedObjectName() const { return "EncodingParms"; }
 
 	/**
 	 * Serialize the object into a Serialized
@@ -293,8 +306,17 @@ public:
 	bool Deserialize(const Serialized& serObj);
 };
 
-//CEREAL_REGISTER_TYPE(EncodingParamsImpl);
-
+inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<EncodingParamsImpl> o) {
+	if( o ) out << *o;
+	return out;
+}
+inline bool operator==(std::shared_ptr<EncodingParamsImpl> o1, std::shared_ptr<EncodingParamsImpl> o2) {
+	if( o1 && o2 )
+		return *o1 == *o2;
+	if( !o1 && !o2 )
+		return true;
+	return false;
+}
 
 } // namespace lbcrypto ends
 
