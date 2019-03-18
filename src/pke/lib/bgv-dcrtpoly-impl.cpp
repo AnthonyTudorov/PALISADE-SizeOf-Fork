@@ -54,32 +54,58 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBGV<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRT
 	usint nBits = elementParams->GetModulus().GetLengthForBase(2);
 
 	// K = log2(q)/r, i.e., number of digits in PRE decomposition
-	usint K = nBits / relinWin;
-	if (nBits % relinWin > 0)
-		K++;
+	usint K = 1;
+	if (relinWin > 0) {
+		K = nBits / relinWin;
+		if (nBits % relinWin > 0)
+			K++;
+	}
 
-	// minus_skElem = -s(2^r)^i, s: secret key, r: relin window
 	DCRTPoly s = origPrivateKey->GetPrivateElement();
-	DCRTPoly minus_s = s.Negate();
 
 	std::vector<DCRTPoly> evalKeyElementsA(K);
 	std::vector<DCRTPoly> evalKeyElementsB(K);
 
 	// The re-encryption key is K ciphertexts, one for each -s(2^r)^i
 	for (usint i=0; i<K; i++) {
-		int numTowers = minus_s.GetAllElements().size();
+		int numTowers = s.GetAllElements().size();
 		BigInteger bb = BigInteger(1) << i*relinWin;
 		vector<NativeInteger> b(numTowers);
 
 		for (int j=0; j<numTowers; j++) {
-			auto mod = minus_s.ElementAtIndex(j).GetModulus();
+			auto mod = s.ElementAtIndex(j).GetModulus();
 			auto bbmod = bb.Mod(mod);
 			b[j] = bbmod.ConvertToInt();
 		}
 
-		auto tmp = cc->GetEncryptionAlgorithm()->Encrypt(newPK, minus_s.Times(b));
-		evalKeyElementsA[i] = tmp->GetElements()[1];
-		evalKeyElementsB[i] = tmp->GetElements()[0];
+		const auto p = cryptoParamsLWE->GetPlaintextModulus();
+		const DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+
+		DCRTPoly::TugType tug;
+
+		s.SetFormat(Format::EVALUATION);
+
+		std::vector<DCRTPoly> cVector;
+
+		const DCRTPoly &pk1 = newPK->GetPublicElements().at(0);
+		const DCRTPoly &pk0 = newPK->GetPublicElements().at(1);
+
+		DCRTPoly v;
+
+		if (cryptoParamsLWE->GetMode() == RLWE)
+			v = DCRTPoly(dgg, elementParams, Format::EVALUATION);
+		else
+			v = DCRTPoly(tug, elementParams, Format::EVALUATION);
+
+		DCRTPoly e0(dgg, elementParams, Format::EVALUATION);
+		DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
+
+		DCRTPoly c0(pk0*v + p*e0 - s.Times(b));
+
+		DCRTPoly c1(pk1*v + p*e1);
+
+		evalKeyElementsA[i] = c1;
+		evalKeyElementsB[i] = c0;
 	}
 
 	ek->SetAVector(std::move(evalKeyElementsA));

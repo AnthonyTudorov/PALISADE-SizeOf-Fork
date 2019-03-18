@@ -1004,11 +1004,11 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReKeyGen(const LPPublicKey<D
 
 	const shared_ptr<LPCryptoParametersBFVrns<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrns<DCRTPoly>>(newPK->GetCryptoParameters());
-	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
+	const shared_ptr<DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
 
-	const typename DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
-	typename DCRTPoly::DugType dug;
-	typename DCRTPoly::TugType tug;
+	const DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	DCRTPoly::DugType dug;
+	DCRTPoly::TugType tug;
 
 	const DCRTPoly &oldKey = origPrivateKey->GetPrivateElement();
 
@@ -1025,7 +1025,7 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReKeyGen(const LPPublicKey<D
 
 		if (relinWindow>0)
 		{
-			vector<typename DCRTPoly::PolyType> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
+			vector<DCRTPoly::PolyType> decomposedKeyElements = oldKey.GetElementAtIndex(i).PowersOfBase(relinWindow);
 
 			for (size_t k = 0; k < decomposedKeyElements.size(); k++)
 			{
@@ -1159,30 +1159,26 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReEncrypt(const LPEvalKey<D
 				K++;
 		}
 
-		// Changing the distribution standard deviation
-		LPCryptoParametersBFVrns<DCRTPoly> cryptoParams(*cryptoPars);
-		cryptoParams.PrecomputeCRTTables();
-		auto stdDev = cryptoParams.GetDistributionParameter();
-		cryptoParams.SetDistributionParameter(K*stdDev);
-
 		Ciphertext<DCRTPoly> zeroCiphertext(new CiphertextImpl<DCRTPoly>(publicKey));
 		zeroCiphertext->SetEncodingType(encType);
 
-		const typename DCRTPoly::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
-		typename DCRTPoly::TugType tug;
+		const DCRTPoly::DggType &dgg = cryptoPars->GetDiscreteGaussianGenerator();
+		DCRTPoly::TugType tug;
+		// Scaling the distribution standard deviation by K for HRA-security
+		auto stdDev = cryptoPars->GetDistributionParameter();
+		DCRTPoly::DggType dgg_err(K*stdDev);
 
 		const DCRTPoly &p0 = publicKey->GetPublicElements().at(0);
 		const DCRTPoly &p1 = publicKey->GetPublicElements().at(1);
 
-
 		DCRTPoly u;
-		if (cryptoParams.GetMode() == RLWE)
+		if (cryptoPars->GetMode() == RLWE)
 			u = DCRTPoly(dgg, elementParams, Format::EVALUATION);
 		else
 			u = DCRTPoly(tug, elementParams, Format::EVALUATION);
 
-		DCRTPoly e1(dgg, elementParams, Format::EVALUATION);
-		DCRTPoly e2(dgg, elementParams, Format::EVALUATION);
+		DCRTPoly e1(dgg_err, elementParams, Format::EVALUATION);
+		DCRTPoly e2(dgg_err, elementParams, Format::EVALUATION);
 
 		DCRTPoly c0(elementParams);
 		DCRTPoly c1(elementParams);
@@ -1191,7 +1187,6 @@ Ciphertext<DCRTPoly> LPAlgorithmPREBFVrns<DCRTPoly>::ReEncrypt(const LPEvalKey<D
 		c1 = p1*u + e2;
 
 		zeroCiphertext->SetElements({ c0, c1 });
-		//
 
 		newCiphertext->SetKeyTag(zeroCiphertext->GetKeyTag());
 

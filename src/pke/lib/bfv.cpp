@@ -1151,15 +1151,11 @@ LPEvalKey<Element> LPAlgorithmPREBFV<Element>::ReKeyGen(const LPPublicKey<Elemen
 	const shared_ptr<LPCryptoParametersBFV<Element>> BFVcryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFV<Element>>(newPK->GetCryptoParameters());
 
-	const typename Element::Integer &delta = BFVcryptoParamsLWE->GetDelta();
-
 	// Get parameters needed for PRE key gen
 	// r = relinWindow
 	usint relinWin = cryptoParamsLWE->GetRelinWindow();
-	auto invDelta = delta.ModInverse(elementParams->GetModulus());
 	// nBits = log2(q), where q: ciphertext modulus
 	usint nBits = elementParams->GetModulus().GetLengthForBase(2);
-
 	// K = log2(q)/r, i.e., number of digits in PRE decomposition
 	usint K = 1;
 	if (relinWin > 0) {
@@ -1168,20 +1164,41 @@ LPEvalKey<Element> LPAlgorithmPREBFV<Element>::ReKeyGen(const LPPublicKey<Elemen
 			K++;
 	}
 
-	// invDelta_s = (1/D)*s, s: secret key, r: relin window
 	Element s = origPrivateKey->GetPrivateElement();
-	Element invDelta_s = s.Times(invDelta); 
 
 	std::vector<Element> evalKeyElementsA(K);
 	std::vector<Element> evalKeyElementsB(K);
 
-	// The re-encryption key is K ciphertexts, one for each (1/D)*s(2^r)^i
 	for (usint i=0; i<K; i++) {
 		NativeInteger b = NativeInteger(1) << i*relinWin;
 
-		auto tmp = cc->GetEncryptionAlgorithm()->Encrypt(newPK, invDelta_s.Times(b));
-		evalKeyElementsA[i] = tmp->GetElements()[0];
-		evalKeyElementsB[i] = tmp->GetElements()[1];
+		s.SetFormat(Format::EVALUATION);
+
+		const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+		typename Element::TugType tug;
+
+		const Element &p0 = newPK->GetPublicElements().at(0);
+		const Element &p1 = newPK->GetPublicElements().at(1);
+
+		Element u;
+
+		if (cryptoParamsLWE->GetMode() == RLWE)
+			u = Element(dgg, elementParams, Format::EVALUATION);
+		else
+			u = Element(tug, elementParams, Format::EVALUATION);
+
+		Element e1(dgg, elementParams, Format::EVALUATION);
+		Element e2(dgg, elementParams, Format::EVALUATION);
+
+		Element c0(elementParams);
+		Element c1(elementParams);
+
+		c0 = p0*u + e1 + s*b;
+
+		c1 = p1*u + e2;
+
+		evalKeyElementsA[i] = c0;
+		evalKeyElementsB[i] = c1;
 	}
 
 	ek->SetAVector(std::move(evalKeyElementsA));
@@ -1231,29 +1248,27 @@ Ciphertext<Element> LPAlgorithmPREBFV<Element>::ReEncrypt(const LPEvalKey<Elemen
 					K++;
 			}
 
-			// Changing the distribution standard deviation
-			LPCryptoParametersBFV<Element> cryptoParams(*cryptoPars);
-			auto stdDev = cryptoParams.GetDistributionParameter();
-			cryptoParams.SetDistributionParameter(K*stdDev);
-
 			Ciphertext<Element> zeroCiphertext(new CiphertextImpl<Element>(publicKey));
 			zeroCiphertext->SetEncodingType(encType);
 
-			const typename Element::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+			const typename Element::DggType &dgg = cryptoPars->GetDiscreteGaussianGenerator();
 			typename Element::TugType tug;
+			// Scaling the distribution standard deviation by K for HRA-security
+			auto stdDev = cryptoPars->GetDistributionParameter();
+			typename Element::DggType dgg_err(K*stdDev);
 
 			const Element &p0 = publicKey->GetPublicElements().at(0);
 			const Element &p1 = publicKey->GetPublicElements().at(1);
 
 			Element u;
 
-			if (cryptoParams.GetMode() == RLWE)
+			if (cryptoPars->GetMode() == RLWE)
 				u = Element(dgg, elementParams, Format::EVALUATION);
 			else
 				u = Element(tug, elementParams, Format::EVALUATION);
 
-			Element e1(dgg, elementParams, Format::EVALUATION);
-			Element e2(dgg, elementParams, Format::EVALUATION);
+			Element e1(dgg_err, elementParams, Format::EVALUATION);
+			Element e2(dgg_err, elementParams, Format::EVALUATION);
 
 			Element c0(elementParams);
 			Element c1(elementParams);

@@ -614,21 +614,43 @@ namespace lbcrypto {
 	            K++;
 	    }
 
-		// minus_skElem = -s(2^r)^i, s: secret key, r: relin window
 		Element s = origPrivateKey->GetPrivateElement();
-		Element minus_s = s.Negate();
 
 		std::vector<Element> evalKeyElementsA(K);
 		std::vector<Element> evalKeyElementsB(K);
 
 		// The re-encryption key is K ciphertexts, one for each -s(2^r)^i
 		for (usint i=0; i<K; i++) {
-			// USE CRTDecompose FOR DCRTPoly!!
-			NativeInteger b = NativeInteger(1) << i*relinWin;
+			NativeInteger bb = NativeInteger(1) << i*relinWin;
 
-			auto tmp = cc->GetEncryptionAlgorithm()->Encrypt(newPK, minus_s.Times(b));
-			evalKeyElementsA[i] = tmp->GetElements()[1];
-			evalKeyElementsB[i] = tmp->GetElements()[0];
+			const auto p = cryptoParamsLWE->GetPlaintextModulus();
+			const typename Element::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+
+			typename Element::TugType tug;
+
+			s.SetFormat(Format::EVALUATION);
+
+			std::vector<Element> cVector;
+
+			const Element &a = newPK->GetPublicElements().at(0);
+			const Element &b = newPK->GetPublicElements().at(1);
+
+			Element v;
+
+			if (cryptoParamsLWE->GetMode() == RLWE)
+				v = Element(dgg, elementParams, Format::EVALUATION);
+			else
+				v = Element(tug, elementParams, Format::EVALUATION);
+
+			Element e0(dgg, elementParams, Format::EVALUATION);
+			Element e1(dgg, elementParams, Format::EVALUATION);
+
+			Element c0(b*v + p*e0 - s*bb);
+
+			Element c1(a*v + p*e1);
+
+			evalKeyElementsA[i] = c1;
+			evalKeyElementsB[i] = c0;
 		}
 
 		ek->SetAVector(std::move(evalKeyElementsA));
@@ -673,17 +695,15 @@ namespace lbcrypto {
 					K++;
 			}
 
-			// Changing the distribution standard deviation
-			LPCryptoParametersBGV<Element> cryptoParams(*cryptoPars);
-			auto stdDev = cryptoParams.GetDistributionParameter();
-			cryptoParams.SetDistributionParameter(K*stdDev);
-
 			Ciphertext<Element> zeroCiphertext(new CiphertextImpl<Element>(publicKey));
 			zeroCiphertext->SetEncodingType(encType);
 
-			const auto p = cryptoParams.GetPlaintextModulus();
-			const typename Element::DggType &dgg = cryptoParams.GetDiscreteGaussianGenerator();
+			const auto p = cryptoPars->GetPlaintextModulus();
+			const typename Element::DggType &dgg = cryptoPars->GetDiscreteGaussianGenerator();
 			typename Element::TugType tug;
+			// Scaling the distribution standard deviation by K for HRA-security
+			auto stdDev = cryptoPars->GetDistributionParameter();
+			typename Element::DggType dgg_err(K*stdDev);
 
 			std::vector<Element> cVector;
 
@@ -691,13 +711,13 @@ namespace lbcrypto {
 			const Element &b = publicKey->GetPublicElements().at(1);
 
 			Element v;
-			if (cryptoParams.GetMode() == RLWE)
+			if (cryptoPars->GetMode() == RLWE)
 				v = Element(dgg, elementParams, Format::EVALUATION);
 			else
 				v = Element(tug, elementParams, Format::EVALUATION);
 
-			Element e0(dgg, elementParams, Format::EVALUATION);
-			Element e1(dgg, elementParams, Format::EVALUATION);
+			Element e0(dgg_err, elementParams, Format::EVALUATION);
+			Element e1(dgg_err, elementParams, Format::EVALUATION);
 
 			Element c0(b*v + p*e0);
 			Element c1(a*v + p*e1);
