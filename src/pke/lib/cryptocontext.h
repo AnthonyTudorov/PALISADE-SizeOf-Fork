@@ -1416,11 +1416,13 @@ public:
 	* ReEncrypt - Proxy Re Encryption mechanism for PALISADE
 	* @param evalKey - evaluation key from the PRE keygen method
 	* @param ciphertext - vector of shared pointers to encrypted Ciphertext
+	* @param publicKey the public key of the recipient of the re-encrypted ciphertext.
 	* @return vector of shared pointers to re-encrypted ciphertexts
 	*/
 	Ciphertext<Element> ReEncrypt(
 		LPEvalKey<Element> evalKey,
-		ConstCiphertext<Element> ciphertext) const
+		ConstCiphertext<Element> ciphertext,
+		const LPPublicKey<Element> publicKey = nullptr) const
 	{
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ReEncrypt was not generated with this crypto context");
@@ -1431,7 +1433,7 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 
-		Ciphertext<Element> newCiphertext = GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext);
+		Ciphertext<Element> newCiphertext = GetEncryptionAlgorithm()->ReEncrypt(evalKey, ciphertext, publicKey);
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpReEncrypt, TOC_US(t)) );
@@ -1449,7 +1451,8 @@ public:
 	void ReEncryptStream(
 		const LPEvalKey<Element> evalKey,
 		std::istream& instream,
-		std::ostream& outstream)
+		std::ostream& outstream,
+		const LPPublicKey<Element> publicKey = nullptr)
 	{
 		// NOTE timing this operation is not supported
 
@@ -1462,7 +1465,7 @@ public:
 			Ciphertext<Element> ct;
 			ct = deserializeCiphertext(serObj);
 			if( ct ) {
-				Ciphertext<Element> reCt = ReEncrypt(evalKey, ct);
+				Ciphertext<Element> reCt = ReEncrypt(evalKey, ct, publicKey);
 
 				Serialized serReObj;
 				if( reCt->Serialize(&serReObj) ) {
