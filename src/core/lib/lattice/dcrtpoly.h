@@ -1085,6 +1085,24 @@ public:
 		return b.Times(a);
 	}
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("v", m_vectors) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("v", m_vectors) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	std::string SerializedObjectName() const { return "DCRTPoly"; }
+
 private:
 	
 	shared_ptr<Params> m_params;

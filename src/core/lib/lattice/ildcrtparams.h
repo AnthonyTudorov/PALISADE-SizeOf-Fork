@@ -300,7 +300,21 @@ public:
 		}
 	}
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("p", m_parms) );
+		ar( cereal::make_nvp("m", originalModulus) );
+	}
 
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("p", m_parms) );
+		ar( cereal::make_nvp("m", originalModulus) );
+	}
+
+	std::string SerializedObjectName() const { return "DCRTParams"; }
 
 private:
 	std::ostream& doprint(std::ostream& out) const {
@@ -313,7 +327,6 @@ private:
 		return out;
 	}
 
-private:
 	// array of smaller ILParams
 	std::vector<std::shared_ptr<ILNativeParams>>	m_parms;	
 

@@ -515,14 +515,54 @@ public:
 	}
 	
 	template <class Archive>
-	void save( Archive & ar ) const
+	typename std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<myZZ>,Archive>::value,void>::type
+	save( Archive & ar ) const
+	{
+		void *data = this->rep.rep;
+		if( data == nullptr ) {
+			ar( cereal::make_nvp("a", 0) );
+		}
+		else {
+			size_t len = _ntl_ALLOC(this->rep.rep);
+
+			ar( cereal::make_nvp("a", len) );
+			ar( cereal::binary_data(data, len*sizeof(_ntl_gbigint)) );
+		}
+		ar( cereal::make_nvp("mb", m_MSB) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_output_serializable<cereal::BinaryData<myZZ>,Archive>::value,void>::type
+	save( Archive & ar ) const
 	{
 		ar( cereal::make_nvp("n", ToString()) );
 		ar( cereal::make_nvp("mb", m_MSB) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	typename std::enable_if <cereal::traits::is_input_serializable<cereal::BinaryData<myZZ>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		size_t len;
+		ar( cereal::make_nvp("a", len) );
+		if( len == 0 ) {
+			std::cout << "It's a zero!" << std::endl;
+			*this = 0;
+			return;
+		}
+
+		void *mem = (void *)malloc( len*sizeof(_ntl_gbigint) );
+		ar( cereal::binary_data(mem, len*sizeof(_ntl_gbigint)) );
+		WrappedPtr<_ntl_gbigint_body, Deleter> newrep;
+		newrep.rep = (_ntl_gbigint_body *)mem;
+		_ntl_gswap( &this->rep, &newrep );
+
+		ar( cereal::make_nvp("mb", m_MSB) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_input_serializable<cereal::BinaryData<myZZ>,Archive>::value,void>::type
+	load( Archive & ar )
 	{
 		std::string s;
 		ar( cereal::make_nvp("n", s) );

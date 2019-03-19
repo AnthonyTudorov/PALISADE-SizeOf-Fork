@@ -541,17 +541,43 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	typename std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<NativeVector>,Archive>::value,void>::type
+	save( Archive & ar ) const
 	{
-		ar( CEREAL_NVP(m_data),
-				cereal::make_nvp("m",m_modulus) );
+		size_t size = m_data.size();
+		ar( cereal::make_nvp("n",size) );
+		ar( cereal::binary_data(m_data.data(), size*sizeof(IntegerType)) );
+		ar( cereal::make_nvp("m",m_modulus) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	typename std::enable_if <!cereal::traits::is_output_serializable<cereal::BinaryData<NativeVector>,Archive>::value,void>::type
+	save( Archive & ar ) const
 	{
-		ar( CEREAL_NVP(m_data),
-				cereal::make_nvp("m",m_modulus) );
+		ar( cereal::make_nvp("v",m_data) );
+		ar( cereal::make_nvp("m",m_modulus) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_input_serializable<cereal::BinaryData<NativeVector>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		size_t size;
+		ar( cereal::make_nvp("n",size) );
+		m_data.resize(size);
+		IntegerType *data = (IntegerType *)malloc( size*sizeof(IntegerType) );
+		for( size_t i = 0; i<size; i++ )
+			m_data[i] = data[i];
+		free( data );
+		ar( cereal::make_nvp("m",m_modulus) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_input_serializable<cereal::BinaryData<NativeVector>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		ar( cereal::make_nvp("v",m_data) );
+		ar( cereal::make_nvp("m",m_modulus) );
 	}
 
 	std::string SerializedObjectName() const { return "NativeVector"; }

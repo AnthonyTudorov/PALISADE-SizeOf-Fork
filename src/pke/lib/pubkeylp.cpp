@@ -271,3 +271,7 @@ bool LPPrivateKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 }
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);

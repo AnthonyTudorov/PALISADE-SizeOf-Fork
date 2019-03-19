@@ -270,6 +270,26 @@ class CiphertextImpl;
 			return out << *c;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("v", m_elements) );
+			ar( cereal::make_nvp("d", m_depth) );
+			ar( cereal::make_nvp("e", encodingType) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("v", m_elements) );
+			ar( cereal::make_nvp("d", m_depth) );
+			ar( cereal::make_nvp("e", encodingType) );
+		}
+
+		std::string SerializedObjectName() const { return "Ciphertext"; }
+
 	private:
 
 		//FUTURE ENHANCEMENT: current value of error norm

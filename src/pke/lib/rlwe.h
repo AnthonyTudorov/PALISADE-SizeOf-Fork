@@ -299,6 +299,36 @@ public:
 				std::endl;
 	}
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameter) );
+	    ar( cereal::make_nvp("am", m_assuranceMeasure) );
+	    ar( cereal::make_nvp("sl", m_securityLevel) );
+	    ar( cereal::make_nvp("rw", m_relinWindow) );
+	    ar( cereal::make_nvp("d", m_depth) );
+	    ar( cereal::make_nvp("md", m_maxDepth) );
+	    ar( cereal::make_nvp("mo", m_mode) );
+	    ar( cereal::make_nvp("slv", m_stdLevel) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameter) );
+	    ar( cereal::make_nvp("am", m_assuranceMeasure) );
+	    ar( cereal::make_nvp("sl", m_securityLevel) );
+	    ar( cereal::make_nvp("rw", m_relinWindow) );
+	    ar( cereal::make_nvp("d", m_depth) );
+	    ar( cereal::make_nvp("md", m_maxDepth) );
+	    ar( cereal::make_nvp("mo", m_mode) );
+	    ar( cereal::make_nvp("slv", m_stdLevel) );
+	}
+
+	std::string SerializedObjectName() const { return "RLWESchemeParameters"; }
+
 protected:
 	//standard deviation in Discrete Gaussian Distribution
 	float m_distributionParameter;

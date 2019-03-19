@@ -1986,6 +1986,21 @@ namespace lbcrypto {
 			m_encodingParams = encodingParams;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+			ar( cereal::make_nvp("elp", m_params) );
+			ar( cereal::make_nvp("enp", m_encodingParams) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+			ar( cereal::make_nvp("elp", m_params) );
+			ar( cereal::make_nvp("enp", m_encodingParams) );
+		}
+
+		std::string SerializedObjectName() const { return "CryptoParameters"; }
 
 	protected:
 		LPCryptoParameters(const PlaintextModulus &plaintextModulus = 2) {
@@ -2694,6 +2709,20 @@ namespace lbcrypto {
 		}
 
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+			ar( cereal::make_nvp("sp", "Scheme") );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+			ar( cereal::make_nvp("sp", "Scheme") );
+		}
+
+		std::string SerializedObjectName() const { return "SchemeParameters"; }
 
 	protected:
 		LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;

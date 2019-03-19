@@ -117,6 +117,16 @@ namespace lbcrypto {
 		virtual bool Deserialize(const Serialized& serObj) = 0;
 	};
 
+	template<typename T>
+	inline std::string CallSerObjName(const std::shared_ptr<T> obj) {
+		return obj->SerializedObjectName();
+	}
+
+	template<typename T>
+	inline std::string CallSerObjName(const T& obj) {
+		return obj.SerializedObjectName();
+	}
+
 	/**
 	 * SERIALIZE - macro to serialize OBJ into STREAM using serialization SERTYPE
 	 * @param OBJ - the object to be serialized; cereal requires archiver functions
@@ -140,14 +150,34 @@ namespace lbcrypto {
 		}																\
 	}
 
-#define SERIALIZEPTR(OBJ, STREAM, SERTYPE) {							\
-		std::string label = OBJ->SerializedObjectName();				\
+#define SERIALIZE(OBJ, STREAM, SERTYPE) {								\
+		std::string label = CallSerObjName(OBJ);						\
 		SERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);					\
 	}
 
-#define SERIALIZEOBJ(OBJ, STREAM, SERTYPE) {							\
+#define DESERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {			\
+		if( SERTYPE == Serializable::Type::JSON ) {						\
+			cereal::JSONInputArchive archive( STREAM );					\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+		else if( SERTYPE == Serializable::Type::BINARY ) {				\
+			cereal::BinaryInputArchive archive( STREAM );				\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+		else if( SERTYPE == Serializable::Type::PORTABLEBINARY ) {		\
+			cereal::PortableBinaryInputArchive archive( STREAM );		\
+			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+		}																\
+	}
+
+#define DESERIALIZEPTR(OBJ, STREAM, SERTYPE) {							\
+		std::string label = OBJ->SerializedObjectName();				\
+		DESERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);				\
+	}
+
+#define DESERIALIZEOBJ(OBJ, STREAM, SERTYPE) {							\
 		std::string label = OBJ.SerializedObjectName();					\
-		SERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);					\
+		DESERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);				\
 	}
 
 //helper template to stream vector contents provided T has an stream operator<< 
