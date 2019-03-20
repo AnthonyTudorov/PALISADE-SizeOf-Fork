@@ -138,7 +138,7 @@ TEST(UTPoly, rounding_ops) {
 
 // FIXME DCRTPoly needs an assignment op/ctor
 TEST(UTDCRTPoly, rounding_ops) {
-std::cerr<<"*** skipping DCRT rounding_ops till MultiplyAndRound is coded"<<std::endl;
+//std::cerr<<"*** skipping DCRT rounding_ops till MultiplyAndRound is coded"<<std::endl;
   //RUN_BIG_DCRTPOLYS(rounding_ops, "DCRT rounding_ops");
 }
 
@@ -212,7 +212,7 @@ TEST(UTPoly, set_get_values) {
 
 // FIXME DCRTPoly needs a set_get_values()
 TEST(UTDCRTPoly, set_get_values) {
-    std::cerr<<"*** skipping DCRT set_get_values till coded"<<std::endl;
+    //std::cerr<<"*** skipping DCRT set_get_values till coded"<<std::endl;
     //RUN_BIG_DCRTPOLYS(set_get_values, "DCRT set_values");
 }
 
@@ -270,7 +270,7 @@ TEST(UTPoly, at) {
 
 // FIXME DCRTPoly needs a at() and []
 TEST(UTDCRTPoly, at) {
-  std::cerr<<"*** skipping DCRT at till coded"<<std::endl;
+  //std::cerr<<"*** skipping DCRT at till coded"<<std::endl;
   //RUN_BIG_DCRTPOLYS(at, "DCRT at");
 }
 
@@ -332,7 +332,7 @@ TEST(UTPoly, switch_modulus) {
 
 
 TEST(UTDCRTPoly, switch_modulus) {
-  std::cerr<<"*** skipping DCRT switch_modulus till coded"<<std::endl;	//RUN_BIG_DCRTPOLYS(switch_modulus, "Poly switch_modulus");
+  //std::cerr<<"*** skipping DCRT switch_modulus till coded"<<std::endl;	//RUN_BIG_DCRTPOLYS(switch_modulus, "Poly switch_modulus");
 }
 
 //template fore rn_generators()
@@ -391,7 +391,7 @@ TEST(UTPoly, rn_generators) {
 }
 
 TEST(UTDCRTPoly, rn_generators) {
-  std::cerr<<"*** skipping DCRT rn_generators till coded"<<std::endl;
+  //std::cerr<<"*** skipping DCRT rn_generators till coded"<<std::endl;
   //RUN_BIG_DCRTPOLYS(rn_generators, "DCRT rn_generators");
 }
 
@@ -502,7 +502,7 @@ TEST(UTPoly, poly_other_methods) {
 
 //FIXME
 TEST(UTDCRTPoly, poly_other_methods) {
-std::cerr<<"*** skipping DCRT poly_other_methods till these functions are coded"<<std::endl;
+//std::cerr<<"*** skipping DCRT poly_other_methods till these functions are coded"<<std::endl;
 // 	RUN_BIG_DCRTPOLYS(poly_other_methods, "DCRT poly_other_methods");
  }
 
@@ -552,7 +552,7 @@ TEST(UTPoly, signed_mod) {
 
 // FIXME
 TEST(UTDCRTPoly, signed_mod) {
-std::cerr<<"*** skipping DCRT signed_mod till coded"<<std::endl;
+//std::cerr<<"*** skipping DCRT signed_mod till coded"<<std::endl;
 //	RUN_BIG_DCRTPOLYS(signed_mod, "signed_mod");
 }
 
@@ -597,7 +597,7 @@ TEST(UTPoly, automorphismTransform) {
 
 // FIXME
 TEST(UTDCRTPoly, automorphismTransform) {
-std::cerr<<"*** skipping DCRT automorphismTransform till coded"<<std::endl;
+//std::cerr<<"*** skipping DCRT automorphismTransform till coded"<<std::endl;
 //	RUN_BIG_DCRTPOLYS(automorphismTransform, "DCRT automorphismTransform");
 }
 
@@ -650,7 +650,7 @@ TEST(UTPoly, transposition) {
 
 // FIXME 
 TEST(UTDCRTPoly, transposition) {
-std::cerr<<"*** skipping DCRT transposition till coded"<<std::endl;
+//std::cerr<<"*** skipping DCRT transposition till coded"<<std::endl;
 //	RUN_BIG_DCRTPOLYS(transposition, "transposition");
 }
 

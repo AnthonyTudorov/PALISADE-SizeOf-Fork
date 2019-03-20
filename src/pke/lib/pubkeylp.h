@@ -1136,7 +1136,7 @@ namespace lbcrypto {
 			 */
 			virtual Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 				ConstCiphertext<Element> ciphertext,
-				const LPPublicKey<Element> publicKey) const = 0;
+				const LPPublicKey<Element> publicKey = nullptr) const = 0;
 
 	};
 
