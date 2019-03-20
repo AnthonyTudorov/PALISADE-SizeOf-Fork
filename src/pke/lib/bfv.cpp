@@ -292,7 +292,7 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 		}
 
 	} 
-	// this case supports re-encryption and automorphism w/o any other operations
+	// this case supports automorphism w/o any other operations
 	else if ((evalMultCount == 0) && (keySwitchCount > 0) && (evalAddCount == 0)) {
 
 		//base for relinearization
@@ -307,7 +307,7 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 		qPrev = q;
 
 		//this "while" condition is needed in case the iterative solution for q 
-		//changes the requirement for n, which is rare but still theortically possible
+		//changes the requirement for n, which is rare but still theoretically possible
 		while (nRLWE(q) > n) {
 
 			while (nRLWE(q) > n) {
@@ -902,7 +902,7 @@ Ciphertext<Element> LPAlgorithmSHEBFV<Element>::KeySwitch(const LPEvalKey<Elemen
 	
 	Element ct1;
 
-	if (c.size() == 2) //case of PRE or automorphism
+	if (c.size() == 2) //case of automorphism
 	{		
 		digitsC2 = c[1].BaseDecompose(relinWindow);
 		ct1 = digitsC2[0] * a[0];
