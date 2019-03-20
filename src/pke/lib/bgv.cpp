@@ -478,7 +478,7 @@ namespace lbcrypto {
 		std::vector<Element> digitsC1;
 		Element ct1;
 
-		if (c.size() == 2) //case of PRE or automorphism
+		if (c.size() == 2) //case of automorphism
 		{
 			digitsC1 = c[1].BaseDecompose(relinWindow);
 			ct1 = digitsC1[0] * a[0];

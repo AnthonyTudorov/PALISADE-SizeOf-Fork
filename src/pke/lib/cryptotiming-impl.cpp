@@ -57,7 +57,6 @@ static struct FeatureMap FeatureMap[] = {
 		{ OpMultiPartyDecryptFusion, "MultiPartyDecryptFusion", MULTIPARTY },
 		{ OpSparseKeyGen, "SparseKeyGen", ENCRYPTION },
 		{ OpReKeyGenPubPri, "ReKeyGen(pubkey,privkey)", PRE },
-		{ OpReKeyGenPriPri, "ReKeyGen(privkey,privkey)", PRE },
 		{ OpEvalMultKeyGen, "EvalMultKeyGen", SHE },
 		{ OpEncryptPub, "EncryptPub", ENCRYPTION },
 		{ OpEncryptPriv, "EncryptPriv", ENCRYPTION },
