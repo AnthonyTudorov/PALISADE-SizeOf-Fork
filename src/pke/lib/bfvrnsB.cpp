@@ -210,7 +210,7 @@ LPEvalKey<Element> LPAlgorithmPREBFVrnsB<Element>::ReKeyGen(const LPPublicKey<El
 template <class Element>
 Ciphertext<Element> LPAlgorithmPREBFVrnsB<Element>::ReEncrypt(const LPEvalKey<Element> EK,
 	ConstCiphertext<Element> ciphertext,
-	const LPPublicKey<DCRTPoly> publicKey) const
+	const LPPublicKey<Element> publicKey) const
 {
 	return LPAlgorithmPREBFV<Element>::ReEncrypt(EK, ciphertext, publicKey);
 }

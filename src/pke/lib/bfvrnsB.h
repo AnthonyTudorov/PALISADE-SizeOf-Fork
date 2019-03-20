@@ -593,7 +593,7 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> EK,
 			ConstCiphertext<Element> ciphertext,
-			const LPPublicKey<DCRTPoly> publicKey = nullptr) const;
+			const LPPublicKey<Element> publicKey = nullptr) const;
 
 	};
 
