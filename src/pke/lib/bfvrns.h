@@ -342,8 +342,8 @@ namespace lbcrypto {
 			    ar( cereal::make_nvp("pqs", m_paramsQS) );
 //			    ar( cereal::make_nvp("qmu", m_qModulimu) );
 //			    ar( cereal::make_nvp("smu", m_sModulimu) );
-//			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
-//			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
+			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
+			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
 //			    ar( cereal::make_nvp("qft", m_CRTDecryptionQuadFloatTable) );
 //			    ar( cereal::make_nvp("dit", m_CRTDecryptionIntTable) );
 //			    ar( cereal::make_nvp("dt", m_CRTDeltaTable) );
@@ -368,8 +368,8 @@ namespace lbcrypto {
 //			    ar( cereal::make_nvp("pqs", m_paramsQS) );
 //			    ar( cereal::make_nvp("qmu", m_qModulimu) );
 //			    ar( cereal::make_nvp("smu", m_sModulimu) );
-//			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
-//			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
+			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
+			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
 //			    ar( cereal::make_nvp("qft", m_CRTDecryptionQuadFloatTable) );
 //			    ar( cereal::make_nvp("dit", m_CRTDecryptionIntTable) );
 //			    ar( cereal::make_nvp("dt", m_CRTDeltaTable) );

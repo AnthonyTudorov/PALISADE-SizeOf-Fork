@@ -9,14 +9,49 @@
 #include "cryptocontext.h"
 using namespace lbcrypto;
 
+// If you need to serialize/deserialize an unsigned ___int128 to JSON, use these two routines
+template <class Archive>
+inline void SerializeInt128(Archive& ar, const unsigned __int128 & v) {
+	uint64_t hi = v>>64, lo = v&(~uint64_t(0));
+	ar( lo );
+	ar( hi );
+}
+
+template <class Archive>
+inline void DeserializeInt128(Archive& ar, unsigned __int128 & v) {
+	uint64_t hi, lo;
+	ar( lo );
+	ar( hi );
+	v = __int128(hi)<<64 | lo;
+}
+
+//namespace cereal {
+//	template<class Archive>
+//	void CEREAL_SAVE_FUNCTION_NAME(Archive & ar, const unsigned __int128 & v)
+//	{
+//		uint64_t hi = v>>64, lo = v&(~uint64_t(0));
+//		ar( lo );
+//		ar( hi );
+//	}
+//
+//	template<class Archive>
+//	void CEREAL_LOAD_FUNCTION_NAME(Archive & ar, unsigned __int128 & v)
+//	{
+//		uint64_t hi, lo;
+//		ar( lo );
+//		ar( hi );
+//		v = __int128(hi)<<64 | lo;
+//	}
+//}
+
 class Foo {
+public:
 	int		x;
 	int		xa[3];
 	vector<int>	xv;
 	vector<NativeInteger>	xnv;
 	unsigned __int128	z;
 
-public:
 	Foo(int z = 0) : x(z) {
 		for( int i=0; i < 3; i++ ) xa[i] = z;
 		xv.resize(z);
@@ -29,7 +64,7 @@ public:
 	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
-		ar( (long double)z );
+		ar( z );
 		ar( *xv.data() );
 	}
 
@@ -38,15 +73,25 @@ public:
 	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
-		ar( (long double)z );
+		SerializeInt128(ar, z);
 		ar( *xv.data() );
 	}
 
-	template <class Archive> //, class std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<Foo>,Archive>::value,void>>
-	void load( Archive & ar, std::uint32_t const version )
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<Foo>,Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
 	{
 		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
-		ar( (long double)z );
+		ar( z );
+		ar( *xv.data() );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_output_serializable<cereal::BinaryData<Foo>,Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
+	{
+		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
+		DeserializeInt128(ar, z);
 		ar( *xv.data() );
 	}
 
@@ -155,49 +200,60 @@ void RunSerialOptions(string objname, const shared_ptr<T> obj) {
 	cout << "   deserialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 }
 
-//ostream& operator<<(ostream& out, const __int128 i) {
-//	out << std::to_string(i);
-//	return out;
-//}
-
-template <class T, cereal::traits::EnableIf<std::is_arithmetic<T>::value,
-                                    !std::is_same<T, long>::value,
-                                    !std::is_same<T, unsigned long>::value,
-                                    !std::is_same<T, std::int64_t>::value,
-                                    !std::is_same<T, std::uint64_t>::value,
-                                    (sizeof(T) >= sizeof(long double) || sizeof(T) >= sizeof(long long))> = cereal::traits::sfinae> inline
-void func(T const & t)
-{
-  std::stringstream ss; //ss.precision( std::numeric_limits<long double>::max_digits10 );
-  ss << t;
-  cout << ( ss.str() ) << endl;
-}
-
 int
 main()
 {
-	cout << "std::is_arithmetic<__int128>::value " << std::is_arithmetic<__int128>::value << endl;
-	cout << "(sizeof(__int128) >= sizeof(long double) || sizeof(__int128) >= sizeof(long long)) "
-			<< (sizeof(__int128) >= sizeof(long double) || sizeof(__int128) >= sizeof(long long)) << endl;
-	cout << "!std::is_same<__int128, long>::value " << !std::is_same<__int128, long>::value << endl;
+	QuadFloat	qf(20,30), qf2, qf3;
+	{
+		stringstream ss;
+		{
+			cereal::JSONOutputArchive archive( ss );
+			archive( qf );
+		}
+		{
+			cereal::JSONInputArchive archive( ss );
+			archive( qf2 );
+		}
+		cout << (qf == qf2 ? "yes" : "no") << endl;
 
-	__int128 xx = 101;
-	cout << xx << endl;
-	func(xx);
+		ss.str("");
+		{
+			cereal::BinaryOutputArchive archive( ss );
+			archive( qf );
+		}
+		{
+			cereal::BinaryInputArchive archive( ss );
+			archive( qf3 );
+		}
+		cout << (qf == qf3 ? "yes" : "no") << endl;
+	}
 
 	Foo	xxx(4);
-	ostringstream ss;
+	Foo yyy, zzz;
+	stringstream ss;
 	{
 		cereal::JSONOutputArchive archive( ss );
 		archive( cereal::make_nvp("Foo", xxx) );
 	}
 	cout << "JSON of foo is " << ss.tellp() << endl;
+	{
+		cereal::JSONInputArchive archive( ss );
+		archive( cereal::make_nvp("Foo", yyy) );
+	}
+	cout << (xxx.z == yyy.z ? "yes" : "no") << endl;
+
 	ss.str("");
 	{
 		cereal::BinaryOutputArchive archive( ss );
 		archive( cereal::make_nvp("Foo", xxx) );
 	}
-	cout << "BINARY of foo is " << ss.tellp() << endl << endl;
+	cout << "BINARY of foo is " << ss.tellp() << endl;
+	{
+		cereal::BinaryInputArchive archive( ss );
+		archive( cereal::make_nvp("Foo", zzz) );
+	}
+	cout << (xxx.z == zzz.z ? "yes" : "no") << endl << endl;
+
 
 	if( false ) {
 		EncodingParams ep2( new EncodingParamsImpl(5, 7, 9, 11, 13, 15) );
