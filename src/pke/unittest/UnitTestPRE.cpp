@@ -126,11 +126,7 @@ static void ReEncryption(const CryptoContext<Element> cc, const string& failmsg)
 
 	// This generates the keys which are used to perform the key switching.
 	LPEvalKey<Element> evalKey;
-//	if( failmsg.substr(0,3) == "BGV" || failmsg.substr(0,3) == "BFV" || failmsg.substr(0,6) == "BFVrns" ) {
-//		evalKey = cc->ReKeyGen(newKp.secretKey, kp.secretKey);
-//	} else {
 	evalKey = cc->ReKeyGen(newKp.publicKey, kp.secretKey);
-//	}
 
 	Ciphertext<Element> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
 	Plaintext plaintextShortNew;
