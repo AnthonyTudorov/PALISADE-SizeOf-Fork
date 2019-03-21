@@ -83,9 +83,9 @@ public:
 	vector<NativeInteger>	xnv;
 	unsigned __int128	z;
 
-	Foo(int z = 0) : x(z) {
-		for( int i=0; i < 3; i++ ) xa[i] = z;
-		xv.resize(z);
+	Foo(int n = 0) : x(n) {
+		for( int i=0; i < 3; i++ ) xa[i] = n;
+		xv.resize(n);
 		xnv = { 4, 9 };
 		z = 404;
 	}
@@ -104,7 +104,8 @@ public:
 	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
-		SerializeInt128(ar, z);
+		ar( CEREAL_NVP(z) );
+		//SerializeInt128(ar, z);
 		ar( *xv.data() );
 	}
 
@@ -122,7 +123,8 @@ public:
 	load( Archive & ar, std::uint32_t const version )
 	{
 		ar( CEREAL_NVP(x), CEREAL_NVP(xa), CEREAL_NVP(xv), CEREAL_NVP(xnv) );
-		DeserializeInt128(ar, z);
+		ar( CEREAL_NVP(z) );
+		//SerializeInt128(ar, z);
 		ar( *xv.data() );
 	}
 
@@ -234,9 +236,6 @@ void RunSerialOptions(string objname, const shared_ptr<T> obj) {
 int
 main()
 {
-//	unsigned __int128 xxxx = 137;
-//	cout << xxxx << endl;
-
 	QuadFloat	qf(20,30), qf2, qf3;
 	{
 		stringstream ss;
