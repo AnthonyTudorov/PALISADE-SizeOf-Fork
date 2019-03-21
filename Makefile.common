@@ -75,7 +75,7 @@ endif
 ROOTDIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 PACKAGE := palisade
-VERSION := 1.4.0
+VERSION := 1.5.0
 
 #build directory
 BUILDDIR := build
