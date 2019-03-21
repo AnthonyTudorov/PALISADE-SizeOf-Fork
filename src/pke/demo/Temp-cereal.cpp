@@ -10,20 +10,31 @@
 using namespace lbcrypto;
 
 // If you need to serialize/deserialize an unsigned ___int128 to JSON, use these two routines
-template <class Archive>
-inline void SerializeInt128(Archive& ar, const unsigned __int128 & v) {
-	uint64_t hi = v>>64, lo = v&(~uint64_t(0));
-	ar( lo );
-	ar( hi );
-}
-
-template <class Archive>
-inline void DeserializeInt128(Archive& ar, unsigned __int128 & v) {
-	uint64_t hi, lo;
-	ar( lo );
-	ar( hi );
-	v = __int128(hi)<<64 | lo;
-}
+//class Large128 {
+//public:
+//	unsigned __int128	v;
+//
+//	Large128(unsigned __int128 v) : v(v) {}
+//};
+//
+//namespace cereal {
+//	template<class Archive>
+//	void CEREAL_SAVE_FUNCTION_NAME(Archive & ar, const Large128 & v)
+//	{
+//		uint64_t hi = v.v>>64, lo = v.v&(~uint64_t(0));
+//		ar( lo );
+//		ar( hi );
+//	}
+//
+//	template<class Archive>
+//	void CEREAL_LOAD_FUNCTION_NAME(Archive & ar, Large128 & v)
+//	{
+//		uint64_t hi, lo;
+//		ar( lo );
+//		ar( hi );
+//		v.v = __int128(hi)<<64 | lo;
+//	}
+//}
 
 //namespace cereal {
 //	template<class Archive>
@@ -42,6 +53,26 @@ inline void DeserializeInt128(Archive& ar, unsigned __int128 & v) {
 //		ar( hi );
 //		v = __int128(hi)<<64 | lo;
 //	}
+//}
+
+template <class Archive>
+inline void SerializeInt128(Archive& ar, const unsigned __int128 & v) {
+	uint64_t hi = v>>64, lo = v&(~uint64_t(0));
+	ar( lo );
+	ar( hi );
+}
+
+template <class Archive>
+inline void DeserializeInt128(Archive& ar, unsigned __int128 & v) {
+	uint64_t hi, lo;
+	ar( lo );
+	ar( hi );
+	v = __int128(hi)<<64 | lo;
+}
+
+//ostream& operator<<(ostream& out, const unsigned __int128& v) {
+//	out << "FOCUS!";
+//	return out;
 //}
 
 class Foo {
@@ -203,6 +234,9 @@ void RunSerialOptions(string objname, const shared_ptr<T> obj) {
 int
 main()
 {
+//	unsigned __int128 xxxx = 137;
+//	cout << xxxx << endl;
+
 	QuadFloat	qf(20,30), qf2, qf3;
 	{
 		stringstream ss;
