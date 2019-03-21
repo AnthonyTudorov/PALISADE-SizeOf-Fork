@@ -1,4 +1,4 @@
 [submodule "third-party/cereal"]
 	path = third-party/cereal
-	url = https://github.com/USCiLab/cereal.git
+	url = https://github.com/JerryRyan/cereal.git
 
