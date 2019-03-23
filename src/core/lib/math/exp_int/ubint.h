@@ -955,6 +955,23 @@ public:
 	 */
 	uschar GetBitAtIndex(usint index) const;
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+		ar( cereal::make_nvp("s", m_state) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+		ar( cereal::make_nvp("s", m_state) );
+	}
+
+	std::string SerializedObjectName() const { return "ExpInteger"; }
 
 protected:
 
@@ -975,8 +992,6 @@ protected:
 	 * @param guessIdxChar is the hint of the MSB position.
 	 */
 	void SetMSB(usint guessIdxChar);
-
-
 
 private:
 

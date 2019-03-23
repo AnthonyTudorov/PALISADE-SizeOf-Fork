@@ -645,7 +645,25 @@ public:
 	 */
 	bool Deserialize(const Serialized& serObj);
 
-#define MATRIX_NOT_SERIALIZABLE(T) \
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("d", data) );
+		ar( cereal::make_nvp("r", rows) );
+		ar( cereal::make_nvp("c", cols) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("d", data) );
+		ar( cereal::make_nvp("r", rows) );
+		ar( cereal::make_nvp("c", cols) );
+	}
+
+	std::string SerializedObjectName() const { return "Matrix"; }
+
+	#define MATRIX_NOT_SERIALIZABLE(T) \
 	template<> \
 	bool Matrix<T>::Serialize(Serialized* serObj) const { \
 		PALISADE_THROW(serialize_error,"Not implemented"); \

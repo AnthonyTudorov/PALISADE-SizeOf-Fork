@@ -475,6 +475,48 @@ public:
 	*/
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<BigVectorImpl>,Archive>::value,void>::type
+	save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("l", m_length) );
+		ar( cereal::binary_data(m_data, sizeof(IntegerType)*m_length) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_output_serializable<cereal::BinaryData<BigVectorImpl>,Archive>::value,void>::type
+	save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("l", m_length) );
+		for( size_t i=0; i< m_length; i++ )
+			ar( m_data[i] );
+	}
+
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_input_serializable<cereal::BinaryData<BigVectorImpl>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("l", m_length) );
+		m_data = new IntegerType[m_length] ();
+		ar( cereal::binary_data(m_data, sizeof(IntegerType)*m_length) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_input_serializable<cereal::BinaryData<BigVectorImpl>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("l", m_length) );
+		m_data = new IntegerType[m_length] ();
+		for( size_t i=0; i< m_length; i++ )
+			ar( m_data[i] );
+	}
+
+	std::string SerializedObjectName() const { return "CPUInteger"; }
+
 private:
 	//m_data is a pointer to the vector
 	IntegerType *m_data;

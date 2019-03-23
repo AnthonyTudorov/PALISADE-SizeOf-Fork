@@ -45,7 +45,7 @@ using namespace lbcrypto;
 
 
 template<typename T>
-void bigint(const string& msg) {
+void Obigint(const string& msg) {
 	T small(7);
 	T medium(uint64_t(1)<<27 | uint64_t(1)<<22);
 	T larger(uint64_t(1)<<40 | uint64_t(1)<<22);
@@ -66,12 +66,82 @@ void bigint(const string& msg) {
 	EXPECT_EQ(larger, deser) << msg << " Larger integer ser/deser fails";
 }
 
+TEST(UTSer,Obigint){
+	RUN_ALL_BACKENDS_INT(Obigint,"bigint")
+}
+
+template<typename T>
+void bigint(const string& msg) {
+	T small(7);
+	T medium(uint64_t(1)<<27 | uint64_t(1)<<22);
+	T larger(uint64_t(1)<<40 | uint64_t(1)<<22);
+
+	auto sfunc = [&](T& val, string siz) {
+		stringstream s;
+		string WITHNAME = "int";
+		T deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
+	};
+
+	sfunc(small, "small");
+	sfunc(medium, "medium");
+	sfunc(larger, "larger");
+}
+
 TEST(UTSer,bigint){
 	RUN_ALL_BACKENDS_INT(bigint,"bigint")
 }
 
 template<typename T>
 void hugeint(const string& msg) {
+	T yooge("371828316732191777888912");
+
+	auto sfunc = [&](T& val, string siz) {
+		stringstream s;
+		string WITHNAME = "int";
+		T deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
+	};
+
+	sfunc(yooge, "Huge");
+}
+
+TEST(UTSer,hugeint){
+	RUN_BIG_BACKENDS_INT(hugeint,"hugeint")
+}
+
+template<typename T>
+void Ohugeint(const string& msg) {
 	T yooge("371828316732191777888912");
 
 	string ser;
@@ -83,12 +153,12 @@ void hugeint(const string& msg) {
 	EXPECT_EQ(yooge, deser) << msg << " Huge integer ser/deser fails";
 }
 
-TEST(UTSer,hugeint){
-	RUN_BIG_BACKENDS_INT(hugeint,"hugeint")
+TEST(UTSer,Ohugeint){
+	RUN_BIG_BACKENDS_INT(Ohugeint,"hugeint")
 }
 
 template<typename V>
-void vector_of_bigint(const string& msg) {
+void Ovector_of_bigint(const string& msg) {
 	bool dbg_flag = false;
 	const int vecsize = 100;
 
@@ -120,12 +190,62 @@ void vector_of_bigint(const string& msg) {
 	EXPECT_EQ( testvec, newvec ) << msg << " Mismatch after ser/deser";
 }
 
+TEST(UTSer,Ovector_of_bigint){
+	RUN_ALL_BACKENDS(Ovector_of_bigint, "vector_of_bigint")
+}
+
+template<typename V>
+void vector_of_bigint(const string& msg) {
+	bool dbg_flag = false;
+	const int vecsize = 100;
+
+	DEBUG("step 0");
+	typename V::Integer mod((uint64_t)1<<40);
+
+	DEBUG("step 1");
+	V	testvec(vecsize, mod);
+	DEBUG("step 2");
+	DiscreteUniformGeneratorImpl<V>	dug;
+	DEBUG("step 3");
+	dug.SetModulus(mod);
+	typename V::Integer ranval;
+
+	for( int i=0; i<vecsize; i++ ) {
+		ranval = dug.GenerateInteger();
+		testvec.at(i)= ranval;
+	}
+
+	auto sfunc = [&](V& val) {
+		stringstream s;
+		string WITHNAME = "vec";
+		V deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
+	};
+
+	sfunc(testvec);
+}
+
 TEST(UTSer,vector_of_bigint){
 	RUN_ALL_BACKENDS(vector_of_bigint, "vector_of_bigint")
 }
 
 template<typename Element>
-void ilparams_test(const string& msg) {
+void Oilparams_test(const string& msg) {
 	auto p = ElemParamFactory::GenElemParams<typename Element::Params>(1024);
 	Serialized ser;
 	ser.SetObject();
@@ -137,12 +257,45 @@ void ilparams_test(const string& msg) {
 	EXPECT_EQ( *p, newp ) << msg << " Mismatch after ser/deser";
 }
 
+TEST(UTSer,Oilparams_test) {
+	RUN_ALL_POLYS(Oilparams_test, "ilparams_test")
+}
+
+template<typename Element>
+void ilparams_test(const string& msg) {
+	auto p = ElemParamFactory::GenElemParams<typename Element::Params>(1024);
+
+	auto sfunc = [&msg](decltype(p) val) {
+		stringstream s;
+		string WITHNAME = "parm";
+		decltype(p) deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
+	};
+
+	sfunc(p);
+}
+
 TEST(UTSer,ilparams_test) {
 	RUN_ALL_POLYS(ilparams_test, "ilparams_test")
 }
 
 template<typename Element>
-void ildcrtparams_test(const string& msg) {
+void Oildcrtparams_test(const string& msg) {
 	auto p = GenerateDCRTParams<typename Element::Integer>(1024, 5, 30);
 	Serialized ser;
 	ser.SetObject();
@@ -154,8 +307,61 @@ void ildcrtparams_test(const string& msg) {
 	EXPECT_EQ( *p, newp ) << msg << " Mismatch after ser/deser";
 }
 
+TEST(UTSer,Oildcrtparams_test) {
+	RUN_BIG_DCRTPOLYS(Oildcrtparams_test, "ildcrtparams_test")
+}
+
+template<typename Element>
+void ildcrtparams_test(const string& msg) {
+	auto p = GenerateDCRTParams<typename Element::Integer>(1024, 5, 30);
+
+	auto sfunc = [&msg](decltype(p) val) {
+		stringstream s;
+		string WITHNAME = "parm";
+		decltype(p) deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
+	};
+
+	sfunc(p);
+}
+
 TEST(UTSer,ildcrtparams_test) {
 	RUN_BIG_DCRTPOLYS(ildcrtparams_test, "ildcrtparams_test")
+}
+
+template<typename Element>
+void Oilvector_test(const string& msg) {
+	auto p = ElemParamFactory::GenElemParams<typename Element::Params>(1024);
+	typename Element::DugType dug;
+	Element vec(dug, p);
+
+	Serialized ser;
+	ser.SetObject();
+	ASSERT_TRUE( vec.Serialize(&ser) ) << msg << " Serialization failed";
+
+	Element newvec;
+	ASSERT_TRUE( newvec.Deserialize(ser) ) << msg << " Deserialization failed";
+
+	EXPECT_EQ( vec, newvec ) << msg << " Mismatch after ser/deser";
+}
+
+TEST(UTSer,Oilvector_test) {
+	RUN_ALL_POLYS(Oilvector_test, "ilvector_test")
 }
 
 template<typename Element>
@@ -164,14 +370,29 @@ void ilvector_test(const string& msg) {
 	typename Element::DugType dug;
 	Element vec(dug, p);
 
-	Serialized ser;
-	ser.SetObject();
-	ASSERT_TRUE( vec.Serialize(&ser) ) << msg << " Serialization failed";
+	auto sfunc = [&](Element& val) {
+		stringstream s;
+		string WITHNAME = "element";
+		Element deser;
 
-	Element newvec;
-	ASSERT_TRUE( newvec.Deserialize(ser) ) << msg << " Deserialization failed";
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
+	};
 
-	EXPECT_EQ( vec, newvec ) << msg << " Mismatch after ser/deser";
+	sfunc(vec);
 }
 
 TEST(UTSer,ilvector_test) {
@@ -179,7 +400,7 @@ TEST(UTSer,ilvector_test) {
 }
 
 template<typename Element>
-void ildcrtpoly_test(const string& msg) {
+void Oildcrtpoly_test(const string& msg) {
 	auto p = GenerateDCRTParams<typename Element::Integer>(1024, 5, 30);
 	typename Element::DugType dug;
 	Element vec(dug, p);
@@ -192,6 +413,41 @@ void ildcrtpoly_test(const string& msg) {
 	ASSERT_TRUE( newvec.Deserialize(ser) ) << msg << " Deserialization failed";
 
 	EXPECT_EQ( vec, newvec ) << msg << " Mismatch after ser/deser";
+}
+
+TEST(UTSer,Oildcrtpoly_test) {
+	RUN_BIG_DCRTPOLYS(Oildcrtpoly_test, "ildcrtpoly_test")
+}
+
+template<typename Element>
+void ildcrtpoly_test(const string& msg) {
+	auto p = GenerateDCRTParams<typename Element::Integer>(1024, 5, 30);
+	typename Element::DugType dug;
+	Element vec(dug, p);
+
+	auto sfunc = [&](Element& val) {
+		stringstream s;
+		string WITHNAME = "element";
+		Element deser;
+
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::JSON);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::JSON);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
+		s.str("");
+		{
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		{
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+		}
+		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
+	};
+
+	sfunc(vec);
 }
 
 TEST(UTSer,ildcrtpoly_test) {

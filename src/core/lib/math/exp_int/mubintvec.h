@@ -503,6 +503,24 @@ public:
    */
   bool Deserialize(const lbcrypto::Serialized& serObj);
 
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("d", m_data) );
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+		ar( cereal::make_nvp("d", m_data) );
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
+
+	std::string SerializedObjectName() const { return "ExpVector"; }
+
 private:
   ubint_el_t m_modulus;
 

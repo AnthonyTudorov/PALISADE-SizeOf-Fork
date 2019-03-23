@@ -149,11 +149,6 @@ namespace lbcrypto {
 		}																\
 	}
 
-#define SERIALIZE(OBJ, STREAM, SERTYPE) {								\
-		std::string label = CallSerObjName(OBJ);						\
-		SERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);					\
-	}
-
 #define DESERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {			\
 		if( SERTYPE == Serializable::Type::JSON ) {						\
 			cereal::JSONInputArchive archive( STREAM );					\

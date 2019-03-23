@@ -309,6 +309,22 @@ public:
 		return false;
 	}
 
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
+	    ar( cereal::make_nvp("f",format) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
+	    ar( cereal::make_nvp("f",format) );
+	}
+
+	std::string SerializedObjectName() const { return "Field2n"; }
+
 	/**
 	 * @brief Populate the object from the deserialization of the Serialized
 	 * @param serObj contains the serialized object

@@ -923,6 +923,40 @@ namespace cpu_int{
 	*/
 	static BigInteger Allocator() { return 0; }
 
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_output_serializable<cereal::BinaryData<BigInteger>,Archive>::value,void>::type
+	save( Archive & ar ) const
+	{
+		ar( cereal::binary_data(m_value, sizeof(m_value)) );
+		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_output_serializable<cereal::BinaryData<BigInteger>,Archive>::value,void>::type
+	save( Archive & ar ) const
+	{
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <cereal::traits::is_input_serializable<cereal::BinaryData<BigInteger>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		ar( cereal::binary_data(m_value, sizeof(m_value)) );
+		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
+	}
+
+	template <class Archive>
+	typename std::enable_if <!cereal::traits::is_input_serializable<cereal::BinaryData<BigInteger>,Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+	}
+
+	std::string SerializedObjectName() const { return "CPUInteger"; }
+
     protected:
     
 	/**
