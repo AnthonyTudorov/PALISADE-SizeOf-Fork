@@ -243,6 +243,23 @@ public:
 		os << " StSt distribution parm: " << m_distributionParameterStSt;
 	}
 
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+		this->SetDistributionParameterStSt(m_distributionParameterStSt);
+	}
+
+	std::string SerializedObjectName() const { return "StStSchemeParameters"; }
+
 private:
 	//standard deviation in Discrete Gaussian Distribution used for Key Generation
 	float m_distributionParameterStSt;
@@ -463,6 +480,20 @@ public:
 			throw std::logic_error("LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 		}
 	}
+
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStScheme"; }
 };
 
 

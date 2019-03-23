@@ -121,6 +121,18 @@ namespace lbcrypto {
 		LPKey(shared_ptr<CryptoObject<Element>> co) : CryptoObject<Element>(co) {}
 
 		virtual ~LPKey() {}
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+		}
 	};
 
 	template<typename Element>
@@ -260,6 +272,21 @@ namespace lbcrypto {
 
 			bool operator!=(const LPPublicKeyImpl& other) const { return ! (*this == other); }
 
+			template <class Archive>
+			void save( Archive & ar ) const
+			{
+			    ar( cereal::base_class<LPKey<Element>>( this ) );
+			    ar( cereal::make_nvp("h",m_h) );
+			}
+
+			template <class Archive>
+			void load( Archive & ar )
+			{
+			    ar( cereal::base_class<LPKey<Element>>( this ) );
+			    ar( cereal::make_nvp("h",m_h) );
+			}
+			std::string SerializedObjectName() const { return "PublicKey"; }
+
 	private:
 		std::vector<Element> m_h;
 	};
@@ -393,6 +420,19 @@ namespace lbcrypto {
 		friend bool operator!=(const LPEvalKeyImpl& a, LPEvalKeyImpl& b) { return ! (a == b); }
 
 		virtual bool key_compare(const LPEvalKeyImpl& other) const = 0;
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		}
+		std::string SerializedObjectName() const { return "EvalKey"; }
 	};
 
 	template<typename Element>
@@ -557,6 +597,21 @@ namespace lbcrypto {
 			return true;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_rKey) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_rKey) );
+		}
+		std::string SerializedObjectName() const { return "EvalKeyRelin"; }
+
 	private:
 		//private member to store vector of vector of Element.
 		std::vector< std::vector<Element> > m_rKey;
@@ -695,6 +750,21 @@ namespace lbcrypto {
 			return true;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_rKey) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_rKey) );
+		}
+		std::string SerializedObjectName() const { return "EvalKeyNTRURelin"; }
+
 	private:
 		//private member to store vector of Element.
 		std::vector<Element>  m_rKey;
@@ -832,6 +902,21 @@ namespace lbcrypto {
 			return true;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_Key) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( cereal::make_nvp("k", m_Key) );
+		}
+		std::string SerializedObjectName() const { return "EvalKeyNTRU"; }
+
 	private:
 
 		/**
@@ -942,6 +1027,21 @@ namespace lbcrypto {
 		}
 
 		bool operator!=(const LPPrivateKeyImpl& other) const { return ! (*this == other); }
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		    ar( cereal::make_nvp("s",m_sk) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		    ar( cereal::make_nvp("s",m_sk) );
+		}
+		std::string SerializedObjectName() const { return "PrivateKey"; }
 
 	private:
 

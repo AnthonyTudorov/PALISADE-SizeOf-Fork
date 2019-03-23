@@ -266,6 +266,27 @@ namespace lbcrypto {
 			return ! ( *this == rhs );
 		}
 
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("n", m_numerator) );
+			ar( cereal::make_nvp("d", m_denominator) );
+			ar( cereal::make_nvp("d", m_integerFlag) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("n", m_numerator) );
+			ar( cereal::make_nvp("d", m_denominator) );
+			ar( cereal::make_nvp("d", m_integerFlag) );
+		}
+
+		std::string SerializedObjectName() const { return "RationalCiphertext"; }
+
 	private:
 
 		Ciphertext<Element> m_numerator;

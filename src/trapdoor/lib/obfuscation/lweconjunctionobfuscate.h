@@ -125,6 +125,20 @@ namespace lbcrypto {
 		  return os;
 		}
 
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+			ar( cereal::make_nvp("s", m_patternString) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+			ar( cereal::make_nvp("s", m_patternString) );
+		}
+
+		std::string SerializedObjectName() const { return "ClearLWEConjunctionPattern"; }
+
 	private:
 		// stores the local instance of the pattern string
 		std::string m_patternString;

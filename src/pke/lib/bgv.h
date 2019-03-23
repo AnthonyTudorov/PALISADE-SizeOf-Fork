@@ -188,6 +188,20 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 			}
 
+			template <class Archive>
+			void save ( Archive & ar ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			template <class Archive>
+			void load ( Archive & ar )
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			std::string SerializedObjectName() const { return "BGVSchemeParameters"; }
+
 	};
 
 
@@ -759,6 +773,20 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVScheme"; }
 	};
 
 } // namespace lbcrypto ends

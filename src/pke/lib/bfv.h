@@ -283,6 +283,23 @@ namespace lbcrypto {
 						" bigrootofunityarb: " << m_bigRootOfUnityArb;
 			}
 
+			// NOTE that we do not serialize any of the members declared in this class.
+			// they are all cached computations, and get recomputed in any implementation
+			// that does a deserialization
+			template <class Archive>
+			void save ( Archive & ar ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			template <class Archive>
+			void load ( Archive & ar )
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			std::string SerializedObjectName() const { return "BFVSchemeParameters"; }
+
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in BFV (most significant bit ranges are used to represent the message)
@@ -816,6 +833,20 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVScheme"; }
 	};
 
 } // namespace lbcrypto ends

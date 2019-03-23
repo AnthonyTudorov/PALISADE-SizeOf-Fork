@@ -266,6 +266,23 @@ namespace lbcrypto {
 
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaPreconTable() const { return m_qDivqiModtgammaPreconTable; }
 
+			// NOTE that we do not serialize any of the members declared in this class.
+			// they are all cached computations, and get recomputed in any implementation
+			// that does a deserialization
+			template <class Archive>
+			void save ( Archive & ar ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			template <class Archive>
+			void load ( Archive & ar )
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			std::string SerializedObjectName() const { return "BFVrnsBSchemeParameters"; }
+
 		private:
 
 			// Stores a precomputed table of floor(Q/p) mod qi
@@ -666,6 +683,20 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsScheme"; }
 	};
 
 } // namespace lbcrypto ends

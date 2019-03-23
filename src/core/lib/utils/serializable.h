@@ -96,7 +96,7 @@ namespace lbcrypto {
 		*/
 		virtual bool Serialize(Serialized* serObj) const = 0;
 
-		virtual std::string SerializedObjectName() const { return ""; } // FIXME =0
+		virtual std::string SerializedObjectName() const = 0;
 
 		/**
 		 * SerializeWithoutContext serializes the object but does NOT include the context -

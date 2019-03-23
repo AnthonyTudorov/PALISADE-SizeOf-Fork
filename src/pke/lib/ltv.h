@@ -188,6 +188,20 @@ public:
 	void PrintParameters(std::ostream& os) const {
 		LPCryptoParametersRLWE<Element>::PrintParameters(os);
 	}
+
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVSchemeParameters"; }
 };
 
 /**
@@ -786,6 +800,20 @@ public:
 	*@param feature code for the feature to enable
 	*/
 	void Enable(PKESchemeFeature feature);
+
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVScheme"; }
 };
 
 }

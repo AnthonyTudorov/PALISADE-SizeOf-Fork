@@ -146,6 +146,19 @@ public:
 					*this->GetEncodingParams() == *el->GetEncodingParams();
 	}
 
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullSchemeParameters"; }
 };
 
 template <class Element>
@@ -932,6 +945,20 @@ public:
 			break;
 		}
 	}
+
+	template <class Archive>
+	void save( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullScheme"; }
 };
 
 
