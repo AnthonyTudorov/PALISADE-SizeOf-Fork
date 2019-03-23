@@ -1918,6 +1918,8 @@ namespace lbcrypto {
 	class LPCryptoParameters : public Serializable
 	{		
 	public:
+		LPCryptoParameters() {}
+
 		virtual ~LPCryptoParameters() {}
 
 		/**
@@ -2003,7 +2005,7 @@ namespace lbcrypto {
 		std::string SerializedObjectName() const { return "CryptoParameters"; }
 
 	protected:
-		LPCryptoParameters(const PlaintextModulus &plaintextModulus = 2) {
+		LPCryptoParameters(const PlaintextModulus &plaintextModulus) {
 			m_encodingParams.reset( new EncodingParamsImpl(plaintextModulus) );
 		}
 
@@ -2041,7 +2043,7 @@ namespace lbcrypto {
 	template<typename Element>
 	class PalisadeSchemeIdentifier {
 		string									schemeName;
-		LPPublicKeyEncryptionScheme<Element>		*(*schemeMaker)();
+		LPPublicKeyEncryptionScheme<Element>	*(*schemeMaker)();
 	public:
 		PalisadeSchemeIdentifier(string n, LPPublicKeyEncryptionScheme<Element> (*f)())
 			: schemeName(n), schemeMaker(f) {}
@@ -2713,16 +2715,18 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar ) const
 		{
-			ar( cereal::make_nvp("sp", "Scheme") );
+			ar( cereal::make_nvp("e",GetEnabled()) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar )
 		{
-			ar( cereal::make_nvp("sp", "Scheme") );
+			usint mask;
+			ar( cereal::make_nvp("e",mask) );
+			this->Enable(mask);
 		}
 
-		std::string SerializedObjectName() const { return "SchemeParameters"; }
+		std::string SerializedObjectName() const { return "Scheme"; }
 
 	protected:
 		LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;

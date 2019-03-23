@@ -519,16 +519,17 @@ public:
 	save( Archive & ar ) const
 	{
 		void *data = this->rep.rep;
+		size_t len = 0;
 		if( data == nullptr ) {
-			ar( cereal::make_nvp("a", 0) );
+			ar( cereal::binary_data(&len, sizeof(len)) );
 		}
 		else {
-			size_t len = _ntl_ALLOC(this->rep.rep);
+			len = _ntl_ALLOC(this->rep.rep);
 
-			ar( cereal::make_nvp("a", len) );
+			ar( cereal::binary_data(&len, sizeof(len)) );
 			ar( cereal::binary_data(data, len*sizeof(_ntl_gbigint)) );
+			ar( cereal::make_nvp("mb", m_MSB) );
 		}
-		ar( cereal::make_nvp("mb", m_MSB) );
 	}
 
 	template <class Archive>
@@ -544,9 +545,8 @@ public:
 	load( Archive & ar )
 	{
 		size_t len;
-		ar( cereal::make_nvp("a", len) );
+		ar( cereal::binary_data(&len, sizeof(len)) );
 		if( len == 0 ) {
-			std::cout << "It's a zero!" << std::endl;
 			*this = 0;
 			return;
 		}

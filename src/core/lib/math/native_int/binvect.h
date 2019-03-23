@@ -545,9 +545,10 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	save( Archive & ar ) const
 	{
 		size_t size = m_data.size();
-		ar( cereal::make_nvp("n",size) );
-		ar( cereal::binary_data(m_data.data(), size*sizeof(IntegerType)) );
-		ar( cereal::make_nvp("m",m_modulus) );
+		ar( size );
+		if( size > 0 )
+			ar( cereal::binary_data(m_data.data(), size*sizeof(IntegerType)) );
+		ar( m_modulus );
 	}
 
 	template <class Archive>
@@ -563,13 +564,16 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	load( Archive & ar )
 	{
 		size_t size;
-		ar( cereal::make_nvp("n",size) );
+		ar( size );
 		m_data.resize(size);
-		IntegerType *data = (IntegerType *)malloc( size*sizeof(IntegerType) );
-		for( size_t i = 0; i<size; i++ )
-			m_data[i] = data[i];
-		free( data );
-		ar( cereal::make_nvp("m",m_modulus) );
+		if( size > 0 ) {
+			IntegerType *data = (IntegerType *)malloc( size*sizeof(IntegerType) );
+			ar( cereal::binary_data(data, size*sizeof(IntegerType)) );
+			for( size_t i = 0; i<size; i++ )
+				m_data[i] = data[i];
+			free( data );
+		}
+		ar( m_modulus );
 	}
 
 	template <class Archive>

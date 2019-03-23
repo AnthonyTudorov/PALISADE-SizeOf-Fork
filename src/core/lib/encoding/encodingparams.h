@@ -58,9 +58,9 @@ public:
 		PlaintextModulus plaintextModulus = 0,
 		uint32_t batchSize = 0,
 		uint32_t plaintextGenerator = 0,
-		const NativeInteger& plaintextRootOfUnity = NativeInteger(0),
-		const NativeInteger& plaintextBigModulus = NativeInteger(0),
-		const NativeInteger& plaintextBigRootOfUnity = NativeInteger(0)) {
+		NativeInteger plaintextRootOfUnity = 0,
+		NativeInteger plaintextBigModulus = 0,
+		NativeInteger plaintextBigRootOfUnity = 0) {
 			m_plaintextModulus = plaintextModulus;
 			m_plaintextRootOfUnity = plaintextRootOfUnity;
 			m_plaintextBigModulus = plaintextBigModulus;
@@ -268,25 +268,14 @@ private:
 
 public:
 	template <class Archive>
-	void save( Archive & ar ) const
+	void serialize( Archive & ar )
 	{
-		ar( cereal::make_nvp("m", m_plaintextModulus),
-				cereal::make_nvp("ru", m_plaintextRootOfUnity),
-				cereal::make_nvp("bm", m_plaintextBigModulus),
-				cereal::make_nvp("bru", m_plaintextBigRootOfUnity),
-				cereal::make_nvp("g", m_plaintextGenerator),
-				cereal::make_nvp("bs", m_batchSize) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar )
-	{
-		ar( cereal::make_nvp("m", m_plaintextModulus),
-				cereal::make_nvp("ru", m_plaintextRootOfUnity),
-				cereal::make_nvp("bm", m_plaintextBigModulus),
-				cereal::make_nvp("bru", m_plaintextBigRootOfUnity),
-				cereal::make_nvp("g", m_plaintextGenerator),
-				cereal::make_nvp("bs", m_batchSize) );
+		ar( cereal::make_nvp("m", m_plaintextModulus) );
+		ar( cereal::make_nvp("ru", m_plaintextRootOfUnity) );
+		ar( cereal::make_nvp("bm", m_plaintextBigModulus) );
+		ar( cereal::make_nvp("bru", m_plaintextBigRootOfUnity) );
+		ar( cereal::make_nvp("g", m_plaintextGenerator) );
+		ar( cereal::make_nvp("bs", m_batchSize) );
 	}
 
 	std::string SerializedObjectName() const { return "EncodingParms"; }

@@ -136,8 +136,7 @@ namespace lbcrypto {
 	 */
 #define SERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {				\
 		if( SERTYPE == Serializable::Type::JSON ) {						\
-			cereal::JSONOutputArchive archive( STREAM, 					\
-					cereal::JSONOutputArchive::Options::NoIndent() );	\
+			cereal::JSONOutputArchive archive( STREAM );            	\
 			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
 		}																\
 		else if( SERTYPE == Serializable::Type::BINARY ) {				\
@@ -168,16 +167,6 @@ namespace lbcrypto {
 			cereal::PortableBinaryInputArchive archive( STREAM );		\
 			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
 		}																\
-	}
-
-#define DESERIALIZEPTR(OBJ, STREAM, SERTYPE) {							\
-		std::string label = OBJ->SerializedObjectName();				\
-		DESERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);				\
-	}
-
-#define DESERIALIZEOBJ(OBJ, STREAM, SERTYPE) {							\
-		std::string label = OBJ.SerializedObjectName();					\
-		DESERIALIZEWITHNAME(OBJ, label, STREAM, SERTYPE);				\
 	}
 
 //helper template to stream vector contents provided T has an stream operator<< 

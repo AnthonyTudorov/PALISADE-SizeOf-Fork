@@ -1057,8 +1057,7 @@ CryptoContextFactory<Element>::GetContext(
 
 	for( CryptoContext<Element> cc : AllContexts ) {
 		if( *cc->GetEncryptionAlgorithm().get() == *scheme.get() &&
-				*cc->GetCryptoParameters().get() == *params.get()
-		) {
+				*cc->GetCryptoParameters().get() == *params.get() ) {
 			return cc;
 		}
 	}

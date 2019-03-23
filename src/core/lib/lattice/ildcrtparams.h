@@ -303,6 +303,7 @@ public:
 	template <class Archive>
 	void save( Archive & ar ) const
 	{
+	    ar( cereal::base_class<ElemParams<IntType>>( this ) );
 		ar( cereal::make_nvp("p", m_parms) );
 		ar( cereal::make_nvp("m", originalModulus) );
 	}
@@ -310,6 +311,7 @@ public:
 	template <class Archive>
 	void load( Archive & ar )
 	{
+	    ar( cereal::base_class<ElemParams<IntType>>( this ) );
 		ar( cereal::make_nvp("p", m_parms) );
 		ar( cereal::make_nvp("m", originalModulus) );
 	}

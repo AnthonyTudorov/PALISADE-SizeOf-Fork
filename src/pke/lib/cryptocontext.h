@@ -63,7 +63,7 @@ class CryptoContextImpl : public Serializable {
 
 private:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>>		scheme;			/*!< algorithm used; accesses all crypto methods */
+	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
 
 	static std::map<string,std::vector<LPEvalKey<Element>>>					evalMultKeyMap;	/*!< cached evalmult keys, by secret key UID */
 	static std::map<string,shared_ptr<std::map<usint,LPEvalKey<Element>>>>	evalSumKeyMap;	/*!< cached evalsum keys, by secret key UID */
@@ -74,12 +74,13 @@ private:
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
-	 * @param a - shared pointer in the object
-	 * @param b - this object, usually
-	 * @return true if the shared pointer is a pointer to "this"
+	 * @param a - operand 1
+	 * @param b - operand 2
+	 * @return true if the objects have the same parms and scheme
 	 */
 	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
 		if( a->params.get() != b->params.get() ) return false;
+		if( a->scheme.get() != b->scheme.get() ) return false;
 		return true;
 	}
 
@@ -89,12 +90,13 @@ private:
 
 	/**
 	 * Private methods to compare two contexts; this is only used internally and is not generally available
-	 * @param a - shared pointer in the object
-	 * @param b - this object, usually
-	 * @return true if the shared pointer is a pointer to "this"
+	 * @param a - operand 1
+	 * @param b - operand 2
+	 * @return true if the implementations have identical parms and scheme
 	 */
 	friend bool operator==(const CryptoContextImpl<Element>& a, const CryptoContextImpl<Element>& b) {
-		if( a.params.get() != b.params.get() ) return false;
+		if( *a.params != *b.params ) return false;
+		if( *a.scheme != *b.scheme ) return false;
 		return true;
 	}
 
@@ -2384,6 +2386,16 @@ public:
 	void load( Archive & ar )
 	{
 		ar( cereal::make_nvp("cc", context) );
+
+		// PALISADE relies on the notion that CryptoContexts are not duplicated in memory
+		// Once we deserialize this object, we must check to see if there is a matching context
+		// for this particular context already existing in memory
+		// if it DOES exist, use it. If it does NOT exist, add it to the cache of all contexts
+
+		// NOTE very important optimization is available here if there's a lot of serialization/
+		// deserialization in the application
+		context = CryptoContextFactory<Element>::GetContext(context->GetCryptoParameters(), context->GetEncryptionAlgorithm());
+
 		ar( cereal::make_nvp("kt", keyTag) );
 	}
 

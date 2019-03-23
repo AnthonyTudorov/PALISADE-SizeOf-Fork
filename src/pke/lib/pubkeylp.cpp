@@ -272,6 +272,19 @@ bool LPPrivateKeyImpl<Element>::Deserialize(const Serialized &serObj) {
 
 }
 
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>);
+
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::Poly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::DCRTPoly>);
+

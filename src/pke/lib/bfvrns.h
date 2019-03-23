@@ -320,70 +320,19 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 			}
 
-			template<class Archive>
-			void save(Archive & archive,
-					QuadFloat const & m)
+			// NOTE that we do not serialize any of the members declared in this class.
+			// they are all cached computations, and get recomputed in any implementation
+			// that does a deserialization
+			template <class Archive>
+			void save ( Archive & ar ) const
 			{
-				archive( m.hi, m.lo );
-			}
-
-			template<class Archive>
-			void load(Archive & archive,
-					QuadFloat & m)
-			{
-				archive( m.hi, m.lo );
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			template <class Archive>
-			void save( Archive & ar ) const
+			void load ( Archive & ar )
 			{
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-			    ar( cereal::make_nvp("ps", m_paramsS) );
-			    ar( cereal::make_nvp("pqs", m_paramsQS) );
-//			    ar( cereal::make_nvp("qmu", m_qModulimu) );
-//			    ar( cereal::make_nvp("smu", m_sModulimu) );
-			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
-			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
-//			    ar( cereal::make_nvp("qft", m_CRTDecryptionQuadFloatTable) );
-//			    ar( cereal::make_nvp("dit", m_CRTDecryptionIntTable) );
-//			    ar( cereal::make_nvp("dt", m_CRTDeltaTable) );
-//			    ar( cereal::make_nvp("it", m_CRTInverseTable) );
-//			    ar( cereal::make_nvp("ipt", m_CRTInversePreconTable) );
-//			    ar( cereal::make_nvp("qdmt", m_CRTqDivqiModsiTable) );
-//			    ar( cereal::make_nvp("qmst", m_CRTqModsiTable) );
-//			    ar( cereal::make_nvp("mit", m_CRTMultIntTable) );
-//			    ar( cereal::make_nvp("mft", m_CRTMultFloatTable) );
-//			    ar( cereal::make_nvp("sit", m_CRTSInverseTable) );
-//			    ar( cereal::make_nvp("sipt", m_CRTSInversePreconTable) );
-//			    ar( cereal::make_nvp("sqdmt", m_CRTsDivsiModqiTable) );
-//			    ar( cereal::make_nvp("sqmst", m_CRTsModqiTable) );
-//			    ar( cereal::make_nvp("dipt", m_CRTDecryptionIntPreconTable) );
-			}
-
-			template <class Archive>
-			void load( Archive & ar )
-			{
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-			    ar( cereal::make_nvp("ps", m_paramsS) );
-//			    ar( cereal::make_nvp("pqs", m_paramsQS) );
-//			    ar( cereal::make_nvp("qmu", m_qModulimu) );
-//			    ar( cereal::make_nvp("smu", m_sModulimu) );
-			    ar( cereal::make_nvp("dft", m_CRTDecryptionFloatTable) );
-			    ar( cereal::make_nvp("deft", m_CRTDecryptionExtFloatTable) );
-//			    ar( cereal::make_nvp("qft", m_CRTDecryptionQuadFloatTable) );
-//			    ar( cereal::make_nvp("dit", m_CRTDecryptionIntTable) );
-//			    ar( cereal::make_nvp("dt", m_CRTDeltaTable) );
-//			    ar( cereal::make_nvp("it", m_CRTInverseTable) );
-//			    ar( cereal::make_nvp("ipt", m_CRTInversePreconTable) );
-//			    ar( cereal::make_nvp("qdmt", m_CRTqDivqiModsiTable) );
-//			    ar( cereal::make_nvp("qmst", m_CRTqModsiTable) );
-//			    ar( cereal::make_nvp("mit", m_CRTMultIntTable) );
-//			    ar( cereal::make_nvp("mft", m_CRTMultFloatTable) );
-//			    ar( cereal::make_nvp("sit", m_CRTSInverseTable) );
-//			    ar( cereal::make_nvp("sipt", m_CRTSInversePreconTable) );
-//			    ar( cereal::make_nvp("sqdmt", m_CRTsDivsiModqiTable) );
-//			    ar( cereal::make_nvp("sqmst", m_CRTsModqiTable) );
-//			    ar( cereal::make_nvp("dipt", m_CRTDecryptionIntPreconTable) );
 			}
 
 			std::string SerializedObjectName() const { return "BFVrnsSchemeParameters"; }
@@ -742,7 +691,22 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsScheme"; }
 	};
 
 } // namespace lbcrypto ends
+
 #endif
