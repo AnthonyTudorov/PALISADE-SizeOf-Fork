@@ -90,10 +90,10 @@ void bigint(const string& msg) {
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
 	};
@@ -125,10 +125,10 @@ void hugeint(const string& msg) {
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
 	};
@@ -229,10 +229,10 @@ void vector_of_bigint(const string& msg) {
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};
@@ -279,10 +279,10 @@ void ilparams_test(const string& msg) {
 		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
 	};
@@ -329,10 +329,10 @@ void ildcrtparams_test(const string& msg) {
 		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
 	};
@@ -384,10 +384,10 @@ void ilvector_test(const string& msg) {
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};
@@ -439,10 +439,10 @@ void ildcrtpoly_test(const string& msg) {
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 		s.str("");
 		{
-			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			SERIALIZEWITHNAME(val, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		{
-			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::PORTABLEBINARY);
+			DESERIALIZEWITHNAME(deser, WITHNAME, s, Serializable::Type::BINARY);
 		}
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};

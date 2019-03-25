@@ -27,16 +27,16 @@ public:
 
 	bool operator==(const Foo& o) const {
 		if( x != o.x ) return false;
-		for( int i=0; i<3; i++ )
+		for( size_t i=0; i<3; i++ )
 			if( xa[i] != o.xa[i] ) return false;
 		if( xv.size() != o.xv.size() ) return false;
-		for( int i=0; i<xv.size(); i++ )
+		for( size_t i=0; i<xv.size(); i++ )
 			if( xv[i] != o.xv[i] ) return false;
 		if( ev.size() != o.ev.size() ) return false;
-		for( int i=0; i<ev.size(); i++ )
+		for( size_t i=0; i<ev.size(); i++ )
 			if( ev[i] != o.ev[i] ) return false;
 		if( xnv.size() != o.xnv.size() ) return false;
-		for( int i=0; i<xnv.size(); i++ )
+		for( size_t i=0; i<xnv.size(); i++ )
 			if( xnv[i] != o.xnv[i] ) return false;
 		if( z != o.z ) return false;
 

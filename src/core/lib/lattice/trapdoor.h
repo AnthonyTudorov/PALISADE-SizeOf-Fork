@@ -45,10 +45,24 @@ public:
 	// matrix
 	Matrix<Element> m_e;
 	//CTOR with empty trapdoor pair for deserialization
-        RLWETrapdoorPair(): m_r(Matrix<Element> ([](){ return Element(); }, 0,0)),
-        		m_e(Matrix<Element> ([](){ return Element(); }, 0,0)) {};
+	RLWETrapdoorPair(): m_r(Matrix<Element> ([](){ return Element(); }, 0,0)),
+			m_e(Matrix<Element> ([](){ return Element(); }, 0,0)) {};
 
-        RLWETrapdoorPair(const Matrix<Element> &r, const Matrix<Element> &e): m_r(r), m_e(e) {};
+	RLWETrapdoorPair(const Matrix<Element> &r, const Matrix<Element> &e): m_r(r), m_e(e) {};
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( CEREAL_NVP(m_r) );
+		ar( CEREAL_NVP(m_e) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		ar( CEREAL_NVP(m_r) );
+		ar( CEREAL_NVP(m_e) );
+	}
 };
 
 /**
