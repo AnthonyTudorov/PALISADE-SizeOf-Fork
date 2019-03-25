@@ -200,41 +200,42 @@ main()
 		cout << X << endl;
 	}
 
-	//	if( false ) {
-	//		Foo	xxx(4);
-	//		Foo yyy, zzz;
-	//		stringstream ss;
-	//		{
-	//			cereal::JSONOutputArchive archive( ss );
-	//			archive( cereal::make_nvp("Foo", xxx) );
-	//		}
-	//		cout << "JSON of foo is " << ss.tellp() << endl;
-	//		{
-	//			cereal::JSONInputArchive archive( ss );
-	//			archive( cereal::make_nvp("Foo", yyy) );
-	//		}
-	//		cout << (xxx == yyy ? "yes" : "no") << endl;
-	//
-	//		ss.str("");
-	//		{
-	//			cereal::BinaryOutputArchive archive( ss );
-	//			archive( cereal::make_nvp("Foo", xxx) );
-	//		}
-	//		cout << "BINARY of foo is " << ss.tellp() << endl;
-	//		{
-	//			cereal::BinaryInputArchive archive( ss );
-	//			archive( cereal::make_nvp("Foo", zzz) );
-	//		}
-	//		cout << (xxx == zzz ? "yes" : "no") << endl << endl;
-	//	}
-	//
-	//	if( false ) {
-	//		EncodingParams ep2( new EncodingParamsImpl(5, 7, 9, 11, 13, 15) );
-	//		RunSerialOptions(ep2);
-	//		cout << "============" << endl;
-	//	}
-
 	if( true ) {
+		Foo	xxx(4);
+		Foo yyy, zzz;
+		stringstream ss;
+		{
+			cereal::JSONOutputArchive archive( ss );
+			archive( cereal::make_nvp("Foo", xxx) );
+		}
+		{
+			cereal::JSONInputArchive archive( ss );
+			archive( cereal::make_nvp("Foo", yyy) );
+		}
+		cout << (xxx == yyy ? "yes" : "no") << endl;
+
+		ss.str("");
+		{
+			cereal::BinaryOutputArchive archive( ss );
+			archive( cereal::make_nvp("Foo", xxx) );
+		}
+		{
+			cereal::BinaryInputArchive archive( ss );
+			archive( cereal::make_nvp("Foo", zzz) );
+		}
+		cout << (xxx == zzz ? "yes" : "no") << endl << endl;
+
+		shared_ptr<Foo> xxx1 = make_shared<Foo>( xxx );
+
+		RunSerialOptions(xxx1, "wombat");
+	}
+
+	if( false ) {
+		EncodingParams ep2( new EncodingParamsImpl(5, 7, 9, 11, 13, 15) );
+		RunSerialOptions(ep2,"ep");
+	}
+
+	if( false ) {
 		usint plaintextModulus = 536903681;
 		double sigma = 3.2;
 		SecurityLevel securityLevel = HEStd_128_classic;

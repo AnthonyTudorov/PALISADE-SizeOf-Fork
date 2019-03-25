@@ -184,10 +184,10 @@ void UnitTestContext(CryptoContext<T> cc) {
 	} catch(...) {}
 
 	stringstream s;
-	Serializable::SerializeWithName(cc, "cc", s, Serializable::Type::JSON);
+	Serializable::SerializeWithName(cc, s, Serializable::Type::JSON);
 
 	CryptoContext<T> newcc;
-	Serializable::DeserializeWithName(newcc, "cc", s, Serializable::Type::JSON);
+	Serializable::DeserializeWithName(newcc, s, Serializable::Type::JSON);
 
 	ASSERT_TRUE( newcc ) << "Deserialize failed";
 
@@ -203,11 +203,11 @@ void UnitTestContext(CryptoContext<T> cc) {
 	DEBUG("Components match");
 
 	s.str("");
-	Serializable::SerializeWithName(kp.publicKey, "pk", s, Serializable::Type::JSON);
+	Serializable::SerializeWithName(kp.publicKey, s, Serializable::Type::JSON);
 	DEBUG("serialized");
 	DEBUG(s.str());
 	LPPublicKey<T> newPub;
-	Serializable::DeserializeWithName(newPub, "pk", s, Serializable::Type::JSON);
+	Serializable::DeserializeWithName(newPub, s, Serializable::Type::JSON);
 	ASSERT_TRUE( newPub ) << "Key deserialize failed";
 	DEBUG("deserialized");
 

@@ -159,12 +159,42 @@ public:
 	 * @return JSON string
 	 */
 	template <typename T>
+	inline static std::string SerializeToString(const std::shared_ptr<T> t) { // FIXME do I need two??
+		std::stringstream s;
+		{
+			SerializeWithName(t, "", s, Serializable::Type::JSON);
+		}
+		return s.str();
+	}
+
+	/**
+	 * SerializeToString - serialize the object to a JSON string and return the string
+	 * @param t - any serializable object
+	 * @return JSON string
+	 */
+	template <typename T>
 	inline static std::string SerializeToString(const T& t) {
 		std::stringstream s;
 		{
 			SerializeWithName(t, "", s, Serializable::Type::JSON);
 		}
 		return s.str();
+	}
+
+	template<typename T>
+	inline static void SerializeWithName(const std::shared_ptr<T> obj, std::ostream& stream, Serializable::Type sertype) {
+		std::string withname = obj->SerializedObjectName();
+		if( sertype == Serializable::Type::JSON ) {
+			cereal::JSONOutputArchive archive( stream );
+			archive( cereal::make_nvp(withname, *obj) );
+		}
+		else if( sertype == Serializable::Type::BINARY ) {
+			cereal::PortableBinaryOutputArchive archive( stream );
+			archive( *obj );
+		}
+		else {
+
+		}
 	}
 
 	template<typename T>
@@ -176,6 +206,23 @@ public:
 		else if( sertype == Serializable::Type::BINARY ) {
 			cereal::PortableBinaryOutputArchive archive( stream );
 			archive( obj );
+		}
+		else {
+
+		}
+	}
+
+	template<typename T>
+	inline static void DeserializeWithName(std::shared_ptr<T>& obj, std::istream& stream, Serializable::Type sertype) {
+		obj.reset( new T() );
+		std::string withname = obj->SerializedObjectName();
+		if( sertype == Serializable::Type::JSON ) {
+			cereal::JSONInputArchive archive( stream );
+			archive( cereal::make_nvp(withname, *obj) );
+		}
+		else if( sertype == Serializable::Type::BINARY ) {
+			cereal::PortableBinaryInputArchive archive( stream );
+			archive( *obj );
 		}
 		else {
 
