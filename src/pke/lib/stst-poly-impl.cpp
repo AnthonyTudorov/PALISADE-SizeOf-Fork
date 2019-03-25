@@ -34,3 +34,9 @@ template class LPCryptoParametersStehleSteinfeld<Poly>;
 template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
 template class LPAlgorithmStSt<Poly>;
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::NativePoly>);

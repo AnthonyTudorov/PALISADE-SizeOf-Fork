@@ -112,3 +112,8 @@ bool LPAlgorithmParamsGenLTV<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<
 }
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::DCRTPoly>);
+

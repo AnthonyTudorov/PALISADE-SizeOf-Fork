@@ -1146,6 +1146,9 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 	return cc;
 }
 
+template <typename T>
+const vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() { return AllContexts; }
+
 // factory methods for the different schemes
 
 template <typename T>

@@ -77,9 +77,7 @@ bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
 
   if (dbg_flag) {
     // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(*serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+    std::cout << Serializable::SerializeToString(*this) << std::endl;
   }
   return true;
 };

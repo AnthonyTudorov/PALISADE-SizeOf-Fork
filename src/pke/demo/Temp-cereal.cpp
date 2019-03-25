@@ -62,17 +62,18 @@ public:
 
 CEREAL_CLASS_VERSION( Foo, 2 );
 
-const int repcount = 5000;
+const int repcount = 1;
 
 template<typename T>
-void RunSerialOptions(const shared_ptr<T> obj) {
+void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	TimeVar t;
 	Serialized	ser;
 	string str;
 
 	stringstream s;
 	shared_ptr<T> newobj;
-	auto nam = obj->SerializedObjectName();
+
+	cout << "===== " << nam << " =====" << endl;
 
 	cout << "JSON serialization: " << endl;
 	{
@@ -117,110 +118,57 @@ void RunSerialOptions(const shared_ptr<T> obj) {
 		s.seekg(0, std::ios::beg);
 	}
 	cout << "   deserialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
-	cout << "BINARY " << ((*obj == *newobj) ? "MATCHES" : "DOES NOT MATCH") << endl << endl;
-
-	cout << "PORTABLEBINARY serialization: " << endl;
-	{
-		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::PORTABLEBINARY);
-	}
-	cout << "   bytes: " << s.tellp() << endl;
-	TIC(t);
-	for( int i=0; i<repcount; i++ ) {
-		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::PORTABLEBINARY);
-	}
-	cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
-	TIC(t);
-	for( int i=0; i<repcount; i++ ) {
-		newobj.reset( new T() );
-		DESERIALIZEWITHNAME(*newobj, nam, s, Serializable::PORTABLEBINARY);
-		s.clear();
-		s.seekg(0, std::ios::beg);
-	}
-	cout << "   deserialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
-	cout << "PORTABLEBINARY " << ((*obj == *newobj) ? "MATCHES" : "DOES NOT MATCH") << endl;
-}
-
-class C1 {
-	int x,y;
-public:
-	C1(int x = 0, int y = 0) : x(x), y(y) {}
-
-	friend ostream& operator<<(ostream& out, const C1& o) {
-		out << o.x << "," << o.y;
-		return out;
-	}
-
-	template <class Archive>
-	void serialize( Archive & ar )
-	{
-		ar( CEREAL_NVP(x) );
-		ar( CEREAL_NVP(y) );
-	}
-};
-
-class C2 {
-	int x,y;
-public:
-	C2(int x = 0, int y = 0) : x(x), y(y) {}
-
-	friend ostream& operator<<(ostream& out, const C2& o) {
-		out << o.x << "," << o.y;
-		return out;
-	}
-
-	template <class Archive>
-	void serialize( Archive & ar )
-	{
-		ar( CEREAL_NVP(x) );
-		ar( CEREAL_NVP(y) );
-	}
-};
-
-struct V {
-	shared_ptr<C1> c1;
-	shared_ptr<C2> c2;
-
-	friend ostream& operator<<(ostream& out, const V& o) {
-		out << "c1 " << *o.c1 << ":::: c2 " << *o.c2;
-		return out;
-	}
-
-	template <class Archive>
-	void serialize( Archive & ar )
-	{
-		ar( CEREAL_NVP(c1) );
-		ar( CEREAL_NVP(c2) );
-	}
-};
-
-void testme() {
-	V foo;
-	foo.c1 = make_shared<C1>( C1(2, 4) );
-	foo.c2 = make_shared<C2>( C2(6, 8) );
-
-	cout << foo << endl;
-
-	V bar;
-
-	stringstream s;
-
-	{
-		cereal::BinaryOutputArchive archive( s );
-		archive( foo );
-	}
-	{
-		cereal::BinaryInputArchive archive( s );
-		archive( bar );
-	}
-
-	cout << bar << endl;
+	cout << "BINARY " << ((*obj == *newobj) ? "MATCHES" : "DOES NOT MATCH") << endl;
+	cout  << endl << "=END= " << nam << " =END=" << endl << endl;
 }
 
 int
 main()
 {
+	if( false ) {
+		uint64_t m(1);
+		m <<= 60;
+
+		vector<string> sv({"this","is","fun"});
+		BigVector bv(8, m, {345, 212, 984, 2405, 107040, 10312, 0, 909});
+		NativeVector nv(8, m, {345, 212, 984, 2405, 107040, 10312, 0, 909});
+
+		cout << Serializable::SerializeToString(sv) << endl;
+		cout << Serializable::SerializeToString(nv) << endl;
+		{
+			stringstream s;
+
+			NativeVector re;
+			SERIALIZEWITHNAME(nv, "xx", s, Serializable::Type::JSON);
+			DESERIALIZEWITHNAME(re, "xx", s, Serializable::Type::JSON);
+			cout << "json " << Serializable::SerializeToString(re) << endl;
+
+			s.str("");
+			NativeVector re2;
+			SERIALIZEWITHNAME(nv, "xx", s, Serializable::Type::BINARY);
+			DESERIALIZEWITHNAME(re2, "xx", s, Serializable::Type::BINARY);
+			cout << "binary " << Serializable::SerializeToString(re2) << endl;
+		}
+
+		cout << Serializable::SerializeToString(bv) << endl;
+		{
+			stringstream s;
+
+			BigVector re;
+			SERIALIZEWITHNAME(bv, "xx", s, Serializable::Type::JSON);
+			DESERIALIZEWITHNAME(re, "xx", s, Serializable::Type::JSON);
+			cout << "json " << Serializable::SerializeToString(re) << endl;
+
+			s.str("");
+			BigVector re2;
+			SERIALIZEWITHNAME(bv, "xx", s, Serializable::Type::BINARY);
+			DESERIALIZEWITHNAME(re2, "xx", s, Serializable::Type::BINARY);
+			cout << "binary " << Serializable::SerializeToString(re2) << endl;
+		}
+
+
+	}
+
 	if( false ) {
 		stringstream s;
 		BigInteger W, X;
@@ -251,35 +199,7 @@ main()
 		cout << W << endl;
 		cout << X << endl;
 	}
-	//	testme();
 
-	//	if( false ) {
-	//		QuadFloat	qf(20,30), qf2, qf3;
-	//		{
-	//			stringstream ss;
-	//			{
-	//				cereal::JSONOutputArchive archive( ss );
-	//				archive( qf );
-	//			}
-	//			{
-	//				cereal::JSONInputArchive archive( ss );
-	//				archive( qf2 );
-	//			}
-	//			cout << (qf == qf2 ? "yes" : "no") << endl;
-	//
-	//			ss.str("");
-	//			{
-	//				cereal::BinaryOutputArchive archive( ss );
-	//				archive( qf );
-	//			}
-	//			{
-	//				cereal::BinaryInputArchive archive( ss );
-	//				archive( qf3 );
-	//			}
-	//			cout << (qf == qf3 ? "yes" : "no") << endl;
-	//		}
-	//	}
-	//
 	//	if( false ) {
 	//		Foo	xxx(4);
 	//		Foo yyy, zzz;
@@ -351,6 +271,9 @@ main()
 			exit(1);
 		}
 
+		RunSerialOptions(keyPair.publicKey, "public");
+		RunSerialOptions(keyPair.secretKey, "private");
+
 		cryptoContext->EvalMultKeysGen(keyPair.secretKey);
 
 		////////////////////////////////////////////////////////////
@@ -389,7 +312,8 @@ main()
 		cout << "   deserialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 		cout << "Legacy " << ((*ct1 == *newobj) ? "MATCHES" : "DOES NOT MATCH") << endl << endl;
 
-		RunSerialOptions(ct1);
+		auto nam = ct1->SerializedObjectName();
+		RunSerialOptions(ct1, nam);
 	}
 
 	return 0;

@@ -28,6 +28,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <iomanip>
@@ -74,107 +75,163 @@
 #endif
 
 /**
-* @namespace lbcrypto
-* The namespace of lbcrypto
-*/
+ * @namespace lbcrypto
+ * The namespace of lbcrypto
+ */
 namespace lbcrypto {
 
-	using SerialItem = rapidjson::Value;
-	using Serialized = rapidjson::Document;
-
-	class Serializable
-	{
-	public:
-		virtual ~Serializable() {}
-
-		enum Type {JSON,BINARY,PORTABLEBINARY};
-
-		/**
-		* Serialize the object into a Serialized
-		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		virtual bool Serialize(Serialized* serObj) const = 0;
-
-		virtual std::string SerializedObjectName() const = 0;
-
-		/**
-		 * SerializeWithoutContext serializes the object but does NOT include the context -
-		 * used in places where the object is included in a context
-		 *
-		 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		 * @return true if successfully serialized
-		 */
-		virtual bool SerializeWithoutContext(Serialized* serObj) const {
-			return Serialize(serObj);
-		}
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @return true on success
-		*/
-		virtual bool Deserialize(const Serialized& serObj) = 0;
-	};
-
-	template<typename T>
-	inline std::string CallSerObjName(const std::shared_ptr<T> obj) {
-		return obj->SerializedObjectName();
-	}
-
-	template<typename T>
-	inline std::string CallSerObjName(const T& obj) {
-		return obj.SerializedObjectName();
-	}
-
-	/**
-	 * SERIALIZE - macro to serialize OBJ into STREAM using serialization SERTYPE
-	 * @param OBJ - the object to be serialized; cereal requires archiver functions
-	 * @param WITHNAME - the label to use for the object to be serialized
-	 * @param STREAM - the ostream to save the serialization to
-	 * @param SERTYPE - a Serializable::Type
-	 */
+/**
+ * SERIALIZEWITHNAME - macro to serialize OBJ into STREAM using serialization SERTYPE
+ * @param OBJ - the object to be serialized; cereal requires archiver functions
+ * @param WITHNAME - the label to use for the object to be serialized
+ * @param STREAM - the ostream to save the serialization to
+ * @param SERTYPE - a Serializable::Type
+ */
 #define SERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {				\
 		if( SERTYPE == Serializable::Type::JSON ) {						\
 			cereal::JSONOutputArchive archive( STREAM );            	\
 			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
 		}																\
 		else if( SERTYPE == Serializable::Type::BINARY ) {				\
-			cereal::BinaryOutputArchive archive( STREAM );				\
-			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
-		}																\
-		else if( SERTYPE == Serializable::Type::PORTABLEBINARY ) {		\
 			cereal::PortableBinaryOutputArchive archive( STREAM );		\
-			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+			archive( OBJ );												\
 		}																\
-	}
+}
 
+/**
+ * DESERIALIZEWITHNAME - macro to serialize OBJ into STREAM using serialization SERTYPE
+ * @param OBJ - the object to be serialized; cereal requires archiver functions
+ * @param WITHNAME - the label to use for the object to be serialized
+ * @param STREAM - the ostream to save the serialization to
+ * @param SERTYPE - a Serializable::Type
+ */
 #define DESERIALIZEWITHNAME(OBJ, WITHNAME, STREAM, SERTYPE) {			\
 		if( SERTYPE == Serializable::Type::JSON ) {						\
 			cereal::JSONInputArchive archive( STREAM );					\
 			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
 		}																\
 		else if( SERTYPE == Serializable::Type::BINARY ) {				\
-			cereal::BinaryInputArchive archive( STREAM );				\
-			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
-		}																\
-		else if( SERTYPE == Serializable::Type::PORTABLEBINARY ) {		\
 			cereal::PortableBinaryInputArchive archive( STREAM );		\
-			archive( cereal::make_nvp(WITHNAME, OBJ) );					\
+			archive( OBJ );												\
 		}																\
+}
+
+using SerialItem = rapidjson::Value;
+using Serialized = rapidjson::Document;
+
+class Serializable
+{
+public:
+	virtual ~Serializable() {}
+
+	enum Type {JSON,BINARY};
+
+	/**
+	 * Serialize the object into a Serialized
+	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	 * @return true if successfully serialized
+	 */
+	virtual bool Serialize(Serialized* serObj) const = 0;
+
+	virtual std::string SerializedObjectName() const = 0;
+
+	/**
+	 * SerializeWithoutContext serializes the object but does NOT include the context -
+	 * used in places where the object is included in a context
+	 *
+	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+	 * @return true if successfully serialized
+	 */
+	virtual bool SerializeWithoutContext(Serialized* serObj) const {
+		return Serialize(serObj);
 	}
+
+	/**
+	 * Populate the object from the deserialization of the Serialized
+	 * @param serObj contains the serialized object
+	 * @return true on success
+	 */
+	virtual bool Deserialize(const Serialized& serObj) = 0;
+
+	/**
+	 * SerializeToString - serialize the object to a JSON string and return the string
+	 * @param t - any serializable object
+	 * @return JSON string
+	 */
+	template <typename T>
+	inline static std::string SerializeToString(const T& t) {
+		std::stringstream s;
+		{
+			SerializeWithName(t, "", s, Serializable::Type::JSON);
+		}
+		return s.str();
+	}
+
+	template<typename T>
+	inline static void SerializeWithName(const T& obj, std::string withname, std::ostream& stream, Serializable::Type sertype) {
+		if( sertype == Serializable::Type::JSON ) {
+			cereal::JSONOutputArchive archive( stream );
+			archive( cereal::make_nvp(withname, obj) );
+		}
+		else if( sertype == Serializable::Type::BINARY ) {
+			cereal::PortableBinaryOutputArchive archive( stream );
+			archive( obj );
+		}
+		else {
+
+		}
+	}
+
+	template<typename T>
+	inline static void DeserializeWithName(T& obj, std::string withname, std::istream& stream, Serializable::Type sertype) {
+		if( sertype == Serializable::Type::JSON ) {
+			cereal::JSONInputArchive archive( stream );
+			archive( cereal::make_nvp(withname, obj) );
+		}
+		else if( sertype == Serializable::Type::BINARY ) {
+			cereal::PortableBinaryInputArchive archive( stream );
+			archive( obj );
+		}
+		else {
+
+		}
+	}
+
+	template <typename T>
+	inline static bool SerializeToFile(std::string filename, const T& obj, std::string withname, Serializable::Type sertype) {
+		std::ofstream file(filename, std::ios::out|std::ios::binary);
+		if( file.is_open() ) {
+			SerializeWithName(obj, withname, file, sertype);
+			file.close();
+			return true;
+		}
+		return false;
+	}
+
+	template <typename T>
+	inline static bool DeserializeFromFile(std::string filename, T& obj, std::string withname, Serializable::Type sertype) {
+		std::ifstream file(filename, std::ios::in|std::ios::binary);
+		if( file.is_open() ) {
+			DeserializeWithName(obj, withname, file, sertype);
+			file.close();
+			return true;
+		}
+		return false;
+	}
+
+};
 
 //helper template to stream vector contents provided T has an stream operator<< 
 template < typename T >
 std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
 {
-    os << "[";
-    for (auto i = v.begin(); i!= v.end(); ++i){
-      os << " " << *i;
-    }
-    os << " ]";
-    return os;
- };
+	os << "[";
+	for (auto i = v.begin(); i!= v.end(); ++i){
+		os << " " << *i;
+	}
+	os << " ]";
+	return os;
+};
 
 }
 

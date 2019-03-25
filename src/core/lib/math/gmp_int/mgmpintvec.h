@@ -460,27 +460,60 @@ public:
 	bool Deserialize(const lbcrypto::Serialized& serObj);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar ) const
 	{
-		ar( cereal::make_nvp("l", this->GetLength()) );
-		for(size_t i=0; i<this->GetLength(); i++ ) {
-			ar( cereal::make_nvp(std::to_string(i), (*this)[i]) );
-		}
-		ar( cereal::make_nvp("m", m_modulus) );
-		ar( cereal::make_nvp("ms", m_modulus_state) );
+		ar( m_modulus.ToString() );
+		ar( m_modulus_state );
+		ar( this->GetLength() );
+		for(size_t i=0; i<this->GetLength(); i++ )
+			ar( (*this)[i] );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar ) const
 	{
-		size_t len;
+		ar( cereal::make_nvp("m", m_modulus.ToString()) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+		ar( cereal::make_nvp("l", this->GetLength()) );
+		for(size_t i=0; i<this->GetLength(); i++ ) {
+			ar( cereal::make_nvp("v", (*this)[i].ToString()) );
+		}
+	}
+
+	template <class Archive>
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		std::string m;
+		ar( m );
+		m_modulus = m;
+		ar( m_modulus_state );
+		cereal::size_type len;
+		ar( len );
+		this->SetLength(len);
+
+		for(size_t i=0; i<len; i++ )
+			ar( (*this)[i] );
+	}
+
+	template <class Archive>
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar )
+	{
+		std::string m;
+		ar( cereal::make_nvp("m", m) );
+		m_modulus = m;
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+		cereal::size_type len;
 		ar( cereal::make_nvp("l", len) );
 		this->resize(len);
 		for(size_t i=0; i<len; i++ ) {
-			ar( cereal::make_nvp(std::to_string(i), (*this)[i]) );
+			std::string s;
+			ar( cereal::make_nvp("v", s) );
+			(*this)[i] = s;
 		}
-		ar( cereal::make_nvp("m", m_modulus) );
-		ar( cereal::make_nvp("ms", m_modulus_state) );
 	}
 
 	std::string SerializedObjectName() const { return "NTLVector"; }
@@ -533,8 +566,6 @@ protected:
 	}
 
 }; //template class ends
-
-
 
 } // namespace NTL ends
 

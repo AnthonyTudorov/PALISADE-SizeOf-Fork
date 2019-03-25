@@ -650,9 +650,6 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	}
 }
 
-
-
-
 }  // namespace lbcrypto ends
 
 #endif

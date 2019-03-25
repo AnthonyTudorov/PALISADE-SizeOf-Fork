@@ -142,150 +142,152 @@ namespace lbcrypto {
 	using LPPublicKey = shared_ptr<LPPublicKeyImpl<Element>>;
 
 	/**
-	 * @brief Concrete class for LP public keys
+	 * @brief Class for LP public keys
 	 * @tparam Element a ring element.
 	 */
 	template <typename Element>
 	class LPPublicKeyImpl : public LPKey<Element> {
-		public:
+	public:
 
-			/**
-			* Basic constructor for setting crypto params
-			*
-			* @param &cryptoParams is the reference to cryptoParams
-			*/
-			LPPublicKeyImpl(CryptoContext<Element> cc, const string& id = "") : LPKey<Element>(cc, id) {}
+		/**
+		 * Basic constructor
+		 *
+		 * @param cc - CryptoContext
+		 * @param id - key identifier
+		 */
+		LPPublicKeyImpl(CryptoContext<Element> cc = 0, const string& id = "") : LPKey<Element>(cc, id) {}
 
-			/**
-			* Copy constructor
-			*
-			*@param &rhs LPPublicKeyImpl to copy from
-			*/
-			explicit LPPublicKeyImpl(const LPPublicKeyImpl<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
-				m_h = rhs.m_h;
-			}
+		/**
+		 * Copy constructor
+		 *
+		 *@param &rhs LPPublicKeyImpl to copy from
+		 */
+		explicit LPPublicKeyImpl(const LPPublicKeyImpl<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
+			m_h = rhs.m_h;
+		}
 
-			/**
-			* Move constructor
-			*
-			*@param &rhs LPPublicKeyImpl to move from
-			*/
-			explicit LPPublicKeyImpl(LPPublicKeyImpl<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
-				m_h = std::move(rhs.m_h);
-			}
+		/**
+		 * Move constructor
+		 *
+		 *@param &rhs LPPublicKeyImpl to move from
+		 */
+		explicit LPPublicKeyImpl(LPPublicKeyImpl<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
+			m_h = std::move(rhs.m_h);
+		}
 
-			/**
-			* Assignment Operator.
-			*
-			* @param &rhs LPPublicKeyImpl to copy from
-			*/
-			const LPPublicKeyImpl<Element>& operator=(const LPPublicKeyImpl<Element> &rhs) {
-				this->context = rhs.context;
-				this->m_h = rhs.m_h;
-				return *this;
-			}
+		operator bool() const { return bool(this->context) && m_h.size() != 0; }
 
-			/**
-			* Move Assignment Operator.
-			*
-			* @param &rhs LPPublicKeyImpl to copy from
-			*/
-			const LPPublicKeyImpl<Element>& operator=(LPPublicKeyImpl<Element> &&rhs) {
-				this->context = rhs.context;
-				rhs.context = 0;
-				m_h = std::move(rhs.m_h);
-				return *this;
-			}
+		/**
+		 * Assignment Operator.
+		 *
+		 * @param &rhs LPPublicKeyImpl to copy from
+		 */
+		const LPPublicKeyImpl<Element>& operator=(const LPPublicKeyImpl<Element> &rhs) {
+			CryptoObject<Element>::operator=(rhs);
+			this->m_h = rhs.m_h;
+			return *this;
+		}
 
-			//@Get Properties
+		/**
+		 * Move Assignment Operator.
+		 *
+		 * @param &rhs LPPublicKeyImpl to copy from
+		 */
+		const LPPublicKeyImpl<Element>& operator=(LPPublicKeyImpl<Element> &&rhs) {
+			CryptoObject<Element>::operator=(rhs);
+			m_h = std::move(rhs.m_h);
+			return *this;
+		}
 
-			/**
-			 * Gets the computed public key 
-			 * @return the public key element.
-			 */
-			const std::vector<Element> &GetPublicElements() const {
-				return this->m_h;
-			}
-			
-			//@Set Properties
+		//@Get Properties
 
-			/**
-			 * Sets the public key vector of Element.
-			 * @param &element is the public key Element vector to be copied.
-			 */
-			void SetPublicElements(const std::vector<Element> &element) {
-				m_h = element;
-			}
+		/**
+		 * Gets the computed public key
+		 * @return the public key element.
+		 */
+		const std::vector<Element> &GetPublicElements() const {
+			return this->m_h;
+		}
 
-			/**
-			* Sets the public key vector of Element.
-			* @param &&element is the public key Element vector to be moved.
-			*/
-			void SetPublicElements(std::vector<Element> &&element) {
-				m_h = std::move(element);
-			}
+		//@Set Properties
 
-			/**
-			* Sets the public key Element at index idx.
-			* @param &element is the public key Element to be copied.
-			*/
-			void SetPublicElementAtIndex(usint idx, const Element &element) {
-				m_h.insert(m_h.begin() + idx, element);
-			}
+		/**
+		 * Sets the public key vector of Element.
+		 * @param &element is the public key Element vector to be copied.
+		 */
+		void SetPublicElements(const std::vector<Element> &element) {
+			m_h = element;
+		}
 
-			/**
-			* Sets the public key Element at index idx.
-			* @param &&element is the public key Element to be moved.
-			*/
-			void SetPublicElementAtIndex(usint idx, Element &&element) {
-				m_h.insert(m_h.begin() + idx, std::move(element));
-			}
-			
-			/**
-			* Serialize the object into a Serialized
-			* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @param fileFlag is an object-specific parameter for the serialization
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized *serObj) const;
+		/**
+		 * Sets the public key vector of Element.
+		 * @param &&element is the public key Element vector to be moved.
+		 */
+		void SetPublicElements(std::vector<Element> &&element) {
+			m_h = std::move(element);
+		}
 
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param &serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized &serObj);
+		/**
+		 * Sets the public key Element at index idx.
+		 * @param &element is the public key Element to be copied.
+		 */
+		void SetPublicElementAtIndex(usint idx, const Element &element) {
+			m_h.insert(m_h.begin() + idx, element);
+		}
 
-			bool operator==(const LPPublicKeyImpl& other) const {
-				if( !CryptoObject<Element>::operator ==(other) )
+		/**
+		 * Sets the public key Element at index idx.
+		 * @param &&element is the public key Element to be moved.
+		 */
+		void SetPublicElementAtIndex(usint idx, Element &&element) {
+			m_h.insert(m_h.begin() + idx, std::move(element));
+		}
+
+		/**
+		 * Serialize the object into a Serialized
+		 * @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @param fileFlag is an object-specific parameter for the serialization
+		 * @return true if successfully serialized
+		 */
+		bool Serialize(Serialized *serObj) const;
+
+		/**
+		 * Populate the object from the deserialization of the Serialized
+		 * @param &serObj contains the serialized object
+		 * @return true on success
+		 */
+		bool Deserialize(const Serialized &serObj);
+
+		bool operator==(const LPPublicKeyImpl& other) const {
+			if( !CryptoObject<Element>::operator ==(other) )
+				return false;
+
+			if( m_h.size() != other.m_h.size() )
+				return false;
+
+			for( size_t i = 0; i < m_h.size(); i++ )
+				if( m_h[i] != other.m_h[i] )
 					return false;
 
-				if( m_h.size() != other.m_h.size() )
-					return false;
+			return true;
+		}
 
-				for( size_t i = 0; i < m_h.size(); i++ )
-					if( m_h[i] != other.m_h[i] )
-						return false;
+		bool operator!=(const LPPublicKeyImpl& other) const { return ! (*this == other); }
 
-				return true;
-			}
+		template <class Archive>
+		void save( Archive & ar ) const
+		{
+			ar( cereal::base_class<LPKey<Element>>( this ) );
+			ar( cereal::make_nvp("h",m_h) );
+		}
 
-			bool operator!=(const LPPublicKeyImpl& other) const { return ! (*this == other); }
-
-			template <class Archive>
-			void save( Archive & ar ) const
-			{
-			    ar( cereal::base_class<LPKey<Element>>( this ) );
-			    ar( cereal::make_nvp("h",m_h) );
-			}
-
-			template <class Archive>
-			void load( Archive & ar )
-			{
-			    ar( cereal::base_class<LPKey<Element>>( this ) );
-			    ar( cereal::make_nvp("h",m_h) );
-			}
-			std::string SerializedObjectName() const { return "PublicKey"; }
+		template <class Archive>
+		void load( Archive & ar )
+		{
+			ar( cereal::base_class<LPKey<Element>>( this ) );
+			ar( cereal::make_nvp("h",m_h) );
+		}
+		std::string SerializedObjectName() const { return "PublicKey"; }
 
 	private:
 		std::vector<Element> m_h;
@@ -932,41 +934,43 @@ namespace lbcrypto {
 	using LPPrivateKey = shared_ptr<LPPrivateKeyImpl<Element>>;
 
 	/**
-	* @brief Private key implementation template for Ring-LWE, NTRU-based schemes,
-	* @tparam Element a ring element.
-	*/
+	 * @brief Class fpr LP Private keys
+	 * @tparam Element a ring element.
+	 */
 	template <class Element>
 	class LPPrivateKeyImpl : public LPKey<Element> {
 	public:
 
 		/**
-		* Construct in context
-		*/
+		 * Construct in context
+		 */
 
-		LPPrivateKeyImpl(CryptoContext<Element> cc) : LPKey<Element>(cc, GenerateUniqueKeyID()) {}
+		LPPrivateKeyImpl(CryptoContext<Element> cc = 0) : LPKey<Element>(cc, GenerateUniqueKeyID()) {}
 
 		/**
-		* Copy constructor
-		*@param &rhs the LPPrivateKeyImpl to copy from
-		*/
+		 * Copy constructor
+		 *@param &rhs the LPPrivateKeyImpl to copy from
+		 */
 		explicit LPPrivateKeyImpl(const LPPrivateKeyImpl<Element> &rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
 			this->m_sk = rhs.m_sk;
 		}
 
 		/**
-		* Move constructor
-		*@param &rhs the LPPrivateKeyImpl to move from
-		*/
+		 * Move constructor
+		 *@param &rhs the LPPrivateKeyImpl to move from
+		 */
 		explicit LPPrivateKeyImpl(LPPrivateKeyImpl<Element> &&rhs) : LPKey<Element>(rhs.GetCryptoContext(), rhs.GetKeyTag()) {
 			this->m_sk = std::move(rhs.m_sk);
 		}
 
+		operator bool() const { return bool(this->context); }
+
 		/**
-		* Assignment Operator.
-		*
-		* @param &rhs LPPrivateKeyto assign from.
-		* @return the resulting LPPrivateKeyImpl
-		*/
+		 * Assignment Operator.
+		 *
+		 * @param &rhs LPPrivateKeyto assign from.
+		 * @return the resulting LPPrivateKeyImpl
+		 */
 		const LPPrivateKeyImpl<Element>& operator=(const LPPrivateKeyImpl<Element> &rhs) {
 			CryptoObject<Element>::operator=(rhs);
 			this->m_sk = rhs.m_sk;
@@ -974,11 +978,11 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Move Assignment Operator.
-		*
-		* @param &rhs LPPrivateKeyImpl to assign from.
-		* @return the resulting LPPrivateKeyImpl
-		*/
+		 * Move Assignment Operator.
+		 *
+		 * @param &rhs LPPrivateKeyImpl to assign from.
+		 * @return the resulting LPPrivateKeyImpl
+		 */
 		const LPPrivateKeyImpl<Element>& operator=(LPPrivateKeyImpl<Element> &&rhs) {
 			CryptoObject<Element>::operator=(rhs);
 			this->m_sk = std::move(rhs.m_sk);
@@ -986,39 +990,39 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Implementation of the Get accessor for private element.
-		* @return the private element.
-		*/
+		 * Implementation of the Get accessor for private element.
+		 * @return the private element.
+		 */
 		const Element & GetPrivateElement() const { return m_sk; }
 
 		/**
-		* Set accessor for private element.
-		* @private &x private element to set to.
-		*/
+		 * Set accessor for private element.
+		 * @private &x private element to set to.
+		 */
 		void SetPrivateElement(const Element &x) {
 			m_sk = x;
 		}
 
 		/**
-		* Set accessor for private element.
-		* @private &x private element to set to.
-		*/
+		 * Set accessor for private element.
+		 * @private &x private element to set to.
+		 */
 		void SetPrivateElement(Element &&x) {
 			m_sk = std::move(x);
 		}
 
 		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
+		 * Serialize the object into a Serialized
+		 * @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
+		 * @return true if successfully serialized
+		 */
 		bool Serialize(Serialized *serObj) const;
 
 		/**
-		* Populate the object from the deserialization of the Setialized
-		* @param &serObj contains the serialized object
-		* @return true on success
-		*/
+		 * Populate the object from the deserialization of the Setialized
+		 * @param &serObj contains the serialized object
+		 * @return true on success
+		 */
 		bool Deserialize(const Serialized &serObj);
 
 		bool operator==(const LPPrivateKeyImpl& other) const {
@@ -1031,15 +1035,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPKey<Element>>( this ) );
-		    ar( cereal::make_nvp("s",m_sk) );
+			ar( cereal::base_class<LPKey<Element>>( this ) );
+			ar( cereal::make_nvp("s",m_sk) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar )
 		{
-		    ar( cereal::base_class<LPKey<Element>>( this ) );
-		    ar( cereal::make_nvp("s",m_sk) );
+			ar( cereal::base_class<LPKey<Element>>( this ) );
+			ar( cereal::make_nvp("s",m_sk) );
 		}
 		std::string SerializedObjectName() const { return "PrivateKey"; }
 

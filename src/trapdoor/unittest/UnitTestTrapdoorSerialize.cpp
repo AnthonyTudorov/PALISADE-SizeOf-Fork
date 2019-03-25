@@ -127,9 +127,7 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
   
   if (dbg_flag) {
     // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+    std::cout << Serializable::SerializeToString(testvec) << std::endl;
   }
 
   DEBUG("step 5");

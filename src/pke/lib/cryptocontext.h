@@ -2426,7 +2426,7 @@ public:
 	static CryptoContext<Element> GetContextForPointer(
 			CryptoContextImpl<Element>* cc);
 
-	static const vector<CryptoContext<Element>>& GetAllContexts() { return AllContexts; }
+	static const vector<CryptoContext<Element>>& GetAllContexts();
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the LTV Scheme

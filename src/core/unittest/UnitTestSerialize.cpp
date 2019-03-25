@@ -494,9 +494,7 @@ void serialize_vector_bigint(const string& msg) {
   
   if (dbg_flag) {
     // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+    std::cout << Serializable::SerializeToString(testvec) <<std::endl;
   }
 
   DEBUG("step 5");
@@ -573,10 +571,7 @@ void serialize_matrix_bigint(const string& msg) {
   serObj.AddMember("TestMatrix", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+    std::cout << Serializable::SerializeToString(testmat) <<std::endl;
   }
   DEBUG("step 5");
 
@@ -650,10 +645,7 @@ void serialize_vector_of_p(const string& msg) {
   serObj.AddMember("TestVector", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+	    std::cout << Serializable::SerializeToString(test_v) <<std::endl;
   }
   DEBUG("step 4");  
 
@@ -739,10 +731,7 @@ void serialize_map_of_p(const string& msg) {
   serObj.AddMember("TestMap", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+	    std::cout << Serializable::SerializeToString(test_map) <<std::endl;
   }
   DEBUG("step 4");  
 
@@ -860,10 +849,7 @@ void serialize_vector_matrix(const string& msg) {
   serObj.AddMember("TestVectorOfMatrix", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+	    std::cout << Serializable::SerializeToString(testvec) <<std::endl;
   }
 
   DEBUG("step 5");
@@ -947,10 +933,7 @@ void serialize_vector_pointers_matrix(const string& msg) {
   serObj.AddMember("TestVectorOfPointersToMatrix", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+	    std::cout << Serializable::SerializeToString(testvec) <<std::endl;
   }
 
   DEBUG("step 5");
@@ -1045,10 +1028,7 @@ void serialize_vector_vector_pointers_matrix(const string& msg) {
   serObj.AddMember("TestVectorOfVectorOfPointersToMatrix", obj, serObj.GetAllocator());
   
   if (dbg_flag) {
-    // write the result to cout for debug
-    std::string jsonstring;
-    SerializableHelper::SerializationToPrettyString(serObj, jsonstring);
-    std::cout<<jsonstring<<std::endl;
+	    std::cout << Serializable::SerializeToString(testvec) <<std::endl;
   }
 
   DEBUG("step 5");

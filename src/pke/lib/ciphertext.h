@@ -271,7 +271,7 @@ class CiphertextImpl;
 		}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version  ) const
 		{
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 			ar( cereal::make_nvp("v", m_elements) );
@@ -280,7 +280,7 @@ class CiphertextImpl;
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version  )
 		{
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 			ar( cereal::make_nvp("v", m_elements) );
@@ -398,4 +398,9 @@ class CiphertextImpl;
 	}
 
 } // namespace lbcrypto ends
+
+//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::Poly>, 1 );
+//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::NativePoly>, 1 );
+//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>, 1 );
+
 #endif

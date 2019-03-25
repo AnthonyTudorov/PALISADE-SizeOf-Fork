@@ -71,16 +71,6 @@ namespace lbcrypto {
     static bool SerializationToString(const Serialized& serObj, std::string& jsonString);
 
     /**
-     * Generates a Pretty std::string for a serialized Palisade object (a 
-     * rapidjson Document)
-     * @param serObj the serialized Palisade object
-     * @param jsonString - string with the JSON data structure of the 
-     * serialized Palisade object.
-     * @return success or failure
-     */
-    static bool SerializationToPrettyString(const Serialized& serObj, std::string& jsonString);
-
-    /**
      * Writes serialization to a file
      * @param serObj - the serialized Palisade object
      * @param out - destination stream for writing the serialization

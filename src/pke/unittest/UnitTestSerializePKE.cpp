@@ -79,7 +79,7 @@ TEST_F(UTPKESer, LTV_Context_Factory) {
 }
 
 template<typename T>
-void UnitTestContext(CryptoContext<T> cc) {
+void OUnitTestContext(CryptoContext<T> cc) {
 
 	LPKeyPair<T> kp = cc->KeyGen();
 	try {
@@ -114,6 +114,108 @@ void UnitTestContext(CryptoContext<T> cc) {
 	LPPublicKey<T> finalPub = newccFromkey->deserializePublicKey(serK);
 	ASSERT_TRUE( finalPub ) << "Key deserialize in new ctx failed";
 	EXPECT_EQ( *newPub, *finalPub ) << "Key mismatch from new ctx";
+}
+
+TEST_F(UTPKESer, OLTV_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("LTV5");
+	OUnitTestContext<Poly>(cc);
+}
+
+TEST_F(UTPKESer, OLTV_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+TEST_F(UTPKESer, OStSt_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("StSt6");
+	OUnitTestContext<Poly>(cc);
+}
+
+TEST_F(UTPKESer, OStSt_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+TEST_F(UTPKESer, OBGV_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("BGV2");
+	OUnitTestContext<Poly>(cc);
+}
+
+TEST_F(UTPKESer, OBGV_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BGV2", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+TEST_F(UTPKESer, ONull_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("Null");
+	OUnitTestContext<Poly>(cc);
+}
+
+TEST_F(UTPKESer, ONull_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+TEST_F(UTPKESer, OBFV_Poly_Serial) {
+	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
+	OUnitTestContext<Poly>(cc);
+}
+
+TEST_F(UTPKESer, OBFVrns_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+TEST_F(UTPKESer, OBFVrnsB_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
+	OUnitTestContext<DCRTPoly>(cc);
+}
+
+template<typename T>
+void UnitTestContext(CryptoContext<T> cc) {
+	bool dbg_flag = true;
+
+	LPKeyPair<T> kp = cc->KeyGen();
+	try {
+		cc->EvalMultKeyGen(kp.secretKey);
+	} catch(...) {}
+	try {
+		cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
+	} catch(...) {}
+
+	stringstream s;
+	Serializable::SerializeWithName(cc, "cc", s, Serializable::Type::JSON);
+
+	CryptoContext<T> newcc;
+	Serializable::DeserializeWithName(newcc, "cc", s, Serializable::Type::JSON);
+
+	ASSERT_TRUE( newcc ) << "Deserialize failed";
+
+	EXPECT_EQ( *cc, *newcc ) << "Mismatched context";
+
+	DEBUG("Contexts match");
+
+	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << "Scheme mismatch after ser/deser";
+	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Crypto parms mismatch after ser/deser";
+	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << "Encoding parms mismatch after ser/deser";
+	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << "Enabled features mismatch after ser/deser";
+
+	DEBUG("Components match");
+
+	s.str("");
+	Serializable::SerializeWithName(kp.publicKey, "pk", s, Serializable::Type::JSON);
+	DEBUG("serialized");
+	DEBUG(s.str());
+	LPPublicKey<T> newPub;
+	Serializable::DeserializeWithName(newPub, "pk", s, Serializable::Type::JSON);
+	ASSERT_TRUE( newPub ) << "Key deserialize failed";
+	DEBUG("deserialized");
+
+	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
+	DEBUG("Keys match");
+
+	CryptoContext<T> newccFromkey = newPub->GetCryptoContext();
+	EXPECT_EQ( *cc, *newccFromkey ) << "Key deser has wrong context";
 }
 
 TEST_F(UTPKESer, LTV_Poly_Serial) {
@@ -172,47 +274,47 @@ TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
 }
 
 // REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
-TEST_F(UTPKESer, Keys_and_ciphertext) {
-        bool dbg_flag = false;
+TEST_F(UTPKESer, OKeys_and_ciphertext) {
+	bool dbg_flag = false;
 
-        // generate a context with encoding params
-    	usint m = 22;
-    	PlaintextModulus p = 2333;
-    	BigInteger modulusP(p);
-    	BigInteger modulusQ("1267650600228229401496703214121");
-    	BigInteger squareRootOfRoot("498618454049802547396506932253");
-    	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
-    	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
+	// generate a context with encoding params
+	usint m = 22;
+	PlaintextModulus p = 2333;
+	BigInteger modulusP(p);
+	BigInteger modulusQ("1267650600228229401496703214121");
+	BigInteger squareRootOfRoot("498618454049802547396506932253");
+	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
+	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
 
-    	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
-    	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
 
-    	float stdDev = 4;
+	float stdDev = 4;
 
-    	usint batchSize = 8;
+	usint batchSize = 8;
 
-    	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
 
-    	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
 
-    	PackedEncoding::SetParams(m, encodingParams);
+	PackedEncoding::SetParams(m, encodingParams);
 
-    	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
 
-    	cc->Enable(ENCRYPTION|SHE);
+	cc->Enable(ENCRYPTION|SHE);
 
-    	DEBUG("step 0");
-    	{
-    		Serialized ser;
-    		ser.SetObject();
+	DEBUG("step 0");
+	{
+		Serialized ser;
+		ser.SetObject();
 		ASSERT_TRUE( cc->Serialize(&ser) ) << "Context serialization failed";
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 
 		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(ser);
 		EXPECT_EQ( *cc->GetEncodingParams(), *encodingParams ) << "Encoding parms mismatch after ser/deser";
-    	}
+	}
 
-    	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
+	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 	LPKeyPair<Poly> kpnew;
@@ -352,5 +454,206 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 
 	// FIXME add tests to delete one context worth of keys, or a single key
 
+}
+
+// REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
+TEST_F(UTPKESer, Keys_and_ciphertext) {
+	bool dbg_flag = false;
+
+	// generate a context with encoding params
+	usint m = 22;
+	PlaintextModulus p = 2333;
+	BigInteger modulusP(p);
+	BigInteger modulusQ("1267650600228229401496703214121");
+	BigInteger squareRootOfRoot("498618454049802547396506932253");
+	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
+	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
+
+	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
+	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
+
+	float stdDev = 4;
+
+	usint batchSize = 8;
+
+	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
+
+	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
+
+	PackedEncoding::SetParams(m, encodingParams);
+
+	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
+
+	cc->Enable(ENCRYPTION|SHE);
+
+	DEBUG("step 0");
+	{
+		stringstream s;
+		Serializable::SerializeWithName(cc, "cc", s, Serializable::Type::JSON);
+
+		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		cc.reset();
+
+		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
+		Serializable::DeserializeWithName(cc, "cc", s, Serializable::Type::JSON);
+
+		ASSERT_TRUE( cc ) << "Deser failed";
+
+		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
+
+		EXPECT_EQ( *cc->GetEncodingParams(), *encodingParams ) << "Encoding parms mismatch after ser/deser";
+	}
+
+	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
+
+	LPKeyPair<Poly> kp = cc->KeyGen();
+	LPKeyPair<Poly> kpnew;
+
+	DEBUG("step 1");
+	{
+		stringstream s;
+		Serializable::SerializeWithName(kp.publicKey, "pk", s, Serializable::Type::JSON);
+		Serializable::DeserializeWithName(kpnew.publicKey, "pk", s, Serializable::Type::JSON);
+		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
+	}
+	DEBUG("step 2");
+	{
+		stringstream s;
+		Serializable::SerializeWithName(kp.secretKey, "pk", s, Serializable::Type::JSON);
+		Serializable::DeserializeWithName(kpnew.secretKey, "pk", s, Serializable::Type::JSON);
+		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
+	}
+	DEBUG("step 3");
+	vector<int64_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
+	Plaintext plaintextShort = cc->MakeCoefPackedPlaintext( vals );
+	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
+
+	DEBUG("step 4");
+	Ciphertext<Poly> newC;
+	{
+		stringstream s;
+		Serializable::SerializeWithName(ciphertext, "ct", s, Serializable::Type::JSON);
+		Serializable::DeserializeWithName(newC, "ct", s, Serializable::Type::JSON);
+		EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
+	}
+
+	DEBUG("step 5");
+	Plaintext plaintextShortNew;
+	cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
+	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypted deserialize failed";
+
+	DEBUG("step 6");
+	LPKeyPair<Poly> kp2 = cc->KeyGen();
+	LPKeyPair<Poly> kp3 = cc2->KeyGen();
+
+	cc->EvalMultKeyGen(kp.secretKey);
+	cc->EvalMultKeyGen(kp2.secretKey);
+	cc2->EvalMultKeyGen(kp3.secretKey);
+
+	// serialize a bunch of mult keys
+	stringstream ser0;
+	auto k = cc->GetEvalMultKeyVector(kp.secretKey->GetKeyTag());
+	Serializable::SerializeWithName(k[0], "emk", ser0, Serializable::Type::JSON);
+
+	stringstream ser2a;
+	stringstream ser2b;
+	Serializable::SerializeWithName(cc->GetAllEvalMultKeys(), "emk2a", ser2a, Serializable::Type::JSON);
+	Serializable::SerializeWithName(cc2->GetAllEvalMultKeys(), "emk2b", ser2b, Serializable::Type::JSON);
+
+	stringstream ser3;
+	for( auto& lcc : CryptoContextFactory<Poly>::GetAllContexts() ) {
+		Serializable::SerializeWithName(lcc->GetAllEvalMultKeys(), "emk3", ser3, Serializable::Type::JSON);
+	}
+
+	cc->EvalSumKeyGen(kp.secretKey);
+	cc->EvalSumKeyGen(kp2.secretKey);
+	//cc2->EvalSumKeyGen(kp3.secretKey); // LTV does not support it...
+
+	// serialize a bunch of sum keys
+	stringstream aser0;
+	auto sk = cc->GetEvalSumKeyMap(kp.secretKey->GetKeyTag());
+	Serializable::SerializeWithName(sk, "esk", aser0, Serializable::Type::JSON);
+
+	stringstream aser2a;
+	stringstream aser2b;
+	Serializable::SerializeWithName(cc->GetAllEvalSumKeys(), "esk2a", aser2a, Serializable::Type::JSON);
+	Serializable::SerializeWithName(cc2->GetAllEvalSumKeys(), "esk2b", aser2b, Serializable::Type::JSON);
+
+	stringstream aser3;
+	for( auto& lcc : CryptoContextFactory<Poly>::GetAllContexts() ) {
+		Serializable::SerializeWithName(lcc->GetAllEvalSumKeys(), "esk3", aser3, Serializable::Type::JSON);
+	}
+
+	// test mult deserialize
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+
+	vector<LPEvalKey<Poly>> evalMultKeys;
+	Serializable::DeserializeWithName(evalMultKeys, "emk", ser0, Serializable::Type::JSON);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
+	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-key deser, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+
+	map<string,vector<LPEvalKey<Poly>>> emk2a;
+	Serializable::DeserializeWithName(emk2a, "emk2a", ser2a, Serializable::Type::JSON);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
+	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+
+	map<string,vector<LPEvalKey<Poly>>> emk2b;
+	Serializable::DeserializeWithName(emk2b, "emk2b", ser2b, Serializable::Type::JSON);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
+	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+
+#ifdef OUT
+	// FIXME
+	cc->DeserializeEvalMultKey(ser3);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
+	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 3U) << "all-key deser, keys";
+
+	// test sum deserialize
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	map<usint,LPEvalKey<Poly> as0;
+	Serializable::DeserializeWithName(as0, "esk", aser0, Serializable::Type::JSON);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
+	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 1U) << "one-key deser, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	cc->DeserializeEvalSumKey(aser2a);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
+	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "one-ctx deser, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	cc->DeserializeEvalSumKey(aser2b);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
+	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 0U) << "one-ctx deser2, keys";
+
+	cc->ClearEvalMultKeys();
+	cc->ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	cc->DeserializeEvalSumKey(aser3);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
+	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "all-key deser, keys";
+
+	// FIXME add tests to delete one context worth of keys, or a single key
+#endif
 
 }

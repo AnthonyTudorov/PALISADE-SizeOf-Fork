@@ -33,3 +33,7 @@ template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
 template class LPAlgorithmStSt<DCRTPoly>;
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::DCRTPoly>);

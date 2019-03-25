@@ -42,17 +42,6 @@ bool SerializableHelper::SerializationToString(const Serialized& serObj, std::st
 	return writer.IsComplete();
 }
 
-//function to prettyprint output the Serialized object to a string
-bool SerializableHelper::SerializationToPrettyString(const Serialized& serObj, std::string& jsonString) {
-
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> pwriter(buffer);
-	serObj.Accept(pwriter);
-
-	jsonString = buffer.GetString();
-	return pwriter.IsComplete();
-}
-
 bool SerializableHelper::SerializationToStream(const Serialized& serObj, std::ostream& out) {
 	OStreamWrapper oo(out);
 	rapidjson::Writer<OStreamWrapper> ww(oo);
