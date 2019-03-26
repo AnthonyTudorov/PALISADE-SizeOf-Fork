@@ -2292,14 +2292,14 @@ public:
 	static LPEvalKey<Element>		deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<Element> cc);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("cc", params) );
 		ar( cereal::make_nvp("kt", scheme) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("cc", params) );
 		ar( cereal::make_nvp("kt", scheme) );
@@ -2376,14 +2376,14 @@ public:
 	bool DeserializeCryptoObject(const Serialized& serObj, bool includesContext = true);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("cc", context) );
 		ar( cereal::make_nvp("kt", keyTag) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("cc", context) );
 

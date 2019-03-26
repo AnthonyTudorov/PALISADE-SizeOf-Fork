@@ -504,7 +504,7 @@ public:
   bool Deserialize(const lbcrypto::Serialized& serObj);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("d", m_data) );
 		ar( cereal::make_nvp("m", m_modulus) );
@@ -512,7 +512,7 @@ public:
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("d", m_data) );
 		ar( cereal::make_nvp("m", m_modulus) );

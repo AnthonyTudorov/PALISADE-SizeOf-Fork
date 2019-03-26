@@ -115,3 +115,7 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBGV<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRT
 }
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::DCRTPoly>);

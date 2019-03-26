@@ -1416,3 +1416,7 @@ template class LPAlgorithmMultipartyBFVrnsB<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrnsB<DCRTPoly>;
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrnsB<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrnsB<lbcrypto::DCRTPoly>);

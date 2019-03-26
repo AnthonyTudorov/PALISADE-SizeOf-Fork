@@ -225,7 +225,7 @@ public:
 	bool Deserialize(const Serialized& serObj);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("co", cyclotomicOrder) );
 		ar( cereal::make_nvp("rd", ringDimension) );
@@ -237,7 +237,7 @@ public:
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("co", cyclotomicOrder) );
 		ar( cereal::make_nvp("rd", ringDimension) );

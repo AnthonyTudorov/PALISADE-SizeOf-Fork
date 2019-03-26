@@ -123,13 +123,13 @@ namespace lbcrypto {
 		virtual ~LPKey() {}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 		}
@@ -275,14 +275,14 @@ namespace lbcrypto {
 		bool operator!=(const LPPublicKeyImpl& other) const { return ! (*this == other); }
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("h",m_h) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("h",m_h) );
@@ -424,13 +424,13 @@ namespace lbcrypto {
 		virtual bool key_compare(const LPEvalKeyImpl& other) const = 0;
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<LPKey<Element>>( this ) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<LPKey<Element>>( this ) );
 		}
@@ -600,14 +600,14 @@ namespace lbcrypto {
 		}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
@@ -753,14 +753,14 @@ namespace lbcrypto {
 		}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
@@ -905,14 +905,14 @@ namespace lbcrypto {
 		}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_Key) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_Key) );
@@ -1033,14 +1033,14 @@ namespace lbcrypto {
 		bool operator!=(const LPPrivateKeyImpl& other) const { return ! (*this == other); }
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("s",m_sk) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("s",m_sk) );
@@ -2093,14 +2093,14 @@ namespace lbcrypto {
 		}
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 			ar( cereal::make_nvp("elp", m_params) );
 			ar( cereal::make_nvp("enp", m_encodingParams) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 			ar( cereal::make_nvp("elp", m_params) );
 			ar( cereal::make_nvp("enp", m_encodingParams) );
@@ -2817,20 +2817,20 @@ namespace lbcrypto {
 		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 			ar( cereal::make_nvp("e",GetEnabled()) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 			usint mask;
 			ar( cereal::make_nvp("e",mask) );
 			this->Enable(mask);
 		}
 
-		std::string SerializedObjectName() const { return "Scheme"; }
+		virtual std::string SerializedObjectName() const { return "Scheme"; }
 
 	protected:
 		LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;

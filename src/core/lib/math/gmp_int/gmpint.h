@@ -516,7 +516,7 @@ public:
 	
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		void *data = this->rep.rep;
 		size_t len = 0;
@@ -534,14 +534,14 @@ public:
 
 	template <class Archive>
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("v", ToString()) );
 	}
 
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		size_t len;
 		ar( cereal::binary_data(&len, sizeof(len)) );
@@ -561,7 +561,7 @@ public:
 
 	template <class Archive>
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		std::string s;
 		ar( cereal::make_nvp("v", s) );

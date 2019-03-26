@@ -542,7 +542,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		size_t size = m_data.size();
 		ar( size );
@@ -553,7 +553,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 
 	template <class Archive>
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("v",m_data) );
 		ar( cereal::make_nvp("m",m_modulus.ConvertToInt()) );
@@ -561,7 +561,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		size_t size;
 		ar( size );
@@ -578,7 +578,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 
 	template <class Archive>
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("v",m_data) );
 		uint64_t m;

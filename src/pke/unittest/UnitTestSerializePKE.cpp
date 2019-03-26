@@ -173,8 +173,6 @@ TEST_F(UTPKESer, OBFVrnsB_DCRTPoly_Serial) {
 
 template<typename T>
 void UnitTestContext(CryptoContext<T> cc) {
-	bool dbg_flag = true;
-
 	LPKeyPair<T> kp = cc->KeyGen();
 	try {
 		cc->EvalMultKeyGen(kp.secretKey);
@@ -193,26 +191,20 @@ void UnitTestContext(CryptoContext<T> cc) {
 
 	EXPECT_EQ( *cc, *newcc ) << "Mismatched context";
 
-	DEBUG("Contexts match");
-
 	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << "Scheme mismatch after ser/deser";
 	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Crypto parms mismatch after ser/deser";
 	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << "Encoding parms mismatch after ser/deser";
 	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << "Enabled features mismatch after ser/deser";
 
-	DEBUG("Components match");
-
 	s.str("");
+	s.clear();
 	Serializable::SerializeWithName(kp.publicKey, s, Serializable::Type::JSON);
-	DEBUG("serialized");
-	DEBUG(s.str());
+
 	LPPublicKey<T> newPub;
 	Serializable::DeserializeWithName(newPub, s, Serializable::Type::JSON);
 	ASSERT_TRUE( newPub ) << "Key deserialize failed";
-	DEBUG("deserialized");
 
 	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
-	DEBUG("Keys match");
 
 	CryptoContext<T> newccFromkey = newPub->GetCryptoContext();
 	EXPECT_EQ( *cc, *newccFromkey ) << "Key deser has wrong context";
@@ -458,7 +450,7 @@ TEST_F(UTPKESer, OKeys_and_ciphertext) {
 
 // REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
 TEST_F(UTPKESer, Keys_and_ciphertext) {
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 
 	// generate a context with encoding params
 	usint m = 22;
@@ -506,8 +498,10 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	}
 
 	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
+	DEBUG("cc2 done");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
+	DEBUG("kp done");
 	LPKeyPair<Poly> kpnew;
 
 	DEBUG("step 1");

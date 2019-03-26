@@ -1525,13 +1525,13 @@ public:
 	static NativeInteger<uint_type> Allocator() { return 0; }
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("v", m_value) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("v", m_value) );
 	}

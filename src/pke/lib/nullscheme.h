@@ -947,13 +947,13 @@ public:
 	}
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 	}

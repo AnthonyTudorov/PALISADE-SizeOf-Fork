@@ -290,12 +290,22 @@ namespace lbcrypto {
 			void save ( Archive & ar ) const
 			{
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( cereal::make_nvp("d", m_delta) );
+				ar( cereal::make_nvp("bm", m_bigModulus) );
+				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
 			}
 
 			template <class Archive>
 			void load ( Archive & ar )
 			{
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( cereal::make_nvp("d", m_delta) );
+				ar( cereal::make_nvp("bm", m_bigModulus) );
+				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
 			}
 
 			std::string SerializedObjectName() const { return "BFVSchemeParameters"; }
@@ -835,13 +845,13 @@ namespace lbcrypto {
 		void Enable(PKESchemeFeature feature);
 
 		template <class Archive>
-		void save( Archive & ar ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		template <class Archive>
-		void load( Archive & ar )
+		void load( Archive & ar, std::uint32_t const version )
 		{
 		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}

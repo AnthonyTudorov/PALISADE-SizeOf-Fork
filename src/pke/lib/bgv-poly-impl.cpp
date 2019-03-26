@@ -36,3 +36,9 @@ template class LPCryptoParametersBGV<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBGV<NativePoly>;
 template class LPAlgorithmBGV<NativePoly>;
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::NativePoly>);

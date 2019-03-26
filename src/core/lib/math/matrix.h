@@ -646,7 +646,7 @@ public:
 	bool Deserialize(const Serialized& serObj);
 
 	template <class Archive>
-	void save( Archive & ar ) const
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("d", data) );
 		ar( cereal::make_nvp("r", rows) );
@@ -654,7 +654,7 @@ public:
 	}
 
 	template <class Archive>
-	void load( Archive & ar )
+	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("d", data) );
 		ar( cereal::make_nvp("r", rows) );

@@ -925,7 +925,7 @@ namespace cpu_int{
 
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::binary_data(m_value, sizeof(m_value)) );
 		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
@@ -933,7 +933,7 @@ namespace cpu_int{
 
 	template <class Archive>
 	typename std::enable_if <cereal::traits::is_text_archive<Archive>::value,void>::type
-	save( Archive & ar ) const
+	save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("v", m_value) );
 		ar( cereal::make_nvp("m", m_MSB) );
@@ -941,7 +941,7 @@ namespace cpu_int{
 
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::binary_data(m_value, sizeof(m_value)) );
 		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
@@ -949,7 +949,7 @@ namespace cpu_int{
 
 	template <class Archive>
 	typename std::enable_if <cereal::traits::is_text_archive<Archive>::value,void>::type
-	load( Archive & ar )
+	load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("v", m_value) );
 		ar( cereal::make_nvp("m", m_MSB) );

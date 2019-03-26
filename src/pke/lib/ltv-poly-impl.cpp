@@ -63,4 +63,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::NativePoly>);
-
