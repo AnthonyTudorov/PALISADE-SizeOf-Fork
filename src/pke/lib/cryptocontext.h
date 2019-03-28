@@ -2303,6 +2303,16 @@ public:
 	{
 		ar( cereal::make_nvp("cc", params) );
 		ar( cereal::make_nvp("kt", scheme) );
+
+		// PALISADE relies on the notion that CryptoContexts are not duplicated in memory
+		// Once we deserialize this object, we must check to see if there is a matching context
+		// for this particular context already existing in memory
+		// if it DOES exist, use it. If it does NOT exist, add it to the cache of all contexts
+
+		// NOTE very important optimization is available here if there's a lot of serialization/
+		// deserialization in the application
+		*this = *CryptoContextFactory<Element>::GetContext(params, scheme);
+
 	}
 
 	std::string SerializedObjectName() const { return "CryptoContext"; }
@@ -2386,16 +2396,6 @@ public:
 	void load( Archive & ar, std::uint32_t const version )
 	{
 		ar( cereal::make_nvp("cc", context) );
-
-		// PALISADE relies on the notion that CryptoContexts are not duplicated in memory
-		// Once we deserialize this object, we must check to see if there is a matching context
-		// for this particular context already existing in memory
-		// if it DOES exist, use it. If it does NOT exist, add it to the cache of all contexts
-
-		// NOTE very important optimization is available here if there's a lot of serialization/
-		// deserialization in the application
-		context = CryptoContextFactory<Element>::GetContext(context->GetCryptoParameters(), context->GetEncryptionAlgorithm());
-
 		ar( cereal::make_nvp("kt", keyTag) );
 	}
 

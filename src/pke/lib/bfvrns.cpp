@@ -161,17 +161,17 @@ void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrns<Element>() );
 		break;
 	case SHE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrns<Element>() );
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHEBFVrns<Element>();
 		break;
 	case PRE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrns<Element>() );
 		if (this->m_algorithmSHE == NULL)
 			this->m_algorithmSHE = new LPAlgorithmSHEBFVrns<Element>();
 		if (this->m_algorithmPRE == NULL)
@@ -179,7 +179,7 @@ void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature
 		break; 
 	case MULTIPARTY:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmBFVrns<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrns<Element>() );
 		if (this->m_algorithmPRE == NULL)
 			this->m_algorithmPRE = new LPAlgorithmPREBFVrns<Element>();
 		if (this->m_algorithmSHE == NULL)
@@ -196,7 +196,7 @@ void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature
 
 template <class Element>
 LPPublicKeyEncryptionSchemeBFVrns<Element>::LPPublicKeyEncryptionSchemeBFVrns() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFVrns<Element>();
+			this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFVrns<Element>());
 		}
 
 

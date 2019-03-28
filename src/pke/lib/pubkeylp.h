@@ -1097,6 +1097,17 @@ namespace lbcrypto {
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const = 0;
 
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		}
+
+		std::string SerializedObjectName() const { return "ParamsGen"; }
 	};
 
 	/**
@@ -1149,6 +1160,17 @@ namespace lbcrypto {
 			 */
 			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) = 0;
 
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const
+			{
+			}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version )
+			{
+			}
+
+			std::string SerializedObjectName() const { return "Encryption"; }
 	};
 
 
@@ -2167,14 +2189,10 @@ namespace lbcrypto {
 
 	public:
 		LPPublicKeyEncryptionScheme() :
-			m_algorithmParamsGen(0), m_algorithmEncryption(0), m_algorithmPRE(0), m_algorithmMultiparty(0),
+			m_algorithmPRE(0), m_algorithmMultiparty(0),
 			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
 
 		virtual ~LPPublicKeyEncryptionScheme() {
-			if (this->m_algorithmParamsGen != NULL)
-				delete this->m_algorithmParamsGen;
-			if (this->m_algorithmEncryption != NULL)
-				delete this->m_algorithmEncryption;
 			if (this->m_algorithmPRE != NULL)
 				delete this->m_algorithmPRE;
 			if (this->m_algorithmMultiparty != NULL)
@@ -2814,27 +2832,43 @@ namespace lbcrypto {
 			}
 		}
 
-		const LPEncryptionAlgorithm<Element>& getAlgorithm() const { return *m_algorithmEncryption; }
+		const std::shared_ptr<LPEncryptionAlgorithm<const Element>> getAlgorithm() const { return m_algorithmEncryption; }
 
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::make_nvp("e",GetEnabled()) );
+			ar( cereal::make_nvp("en",GetEnabled()) );
+			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
+			ar( cereal::make_nvp("e",m_algorithmEncryption) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
 			usint mask;
-			ar( cereal::make_nvp("e",mask) );
-			this->Enable(mask);
+			ar( cereal::make_nvp("en",mask) );
+			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
+			ar( cereal::make_nvp("e",m_algorithmEncryption) );
+			//this->Enable(mask);
 		}
 
 		virtual std::string SerializedObjectName() const { return "Scheme"; }
 
+		friend std::ostream& operator<<(std::ostream& out, const LPPublicKeyEncryptionScheme<Element>& s) {
+			out << typeid(s).name() << ":" ;
+			out <<  " ParameterGeneration " << (s.m_algorithmParamsGen == 0 ? "none" : typeid(*s.m_algorithmParamsGen).name());
+			out <<  ", Encryption " << (s.m_algorithmEncryption == 0 ? "none" : typeid(*s.m_algorithmEncryption).name());
+			out <<  ", PRE " << (s.m_algorithmPRE == 0 ? "none" : typeid(s.m_algorithmPRE).name());
+			out <<  ", Multiparty " << (s.m_algorithmMultiparty == 0 ? "none" : typeid(s.m_algorithmMultiparty).name());
+			out <<  ", SHE " << (s.m_algorithmSHE == 0 ? "none" : typeid(s.m_algorithmSHE).name());
+			out <<  ", FHE " << (s.m_algorithmFHE == 0 ? "none" : typeid(s.m_algorithmFHE).name());
+			out <<  ", LeveledSHE " << (s.m_algorithmLeveledSHE == 0 ? "none" : typeid(s.m_algorithmLeveledSHE).name());
+			return out;
+		}
+
 	protected:
-		LPParameterGenerationAlgorithm<Element> *m_algorithmParamsGen;
-		LPEncryptionAlgorithm<Element> *m_algorithmEncryption;
+		std::shared_ptr<LPParameterGenerationAlgorithm<Element>>	m_algorithmParamsGen;
+		std::shared_ptr<LPEncryptionAlgorithm<Element>>				m_algorithmEncryption;
 		LPPREAlgorithm<Element> *m_algorithmPRE;
 		LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
 		LPSHEAlgorithm<Element> *m_algorithmSHE;

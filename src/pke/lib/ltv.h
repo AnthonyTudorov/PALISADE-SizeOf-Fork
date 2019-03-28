@@ -233,6 +233,19 @@ public:
 	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 		int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const;
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVParamsGen"; }
 };
 
 /**
@@ -305,6 +318,20 @@ public:
 	 * @return Public and private key pair.
 	 */
 	LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse = false);
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVEncryption"; }
 };
 
 /**
@@ -785,7 +812,7 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {
-		this->m_algorithmParamsGen = new LPAlgorithmParamsGenLTV<Element>();
+		this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenLTV<Element>());
 	}
 
 	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
@@ -817,5 +844,7 @@ public:
 };
 
 }
+
+CEREAL_FORCE_DYNAMIC_INIT( PALISADEpke )
 
 #endif

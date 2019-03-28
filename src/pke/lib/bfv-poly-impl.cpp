@@ -31,12 +31,14 @@ namespace lbcrypto {
 
 template<>
 LPPublicKeyEncryptionSchemeBFV<Poly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<Poly>() {
-	this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFV<Poly>();
+	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<Poly>());
+
 }
 
 template<>
 LPPublicKeyEncryptionSchemeBFV<NativePoly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<NativePoly>() {
-	this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFV<NativePoly>();
+	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<NativePoly>());
+
 }
 
 template class LPCryptoParametersBFV<Poly>;
