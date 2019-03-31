@@ -248,21 +248,22 @@ void KeyGen()
 
 		std::cout << "Serializing evaluation keys...";
 
-		Serialized emKeys, esKeys;
-
-		if (cc->SerializeEvalMultKey(&emKeys)) {
-			if (!SerializableHelper::WriteSerializationToFile(emKeys, DATAFOLDER + "/" + "key-eval-mult" + std::to_string(k) + ".txt")) {
+		ofstream emkeyfile(DATAFOLDER + "/" + "key-eval-mult" + std::to_string(k) + ".txt", std::ios::out|std::ios::binary);
+		if( emkeyfile.is_open() ) {
+			if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
 				cerr << "Error writing serialization of the eval mult keys to key-eval-mult" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
+			emkeyfile.close();
 		}
 		else {
 			cerr << "Error serializing eval mult keys" << endl;
 			return;
 		}
 
-		if (cc->SerializeEvalSumKey(&esKeys)) {
-			if (!SerializableHelper::WriteSerializationToFile(esKeys, DATAFOLDER + "/" + "key-eval-sum" + std::to_string(k) + ".txt")) {
+		ofstream eskeyfile(DATAFOLDER + "/" + "key-eval-sum" + std::to_string(k) + ".txt", std::ios::out|std::ios::binary);
+		if( eskeyfile.is_open() ) {
+			if( cc->SerializeEvalSumKey(eskeyfile, Serializable::Type::BINARY) == false ) {
 				cerr << "Error writing serialization of the eval sum keys to key-eval-sum" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -329,21 +330,32 @@ void Encrypt() {
 			return;
 		}
 
-		Serialized ccEmk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
-			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
-			return;
-		}
-
-		Serialized ccEsk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
-			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
-			return;
-		}
-
 		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-		cc->DeserializeEvalMultKey(ccEmk);
-		cc->DeserializeEvalSumKey(ccEsk);
+
+		std::ifstream emkeys(DATAFOLDER + "/" + emFileName, std::ios::in|std::ios::binary);
+		if( !emkeys.is_open() ) {
+			cerr << "Could not read the eval mult key file " << endl;
+			return;
+		}
+
+		std::ifstream eskeys(DATAFOLDER + "/" + esFileName, std::ios::in|std::ios::binary);
+		if( !eskeys.is_open() ) {
+			cerr << "Could not read the eval sum key file" << endl;
+			return;
+		}
+
+		if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval mult key file" << endl;
+			return;
+		}
+
+		if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval sum key file" << endl;
+			return;
+		}
+
+		emkeys.close();
+		eskeys.close();
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const auto encodingParams = cryptoParams->GetEncodingParams();
@@ -464,21 +476,32 @@ void Compute() {
 			return;
 		}
 
-		Serialized ccEmk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+
+		std::ifstream emkeys(DATAFOLDER + "/" + emFileName, std::ios::in|std::ios::binary);
+		if( !emkeys.is_open() ) {
 			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
 			return;
 		}
 
-		Serialized ccEsk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
+		std::ifstream eskeys(DATAFOLDER + "/" + esFileName, std::ios::in|std::ios::binary);
+		if( !eskeys.is_open() ) {
 			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
 			return;
 		}
 
-		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-		cc->DeserializeEvalMultKey(ccEmk);
-		cc->DeserializeEvalSumKey(ccEsk);
+		if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval mult key file" << endl;
+			return;
+		}
+
+		if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval sum key file" << endl;
+			return;
+		}
+
+		emkeys.close();
+		eskeys.close();
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const auto encodingParams = cryptoParams->GetEncodingParams();
@@ -593,21 +616,32 @@ void Decrypt() {
 			return;
 		}
 
-		Serialized ccEmk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + emFileName, &ccEmk) ) {
+		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+
+		std::ifstream emkeys(DATAFOLDER + "/" + emFileName, std::ios::in|std::ios::binary);
+		if( !emkeys.is_open() ) {
 			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + emFileName << endl;
 			return;
 		}
 
-		Serialized ccEsk;
-		if ( !SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + esFileName, &ccEsk) ) {
+		std::ifstream eskeys(DATAFOLDER + "/" + esFileName, std::ios::in|std::ios::binary);
+		if( !eskeys.is_open() ) {
 			cerr << "I cannot read serialization from " << DATAFOLDER + "/" + esFileName << endl;
 			return;
 		}
 
-		CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-		cc->DeserializeEvalMultKey(ccEmk);
-		cc->DeserializeEvalSumKey(ccEsk);
+		if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval mult key file" << endl;
+			return;
+		}
+
+		if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+			cerr << "Could not deserialize the eval sum key file" << endl;
+			return;
+		}
+
+		emkeys.close();
+		eskeys.close();
 
 		const shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams = cc->GetCryptoParameters();
 		const auto encodingParams = cryptoParams->GetEncodingParams();

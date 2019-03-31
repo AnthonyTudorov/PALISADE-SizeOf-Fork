@@ -1464,20 +1464,14 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Deserializing row vector X for A...";
 
-		Serialized	xSerA;
-		if (SerializableHelper::ReadSerializationFromFile(xFileName, &xSerA) == false) {
-			cerr << "Could not read ciphertext X" << endl;
-			return;
-		}
-
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xA(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-
-		if (!xA->Deserialize(xSerA)) {
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xA;
+		if ( !Serializable::DeserializeFromFile(xFileName, xA, Serializable::Type::BINARY) ) {
 			cerr << "Could not deserialize ciphertext x" << endl;
 			return;
 		}
+		xA->SetAllocator(zeroAlloc);
 
 		std::cout << "Completed" << std::endl;
 
@@ -1510,20 +1504,12 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Deserializing row vector X for B...";
 
-		Serialized	xSerB;
-		if (SerializableHelper::ReadSerializationFromFile(xFileName, &xSerB) == false) {
-			cerr << "Could not read ciphertext X" << endl;
-			return;
-		}
-
-		//auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
-
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xB(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-
-		if (!xB->Deserialize(xSerB)) {
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xB;
+		if ( !Serializable::DeserializeFromFile(xFileName, xB, Serializable::Type::BINARY) ) {
 			cerr << "Could not deserialize ciphertext x" << endl;
 			return;
 		}
+		xA->SetAllocator(zeroAlloc);
 
 		std::cout << "Completed" << std::endl;
 
@@ -1739,20 +1725,14 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Deserializing matrix X^T X...";
 
-		Serialized	xtxSer;
-		if (SerializableHelper::ReadSerializationFromFile(xtxFileName, &xtxSer) == false) {
-			cerr << "Could not read ciphertext X^T X" << endl;
-			return;
-		}
-
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-
-		if (!xtx->Deserialize(xtxSer)) {
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx;
+		if ( !Serializable::DeserializeFromFile(xtxFileName, xtx, Serializable::Type::BINARY) ) {
 			cerr << "Could not deserialize ciphertext X^T X" << endl;
 			return;
 		}
+		xtx->SetAllocator(zeroAlloc);
 
 		std::cout << "Completed" << std::endl;
 
@@ -1790,18 +1770,13 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		std::cout << "Deserializing matrix X^T y...";
 
-		Serialized	xtySer;
-		if (SerializableHelper::ReadSerializationFromFile(xtyFileName, &xtySer) == false) {
-			cerr << "Could not read ciphertext X^T y" << endl;
-			return;
-		}
+		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty;
 
-		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-
-		if (!xty->Deserialize(xtySer)) {
+		if ( !Serializable::DeserializeFromFile(xtyFileName, xty, Serializable::Type::BINARY) ) {
 			cerr << "Could not deserialize ciphertext X^T y" << endl;
 			return;
 		}
+		xty->SetAllocator(zeroAlloc);
 
 		std::cout << "Completed" << std::endl;
 

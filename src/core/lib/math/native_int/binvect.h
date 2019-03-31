@@ -525,21 +525,6 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	 */
 	NativeVector GetDigitAtIndexForBase(usint index, usint base) const;
 
-
-	/**
-	* Serialize the object into a Serialized
-	* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	* @return true if successfully serialized
-	*/
-	bool Serialize(lbcrypto::Serialized* serObj) const;
-
-	/**
-	* Populate the object from the deserialization of the Serialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
-	bool Deserialize(const lbcrypto::Serialized& serObj);
-
 	template <class Archive>
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
 	save( Archive & ar, std::uint32_t const version ) const
@@ -563,6 +548,9 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
 	load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		size_t size;
 		ar( size );
 		m_data.resize(size);
@@ -580,6 +568,9 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
 	load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		ar( cereal::make_nvp("v",m_data) );
 		uint64_t m;
 		ar( cereal::make_nvp("m",m) );
@@ -587,6 +578,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	}
 
 	std::string SerializedObjectName() const { return "NativeVector"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
  private:
 	//m_data is a pointer to the vector

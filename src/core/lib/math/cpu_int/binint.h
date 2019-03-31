@@ -46,11 +46,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
-#include "../../utils/inttypes.h"
-#include "../../utils/memory.h"
-#include "../../utils/palisadebase64.h"
-#include "../../utils/serializable.h"
-#include "../../utils/exception.h"
+#include "utils/inttypes.h"
+#include "utils/memory.h"
+#include "utils/palisadebase64.h"
+#include "utils/serializable.h"
+#include "utils/exception.h"
 
 /**
 *@namespace cpu_int
@@ -741,26 +741,6 @@ namespace cpu_int{
     */
     const std::string ToString() const;
 
-    // note that for efficiency, we use [De]Serialize[To|From]String when serializing
-    // BigVectors, and [De]Serialize otherwise (to work the same as all
-    // other serialized objects.
-
-    const std::string SerializeToString(const BigInteger& mod = BigInteger(0)) const;
-    const char * DeserializeFromString(const char * str, const BigInteger& mod = BigInteger(0));
-    /**
-     * Serialize the object into a Serialized
-     * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-     * @return true if successfully serialized
-     */
-    bool Serialize(lbcrypto::Serialized* serObj) const;
-
-    /**
-     * Populate the object from the deserialization of the Serialized
-     * @param serObj contains the serialized object
-     * @return true on success
-     */
-    bool Deserialize(const lbcrypto::Serialized& serObj);
-    
     static const std::string IntegerTypeName() { return "BBI"; }
 
     /**
@@ -943,6 +923,9 @@ namespace cpu_int{
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
 	load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		ar( cereal::binary_data(m_value, sizeof(m_value)) );
 		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
 	}
@@ -951,11 +934,15 @@ namespace cpu_int{
 	typename std::enable_if <cereal::traits::is_text_archive<Archive>::value,void>::type
 	load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		ar( cereal::make_nvp("v", m_value) );
 		ar( cereal::make_nvp("m", m_MSB) );
 	}
 
 	std::string SerializedObjectName() const { return "CPUInteger"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
     protected:
     

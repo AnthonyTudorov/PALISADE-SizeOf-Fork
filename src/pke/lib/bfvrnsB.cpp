@@ -168,25 +168,25 @@ void LPPublicKeyEncryptionSchemeBFVrnsB<Element>::Enable(PKESchemeFeature featur
 		if (this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrnsB<Element>() );
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
+			this->m_algorithmSHE.reset( new LPAlgorithmSHEBFVrnsB<Element>() );
 		break;
 	case PRE:
 		if (this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrnsB<Element>() );
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
+			this->m_algorithmSHE.reset( new LPAlgorithmSHEBFVrnsB<Element>() );
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPREBFVrnsB<Element>();
+			this->m_algorithmPRE.reset( new LPAlgorithmPREBFVrnsB<Element>() );
 		break; 
 	case MULTIPARTY:
 		if (this->m_algorithmEncryption == NULL)
 			this->m_algorithmEncryption.reset( new LPAlgorithmBFVrnsB<Element>() );
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPREBFVrnsB<Element>();
+			this->m_algorithmPRE.reset( new LPAlgorithmPREBFVrnsB<Element>() );
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHEBFVrnsB<Element>();
+			this->m_algorithmSHE.reset( new LPAlgorithmSHEBFVrnsB<Element>() );
 		if (this->m_algorithmMultiparty == NULL)
-			this->m_algorithmMultiparty = new LPAlgorithmMultipartyBFVrnsB<Element>();
+			this->m_algorithmMultiparty.reset( new LPAlgorithmMultipartyBFVrnsB<Element>() );
 		break; 
 	case FHE:
 		throw std::logic_error("FHE feature not supported for BFVrnsB scheme");

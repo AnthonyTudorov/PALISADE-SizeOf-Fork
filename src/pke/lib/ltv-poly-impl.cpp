@@ -73,5 +73,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT( PALISADEpke )

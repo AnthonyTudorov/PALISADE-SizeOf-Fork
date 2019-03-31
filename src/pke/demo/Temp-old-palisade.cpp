@@ -333,12 +333,13 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 			return;
 		}
 
-		Serialized emKeys;
-		if( ctx->SerializeEvalMultKey(&emKeys) ) {
-			if( !SerializableHelper::WriteSerializationToFile(emKeys, keyname + "EMK") ) {
+		ofstream emkeyfile(keyname + "EMK", std::ios::out|std::ios::binary);
+		if( emkeyfile.is_open() ) {
+			if( ctx->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
 				cerr << "Error writing serialization of eval mult keys to " + keyname + "EMK" << endl;
 				return;
 			}
+			emkeyfile.close();
 		}
 		else {
 			cerr << "Could not serialize eval mult keys" << endl;
@@ -420,8 +421,8 @@ evaladder(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer) ) {
 		if( !SerializableHelper::WriteSerializationToFile(cSer, cipheraddname) ) {
-				cerr << "Error writing serialization of ciphertext to " + cipheraddname << endl;
-				return;
+			cerr << "Error writing serialization of ciphertext to " + cipheraddname << endl;
+			return;
 		}
 	}
 	else {
@@ -477,8 +478,8 @@ evalmulter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	Serialized cSer;
 	if( cdsum->Serialize(&cSer) ) {
 		if( !SerializableHelper::WriteSerializationToFile(cSer, ciphermulname) ) {
-				cerr << "Error writing serialization of ciphertext to " + ciphermulname << endl;
-				return;
+			cerr << "Error writing serialization of ciphertext to " + ciphermulname << endl;
+			return;
 		}
 	}
 	else {
@@ -497,19 +498,19 @@ struct {
 	string				helpline;
 } cmds[] = {
 		{"makekey", keymaker<Poly>, keymaker<DCRTPoly>, " [flags] keyname\n"
-		"\tcreate a new keypair\n\t\tsave keynamePUB, keynamePRI, keynameCTXT and keynameEMK"},
-		{"makerekey", rekeymaker<Poly>, rekeymaker<DCRTPoly>, " [flags] pubkey_file secretkey_file rekey_file\n"
-		"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file\n\tsave in rekey_file"},
-		{"encrypt", encrypter<Poly>, encrypter<DCRTPoly>, " [flags] plaintext_file pubkey_file ciphertext_file\n"
-		"\tencrypt the contents of plaintext_file using the contents of pubkey_file\n\tsave results in ciphertext_file"},
-		{"reencrypt", reencrypter<Poly>, reencrypter<DCRTPoly>, " [flags] encrypted_file rekey_file reencrypted_file\n"
-		"\treencrypt the contents of encrypted_file using the contents of rekey_file\n\tsave results in reencrypted_file"},
-		{"decrypt", decrypter<Poly>, decrypter<DCRTPoly>, " [flags] ciphertext_file prikey_file cleartext_file\n"
-		"\tdecrypt the contents of ciphertext_file using the contents of prikey_file\n\tsave results in cleartext_file"},
-		{"evaladd", evaladder<Poly>, evaladder<DCRTPoly>, " [flags] ciphertext1 ciphertext2 addresult\n"
-		"\teval-add both ciphertexts\n\tsave result in addresult"},
-		{"evalmult", evalmulter<Poly>, evalmulter<DCRTPoly>, " [flags] ciphertext1 ciphertext2 multresult\n"
-		"\teval-mult both ciphertexts\n\tsave result in multresult"},
+				"\tcreate a new keypair\n\t\tsave keynamePUB, keynamePRI, keynameCTXT and keynameEMK"},
+				{"makerekey", rekeymaker<Poly>, rekeymaker<DCRTPoly>, " [flags] pubkey_file secretkey_file rekey_file\n"
+						"\tcreate a re-encryption key from the contents of pubkey_file and secretkey_file\n\tsave in rekey_file"},
+						{"encrypt", encrypter<Poly>, encrypter<DCRTPoly>, " [flags] plaintext_file pubkey_file ciphertext_file\n"
+								"\tencrypt the contents of plaintext_file using the contents of pubkey_file\n\tsave results in ciphertext_file"},
+								{"reencrypt", reencrypter<Poly>, reencrypter<DCRTPoly>, " [flags] encrypted_file rekey_file reencrypted_file\n"
+										"\treencrypt the contents of encrypted_file using the contents of rekey_file\n\tsave results in reencrypted_file"},
+										{"decrypt", decrypter<Poly>, decrypter<DCRTPoly>, " [flags] ciphertext_file prikey_file cleartext_file\n"
+												"\tdecrypt the contents of ciphertext_file using the contents of prikey_file\n\tsave results in cleartext_file"},
+												{"evaladd", evaladder<Poly>, evaladder<DCRTPoly>, " [flags] ciphertext1 ciphertext2 addresult\n"
+														"\teval-add both ciphertexts\n\tsave result in addresult"},
+														{"evalmult", evalmulter<Poly>, evalmulter<DCRTPoly>, " [flags] ciphertext1 ciphertext2 multresult\n"
+																"\teval-mult both ciphertexts\n\tsave result in multresult"},
 };
 
 void
@@ -613,12 +614,18 @@ main( int argc, char *argv[] )
 			Serialized kser;
 			bool result = false;
 			string kfile( string(argv[cmdidx+1])+"EMK" );
-			if( SerializableHelper::ReadSerializationFromFile(kfile, &kser) ) {
-				if( ElementMode == POLY )
-					result = ctx->DeserializeEvalMultKey(kser);
-				else if( ElementMode == DCRT )
-					result = dctx->DeserializeEvalMultKey(kser);
+			std::ifstream emkeys(kfile, std::ios::in|std::ios::binary);
+			if( !emkeys.is_open() ) {
+				cerr << "Could not read the eval mult key file " << endl;
+				return 1;
 			}
+
+			if( ElementMode == POLY )
+				result = ctx->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY);
+			else if( ElementMode == DCRT )
+				result = dctx->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY);
+
+			emkeys.close();
 
 			if( !result ) {
 				cerr << "Could not get evalmult keys from the file " << kfile << endl;

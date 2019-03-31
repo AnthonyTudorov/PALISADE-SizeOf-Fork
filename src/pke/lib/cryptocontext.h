@@ -73,38 +73,6 @@ private:
 	vector<TimingInfo>* timeSamples;
 
 	/**
-	 * Private methods to compare two contexts; this is only used internally and is not generally available
-	 * @param a - operand 1
-	 * @param b - operand 2
-	 * @return true if the objects have the same parms and scheme
-	 */
-	friend bool operator==(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
-		if( a->params.get() != b->params.get() ) return false;
-		if( a->scheme.get() != b->scheme.get() ) return false;
-		return true;
-	}
-
-	friend bool operator!=(const CryptoContext<Element>& a, const CryptoContext<Element>& b) {
-		return !( a == b );
-	}
-
-	/**
-	 * Private methods to compare two contexts; this is only used internally and is not generally available
-	 * @param a - operand 1
-	 * @param b - operand 2
-	 * @return true if the implementations have identical parms and scheme
-	 */
-	friend bool operator==(const CryptoContextImpl<Element>& a, const CryptoContextImpl<Element>& b) {
-		if( *a.params != *b.params ) return false;
-		if( *a.scheme != *b.scheme ) return false;
-		return true;
-	}
-
-	friend bool operator!=(const CryptoContextImpl<Element>& a, const CryptoContextImpl<Element>& b) {
-		return !( a == b );
-	}
-
-	/**
 	 * TypeCheck makes sure that an operation between two ciphertexts is permitted
 	 * @param a
 	 * @param b
@@ -249,6 +217,44 @@ public:
 	 */
 	operator bool() const { return bool(params) && bool(scheme); }
 
+	/**
+	 * Private methods to compare two contexts; this is only used internally and is not generally available
+	 * @param a - operand 1
+	 * @param b - operand 2
+	 * @return true if the implementations have identical parms and scheme
+	 */
+	friend bool operator==(const CryptoContextImpl<Element>& a, const CryptoContextImpl<Element>& b) {
+		// Identical if the parameters and the schemes are identical... the exact same object,
+		// OR the same type and the same values
+		if( a.params.get() == b.params.get() ) {
+			return true;
+		}
+		else {
+			if( typeid(*a.params.get()) != typeid(*b.params.get()) ) {
+				return false;
+			}
+			if( *a.params.get() != *b.params.get() )
+				return false;
+		}
+
+		if( a.scheme.get() == b.scheme.get() ) {
+			return true;
+		}
+		else {
+			if( typeid(*a.scheme.get()) != typeid(*b.scheme.get()) ) {
+				return false;
+			}
+			if( *a.scheme.get() != *b.scheme.get() )
+				return false;
+		}
+
+		return true;
+	}
+
+	friend bool operator!=(const CryptoContextImpl<Element>& a, const CryptoContextImpl<Element>& b) {
+		return !( a == b );
+	}
+
 	// TIMING METHODS
 	/**
 	 * StartTiming method activates timing of CryptoMethods
@@ -300,44 +306,40 @@ public:
 		throw std::logic_error("Deserialize by using CryptoContextFactory::DeserializeAndCreateContext");
 	}
 
-	/**
-	 * SerializeEvalMultKey for all EvalMult keys
-	 * method will serialize each CryptoContextImpl only once
-	 *
-	 * @param serObj - serialization
-	 * @return true on success
-	 */
-	static bool SerializeEvalMultKey(Serialized* serObj);
+	static bool SerializeEvalMultKey(Serialized* serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalMultKey(Serialized* serObj, const string& id) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalMultKey(Serialized* serObj, const CryptoContext<Element> cc) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool DeserializeEvalMultKey(Serialized* serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	/**
-	 * SerializeEvalMultKey for a single EvalMult key
-	 * method will serialize entire key AND cryptocontext
+	 * SerializeEvalMultKey for a single EvalMult key or all EvalMult keys
 	 *
-	 * @param serObj - serialization
-	 * @param id for key to serialize
-	 * @return true on success (false on failure or key id not found)
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
+	 * @param id for key to serialize - if empty string, serialize them all
+	 * @return true on success
 	 */
-	static bool SerializeEvalMultKey(Serialized* serObj, const string& id);
+	static bool SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, string id = "");
 
 	/**
 	 * SerializeEvalMultKey for all EvalMultKeys made in a given context
-	 * method will serialize the context only once
 	 *
-	 * @param serObj - serialization
 	 * @param cc whose keys should be serialized
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
 	 * @return true on success (false on failure or no keys found)
 	 */
-	static bool SerializeEvalMultKey(Serialized* serObj, const CryptoContext<Element> cc);
+	static bool SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc);
 
 	/**
 	 * DeserializeEvalMultKey deserialize all keys in the serialization
 	 * deserialized keys silently replace any existing matching keys
 	 * deserialization will create CryptoContextImpl if necessary
 	 *
-	 * @param serObj - serialization
+	 * @param serObj - stream with a serialization
 	 * @return true on success
 	 */
-	static bool DeserializeEvalMultKey(const Serialized& serObj);
+	static bool DeserializeEvalMultKey(std::istream& ser, Serializable::Type sertype);
 
 	/**
 	 * ClearEvalMultKeys - flush EvalMultKey cache
@@ -372,6 +374,26 @@ public:
 	static bool SerializeEvalSumKey(Serialized* serObj);
 
 	/**
+	 * SerializeEvalSumKey for a single EvalSum key or all of the EvalSum keys
+	 *
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
+	 * @param id - key to serialize; empty string means all keys
+	 * @return true on success
+	 */
+	static bool SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, string id = "");
+
+	/**
+	 * SerializeEvalSumKey for all of the EvalSum keys for a context
+	 *
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
+	 * @param cc - context
+	 * @return true on success
+	 */
+	static bool SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc);
+
+	/**
 	 * SerializeEvalSumKey for a single EvalSum key
 	 * method will serialize entire key AND cryptocontext
 	 *
@@ -390,6 +412,17 @@ public:
 	 * @return true on success (false on failure or no keys found)
 	 */
 	static bool SerializeEvalSumKey(Serialized* serObj, const CryptoContext<Element> cc);
+
+	/**
+	 * DeserializeEvalSumKey deserialize all keys in the serialization
+	 * deserialized keys silently replace any existing matching keys
+	 * deserialization will create CryptoContextImpl if necessary
+	 *
+	 * @param ser - stream to serialize from
+	 * @param sertype - type of serialization
+	 * @return true on success
+	 */
+	static bool DeserializeEvalSumKey(std::istream& ser, Serializable::Type sertype);
 
 	/**
 	 * DeserializeEvalSumKey deserialize all keys in the serialization
@@ -2397,6 +2430,8 @@ public:
 	{
 		ar( cereal::make_nvp("cc", context) );
 		ar( cereal::make_nvp("kt", keyTag) );
+
+		context = CryptoContextFactory<Element>::GetContext(context->GetCryptoParameters(),context->GetEncryptionAlgorithm());
 	}
 
 	std::string SerializedObjectName() const { return "CryptoObject"; }
@@ -2840,6 +2875,13 @@ public:
 	* @return new context
 	*/
 	static CryptoContext<Element> DeserializeAndCreateContext(const Serialized& serObj);
+
+	/**
+	* Create a PALISADE CryptoContextImpl from a serialization
+	* @param stream containing serialization
+	* @return new context
+	*/
+	static CryptoContext<Element> DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType);
 };
 
 

@@ -259,15 +259,19 @@ namespace lbcrypto {
 		bool Deserialize(const Serialized &serObj);
 
 		bool operator==(const LPPublicKeyImpl& other) const {
-			if( !CryptoObject<Element>::operator ==(other) )
+			if( !CryptoObject<Element>::operator ==(other) ) {
 				return false;
+			}
 
-			if( m_h.size() != other.m_h.size() )
+			if( m_h.size() != other.m_h.size() ) {
 				return false;
+			}
 
-			for( size_t i = 0; i < m_h.size(); i++ )
-				if( m_h[i] != other.m_h[i] )
+			for( size_t i = 0; i < m_h.size(); i++ ) {
+				if( m_h[i] != other.m_h[i] ) {
 					return false;
+				}
+			}
 
 			return true;
 		}
@@ -456,7 +460,7 @@ namespace lbcrypto {
 		*
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
-		LPEvalKeyRelinImpl(CryptoContext<Element> cc) : LPEvalKeyImpl<Element>(cc) {}
+		LPEvalKeyRelinImpl(CryptoContext<Element> cc = 0) : LPEvalKeyImpl<Element>(cc) {}
 
 		virtual ~LPEvalKeyRelinImpl() {}
 
@@ -477,6 +481,8 @@ namespace lbcrypto {
 		explicit LPEvalKeyRelinImpl(LPEvalKeyRelinImpl<Element> &&rhs) : LPEvalKeyImpl<Element>(rhs.GetCryptoContext()) {
 			m_rKey = std::move(rhs.m_rKey);
 		}
+
+		operator bool() const { return bool(this->context) && m_rKey.size() != 0; }
 
 		/**
 		* Assignment Operator.
@@ -569,13 +575,6 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj) const;
 
 		/**
-		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool SerializeWithoutContext(Serialized *serObj) const;
-
-		/**
 		 * Deserialize from the serialization
 		 * @param serObj - contains the serialization
 		 * @return true on success
@@ -639,7 +638,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRURelinImpl(CryptoContext<Element> cc) : LPEvalKeyImpl<Element>(cc) {}
+		LPEvalKeyNTRURelinImpl(CryptoContext<Element> cc = 0) : LPEvalKeyImpl<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRURelinImpl() {}
 
@@ -725,13 +724,6 @@ namespace lbcrypto {
 		bool Serialize(Serialized *serObj) const;
 
 		/**
-		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool SerializeWithoutContext(Serialized *serObj) const;
-
-		/**
 		 * Deserialize from the serialization
 		 * @param serObj - contains the serialization
 		 * @return true on success
@@ -792,7 +784,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyNTRUImpl(CryptoContext<Element> cc) : LPEvalKeyImpl<Element>(cc) {}
+		LPEvalKeyNTRUImpl(CryptoContext<Element> cc = 0) : LPEvalKeyImpl<Element>(cc) {}
 
 		virtual ~LPEvalKeyNTRUImpl() {}
 
@@ -877,13 +869,6 @@ namespace lbcrypto {
 		* @return true if successfully serialized
 		*/
 		bool Serialize(Serialized *serObj) const;
-
-		/**
-		* SerializeWithoutContext - serializes the object into a Serialized, withut the cryptocontext
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool SerializeWithoutContext(Serialized *serObj) const;
 
 		/**
 		 * Deserialize from the serialization
@@ -1098,14 +1083,10 @@ namespace lbcrypto {
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const = 0;
 
 		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version ) const
-		{
-		}
+		void save( Archive & ar, std::uint32_t const version ) const {}
 
 		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version )
-		{
-		}
+		void load( Archive & ar, std::uint32_t const version ) {}
 
 		std::string SerializedObjectName() const { return "ParamsGen"; }
 	};
@@ -1160,15 +1141,12 @@ namespace lbcrypto {
 			 */
 			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) = 0;
 
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const
-			{
-			}
 
 			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version )
-			{
-			}
+			void save( Archive & ar, std::uint32_t const version ) const {}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version ) {}
 
 			std::string SerializedObjectName() const { return "Encryption"; }
 	};
@@ -1229,6 +1207,14 @@ namespace lbcrypto {
 			* @param rootHermiteFactor is the security threshold
 			*/
 			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const = 0;
+
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const {}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version ) {}
+
+			std::string SerializedObjectName() const { return "LeveledSHE"; }
 	};
 
 	/**
@@ -1264,6 +1250,13 @@ namespace lbcrypto {
 				ConstCiphertext<Element> ciphertext,
 				const LPPublicKey<Element> publicKey = nullptr) const = 0;
 
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const {}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version ) {}
+
+			std::string SerializedObjectName() const { return "PRE"; }
 	};
 
 	/**
@@ -1340,6 +1333,13 @@ namespace lbcrypto {
 			virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 				NativePoly *plaintext) const = 0;
 
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const {}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version ) {}
+
+			std::string SerializedObjectName() const { return "MultiParty"; }
 	};
 
 	/**
@@ -1976,6 +1976,15 @@ namespace lbcrypto {
 
 		}
 
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const {}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version ) {}
+
+		std::string SerializedObjectName() const { return "SHE"; }
+
 		private:
 
 			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const {
@@ -2034,6 +2043,14 @@ namespace lbcrypto {
 			 */
 			virtual void Bootstrap(ConstCiphertext<Element> &ciphertext,
 				Ciphertext<Element> *newCiphertext) const = 0;
+
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const {}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version ) {}
+
+			std::string SerializedObjectName() const { return "FHE"; }
 	};
 
 	/**
@@ -2188,22 +2205,9 @@ namespace lbcrypto {
 		//PalisadeSchemeIdentifier<Element> *SchemeId;
 
 	public:
-		LPPublicKeyEncryptionScheme() :
-			m_algorithmPRE(0), m_algorithmMultiparty(0),
-			m_algorithmSHE(0), m_algorithmFHE(0), m_algorithmLeveledSHE(0) {}
+		LPPublicKeyEncryptionScheme() {}
 
-		virtual ~LPPublicKeyEncryptionScheme() {
-			if (this->m_algorithmPRE != NULL)
-				delete this->m_algorithmPRE;
-			if (this->m_algorithmMultiparty != NULL)
-				delete this->m_algorithmMultiparty;
-			if (this->m_algorithmSHE != NULL)
-				delete this->m_algorithmSHE;
-			if (this->m_algorithmFHE != NULL)
-				delete this->m_algorithmFHE;
-			if (this->m_algorithmLeveledSHE != NULL)
-				delete this->m_algorithmLeveledSHE;
-		}
+		virtual ~LPPublicKeyEncryptionScheme() {}
 		
 		virtual bool operator==(const LPPublicKeyEncryptionScheme& sch) const = 0;
 
@@ -2837,19 +2841,25 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::make_nvp("en",GetEnabled()) );
 			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
 			ar( cereal::make_nvp("e",m_algorithmEncryption) );
+			ar( cereal::make_nvp("p",m_algorithmPRE) );
+			ar( cereal::make_nvp("m",m_algorithmMultiparty) );
+			ar( cereal::make_nvp("s",m_algorithmSHE) );
+			ar( cereal::make_nvp("f",m_algorithmFHE) );
+			ar( cereal::make_nvp("ls",m_algorithmLeveledSHE) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-			usint mask;
-			ar( cereal::make_nvp("en",mask) );
 			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
 			ar( cereal::make_nvp("e",m_algorithmEncryption) );
-			//this->Enable(mask);
+			ar( cereal::make_nvp("p",m_algorithmPRE) );
+			ar( cereal::make_nvp("m",m_algorithmMultiparty) );
+			ar( cereal::make_nvp("s",m_algorithmSHE) );
+			ar( cereal::make_nvp("f",m_algorithmFHE) );
+			ar( cereal::make_nvp("ls",m_algorithmLeveledSHE) );
 		}
 
 		virtual std::string SerializedObjectName() const { return "Scheme"; }
@@ -2858,22 +2868,22 @@ namespace lbcrypto {
 			out << typeid(s).name() << ":" ;
 			out <<  " ParameterGeneration " << (s.m_algorithmParamsGen == 0 ? "none" : typeid(*s.m_algorithmParamsGen).name());
 			out <<  ", Encryption " << (s.m_algorithmEncryption == 0 ? "none" : typeid(*s.m_algorithmEncryption).name());
-			out <<  ", PRE " << (s.m_algorithmPRE == 0 ? "none" : typeid(s.m_algorithmPRE).name());
-			out <<  ", Multiparty " << (s.m_algorithmMultiparty == 0 ? "none" : typeid(s.m_algorithmMultiparty).name());
-			out <<  ", SHE " << (s.m_algorithmSHE == 0 ? "none" : typeid(s.m_algorithmSHE).name());
-			out <<  ", FHE " << (s.m_algorithmFHE == 0 ? "none" : typeid(s.m_algorithmFHE).name());
-			out <<  ", LeveledSHE " << (s.m_algorithmLeveledSHE == 0 ? "none" : typeid(s.m_algorithmLeveledSHE).name());
+			out <<  ", PRE " << (s.m_algorithmPRE == 0 ? "none" : typeid(*s.m_algorithmPRE).name());
+			out <<  ", Multiparty " << (s.m_algorithmMultiparty == 0 ? "none" : typeid(*s.m_algorithmMultiparty).name());
+			out <<  ", SHE " << (s.m_algorithmSHE == 0 ? "none" : typeid(*s.m_algorithmSHE).name());
+			out <<  ", FHE " << (s.m_algorithmFHE == 0 ? "none" : typeid(*s.m_algorithmFHE).name());
+			out <<  ", LeveledSHE " << (s.m_algorithmLeveledSHE == 0 ? "none" : typeid(*s.m_algorithmLeveledSHE).name());
 			return out;
 		}
 
 	protected:
 		std::shared_ptr<LPParameterGenerationAlgorithm<Element>>	m_algorithmParamsGen;
 		std::shared_ptr<LPEncryptionAlgorithm<Element>>				m_algorithmEncryption;
-		LPPREAlgorithm<Element> *m_algorithmPRE;
-		LPMultipartyAlgorithm<Element> *m_algorithmMultiparty;
-		LPSHEAlgorithm<Element> *m_algorithmSHE;
-		LPFHEAlgorithm<Element> *m_algorithmFHE;
-		LPLeveledSHEAlgorithm<Element> *m_algorithmLeveledSHE;
+		std::shared_ptr<LPPREAlgorithm<Element>>					m_algorithmPRE;
+		std::shared_ptr<LPMultipartyAlgorithm<Element>>				m_algorithmMultiparty;
+		std::shared_ptr<LPSHEAlgorithm<Element>>					m_algorithmSHE;
+		std::shared_ptr<LPFHEAlgorithm<Element>>					m_algorithmFHE;
+		std::shared_ptr<LPLeveledSHEAlgorithm<Element>>				m_algorithmLeveledSHE;
 	};
 
 } // namespace lbcrypto ends

@@ -244,6 +244,19 @@ public:
 		return kp;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullEncryption"; }
 };
 
 
@@ -297,6 +310,19 @@ public:
 		return newCiphertext;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullPRE"; }
 };
 
 	/**
@@ -413,6 +439,19 @@ public:
 		return DecryptResult(plaintext->GetLength());
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullMultiparty"; }
 };
 
 /**
@@ -486,6 +525,20 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			throw std::logic_error("CanRingReduce not implemented for Null");
 		}
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "NullLeveledSHE"; }
 };
 
 template <class Element>
@@ -813,6 +866,21 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return evalKeys;
 		}
 
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "NullSHE"; }
+
 	private:
 		typename Element::PolyType ElementNullSchemeMultiply(const typename Element::PolyType& c1, const typename Element::PolyType& c2,
 				const BigInteger& ptmod) const {
@@ -890,6 +958,19 @@ public:
 		return true;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullParamsGen"; }
 };
 
 
@@ -921,19 +1002,19 @@ public:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+				this->m_algorithmPRE.reset( new LPAlgorithmPRENull<Element>() );
 			break;
 		case MULTIPARTY:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyNull<Element>();
+				this->m_algorithmMultiparty.reset( new LPAlgorithmMultipartyNull<Element>() );
 			break;
 		case SHE:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+				this->m_algorithmSHE.reset( new LPAlgorithmSHENull<Element>() );
 			break;
 		case FHE:
 			throw std::logic_error("FHE feature not supported for Null scheme");
@@ -941,7 +1022,7 @@ public:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
+				this->m_algorithmLeveledSHE.reset( new LPLeveledSHEAlgorithmNull<Element>() );
 			break;
 		}
 	}

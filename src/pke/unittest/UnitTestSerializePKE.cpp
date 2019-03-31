@@ -44,10 +44,12 @@ protected:
 	}
 
 	void TearDown() {
+		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextImpl<Poly>::ClearEvalMultKeys();
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
 	}
 };
 
@@ -79,100 +81,8 @@ TEST_F(UTPKESer, LTV_Context_Factory) {
 }
 
 template<typename T>
-void OUnitTestContext(CryptoContext<T> cc) {
+void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype, string msg) {
 
-	LPKeyPair<T> kp = cc->KeyGen();
-	try {
-		cc->EvalMultKeyGen(kp.secretKey);
-	} catch(...) {}
-	try {
-		cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
-	} catch(...) {}
-
-	Serialized ser;
-	ser.SetObject();
-	ASSERT_TRUE( cc->Serialize(&ser) ) << "Serialization failed";
-
-	CryptoContext<T> newcc = CryptoContextFactory<T>::DeserializeAndCreateContext(ser);
-	ASSERT_TRUE( newcc ) << "Deserialization failed";
-
-	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), (usint)(ENCRYPTION|SHE) ) << "Enabled features mismatch after ser/deser";
-
-	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Crypto parms mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << "Encoding parms mismatch after ser/deser";
-
-	Serialized serK;
-	ASSERT_TRUE( kp.publicKey->Serialize(&serK) ) << "Key serialization failed";
-	LPPublicKey<T> newPub = cc->deserializePublicKey(serK);
-	ASSERT_TRUE( newPub ) << "Key deserialize failed";
-
-	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
-
-	CryptoContext<T> newccFromkey = CryptoContextFactory<T>::DeserializeAndCreateContext(serK);
-	ASSERT_TRUE( newccFromkey ) << "Deserialization from key failed";
-
-	LPPublicKey<T> finalPub = newccFromkey->deserializePublicKey(serK);
-	ASSERT_TRUE( finalPub ) << "Key deserialize in new ctx failed";
-	EXPECT_EQ( *newPub, *finalPub ) << "Key mismatch from new ctx";
-}
-
-TEST_F(UTPKESer, OLTV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("LTV5");
-	OUnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, OLTV_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, OStSt_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("StSt6");
-	OUnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, OStSt_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, OBGV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("BGV2");
-	OUnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, OBGV_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BGV2", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, ONull_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("Null");
-	OUnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, ONull_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, OBFV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
-	OUnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, OBFVrns_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, OBFVrnsB_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
-	OUnitTestContext<DCRTPoly>(cc);
-}
-
-template<typename T>
-void UnitTestContext(CryptoContext<T> cc) {
 	LPKeyPair<T> kp = cc->KeyGen();
 	try {
 		cc->EvalMultKeyGen(kp.secretKey);
@@ -182,40 +92,37 @@ void UnitTestContext(CryptoContext<T> cc) {
 	} catch(...) {}
 
 	stringstream s;
-	Serializable::SerializeWithName(cc, s, Serializable::Type::JSON);
+	Serializable::Serialize(cc, s, sertype);
 
-	cout << CryptoContextFactory<T>::GetContextCount() << endl;
+	CryptoContext<T> newcc = CryptoContextFactory<T>::DeserializeAndCreateContext(s, sertype);
 
-	CryptoContext<T> newcc;
-	Serializable::DeserializeWithName(newcc, s, Serializable::Type::JSON);
+	ASSERT_TRUE( newcc ) << msg << " Deserialize failed";
 
-	cout << CryptoContextFactory<T>::GetContextCount() << endl;
+	EXPECT_EQ( *cc, *newcc ) << msg << " Mismatched context";
 
-	cout << cc.get() << endl;
-	cout << newcc.get() << endl;
+	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << msg << " Scheme mismatch after ser/deser";
+	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << msg << " Crypto parms mismatch after ser/deser";
+	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << msg << " Encoding parms mismatch after ser/deser";
+	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << msg << " Enabled features mismatch after ser/deser";
 
-	ASSERT_TRUE( newcc ) << "Deserialize failed";
-
-	EXPECT_EQ( *cc, *newcc ) << "Mismatched context";
-
-	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << "Scheme mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << "Crypto parms mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << "Encoding parms mismatch after ser/deser";
-	//EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << "Enabled features mismatch after ser/deser";
-
-	auto k2 = newcc->KeyGen();
 	s.str("");
 	s.clear();
-	Serializable::SerializeWithName(kp.publicKey, s, Serializable::Type::JSON);
+	Serializable::Serialize(kp.publicKey, s, sertype);
 
 	LPPublicKey<T> newPub;
-	Serializable::DeserializeWithName(newPub, s, Serializable::Type::JSON);
-	ASSERT_TRUE( newPub ) << "Key deserialize failed";
+	Serializable::Deserialize(newPub, s, sertype);
+	ASSERT_TRUE( newPub ) << msg << " Key deserialize failed";
 
-	EXPECT_EQ( *kp.publicKey, *newPub ) << "Key mismatch";
+	EXPECT_EQ( *kp.publicKey, *newPub ) << msg << " Key mismatch";
 
 	CryptoContext<T> newccFromkey = newPub->GetCryptoContext();
-	EXPECT_EQ( *cc, *newccFromkey ) << "Key deser has wrong context";
+	EXPECT_EQ( *cc, *newccFromkey ) << msg << " Key deser has wrong context";
+}
+
+template<typename T>
+void UnitTestContext(CryptoContext<T> cc) {
+	UnitTestContextWithSertype(cc, Serializable::Type::JSON, "json");
+	UnitTestContextWithSertype(cc, Serializable::Type::BINARY, "binary");
 }
 
 TEST_F(UTPKESer, LTV_Poly_Serial) {
@@ -273,192 +180,15 @@ TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-// REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
-TEST_F(UTPKESer, OKeys_and_ciphertext) {
+// USE BGV AS A REPRESENTITIVE CONTEXT
+void Test_keys_and_ciphertext(Serializable::Type sertype)
+{
 	bool dbg_flag = false;
 
-	// generate a context with encoding params
-	usint m = 22;
-	PlaintextModulus p = 2333;
-	BigInteger modulusP(p);
-	BigInteger modulusQ("1267650600228229401496703214121");
-	BigInteger squareRootOfRoot("498618454049802547396506932253");
-	BigInteger bigmodulus("1645504557321206042154969182557350504982735865633579863348616321");
-	BigInteger bigroot("201473555181182026164891698186176997440470643522932663932844212");
-
-	auto cycloPoly = GetCyclotomicPolynomial<BigVector>(m, modulusQ);
-	ChineseRemainderTransformArb<BigVector>::SetCylotomicPolynomial(cycloPoly, modulusQ);
-
-	float stdDev = 4;
-
-	usint batchSize = 8;
-
-	shared_ptr<ILParams> params(new ILParams(m, modulusQ, squareRootOfRoot, bigmodulus, bigroot));
-
-	EncodingParams encodingParams(new EncodingParamsImpl(p, batchSize, PackedEncoding::GetAutomorphismGenerator(m)));
-
-	PackedEncoding::SetParams(m, encodingParams);
-
-	CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 8, stdDev, OPTIMIZED);
-
-	cc->Enable(ENCRYPTION|SHE);
-
-	DEBUG("step 0");
-	{
-		Serialized ser;
-		ser.SetObject();
-		ASSERT_TRUE( cc->Serialize(&ser) ) << "Context serialization failed";
-		CryptoContextFactory<Poly>::ReleaseAllContexts();
-
-		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(ser);
-		EXPECT_EQ( *cc->GetEncodingParams(), *encodingParams ) << "Encoding parms mismatch after ser/deser";
-	}
-
-	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
-
-	LPKeyPair<Poly> kp = cc->KeyGen();
-	LPKeyPair<Poly> kpnew;
-
-	DEBUG("step 1");
-	{
-		Serialized ser;
-
-		ser.SetObject();
-
-		DEBUG("step 1.1");
-		ASSERT_TRUE( kp.publicKey->Serialize(&ser) ) << "Public Key serialization failed";
-
-		DEBUG("step 1.2");
-		ASSERT_TRUE( (kpnew.publicKey = cc->deserializePublicKey(ser)) ) << "Public key deserialization failed";
-		DEBUG("step 1.3");
-		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
-	}
-	DEBUG("step 2");
-	{
-		Serialized ser;
-		ser.SetObject();
-		ASSERT_TRUE( kp.secretKey->Serialize(&ser) ) << "Secret Key serialization failed";
-
-		ASSERT_TRUE( (kpnew.secretKey = cc->deserializeSecretKey(ser)) ) << "Secret key deserialization failed";
-
-		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
-	}
-	DEBUG("step 3");
-	vector<int64_t> vals = { 1,3,5,7,9,2,4,6,8,11 };
-	Plaintext plaintextShort = cc->MakeCoefPackedPlaintext( vals );
-	Ciphertext<Poly> ciphertext = cc->Encrypt(kp.publicKey, plaintextShort);
-
-	Serialized ser;
-	ser.SetObject();
-	ASSERT_TRUE( ciphertext->Serialize(&ser) ) << "Ciphertext serialize failed";
-	DEBUG("step 4");
-	Ciphertext<Poly> newC;
-	ASSERT_TRUE( (newC = cc->deserializeCiphertext(ser)) ) << "Ciphertext deserialization failed";
-
-	EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
-
-	DEBUG("step 5");
-	Plaintext plaintextShortNew;
-	cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
-	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypted deserialize failed";
-
-	DEBUG("step 6");
-	LPKeyPair<Poly> kp2 = cc->KeyGen();
-	LPKeyPair<Poly> kp3 = cc2->KeyGen();
-
-	cc->EvalMultKeyGen(kp.secretKey);
-	cc->EvalMultKeyGen(kp2.secretKey);
-	cc2->EvalMultKeyGen(kp3.secretKey);
-
-	// serialize a bunch of mult keys
-	Serialized ser0;
-	cc->SerializeEvalMultKey(&ser0, kp.secretKey->GetKeyTag());
-	Serialized ser2a;
-	Serialized ser2b;
-	cc->SerializeEvalMultKey(&ser2a, cc);
-	cc->SerializeEvalMultKey(&ser2b, cc2);
-	Serialized ser3;
-	cc->SerializeEvalMultKey(&ser3);
-
-	cc->EvalSumKeyGen(kp.secretKey);
-	cc->EvalSumKeyGen(kp2.secretKey);
-	//cc2->EvalSumKeyGen(kp3.secretKey); // LTV does not support it...
-
-	// serialize a bunch of sum keys
-	Serialized aser0;
-	cc->SerializeEvalSumKey(&aser0, kp.secretKey->GetKeyTag());
-	Serialized aser2a;
-	Serialized aser2b;
-	cc->SerializeEvalSumKey(&aser2a, cc);
-	cc->SerializeEvalSumKey(&aser2b, cc2);
-	Serialized aser3;
-	cc->SerializeEvalSumKey(&aser3);
-
-	// test mult deserialize
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalAutomorphismKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalMultKey(ser0);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-key deser, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalMultKey(ser2a);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalMultKey(ser2b);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalMultKey(ser3);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 3U) << "all-key deser, keys";
-
-	// test sum deserialize
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser0);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 1U) << "one-key deser, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser2a);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "one-ctx deser, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser2b);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 0U) << "one-ctx deser2, keys";
-
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser3);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "all-key deser, keys";
-
-	// FIXME add tests to delete one context worth of keys, or a single key
-
-}
-
-// REMAINDER OF THE TESTS USE BGV AS A REPRESENTITIVE CONTEXT
-TEST_F(UTPKESer, Keys_and_ciphertext) {
-	bool dbg_flag = true;
 
 	// generate a context with encoding params
 	usint m = 22;
@@ -489,41 +219,33 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	DEBUG("step 0");
 	{
 		stringstream s;
-		Serializable::SerializeWithName(cc, "cc", s, Serializable::Type::JSON);
-
-		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
+		Serializable::Serialize(cc, s, sertype);
+		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
-		cc.reset();
-
-		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
-		Serializable::DeserializeWithName(cc, "cc", s, Serializable::Type::JSON);
+		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 0 );
+		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(s, sertype);
 
 		ASSERT_TRUE( cc ) << "Deser failed";
-
-		cout << "There are now " << CryptoContextFactory<Poly>::GetContextCount() << " contexts"<< endl;
-
-		EXPECT_EQ( *cc->GetEncodingParams(), *encodingParams ) << "Encoding parms mismatch after ser/deser";
+		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 	}
 
 	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
-	DEBUG("cc2 done");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
-	DEBUG("kp done");
 	LPKeyPair<Poly> kpnew;
 
 	DEBUG("step 1");
 	{
 		stringstream s;
-		Serializable::SerializeWithName(kp.publicKey, "pk", s, Serializable::Type::JSON);
-		Serializable::DeserializeWithName(kpnew.publicKey, "pk", s, Serializable::Type::JSON);
+		Serializable::Serialize(kp.publicKey, s, sertype);
+		Serializable::Deserialize(kpnew.publicKey, s, sertype);
 		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
 	}
 	DEBUG("step 2");
 	{
 		stringstream s;
-		Serializable::SerializeWithName(kp.secretKey, "pk", s, Serializable::Type::JSON);
-		Serializable::DeserializeWithName(kpnew.secretKey, "pk", s, Serializable::Type::JSON);
+		Serializable::Serialize(kp.secretKey, s, sertype);
+		Serializable::Deserialize(kpnew.secretKey, s, sertype);
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
@@ -535,15 +257,15 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	Ciphertext<Poly> newC;
 	{
 		stringstream s;
-		Serializable::SerializeWithName(ciphertext, "ct", s, Serializable::Type::JSON);
-		Serializable::DeserializeWithName(newC, "ct", s, Serializable::Type::JSON);
+		Serializable::Serialize(ciphertext, s, sertype);
+		Serializable::Deserialize(newC, s, sertype);
 		EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
 	}
 
 	DEBUG("step 5");
 	Plaintext plaintextShortNew;
 	cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
-	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypted deserialize failed";
+	EXPECT_EQ(*plaintextShortNew, *plaintextShort) << "Decrypt of deserialized failed";
 
 	DEBUG("step 6");
 	LPKeyPair<Poly> kp2 = cc->KeyGen();
@@ -552,110 +274,109 @@ TEST_F(UTPKESer, Keys_and_ciphertext) {
 	cc->EvalMultKeyGen(kp.secretKey);
 	cc->EvalMultKeyGen(kp2.secretKey);
 	cc2->EvalMultKeyGen(kp3.secretKey);
-
-	// serialize a bunch of mult keys
-	stringstream ser0;
-	auto k = cc->GetEvalMultKeyVector(kp.secretKey->GetKeyTag());
-	Serializable::SerializeWithName(k[0], "emk", ser0, Serializable::Type::JSON);
-
-	stringstream ser2a;
-	stringstream ser2b;
-	Serializable::SerializeWithName(cc->GetAllEvalMultKeys(), "emk2a", ser2a, Serializable::Type::JSON);
-	Serializable::SerializeWithName(cc2->GetAllEvalMultKeys(), "emk2b", ser2b, Serializable::Type::JSON);
-
-	stringstream ser3;
-	for( auto& lcc : CryptoContextFactory<Poly>::GetAllContexts() ) {
-		Serializable::SerializeWithName(lcc->GetAllEvalMultKeys(), "emk3", ser3, Serializable::Type::JSON);
-	}
-
 	cc->EvalSumKeyGen(kp.secretKey);
 	cc->EvalSumKeyGen(kp2.secretKey);
-	//cc2->EvalSumKeyGen(kp3.secretKey); // LTV does not support it...
 
+	DEBUG("step 7");
+	// serialize a bunch of mult keys
+	stringstream ser0;
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalMultKey(ser0, sertype, kp.secretKey->GetKeyTag()), true ) << "single eval mult key ser fails";
+	stringstream ser2a;
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalMultKey(ser2a, sertype, cc), true ) << "context 1 eval mult key ser fails";
+	stringstream ser2b;
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalMultKey(ser2b, sertype, cc2), true ) << "context 2 eval mult key ser fails";
+	stringstream ser3;
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalMultKey(ser3, sertype), true ) << "all context eval mult key ser fails";
+
+	DEBUG("step 8");
 	// serialize a bunch of sum keys
 	stringstream aser0;
-	auto sk = cc->GetEvalSumKeyMap(kp.secretKey->GetKeyTag());
-	Serializable::SerializeWithName(sk, "esk", aser0, Serializable::Type::JSON);
-
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalSumKey(aser0, sertype, kp.secretKey->GetKeyTag()), true ) << "single eval sum key ser fails";
 	stringstream aser2a;
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalSumKey(aser2a, sertype, cc), true ) << "single ctx eval sum key ser fails";
 	stringstream aser2b;
-	Serializable::SerializeWithName(cc->GetAllEvalSumKeys(), "esk2a", aser2a, Serializable::Type::JSON);
-	Serializable::SerializeWithName(cc2->GetAllEvalSumKeys(), "esk2b", aser2b, Serializable::Type::JSON);
-
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalSumKey(aser2b, sertype, cc2), false ) << "single ctx eval sum key ser fails";
 	stringstream aser3;
-	for( auto& lcc : CryptoContextFactory<Poly>::GetAllContexts() ) {
-		Serializable::SerializeWithName(lcc->GetAllEvalSumKeys(), "esk3", aser3, Serializable::Type::JSON);
-	}
+	EXPECT_EQ( CryptoContextImpl<Poly>::SerializeEvalSumKey(aser3, sertype), true ) << "all eval sum key ser fails";
+
+	DEBUG("step 9");
+	cc.reset();
+	cc2.reset();
 
 	// test mult deserialize
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 0) << "after release" << endl;
 
 	vector<LPEvalKey<Poly>> evalMultKeys;
-	Serializable::DeserializeWithName(evalMultKeys, "emk", ser0, Serializable::Type::JSON);
+	CryptoContextImpl<Poly>::DeserializeEvalMultKey(ser0, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-key deser, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalMultKeys().size(), 1U) << "one-key deser, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 
-	map<string,vector<LPEvalKey<Poly>>> emk2a;
-	Serializable::DeserializeWithName(emk2a, "emk2a", ser2a, Serializable::Type::JSON);
+	CryptoContextImpl<Poly>::DeserializeEvalMultKey(ser2a, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalMultKeys().size(), 2U) << "one-ctx deser, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 
-	map<string,vector<LPEvalKey<Poly>>> emk2b;
-	Serializable::DeserializeWithName(emk2b, "emk2b", ser2b, Serializable::Type::JSON);
+	CryptoContextImpl<Poly>::DeserializeEvalMultKey(ser2b, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalMultKeys().size(), 1U) << "one-ctx deser2, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
 
-#ifdef OUT
-	// FIXME
-	cc->DeserializeEvalMultKey(ser3);
+	CryptoContextImpl<Poly>::DeserializeEvalMultKey(ser3, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalMultKeys().size(), 3U) << "all-key deser, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalMultKeys().size(), 3U) << "all-key deser, keys";
 
+	DEBUG("step 10");
 	// test sum deserialize
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	map<usint,LPEvalKey<Poly> as0;
-	Serializable::DeserializeWithName(as0, "esk", aser0, Serializable::Type::JSON);
+
+	CryptoContextImpl<Poly>::DeserializeEvalSumKey(aser0, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 1U) << "one-key deser, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalSumKeys().size(), 1U) << "one-key deser, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser2a);
+
+	CryptoContextImpl<Poly>::DeserializeEvalSumKey(aser2a, sertype);
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "one-ctx deser, keys";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalSumKeys().size(), 2U) << "one-ctx deser, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
 	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser2b);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "one-ctx deser2, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 0U) << "one-ctx deser2, keys";
 
-	cc->ClearEvalMultKeys();
-	cc->ClearEvalSumKeys();
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	cc->DeserializeEvalSumKey(aser3);
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 2) << "all-key deser, context";
-	EXPECT_EQ(cc->GetAllEvalSumKeys().size(), 2U) << "all-key deser, keys";
+	CryptoContextImpl<Poly>::DeserializeEvalSumKey(aser3, sertype);
+	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "all-key deser, context";
+	EXPECT_EQ(CryptoContextImpl<Poly>::GetAllEvalSumKeys().size(), 2U) << "all-key deser, keys";
 
 	// FIXME add tests to delete one context worth of keys, or a single key
-#endif
 
+	// ending cleanup
+	CryptoContextImpl<Poly>::ClearEvalMultKeys();
+	CryptoContextImpl<Poly>::ClearEvalSumKeys();
+	CryptoContextFactory<Poly>::ReleaseAllContexts();
+}
+
+TEST_F(UTPKESer, Keys_and_ciphertext_json) {
+	Test_keys_and_ciphertext(Serializable::Type::JSON);
+}
+
+TEST_F(UTPKESer, Keys_and_ciphertext_binary) {
+	Test_keys_and_ciphertext(Serializable::Type::BINARY);
 }

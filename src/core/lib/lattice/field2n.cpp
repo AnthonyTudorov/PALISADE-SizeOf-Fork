@@ -327,3 +327,5 @@ void Field2n::SwitchFormat()
 	}
 }
 }
+
+CEREAL_CLASS_VERSION( lbcrypto::Field2n, lbcrypto::Field2n::SerializedVersion() );

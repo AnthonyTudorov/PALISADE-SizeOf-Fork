@@ -74,12 +74,13 @@ template class Matrix<NativeInteger>;
 ONES_FOR_TYPE(NativeInteger)
 IDENTITY_FOR_TYPE(NativeInteger)
 GADGET_FOR_TYPE(NativeInteger)
-MATRIX_NOT_SERIALIZABLE(NativeInteger)
 
 template class Matrix<NativeVector>;
 ONES_FOR_TYPE(NativeVector)
 IDENTITY_FOR_TYPE(NativeVector)
 GADGET_FOR_TYPE(NativeVector)
-MATRIX_NOT_SERIALIZABLE(NativeVector)
 
 }
+
+CEREAL_CLASS_VERSION( NativeInteger, NativeInteger::SerializedVersion() );
+CEREAL_CLASS_VERSION( NativeVector, NativeVector::SerializedVersion() );

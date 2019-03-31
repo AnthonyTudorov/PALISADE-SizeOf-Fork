@@ -381,6 +381,19 @@ public:
 		ConstCiphertext<Element> ciphertext,
 		const LPPublicKey<Element> publicKey = nullptr) const;
 	
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVPRE"; }
 };
 
 	/**
@@ -466,6 +479,20 @@ public:
 		std::string errMsg = "LPAlgorithmPREBGV::MultipartyDecrypt is not implemented for the BGV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVMultiparty"; }
 };
 
 /**
@@ -708,6 +735,19 @@ public:
 	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const;
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVSHE"; }
 };
 
 /**
@@ -788,10 +828,24 @@ public:
 	* @return True if the security threshold is satisfied in the new ring dimension.
 	*/
 	bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const;
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVLeveledSHE"; }
 };
 
 /**
-* @brief This is the algorithms class for to enable deatures for an LTV encryption scheme, notably public key encryption, proxy re-encryption, somewhat homomorphic encryption and/or fully homomorphic encryption. 
+* @brief This is the algorithms class for to enable features for an LTV encryption scheme, notably public key encryption, proxy re-encryption, somewhat homomorphic encryption and/or fully homomorphic encryption.
  *
  * There have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
  *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
@@ -844,7 +898,5 @@ public:
 };
 
 }
-
-CEREAL_FORCE_DYNAMIC_INIT( PALISADEpke )
 
 #endif

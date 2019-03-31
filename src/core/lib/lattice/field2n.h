@@ -300,39 +300,25 @@ public:
 		return a.Times(b);
 	}
 
-	/**
-	 * @brief Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const {
-		return false;
-	}
-
 	template <class Archive>
-	void save ( Archive & ar ) const
+	void save ( Archive & ar, std::uint32_t const version ) const
 	{
 	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
 	    ar( cereal::make_nvp("f",format) );
 	}
 
 	template <class Archive>
-	void load ( Archive & ar )
+	void load ( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
 	    ar( cereal::make_nvp("f",format) );
 	}
 
 	std::string SerializedObjectName() const { return "Field2n"; }
-
-	/**
-	 * @brief Populate the object from the deserialization of the Serialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		return false;
-	}
+	static uint32_t	SerializedVersion() { return 1; }
 
 private:
 	//Format of the field element

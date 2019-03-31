@@ -76,22 +76,20 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	cout << "===== " << nam << " =====" << endl;
 
 	cout << "JSON serialization: " << endl;
-	{
 		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::JSON);
-	}
+		Serializable::Serialize(obj, s, Serializable::JSON);
 	cout << "   bytes: " << s.tellp() << endl;
 
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::JSON);
+		Serializable::Serialize(obj, s, Serializable::JSON);
 	}
 	cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		newobj.reset( new T() );
-		DESERIALIZEWITHNAME(*newobj, nam, s, Serializable::JSON);
+		Serializable::Deserialize(newobj, s, Serializable::JSON);
 		s.clear();
 		s.seekg(0, std::ios::beg);
 	}
@@ -101,19 +99,19 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	cout << "BINARY serialization: " << endl;
 	{
 		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::BINARY);
+		Serializable::Serialize(obj, s, Serializable::BINARY);
 	}
 	cout << "   bytes: " << s.tellp() << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		s.str("");
-		SERIALIZEWITHNAME(*obj, nam, s, Serializable::BINARY);
+		Serializable::Serialize(obj, s, Serializable::BINARY);
 	}
 	cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		newobj.reset( new T() );
-		DESERIALIZEWITHNAME(*newobj, nam, s, Serializable::BINARY);
+		Serializable::Deserialize(newobj, s, Serializable::BINARY);
 		s.clear();
 		s.seekg(0, std::ios::beg);
 	}
@@ -139,14 +137,14 @@ main()
 			stringstream s;
 
 			NativeVector re;
-			SERIALIZEWITHNAME(nv, "xx", s, Serializable::Type::JSON);
-			DESERIALIZEWITHNAME(re, "xx", s, Serializable::Type::JSON);
+			Serializable::Serialize(nv, s, Serializable::Type::JSON);
+			Serializable::Deserialize(re, s, Serializable::Type::JSON);
 			cout << "json " << Serializable::SerializeToString(re) << endl;
 
 			s.str("");
 			NativeVector re2;
-			SERIALIZEWITHNAME(nv, "xx", s, Serializable::Type::BINARY);
-			DESERIALIZEWITHNAME(re2, "xx", s, Serializable::Type::BINARY);
+			Serializable::Serialize(nv, s, Serializable::Type::BINARY);
+			Serializable::Deserialize(re2, s, Serializable::Type::BINARY);
 			cout << "binary " << Serializable::SerializeToString(re2) << endl;
 		}
 
@@ -155,14 +153,14 @@ main()
 			stringstream s;
 
 			BigVector re;
-			SERIALIZEWITHNAME(bv, "xx", s, Serializable::Type::JSON);
-			DESERIALIZEWITHNAME(re, "xx", s, Serializable::Type::JSON);
+			Serializable::Serialize(bv, s, Serializable::Type::JSON);
+			Serializable::Deserialize(re, s, Serializable::Type::JSON);
 			cout << "json " << Serializable::SerializeToString(re) << endl;
 
 			s.str("");
 			BigVector re2;
-			SERIALIZEWITHNAME(bv, "xx", s, Serializable::Type::BINARY);
-			DESERIALIZEWITHNAME(re2, "xx", s, Serializable::Type::BINARY);
+			Serializable::Serialize(bv, s, Serializable::Type::BINARY);
+			Serializable::Deserialize(re2, s, Serializable::Type::BINARY);
 			cout << "binary " << Serializable::SerializeToString(re2) << endl;
 		}
 

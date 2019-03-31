@@ -271,7 +271,7 @@ class CiphertextImpl;
 		}
 
 		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version  ) const
+		void save( Archive & ar, std::uint32_t const version ) const
 		{
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 			ar( cereal::make_nvp("v", m_elements) );
@@ -280,8 +280,11 @@ class CiphertextImpl;
 		}
 
 		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version  )
+		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + to_string(version) + " is from a later version of the library");
+			}
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 			ar( cereal::make_nvp("v", m_elements) );
 			ar( cereal::make_nvp("d", m_depth) );
@@ -289,6 +292,7 @@ class CiphertextImpl;
 		}
 
 		std::string SerializedObjectName() const { return "Ciphertext"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 
@@ -398,9 +402,5 @@ class CiphertextImpl;
 	}
 
 } // namespace lbcrypto ends
-
-//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::Poly>, 1 );
-//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::NativePoly>, 1 );
-//CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>, 1 );
 
 #endif

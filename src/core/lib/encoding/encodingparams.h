@@ -268,7 +268,7 @@ private:
 
 public:
 	template <class Archive>
-	void serialize( Archive & ar )
+	void save( Archive & ar, std::uint32_t const version ) const
 	{
 		ar( cereal::make_nvp("m", m_plaintextModulus) );
 		ar( cereal::make_nvp("ru", m_plaintextRootOfUnity) );
@@ -278,21 +278,22 @@ public:
 		ar( cereal::make_nvp("bs", m_batchSize) );
 	}
 
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("m", m_plaintextModulus) );
+		ar( cereal::make_nvp("ru", m_plaintextRootOfUnity) );
+		ar( cereal::make_nvp("bm", m_plaintextBigModulus) );
+		ar( cereal::make_nvp("bru", m_plaintextBigRootOfUnity) );
+		ar( cereal::make_nvp("g", m_plaintextGenerator) );
+		ar( cereal::make_nvp("bs", m_batchSize) );
+	}
+
 	std::string SerializedObjectName() const { return "EncodingParms"; }
-
-	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj);
+	static uint32_t	SerializedVersion() { return 1; }
 };
 
 inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<EncodingParamsImpl> o) {

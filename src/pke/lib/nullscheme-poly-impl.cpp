@@ -118,3 +118,15 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersNull<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmNull<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmNull<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHENull<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHENull<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::NativePoly>);

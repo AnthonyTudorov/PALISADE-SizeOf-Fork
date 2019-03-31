@@ -338,6 +338,20 @@ public:
 
 		return kp;
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStEncryption"; }
 };
 
 template <class Element>
@@ -417,6 +431,19 @@ public:
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStSHE"; }
 };
 
 /**
@@ -464,13 +491,13 @@ public:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmStSt<Element>() );
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+				this->m_algorithmPRE.reset( new LPAlgorithmPRELTV<Element>() );
 			break;
 		case SHE:
 			if (this->m_algorithmEncryption == NULL)
 				this->m_algorithmEncryption.reset( new LPAlgorithmStSt<Element>() );
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEStSt<Element>();
+				this->m_algorithmSHE.reset( new LPAlgorithmSHEStSt<Element>() );
 			break;
 		case MULTIPARTY:
 			throw std::logic_error("MULTIPARTY feature not supported for StehleSteinfeld scheme");

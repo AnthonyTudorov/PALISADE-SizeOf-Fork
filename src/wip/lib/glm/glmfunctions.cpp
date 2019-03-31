@@ -1205,32 +1205,35 @@ Matrix<Ciphertext<DCRTPoly>> DeserializeCiphertext(CryptoContext<DCRTPoly> &cc, 
 }
 
 void DeserializeEvalMult(CryptoContext<DCRTPoly> &cc, const string& emFileName){
-
 	// Deserialize the eval mult key
-	Serialized emSer;
-	if(SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
+	std::ifstream emkeys(emFileName, std::ios::in|std::ios::binary);
+	if( !emkeys.is_open() ) {
 		cerr << "Could not read multiplication evaluation key" << endl;
 		return;
 	}
 
-	if(!cc->DeserializeEvalMultKey(emSer)) {
-		cerr << "Could not deserialize multiplication evaluation key" << endl;
+	if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+		cerr << "Could not deserialize the eval mult key file" << endl;
 		return;
 	}
+
+	emkeys.close();
 }
 
 void DeserializeEvalSum(CryptoContext<DCRTPoly> &cc, const string& esFileName){
 	// Deserialize the eval sum keys
-	Serialized esSer;
-	if(SerializableHelper::ReadSerializationFromFile(esFileName, &esSer) == false) {
+	std::ifstream eskeys(esFileName, std::ios::in|std::ios::binary);
+	if( !eskeys.is_open() ) {
 		cerr << "Could not read the sum evaluation key " << endl;
 		return;
 	}
 
-	if(!cc->DeserializeEvalSumKey(esSer)) {
-		cerr << "Could not deserialize summation evaluation key" << endl;
+	if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+		cerr << "Could not deserialize the eval sum key file" << endl;
 		return;
 	}
+
+	eskeys.close();
 }
 
 void SerializeContext(CryptoContext<DCRTPoly> &cc, const string &xFileName){
@@ -1300,23 +1303,21 @@ void SerializeCiphertext(Matrix<Ciphertext<DCRTPoly>> &C, const string &xFileNam
 	}
 }
 
-
-
 void SerializeMultEvalKey(CryptoContext<DCRTPoly> &cc, const vector<LPEvalKey<DCRTPoly>> &evalMultKey, const string &xFileName){
 
 	if(evalMultKey[0]) {
-		Serialized evalKey;
-
-		if(cc->SerializeEvalMultKey(&evalKey)) {
-		if(!SerializableHelper::WriteSerializationToFile(evalKey, xFileName)) {
-			cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult" + xFileName << endl;
+		ofstream emkeyfile(xFileName, std::ios::out|std::ios::binary);
+		if( emkeyfile.is_open() ) {
+			if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
+				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult" + xFileName << endl;
+				return;
+			}
+			emkeyfile.close();
+		}
+		else {
+			cerr << "Error serializing multiplication evaluation key" << endl;
 			return;
 		}
-		} else {
-		cerr << "Error serializing multiplication evaluation key" << endl;
-		return;
-		}
-
 	} else {
 		cerr << "Failure in generating multiplication evaluation key" << endl;
 	}
@@ -1325,13 +1326,13 @@ void SerializeMultEvalKey(CryptoContext<DCRTPoly> &cc, const vector<LPEvalKey<DC
 void SerializeSumEvalKey(CryptoContext<DCRTPoly> &cc, const std::map<usint, LPEvalKey<DCRTPoly>>& evalSumKey, const string &xFileName){
 
 	if(evalSumKey.begin()->second) {
-		Serialized evalKey;
-
-		if(cc->SerializeEvalSumKey(&evalKey)) {
-			if(!SerializableHelper::WriteSerializationToFile(evalKey, xFileName)) {
+		ofstream eskeyfile(xFileName, std::ios::out|std::ios::binary);
+		if( eskeyfile.is_open() ) {
+			if( cc->SerializeEvalSumKey(eskeyfile, Serializable::Type::BINARY) == false ) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-sum" + xFileName << endl;
 				return;
 			}
+			eskeyfile.close();
 		}
 		else {
 			cerr << "Error serializing summation evaluation key" << endl;
@@ -1340,7 +1341,6 @@ void SerializeSumEvalKey(CryptoContext<DCRTPoly> &cc, const std::map<usint, LPEv
 	} else {
 		cerr << "Failure in generating summation evaluation key" << endl;
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////

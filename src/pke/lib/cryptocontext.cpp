@@ -126,8 +126,8 @@ void CryptoContextImpl<Element>::InsertEvalMultKey(const std::vector<LPEvalKey<E
 
 template <typename Element>
 void CryptoContextImpl<Element>::EvalSumKeyGen(
-	const LPPrivateKey<Element> privateKey,
-	const LPPublicKey<Element> publicKey) {
+		const LPPrivateKey<Element> privateKey,
+		const LPPublicKey<Element> publicKey) {
 
 	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
 		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
@@ -200,7 +200,7 @@ void CryptoContextImpl<Element>::InsertEvalSumKey(const shared_ptr<std::map<usin
 
 template <typename Element>
 void CryptoContextImpl<Element>::EvalAtIndexKeyGen(const LPPrivateKey<Element> privateKey,
-				const std::vector<int32_t> &indexList, const LPPublicKey<Element> publicKey) {
+		const std::vector<int32_t> &indexList, const LPPublicKey<Element> publicKey) {
 
 	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
 		throw std::logic_error("Private key passed to EvalAtIndexKeyGen were not generated with this crypto context");
@@ -272,44 +272,26 @@ void CryptoContextImpl<Element>::InsertEvalAutomorphismKey(const shared_ptr<std:
 	evalAutomorphismKeyMap[ onekey->second->GetKeyTag() ] = mapToInsert;
 }
 
-
-/**
- * SerializeEvalMultKey for all EvalMult keys
- * method will serialize each CryptoContext only once
- */
-template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj) {
-	serObj->SetObject();
-	serObj->AddMember("Object", "EvalMultKeys", serObj->GetAllocator());
-	serObj->AddMember("Count", std::to_string(CryptoContextFactory<Element>::GetContextCount()), serObj->GetAllocator());
-
-	int sCount = 0;
-
-	for( auto& cc : CryptoContextFactory<Element>::GetAllContexts() ) {
-		Serialized cSer(rapidjson::kObjectType, &serObj->GetAllocator());
-		if( CryptoContextImpl<Element>::SerializeEvalMultKey(&cSer, cc) ) {
-			serObj->AddMember(SerialItem(std::to_string(sCount), serObj->GetAllocator()), cSer.Move(), serObj->GetAllocator());
-		}
-		++sCount;
-	}
-	return true;
-}
-
 /**
  * SerializeEvalMultKey for a single EvalMult key
- * method will serialize entire key AND cryptocontext
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj, const string& id) {
-	auto k = evalMultKeyMap.find(id);
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, const string id) {
+	decltype(evalMultKeyMap)	*smap;
+	decltype(evalMultKeyMap)	omap;
 
-	if( k == evalMultKeyMap.end() )
-		return false; // no such id
+	if( id.length() == 0 )
+		smap = &evalMultKeyMap;
+	else {
+		auto k = evalMultKeyMap.find(id);
 
-	serObj->SetObject();
-	k->second[0]->GetCryptoContext()->Serialize(serObj);
-	serObj->AddMember("Object", "EvalMultKey", serObj->GetAllocator());
-	SerializeVectorOfPointers<LPEvalKeyImpl<Element>>("EvalMultKeys", "LPEvalKey", k->second, serObj);
+		if( k == evalMultKeyMap.end() )
+			return false; // no such id
+
+		smap = &omap;
+		omap[ k->first ] = k->second;
+	}
+	Serializable::Serialize(*smap, ser, sertype);
 	return true;
 }
 
@@ -318,134 +300,35 @@ bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj, const 
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalMultKey(Serialized* serObj, const CryptoContext<Element> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc) {
 
-	serObj->SetObject();
-	cc->Serialize(serObj);
-	serObj->AddMember("Object", "EvalMultKeyOneContext", serObj->GetAllocator());
+	decltype(evalMultKeyMap) omap;
 	for( const auto& k : evalMultKeyMap ) {
 		if( k.second[0]->GetCryptoContext() == cc ) {
-			SerializeVectorOfPointers<LPEvalKeyImpl<Element>>("EvalMultKeys", "LPEvalKey", k.second, serObj);
+			omap[k.first] = k.second;
 		}
 	}
+
+	if( omap.size() == 0 )
+		return false;
+
+	Serializable::Serialize(omap, ser, sertype);
 	return true;
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::DeserializeEvalMultKey(const Serialized& ser) {
-	Serialized serObj;
-	serObj.CopyFrom(ser, serObj.GetAllocator()); // copy, because we will destroy it
+bool CryptoContextImpl<Element>::DeserializeEvalMultKey(std::istream& ser, Serializable::Type sertype) {
 
-	Serialized::MemberIterator cIter = serObj.FindMember("Object");
-	if( cIter == serObj.MemberEnd() )
-		return false;
+	decltype(evalMultKeyMap) evalMultKeys;
 
-	// something different for EvalMultKey, EvalMultKeyOneContext, and EvalMultKeys
+	Serializable::Deserialize(evalMultKeys, ser, sertype);
 
-	// figure out how many key sets there are
-	int cCount = 1;
-	bool singleton = true;
-	if( cIter->value.GetString() == string("EvalMultKeys") ) {
-		Serialized::ConstMemberIterator cntIter = serObj.FindMember("Count");
-		if( cntIter == serObj.MemberEnd() )
-			return false;
+	// The deserialize call created any contexts that needed to be created.... so all we need to do
+	// is put the keys into the maps for their context
 
-		cCount = std::stoi(cntIter->value.GetString());
-		singleton = false;
-	}
+	for( auto k : evalMultKeys ) {
 
-	if( singleton &&
-			cIter->value.GetString() != string("EvalMultKey") &&
-					cIter->value.GetString() != string("EvalMultKeyOneContext") ) {
-		throw std::logic_error("DeserializeEvalMultKey passed an unknown object type " + string(cIter->value.GetString()));
-	}
-
-	for( int keysets = 0; keysets < cCount; keysets++ ) {
-
-		// get the crypto context for this keyset
-		CryptoContext<Element> cc;
-		Serialized *serPtr;
-		Serialized oneSer;
-		if( singleton ) {
-			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(serObj);
-			serPtr = &serObj;
-		}
-		else {
-			Serialized::MemberIterator ksIter = serObj.FindMember(std::to_string(keysets));
-			if( ksIter == serObj.MemberEnd() )
-				return false;
-
-			oneSer.SetObject();
-			for( Serialized::MemberIterator i = ksIter->value.MemberBegin(); i != ksIter->value.MemberEnd(); i++ ) {
-				oneSer.AddMember( SerialItem(i->name,serObj.GetAllocator()),
-						SerialItem(i->value,serObj.GetAllocator()),
-						serObj.GetAllocator() );
-			}
-
-			serPtr = &oneSer;
-			cc = CryptoContextFactory<Element>::DeserializeAndCreateContext(oneSer);
-		}
-
-		//Serialized::MemberIterator kIter;
-
-		// now, find and deserialize all keys
-		for( auto kIter = serPtr->MemberBegin(); kIter != serPtr->MemberEnd(); ) {
-			if( kIter->name.GetString() != string("EvalMultKeys") ) {
-				kIter = serPtr->RemoveMember(kIter);
-				continue;
-			}
-
-			// sadly we cannot DeserializeVectorOfPointers because of polymorphism in the pointer type...
-			vector<LPEvalKey<Element>> evalMultKeys;
-			evalMultKeys.clear();
-
-			Serialized kser;
-			kser.SetObject();
-			kser.AddMember(SerialItem(kIter->name, kser.GetAllocator()), SerialItem(kIter->value, kser.GetAllocator()), kser.GetAllocator());
-
-			Serialized ktemp;
-			ktemp.SetObject();
-			auto keyValue = SerialItem(kIter->value, ktemp.GetAllocator());
-
-			Serialized::ConstMemberIterator t = keyValue.FindMember("Length");
-			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find number of eval mult keys in serialization");
-			usint nKeys = std::stoi(t->value.GetString());
-
-			t = keyValue.FindMember("Typename");
-			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find eval mult key type in serialization");
-			string ty = t->value.GetString();
-
-			t = keyValue.FindMember("Members");
-			if( t == keyValue.MemberEnd() )
-				throw std::logic_error("Unable to find eval mult keys in serialization");
-			const SerialItem& members = t->value;
-
-			for( size_t k = 0; k < nKeys; k++ ) {
-				LPEvalKey<Element> kp;
-
-				Serialized::ConstMemberIterator eIt = members.FindMember( std::to_string(k) );
-				if( eIt == members.MemberEnd() )
-					throw std::logic_error("Unable to find eval mult key #" + std::to_string(k) + " in serialization");
-
-				auto keyMember = SerialItem(eIt->value, ktemp.GetAllocator());
-				Serialized kser(rapidjson::kObjectType);
-
-				Serialized::ConstMemberIterator t = keyMember.MemberBegin();
-				while( t != keyMember.MemberEnd() ) {
-					kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
-					t++;
-				}
-
-				kp = CryptoContextImpl<Element>::deserializeEvalKeyInContext(kser,cc);
-				evalMultKeys.push_back(kp);
-			}
-
-			kIter = serPtr->EraseMember(kIter);
-
-			evalMultKeyMap[evalMultKeys[0]->GetKeyTag()] = evalMultKeys;
-		}
+		evalMultKeyMap[ k.first ] = k.second;
 	}
 
 	return true;
@@ -470,6 +353,28 @@ bool CryptoContextImpl<Element>::SerializeEvalSumKey(Serialized* serObj) {
 		}
 		++sCount;
 	}
+	return true;
+}
+
+/**
+ * SerializeEvalSumKey for all EvalSum keys
+ */
+template <typename Element>
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, string id) {
+	decltype(evalSumKeyMap)*	smap;
+	decltype(evalSumKeyMap)		omap;
+	if( id.length() == 0 )
+		smap = &evalSumKeyMap;
+	else {
+		auto k = evalSumKeyMap.find(id);
+
+		if( k == evalSumKeyMap.end() )
+			return false; // no such id
+
+		smap = &omap;
+		omap[ k->first ] = k->second;
+	}
+	Serializable::Serialize(*smap, ser, sertype);
 	return true;
 }
 
@@ -509,6 +414,27 @@ bool CryptoContextImpl<Element>::SerializeEvalSumKey(Serialized* serObj, const C
 	return true;
 }
 
+/**
+ * SerializeEvalSumKey for all EvalSumKeys made in a given context
+ * method will serialize the context only once
+ */
+template <typename Element>
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc) {
+
+	decltype(evalSumKeyMap) omap;
+	for( const auto& k : evalSumKeyMap ) {
+		if( k.second->begin()->second->GetCryptoContext() == cc ) {
+			omap[k.first] = k.second;
+		}
+	}
+
+	if( omap.size() == 0 )
+		return false;
+
+	Serializable::Serialize(omap, ser, sertype);
+	return true;
+}
+
 template <typename Element>
 bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 	Serialized serObj;
@@ -534,7 +460,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 
 	if( singleton &&
 			cIter->value.GetString() != string("EvalSumKey") &&
-					cIter->value.GetString() != string("EvalSumKeyOneContext") ) {
+			cIter->value.GetString() != string("EvalSumKeyOneContext") ) {
 		throw std::logic_error("DeserializeEvalMultKey passed an unknown object type " + string(cIter->value.GetString()));
 	}
 
@@ -589,19 +515,19 @@ bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 				throw std::logic_error("Unable to find eval sum keys in serialization");
 			const SerialItem& members = t->value;
 
-            for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
+			for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
 
 				LPEvalKey<Element> kp;
 
-                usint k = std::stoi( mI->name.GetString() );
+				usint k = std::stoi( mI->name.GetString() );
 
-                Serialized kser(rapidjson::kObjectType);
-                auto keyMember = SerialItem(mI->value, kser.GetAllocator());
+				Serialized kser(rapidjson::kObjectType);
+				auto keyMember = SerialItem(mI->value, kser.GetAllocator());
 
-                Serialized::ConstMemberIterator t = keyMember.MemberBegin();
+				Serialized::ConstMemberIterator t = keyMember.MemberBegin();
 				while( t != keyMember.MemberEnd() ) {
-                    kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
-                    t++;
+					kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
+					t++;
 				}
 
 				kp = cc->deserializeEvalKeyInContext(kser,cc);
@@ -621,6 +547,24 @@ bool CryptoContextImpl<Element>::DeserializeEvalSumKey(const Serialized& ser) {
 	return true;
 }
 
+template <typename Element>
+bool CryptoContextImpl<Element>::DeserializeEvalSumKey(std::istream& ser, Serializable::Type sertype) {
+
+	decltype(evalSumKeyMap) evalSumKeys;
+
+	Serializable::Deserialize(evalSumKeys, ser, sertype);
+
+	// The deserialize call created any contexts that needed to be created.... so all we need to do
+	// is put the keys into the maps for their context
+
+	for( auto k : evalSumKeys ) {
+		//		CryptoContextImpl<Element>::InsertEvalMultKey(evalMultKeys);
+
+		evalSumKeyMap[ k.first ] = k.second;
+	}
+
+	return true;
+}
 
 template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(ConstCiphertext<Element> ciphertext, usint batchSize) const {
@@ -721,7 +665,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(const Serialized
 
 	if( singleton &&
 			cIter->value.GetString() != string("EvalAutomorphismKey") &&
-					cIter->value.GetString() != string("EvalAutomorphismKeyOneContext") ) {
+			cIter->value.GetString() != string("EvalAutomorphismKeyOneContext") ) {
 		throw std::logic_error("DeserializeEvalMultKey passed an unknown object type " + string(cIter->value.GetString()));
 	}
 
@@ -776,19 +720,19 @@ bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(const Serialized
 				throw std::logic_error("Unable to find eval automorphism keys in serialization");
 			const SerialItem& members = t->value;
 
-            for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
+			for( Serialized::ConstMemberIterator mI = members.MemberBegin(); mI != members.MemberEnd(); mI++ ) {
 
 				LPEvalKey<Element> kp;
 
-                usint k = std::stoi( mI->name.GetString() );
+				usint k = std::stoi( mI->name.GetString() );
 
-                Serialized kser(rapidjson::kObjectType);
-                auto keyMember = SerialItem(mI->value, kser.GetAllocator());
+				Serialized kser(rapidjson::kObjectType);
+				auto keyMember = SerialItem(mI->value, kser.GetAllocator());
 
-                Serialized::ConstMemberIterator t = keyMember.MemberBegin();
+				Serialized::ConstMemberIterator t = keyMember.MemberBegin();
 				while( t != keyMember.MemberEnd() ) {
-                    kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
-                    t++;
+					kser.AddMember(SerialItem(t->name, kser.GetAllocator()), SerialItem(t->value, kser.GetAllocator()), kser.GetAllocator());
+					t++;
 				}
 
 				kp = cc->deserializeEvalKeyInContext(kser,cc);
@@ -900,7 +844,7 @@ template <typename Element>
 shared_ptr<Matrix<RationalCiphertext<Element>>>
 CryptoContextImpl<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<RationalCiphertext<Element>>> x,
 		const shared_ptr<Matrix<RationalCiphertext<Element>>> y, usint batchSize) const
-{
+		{
 	//need to add exception handling
 
 	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap((*x)(0,0).GetNumerator()->GetKeyTag());
@@ -913,7 +857,7 @@ CryptoContextImpl<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<Ration
 		timeSamples->push_back( TimingInfo(OpEvalLinRegressionBatched, currentDateTime() - start) );
 	}
 	return rv;
-}
+		}
 
 template <typename Element>
 bool
@@ -1079,11 +1023,10 @@ CryptoContextFactory<Element>::GetContextForPointer(
 }
 
 /**
-* Create a PALISADE CryptoContext from a serialization
-* @param serObj - the serialization
-* @param noKeys - if true, do not deserialize the keys
-* @return new context
-*/
+ * Create a PALISADE CryptoContext from a serialization
+ * @param serObj - the serialization
+ * @return new context
+ */
 template <typename Element>
 CryptoContext<Element>
 CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& serObj) {
@@ -1146,6 +1089,28 @@ CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& ser
 	return cc;
 }
 
+/**
+ * Create a PALISADE CryptoContext from a serialization
+ * @param serObj - the serialization
+ * @param noKeys - if true, do not deserialize the keys
+ * @return new context
+ */
+template <typename Element>
+CryptoContext<Element>
+CryptoContextFactory<Element>::DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType) {
+
+	CryptoContext<Element> newcc;
+
+	//	try {
+	Serializable::Deserialize(newcc, ser, serType);
+	//	}
+	//	catch( exception& e ) {
+	//		return 0;
+	//	}
+
+	return CryptoContextFactory<Element>::GetContext(newcc->GetCryptoParameters(), newcc->GetEncryptionAlgorithm());
+}
+
 template <typename T>
 const vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() { return AllContexts; }
 
@@ -1156,7 +1121,7 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
-{
+		{
 	shared_ptr<LPCryptoParametersLTV<T>> params( new LPCryptoParametersLTV<T>(
 			ep,
 			plaintextmodulus,
@@ -1169,27 +1134,27 @@ CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(shared_ptr<typename T::Params> ep,
-	EncodingParams encodingParams,
-	usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
-{
+		EncodingParams encodingParams,
+		usint relinWindow, float stDev, int depth, int assuranceMeasure, float securityLevel)
+		{
 	shared_ptr<LPCryptoParametersLTV<T>> params(new LPCryptoParametersLTV<T>(
-		ep,
-		encodingParams,
-		stDev,
-		assuranceMeasure,
-		securityLevel,
-		relinWindow,
-		depth));
+			ep,
+			encodingParams,
+			stDev,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 
 template <typename T>
@@ -1197,7 +1162,7 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
 		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
-{
+		{
 	int nonZeroCount = 0;
 
 	if( numAdds > 0 ) nonZeroCount++;
@@ -1225,14 +1190,14 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextLTV(
-	EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
-{
+		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1248,13 +1213,13 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 
 	shared_ptr<LPCryptoParametersLTV<T>> params(
 			new LPCryptoParametersLTV<T>(
-				ep,
-				encodingParams,
-				dist,
-				9.0,
-				securityLevel,
-				relinWindow,
-				depth));
+					ep,
+					encodingParams,
+					dist,
+					9.0,
+					securityLevel,
+					relinWindow,
+					depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeLTV<T>());
 
@@ -1262,7 +1227,7 @@ CryptoContextFactory<T>::genCryptoContextLTV(
 		return 0;
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
@@ -1271,7 +1236,7 @@ CryptoContextFactory<T>::genCryptoContextBFV(shared_ptr<typename T::Params> ep,
 		usint relinWindow, float stDev, const std::string& delta,
 		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
 		const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
-{
+		{
 	shared_ptr<LPCryptoParametersBFV<T>> params(
 			new LPCryptoParametersBFV<T>(ep,
 					plaintextmodulus,
@@ -1291,57 +1256,57 @@ CryptoContextFactory<T>::genCryptoContextBFV(shared_ptr<typename T::Params> ep,
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBFV<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFV(shared_ptr<typename T::Params> ep,
-	EncodingParams encodingParams,
-	usint relinWindow, float stDev, const std::string& delta,
-	MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
-	const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
-{
+		EncodingParams encodingParams,
+		usint relinWindow, float stDev, const std::string& delta,
+		MODE mode, const std::string& bigmodulus, const std::string& bigrootofunity, int depth, int assuranceMeasure, float securityLevel,
+		const std::string& bigmodulusarb, const std::string& bigrootofunityarb, int maxDepth)
+		{
 	shared_ptr<LPCryptoParametersBFV<T>> params(
-		new LPCryptoParametersBFV<T>(ep,
-			encodingParams,
-			stDev,
-			assuranceMeasure,
-			securityLevel,
-			relinWindow,
-			typename T::Integer(delta),
-			mode,
-			typename T::Integer(bigmodulus),
-			typename T::Integer(bigrootofunity),
-			typename T::Integer(bigmodulusarb),
-			typename T::Integer(bigrootofunityarb),
-			depth,
-			maxDepth));
+			new LPCryptoParametersBFV<T>(ep,
+					encodingParams,
+					stDev,
+					assuranceMeasure,
+					securityLevel,
+					relinWindow,
+					typename T::Integer(delta),
+					mode,
+					typename T::Integer(bigmodulus),
+					typename T::Integer(bigrootofunity),
+					typename T::Integer(bigmodulusarb),
+					typename T::Integer(bigrootofunityarb),
+					depth,
+					maxDepth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFV<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFV(
 		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
-{
+		{
 
 	EncodingParams encodingParams(new EncodingParamsImpl(plaintextModulus));
 
 	return genCryptoContextBFV(encodingParams,securityLevel,relinWindow, dist,
-		numAdds, numMults, numKeyswitches, mode, maxDepth);
+			numAdds, numMults, numKeyswitches, mode, maxDepth);
 
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFV(
-	EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
-{
+		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1355,34 +1320,34 @@ CryptoContextFactory<T>::genCryptoContextBFV(
 
 	shared_ptr<LPCryptoParametersBFV<T>> params(
 			new LPCryptoParametersBFV<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				typename T::Integer(0),
-				mode,
-				typename T::Integer(0),
-				typename T::Integer(0),
-				typename T::Integer(0),
-				typename T::Integer(0),
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					typename T::Integer(0),
+					mode,
+					typename T::Integer(0),
+					typename T::Integer(0),
+					typename T::Integer(0),
+					typename T::Integer(0),
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFV<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFV(
-	EncodingParams encodingParams, SecurityLevel securityLevel, usint relinWindow, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
-{
+		EncodingParams encodingParams, SecurityLevel securityLevel, usint relinWindow, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1396,27 +1361,27 @@ CryptoContextFactory<T>::genCryptoContextBFV(
 
 	shared_ptr<LPCryptoParametersBFV<T>> params(
 			new LPCryptoParametersBFV<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				typename T::Integer(0),
-				mode,
-				typename T::Integer(0),
-				typename T::Integer(0),
-				typename T::Integer(0),
-				typename T::Integer(0),
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					typename T::Integer(0),
+					mode,
+					typename T::Integer(0),
+					typename T::Integer(0),
+					typename T::Integer(0),
+					typename T::Integer(0),
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFV<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
@@ -1424,7 +1389,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 		uint32_t relinWindow, size_t dcrtBits)
-{
+		{
 	int nonZeroCount = 0;
 
 	if( numAdds > 0 ) nonZeroCount++;
@@ -1452,7 +1417,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
@@ -1460,22 +1425,22 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 		uint32_t relinWindow, size_t dcrtBits)
-{
+		{
 
 	EncodingParams encodingParams(new EncodingParamsImpl(plaintextModulus));
 
 	return genCryptoContextBFVrns(encodingParams, securityLevel, dist, numAdds, numMults,
 			numKeyswitches, mode, maxDepth, relinWindow, dcrtBits);
 
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
-	EncodingParams encodingParams, float securityLevel, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
-	uint32_t relinWindow, size_t dcrtBits)
-{
+		EncodingParams encodingParams, float securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+		uint32_t relinWindow, size_t dcrtBits)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1489,30 +1454,30 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 
 	shared_ptr<LPCryptoParametersBFVrns<T>> params(
 			new LPCryptoParametersBFVrns<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				mode,
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					mode,
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrns<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrns(
-	EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
-	uint32_t relinWindow, size_t dcrtBits)
-{
+		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+		uint32_t relinWindow, size_t dcrtBits)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1526,22 +1491,22 @@ CryptoContextFactory<T>::genCryptoContextBFVrns(
 
 	shared_ptr<LPCryptoParametersBFVrns<T>> params(
 			new LPCryptoParametersBFVrns<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				mode,
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					mode,
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrns<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 
 template <typename T>
@@ -1550,7 +1515,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 		uint32_t relinWindow, size_t dcrtBits)
-{
+		{
 	int nonZeroCount = 0;
 
 	if( numAdds > 0 ) nonZeroCount++;
@@ -1578,7 +1543,7 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
@@ -1586,23 +1551,23 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
 		uint32_t relinWindow, size_t dcrtBits)
-{
+		{
 
 	EncodingParams encodingParams(new EncodingParamsImpl(plaintextModulus));
 
 	return genCryptoContextBFVrnsB(encodingParams, securityLevel, dist, numAdds, numMults,
 			numKeyswitches, mode, maxDepth, relinWindow, dcrtBits);
 
-}
+		}
 
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrnsB(
-	EncodingParams encodingParams, float securityLevel, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
-	uint32_t relinWindow, size_t dcrtBits)
-{
+		EncodingParams encodingParams, float securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+		uint32_t relinWindow, size_t dcrtBits)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1616,30 +1581,30 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 
 	shared_ptr<LPCryptoParametersBFVrnsB<T>> params(
 			new LPCryptoParametersBFVrnsB<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				mode,
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					mode,
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsB<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBFVrnsB(
-	EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
-	unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
-	uint32_t relinWindow, size_t dcrtBits)
-{
+		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode, int maxDepth,
+		uint32_t relinWindow, size_t dcrtBits)
+		{
 	int nonZeroCount = 0;
 
 	if (numAdds > 0) nonZeroCount++;
@@ -1653,22 +1618,22 @@ CryptoContextFactory<T>::genCryptoContextBFVrnsB(
 
 	shared_ptr<LPCryptoParametersBFVrnsB<T>> params(
 			new LPCryptoParametersBFVrnsB<T>(
-				ep,
-				encodingParams,
-				dist,
-				36.0,
-				securityLevel,
-				relinWindow,
-				mode,
-				1,
-				maxDepth) );
+					ep,
+					encodingParams,
+					dist,
+					36.0,
+					securityLevel,
+					relinWindow,
+					mode,
+					1,
+					maxDepth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBFVrnsB<T>());
 
 	scheme->ParamsGen(params, numAdds, numMults, numKeyswitches, dcrtBits);
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
@@ -1676,44 +1641,44 @@ CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev,
 		MODE mode, int depth)
-{
+		{
 	shared_ptr<LPCryptoParametersBGV<T>> params( new LPCryptoParametersBGV<T>(
-		ep,
-		plaintextmodulus,
-		stDev,
-		36, // assuranceMeasure,
-		1.006, // securityLevel,
-		relinWindow, // Relinearization Window
-		mode, //Mode of noise generation
-		depth) );
+			ep,
+			plaintextmodulus,
+			stDev,
+			36, // assuranceMeasure,
+			1.006, // securityLevel,
+			relinWindow, // Relinearization Window
+			mode, //Mode of noise generation
+			depth) );
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeBGV<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextBGV(shared_ptr<typename T::Params> ep,
-	EncodingParams encodingParams,
-	usint relinWindow, float stDev,
-	MODE mode, int depth)
-{
+		EncodingParams encodingParams,
+		usint relinWindow, float stDev,
+		MODE mode, int depth)
+		{
 	shared_ptr<LPCryptoParametersBGV<T>> params(new LPCryptoParametersBGV<T>(
-		ep,
-		encodingParams,
-		stDev,
-		36, // assuranceMeasure,
-		1.006, // securityLevel,
-		relinWindow, // Relinearization Window
-		mode, //Mode of noise generation
-		depth
-));
+			ep,
+			encodingParams,
+			stDev,
+			36, // assuranceMeasure,
+			1.006, // securityLevel,
+			relinWindow, // Relinearization Window
+			mode, //Mode of noise generation
+			depth
+	));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeBGV<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 
 template <typename T>
@@ -1721,7 +1686,7 @@ CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
 		const PlaintextModulus plaintextmodulus,
 		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
-{
+		{
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params( new LPCryptoParametersStehleSteinfeld<T>(
 			ep,
 			plaintextmodulus,
@@ -1735,28 +1700,28 @@ CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <typename T>
 CryptoContext<T>
 CryptoContextFactory<T>::genCryptoContextStehleSteinfeld(shared_ptr<typename T::Params> ep,
-	EncodingParams encodingParams,
-	usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
-{
+		EncodingParams encodingParams,
+		usint relinWindow, float stDev, float stDevStSt, int depth, int assuranceMeasure, float securityLevel)
+		{
 	shared_ptr<LPCryptoParametersStehleSteinfeld<T>> params(new LPCryptoParametersStehleSteinfeld<T>(
-		ep,
-		encodingParams,
-		stDev,
-		assuranceMeasure,
-		securityLevel,
-		relinWindow,
-		stDevStSt,
-		depth));
+			ep,
+			encodingParams,
+			stDev,
+			assuranceMeasure,
+			securityLevel,
+			relinWindow,
+			stDevStSt,
+			depth));
 
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme(new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
+		}
 
 template <>
 CryptoContext<Poly>

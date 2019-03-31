@@ -88,11 +88,6 @@ bool LPEvalKeyRelinImpl<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPEvalKeyRelinImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
-	return EvalKeyRelinSerializer<Element>(this, serObj, false);
-}
-
-template<typename Element>
 bool LPEvalKeyRelinImpl<Element>::Deserialize(const Serialized &serObj) {
 
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
@@ -155,11 +150,6 @@ bool LPEvalKeyNTRUImpl<Element>::Serialize(Serialized *serObj) const {
 }
 
 template<typename Element>
-bool LPEvalKeyNTRUImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
-	return EvalKeyNTRUSerializer<Element>(this, serObj, false);
-}
-
-template<typename Element>
 bool LPEvalKeyNTRUImpl<Element>::Deserialize(const Serialized &serObj) {
 	// deserialization must be done in a crypto context; the context must be initialized before deserializing the elements
 	if( !this->GetCryptoContext() )
@@ -200,11 +190,6 @@ static bool EvalKeyNTRURelinSerializer(const LPEvalKeyNTRURelinImpl<Element> *it
 template<typename Element>
 bool LPEvalKeyNTRURelinImpl<Element>::Serialize(Serialized *serObj) const {
 	return EvalKeyNTRURelinSerializer<Element>(this, serObj, true);
-}
-
-template<typename Element>
-bool LPEvalKeyNTRURelinImpl<Element>::SerializeWithoutContext(Serialized *serObj) const {
-	return EvalKeyNTRURelinSerializer<Element>(this, serObj, false);
 }
 
 template<typename Element>
@@ -280,11 +265,18 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::Poly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>,lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
-
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::DCRTPoly>);
 
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);

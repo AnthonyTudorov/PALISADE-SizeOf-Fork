@@ -77,20 +77,20 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 }
 
 
-void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName)
-{
+void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName) {
 
-	Serialized	emSer, esSer;
-
-	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
-		cerr << "Could not read the eval mult key file" << endl;
+	std::ifstream emkeys(emFileName, std::ios::in|std::ios::binary);
+	if( !emkeys.is_open() ) {
+		cerr << "Could not read the eval mult key file " << endl;
 		return;
 	}
 
-	if( cc->DeserializeEvalMultKey(emSer) == false ) {
+	if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;
 		return;
 	}
+
+	emkeys.close();
 
 	std::cout << "Completed" << std::endl;
 }
@@ -292,16 +292,16 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	std::cout << "Serializing eval mult key...";
 
-	Serialized emKeys;
-
-	if (cc->SerializeEvalMultKey(&emKeys)) {
-		if (!SerializableHelper::WriteSerializationToFile(emKeys, "demoData/EVALMULT.txt")) {
+	ofstream emkeyfile("demoData/EVALMULT.txt", std::ios::out|std::ios::binary);
+	if( emkeyfile.is_open() ) {
+		if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
 			cerr << "Error writing serialization of the eval mult key" << endl;
 			return;
 		}
+		emkeyfile.close();
 	}
 	else {
-		cerr << "Error serializing eval mult key" << endl;
+		cerr << "Error serializing eval mult keys" << endl;
 		return;
 	}
 

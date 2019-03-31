@@ -621,60 +621,6 @@ MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const
     return result;
 }
 
-#ifdef OUT
-/**
-* Serialize the object into a Serialized
-* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-* @return true if successfully serialized
-*/
-template<class Element>
-bool MatrixStrassen<Element>::Serialize(Serialized* serObj) const {
-  bool dbg_flag = false;
-  if( !serObj->IsObject() ){
-    serObj->SetObject();
-  }
-
-  DEBUG("SERIALIZING MatrixStrassen " << rows << ":" << cols);
-  DEBUGEXP(data.size());
-  DEBUGEXP(data[0].size());
-	//SerializeVectorOfVector("MatrixStrassen", elementName<Element>(), this->data, serObj);
-
-  DEBUGEXP(typeid(Element).name());
-
-  bool rc = false;
-  for( int r=0; r<rows; r++ ) {
-    for( int c=0; c<cols; c++ ) {
-      rc = data[r][c]->Serialize(serObj);
-      if (!rc) {
-	PALISADE_THROW(lbcrypto::serialize_error ,"serialization failure in MatrixStrassen "
-		       +to_string(r)+", "+to_string(c));
-    }
-  }
-  
-  return true;
-}
-
-/**
-* Populate the object from the deserialization of the Serialized
-* @param serObj contains the serialized object
-* @return true on success
-*/
-template<class Element>
-bool MatrixStrassen<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("MatrixStrassen");
-	std::cout<<"Deserialize MatrixStrassen not written"<<cout::endl;
-	
-	if( mIter == serObj.MemberEnd() ){
-		return false;
-	}
-	//return DeserializeVectorOfVector<Element>("MatrixStrassen", elementName<Element>(), mIter, &this->data);
-	return true;
-}
-#endif
-
-
-
-
 
 template<class Element>
 MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> const& other,int nrec,int pad) const{

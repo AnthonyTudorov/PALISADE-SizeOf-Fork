@@ -283,9 +283,6 @@ namespace lbcrypto {
 						" bigrootofunityarb: " << m_bigRootOfUnityArb;
 			}
 
-			// NOTE that we do not serialize any of the members declared in this class.
-			// they are all cached computations, and get recomputed in any implementation
-			// that does a deserialization
 			template <class Archive>
 			void save ( Archive & ar ) const
 			{
@@ -362,6 +359,19 @@ namespace lbcrypto {
 
 		virtual ~LPAlgorithmParamsGenBFV() {}
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVParamsGen"; }
 	};
 
 	/**
@@ -383,6 +393,8 @@ namespace lbcrypto {
 		 * Default constructor
 		 */
 		LPAlgorithmBFV() {}
+
+		virtual ~LPAlgorithmBFV() {}
 
 		/**
 		* Method for encrypting plaintext using BFV.
@@ -427,8 +439,19 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
 
-		virtual ~LPAlgorithmBFV() {}
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
 
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVEncryption"; }
 	};
 
 	/**
@@ -450,6 +473,8 @@ namespace lbcrypto {
 		 * Default constructor
 		 */
 		LPAlgorithmSHEBFV() {}
+
+		virtual ~LPAlgorithmSHEBFV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -662,6 +687,19 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVSHE"; }
 	};
 
 	/**
@@ -742,6 +780,19 @@ namespace lbcrypto {
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVPRE"; }
 	};
 
 
@@ -769,6 +820,8 @@ namespace lbcrypto {
 		* Default constructor
 		*/
 		LPAlgorithmMultipartyBFV() {}
+
+		virtual ~LPAlgorithmMultipartyBFV() {}
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
@@ -824,6 +877,19 @@ namespace lbcrypto {
 		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVMultiparty"; }
 	};
 
 

@@ -29,11 +29,12 @@
 
 //Includes Section
 #include <vector>
+#include "utils/serializable.h"
+#include "utils/inttypes.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"
 #include "lattice/ilelement.h"
-#include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "encoding/plaintext.h"
 
@@ -59,13 +60,27 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class ConjunctionPattern : public Pattern<Element>{
-		public:
-			/**
-			 * Method to return the length of the pattern.
-			 *
-			 * @return the length of the pattern.
-			 */
-			virtual usint GetLength() const=0;
+	public:
+		virtual ~ConjunctionPattern() {}
+
+		/**
+		 * Method to return the length of the pattern.
+		 *
+		 * @return the length of the pattern.
+		 */
+		virtual usint GetLength() const=0;
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		}
+
+		std::string SerializedObjectName() const { return "ConjunctionPattern"; }
 	}; 
 
 	/**
@@ -82,8 +97,31 @@ namespace lbcrypto {
 	 */
 	template <class Element>
 	class ObfuscatedPattern {
+	public:
+		virtual ~ObfuscatedPattern() {}
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		}
+
+		std::string SerializedObjectName() const { return "ObfuscatedPattern"; }
 	};
 
 
 } // namespace lbcrypto ends
 #endif
+
+CEREAL_REGISTER_TYPE(lbcrypto::ConjunctionPattern<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::ConjunctionPattern<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::ConjunctionPattern<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::ObfuscatedPattern<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::ObfuscatedPattern<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::ObfuscatedPattern<lbcrypto::DCRTPoly>);
+
