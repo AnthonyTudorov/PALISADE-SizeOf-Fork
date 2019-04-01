@@ -27,7 +27,6 @@
 #include "include/gtest/gtest.h"
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "ciphertext.cpp"
 #include "cryptotiming.h"
 #include "utils/parmfactory.h"
 #include "utils/serializablehelper.h"

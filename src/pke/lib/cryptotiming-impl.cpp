@@ -128,42 +128,6 @@ std::ostream& operator<<(std::ostream& out, const OpType& op) {
 	return out;
 }
 
-bool TimingStatistics::Serialize(Serialized *serObj) const {
-	serObj->SetObject();
-	SerialItem statMap(rapidjson::kObjectType);
-
-	statMap.AddMember("operation", OperatorName[operation], serObj->GetAllocator());
-	statMap.AddMember("samples", std::to_string(samples), serObj->GetAllocator());
-	statMap.AddMember("argcnt", std::to_string(argcnt), serObj->GetAllocator());
-	statMap.AddMember("average", std::to_string(average), serObj->GetAllocator());
-
-	serObj->AddMember("TimingStatistics", statMap.Move(), serObj->GetAllocator());
-
-	return true;
-}
-
-bool TimingStatistics::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("TimingStatistics");
-	if( mIter == serObj.MemberEnd() ) return false;
-
-	SerialItem::ConstMemberIterator pIt;
-
-	if( (pIt = mIter->value.FindMember("operation")) == mIter->value.MemberEnd() )
-		return false;
-	operation = OperatorType[ pIt->value.GetString() ];
-	if( (pIt = mIter->value.FindMember("samples")) == mIter->value.MemberEnd() )
-		return false;
-	samples = std::stoi( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("argcnt")) == mIter->value.MemberEnd() )
-		return false;
-	argcnt = std::stod( pIt->value.GetString() );
-	if( (pIt = mIter->value.FindMember("average")) == mIter->value.MemberEnd() )
-		return false;
-	average = std::stod( pIt->value.GetString() );
-
-	return false;
-}
-
 template<typename Element>
 Plaintext
 MakeRandomPlaintext(CryptoContext<Element> cc, PlaintextEncodings pte) {
@@ -484,11 +448,9 @@ generateTimings(TimingStatisticsMap& stats,
 	string str;
 
 #define PSSIZE(msg,x) { \
-		Serialized ser; string str; \
-		if( (x)->Serialize(&ser) ) {\
-			SerializableHelper::SerializationToString(ser, str); \
-			cout << (msg) << str.length() << endl; \
-		} \
+		string str; \
+		str = Serializable::SerializeToString(x); \
+		cout << (msg) << str.length() << endl; \
 }
 
 	if( PrintSizes ) {

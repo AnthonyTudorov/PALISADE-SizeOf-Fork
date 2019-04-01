@@ -59,47 +59,10 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 	RecalculateModulus();
 }
 
-template<typename IntType>
-bool
-ILDCRTParams<IntType>::Serialize(Serialized* serObj) const
-{
-    if( !serObj->IsObject() ){
-	  serObj->SetObject();
-	} 
-
-	Serialized ser(rapidjson::kObjectType, &serObj->GetAllocator());
-
-	SerializeVectorOfPointers<ILNativeParams>("Params", "ILParams", m_parms, &ser);
-	serObj->AddMember("ILDCRTParams", ser, serObj->GetAllocator());
-
-	return true;
 }
 
-template<typename IntType>
-bool
-ILDCRTParams<IntType>::Deserialize(const Serialized& serObj)
-{
-	Serialized::ConstMemberIterator rIt = serObj.FindMember("ILDCRTParams");
-	if( rIt == serObj.MemberEnd() ) return false;
+CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M2Integer>, lbcrypto::ILParamsImpl<M2Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M4Integer>, lbcrypto::ILParamsImpl<M4Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M6Integer>, lbcrypto::ILParamsImpl<M6Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<NativeInteger>, lbcrypto::ILParamsImpl<NativeInteger>::SerializedVersion() );
 
-	const SerialItem& arr = rIt->value;
-
-	Serialized::ConstMemberIterator it = arr.FindMember("Params");
-
-	if( it == arr.MemberEnd() ) {
-		return false;
-	}
-
-	if( DeserializeVectorOfPointers<ILNativeParams>("Params", "ILParams", it, &this->m_parms) == false )
-		return false;
-
-	this->cyclotomicOrder = this->m_parms[0]->GetCyclotomicOrder();
-	this->ringDimension = this->m_parms[0]->GetRingDimension();
-	this->isPowerOfTwo = this->ringDimension == this->cyclotomicOrder / 2;
-
-	RecalculateModulus();
-	return true;
-}
-
-
-}

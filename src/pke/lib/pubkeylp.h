@@ -317,7 +317,7 @@ namespace lbcrypto {
 		* @param &cryptoParams is the reference to cryptoParams
 		*/
 
-		LPEvalKeyImpl(CryptoContext<Element> cc) : LPKey<Element>(cc) {}
+		LPEvalKeyImpl(CryptoContext<Element> cc = 0) : LPKey<Element>(cc) {}
 
 		virtual ~LPEvalKeyImpl() {}
 
@@ -425,7 +425,7 @@ namespace lbcrypto {
 
 		friend bool operator!=(const LPEvalKeyImpl& a, LPEvalKeyImpl& b) { return ! (a == b); }
 
-		virtual bool key_compare(const LPEvalKeyImpl& other) const = 0;
+		virtual bool key_compare(const LPEvalKeyImpl& other) const { return false; }
 
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const

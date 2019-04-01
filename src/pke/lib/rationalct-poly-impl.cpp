@@ -26,7 +26,6 @@
 
 #include "cryptocontext.h"
 #include "ciphertext.h"
-#include "rationalciphertext.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContextImpl<Poly>;
@@ -35,3 +34,5 @@ template class RationalCiphertext<Poly>;
 template class RationalCiphertext<NativePoly>;
 }
 
+CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::Poly>, lbcrypto::RationalCiphertext<lbcrypto::Poly>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::NativePoly>, lbcrypto::RationalCiphertext<lbcrypto::NativePoly>::SerializedVersion() );

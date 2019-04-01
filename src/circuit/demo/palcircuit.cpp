@@ -342,12 +342,6 @@ main(int argc, char *argv[])
 	// when generating timing estimates, need to read in the Context and the timings
 	TimingStatisticsMap timings;
 	if( evaluation_run_mode ) {
-		Serialized serObj;
-		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
-			cout << "Input file does not begin with a serialization" << endl;
-			return 1;
-		}
-
 		// FIXME check for match
 		//		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
 		//			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
@@ -356,11 +350,8 @@ main(int argc, char *argv[])
 		//		}
 
 		do {
-			serObj.SetObject();
-			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false )
-				break;
 			TimingStatistics s;
-			s.Deserialize(serObj);
+			Serializable::Deserialize(s, evalStatF, Serializable::Type::BINARY);
 			timings[TimingStatisticsKey(s.operation,s.argcnt)] = s;
 		} while( true );
 

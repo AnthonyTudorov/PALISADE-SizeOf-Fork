@@ -27,7 +27,6 @@
 #include "../../core/lib/lattice/dcrtpoly.cpp"
 #include "../../core/lib/lattice/poly.cpp"
 #include "cryptocontext.h"
-#include "ciphertext.cpp"
 
 namespace lbcrypto {
 extern template class CryptoContextImpl<Poly>;
@@ -43,8 +42,6 @@ extern template class CryptoContextImpl<DCRTPoly>;
 template class CiphertextImpl<DCRTPoly>;
 }
 
-
 CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::Poly>, lbcrypto::CiphertextImpl<lbcrypto::Poly>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::NativePoly>, lbcrypto::CiphertextImpl<lbcrypto::NativePoly>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>, lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>::SerializedVersion() );
-

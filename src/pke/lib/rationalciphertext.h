@@ -195,20 +195,6 @@ namespace lbcrypto {
 		}
 
 		/**
-		* Serialize the object into a Serialized
-		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized* serObj) const;
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized& serObj);
-
-		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &other is the ciphertext to add with.
@@ -279,6 +265,9 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
 			ar( cereal::make_nvp("n", m_numerator) );
 			ar( cereal::make_nvp("d", m_denominator) );
@@ -286,6 +275,7 @@ namespace lbcrypto {
 		}
 
 		std::string SerializedObjectName() const { return "RationalCiphertext"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 

@@ -61,6 +61,9 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::NativePo
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFV<lbcrypto::NativePoly>);
 
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFV<lbcrypto::NativePoly>);
+
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::NativePoly>);
 

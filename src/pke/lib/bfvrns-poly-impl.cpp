@@ -275,6 +275,7 @@ DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(c
 template class LPCryptoParametersBFVrns<Poly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
 template class LPAlgorithmBFVrns<Poly>;
+template class LPAlgorithmPREBFVrns<Poly>;
 template class LPAlgorithmSHEBFVrns<Poly>;
 template class LPAlgorithmMultipartyBFVrns<Poly>;
 template class LPAlgorithmParamsGenBFVrns<Poly>;
@@ -282,6 +283,7 @@ template class LPAlgorithmParamsGenBFVrns<Poly>;
 template class LPCryptoParametersBFVrns<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<NativePoly>;
 template class LPAlgorithmBFVrns<NativePoly>;
+template class LPAlgorithmPREBFVrns<NativePoly>;
 template class LPAlgorithmSHEBFVrns<NativePoly>;
 template class LPAlgorithmMultipartyBFVrns<NativePoly>;
 template class LPAlgorithmParamsGenBFVrns<NativePoly>;

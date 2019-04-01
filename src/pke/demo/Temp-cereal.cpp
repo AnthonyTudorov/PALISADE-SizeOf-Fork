@@ -286,31 +286,6 @@ main()
 
 		cout << endl << "Ciphertext" << endl;
 
-		Serialized	ser;
-		string str;
-		ct1->Serialize(&ser);
-		SerializableHelper::SerializationToString(ser, str);
-		cout << "Legacy serialization:" << endl << "   bytes: " << str.length() << endl;
-
-		TimeVar t;
-
-		TIC(t);
-		for( int i=0; i<repcount; i++ ) {
-			Serialized ser;
-			ser.SetObject();
-			ct1->Serialize(&ser);
-			SerializableHelper::SerializationToString(ser, str);
-		}
-		cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
-
-		Ciphertext<DCRTPoly> newobj;
-		TIC(t);
-		for( int i=0; i<repcount; i++ ) {
-			newobj = cryptoContext->deserializeCiphertext(ser);
-		}
-		cout << "   deserialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
-		cout << "Legacy " << ((*ct1 == *newobj) ? "MATCHES" : "DOES NOT MATCH") << endl << endl;
-
 		auto nam = ct1->SerializedObjectName();
 		RunSerialOptions(ct1, nam);
 	}

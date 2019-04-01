@@ -217,20 +217,6 @@ class CiphertextImpl;
 			m_depth = depth;
 		}
 
-		/**
-		* Serialize the object into a Serialized
-		* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized* serObj) const;
-
-		/**
-		* Populate the object from the deserialization of the Serialized
-		* @param serObj contains the serialized object
-		* @return true on success
-		*/
-		bool Deserialize(const Serialized& serObj);
-
 		bool operator==(const CiphertextImpl<Element>& rhs) const {
 			if( !CryptoObject<Element>::operator==(rhs) )
 				return false;

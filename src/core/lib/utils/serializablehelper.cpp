@@ -31,35 +31,6 @@
 
 namespace lbcrypto {
 
-//function to output the Serialized object to a string
-bool SerializableHelper::SerializationToString(const Serialized& serObj, std::string& jsonString) {
-
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-	serObj.Accept(writer);
-
-	jsonString = buffer.GetString();
-	return writer.IsComplete();
-}
-
-bool SerializableHelper::SerializationToStream(const Serialized& serObj, std::ostream& out) {
-	OStreamWrapper oo(out);
-	rapidjson::Writer<OStreamWrapper> ww(oo);
-	serObj.Accept(ww);
-	return ww.IsComplete();
-}
-
-bool SerializableHelper::StringToSerialization(const std::string& jsonString, Serialized* serObj) {
-
-	return !serObj->Parse( jsonString.c_str() ).HasParseError();
-}
-
-bool SerializableHelper::StreamToSerialization(std::istream& in, Serialized* serObj) {
-	lbcrypto::IStreamWrapper is(in);
-	return !serObj->ParseStream<rapidjson::kParseStopWhenDoneFlag>(is).HasParseError();
-}
-
-
 /**
  * Saves a serialized Palisade object's JSON string to file as a nested JSON data structure
  * @param doc is the serialized object's nested JSON data string.
@@ -76,27 +47,6 @@ bool SerializableHelper::WriteSerializationToFile(const Serialized& doc, std::st
 
 	rapidjson::Writer<rapidjson::FileWriteStream> writer(os);
 	doc.Accept(writer);
-
-	fclose(fp);
-	return true;
-}
-
-/**
- * Saves a prettyprinted serialized Palisade object's JSON string to file as a nested JSON data structure
- * @param doc is the serialized object's nested JSON data string.
- * @param outputFileName is the name of the file to save JSON data string to.
- */
-bool SerializableHelper::WriteSerializationToPrettyFile(const Serialized& doc, std::string outputFileName) {
-
-	FILE *fp = fopen(outputFileName.c_str(), "w");
-	if( fp == 0 ) return false;
-
-	//char writeBuffer[32768];
-	char writeBuffer[131072];
-	rapidjson::FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
-
-	rapidjson::PrettyWriter<rapidjson::FileWriteStream> pwriter(os);
-	doc.Accept(pwriter);
 
 	fclose(fp);
 	return true;

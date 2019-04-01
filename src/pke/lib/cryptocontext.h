@@ -287,25 +287,6 @@ public:
 		this->timeSamples->clear();
 	}
 
-	// SERIALIZATION METHODS
-	/**
-	 * Serialize the CryptoContextImpl
-	 *
-	 * @param serObj - rapidJson object for the serializaion
-	 * @return true on success
-	 */
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	 * Deserialize the context AND initialize the algorithm
-	 *
-	 * @param serObj
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		throw std::logic_error("Deserialize by using CryptoContextFactory::DeserializeAndCreateContext");
-	}
-
 	static bool SerializeEvalMultKey(Serialized* serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 	static bool SerializeEvalMultKey(Serialized* serObj, const string& id) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 	static bool SerializeEvalMultKey(Serialized* serObj, const CryptoContext<Element> cc) __attribute__ ((deprecated("serialization changed, see wiki for details")));
@@ -364,14 +345,10 @@ public:
 	 */
 	static void InsertEvalMultKey(const std::vector<LPEvalKey<Element>>& vectorToInsert);
 
-	/**
-	 * SerializeEvalSumKey for all EvalSum keys
-	 * method will serialize each CryptoContextImpl only once
-	 *
-	 * @param serObj - serialization
-	 * @return true on success
-	 */
-	static bool SerializeEvalSumKey(Serialized* serObj);
+	static bool SerializeEvalSumKey(Serialized* serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalSumKey(Serialized* serObj, const string& id) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalSumKey(Serialized* serObj, const CryptoContext<Element> cc) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool DeserializeEvalSumKey(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	/**
 	 * SerializeEvalSumKey for a single EvalSum key or all of the EvalSum keys
@@ -394,26 +371,6 @@ public:
 	static bool SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc);
 
 	/**
-	 * SerializeEvalSumKey for a single EvalSum key
-	 * method will serialize entire key AND cryptocontext
-	 *
-	 * @param serObj - serialization
-	 * @param id for key to serialize
-	 * @return true on success (false on failure or key id not found)
-	 */
-	static bool SerializeEvalSumKey(Serialized* serObj, const string& id);
-
-	/**
-	 * SerializeEvalSumKey for all EvalSumKeys made in a given context
-	 * method will serialize the context only once
-	 *
-	 * @param serObj - serialization
-	 * @param cc whose keys should be serialized
-	 * @return true on success (false on failure or no keys found)
-	 */
-	static bool SerializeEvalSumKey(Serialized* serObj, const CryptoContext<Element> cc);
-
-	/**
 	 * DeserializeEvalSumKey deserialize all keys in the serialization
 	 * deserialized keys silently replace any existing matching keys
 	 * deserialization will create CryptoContextImpl if necessary
@@ -423,16 +380,6 @@ public:
 	 * @return true on success
 	 */
 	static bool DeserializeEvalSumKey(std::istream& ser, Serializable::Type sertype);
-
-	/**
-	 * DeserializeEvalSumKey deserialize all keys in the serialization
-	 * deserialized keys silently replace any existing matching keys
-	 * deserialization will create CryptoContextImpl if necessary
-	 *
-	 * @param serObj - serialization
-	 * @return true on success
-	 */
-	static bool DeserializeEvalSumKey(const Serialized& serObj);
 
 	/**
 	 * ClearEvalSumKeys - flush EvalSumKey cache
@@ -457,44 +404,41 @@ public:
 	 */
 	static void InsertEvalSumKey(const shared_ptr<std::map<usint,LPEvalKey<Element>>> mapToInsert);
 
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const string& id) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const CryptoContext<Element> cc) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static bool DeserializeEvalAutomorphismKey(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+
 	/**
-	 * SerializeEvalAutomorphismKey for all EvalAutomorphism keys
-	 * method will serialize each CryptoContextImpl only once
+	 * SerializeEvalAutomorphismKey for a single EvalAuto key or all of the EvalAuto keys
 	 *
-	 * @param serObj - serialization
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
+	 * @param id - key to serialize; empty string means all keys
 	 * @return true on success
 	 */
-	static bool SerializeEvalAutomorphismKey(Serialized* serObj);
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, Serializable::Type sertype, string id = "");
 
 	/**
-	 * SerializeEvalAutomorphismKey for a single EvalAutomorphism key
-	 * method will serialize entire key AND cryptocontext
+	 * SerializeEvalAutomorphismKey for all of the EvalAuto keys for a context
 	 *
-	 * @param serObj - serialization
-	 * @param id for key to serialize
-	 * @return true on success (false on failure or key id not found)
+	 * @param ser - stream to serialize to
+	 * @param sertype - type of serialization
+	 * @param cc - context
+	 * @return true on success
 	 */
-	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const string& id);
-
-	/**
-	 * SerializeEvalAutomorphismKey for all EvalAutomorphismKeys made in a given context
-	 * method will serialize the context only once
-	 *
-	 * @param serObj - serialization
-	 * @param cc whose keys should be serialized
-	 * @return true on success (false on failure or no keys found)
-	 */
-	static bool SerializeEvalAutomorphismKey(Serialized* serObj, const CryptoContext<Element> cc);
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc);
 
 	/**
 	 * DeserializeEvalAutomorphismKey deserialize all keys in the serialization
 	 * deserialized keys silently replace any existing matching keys
 	 * deserialization will create CryptoContextImpl if necessary
 	 *
-	 * @param serObj - serialization
+	 * @param ser - stream to serialize from
+	 * @param sertype - type of serialization
 	 * @return true on success
 	 */
-	static bool DeserializeEvalAutomorphismKey(const Serialized& serObj);
+	static bool DeserializeEvalAutomorphismKey(std::istream& ser, Serializable::Type sertype);
 
 	/**
 	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache
@@ -1045,16 +989,7 @@ public:
 			}
 			ciphertext->SetEncodingType( px->GetEncodingType() );
 
-			Serialized cS;
-
-			if (ciphertext->Serialize(&cS)) {
-				if (!SerializableHelper::SerializationToStream(cS, outstream)) {
-					break;
-				}
-			}
-			else {
-				break;
-			}
+			Serializable::Serialize(ciphertext, outstream, Serializable::Type::JSON);
 		}
 
 		delete [] ptxt;
@@ -1410,16 +1345,21 @@ public:
 		if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to DecryptStream was not generated with this crypto context");
 
-		Serialized serObj;
 		size_t tot = 0;
 
 		bool firstTime = true;
 		Plaintext pte[2];
 		bool whichArray = false;
 
-		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
-			Ciphertext<Element> ct;
-			if( (ct = deserializeCiphertext(serObj)) != NULL ) {
+		Ciphertext<Element> ct;
+		while( true ) {
+			try {
+				Serializable::Deserialize(ct, instream, Serializable::Type::JSON);
+			}
+			catch( ... ) {
+				break;
+			}
+			if( ct ) {
 				if( ct->GetEncodingType() != String ) {
 					throw std::logic_error("Library can only stream string encodings");
 				}
@@ -1494,24 +1434,12 @@ public:
 		if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
 			throw std::logic_error("Information passed to ReEncryptStream was not generated with this crypto context");
 
-		Serialized serObj;
-
-		while( SerializableHelper::StreamToSerialization(instream, &serObj) ) {
-			Ciphertext<Element> ct;
-			ct = deserializeCiphertext(serObj);
+		Ciphertext<Element> ct;
+		while( true ) {
+			Serializable::Deserialize(ct, instream, Serializable::Type::JSON);
 			if( ct ) {
 				Ciphertext<Element> reCt = ReEncrypt(evalKey, ct, publicKey);
-
-				Serialized serReObj;
-				if( reCt->Serialize(&serReObj) ) {
-					SerializableHelper::SerializationToStream(serReObj, outstream);
-				}
-				else {
-					return;
-				}
-			}
-			else {
-				return;
+				Serializable::Serialize(reCt, outstream, Serializable::Type::JSON);
 			}
 		}
 	}
@@ -2304,13 +2232,6 @@ public:
 	static LPPrivateKey<Element>	deserializeSecretKey(const Serialized& serObj);
 
 	/**
-	* Deserialize into a Ciphertext
-	* @param serObj
-	* @return deserialized object
-	*/
-	static Ciphertext<Element>		deserializeCiphertext(const Serialized& serObj);
-
-	/**
 	* Deserialize into an Eval Key in a given context
 	* @param serObj
 	* @return deserialized object
@@ -2334,6 +2255,9 @@ public:
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		ar( cereal::make_nvp("cc", params) );
 		ar( cereal::make_nvp("kt", scheme) );
 
@@ -2349,6 +2273,7 @@ public:
 	}
 
 	std::string SerializedObjectName() const { return "CryptoContext"; }
+	static uint32_t	SerializedVersion() { return 1; }
 };
 
 /**
@@ -2404,20 +2329,6 @@ public:
 
 	void SetKeyTag(const string& tag) { keyTag = tag; }
 
-	/**
-	* SerializeCryptoObject serializes this header into a Serialized
-	* @param serObj is used to store the serialized result.
-	* @return true if successfully serialized
-	*/
-	bool SerializeCryptoObject(Serialized* serObj, bool includeContext = true) const;
-
-	/**
-	* DeserializeCryptoObject Populates this header from the deserialization of the Serialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
-	bool DeserializeCryptoObject(const Serialized& serObj, bool includesContext = true);
-
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
@@ -2428,6 +2339,9 @@ public:
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
 		ar( cereal::make_nvp("cc", context) );
 		ar( cereal::make_nvp("kt", keyTag) );
 
@@ -2435,6 +2349,7 @@ public:
 	}
 
 	std::string SerializedObjectName() const { return "CryptoObject"; }
+	static uint32_t	SerializedVersion() { return 1; }
 };
 
 /**
