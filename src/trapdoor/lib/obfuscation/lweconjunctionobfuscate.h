@@ -30,7 +30,6 @@
 #include <cmath>
 #include <vector>
 #include "utils/serializable.h"
-#include "utils/serializablehelper.h"
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "math/backend.h"
@@ -97,21 +96,6 @@ namespace lbcrypto {
 		*/
 		usint GetLength() const;
 
-
-		/**
-		 * @brief Serialize the object into a Serialized
-		 * @param serObj is used to store the serialized result. It should be a rapidjson Object (SetObject()) but will be set to one if needed;
-		 * @return true if successfully serialized will throw on error
-		 */
-		bool Serialize(Serialized* serObj) const;
-
-		
-		/**
-		 * @brief Populate the object from the deserialization of the Setialized
-		 * @param serObj contains the serialized object
-		 * @return true on success  will throw on error
-		 */
-		bool Deserialize(const Serialized& serObj);
 
 		/**
 		 * @brief ostream operator

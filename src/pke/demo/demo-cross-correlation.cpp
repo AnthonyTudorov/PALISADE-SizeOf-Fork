@@ -395,9 +395,6 @@ void Encrypt() {
 
 		//Serialization
 
-		Serialized ctxtSer;
-		ctxtSer.SetObject();
-
 		std::cout << "Serializing X...";
 
 		if (!Serializable::SerializeToFile(DATAFOLDER + "/" + "ciphertext-x-" + std::to_string(k) + ".txt", xC, Serializable::Type::BINARY)) {

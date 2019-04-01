@@ -37,7 +37,6 @@
 #include "utils/inttypes.h"
 #include "utils/hashutil.h"
 #include "math/distrgen.h"
-#include "utils/serializablehelper.h"
 #include "encoding/encodingparams.h"
 
 
@@ -243,21 +242,6 @@ namespace lbcrypto {
 			m_h.insert(m_h.begin() + idx, std::move(element));
 		}
 
-		/**
-		 * Serialize the object into a Serialized
-		 * @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		 * @param fileFlag is an object-specific parameter for the serialization
-		 * @return true if successfully serialized
-		 */
-		bool Serialize(Serialized *serObj) const;
-
-		/**
-		 * Populate the object from the deserialization of the Serialized
-		 * @param &serObj contains the serialized object
-		 * @return true on success
-		 */
-		bool Deserialize(const Serialized &serObj);
-
 		bool operator==(const LPPublicKeyImpl& other) const {
 			if( !CryptoObject<Element>::operator ==(other) ) {
 				return false;
@@ -288,10 +272,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("h",m_h) );
 		}
+
 		std::string SerializedObjectName() const { return "PublicKey"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 		std::vector<Element> m_h;
@@ -567,20 +556,6 @@ namespace lbcrypto {
 			return m_rKey.at(1);
 		}
 
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj) const;
-
-		/**
-		 * Deserialize from the serialization
-		 * @param serObj - contains the serialization
-		 * @return true on success
-		 */
-		bool Deserialize(const Serialized &serObj);
-
 		bool key_compare(const LPEvalKeyImpl<Element>& other) const {
 			const LPEvalKeyRelinImpl<Element> &oth = dynamic_cast<const LPEvalKeyRelinImpl<Element> &>(other);
 
@@ -608,10 +583,14 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
 		}
 		std::string SerializedObjectName() const { return "EvalKeyRelin"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 		//private member to store vector of vector of Element.
@@ -716,20 +695,6 @@ namespace lbcrypto {
 			return m_rKey;
 		}
 
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj) const;
-
-		/**
-		 * Deserialize from the serialization
-		 * @param serObj - contains the serialization
-		 * @return true on success
-		 */
-		bool Deserialize(const Serialized &serObj);
-		
 		bool key_compare(const LPEvalKeyImpl<Element>& other) const {
 			const LPEvalKeyNTRURelinImpl<Element> &oth = dynamic_cast<const LPEvalKeyNTRURelinImpl<Element> &>(other);
 
@@ -754,10 +719,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_rKey) );
 		}
+
 		std::string SerializedObjectName() const { return "EvalKeyNTRURelin"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 		//private member to store vector of Element.
@@ -863,20 +833,6 @@ namespace lbcrypto {
 			return m_Key;
 		}
 
-		/**
-		* Serialize the object into a Serialized
-		* @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		* @return true if successfully serialized
-		*/
-		bool Serialize(Serialized *serObj) const;
-
-		/**
-		 * Deserialize from the serialization
-		 * @param serObj - contains the serialization
-		 * @return true on success
-		 */
-		bool Deserialize(const Serialized &serObj);
-
 		bool key_compare(const LPEvalKeyImpl<Element>& other) const {
 			const LPEvalKeyNTRUImpl<Element> &oth = dynamic_cast<const LPEvalKeyNTRUImpl<Element> &>(other);
 
@@ -899,10 +855,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
 		    ar( cereal::make_nvp("k", m_Key) );
 		}
+
 		std::string SerializedObjectName() const { return "EvalKeyNTRU"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 
@@ -996,20 +957,6 @@ namespace lbcrypto {
 			m_sk = std::move(x);
 		}
 
-		/**
-		 * Serialize the object into a Serialized
-		 * @param *serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-		 * @return true if successfully serialized
-		 */
-		bool Serialize(Serialized *serObj) const;
-
-		/**
-		 * Populate the object from the deserialization of the Setialized
-		 * @param &serObj contains the serialized object
-		 * @return true on success
-		 */
-		bool Deserialize(const Serialized &serObj);
-
 		bool operator==(const LPPrivateKeyImpl& other) const {
 			return CryptoObject<Element>::operator ==(other) &&
 					m_sk == other.m_sk;
@@ -1027,10 +974,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 			ar( cereal::base_class<LPKey<Element>>( this ) );
 			ar( cereal::make_nvp("s",m_sk) );
 		}
+
 		std::string SerializedObjectName() const { return "PrivateKey"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	private:
 
@@ -2141,11 +2093,15 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 			ar( cereal::make_nvp("elp", m_params) );
 			ar( cereal::make_nvp("enp", m_encodingParams) );
 		}
 
 		std::string SerializedObjectName() const { return "CryptoParameters"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 	protected:
 		LPCryptoParameters(const PlaintextModulus &plaintextModulus) {
@@ -2853,6 +2809,9 @@ namespace lbcrypto {
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
+			if( version > SerializedVersion() ) {
+				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+			}
 			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
 			ar( cereal::make_nvp("e",m_algorithmEncryption) );
 			ar( cereal::make_nvp("p",m_algorithmPRE) );
@@ -2863,6 +2822,7 @@ namespace lbcrypto {
 		}
 
 		virtual std::string SerializedObjectName() const { return "Scheme"; }
+		static uint32_t	SerializedVersion() { return 1; }
 
 		friend std::ostream& operator<<(std::ostream& out, const LPPublicKeyEncryptionScheme<Element>& s) {
 			out << typeid(s).name() << ":" ;

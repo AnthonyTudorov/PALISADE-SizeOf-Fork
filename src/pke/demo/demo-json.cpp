@@ -38,7 +38,6 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -77,14 +76,12 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
 
-	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + pubkeyname, &kser) == false ) {
+	// Initialize the public key containers.
+	LPPublicKey<Poly> pk;
+	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + pubkeyname, pk, Serializable::Type::JSON) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
-
-	// Initialize the public key containers.
-	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -109,13 +106,12 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 {
 	Plaintext iPlaintext;
 
-	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + prikeyname, &kser) == false ) {
+	LPPrivateKey<Poly> sk;
+	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + prikeyname, sk, Serializable::Type::JSON) == false ) {
 		cerr << "Could not read private key" << endl;
 		return iPlaintext;
 	}
 
-	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return iPlaintext;

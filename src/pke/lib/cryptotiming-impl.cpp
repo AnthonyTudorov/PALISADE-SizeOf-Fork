@@ -444,7 +444,6 @@ generateTimings(TimingStatisticsMap& stats,
 	if( verbose )
 		cerr << "Results:" << endl;
 
-	Serialized ser;
 	string str;
 
 #define PSSIZE(msg,x) { \

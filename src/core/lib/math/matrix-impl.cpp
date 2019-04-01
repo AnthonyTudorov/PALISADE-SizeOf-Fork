@@ -27,7 +27,6 @@
 #ifndef _SRC_LIB_CORE_MATH_MATRIX_IMPL_CPP
 #define _SRC_LIB_CORE_MATH_MATRIX_IMPL_CPP
 
-#include "../utils/serializablehelper.h"
 #include "../lattice/field2n.h"
 #include "matrix.cpp"
 #include "matrixstrassen.h"

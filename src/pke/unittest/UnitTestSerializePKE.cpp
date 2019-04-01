@@ -32,7 +32,6 @@
 #include "math/nbtheory.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
-#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -94,7 +93,8 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 	stringstream s;
 	Serializable::Serialize(cc, s, sertype);
 
-	CryptoContext<T> newcc = CryptoContextFactory<T>::DeserializeAndCreateContext(s, sertype);
+	CryptoContext<T> newcc;
+	Serializable::Deserialize(newcc, s, sertype);
 
 	ASSERT_TRUE( newcc ) << msg << " Deserialize failed";
 
@@ -183,7 +183,7 @@ TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
 // USE BGV AS A REPRESENTITIVE CONTEXT
 void Test_keys_and_ciphertext(Serializable::Type sertype)
 {
-	bool dbg_flag = false;
+	bool dbg_flag = true;
 
 	CryptoContextImpl<Poly>::ClearEvalMultKeys();
 	CryptoContextImpl<Poly>::ClearEvalSumKeys();
@@ -223,7 +223,7 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 0 );
-		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(s, sertype);
+		Serializable::Deserialize(cc, s, sertype);
 
 		ASSERT_TRUE( cc ) << "Deser failed";
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );

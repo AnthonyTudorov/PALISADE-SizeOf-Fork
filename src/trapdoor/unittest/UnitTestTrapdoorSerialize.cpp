@@ -38,7 +38,6 @@
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
-#include "utils/serializablehelper.h"
 #include "lattice/trapdoor.h"
 
 using namespace std;

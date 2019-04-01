@@ -29,7 +29,6 @@
 
 #include "lweconjunctionobfuscate.h"
 #include "utils/serializable.h"
-#include "utils/serializablehelper.h"
 #include "utils/memory.h"
 #include "utils/debug.h"
 
@@ -59,51 +58,6 @@ char ClearLWEConjunctionPattern<Element>::GetIndex(usint loc) const {
 template <class Element>
 usint ClearLWEConjunctionPattern<Element>::GetLength() const {
 	return m_patternString.length();
-};
-
-// Serialize Operation
-template<class Element>
-bool ClearLWEConjunctionPattern<Element>::Serialize(Serialized* serObj) const {
-  bool dbg_flag = false;
-  if( !serObj->IsObject() ){
-    serObj->SetObject();
-  }
-
-  Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
-
-  obj.AddMember("PatternString", m_patternString, obj.GetAllocator());
-
-  serObj->AddMember("ClearLWEConjunctionPattern", obj.Move(), serObj->GetAllocator());
-
-  if (dbg_flag) {
-    // write the result to cout for debug
-    std::cout << Serializable::SerializeToString(*this) << std::endl;
-  }
-  return true;
-};
-
-// Deserialize Operation
-template<class  Element>
-bool ClearLWEConjunctionPattern<Element>::Deserialize(const Serialized& serObj){
-    bool dbg_flag= false;
-    DEBUG("in ClearLWEConjunctionPattern<Element>::Deserialize");
-    Serialized::ConstMemberIterator iMap
-      = serObj.FindMember("ClearLWEConjunctionPattern");
-
-    if (iMap == serObj.MemberEnd()) {
-       PALISADE_THROW(lbcrypto::deserialize_error, "could not find ClearLWEConjunctionPattern<Element>");
-    }
-
-    SerialItem::ConstMemberIterator pIt
-      = iMap->value.FindMember("PatternString");
-
-    if (pIt == iMap->value.MemberEnd()) {
-      PALISADE_THROW(lbcrypto::deserialize_error, "could not find PatternString");
-    }
-
-    this->m_patternString= pIt->value.GetString();
-
-    return true;
 };
 
 template <class Element>

@@ -80,7 +80,6 @@
  */
 namespace lbcrypto {
 
-using SerialItem = rapidjson::Value;
 using Serialized = rapidjson::Document;
 
 class Serializable

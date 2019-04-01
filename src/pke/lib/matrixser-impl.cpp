@@ -30,7 +30,6 @@
 
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "utils/serializablehelper.h"
 #include "rationalciphertext.h"
 
 #include "math/matrix.cpp"

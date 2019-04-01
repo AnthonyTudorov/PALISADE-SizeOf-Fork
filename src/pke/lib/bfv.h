@@ -177,20 +177,6 @@ namespace lbcrypto {
 			virtual ~LPCryptoParametersBFV() {}
 			
 			/**
-			* Serialize the object
-			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized* serObj) const;
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj);
-
-			/**
 			* Gets the value of the delta factor.
 			*
 			* @return the delta factor. It is an BFV-specific factor that is multiplied by the plaintext polynomial.
@@ -284,7 +270,7 @@ namespace lbcrypto {
 			}
 
 			template <class Archive>
-			void save ( Archive & ar ) const
+			void save ( Archive & ar, std::uint32_t const version ) const
 			{
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 				ar( cereal::make_nvp("d", m_delta) );
@@ -295,8 +281,11 @@ namespace lbcrypto {
 			}
 
 			template <class Archive>
-			void load ( Archive & ar )
+			void load( Archive & ar, std::uint32_t const version )
 			{
+				if( version > SerializedVersion() ) {
+					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+				}
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 				ar( cereal::make_nvp("d", m_delta) );
 				ar( cereal::make_nvp("bm", m_bigModulus) );
@@ -306,6 +295,7 @@ namespace lbcrypto {
 			}
 
 			std::string SerializedObjectName() const { return "BFVSchemeParameters"; }
+			static uint32_t	SerializedVersion() { return 1; }
 
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 

@@ -485,8 +485,6 @@ void GLMEncrypt(GLMContext &context, pathList &path, glmParams &params)
 		std::cout << "Completed" << std::endl;
 
 		// Serialization
-		Serialized ctxtSer;
-		ctxtSer.SetObject();
 
 		std::cout << "Serializing Encrypted X...";
 		SerializeCiphertext(xC, path.ciphertextDataDir+"/"+path.ciphertextDataFileName+"-"+path.ciphertextXFileName+"-" + std::to_string(k) + ".txt");
@@ -1143,42 +1141,43 @@ void ParseData(vector<vector<double>> &dataColumns, vector<vector<double>> &xPDo
 
 CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName){
 
-	Serialized	ccSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
+	CryptoContext<DCRTPoly> cc;
+	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
+	if(!cc) {
+		cerr << "Could not deserialize cc" << endl;
+		return 0;
+	}
+
 	return cc;
 }
 
 LPPublicKey<DCRTPoly> DeserializePublicKey(CryptoContext<DCRTPoly> &cc, const string& pkFileName){
 
-	Serialized pkSer;
-	if(SerializableHelper::ReadSerializationFromFile(pkFileName, &pkSer) == false) {
+	LPPublicKey<DCRTPoly> pkt;
+	if(Serializable::DeserializeFromFile(pkFileName, pkt, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return 0;
 	}
-
-	LPPublicKey<DCRTPoly> pkt = cc->deserializePublicKey(pkSer);
 
 	if(!pkt) {
 		cerr << "Could not deserialize public key" << endl;
 		return 0;
 	}
+
 	return pkt;
 }
 
 LPPrivateKey<DCRTPoly> DeserializePrivateKey(CryptoContext<DCRTPoly> &cc, const string& skFileName){
 
-	Serialized skSer;
-	if(SerializableHelper::ReadSerializationFromFile(skFileName, &skSer) == false) {
+	LPPrivateKey<DCRTPoly> skt;
+	if(Serializable::DeserializeFromFile(skFileName, skt, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read private key" << endl;
 		return 0;
 	}
-
-	LPPrivateKey<DCRTPoly> skt = cc->deserializeSecretKey(skSer);
 
 	if(!skt) {
 		cerr << "Could not deserialize private key" << endl;
@@ -1189,17 +1188,14 @@ LPPrivateKey<DCRTPoly> DeserializePrivateKey(CryptoContext<DCRTPoly> &cc, const 
 
 Matrix<Ciphertext<DCRTPoly>> DeserializeCiphertext(CryptoContext<DCRTPoly> &cc, const string &xFileName){
 
-	Serialized xSer;
-	if(SerializableHelper::ReadSerializationFromFile(xFileName, &xSer) == false) {
-		logic_error("Could not read ciphertext"+ xFileName );
-	}
-
 	auto zeroAlloc = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 	Matrix<Ciphertext<DCRTPoly>> xt(zeroAlloc);
 
-	if(!xt.Deserialize(xSer)) {
-		logic_error("Could not deserialize ciphertext " + xFileName );
+	if(Serializable::DeserializeFromFile(xFileName, xt, Serializable::Type::BINARY) == false) {
+		logic_error("Could not read ciphertext"+ xFileName );
 	}
+
+	xt.SetAllocator(zeroAlloc);
 
 	return xt;
 }
@@ -1237,67 +1233,42 @@ void DeserializeEvalSum(CryptoContext<DCRTPoly> &cc, const string& esFileName){
 }
 
 void SerializeContext(CryptoContext<DCRTPoly> &cc, const string &xFileName){
-	Serialized ctxt;
-	if(cc->Serialize(&ctxt)) {
-		if(!SerializableHelper::WriteSerializationToFile(ctxt, xFileName)) {
+	if(!Serializable::SerializeToFile(xFileName, cc, Serializable::Type::BINARY)) {
 		cerr << "Error writing serialization of the crypto context to cryptotext" + xFileName << endl;
 		return;
-	    }
-	}
-	else {
-		cerr << "Error serializing the crypto context" << endl;
-	    return;
 	}
 }
 
 void SerializePublicKey(LPPublicKey<DCRTPoly> &kp, const string &xFileName){
-	Serialized pubK;
-    if(kp){
-    	if(kp->Serialize(&pubK)) {
-    		if(!SerializableHelper::WriteSerializationToFile(pubK, xFileName)) {
-    			cerr << "Error writing serialization of public key to " << xFileName << endl;
-    		return;
-    		}
-    	}
-    	else {
-    		cerr << "Error serializing public key" << endl;
-    		return;
-    	}
-    }
-    else
-    	cerr << "Failure in generating public keys" << endl;
-
+	if(kp){
+		if(!Serializable::SerializeToFile(xFileName, kp, Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of public key to " << xFileName << endl;
+			return;
+		}
+	}
+	else
+		cerr << "Failure in generating public keys" << endl;
 }
 
 void SerializePrivateKey(LPPrivateKey<DCRTPoly> &kp, const string &xFileName){
-	Serialized privK;
-    if(kp){
-    	if(kp->Serialize(&privK)) {
-    		if(!SerializableHelper::WriteSerializationToFile(privK, xFileName)) {
-    			cerr << "Error writing serialization of private key to key-private" + xFileName << endl;
-				    return;
-				}
-	    }
-    	else {
-    		cerr << "Error serializing private key" << endl;
-    		return;
-    	}
-    }
-    else{
-	    	cerr << "Failure in generating private keys" << endl;
-    }
+	if(kp){
+		if(!Serializable::SerializeToFile(xFileName, kp, Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of private key to key-private" + xFileName << endl;
+			return;
+		}
+	}
+	else {
+		cerr << "Failure in generating private keys" << endl;
+	}
 }
 
 void SerializeCiphertext(Matrix<Ciphertext<DCRTPoly>> &C, const string &xFileName){
-	Serialized ctxtSer;
-	ctxtSer.SetObject();
-	if(C.Serialize(&ctxtSer)) {
-		if(!SerializableHelper::WriteSerializationToFile(ctxtSer, xFileName)) {
+	if(!Serializable::SerializeToFile(xFileName, C, Serializable::Type::BINARY)) {
 		cerr << "Error writing serialization of ciphertext to "
-			 << xFileName << endl;
+				<< xFileName << endl;
 		return;
-		}
-	} else {
+	}
+	else {
 		cerr << "Error serializing ciphertext " << endl;
 		return;
 	}

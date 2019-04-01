@@ -26,7 +26,6 @@
  */
 
 #include "cryptocontext.h"
-#include "utils/serializablehelper.h"
 
 namespace lbcrypto {
 
@@ -680,94 +679,21 @@ CryptoContextFactory<Element>::GetContextForPointer(
 	return 0;
 }
 
-/**
- * Create a PALISADE CryptoContext from a serialization
- * @param serObj - the serialization
- * @return new context
- */
-template <typename Element>
-CryptoContext<Element>
-CryptoContextFactory<Element>::DeserializeAndCreateContext(const Serialized& serObj) {
-
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("CryptoContext");
-	if( mIter == serObj.MemberEnd() )
-		throw std::logic_error("Serialization is not of a CryptoContext");
-
-	// mIter->value has params and keys
-
-	Serialized::ConstMemberIterator pIter = mIter->value.FindMember("Params");
-	if( pIter == mIter->value.MemberEnd() )
-		throw std::logic_error("Serialization is missing Params");
-
-	// get parms type
-	Serialized temp(rapidjson::kObjectType);
-	auto parmValue = SerialItem(pIter->value, temp.GetAllocator());
-
-	string parmName;
-	pIter = parmValue.FindMember("LPCryptoParametersType");
-	if (pIter == parmValue.MemberEnd()) {
-		throw std::logic_error("Parameter serialization is missing Parameter type");
-	}
-
-	parmName = pIter->value.GetString();
-
-	pIter = parmValue.FindMember(parmName);
-	if (pIter == parmValue.MemberEnd()) {
-		throw std::logic_error("Parameter serialization is missing Parameter value");
-	}
-
-	Serialized parm(rapidjson::kObjectType);
-	parm.AddMember(SerialItem(pIter->name, parm.GetAllocator()), SerialItem(pIter->value, parm.GetAllocator()), parm.GetAllocator());
-
-	shared_ptr<LPCryptoParameters<Element>> cp = GetParameterObject<Element>(parmName);
-
-	if (cp == NULL) {
-		throw std::logic_error("Unable to create crypto parameters");
-	}
-
-	if (!cp->Deserialize(parm)) {
-		throw std::logic_error("Unable to deserialize crypto parameters for " + parmName);
-	}
-
-	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme = GetSchemeObject<Element>(parmName);
-
-	CryptoContext<Element> cc =
-			CryptoContextFactory<Element>::GetContext(cp, scheme);
-
-	Serialized::ConstMemberIterator sIter = mIter->value.FindMember("Schemes");
-	if( sIter != mIter->value.MemberEnd() ) {
-		usint schemeBits = std::stoi(sIter->value.GetString());
-		cc->Enable(schemeBits);
-	}
-
-	if( cc->GetEncodingParams()->GetPlaintextRootOfUnity() != 0 ) {
-		PackedEncoding::SetParams(cc->GetCyclotomicOrder(), cc->GetEncodingParams());
-	}
-
-	return cc;
-}
-
-/**
- * Create a PALISADE CryptoContext from a serialization
- * @param serObj - the serialization
- * @param noKeys - if true, do not deserialize the keys
- * @return new context
- */
-template <typename Element>
-CryptoContext<Element>
-CryptoContextFactory<Element>::DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType) {
-
-	CryptoContext<Element> newcc;
-
-	//	try {
-	Serializable::Deserialize(newcc, ser, serType);
-	//	}
-	//	catch( exception& e ) {
-	//		return 0;
-	//	}
-
-	return CryptoContextFactory<Element>::GetContext(newcc->GetCryptoParameters(), newcc->GetEncryptionAlgorithm());
-}
+//template <typename Element>
+//CryptoContext<Element>
+//CryptoContextFactory<Element>::DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType) {
+//
+//	CryptoContext<Element> newcc;
+//
+//	//	try {
+//	Serializable::Deserialize(newcc, ser, serType);
+//	//	}
+//	//	catch( exception& e ) {
+//	//		return 0;
+//	//	}
+//
+//	return CryptoContextFactory<Element>::GetContext(newcc->GetCryptoParameters(), newcc->GetEncryptionAlgorithm());
+//}
 
 template <typename T>
 const vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() { return AllContexts; }
@@ -1438,91 +1364,6 @@ CryptoContextFactory<T>::genCryptoContextNull(unsigned int m, EncodingParams enc
 	shared_ptr<LPPublicKeyEncryptionScheme<T>> scheme( new LPPublicKeyEncryptionSchemeNull<T>() );
 
 	return CryptoContextFactory<T>::GetContext(params,scheme);
-}
-
-// the methods below allow me to deserialize a json object into this context
-// ... which will only succeed if the object was serialized from this context,
-// ... or from another context with identical parameters
-
-template <typename T>
-LPPublicKey<T>
-CryptoContextImpl<T>::deserializePublicKey(const Serialized& serObj)
-{
-	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
-	if( cc == 0 )
-		return 0;
-
-	LPPublicKey<T> key( new LPPublicKeyImpl<T>(cc) );
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return 0;
-}
-
-template <typename T>
-LPPrivateKey<T>
-CryptoContextImpl<T>::deserializeSecretKey(const Serialized& serObj)
-{
-	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
-	if( cc == 0 )
-		return 0;
-
-	LPPrivateKey<T> key( new LPPrivateKeyImpl<T>(cc) );
-
-	if( key->Deserialize(serObj) )
-		return key;
-
-	return 0;
-}
-
-template <typename T>
-LPEvalKey<T>
-CryptoContextImpl<T>::deserializeEvalKey(const Serialized& serObj)
-{
-	CryptoContext<T> cc = CryptoContextFactory<T>::DeserializeAndCreateContext(serObj);
-	if( cc == 0 )
-		return 0;
-
-	return CryptoContextImpl<T>::deserializeEvalKeyInContext(serObj, cc);
-}
-
-template <typename T>
-LPEvalKey<T>
-CryptoContextImpl<T>::deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<T> cc)
-{
-	Serialized::ConstMemberIterator nIt = serObj.FindMember("Object");
-	if( nIt == serObj.MemberEnd() )
-		return 0;
-
-	LPEvalKey<T> key;
-	string oname = nIt->value.GetString();
-	if( oname == "EvalKeyRelin" ) {
-		LPEvalKeyRelinImpl<T> *k = new LPEvalKeyRelinImpl<T>(cc);
-		if( k->Deserialize(serObj) == false )
-			return 0;
-
-		key.reset( k );
-	}
-
-	else if( oname == "EvalKeyNTRURelin" ) {
-		LPEvalKeyNTRURelinImpl<T> *k = new LPEvalKeyNTRURelinImpl<T>(cc);
-		if( k->Deserialize(serObj) == false )
-			return 0;
-
-		key.reset( k );
-	}
-	else if( oname == "EvalKeyNTRU" ) {
-		LPEvalKeyNTRUImpl<T> *k = new LPEvalKeyNTRUImpl<T>(cc);
-		if( k->Deserialize(serObj) == false )
-			return 0;
-
-		key.reset( k );
-	}
-	else
-		throw std::logic_error("Unrecognized Eval Key type '" + oname + "'");
-
-	return key;
 }
 
 }

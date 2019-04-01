@@ -67,7 +67,6 @@ const int repcount = 1;
 template<typename T>
 void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	TimeVar t;
-	Serialized	ser;
 	string str;
 
 	stringstream s;
@@ -198,7 +197,7 @@ main()
 		cout << X << endl;
 	}
 
-	if( true ) {
+	if( false ) {
 		Foo	xxx(4);
 		Foo yyy, zzz;
 		stringstream ss;
@@ -233,7 +232,7 @@ main()
 		RunSerialOptions(ep2,"ep");
 	}
 
-	if( false ) {
+	if( true ) {
 		usint plaintextModulus = 536903681;
 		double sigma = 3.2;
 		SecurityLevel securityLevel = HEStd_128_classic;
@@ -259,6 +258,16 @@ main()
 		std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
 
 		//RunSerialOptions(cryptoContext);
+		stringstream s;
+		Serializable::Serialize(cryptoContext, s, Serializable::Type::JSON);
+		cout << "serialized" << endl;
+		cout << cryptoContext.get() << endl;
+		CryptoContext<DCRTPoly> c2;
+		c2.reset( new CryptoContextImpl<DCRTPoly>() );
+		cout << c2.get() << endl;
+		Serializable::Deserialize(c2, s, Serializable::Type::JSON);
+		cout << c2.get() << endl;
+		return 0;
 
 		// Initialize Public Key Containers
 		LPKeyPair<DCRTPoly> keyPair;

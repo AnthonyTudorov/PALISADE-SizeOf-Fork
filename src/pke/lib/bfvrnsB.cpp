@@ -127,34 +127,6 @@ LPCryptoParametersBFVrnsB<Element>::LPCryptoParametersBFVrnsB(shared_ptr<typenam
 			mode), m_numq(0), m_numB(0) {
 	}
 
-template <class Element>
-bool LPCryptoParametersBFVrnsB<Element>::Serialize(Serialized* serObj) const {
-	if (!serObj->IsObject())
-		return false;
-
-	SerialItem cryptoParamsMap(rapidjson::kObjectType);
-	if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
-		return false;
-
-	serObj->AddMember("LPCryptoParametersBFVrnsB", cryptoParamsMap.Move(), serObj->GetAllocator());
-	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBFVrnsB", serObj->GetAllocator());
-
-	return true;
-}
-
-template <class Element>
-bool LPCryptoParametersBFVrnsB<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBFVrnsB");
-	if (mIter == serObj.MemberEnd()) return false;
-
-	if (this->DeserializeRLWE(mIter) == false)
-		return false;
-
-	SerialItem::ConstMemberIterator pIt;
-
-	return PrecomputeCRTTables();
-}
-
 // Enable for LPPublicKeyEncryptionSchemeBFVrnsB
 template <class Element>
 void LPPublicKeyEncryptionSchemeBFVrnsB<Element>::Enable(PKESchemeFeature feature) {

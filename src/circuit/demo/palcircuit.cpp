@@ -227,11 +227,9 @@ main(int argc, char *argv[])
 	}
 
 	// GET CONTEXT
-	Serialized ser;
-	if( SerializableHelper::ReadSerializationFromFile(ctxtfile, &ser, true) == false )
+	CryptoContext<DCRTPoly> cc;
+	if( Serializable::DeserializeFromFile(ctxtfile, cc, Serializable::Type::JSON) == false )
 		return 0;
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ser);
 
 	const shared_ptr<const LPCryptoParametersBFVrns<DCRTPoly>> parms = dynamic_pointer_cast<const LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
 	unsigned qbits = log2(parms->GetElementParams()->GetModulus().ConvertToDouble());

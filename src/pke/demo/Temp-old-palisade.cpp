@@ -32,8 +32,6 @@ using namespace std;
 
 #include "cryptocontexthelper.h"
 
-#include "utils/serializablehelper.h"
-
 using namespace lbcrypto;
 
 enum CmdMode { INTMODE, BYTEMODE } CommandMode = BYTEMODE;

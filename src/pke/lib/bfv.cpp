@@ -162,65 +162,6 @@ LPCryptoParametersBFV<Element>::LPCryptoParametersBFV(shared_ptr<typename Elemen
 }
 
 template <class Element>
-bool LPCryptoParametersBFV<Element>::Serialize(Serialized* serObj) const {
-	if (!serObj->IsObject())
-		return false;
-
-	SerialItem cryptoParamsMap(rapidjson::kObjectType);
-	if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
-		return false;
-
-	cryptoParamsMap.AddMember("delta", m_delta.ToString(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("bigmodulus", m_bigModulus.ToString(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("bigrootofunity", m_bigRootOfUnity.ToString(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("bigmodulusarb", m_bigModulusArb.ToString(), serObj->GetAllocator());
-	cryptoParamsMap.AddMember("bigrootofunityarb", m_bigRootOfUnityArb.ToString(), serObj->GetAllocator());
-
-	serObj->AddMember("LPCryptoParametersBFV", cryptoParamsMap.Move(), serObj->GetAllocator());
-	serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBFV", serObj->GetAllocator());
-
-	return true;
-}
-
-template <class Element>
-bool LPCryptoParametersBFV<Element>::Deserialize(const Serialized& serObj) {
-	Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBFV");
-	if (mIter == serObj.MemberEnd()) return false;
-
-	if (this->DeserializeRLWE(mIter) == false)
-		return false;
-
-	SerialItem::ConstMemberIterator pIt;
-	if ((pIt = mIter->value.FindMember("delta")) == mIter->value.MemberEnd())
-		return false;
-	typename Element::Integer delta(pIt->value.GetString());
-
-	if ((pIt = mIter->value.FindMember("bigmodulus")) == mIter->value.MemberEnd())
-		return false;
-	typename Element::Integer bigmodulus(pIt->value.GetString());
-
-	if ((pIt = mIter->value.FindMember("bigrootofunity")) == mIter->value.MemberEnd())
-		return false;
-	typename Element::Integer bigrootofunity(pIt->value.GetString());
-
-	if ((pIt = mIter->value.FindMember("bigmodulusarb")) == mIter->value.MemberEnd())
-		return false;
-	typename Element::Integer bigmodulusarb(pIt->value.GetString());
-
-	if ((pIt = mIter->value.FindMember("bigrootofunityarb")) == mIter->value.MemberEnd())
-		return false;
-	typename Element::Integer bigrootofunityarb(pIt->value.GetString());
-
-	this->SetBigModulus(bigmodulus);
-	this->SetBigRootOfUnity(bigrootofunity);
-	this->SetBigModulusArb(bigmodulusarb);
-	this->SetBigRootOfUnityArb(bigrootofunityarb);
-	this->SetDelta(delta);
-
-	return true;
-}
-
-template <class Element>
 bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {

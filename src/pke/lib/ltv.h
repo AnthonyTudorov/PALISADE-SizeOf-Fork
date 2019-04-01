@@ -141,39 +141,6 @@ public:
 	virtual ~LPCryptoParametersLTV() {}
 
 	/**
-	 * Serialize the LTV Crypto Parameters using rapidJson representation.
-	 *
-	 * @param serObj RapidJson object for the serializaion
-	 * @return True on success
-	 */
-	bool Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-			return false;
-
-		serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj->GetAllocator());
-
-		return true;
-	}
-
-	/**
-	 * Deserialize the LTV Crypto Parameters using rapidJson representation.
-	 *
-	 * @param serObj The serialized object to deserialize.
-	 * @return True on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersLTV");
-		if( mIter == serObj.MemberEnd() ) return false;
-
-		return this->DeserializeRLWE(mIter);
-	}
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.

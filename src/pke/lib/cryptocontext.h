@@ -2217,33 +2217,10 @@ public:
 		return rv;
 	}
 
-	/**
-	* Deserialize into a Public Key
-	* @param serObj
-	* @return deserialized object
-	*/
-	static LPPublicKey<Element>	deserializePublicKey(const Serialized& serObj);
-
-	/**
-	* Deserialize into a Private Key
-	* @param serObj
-	* @return deserialized object
-	*/
-	static LPPrivateKey<Element>	deserializeSecretKey(const Serialized& serObj);
-
-	/**
-	* Deserialize into an Eval Key in a given context
-	* @param serObj
-	* @return deserialized object
-	*/
-	static LPEvalKey<Element>		deserializeEvalKey(const Serialized& serObj);
-
-	/**
-	* Deserialize into an Eval Key
-	* @param serObj
-	* @return deserialized object
-	*/
-	static LPEvalKey<Element>		deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<Element> cc);
+	static LPPublicKey<Element>	deserializePublicKey(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static LPPrivateKey<Element> deserializeSecretKey(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static LPEvalKey<Element> deserializeEvalKey(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+	static LPEvalKey<Element> deserializeEvalKeyInContext(const Serialized& serObj, CryptoContext<Element> cc) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
@@ -2784,19 +2761,7 @@ public:
 	*/
 	static CryptoContext<Element> genCryptoContextNull(unsigned int m, EncodingParams encodingParams);
 
-	/**
-	* Create a PALISADE CryptoContextImpl from a serialization
-	* @param serObj
-	* @return new context
-	*/
-	static CryptoContext<Element> DeserializeAndCreateContext(const Serialized& serObj);
-
-	/**
-	* Create a PALISADE CryptoContextImpl from a serialization
-	* @param stream containing serialization
-	* @return new context
-	*/
-	static CryptoContext<Element> DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType);
+	static CryptoContext<Element> DeserializeAndCreateContext(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 };
 
 

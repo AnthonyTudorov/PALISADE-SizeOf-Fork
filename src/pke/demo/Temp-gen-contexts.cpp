@@ -74,18 +74,12 @@ void GenContexts(usint ORDER, PlaintextModulus ptm, string nameroot) {
 		cout << "Trying " << cx << endl;
 
 		try {
-			Serialized ser;
 			auto cc = GenTestCryptoContext<Element>(cx, ORDER, ptm);
 
 			if( cc ) {
-				if( cc->Serialize(&ser) ) {
-					string tfn = fn+cx;
-					cout << "Generating " << tfn << endl;
-					SerializableHelper::WriteSerializationToFile(ser, tfn);
-				}
-				else {
-					cout << "No serialization" << endl;
-				}
+				string tfn = fn+cx;
+				cout << "Generating " << tfn << endl;
+				Serializable::SerializeToFile(tfn, cc, Serializable::Type::JSON);
 			}
 			else {
 				cout << "No context" << endl;

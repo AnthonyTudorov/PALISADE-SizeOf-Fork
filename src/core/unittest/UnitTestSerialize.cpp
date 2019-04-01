@@ -34,11 +34,11 @@
 #include "lattice/backend.h"
 #include "math/nbtheory.h"
 #include "math/distrgen.h"
+#include "math/matrix.h"
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
-#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;

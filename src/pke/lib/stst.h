@@ -183,47 +183,6 @@ public:
 	}
 
 	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-			return false;
-
-		cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
-
-		serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersStehleSteinfeld", serObj->GetAllocator());
-
-		return true;
-	}
-
-	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersStehleSteinfeld");
-		if( mIter == serObj.MemberEnd() ) return false;
-
-		if( this->DeserializeRLWE(mIter) == false )
-			return false;
-
-		SerialItem::ConstMemberIterator pIt;
-		if( (pIt = mIter->value.FindMember("DistributionParameterStSt")) == mIter->value.MemberEnd() )
-			return false;
-		float distributionParameterStSt = atof(pIt->value.GetString());
-		this->SetDistributionParameterStSt(distributionParameterStSt);
-		return true;
-	}
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersStehleSteinfeld object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.

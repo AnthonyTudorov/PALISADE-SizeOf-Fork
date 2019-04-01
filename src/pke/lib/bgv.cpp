@@ -52,36 +52,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-
-	template <class Element>
-	bool LPCryptoParametersBGV<Element>::Serialize(Serialized* serObj) const {
-		if (!serObj->IsObject())
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
-			return false;
-
-		serObj->AddMember("LPCryptoParametersBGV", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBGV", serObj->GetAllocator());
-
-		return true;
-	}
-
-
-	template <class Element>
-	bool LPCryptoParametersBGV<Element>::Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBGV");
-		if (mIter == serObj.MemberEnd()) return false;
-
-		if (this->DeserializeRLWE(mIter) == false) {
-			return false;
-		}
-
-		return true;
-	}
-
-
 	//makeSparse is not used by this scheme
 	template <class Element>
 	LPKeyPair<Element> LPAlgorithmBGV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)

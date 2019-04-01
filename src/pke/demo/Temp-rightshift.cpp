@@ -38,7 +38,6 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "utils/serializablehelper.h"
 
 using namespace std;
 using namespace lbcrypto;

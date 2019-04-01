@@ -314,15 +314,13 @@ void Encrypt(size_t size) {
 	const auto encodingParams = cryptoParams->GetEncodingParams();
 	uint32_t batchSize = encodingParams->GetBatchSize();
 
+	// Initialize the public key container
 	string pubKeyLoc = "demoData/PUB.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(pubKeyLoc, &kser) == false) {
+	LPPublicKey<DCRTPoly> pk;
+	if(Serializable::DeserializeFromFile(pubKeyLoc, pk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
-
-	// Initialize the public key containers.
-	LPPublicKey<DCRTPoly> pk = cryptoContext->deserializePublicKey(kser);
 
 	timeSer = TOC(t1);
 
@@ -538,15 +536,14 @@ void Decrypt(size_t size) {
 	size_t height = size;
 	size_t width = size;
 
+	// Initialize the public key containers.
 	string privKeyLoc = "demoData/PRI.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(privKeyLoc, &kser) == false) {
+	LPPrivateKey<DCRTPoly> sk;
+	if(Serializable::DeserializeFromFile(privKeyLoc, sk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read privatekey" << endl;
 		return;
 	}
 
-	// Initialize the public key containers.
-	LPPrivateKey<DCRTPoly> sk = cryptoContext->deserializeSecretKey(kser);
 
     int ciphertextCount;
 

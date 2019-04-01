@@ -29,7 +29,6 @@
 #include "cryptocontext.h"
 #include "cryptotiming.h"
 #include "utils/parmfactory.h"
-#include "utils/serializablehelper.h"
 #include "lattice/elemparamfactory.h"
 
 class UTCryptotiming : public ::testing::Test {
