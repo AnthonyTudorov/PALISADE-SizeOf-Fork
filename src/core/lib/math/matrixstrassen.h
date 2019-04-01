@@ -27,6 +27,7 @@
 #ifndef LBCRYPTO_MATH_MATRIXSTRASSEN_H
 #define LBCRYPTO_MATH_MATRIXSTRASSEN_H
 
+#include <assert.h>
 #include "matrix.h"
 
 namespace lbcrypto {
