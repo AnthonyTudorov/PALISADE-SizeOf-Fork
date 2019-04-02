@@ -119,6 +119,28 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	cout  << endl << "=END= " << nam << " =END=" << endl << endl;
 }
 
+template<typename T>
+void
+Deserialize(CryptoContext<T>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
+	cout << "MINE" << endl;
+	//obj.reset( new CryptoContextImpl<T>() );
+	CryptoContextImpl<T> newob;
+	std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
+	if( sertype == Serializable::Type::JSON ) {
+		cereal::JSONInputArchive archive( stream );
+		archive( cereal::make_nvp(usename, newob) );
+	}
+	else if( sertype == Serializable::Type::BINARY ) {
+		cereal::PortableBinaryInputArchive archive( stream );
+		archive( newob );
+	}
+	else {
+
+	}
+
+	obj = CryptoContextFactory<T>::GetContext(newob.GetCryptoParameters(), newob.GetEncryptionAlgorithm());
+}
+
 int
 main()
 {
@@ -265,7 +287,8 @@ main()
 		CryptoContext<DCRTPoly> c2;
 		c2.reset( new CryptoContextImpl<DCRTPoly>() );
 		cout << c2.get() << endl;
-		Serializable::Deserialize(c2, s, Serializable::Type::JSON);
+		/*Serializable::*/
+		Deserialize(c2, s, Serializable::Type::JSON);
 		cout << c2.get() << endl;
 		return 0;
 

@@ -695,6 +695,28 @@ CryptoContextFactory<Element>::GetContextForPointer(
 //	return CryptoContextFactory<Element>::GetContext(newcc->GetCryptoParameters(), newcc->GetEncryptionAlgorithm());
 //}
 
+template<typename T>
+void
+Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname) {
+	cout << "MINE" << endl;
+	//obj.reset( new CryptoContextImpl<T>() );
+	CryptoContextImpl<T> newob;
+	std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
+	if( sertype == Serializable::Type::JSON ) {
+		cereal::JSONInputArchive archive( stream );
+		archive( cereal::make_nvp(usename, newob) );
+	}
+	else if( sertype == Serializable::Type::BINARY ) {
+		cereal::PortableBinaryInputArchive archive( stream );
+		archive( newob );
+	}
+	else {
+
+	}
+
+	obj = CryptoContextFactory<T>::GetContext(newob.GetCryptoParameters(), newob.GetEncryptionAlgorithm());
+}
+
 template <typename T>
 const vector<CryptoContext<T>>& CryptoContextFactory<T>::GetAllContexts() { return AllContexts; }
 

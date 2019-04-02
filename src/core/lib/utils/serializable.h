@@ -80,6 +80,9 @@
  */
 namespace lbcrypto {
 
+template<typename Element>
+class CryptoContextImpl;
+
 using Serialized = rapidjson::Document;
 
 class Serializable
@@ -278,6 +281,10 @@ public:
 
 		}
 	}
+
+	template<typename T>
+	static void
+	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="");
 
 	template <typename T>
 	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype, std::string withname = "") {
