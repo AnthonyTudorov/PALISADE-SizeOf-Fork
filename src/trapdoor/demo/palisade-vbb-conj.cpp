@@ -27,7 +27,7 @@
  *
  */
 
-#define PROFILE  //define this to enable PROFILELOG and TIC/TOC 
+#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
 // Note must must be before all headers
 
 #include <iostream>
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
   bool single_flag = false;
   bool gen_flag = false;
   string inputFileName("");
-  while ((opt = getopt(argc, argv, "dpvge:i:k:b:sh")) != -1) {
+  while ((opt = getopt(argc, argv, "d:p:v:g:e:i:k:b:s:h")) != -1) {
     switch (opt) {
     case 'd':
       dbg_flag = true;
