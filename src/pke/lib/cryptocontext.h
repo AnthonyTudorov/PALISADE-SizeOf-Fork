@@ -2350,8 +2350,7 @@ public:
 			shared_ptr<LPCryptoParameters<Element>> params,
 			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme);
 
-	static CryptoContext<Element> GetContextForPointer(
-			CryptoContextImpl<Element>* cc);
+	static CryptoContext<Element> GetContextForPointer(CryptoContextImpl<Element>* cc);
 
 	static const vector<CryptoContext<Element>>& GetAllContexts();
 

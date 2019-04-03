@@ -38,4 +38,12 @@ template class CryptoObject<NativePoly>;
 template class CryptoContextFactory<DCRTPoly>;
 template class CryptoContextImpl<DCRTPoly>;
 template class CryptoObject<DCRTPoly>;
+
+template void
+Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<Poly>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname);
+template void
+Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<NativePoly>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname);
+template void
+Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<DCRTPoly>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname);
+
 }

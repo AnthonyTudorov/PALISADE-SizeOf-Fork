@@ -542,7 +542,6 @@ namespace lbcrypto {
 
 	template<typename T>
 	void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjunctionPattern<T> &clearPattern) {
-
 		if( Serializable::DeserializeFromFile(clearFileName+".serial", clearPattern, Serializable::Type::BINARY) == false ) {
 			PALISADE_THROW(lbcrypto::deserialize_error,
 					"Can't read serialization from file "+clearFileName);

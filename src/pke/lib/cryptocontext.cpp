@@ -569,64 +569,6 @@ CryptoContextImpl<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<Ration
 	return rv;
 		}
 
-// returns a shared pointer to a parameter object of the proper type; we deserialize into this object
-template <typename Element>
-static shared_ptr<LPCryptoParameters<Element>> GetParameterObject(string& parmstype) {
-
-	if (parmstype == "LPCryptoParametersLTV") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersLTV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBGV") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBGV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFV") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFVrns") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrns<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFVrnsB") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersBFVrnsB<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersStehleSteinfeld<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersNull") {
-		return shared_ptr<LPCryptoParameters<Element>>(new LPCryptoParametersNull<Element>());
-	}
-
-	return shared_ptr<LPCryptoParameters<Element>>();
-}
-
-// helper for deserialization of contexts
-template <typename Element>
-static shared_ptr<LPPublicKeyEncryptionScheme<Element>> GetSchemeObject(string& parmstype) {
-
-	if (parmstype == "LPCryptoParametersLTV") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeLTV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBGV") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBGV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFV") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFV<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFVrns") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrns<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersBFVrnsB") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeBFVrnsB<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersStehleSteinfeld") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeStehleSteinfeld<Element>());
-	}
-	else if (parmstype == "LPCryptoParametersNull") {
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>(new LPPublicKeyEncryptionSchemeNull<Element>());
-	}
-
-	return shared_ptr<LPPublicKeyEncryptionScheme<Element>>();
-}
-
 template <typename Element>
 vector<CryptoContext<Element>>	CryptoContextFactory<Element>::AllContexts;
 
@@ -665,6 +607,11 @@ CryptoContextFactory<Element>::GetContext(
 
 	CryptoContext<Element> cc(new CryptoContextImpl<Element>(params,scheme));
 	AllContexts.push_back(cc);
+
+    if( cc->GetEncodingParams()->GetPlaintextRootOfUnity() != 0 ) {
+            PackedEncoding::SetParams(cc->GetCyclotomicOrder(), cc->GetEncodingParams());
+    }
+
 	return cc;
 }
 
@@ -679,39 +626,34 @@ CryptoContextFactory<Element>::GetContextForPointer(
 	return 0;
 }
 
-//template <typename Element>
-//CryptoContext<Element>
-//CryptoContextFactory<Element>::DeserializeAndCreateContext(std::istream& ser, Serializable::Type serType) {
-//
-//	CryptoContext<Element> newcc;
-//
-//	//	try {
-//	Serializable::Deserialize(newcc, ser, serType);
-//	//	}
-//	//	catch( exception& e ) {
-//	//		return 0;
-//	//	}
-//
-//	return CryptoContextFactory<Element>::GetContext(newcc->GetCryptoParameters(), newcc->GetEncryptionAlgorithm());
-//}
-
+/**
+ * Deserialize for a CryptoContext (that is, a shared pointer to a CryptoContextImpl
+ * PALISADE doesn't want multiple copies of the same crypto context floating around,
+ * and it enforces that here
+ *
+ * @param obj - the target for the deserialization
+ * @param stream - where the serialization is coming from
+ * @param sertype - serialization type
+ * @param withname - optional name (really only used with JSON, and only if you want it)
+ */
 template<typename T>
 void
 Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname) {
-	cout << "MINE" << endl;
-	//obj.reset( new CryptoContextImpl<T>() );
 	CryptoContextImpl<T> newob;
-	std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
-	if( sertype == Serializable::Type::JSON ) {
-		cereal::JSONInputArchive archive( stream );
-		archive( cereal::make_nvp(usename, newob) );
-	}
-	else if( sertype == Serializable::Type::BINARY ) {
-		cereal::PortableBinaryInputArchive archive( stream );
-		archive( newob );
-	}
-	else {
+	std::string usename = withname.length() == 0 ? newob.SerializedObjectName() : withname;
 
+	try {
+		if( sertype == Serializable::Type::JSON ) {
+			cereal::JSONInputArchive archive( stream );
+			archive( cereal::make_nvp(usename, newob) );
+		}
+		else if( sertype == Serializable::Type::BINARY ) {
+			cereal::PortableBinaryInputArchive archive( stream );
+			archive( newob );
+		}
+	} catch(std::exception& e) {
+		std::cout << e.what() << std::endl;
+		return;
 	}
 
 	obj = CryptoContextFactory<T>::GetContext(newob.GetCryptoParameters(), newob.GetEncryptionAlgorithm());

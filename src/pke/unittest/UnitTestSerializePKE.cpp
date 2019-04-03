@@ -183,7 +183,7 @@ TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
 // USE BGV AS A REPRESENTITIVE CONTEXT
 void Test_keys_and_ciphertext(Serializable::Type sertype)
 {
-	bool dbg_flag = true;
+	bool dbg_flag = false;
 
 	CryptoContextImpl<Poly>::ClearEvalMultKeys();
 	CryptoContextImpl<Poly>::ClearEvalSumKeys();

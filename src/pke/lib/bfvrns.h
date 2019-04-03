@@ -322,6 +322,8 @@ namespace lbcrypto {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
 			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+
+			    PrecomputeCRTTables();
 			}
 
 			std::string SerializedObjectName() const { return "BFVrnsSchemeParameters"; }

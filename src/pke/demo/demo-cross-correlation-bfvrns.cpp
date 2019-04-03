@@ -277,6 +277,11 @@ void Encrypt() {
 			return;
 		}
 
+		if( !cc ) {
+			cerr << "Could not deserialize a context" << endl;
+			return;
+		}
+
 		std::ifstream emkeys(DATAFOLDER + "/" + emFileName, std::ios::in|std::ios::binary);
 		if( !emkeys.is_open() ) {
 			cerr << "Could not read the eval mult key file " << endl;
@@ -349,7 +354,7 @@ void Encrypt() {
 
 		// Packing and encryption
 
-		std::cout << "Batching/encrypting X...";
+		std::cout << "Batching/encrypting X..." << std::flush;
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xC = cc->EncryptMatrix(pk, xP);
 
