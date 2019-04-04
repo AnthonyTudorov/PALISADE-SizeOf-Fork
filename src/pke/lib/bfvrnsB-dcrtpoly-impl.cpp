@@ -987,7 +987,7 @@ template <>
 LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::KeySwitchGen(const LPPrivateKey<DCRTPoly> originalPrivateKey,
 	const LPPrivateKey<DCRTPoly> newPrivateKey) const {
 
-	LPEvalKeyRelin<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
+	LPEvalKey<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(newPrivateKey->GetCryptoParameters());

@@ -634,29 +634,28 @@ CryptoContextFactory<Element>::GetContextForPointer(
  * @param obj - the target for the deserialization
  * @param stream - where the serialization is coming from
  * @param sertype - serialization type
- * @param withname - optional name (really only used with JSON, and only if you want it)
  */
 template<typename T>
 void
-Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname) {
-	CryptoContextImpl<T> newob;
-	std::string usename = withname.length() == 0 ? newob.SerializedObjectName() : withname;
+Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype) {
+
+	CryptoContext<T> newob;
 
 	try {
 		if( sertype == Serializable::Type::JSON ) {
 			cereal::JSONInputArchive archive( stream );
-			archive( cereal::make_nvp(usename, newob) );
+			archive( newob );
 		}
 		else if( sertype == Serializable::Type::BINARY ) {
 			cereal::PortableBinaryInputArchive archive( stream );
 			archive( newob );
 		}
 	} catch(std::exception& e) {
-		std::cout << e.what() << std::endl;
+//		std::cout << e.what() << std::endl;
 		return;
 	}
 
-	obj = CryptoContextFactory<T>::GetContext(newob.GetCryptoParameters(), newob.GetEncryptionAlgorithm());
+	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm());
 }
 
 template <typename T>

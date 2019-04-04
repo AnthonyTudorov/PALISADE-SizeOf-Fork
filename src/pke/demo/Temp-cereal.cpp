@@ -119,31 +119,114 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	cout  << endl << "=END= " << nam << " =END=" << endl << endl;
 }
 
-template<typename T>
-void
-Deserialize(CryptoContext<T>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
-	cout << "MINE" << endl;
-	//obj.reset( new CryptoContextImpl<T>() );
-	CryptoContextImpl<T> newob;
-	std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
-	if( sertype == Serializable::Type::JSON ) {
+class Base {
+	int b;
+public:
+	Base(int b=0) : b(b) {}
+	virtual ~Base() {}
+
+	int GetB() const { return b; }
+
+	virtual ostream& printme(ostream& o) const {
+		o << "Base! " << this->b;
+		return o;
+	}
+
+	friend ostream& operator<<(ostream& o, const Base& v) {
+		return v.printme(o);
+	}
+
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( CEREAL_NVP(b) );
+	}
+};
+
+class D1 : public Base {
+	int x;
+public:
+	D1(int x=0, int b=0) : Base(b), x(x) {}
+
+	virtual ostream& printme(ostream& o) const {
+		o << "D1! " << this->GetB() << " and " << x;
+		return o;
+	}
+
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( cereal::base_class<Base>(this), CEREAL_NVP(x) );
+	}
+};
+
+class D2 : public Base {
+	int y;
+public:
+	D2(int y=0, int b=0) : Base(b), y(y) {}
+
+	virtual ostream& printme(ostream& o) const {
+		o << "D2! " << this->GetB() << " and " << y;
+		return o;
+	}
+
+	template <class Archive>
+	void serialize( Archive & ar )
+	{
+		ar( cereal::base_class<Base>(this), CEREAL_NVP(y) );
+	}
+};
+
+CEREAL_REGISTER_TYPE(Base);
+CEREAL_REGISTER_TYPE(D1);
+CEREAL_REGISTER_TYPE(D2);
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Base, D1);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Base, D2);
+
+void tryit() {
+	shared_ptr<Base> v1( new Base(101) );
+	shared_ptr<Base> v2( new D1(280,102) );
+	shared_ptr<Base> v3( new D2(355,103) );
+
+	cout << *v1 << endl;
+	cout << *v2 << endl;
+	cout << *v3 << endl;
+
+	stringstream s1;
+	{
+		cereal::JSONOutputArchive archive( s1 );
+		archive( v1 );
+		archive( v2 );
+		archive( v3 );
+	}
+	Serializable::Serialize(v1, s1, Serializable::Type::JSON);
+	Serializable::Serialize(v2, s1, Serializable::Type::JSON);
+	Serializable::Serialize(v3, s1, Serializable::Type::JSON);
+
+	cout << s1.str() << endl;
+
+	shared_ptr<Base> newv;
+	stringstream stream;
+	{
+		cereal::JSONOutputArchive archive( stream );
+		archive( v3 );
+	}
+	{
 		cereal::JSONInputArchive archive( stream );
-		archive( cereal::make_nvp(usename, newob) );
-	}
-	else if( sertype == Serializable::Type::BINARY ) {
-		cereal::PortableBinaryInputArchive archive( stream );
-		archive( newob );
-	}
-	else {
-
+		archive( newv );
 	}
 
-	obj = CryptoContextFactory<T>::GetContext(newob.GetCryptoParameters(), newob.GetEncryptionAlgorithm());
+	cout << *newv << endl;
 }
 
 int
 main()
 {
+	if( false ) {
+		tryit();
+	}
+
 	if( false ) {
 		uint64_t m(1);
 		m <<= 60;
@@ -278,19 +361,6 @@ main()
 		std::cout << "\np = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 		std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
 		std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
-
-		//RunSerialOptions(cryptoContext);
-		stringstream s;
-		Serializable::Serialize(cryptoContext, s, Serializable::Type::JSON);
-		cout << "serialized" << endl;
-		cout << cryptoContext.get() << endl;
-		CryptoContext<DCRTPoly> c2;
-		c2.reset( new CryptoContextImpl<DCRTPoly>() );
-		cout << c2.get() << endl;
-		/*Serializable::*/
-		Deserialize(c2, s, Serializable::Type::JSON);
-		cout << c2.get() << endl;
-		return 0;
 
 		// Initialize Public Key Containers
 		LPKeyPair<DCRTPoly> keyPair;

@@ -136,50 +136,18 @@ public:
 		return s.str();
 	}
 
+	/**
+	 * Serialize an object
+	 * @param obj - object to serialize
+	 * @param stream - Stream to serialize to
+	 * @param sertype - type of serialization; default is BINARY
+	 */
 	template<typename T>
-	inline static
-	typename std::enable_if<std::is_base_of<Serializable,T>::value, void>::type
-	Serialize(const std::shared_ptr<T> obj, std::ostream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
+	inline static void
+	Serialize(const T& obj, std::ostream& stream, Serializable::Type sertype = Serializable::Type::BINARY) {
 		if( sertype == Serializable::Type::JSON ) {
 			cereal::JSONOutputArchive archive( stream );
-			archive( cereal::make_nvp(usename, *obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryOutputArchive archive( stream );
-			archive( *obj );
-		}
-		else {
-
-		}
-	}
-
-	template<typename T>
-	inline static
-	typename std::enable_if<!std::is_base_of<Serializable,T>::value, void>::type
-	Serialize(const std::shared_ptr<T> obj, std::ostream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONOutputArchive archive( stream );
-			archive( cereal::make_nvp(usename, *obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryOutputArchive archive( stream );
-			archive( *obj );
-		}
-		else {
-
-		}
-	}
-
-	template<typename T>
-	inline static
-	typename std::enable_if<std::is_base_of<Serializable,T>::value, void>::type
-	Serialize(const T& obj, std::ostream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname.length() == 0 ? obj.SerializedObjectName() : withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONOutputArchive archive( stream );
-			archive( cereal::make_nvp(usename, obj) );
+			archive( obj );
 		}
 		else if( sertype == Serializable::Type::BINARY ) {
 			cereal::PortableBinaryOutputArchive archive( stream );
@@ -190,70 +158,18 @@ public:
 		}
 	}
 
+	/**
+	 * Deserialize an object
+	 * @param obj - object to deserialize into
+	 * @param stream - Stream to deserialize from
+	 * @param sertype - type of serialization; default is BINARY
+	 */
 	template<typename T>
-	inline static
-	typename std::enable_if<!std::is_base_of<Serializable,T>::value, void>::type
-	Serialize(const T& obj, std::ostream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname;
+	inline static void
+	Deserialize(T& obj, std::istream& stream, Serializable::Type sertype = Serializable::Type::BINARY) {
 		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONOutputArchive archive( stream );
-			archive( cereal::make_nvp(usename, obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryOutputArchive archive( stream );
+			cereal::JSONInputArchive archive( stream );
 			archive( obj );
-		}
-		else {
-
-		}
-	}
-
-	template<typename T>
-	inline static
-	typename std::enable_if<std::is_base_of<Serializable,T>::value, void>::type
-	Deserialize(std::shared_ptr<T>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
-		obj.reset( new T() );
-		std::string usename = withname.length() == 0 ? obj->SerializedObjectName() : withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONInputArchive archive( stream );
-			archive( cereal::make_nvp(usename, *obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryInputArchive archive( stream );
-			archive( *obj );
-		}
-		else {
-
-		}
-	}
-
-	template<typename T>
-	inline static
-	typename std::enable_if<!std::is_base_of<Serializable,T>::value, void>::type
-	Deserialize(std::shared_ptr<T>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
-		obj.reset( new T() );
-		std::string usename = withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONInputArchive archive( stream );
-			archive( cereal::make_nvp(usename, *obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryInputArchive archive( stream );
-			archive( *obj );
-		}
-		else {
-
-		}
-	}
-
-	template<typename T>
-	inline static
-	typename std::enable_if<std::is_base_of<Serializable,T>::value, void>::type
-	Deserialize(T& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname.length() == 0 ? obj.SerializedObjectName() : withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONInputArchive archive( stream );
-			archive( cereal::make_nvp(usename, obj) );
 		}
 		else if( sertype == Serializable::Type::BINARY ) {
 			cereal::PortableBinaryInputArchive archive( stream );
@@ -264,33 +180,21 @@ public:
 		}
 	}
 
-	template<typename T>
-	inline static
-	typename std::enable_if<!std::is_base_of<Serializable,T>::value, void>::type
-	Deserialize(T& obj, std::istream& stream, Serializable::Type sertype, std::string withname="") {
-		std::string usename = withname;
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONInputArchive archive( stream );
-			archive( cereal::make_nvp(usename, obj) );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryInputArchive archive( stream );
-			archive( obj );
-		}
-		else {
-
-		}
-	}
-
+	/**
+	 * Deserialize a CryptoContext as a special case
+	 * @param obj - CryptoContext to deserialize into
+	 * @param stream - Stream to deserialize from
+	 * @param sertype - type of serialization; default is BINARY
+	 */
 	template<typename T>
 	static void
-	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype, std::string withname="");
+	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype = Serializable::Type::BINARY);
 
 	template <typename T>
-	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype, std::string withname = "") {
+	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype) {
 		std::ofstream file(filename, std::ios::out|std::ios::binary);
 		if( file.is_open() ) {
-			Serializable::Serialize(obj, file, sertype, withname);
+			Serializable::Serialize(obj, file, sertype);
 			file.close();
 			return true;
 		}
@@ -298,10 +202,10 @@ public:
 	}
 
 	template <typename T>
-	inline static bool DeserializeFromFile(std::string filename, T& obj, Serializable::Type sertype, std::string withname = "") {
+	inline static bool DeserializeFromFile(std::string filename, T& obj, Serializable::Type sertype) {
 		std::ifstream file(filename, std::ios::in|std::ios::binary);
 		if( file.is_open() ) {
-			Serializable::Deserialize(obj, file, sertype, withname);
+			Serializable::Deserialize(obj, file, sertype);
 			file.close();
 			return true;
 		}

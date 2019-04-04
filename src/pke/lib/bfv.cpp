@@ -931,7 +931,7 @@ template <class Element>
 LPEvalKey<Element> LPAlgorithmSHEBFV<Element>::KeySwitchGen(const LPPrivateKey<Element> originalPrivateKey,
 	const LPPrivateKey<Element> newPrivateKey) const {
 
-	LPEvalKeyRelin<Element> ek(new LPEvalKeyRelinImpl<Element>(newPrivateKey->GetCryptoContext()));
+	LPEvalKey<Element> ek(new LPEvalKeyRelinImpl<Element>(newPrivateKey->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersBFV<Element>> cryptoParamsLWE = std::dynamic_pointer_cast<LPCryptoParametersBFV<Element>>(newPrivateKey->GetCryptoParameters());
 	const shared_ptr<typename Element::Params> elementParams = cryptoParamsLWE->GetElementParams();
