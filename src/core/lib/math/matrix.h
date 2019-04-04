@@ -88,7 +88,7 @@ public:
 	 *
 	 * @param &allocZero lambda function for zero initialization.
 	 */
-	Matrix(alloc_func allocZero = 0) : data(), rows(0), cols(0), allocZero(0) {}
+	Matrix(alloc_func allocZero = 0) : data(), rows(0), cols(0), allocZero(allocZero) {}
 
 	/**
 	 * Set the size of a matrix, elements are zeroed out

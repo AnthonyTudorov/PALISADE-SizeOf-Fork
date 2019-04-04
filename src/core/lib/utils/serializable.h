@@ -191,7 +191,7 @@ public:
 	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype = Serializable::Type::BINARY);
 
 	template <typename T>
-	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype) {
+	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype = Serializable::Type::BINARY) {
 		std::ofstream file(filename, std::ios::out|std::ios::binary);
 		if( file.is_open() ) {
 			Serializable::Serialize(obj, file, sertype);
@@ -202,7 +202,7 @@ public:
 	}
 
 	template <typename T>
-	inline static bool DeserializeFromFile(std::string filename, T& obj, Serializable::Type sertype) {
+	inline static bool DeserializeFromFile(std::string filename, T& obj, Serializable::Type sertype = Serializable::Type::BINARY) {
 		std::ifstream file(filename, std::ios::in|std::ios::binary);
 		if( file.is_open() ) {
 			Serializable::Deserialize(obj, file, sertype);
