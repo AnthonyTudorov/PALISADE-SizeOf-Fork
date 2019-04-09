@@ -80,10 +80,10 @@ LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV(shared_ptr<typename DCRTP
 	}
 
 template <>
-LPPublicKeyEncryptionSchemeBFV<DCRTPoly>::LPPublicKeyEncryptionSchemeBFV(){
+LPPublicKeyEncryptionSchemeBFV<DCRTPoly>::LPPublicKeyEncryptionSchemeBFV() {
 		std::string errMsg = "BFV does not support DCRTPoly. Use Poly instead.";
 		throw std::runtime_error(errMsg);
-	}
+}
 
 template class LPCryptoParametersBFV<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFV<DCRTPoly>;
