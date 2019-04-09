@@ -807,9 +807,7 @@ namespace lbcrypto {
 	template <class Element>
 	class LPPublicKeyEncryptionSchemeBFV : public LPPublicKeyEncryptionScheme<Element> {
 	public:
-		LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<Element>() {
-			this->m_algorithmParamsGen = new LPAlgorithmParamsGenBFV<Element>();
-		}
+		LPPublicKeyEncryptionSchemeBFV();
 
 		bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
 			if( dynamic_cast<const LPPublicKeyEncryptionSchemeBFV<Element> *>(&sch) == 0 )

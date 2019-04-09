@@ -154,7 +154,7 @@ bool LPCryptoParametersBFVrns<Element>::Deserialize(const Serialized& serObj) {
 	return PrecomputeCRTTables();
 }
 
-// Enable for LPPublicKeyEncryptionSchemeBFV
+// Enable for LPPublicKeyEncryptionSchemeBFVrns
 template <class Element>
 void LPPublicKeyEncryptionSchemeBFVrns<Element>::Enable(PKESchemeFeature feature) {
 	switch (feature)
