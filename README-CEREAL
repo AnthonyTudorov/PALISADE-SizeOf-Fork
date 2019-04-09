@@ -1,0 +1,14 @@
+This is a temporary README for users handling the new version of serialization.
+
+ALL of these steps go away after the CMake transition, so this is temporary
+
+1. The cereal code is handled as a git submodule. Therefore you must
+   - run "git submodule update --init"
+   - cd to third-party/cereal
+   - git checkout cereal-issue-554
+
+2. make clean
+
+3. make all
+
+Right now... windows no work
