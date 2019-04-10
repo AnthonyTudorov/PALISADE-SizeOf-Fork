@@ -60,8 +60,8 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 
 }
 
-CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M2Integer>, lbcrypto::ILParamsImpl<M2Integer>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M4Integer>, lbcrypto::ILParamsImpl<M4Integer>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<M6Integer>, lbcrypto::ILParamsImpl<M6Integer>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::ILParamsImpl<NativeInteger>, lbcrypto::ILParamsImpl<NativeInteger>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M2Integer>, lbcrypto::ILDCRTParams<M2Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M4Integer>, lbcrypto::ILDCRTParams<M4Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M6Integer>, lbcrypto::ILDCRTParams<M6Integer>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<NativeInteger>, lbcrypto::ILDCRTParams<NativeInteger>::SerializedVersion() );
 

@@ -78,7 +78,7 @@ static void BM_GCD1(benchmark::State& state) { // benchmark
   // code out if we leave this out... )
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());	// label attached to output
+  state.SetLabel(ss.str().c_str());	// label attached to output
 }
 
 BENCHMARK(BM_GCD1);		// register benchmark
@@ -101,7 +101,7 @@ static void BM_GCD2(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_GCD2);		// register benchmark
@@ -124,7 +124,7 @@ static void BM_MRP1(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_MRP1);		// register benchmark
@@ -144,7 +144,7 @@ static void BM_MRP2(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_MRP2);		// register benchmark
@@ -164,7 +164,7 @@ static void BM_MRP3(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_MRP3);		// register benchmark
@@ -184,7 +184,7 @@ static void BM_MRP4(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_MRP4);		// register benchmark
@@ -229,7 +229,7 @@ static void BM_PM1(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out.ToString();
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_PM1);		// register benchmark
@@ -256,7 +256,7 @@ static void BM_PM2(benchmark::State& state) {
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out.ToString();
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_PM2);		// register benchmark
@@ -289,7 +289,7 @@ static void BM_PROU1(benchmark::State& state) {
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 BENCHMARK(BM_PROU1);		// register benchmark
 
@@ -334,7 +334,7 @@ static void BM_PROU2(benchmark::State& state) {
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 BENCHMARK(BM_PROU2);
@@ -405,7 +405,7 @@ static void BM_PROU3(benchmark::State& state) { // benchmark
   // Prevent compiler optimizations
   std::stringstream ss;
   ss << out;
-  state.SetLabel(ss.str());
+  state.SetLabel(ss.str().c_str());
 }
 
 
