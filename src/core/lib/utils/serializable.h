@@ -97,7 +97,7 @@ public:
 	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
 	 * @return true if successfully serialized
 	 */
-	bool Serialize(Serialized* serObj) const { return false; }
+	bool Serialize(Serialized* serObj) const  __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	virtual std::string SerializedObjectName() const = 0;
 
@@ -106,7 +106,7 @@ public:
 	 * @param serObj contains the serialized object
 	 * @return true on success
 	 */
-	bool Deserialize(const Serialized& serObj) { return false; }
+	bool Deserialize(const Serialized& serObj)  __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	/**
 	 * SerializeToString - serialize the object to a JSON string and return the string
