@@ -43,9 +43,6 @@ using std::move;
 namespace lbcrypto {
 
 template<typename Element>
-class CryptoObject;
-
-template<typename Element>
 class CryptoContextImpl;
 
 template<typename Element>
