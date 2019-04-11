@@ -341,7 +341,7 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 
 	if( this->getInputs().size()%2 != 0 ) throw std::logic_error("InnerProduct requires even number of inputs");
 
-	int vecsize = this->getInputs().size()/2;
+	size_t vecsize = this->getInputs().size()/2;
 	auto logsize = log2(vecsize);
 	int logfl = (int)floor(logsize);
 	if( logfl != logsize ) // power of 2
@@ -365,7 +365,7 @@ void EvalInnerProdNodeWithValue<Element>::eval(EvaluateMode mode, CryptoContext<
 
 	double runEst = 0;
 	usint noiseEst = 0;
-	for( auto i = 0; i < this->getInputs().size(); i++ ) {
+	for( size_t i = 0; i < this->getInputs().size(); i++ ) {
 		if( i == vecsize ) {
 			vecp = &vec2;
 			if( CircuitOpTrace ) {

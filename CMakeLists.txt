@@ -151,7 +151,7 @@ endif()
 
 add_custom_command(
 	OUTPUT ${NTLLIBFILE}
-	DEPENDS ${GMPLIBFILE}
+	COMMAND echo BEFORE
 	COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 	COMMAND make
 	COMMAND make install
@@ -159,17 +159,16 @@ add_custom_command(
 )
 
 add_library(ntl_static STATIC IMPORTED GLOBAL)
-set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
+set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE_STATIC})
 add_library(ntl SHARED IMPORTED GLOBAL)
-set_target_properties(ntl PROPERTIES
-	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
-add_custom_target(third-party ALL DEPENDS ${RAPIDJSONINC} ${GMPLIBFILE} ${NTLLIBFILE})
+add_custom_target(third-party ALL DEPENDS ${GMPLIBFILE} ${NTLLIBFILE})
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)
@@ -178,7 +177,7 @@ add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
-## add_subdirectory(src/circuit)
+## FIXME ## add_subdirectory(src/circuit)
 
 ### build the google test handlers
 add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
@@ -189,7 +188,7 @@ set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Enable installation of benchmark. (
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests which depend on gtest" FORCE)
 add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
-add_subdirectory(benchmark)
+## FIXME ## add_subdirectory(benchmark)
 
 ## add_executable(testall $<TARGET_OBJECTS:core_tests>)
 ## install(TARGETS testall DESTINATION unittest)

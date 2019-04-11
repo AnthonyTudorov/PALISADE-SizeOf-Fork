@@ -1,9 +1,18 @@
-find_package (Flex REQUIRED)
-find_package (Bison REQUIRED)
+find_package (FLEX REQUIRED)
+find_package (BISON REQUIRED)
 
-file (GLOB CIRCUIT_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp lib/*.l lib/*.y)
+flex_target(lexer lib/scan.l "${CMAKE_CURRENT_BINARY_DIR}/scan.cpp")
+bison_target(parser lib/parse.y "${CMAKE_CURRENT_BINARY_DIR}/parse.cpp")
+add_flex_bison_dependency(lexer parser)
 
-add_library(circobj OBJECT ${CIRCUIT_SRC_FILES})
+file (GLOB CIRCUIT_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp)
+
+add_library(circobj OBJECT
+	${CIRCUIT_SRC_FILES}
+	${FLEX_lexer_OUTPUTS}
+	${BISON_parser_OUTPUTS}
+)
+target_include_directories( circobj PUBLIC ${CMAKE_CURRENT_BINARY_DIR} )
 add_dependencies(circobj PALISADEpke)
 set_property(TARGET circobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 

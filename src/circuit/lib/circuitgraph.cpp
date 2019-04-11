@@ -159,7 +159,7 @@ CircuitGraphWithValues<Element>::processNodeDepth(CircuitNodeWithValue<Element> 
 {
 	// calculate what the input depth should be for this node given its output depth
 	n->setBottomUpDepth();
-	usint inDepth = n->getInputDepth();
+	int inDepth = n->getInputDepth();
 
 	// assign new output depth to every node providing input
 	for( usint i : n->getInputs() ) {
@@ -190,7 +190,7 @@ CircuitGraphWithValues<Element>::processNodeDepth(CircuitNodeWithValue<Element> 
 					throw std::logic_error( "There is no node with id " + to_string(otherOut) + " for node " + to_string(in->GetId()) + " in the graph!!" );
 				}
 
-				usint outDepth = out->getInputDepth();
+				int outDepth = out->getInputDepth();
 
 				if( inDepth > outDepth ) {
 					insertMRbetween(this, in, out);

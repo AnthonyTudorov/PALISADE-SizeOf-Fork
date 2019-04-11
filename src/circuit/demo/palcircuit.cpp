@@ -298,7 +298,7 @@ main(int argc, char *argv[])
 		cout << "Depth required for circuit is " << cir.GetGraph().GetMaximumDepth() << endl;
 	}
 
-	if( cir.GetGraph().GetMaximumDepth() > parms->GetMaxDepth() ) {
+	if( cir.GetGraph().GetMaximumDepth() > (int)parms->GetMaxDepth() ) {
 		cout << "*** Context will not support circuit... Regenerate\n" << endl;
 		return cir.GetGraph().GetMaximumDepth();
 	}
