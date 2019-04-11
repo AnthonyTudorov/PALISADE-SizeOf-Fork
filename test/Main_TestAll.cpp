@@ -189,15 +189,6 @@ int main(int argc, char **argv) {
 		cout << "Default Backend " <<GetMathBackendParameters() << endl;
 	}
 
-	if( setall )
-		TestB2 = TestB4 = TestB6 = true;
-	else if( MATHBACKEND == 2 )
-		TestB2 = true;
-	else if( MATHBACKEND == 4 )
-		TestB4 = true;
-	else if( MATHBACKEND == 6 )
-		TestB6 = true;
-
 	std::cout<<"Testing Backends: "
 		 << (TestB2?"2 ":"")
 		 << (TestB4?"4 ":"")	

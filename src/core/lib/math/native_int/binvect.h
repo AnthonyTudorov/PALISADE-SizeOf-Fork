@@ -604,7 +604,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 namespace cereal {
 //! Serialization for vector of NativeInteger
 template <class Archive, class A> inline
-void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger<uint64_t>, A> const & vector )
+void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger, A> const & vector )
 {
 	ar( make_size_tag( static_cast<cereal::size_type>(vector.size()) ) ); // number of elements
 	for(const auto v : vector)
@@ -613,7 +613,7 @@ void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInte
 
 //! Deserialization for vector of NativeInteger
 template <class Archive, class A> inline
-void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger<uint64_t>, A> & vector )
+void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger, A> & vector )
 {
 	cereal::size_type size;
 	ar( make_size_tag( size ) );

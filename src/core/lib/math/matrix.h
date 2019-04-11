@@ -644,20 +644,6 @@ public:
 	 */
 	Matrix<Element> MultByRandomVector(std::vector<int> ranvec) const;
 
-	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	 * Populate the object from the deserialization of the Serialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj);
-
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
