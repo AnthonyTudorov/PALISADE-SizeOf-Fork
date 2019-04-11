@@ -36,18 +36,3 @@ template class LPCryptoParametersBGV<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBGV<NativePoly>;
 template class LPAlgorithmBGV<NativePoly>;
 }
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::NativePoly>);
