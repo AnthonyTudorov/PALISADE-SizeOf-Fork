@@ -37,9 +37,10 @@
 
 #include <cmath>
 #include <vector>
-#include "palisade.h"
-#include "cryptocontexthelper.h"
+//#include "palisade.h"
+//#include "cryptocontexthelper.h"
 #include "utils/inttypes.h"
+#include "utils/hashutil.h"
 #include "math/distrgen.h"
 #include "math/backend.h"
 #include "lattice/elemparams.h"

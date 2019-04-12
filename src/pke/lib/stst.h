@@ -485,4 +485,7 @@ public:
 
 }
 
+CEREAL_FORCE_DYNAMIC_INIT(ststdcrtpoly);
+CEREAL_FORCE_DYNAMIC_INIT(ststpoly);
+
 #endif

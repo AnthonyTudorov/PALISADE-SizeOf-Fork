@@ -1244,3 +1244,5 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFVrns<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFVrns<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBFVrns<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFVrns<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_DYNAMIC_INIT(bfvrns);

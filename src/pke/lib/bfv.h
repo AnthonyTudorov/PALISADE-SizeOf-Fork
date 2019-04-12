@@ -916,4 +916,8 @@ namespace lbcrypto {
 	};
 
 } // namespace lbcrypto ends
+
+CEREAL_FORCE_DYNAMIC_INIT(bfvpoly);
+CEREAL_FORCE_DYNAMIC_INIT(bfvdcrtpoly);
+
 #endif

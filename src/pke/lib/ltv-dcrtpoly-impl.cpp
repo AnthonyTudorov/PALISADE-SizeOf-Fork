@@ -120,3 +120,5 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::DCRTPoly>);
+
+CEREAL_REGISTER_DYNAMIC_INIT(ltvdcrtpoly);

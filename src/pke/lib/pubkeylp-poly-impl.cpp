@@ -48,3 +48,34 @@ template class LPSHEAlgorithm<NativePoly>;
 
 }
 
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::Poly>, lbcrypto::LPEvalKeyRelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::NativePoly>, lbcrypto::LPEvalKeyRelinImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::Poly>, lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::NativePoly>, lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::Poly>, lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::Poly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::NativePoly>, lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_DYNAMIC_INIT(pubkeylppoly);

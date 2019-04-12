@@ -69,3 +69,5 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_DYNAMIC_INIT(bfvpoly);
