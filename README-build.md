@@ -48,7 +48,7 @@ If you need to do this, remove everything under build/src/core
 going forward. "Test everything" really means "run the unit test for each component", and as we decouple
 pieces of the library each from the other, having a giant monolithic unit test might not make sense
 
-3. At the moment we do NOT include the following in the new cmake: benchmark, circuit, docs
+3. At the moment we do NOT include the following in the new cmake: benchmark, circuit
 
 4. There needs to be a better way to manage version numbering, so that we don't need to edit five
 different files to make this stuff work.

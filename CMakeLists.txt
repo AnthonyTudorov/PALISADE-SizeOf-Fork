@@ -86,6 +86,19 @@ endif()
 
 find_package (Git REQUIRED)
 
+find_package (Doxygen REQUIRED dot)
+if (DOXYGEN_FOUND)
+
+    add_custom_target( apidocs 
+        COMMAND ${DOXYGEN_EXECUTABLE} lbcrypto-doxy-config
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM )
+
+else (DOXYGEN_FOUND)
+  message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
+
 include (ExternalProject)
 
 # third party directories
@@ -210,6 +223,3 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests 
 add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
 ## FIXME ## add_subdirectory(benchmark)
-
-## add_executable(testall $<TARGET_OBJECTS:core_tests>)
-## install(TARGETS testall DESTINATION unittest)

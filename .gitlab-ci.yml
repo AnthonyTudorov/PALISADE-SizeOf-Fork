@@ -26,7 +26,6 @@ code_quality:
 shell_lint:
   stage: test
   script:
-  - shellcheck configure.sh
   - shellcheck test/benchmark_all_backends.sh
   - shellcheck test/build_all_backends.sh
   - shellcheck test/build_cov_test_backends.sh
@@ -95,12 +94,17 @@ check_wip:
 config:
   stage: setup
   script:
-  - ./configure.sh
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make gmp_unpack
+  - make ntl_unpack
   dependencies: []
 
 build_tpp:
   stage: setup
   script:
+  - cd build
   - make -j $(nproc) gmp_all
   - make -j $(nproc) ntl_all
   artifacts:
@@ -112,11 +116,13 @@ build_tpp:
 build:
   stage: build
   script:
+  - cd build
   - make -j $(nproc) all
+  - make -j $(nproc) install
   artifacts:
     paths:
     - bin/lib
-    - bin/unittest
+    - installed/unittest
     expire_in: 1 day
   dependencies:
   - build_tpp
@@ -136,7 +142,7 @@ build_benchmark:
 test_abe:
   stage: unit_test
   script:
-  - ./bin/unittest/abe/tests --gtest_output=xml
+  - ./installed/unittest/abe_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -148,7 +154,7 @@ test_abe:
 test_circuit:
   stage: unit_test
   script:
-  - ./bin/unittest/circuit/tests --gtest_output=xml
+  - ./installed/unittest/circuit_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -160,7 +166,7 @@ test_circuit:
 test_core:
   stage: unit_test
   script:
-  - ./bin/unittest/core/tests --gtest_output=xml
+  - ./installed/unittest/core_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -172,7 +178,7 @@ test_core:
 test_pke:
   stage: unit_test
   script:
-  - ./bin/unittest/pke/tests --gtest_output=xml
+  - ./installed/unittest/pke_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -184,7 +190,7 @@ test_pke:
 test_signature:
   stage: unit_test
   script:
-  - ./bin/unittest/signature/tests --gtest_output=xml
+  - ./installed/unittest/signature_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -196,7 +202,7 @@ test_signature:
 test_trapdoor:
   stage: unit_test
   script:
-  - ./bin/unittest/trapdoor/tests --gtest_output=xml
+  - ./installed/unittest/trapdoor_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -208,7 +214,7 @@ test_trapdoor:
 test_wip:
   stage: unit_test
   script:
-  - ./bin/unittest/wip/tests --gtest_output=xml
+  - ./installed/unittest/wip_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -267,7 +273,7 @@ memleak:
   stage: memory
   script:
   - make -j $(nproc) all MEM=1
-  - valgrind --leak-check=yes ./bin/unittest/tests
+  - valgrind --leak-check=yes ./installed/unittest_tests
   only:
   - schedules
   tags:
