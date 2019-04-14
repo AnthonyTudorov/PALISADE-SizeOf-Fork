@@ -38,5 +38,14 @@ endforeach()
 
 install(TARGETS core_tests DESTINATION unittest)
 
+add_custom_target( allcoredemos )
+add_dependencies( allcoredemos ${COREAPPS} )
+
 add_custom_target( allcore )
-add_dependencies( allcore PALISADEcore ${COREAPPS} core_tests )
+add_dependencies( allcore PALISADEcore allcoredemos core_tests )
+
+add_custom_command( OUTPUT coreinfocmd COMMAND echo Builds PALISADEcore and these apps: ${COREAPPS} )
+add_custom_target( coreinfo DEPENDS coreinfocmd )
+
+add_custom_command( OUTPUT runcoretests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/core_tests )
+add_custom_target( testcore DEPENDS runcoretests )

@@ -37,5 +37,16 @@ endforeach()
 
 install(TARGETS wip_tests DESTINATION unittest)
 
+### NOTE there's no WIP demos...
+### add_custom_target( allwipdemos )
+### add_dependencies( allwipdemos "${WIPAPPS}" )
+
 add_custom_target( allwip )
-add_dependencies( allwip PALISADEwip ${WIPAPPS} wip_tests )
+add_dependencies( allwip PALISADEwip wip_tests )
+
+add_custom_command( OUTPUT wipinfocmd COMMAND echo Builds PALISADEwip )
+add_custom_target( wipinfo DEPENDS wipinfocmd )
+
+add_custom_command( OUTPUT runwiptests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/wip_tests )
+add_custom_target( testwip DEPENDS runwiptests )
+

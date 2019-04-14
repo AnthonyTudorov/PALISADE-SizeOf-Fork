@@ -10,14 +10,33 @@ endif()
 if(APPLE)
 	set(CMAKE_C_COMPILER /opt/local/bin/clang)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
-	set(OPENMP_LIBRARIES "/opt/local/lib/openmpi-clang38/openmpi")
-	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang38")
+	set(OPENMP_LIBRARIES "/opt/local/lib/openmpi-clang70/openmpi")
+	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
 endif()
 
 project (PALISADE C CXX)
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
 set (CMAKE_INSTALL_MESSAGE LAZY)
+
+# use, i.e. don't skip the full RPATH for the build tree
+SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+
+# when building, don't use the install RPATH already
+# (but later on when installing)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# the RPATH to be used when installing, but only if it's not a system directory
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+IF("${isSystemDir}" STREQUAL "-1")
+   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+ENDIF("${isSystemDir}" STREQUAL "-1")
 
 set (CMAKE_CXX_STANDARD 11)
 if(APPLE)
@@ -82,11 +101,6 @@ foreach( dir ${SUBMAKEFILES} )
 	include_directories( src/${dir}/lib )
 endforeach( dir )
 
-set( THIRDPARTYLIBDIR ${THIRDPARTYDIR}/lib )
-
-# find the third party libraries
-link_directories( ${THIRDPARTYLIBDIR} )
-
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
 
@@ -101,22 +115,23 @@ set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack gmp distro
-if( NOT EXISTS "${GMPSRCDIR}" )
-	execute_process(
-		COMMAND ${TAR} xf gmp-6.1.2.tar.lz
-		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
-	)
-endif()
 
-add_custom_command(
-	OUTPUT ${GMPCONF}
-	COMMAND ./configure --host=${CROSS_TRIPLE} --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
-	WORKING_DIRECTORY ${GMPSRCDIR}
+add_custom_target(
+	gmp_unpack
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf gmp-6.1.2.tar.lz
+	COMMAND cd ${GMPSRCDIR} && ./configure --host=${CROSS_TRIPLE} --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
 )
 
-add_custom_command(
-	OUTPUT ${GMPLIBFILE}
-	DEPENDS ${GMPCONF}
+add_custom_target(
+	gmp_clobber
+	COMMAND rm -fr ${THIRDPARTYDIR}/distros/gmp-6.1.2
+	COMMAND rm -f "${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libgmp*"
+	COMMAND rm -f "${CMAKE_CURRENT_BINARY_DIR}/third-party/include/gmp.h"
+	COMMAND rm -fr "${CMAKE_CURRENT_BINARY_DIR}/third-party/share/info"
+)
+
+add_custom_target(
+	gmp_all
 	COMMAND make 
 	COMMAND make install
 	WORKING_DIRECTORY ${GMPSRCDIR}
@@ -142,17 +157,23 @@ set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # unpack ntl distro
-if( NOT EXISTS "${NTLSRCDIR}" )
-	execute_process(
-		COMMAND ${TAR} xf ${NTLZIPNAME}
-		WORKING_DIRECTORY ${THIRDPARTYDIR}/distros
-	)
-endif()
 
-add_custom_command(
-	OUTPUT ${NTLLIBFILE}
-	COMMAND echo BEFORE
-	COMMAND ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+add_custom_target(
+	ntl_unpack
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
+)
+
+add_custom_target(
+	ntl_clobber
+	COMMAND rm -fr ${THIRDPARTYDIR}/distros/ntl-10.5.0
+	COMMAND rm -f "${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl*"
+	COMMAND rm -fr "${CMAKE_CURRENT_BINARY_DIR}/third-party/include/NTL"
+	COMMAND rm -fr "${CMAKE_CURRENT_BINARY_DIR}/third-party/share/doc"
+)
+
+add_custom_target(
+	ntl_all
 	COMMAND make
 	COMMAND make install
 	WORKING_DIRECTORY ${NTLSRCDIR}

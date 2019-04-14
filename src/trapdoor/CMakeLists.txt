@@ -37,5 +37,15 @@ endforeach()
 
 install(TARGETS trapdoor_tests DESTINATION unittest)
 
+add_custom_target( alltrapdoordemos )
+add_dependencies( alltrapdoordemos ${TRAPDOORAPPS} )
+
 add_custom_target( alltrapdoor )
-add_dependencies( alltrapdoor PALISADEtrapdoor ${TRAPDOORAPPS} trapdoor_tests )
+add_dependencies( alltrapdoor PALISADEtrapdoor alltrapdoordemos trapdoor_tests )
+
+add_custom_command( OUTPUT trapdoorinfocmd COMMAND echo Builds PALISADEtrapdoor and these apps: ${TRAPDOORAPPS} )
+add_custom_target( trapdoorinfo DEPENDS trapdoorinfocmd )
+
+add_custom_command( OUTPUT runtrapdoortests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/trapdoor_tests )
+add_custom_target( testtrapdoor DEPENDS runtrapdoortests )
+

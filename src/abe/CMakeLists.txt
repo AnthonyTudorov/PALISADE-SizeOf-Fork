@@ -37,5 +37,15 @@ endforeach()
 
 install(TARGETS abe_tests DESTINATION unittest)
 
+add_custom_target( allabedemos )
+add_dependencies( allabedemos ${ABEAPPS} )
+
 add_custom_target( allabe )
-add_dependencies( allabe PALISADEabe ${ABEAPPS} abe_tests )
+add_dependencies( allabe PALISADEabe allabedemos abe_tests )
+
+add_custom_command( OUTPUT abeinfocmd COMMAND echo Builds PALISADEabe and these apps: ${ABEAPPS} )
+add_custom_target( abeinfo DEPENDS abeinfocmd )
+
+add_custom_command( OUTPUT runabetests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/abe_tests )
+add_custom_target( testabe DEPENDS runabetests )
+

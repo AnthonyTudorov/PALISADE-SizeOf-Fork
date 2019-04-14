@@ -37,5 +37,15 @@ endforeach()
 
 install(TARGETS signature_tests DESTINATION unittest)
 
+add_custom_target( allsignaturedemos )
+add_dependencies( allsignaturedemos ${SIGAPPS} )
+
 add_custom_target( allsignature )
-add_dependencies( allsignature PALISADEsignature ${SIGAPPS} signature_tests )
+add_dependencies( allsignature PALISADEsignature allsignaturedemos signature_tests )
+
+add_custom_command( OUTPUT signatureinfocmd COMMAND echo Builds PALISADEsignature and these apps: ${SIGAPPS} )
+add_custom_target( signatureinfo DEPENDS signatureinfocmd )
+
+add_custom_command( OUTPUT runsignaturetests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/signature_tests )
+add_custom_target( testsignature DEPENDS runsignaturetests )
+
