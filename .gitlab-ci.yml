@@ -99,7 +99,6 @@ check_wip:
 build_tpp:
   stage: setup
   script:
-  - cd build
   - make gmp_unpack
   - make ntl_unpack
   - make -j $(nproc) gmp_all
@@ -113,7 +112,6 @@ build_tpp:
 build:
   stage: build
   script:
-  - cd build
   - make -j $(nproc) all
   - make -j $(nproc) install
   artifacts:
