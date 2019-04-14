@@ -8,7 +8,7 @@ then
   exit 1
 fi
 
-export NDK="/home/palisade/Desktop/android-ndk-r16b"
+export NDK=${NDK:-"$HOME/Desktop/android-ndk-r16b"}
 if [ ! -d ${NDK} ]
 then
   echo "Please download and install the NDK, then update the path in this script."
