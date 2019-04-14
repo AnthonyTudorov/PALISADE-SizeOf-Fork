@@ -113,7 +113,8 @@ build_tpp:
     paths:
     - third-party
     expire_in: 2 hours
-  dependencies: [config]
+  dependencies:
+  - config
 
 build:
   stage: build
