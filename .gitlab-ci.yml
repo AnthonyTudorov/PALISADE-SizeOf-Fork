@@ -13,7 +13,7 @@ stages:
 before_script:
 - module load gcc/7.3.0
 - module load cmake/3.9.4
-- git submodule sync
+- git submodule update --init
 - mkdir build
 - cd build
 - cmake ..
