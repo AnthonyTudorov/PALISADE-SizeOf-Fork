@@ -95,26 +95,19 @@ check_wip:
   allow_failure: true
   dependencies: []
 
-config:
+build_tpp:
   stage: setup
   script:
   - cd build
   - make gmp_unpack
   - make ntl_unpack
-  dependencies: []
-
-build_tpp:
-  stage: setup
-  script:
-  - cd build
   - make -j $(nproc) gmp_all
   - make -j $(nproc) ntl_all
   artifacts:
     paths:
     - third-party
     expire_in: 2 hours
-  dependencies:
-  - config
+  dependencies: []
 
 build:
   stage: build
