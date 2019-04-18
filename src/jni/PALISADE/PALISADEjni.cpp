@@ -37,25 +37,6 @@ vector<LPPublicKey<Poly>>	_pubKeys;
 vector<LPPrivateKey<Poly>>	_privateKeys;
 vector<LPEvalKey<Poly>>		_preKeys;
 
-static bool ByteArrayToSerialized(JNIEnv *env, jbyteArray jser, Serialized *ser) {
-	// convert byte array into a std::string
-    jsize num_bytes = env->GetArrayLength(jser);
-    jbyte* elements = env->GetByteArrayElements(jser, NULL);
-
-    if (!elements) {
-        return false;
-    }
-
-    string sstring((const char *)elements, (size_t)num_bytes);
-
-    SerializableHelper::StringToSerialization(sstring, ser);
-
-   // Do not forget to release the element array provided by JNI:
-    env->ReleaseByteArrayElements(jser, elements, JNI_ABORT);
-
-    return true;
-}
-
 static bool ByteArrayToString(JNIEnv *env, jbyteArray bytes, string *str) {
 	// convert byte array into a std::string
     jsize num_bytes = env->GetArrayLength(bytes);
@@ -101,15 +82,12 @@ static jbyteArray StringToByteArray(JNIEnv *env, string sstr) {
 JNIEXPORT jboolean JNICALL Java_com_palisade_PALISADE_loadcontext
   (JNIEnv *env, jobject, jbyteArray jser) {
 
-    Serialized sctx;
-    if( !ByteArrayToSerialized(env, jser, &sctx) )
+    string sctx;
+    if( !ByteArrayToString(env, jser, &sctx) )
     	return false;
 
-    string ss;
-    SerializableHelper::SerializationToString(sctx, ss);
-
-    _cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(sctx);
-
+    stringstream ss(sctx);
+    Serializable::Deserialize(_cc, ss);
     return _cc != 0;
 }
 
@@ -121,15 +99,14 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PALISADE_loadcontext
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkeyctx
   (JNIEnv *env, jobject, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
+    string kctx;
+    if( !ByteArrayToString(env, jser, &kctx) )
     	return -1;
 
-    _cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(kctx);
-    if( _cc == 0 )
-    	return -1;
+    stringstream ss(kctx);
 
-    auto pubkey = _cc->deserializePublicKey(kctx);
+    LPPublicKey<Poly> pubkey;
+    Serializable::Deserialize(pubkey, ss);
 
     _pubKeys.push_back(pubkey);
     return _pubKeys.size() - 1;
@@ -143,15 +120,14 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkeyctx
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkeyctx
 (JNIEnv *env, jobject, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
+    string kctx;
+    if( !ByteArrayToString(env, jser, &kctx) )
     	return -1;
 
-    _cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(kctx);
-    if( _cc == 0 )
-    	return -1;
+    stringstream ss(kctx);
 
-    auto privkey = _cc->deserializeSecretKey(kctx);
+    LPPrivateKey<Poly> privkey;
+    Serializable::Deserialize(privkey, ss);
 
     _privateKeys.push_back(privkey);
     return _pubKeys.size() - 1;
@@ -163,16 +139,9 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkeyctx
  * Signature: ([B)I
  */
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkey
-(JNIEnv *env, jobject, jbyteArray jser) {
+(JNIEnv *env, jobject unused, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
-    	return -1;
-
-    auto pubkey = _cc->deserializePublicKey(kctx);
-
-    _pubKeys.push_back(pubkey);
-    return _pubKeys.size() - 1;
+    return Java_com_palisade_PALISADE_loadpubkeyctx(env, unused, jser);
 }
 
 /*
@@ -189,13 +158,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
 
 	auto key = _pubKeys[pubkeyId];
 
-	Serialized kser;
-	key->Serialize( &kser );
+	stringstream ss;
+	Serializable::Serialize(key,ss);
 
-	string sstr;
-	SerializableHelper::SerializationToString(kser, sstr);
-
-	return StringToByteArray(env, sstr);
+	return StringToByteArray(env, ss.str());
 }
 
 /*
@@ -204,16 +170,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
  * Signature: ([B)I
  */
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkey
-(JNIEnv *env, jobject, jbyteArray jser) {
+(JNIEnv *env, jobject unused, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
-    	return -1;
-
-    auto privkey = _cc->deserializeSecretKey(kctx);
-
-    _privateKeys.push_back(privkey);
-    return _privateKeys.size() - 1;
+    return Java_com_palisade_PALISADE_loadprivkeyctx(env, unused, jser);
 }
 
 /*
@@ -230,13 +189,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprivkey
 
 	auto key = _privateKeys[prikeyId];
 
-	Serialized kser;
-	key->Serialize( &kser );
+	stringstream ss;
+	Serializable::Serialize(key,ss);
 
-	string sstr;
-	SerializableHelper::SerializationToString(kser, sstr);
-
-	return StringToByteArray(env, sstr);
+	return StringToByteArray(env, ss.str());
 }
 
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_genprekey
@@ -266,11 +222,14 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_genprekey
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprekey
 (JNIEnv *env, jobject, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
+    string kctx;
+    if( !ByteArrayToString(env, jser, &kctx) )
     	return -1;
 
-    auto prekey = _cc->deserializeEvalKey(kctx);
+    stringstream ss(kctx);
+
+    LPEvalKey<Poly> prekey;
+    Serializable::Deserialize(prekey,ss);
 
     _preKeys.push_back(prekey);
     return _preKeys.size() - 1;
@@ -290,13 +249,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprekey
 
 	auto key = _preKeys[kId];
 
-	Serialized kser;
-	key->Serialize( &kser );
+	stringstream ss;
+	Serializable::Serialize(key,ss);
 
-	string sstr;
-	SerializableHelper::SerializationToString(kser, sstr);
-
-	return StringToByteArray(env, sstr);
+	return StringToByteArray(env, ss.str());
 }
 
 /*
@@ -307,11 +263,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprekey
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadct
 (JNIEnv *env, jobject, jbyteArray jser) {
 
-    Serialized kctx;
-    if( !ByteArrayToSerialized(env, jser, &kctx) )
+    string kctx;
+    if( !ByteArrayToString(env, jser, &kctx) )
     	return -1;
 
-    auto ct = _cc->deserializeCiphertext(kctx);
+    stringstream ss(kctx);
+
+    Ciphertext<Poly> ct;
+    Serializable::Deserialize(ct, ss);
 
     _ctexts.push_back(ct);
     return _ctexts.size() - 1;
@@ -328,15 +287,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serct
 	if( ctId < 0 || ctId >= _ctexts.size() )
 		return NULL;
 
-	auto key = _ctexts[ctId];
+	auto ct = _ctexts[ctId];
 
-	Serialized kser;
-	key->Serialize( &kser );
+	stringstream ss;
+	Serializable::Serialize(ct,ss);
 
-	string sstr;
-	SerializableHelper::SerializationToString(kser, sstr);
-
-	return StringToByteArray(env, sstr);
+	return StringToByteArray(env, ss.str());
 }
 
 /*

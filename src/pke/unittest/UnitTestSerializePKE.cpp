@@ -98,7 +98,7 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 	CryptoContext<T> newcc;
 	Serializable::Deserialize(newcc, s, sertype);
 
-	ASSERT_TRUE( newcc ) << msg << " Deserialize failed";
+	ASSERT_TRUE( newcc.get() != 0 ) << msg << " Deserialize failed";
 
 	EXPECT_EQ( *cc, *newcc ) << msg << " Mismatched context";
 
@@ -113,7 +113,7 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 
 	LPPublicKey<T> newPub;
 	Serializable::Deserialize(newPub, s, sertype);
-	ASSERT_TRUE( newPub ) << msg << " Key deserialize failed";
+	ASSERT_TRUE( newPub.get() != 0 ) << msg << " Key deserialize failed";
 
 	EXPECT_EQ( *kp.publicKey, *newPub ) << msg << " Key mismatch";
 
@@ -225,9 +225,10 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 0 );
+		cc.reset();
 		Serializable::Deserialize(cc, s, sertype);
 
-		ASSERT_TRUE( cc ) << "Deser failed";
+		ASSERT_TRUE( cc.get() != nullptr ) << "Deser failed";
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 	}
 
