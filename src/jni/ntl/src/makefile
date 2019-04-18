@@ -80,7 +80,7 @@ DOCDIR=$(PREFIX)/share/doc
 ###############################################################
 
 
-GMP_PREFIX=../../gmp/$(TARGET_ARCH_ABI)
+GMP_PREFIX=../../gmp/prebuilt/$(TARGET_ARCH_ABI)
 
 GMP_INCDIR=$(GMP_PREFIX)
 # directory containing gmp.h if using GMP 
@@ -385,6 +385,7 @@ setup1:
 	adb push MakeDesc $(PHONE_TMP_DIR)/MakeDesc
 	adb shell "cd $(PHONE_TMP_DIR) && $(PHONE_TMP_DIR)/MakeDesc"
 	adb pull $(PHONE_TMP_DIR)/mach_desc.h
+	adb shell rm -rf $(PHONE_TMP_DIR)
 	mv mach_desc.h ../include/NTL/mach_desc.h
 
 
@@ -396,6 +397,7 @@ setup2:
 	sh MakeGetTime "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
 	sh MakeGetPID "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
 	sh MakeCheckFeatures "$(FEATURES)" "$(COMPILE)" "$(LINK)" "$(PHONE_TMP_DIR)"
+	adb shell rm -rf $(PHONE_TMP_DIR)
 
 # setup3 generates the file ../include/NTL/gmp_aux.h
 # The file ../include/NTL/gmp_aux.h is included in ../include/NTL/lip.h
@@ -409,6 +411,7 @@ setup3:
 	adb push gen_gmp_aux $(PHONE_TMP_DIR)/gen_gmp_aux
 	adb push $(GMP_PREFIX)/libgmp.so $(PHONE_TMP_DIR)/libgmp.so
 	adb shell "cd $(PHONE_TMP_DIR) && LD_LIBRARY_PATH=$(PHONE_TMP_DIR) ./gen_gmp_aux 2>/dev/null" > ../include/NTL/gmp_aux.h
+	adb shell rm -rf $(PHONE_TMP_DIR)
 
 # setup4 runs the wizard
 
@@ -528,8 +531,8 @@ clobber:
 	rm -f ntl.a mach_desc.h ../include/NTL/mach_desc.h  GetTime.cpp GetPID.cpp
 	rm -f ../include/NTL/gmp_aux.h
 	sh RemoveProg $(PROGS) MakeDesc TestGetTime TestGetPID gen_gmp_aux
-#	sh AndroidRemoveProg $(PHONE_TMP_DIR)/$(PROGS) $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetTime  $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetPID $(PHONE_TMP_DIR)/gen_gmp_aux
-	adb shell rm -r $(PHONE_TMP_DIR)
+	#sh AndroidRemoveProg $(PHONE_TMP_DIR)/$(PROGS) $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetTime  $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetPID $(PHONE_TMP_DIR)/gen_gmp_aux
+	#adb shell rm -r $(PHONE_TMP_DIR)
 	rm -f *.o
 	rm -rf small
 	rm -f cfileout mfileout
@@ -538,8 +541,8 @@ clobber:
 
 clean:
 	sh RemoveProg MakeDesc TestGetTime TestGetPID gen_gmp_aux
-#	sh AndroidRemoveProg $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetTime $(PHONE_TMP_DIR)/TestGetPID $(PHONE_TMP_DIR)/gen_gmp_aux
-	adb shell rm -r $(PHONE_TMP_DIR)
+	#sh AndroidRemoveProg $(PHONE_TMP_DIR)/MakeDesc $(PHONE_TMP_DIR)/TestGetTime $(PHONE_TMP_DIR)/TestGetPID $(PHONE_TMP_DIR)/gen_gmp_aux
+	#adb shell rm -r $(PHONE_TMP_DIR)
 	rm -f *.o 
 	rm -rf small
 # 	- $(LIBTOOL) --mode=clean rm -f libntl.la *.lo #LSHAR

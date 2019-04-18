@@ -1,4 +1,8 @@
-#!/bin/sh
+## this script does the "prep" for building NTL
+## it builds the header files by running the NTL
+## test programs on an emulator or on a device
+
+## you MUST have an emulator running OR have an actual phone connected
 
 if [ "$(uname)" == "Darwin" ]; then
 	BHOST=darwin-x86_64
@@ -16,57 +20,50 @@ case "$1" in
 
 armeabi)
 	export ANDROID_ABI=armeabi
-	mkdir -p ../prebuilt/$ANDROID_ABI
 	export PATH=$ORIG_PATH:$NDK_DIR/toolchains/arm-linux-androideabi-4.9/prebuilt/$BHOST/bin
-	make all
+	make setup1 setup2 setup3 setup4
 	if [ $? -eq 0 ]; then
-		cp -r ../include/NTL ../prebuilt/$ANDROID_ABI
-		arm-linux-androideabi-strip --strip-unneeded ntl.a
-		cp ntl.a ../prebuilt/$ANDROID_ABI/libntl.a
-		cp libntl.so ../prebuilt/$ANDROID_ABI/libntl.so
+		rm -fr ../prebuilt/$ANDROID_ABI
+		mkdir -p ../prebuilt/$ANDROID_ABI/NTL
+		cp ../include/NTL/*.h ../prebuilt/$ANDROID_ABI/NTL
+		cp GetTime.cpp GetPID.cpp ../prebuilt/$ANDROID_ABI
 	fi
 	;;
 
 armeabi-v7a)
 	export ANDROID_ABI=armeabi-v7a
-	mkdir -p ../prebuilt/$ANDROID_ABI
 	export PATH=$ORIG_PATH:$NDK_DIR/toolchains/arm-linux-androideabi-4.9/prebuilt/$BHOST/bin
-	make all
+	make setup1 setup2 setup3 setup4
 	if [ $? -eq 0 ]; then
-		cp -r ../include/NTL ../prebuilt/$ANDROID_ABI
-		arm-linux-androideabi-strip --strip-unneeded ntl.a
-		cp ntl.a ../prebuilt/$ANDROID_ABI/libntl.a
-		cp libntl.so ../prebuilt/$ANDROID_ABI/libntl.so
+		rm -fr ../prebuilt/$ANDROID_ABI
+		mkdir -p ../prebuilt/$ANDROID_ABI/NTL
+		cp ../include/NTL/*.h ../prebuilt/$ANDROID_ABI/NTL
+		cp GetTime.cpp GetPID.cpp ../prebuilt/$ANDROID_ABI
 	fi
 	;;
 
 arm64-v8a)
 	export ANDROID_ABI=arm64-v8a
-	mkdir -p ../prebuilt/$ANDROID_ABI
 	export PATH=$ORIG_PATH:$NDK_DIR/toolchains/aarch64-linux-android-4.9/prebuilt/$BHOST/bin
-	make all
+	make setup1 setup2 setup3 setup4
 	if [ $? -eq 0 ]; then
-		cp -r ../include/NTL ../prebuilt/$ANDROID_ABI
-		aarch64-linux-android-strip --strip-unneeded ntl.a
-		cp ntl.a ../prebuilt/$ANDROID_ABI/libntl.a
-		cp libntl.so ../prebuilt/$ANDROID_ABI/libntl.so
+		rm -fr ../prebuilt/$ANDROID_ABI
+		mkdir -p ../prebuilt/$ANDROID_ABI/NTL
+		cp ../include/NTL/*.h ../prebuilt/$ANDROID_ABI/NTL
+		cp GetTime.cpp GetPID.cpp ../prebuilt/$ANDROID_ABI
 	fi
 	;;
 
 x86_64)
 	export ANDROID_ABI=x86_64
-	mkdir -p ../prebuilt/$ANDROID_ABI
 	export PATH=$ORIG_PATH:$NDK_DIR/toolchains/x86_64-4.9/prebuilt/$BHOST/bin
-	make setup1
-	make setup2
-	make setup3
-	make setup4
-	#if [ $? -eq 0 ]; then
-		#cp -r ../include/NTL ../prebuilt/$ANDROID_ABI
-		#x86_64-linux-android-strip --strip-unneeded ntl.a
-		#cp ntl.a ../prebuilt/$ANDROID_ABI/libntl.a
-		#cp libntl.so ../prebuilt/$ANDROID_ABI/libntl.so
-	#fi
+	make setup1 setup2 setup3 setup4
+	if [ $? -eq 0 ]; then
+		rm -fr ../prebuilt/$ANDROID_ABI
+		mkdir -p ../prebuilt/$ANDROID_ABI/NTL
+		cp ../include/NTL/*.h ../prebuilt/$ANDROID_ABI/NTL
+		cp GetTime.cpp GetPID.cpp ../prebuilt/$ANDROID_ABI
+	fi
 	;;
 
 *)
@@ -75,5 +72,4 @@ x86_64)
 	;;
 esac
 
-#make check
-#make clobber
+make clobber

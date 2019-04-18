@@ -8,10 +8,10 @@ then
   exit 1
 fi
 
-export NDK=${NDK:-"$HOME/Desktop/android-ndk-r16b"}
-if [ ! -d ${NDK} ]
+export NDK_DIR=${NDK_DIR:-"$HOME/Desktop/android-ndk-r16b"}
+if [ ! -d ${NDK_DIR} ]
 then
-  echo "Please download and install the NDK, then update the path in this script."
+  echo "Please download and install the NDK_DIR, then update the path in this script."
   echo "  http://developer.android.com/sdk/ndk/index.html"
   exit 1
 fi
@@ -21,14 +21,14 @@ export TARGET32="android-26"
 export TOOLCHAIN32="/tmp/${TARGET32}-x86"
 if [ ! -d ${TOOLCHAIN32} ]
 then
-  ${NDK}/build/tools/make-standalone-toolchain.sh --toolchain=x86-4.9 --platform=${TARGET32} --install-dir=${TOOLCHAIN32} || exit 1
+  ${NDK_DIR}/build/tools/make-standalone-toolchain.sh --toolchain=x86-4.9 --platform=${TARGET32} --install-dir=${TOOLCHAIN32} || exit 1
 fi
 
 export TARGET64="android-26"
 export TOOLCHAIN64="/tmp/${TARGET64}-x86_64"
 if [ ! -d ${TOOLCHAIN64} ]
 then
-  ${NDK}/build/tools/make-standalone-toolchain.sh --toolchain=x86_64-4.9 --platform=${TARGET64} --install-dir=${TOOLCHAIN64} || exit 1
+  ${NDK_DIR}/build/tools/make-standalone-toolchain.sh --toolchain=x86_64-4.9 --platform=${TARGET64} --install-dir=${TOOLCHAIN64} || exit 1
 fi
 
 export PATH="${TOOLCHAIN32}/bin:${TOOLCHAIN64}/bin:${PATH}"
@@ -50,7 +50,7 @@ make install DESTDIR=$PWD/../prebuilt/x86
 ( cd ../prebuilt/x86 && mv usr/lib/libgmp.so usr/lib/libgmpxx.so usr/include/gmp.h usr/include/gmpxx.h . && rm -rf usr )
 make distclean
 
-# x86_64, CFLAGS set according to 'CPU Arch ABIs' in the NDK documentation, LDFLAGS as observed from ndk-build
+# x86_64, CFLAGS set according to 'CPU Arch ABIs' in the NDK_DIR documentation, LDFLAGS as observed from ndk-build
 export CFLAGS="${BASE_CFLAGS} -fstack-protector-strong -march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=intel"
 
 ./configure --prefix=/usr --disable-static --enable-cxx --build=x86_64-pc-linux-gnu --host=x86_64-linux-android MPN_PATH="x86_64/pentium4 x86_64/fastsse x86_64/k8 x86_64 generic" || exit 1

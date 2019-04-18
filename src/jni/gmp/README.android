@@ -1,0 +1,19 @@
+This directory is used to build the GMP library for Android.
+It builds from src (in the src directory), and it places the build products
+into subdirectories under prebuilt.
+
+The GMP library is version 6.1.2. The contents of src should be an identical copy of third-party/distros/gmp-6.1.2
+
+To build the library you need to have the Android NDK installed on your 
+machine. We use android-ndk-r16b.
+
+Set the environment variable NDK_DIR to the pathname for your NDK
+installation. The default location, if one is not set, is
+$HOME/Desktop/android-ndk-r16b
+
+To build from source, run the following two shell scripts:
+
+compile-gmp-arm.sh
+compile-gmp-x86.sh
+
+The results of running these scripts is archived in the GIT repo, so this build should not need to be rerun.

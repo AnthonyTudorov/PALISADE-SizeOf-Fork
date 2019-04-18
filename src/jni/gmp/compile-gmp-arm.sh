@@ -11,10 +11,10 @@ then
   exit 1
 fi
 
-export NDK=${NDK:-"$HOME/Desktop/android-ndk-r16b"}
-if [ ! -d ${NDK} ]
+export NDK_DIR=${NDK_DIR:-"$HOME/Desktop/android-ndk-r16b"}
+if [ ! -d ${NDK_DIR} ]
 then
-  echo "Please download and install the NDK, then update the path in this script."
+  echo "Please download and install the NDK_DIR, then update the path in this script."
   echo "  http://developer.android.com/sdk/ndk/index.html"
   exit 1
 fi
@@ -27,12 +27,12 @@ export TOOLCHAIN64="/tmp/${TARGET64}-arm64"
 if [ ! -d ${TOOLCHAIN32} ]
 then
   echo "======= EXTRACTING TOOLCHAIN FOR ARM32 ======="
-  ${NDK}/build/tools/make-standalone-toolchain.sh --toolchain=arm-linux-androideabi-4.9 --platform=${TARGET32} --install-dir=${TOOLCHAIN32} || exit 1
+  ${NDK_DIR}/build/tools/make-standalone-toolchain.sh --toolchain=arm-linux-androideabi-4.9 --platform=${TARGET32} --install-dir=${TOOLCHAIN32} || exit 1
 fi
 if [ ! -d ${TOOLCHAIN64} ]
 then
   echo "======= EXTRACTING TOOLCHAIN FOR ARM64 ======="
-  ${NDK}/build/tools/make-standalone-toolchain.sh --toolchain=aarch64-linux-android-4.9 --platform=${TARGET64} --install-dir=${TOOLCHAIN64} || exit 1
+  ${NDK_DIR}/build/tools/make-standalone-toolchain.sh --toolchain=aarch64-linux-android-4.9 --platform=${TARGET64} --install-dir=${TOOLCHAIN64} || exit 1
 fi
 
 export PATH="${TOOLCHAIN32}/bin:${TOOLCHAIN64}/bin:${PATH}"

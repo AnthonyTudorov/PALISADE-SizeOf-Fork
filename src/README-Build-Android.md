@@ -3,11 +3,13 @@ in order to build for Android, you MUST have android-ndk-r16b
 these notes assume you've placed it in a folder named android-ndk-r16b on your
 desktop
 
-First you may need to build the NTL library from source:
-1. start the two-six emulator from the command line (it's needed for
-some of the configuration)
-2. cd jni/ntl/src
-3. ./build.sh
+First, build the gmp library from source
+1. cd jni/gmp
+2. follow the instructions in the readme
+
+Then, build the NTL library from source:
+1. cd jni/ntl
+2. follow the instructions in the readme
 
 Then, back up in this directory (src), run:
 
@@ -15,7 +17,7 @@ Then, back up in this directory (src), run:
 
 (you can give it the augument -j4 or -j8 to parallelize the make)
 
-this will place a bunch of .so files into libs/x86_64:
+this will place a bunch of .so files into subdirectories of libs:
 
 libc++_shared.so
 libPALISADEcore.so
