@@ -11,8 +11,10 @@ stages:
 - cleanup
 
 before_script:
+- which g++
 - module load gcc/7.3.0
-- module load g++/7.3.0
+- which g++
+- echo $PATH
 - module load cmake/3.9.4
 - git submodule sync --recursive
 - git submodule update --init --recursive
