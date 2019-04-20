@@ -14,11 +14,21 @@ if(APPLE)
 	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
 endif()
 
-if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
-    message(FATAL_ERROR "Require at least gcc 6")
-endif()
-
 project (PALISADE C CXX)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # require at least gcc 6.1
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.1)
+        message(FATAL_ERROR "GCC version must be at least 6.1!")
+    endif()
+elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    # require at least clang 6
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
+        message(FATAL_ERROR "Clang version must be at least 6!")
+    endif()
+else()
+    message(FATAL_ERROR  "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+endif()
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
 set (CMAKE_INSTALL_MESSAGE LAZY)
