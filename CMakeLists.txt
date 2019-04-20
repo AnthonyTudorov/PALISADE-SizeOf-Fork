@@ -7,14 +7,18 @@ if(APPLE)
 	set(TAR "gnutar")
 endif()
 
+project (PALISADE C CXX)
+
+message( "${CMAKE_CXX_COMPILER_ID}" )
+message( "${CMAKE_CXX_COMPILER}" )
+message( "${CXX}" )
+
 if(APPLE)
 	set(CMAKE_C_COMPILER /opt/local/bin/clang)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
 	set(OPENMP_LIBRARIES "/opt/local/lib/openmpi-clang70/openmpi")
 	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
 endif()
-
-project (PALISADE C CXX)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # require at least gcc 6.1
