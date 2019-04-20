@@ -9,10 +9,6 @@ endif()
 
 project (PALISADE C CXX)
 
-message( "${CMAKE_CXX_COMPILER_ID}" )
-message( "${CMAKE_CXX_COMPILER}" )
-message( "${CXX}" )
-
 if(APPLE)
 	set(CMAKE_C_COMPILER /opt/local/bin/clang)
 	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)

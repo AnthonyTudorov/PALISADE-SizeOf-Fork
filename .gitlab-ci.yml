@@ -20,7 +20,7 @@ before_script:
 - git submodule update --init --recursive
 - mkdir build
 - cd build
-- cmake ..
+- CXX=g++ cmake ..
 - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib
 
 code_quality:
