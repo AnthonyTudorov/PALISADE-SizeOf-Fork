@@ -14,6 +14,10 @@ if(APPLE)
 	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
 endif()
 
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
+    message(FATAL_ERROR "Require at least gcc 6")
+endif()
+
 project (PALISADE C CXX)
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
