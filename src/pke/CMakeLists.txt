@@ -13,11 +13,11 @@ endif()
 
 target_include_directories (PALISADEpke PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})
 
-target_link_libraries (PALISADEpke PUBLIC PALISADEcore PUBLIC gmp PUBLIC ntl ${OpenMP_CXX_FLAGS})
+target_link_libraries (PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})
 if( ${BUILD_STATIC} MATCHES "YES" )
-	target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore PUBLIC gmp_static PUBLIC ntl_static ${OpenMP_CXX_FLAGS})
+	target_link_libraries (PALISADEpke_static PUBLIC PALISADEcore_static ${THIRDPARTYSTATICLIBS} ${OpenMP_CXX_FLAGS})
 endif()
 
 file (GLOB PKE_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)

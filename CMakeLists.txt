@@ -217,6 +217,16 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party
 )
 
+add_library(tcmalloc SHARED IMPORTED GLOBAL)
+set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal.so)
+
+set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)
+set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static)
+
+### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
+### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
+###
+
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
 add_custom_target(third-party ALL DEPENDS ${GMPLIBFILE} ${NTLLIBFILE})
