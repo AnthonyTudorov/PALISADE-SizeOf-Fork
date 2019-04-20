@@ -7,3 +7,6 @@
 [submodule "third-party/google-test"]
 	path = third-party/google-test
 	url = https://github.com/google/googletest.git
+[submodule "third-party/gperftools"]
+	path = third-party/gperftools
+	url = https://github.com/gperftools/gperftools.git

@@ -200,6 +200,23 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
 
+### Handle third-party gperftools for optional tcmalloc
+
+add_custom_target(
+	tcm
+	COMMAND ./autogen.sh
+	COMMAND ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party --enable-minimal
+	COMMAND make
+	COMMAND make install
+	WORKING_DIRECTORY ${THIRDPARTYDIR}/gperftools
+)
+
+add_custom_target(
+	tcm_clean
+	COMMAND rm -rf include/gperftools include/google lib/libtcmalloc_minimal* lib/pkgconfig/libtcmalloc* lib/pkgconfig/libprofiler.pc share/doc/gperftools 
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party
+)
+
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
 add_custom_target(third-party ALL DEPENDS ${GMPLIBFILE} ${NTLLIBFILE})
@@ -222,4 +239,4 @@ set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Enable installation of benchmark. (
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests which depend on gtest" FORCE)
 add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
-## FIXME ## add_subdirectory(benchmark)
+add_subdirectory(benchmark)

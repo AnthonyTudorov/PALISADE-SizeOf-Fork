@@ -15,6 +15,17 @@ cmake ..
 
 This will create all the necessary makefiles. If you say "make help", all available targets are printed.
 
+We also make use of git submodules for many of the pieces of code from third-party sources.
+The cereal, google-benchmark, google-test and gperftools code are all git submodules.
+
+If you want to use the tcmalloc package, you must
+
+make tcm
+
+If you don't want to use tcmalloc any more, you must run
+
+make tcm_clean
+
 There is one big difference between the old scheme for running make and the new scheme,
 The difference has to do with the third-party GMP and NTL libraries. The user MUST build these
 libraries one time, with separate commands:
@@ -48,7 +59,7 @@ If you need to do this, remove everything under build/src/core
 going forward. "Test everything" really means "run the unit test for each component", and as we decouple
 pieces of the library each from the other, having a giant monolithic unit test might not make sense
 
-3. At the moment we do NOT include the following in the new cmake: benchmark, circuit
+3. At the moment we do NOT include the following in the new cmake: circuit
 
 4. There needs to be a better way to manage version numbering, so that we don't need to edit five
 different files to make this stuff work.
