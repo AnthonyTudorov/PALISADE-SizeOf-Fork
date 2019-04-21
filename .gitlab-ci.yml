@@ -10,17 +10,18 @@ stages:
 - deploy
 - cleanup
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 before_script:
 - which g++
 - module load gcc/7.3.0
 - which g++
 - echo $PATH
 - module load cmake/3.9.4
-- git submodule sync --recursive
-- git submodule update --init --recursive
 - mkdir build
 - cd build
-- CXX=g++ cmake ..
+- CC=gcc CXX=g++ cmake ..
 - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib
 
 code_quality:
@@ -104,7 +105,7 @@ build_tpp:
   stage: setup
   script:
   - make gmp_unpack
-  - make ntl_unpack
+  - make ntl_unpack_nowizard
   - make -j $(nproc) gmp_all
   - make -j $(nproc) ntl_all
   artifacts:

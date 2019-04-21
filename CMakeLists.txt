@@ -192,6 +192,12 @@ add_custom_target(
 )
 
 add_custom_target(
+	ntl_unpack_nowizard
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off TUNE=generic
+)
+
+add_custom_target(
 	ntl_clobber
 	COMMAND rm -fr ${THIRDPARTYDIR}/distros/ntl-10.5.0
 	COMMAND rm -f "${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libntl*"
