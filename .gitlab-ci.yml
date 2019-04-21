@@ -32,68 +32,68 @@ code_quality:
 shell_lint:
   stage: test
   script:
-  - shellcheck test/benchmark_all_backends.sh
-  - shellcheck test/build_all_backends.sh
-  - shellcheck test/build_cov_test_backends.sh
-  - shellcheck test/test_all_backends.sh
-  - shellcheck test/test_cov_backends.sh
-  - shellcheck test/valgrind_all_backends.sh
+  - shellcheck ../test/benchmark_all_backends.sh
+  - shellcheck ../test/build_all_backends.sh
+  - shellcheck ../test/build_cov_test_backends.sh
+  - shellcheck ../test/test_all_backends.sh
+  - shellcheck ../test/test_cov_backends.sh
+  - shellcheck ../test/valgrind_all_backends.sh
   allow_failure: true
   dependencies: []
 
 sast:
   stage: test
   script:
-  - flawfinder src/
+  - flawfinder ../src/
   allow_failure: true
   dependencies: []
 
 check_abe:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/abe/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/abe/lib
   allow_failure: true
   dependencies: []
 
 check_circuit:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/circuit/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/circuit/lib
   allow_failure: true
   dependencies: []
 
 check_core:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/core/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/core/lib
   allow_failure: true
   dependencies: []
 
 check_pke:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/pke/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/pke/lib
   allow_failure: true
   dependencies: []
 
 check_signature:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/signature/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/signature/lib
   allow_failure: true
   dependencies: []
 
 check_trapdoor:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/trapdoor/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/trapdoor/lib
   allow_failure: true
   dependencies: []
 
 check_wip:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 src/wip/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/wip/lib
   allow_failure: true
   dependencies: []
 
@@ -125,7 +125,7 @@ build:
 test_abe:
   stage: unit_test
   script:
-  - ./installed/unittest/abe_tests --gtest_output=xml
+  - ../installed/unittest/abe_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -137,7 +137,7 @@ test_abe:
 test_circuit:
   stage: unit_test
   script:
-  - ./installed/unittest/circuit_tests --gtest_output=xml
+  - ../installed/unittest/circuit_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -149,7 +149,7 @@ test_circuit:
 test_core:
   stage: unit_test
   script:
-  - ./installed/unittest/core_tests --gtest_output=xml
+  - ../installed/unittest/core_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -161,7 +161,7 @@ test_core:
 test_pke:
   stage: unit_test
   script:
-  - ./installed/unittest/pke_tests --gtest_output=xml
+  - ../installed/unittest/pke_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -173,7 +173,7 @@ test_pke:
 test_signature:
   stage: unit_test
   script:
-  - ./installed/unittest/signature_tests --gtest_output=xml
+  - ../installed/unittest/signature_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -185,7 +185,7 @@ test_signature:
 test_trapdoor:
   stage: unit_test
   script:
-  - ./installed/unittest/trapdoor_tests --gtest_output=xml
+  - ../installed/unittest/trapdoor_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -197,7 +197,7 @@ test_trapdoor:
 test_wip:
   stage: unit_test
   script:
-  - ./installed/unittest/wip_tests --gtest_output=xml
+  - ../installed/unittest/wip_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -209,7 +209,7 @@ test_wip:
 cyclo:
   stage: test
   script:
-  - lizard -t $(nproc) src/
+  - lizard -t $(nproc) ../src/
   allow_failure: true
   dependencies: []
 
@@ -256,7 +256,7 @@ memleak:
   stage: memory
   script:
   - make -j $(nproc) all MEM=1
-  - valgrind --leak-check=yes ./installed/unittest_tests
+  - valgrind --leak-check=yes ../installed/unittest_tests
   only:
   - schedules
   tags:
