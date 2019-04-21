@@ -1,7 +1,6 @@
 stages:
 - setup
 - build
-- build_etc
 - test
 - unit_test
 - benchmark
@@ -14,10 +13,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:
-- which g++
 - module load gcc/7.3.0
-- which g++
-- echo $PATH
 - module load cmake/3.9.4
 - mkdir build
 - cd build
@@ -110,7 +106,7 @@ build_tpp:
   - make -j $(nproc) ntl_all
   artifacts:
     paths:
-    - third-party
+    - build
     expire_in: 2 hours
   dependencies: []
 
@@ -121,23 +117,10 @@ build:
   - make -j $(nproc) install
   artifacts:
     paths:
-    - bin/lib
-    - installed/unittest
+    - installed
     expire_in: 1 day
   dependencies:
   - build_tpp
-
-build_benchmark:
-  stage: build_etc
-  script:
-  - make -j $(nproc) benchmark
-  dependencies:
-  - build_tpp
-  - build
-  artifacts:
-    paths:
-      - bin/benchmark
-    expire_in: 1 day
 
 test_abe:
   stage: unit_test
@@ -285,7 +268,6 @@ benchmark_basic:
   script:
   - ./bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv 
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -298,7 +280,6 @@ benchmark_crypto:
   script:
   - ./bin/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -311,7 +292,6 @@ benchmark_encoding:
   script:
   - ./bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -324,7 +304,6 @@ benchmark_integermath:
   script:
   - ./bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -337,7 +316,6 @@ benchmark_lattice:
   script:
   - ./bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -350,7 +328,6 @@ benchmark_nbtheory:
   script:
   - ./bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -363,7 +340,6 @@ benchmark_she:
   script:
   - ./bin/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -376,7 +352,6 @@ benchmark_vectormath:
   script:
   - ./bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
@@ -389,7 +364,6 @@ benchmark_lib:
   script:
   - ./bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
-  - build_benchmark
   - build
   - build_tpp
   artifacts:
