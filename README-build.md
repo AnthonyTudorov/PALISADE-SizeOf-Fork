@@ -15,6 +15,10 @@ cmake ..
 
 This will create all the necessary makefiles. If you say "make help", all available targets are printed.
 
+NOTE if you are building on Windows using mingw64, you must initialize by saying
+
+cmake .. -G"Unix Makefiles"
+
 We also make use of git submodules for many of the pieces of code from third-party sources.
 The cereal, google-benchmark, google-test and gperftools code are all git submodules.
 

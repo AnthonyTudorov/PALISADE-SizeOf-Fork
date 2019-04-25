@@ -1,8 +1,7 @@
 stages:
-- setup
 - build
-- test
 - unit_test
+- test
 - benchmark
 - memory
 - checksum
@@ -15,87 +14,87 @@ variables:
 before_script:
 - module load gcc/7.3.0
 - module load cmake/3.9.4
-- export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/third-party/lib:$(pwd)/bin/lib
+- export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/build/third-party/lib:$(pwd)/build/src/core:$(pwd)/build/src/pke:$(pwd)/build/src/signature:$(pwd)/build/src/trapdoor:$(pwd)/build/src/circuit:$(pwd)/build/src/wip:$(pwd)/build/src/abe
 
 code_quality:
   stage: test
   before_script:
   - shopt -s globstar
   script:
-  - cpplint src/**
+  - cpplint benchmark/** src/abe/** src/circuit/** src/core/** src/pke/** src/signature/** src/trapdoor/** src/version.h/** src/wip/** 
   allow_failure: true
   dependencies: []
 
 shell_lint:
   stage: test
   script:
-  - shellcheck ../test/benchmark_all_backends.sh
-  - shellcheck ../test/build_all_backends.sh
-  - shellcheck ../test/build_cov_test_backends.sh
-  - shellcheck ../test/test_all_backends.sh
-  - shellcheck ../test/test_cov_backends.sh
-  - shellcheck ../test/valgrind_all_backends.sh
+  - shellcheck test/benchmark_all_backends.sh
+  - shellcheck test/build_all_backends.sh
+  - shellcheck test/build_cov_test_backends.sh
+  - shellcheck test/test_all_backends.sh
+  - shellcheck test/test_cov_backends.sh
+  - shellcheck test/valgrind_all_backends.sh
   allow_failure: true
   dependencies: []
 
 sast:
   stage: test
   script:
-  - flawfinder ../src/
+  - flawfinder src/
   allow_failure: true
   dependencies: []
 
 check_abe:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/abe/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/abe/lib
   allow_failure: true
   dependencies: []
 
 check_circuit:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/circuit/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/circuit/lib
   allow_failure: true
   dependencies: []
 
 check_core:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/core/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/core/lib
   allow_failure: true
   dependencies: []
 
 check_pke:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/pke/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/pke/lib
   allow_failure: true
   dependencies: []
 
 check_signature:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/signature/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/signature/lib
   allow_failure: true
   dependencies: []
 
 check_trapdoor:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/trapdoor/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/trapdoor/lib
   allow_failure: true
   dependencies: []
 
 check_wip:
   stage: test
   script:
-  - cppcheck -j $(nproc) -q --error-exitcode=1 ../src/wip/lib
+  - cppcheck -j $(nproc) -q --error-exitcode=1 src/wip/lib
   allow_failure: true
   dependencies: []
 
-build_tpp:
-  stage: setup
+build:
+  stage: build
   script:
   - mkdir -p build
   - cd build
@@ -104,113 +103,99 @@ build_tpp:
   - make ntl_unpack_nowizard
   - make -j $(nproc) gmp_all
   - make -j $(nproc) ntl_all
-  artifacts:
-    paths:
-    - build
-    expire_in: 2 hours
-  dependencies: []
-
-build:
-  stage: build
-  script:
-  - cd build
   - make -j $(nproc) all
-  - make -j $(nproc) install
   artifacts:
     paths:
-    - installed/unittest
+    - build/third-party/lib
+    - build/benchmark
+    - "build/src/*/*_tests"
+    - "build/src/*/*.so*"
     expire_in: 1 day
-  dependencies:
-  - build_tpp
+  dependencies: []
 
 test_abe:
   stage: unit_test
   script:
-  - installed/unittest/abe_tests --gtest_output=xml
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/src/abe/abe_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
-test_circuit:
-  stage: unit_test
-  script:
-  - installed/unittest/circuit_tests --gtest_output=xml
-  artifacts:
-    paths:
-    - test_detail.xml
-    expire_in: 2 days
-  dependencies:
-  - build_tpp
-  - build
+#test_circuit:
+#  stage: unit_test
+#  script:
+#  - build/src/circuit/circuit_tests --gtest_output=xml
+#  artifacts:
+#    paths:
+#    - test_detail.xml
+#    expire_in: 2 days
+#  dependencies:
+#  - build
 
 test_core:
   stage: unit_test
   script:
-  - installed/unittest/core_tests --gtest_output=xml
+  - build/src/core/core_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
 test_pke:
   stage: unit_test
   script:
-  - installed/unittest/pke_tests --gtest_output=xml
+  - build/src/pke/pke_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
 test_signature:
   stage: unit_test
   script:
-  - installed/unittest/signature_tests --gtest_output=xml
+  - build/src/signature/signature_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
 test_trapdoor:
   stage: unit_test
   script:
-  - installed/unittest/trapdoor_tests --gtest_output=xml
+  - build/src/trapdoor/trapdoor_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
 test_wip:
   stage: unit_test
   script:
-  - installed/unittest/wip_tests --gtest_output=xml
+  - build/src/wip/wip_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - build_tpp
   - build
 
 cyclo:
   stage: test
   script:
-  - lizard -t $(nproc) ../src/
+  - lizard -t $(nproc) src/
   allow_failure: true
   dependencies: []
 
@@ -222,8 +207,8 @@ coverage:
   - mkdir -p doc/coverage
   - gcovr -j $(nproc) --verbose -r . --filter src/[^/]+/lib/* --filter src/* --html --html-details -o doc/coverage/index.html --print-summary
   allow_failure: true
-  dependencies:
-  - build_tpp
+  dependencies: 
+  - build
   artifacts:
     paths:
     - doc/coverage
@@ -249,6 +234,7 @@ pages:
 clean:
   stage: cleanup
   script:
+  - cd build
   - make -j $(nproc) gmp_clobber ntl_clobber clean
   when: always
   dependencies: []
@@ -257,7 +243,7 @@ memleak:
   stage: memory
   script:
   - make -j $(nproc) all MEM=1
-  - valgrind --leak-check=yes ../installed/unittest_tests
+  - valgrind --leak-check=yes ../build/src_tests
   only:
   - schedules
   tags:
@@ -267,10 +253,9 @@ memleak:
 benchmark_basic:
   stage: benchmark
   script:
-  - ./bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv 
+  - ./build/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv 
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -279,10 +264,9 @@ benchmark_basic:
 benchmark_crypto:
   stage: benchmark
   script:
-  - ./bin/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -291,10 +275,9 @@ benchmark_crypto:
 benchmark_encoding:
   stage: benchmark
   script:
-  - ./bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -303,10 +286,9 @@ benchmark_encoding:
 benchmark_integermath:
   stage: benchmark
   script:
-  - ./bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -315,10 +297,9 @@ benchmark_integermath:
 benchmark_lattice:
   stage: benchmark
   script:
-  - ./bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -327,10 +308,9 @@ benchmark_lattice:
 benchmark_nbtheory:
   stage: benchmark
   script:
-  - ./bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -339,10 +319,9 @@ benchmark_nbtheory:
 benchmark_she:
   stage: benchmark
   script:
-  - ./bin/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -351,10 +330,9 @@ benchmark_she:
 benchmark_vectormath:
   stage: benchmark
   script:
-  - ./bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
@@ -363,10 +341,9 @@ benchmark_vectormath:
 benchmark_lib:
   stage: benchmark
   script:
-  - ./bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - ./build/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
-  - build_tpp
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"

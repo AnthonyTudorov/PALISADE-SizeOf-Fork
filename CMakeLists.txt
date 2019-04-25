@@ -47,7 +47,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         message(FATAL_ERROR "Clang version must be at least 6!")
     endif()
 else()
-    message(FATAL_ERROR  "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+	message(FATAL_ERROR  "You are using ${CMAKE_CXX_COMPILER_ID} version ${CMAKE_CXX_COMPILER_VERSION}, which is unsupported.")
 endif()
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
@@ -135,10 +135,17 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
 set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
+### note on Windows we build static
+
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+if(MINGW)
+	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+else()
+	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
+	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack gmp distro
@@ -173,6 +180,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
 
 ### Handle third-party libntl
+### note on Windows we build static
 
 set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
 set(NTLZIPNAME ntl-10.5.0.tar.gz)
@@ -180,8 +188,13 @@ set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+if(MINGW)
+	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+else()
+	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
 
 # unpack ntl distro
 
@@ -240,7 +253,11 @@ add_custom_target(
 add_library(tcmalloc SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal.so)
 
-set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)
+if(MINGW)
+	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static)
+else()
+	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)
+endif()
 set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static)
 
 ### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED

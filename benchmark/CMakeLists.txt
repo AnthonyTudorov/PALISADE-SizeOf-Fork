@@ -11,15 +11,14 @@ set (BMLIBS PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} PUBLIC benc
 set (BMAPPS "")
 file (GLOB BMARK_SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 foreach (app ${BMARK_SRC_FILES})
-	string ( REGEX REPLACE "/\.*/" "" FN ${app})
-	string ( REPLACE ".cpp" "" APP ${FN})
-	add_executable( ${APP} ${app} )
-	target_include_directories( ${APP} PUBLIC ../third-party/google-benchmark/include )
-	set_target_properties( ${APP} PROPERTIES COMPILE_FLAGS
+	get_filename_component ( exe ${app} NAME_WE )
+	add_executable ( ${exe} ${app} )
+	target_include_directories( ${exe} PUBLIC ../third-party/google-benchmark/include )
+	set_target_properties( ${exe} PROPERTIES COMPILE_FLAGS
 		"${REGEX_FLAG} -DHAVE_STEADY_CLOCK -DNDEBUG ${WARNING_FLAG} -Wno-unused-variable" )
-	target_link_libraries ( ${APP} ${BMLIBS} )
-	set (BMAPPS ${BMAPPS} ${APP})
-        install ( TARGETS ${APP} DESTINATION benchmark )
+	target_link_libraries ( ${exe} ${BMLIBS} )
+	set (BMAPPS ${BMAPPS} ${exe})
+        install ( TARGETS ${exe} DESTINATION benchmark )
 endforeach()
 
 add_custom_target( allbenchmark )
