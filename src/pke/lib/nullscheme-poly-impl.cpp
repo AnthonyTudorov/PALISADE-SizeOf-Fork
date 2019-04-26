@@ -130,5 +130,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHENull<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT(nullpoly);

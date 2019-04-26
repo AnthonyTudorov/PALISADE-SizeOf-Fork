@@ -866,7 +866,4 @@ public:
 
 }
 
-CEREAL_FORCE_DYNAMIC_INIT(ltvdcrtpoly);
-CEREAL_FORCE_DYNAMIC_INIT(ltvpoly);
-
 #endif

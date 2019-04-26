@@ -98,5 +98,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::DCRTPoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT(bfvdcrtpoly);

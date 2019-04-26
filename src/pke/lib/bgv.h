@@ -847,7 +847,4 @@ namespace lbcrypto {
 
 } // namespace lbcrypto ends
 
-CEREAL_FORCE_DYNAMIC_INIT(bgvdcrtpoly);
-CEREAL_FORCE_DYNAMIC_INIT(bgvpoly);
-
 #endif

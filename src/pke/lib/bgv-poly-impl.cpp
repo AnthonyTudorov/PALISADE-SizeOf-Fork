@@ -51,5 +51,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT(bgvpoly);

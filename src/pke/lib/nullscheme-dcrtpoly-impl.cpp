@@ -96,5 +96,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmNull<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHENull<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::DCRTPoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT(nulldcrtpoly);

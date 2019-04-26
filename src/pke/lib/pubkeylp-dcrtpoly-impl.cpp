@@ -49,5 +49,3 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>
 CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);
 
-CEREAL_REGISTER_DYNAMIC_INIT(pubkeylpdcrtpoly);
-

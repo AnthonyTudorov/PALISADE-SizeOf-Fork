@@ -121,5 +121,3 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::DCRTPoly
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::DCRTPoly>);
-
-CEREAL_REGISTER_DYNAMIC_INIT(bgvdcrtpoly);

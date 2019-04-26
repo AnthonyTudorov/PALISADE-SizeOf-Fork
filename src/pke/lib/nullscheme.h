@@ -965,7 +965,4 @@ public:
 
 }
 
-CEREAL_FORCE_DYNAMIC_INIT(nulldcrtpoly);
-CEREAL_FORCE_DYNAMIC_INIT(nullpoly);
-
 #endif /* SRC_LIB_CRYPTO_NULLSCHEME_H_ */
