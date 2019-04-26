@@ -39,7 +39,7 @@
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
 
-#include "utils/ser-reg.h"
+//#include "utils/ser-reg.h"
 
 using namespace std;
 using namespace lbcrypto;
