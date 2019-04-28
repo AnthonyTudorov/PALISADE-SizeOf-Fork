@@ -30,7 +30,6 @@
 #include <string>
 #include <iostream>
 
-#include "utils/serializablehelper.h"
 #include "cryptocontext.h"
 #include "cryptocontextparametersets.h"
 

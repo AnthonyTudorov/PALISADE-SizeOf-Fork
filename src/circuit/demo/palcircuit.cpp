@@ -227,11 +227,9 @@ main(int argc, char *argv[])
 	}
 
 	// GET CONTEXT
-	Serialized ser;
-	if( SerializableHelper::ReadSerializationFromFile(ctxtfile, &ser, true) == false )
+	CryptoContext<DCRTPoly> cc;
+	if( Serializable::DeserializeFromFile(ctxtfile, cc, Serializable::Type::JSON) == false )
 		return 0;
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ser);
 
 	const shared_ptr<const LPCryptoParametersBFVrns<DCRTPoly>> parms = dynamic_pointer_cast<const LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
 	unsigned qbits = log2(parms->GetElementParams()->GetModulus().ConvertToDouble());
@@ -342,12 +340,6 @@ main(int argc, char *argv[])
 	// when generating timing estimates, need to read in the Context and the timings
 	TimingStatisticsMap timings;
 	if( evaluation_run_mode ) {
-		Serialized serObj;
-		if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false ) {
-			cout << "Input file does not begin with a serialization" << endl;
-			return 1;
-		}
-
 		// FIXME check for match
 		//		if( (cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj)) == NULL ) {
 		//			cout << "Unable to deserialize and initialize from saved crypto context" << endl;
@@ -356,11 +348,8 @@ main(int argc, char *argv[])
 		//		}
 
 		do {
-			serObj.SetObject();
-			if( SerializableHelper::StreamToSerialization(evalStatF, &serObj) == false )
-				break;
 			TimingStatistics s;
-			s.Deserialize(serObj);
+			Serializable::Deserialize(s, evalStatF, Serializable::Type::BINARY);
 			timings[TimingStatisticsKey(s.operation,s.argcnt)] = s;
 		} while( true );
 

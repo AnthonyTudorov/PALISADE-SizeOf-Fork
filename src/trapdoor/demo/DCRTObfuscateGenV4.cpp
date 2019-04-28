@@ -276,7 +276,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
-  SerializeClearPatternToFile(clearPattern, clearFileName, pretty_flag);
+  SerializeClearPatternToFile(clearPattern, clearFileName);
 
   if (verify_flag) { //verify the serialization
 
@@ -360,33 +360,25 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   DEBUG("Serializing Obfuscation" );
   string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
   TIC(t1);
-  if (single_flag) {
-    SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName, pretty_flag);
-  }else{
-    SerializeObfuscatedPatternToFileSet(obfuscatedPattern, obfFileName, pretty_flag);
-  }
+  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
   timeSerial = TOC(t1);
   PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
 
   
   if (verify_flag) {// verify the serialization 
-    std::cout<<"Verifying Serialization"<<std::endl;
-    ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
+	  std::cout<<"Verifying Serialization"<<std::endl;
+	  ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
-    if (single_flag) {
-      DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
-    } else {
-      DeserializeObfuscatedPatternFromFileSet(obfFileName, testObfuscatedPattern);
-    }
-    
-    if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
-      std::cout<<"Serialization did verify"<<std::endl;
-    }else{
-      std::cout<<"Serialization verified"<<std::endl;
-    }
-    
-    DEBUG("Done" );
+	  DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
+
+	  if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
+		  std::cout<<"Serialization did verify"<<std::endl;
+	  }else{
+		  std::cout<<"Serialization verified"<<std::endl;
+	  }
+
+	  DEBUG("Done" );
   }
 
   //print output timing results

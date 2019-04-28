@@ -183,47 +183,6 @@ public:
 	}
 
 	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-			return false;
-
-		cryptoParamsMap.AddMember("DistributionParameterStSt", std::to_string(this->GetDistributionParameterStSt()), serObj->GetAllocator());
-
-		serObj->AddMember("LPCryptoParametersStehleSteinfeld", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersStehleSteinfeld", serObj->GetAllocator());
-
-		return true;
-	}
-
-	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersStehleSteinfeld");
-		if( mIter == serObj.MemberEnd() ) return false;
-
-		if( this->DeserializeRLWE(mIter) == false )
-			return false;
-
-		SerialItem::ConstMemberIterator pIt;
-		if( (pIt = mIter->value.FindMember("DistributionParameterStSt")) == mIter->value.MemberEnd() )
-			return false;
-		float distributionParameterStSt = atof(pIt->value.GetString());
-		this->SetDistributionParameterStSt(distributionParameterStSt);
-		return true;
-	}
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersStehleSteinfeld object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -242,6 +201,23 @@ public:
 
 		os << " StSt distribution parm: " << m_distributionParameterStSt;
 	}
+
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+		this->SetDistributionParameterStSt(m_distributionParameterStSt);
+	}
+
+	std::string SerializedObjectName() const { return "StStSchemeParameters"; }
 
 private:
 	//standard deviation in Discrete Gaussian Distribution used for Key Generation
@@ -321,6 +297,20 @@ public:
 
 		return kp;
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStEncryption"; }
 };
 
 template <class Element>
@@ -400,6 +390,19 @@ public:
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStSHE"; }
 };
 
 /**
@@ -441,19 +444,19 @@ public:
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmStSt<Element>() );
 			break;
 		case PRE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmStSt<Element>() );
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+				this->m_algorithmPRE.reset( new LPAlgorithmPRELTV<Element>() );
 			break;
 		case SHE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmStSt<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmStSt<Element>() );
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEStSt<Element>();
+				this->m_algorithmSHE.reset( new LPAlgorithmSHEStSt<Element>() );
 			break;
 		case MULTIPARTY:
 			throw std::logic_error("MULTIPARTY feature not supported for StehleSteinfeld scheme");
@@ -463,6 +466,20 @@ public:
 			throw std::logic_error("LEVELEDSHE feature not supported for StehleSteinfeld scheme");
 		}
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "StStScheme"; }
 };
 
 

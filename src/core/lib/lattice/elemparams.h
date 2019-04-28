@@ -210,20 +210,35 @@ public:
 		return !(*this == other);
 	}
 
-	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return True if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const;
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("co", cyclotomicOrder) );
+		ar( cereal::make_nvp("rd", ringDimension) );
+		ar( cereal::make_nvp("2n", isPowerOfTwo) );
+		ar( cereal::make_nvp("cm", ciphertextModulus) );
+		ar( cereal::make_nvp("ru", rootOfUnity) );
+		ar( cereal::make_nvp("bm", bigCiphertextModulus) );
+		ar( cereal::make_nvp("br", bigRootOfUnity) );
+	}
 
-	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return True on success
-	 */
-	bool Deserialize(const Serialized& serObj);
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("co", cyclotomicOrder) );
+		ar( cereal::make_nvp("rd", ringDimension) );
+		ar( cereal::make_nvp("2n", isPowerOfTwo) );
+		ar( cereal::make_nvp("cm", ciphertextModulus) );
+		ar( cereal::make_nvp("ru", rootOfUnity) );
+		ar( cereal::make_nvp("bm", bigCiphertextModulus) );
+		ar( cereal::make_nvp("br", bigRootOfUnity) );
+	}
 
+	std::string SerializedObjectName() const { return "ElemParams"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 protected:
 	usint			cyclotomicOrder;		/**< Cyclotomic order */

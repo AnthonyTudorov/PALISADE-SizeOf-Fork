@@ -51,86 +51,6 @@ public:
 		throw std::logic_error("plaintext modulus is fixed to be == ciphertext modulus and cannot be changed");
 	}
 
-	bool Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-
-		Serialized pser(rapidjson::kObjectType, &serObj->GetAllocator());
-
-		if( !this->GetElementParams()->Serialize(&pser) )
-			return false;
-
-		Serialized pserEncoding(rapidjson::kObjectType, &serObj->GetAllocator());
-
-		if (!this->GetEncodingParams()->Serialize(&pserEncoding))
-			return false;
-
-		cryptoParamsMap.AddMember("ElemParams", pser.Move(), serObj->GetAllocator());
-		cryptoParamsMap.AddMember("EncodingParams", pserEncoding.Move(), serObj->GetAllocator());
-		cryptoParamsMap.AddMember("PlaintextModulus", std::to_string(this->GetPlaintextModulus()), serObj->GetAllocator());
-
-		serObj->AddMember("LPCryptoParametersNull", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersNull", serObj->GetAllocator());
-
-		return true;
-	}
-
-	/**
-	* Populate the object from the deserialization of the Setialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
-	bool Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersNull");
-		if( mIter == serObj.MemberEnd() ) return false;
-
-		SerialItem::ConstMemberIterator pIt;
-
-		if( (pIt = mIter->value.FindMember("ElemParams")) == mIter->value.MemberEnd() )
-			return false;
-		Serialized oneItem(rapidjson::kObjectType);
-		SerialItem key( pIt->value.MemberBegin()->name, oneItem.GetAllocator() );
-		SerialItem val( pIt->value.MemberBegin()->value, oneItem.GetAllocator() );
-		oneItem.AddMember(key, val, oneItem.GetAllocator());
-
-		typename Element::Params *json_ilParams = new typename Element::Params();
-
-		if( !json_ilParams->Deserialize(oneItem) ) {
-			delete json_ilParams;
-			return false;
-		}
-
-		this->SetElementParams( shared_ptr<typename Element::Params>(json_ilParams) );
-
-		SerialItem::ConstMemberIterator pItEncoding;
-
-		if ((pItEncoding = mIter->value.FindMember("EncodingParams")) == mIter->value.MemberEnd())
-			return false;
-		Serialized oneItemEncoding(rapidjson::kObjectType);
-		SerialItem keyEncoding(pItEncoding->value.MemberBegin()->name, oneItemEncoding.GetAllocator());
-		SerialItem valEncoding(pItEncoding->value.MemberBegin()->value, oneItemEncoding.GetAllocator());
-		oneItemEncoding.AddMember(keyEncoding, valEncoding, oneItem.GetAllocator());
-
-		EncodingParamsImpl *json_ilParamsEncoding = new EncodingParamsImpl();
-
-		if (!json_ilParamsEncoding->Deserialize(oneItemEncoding)) {
-			delete json_ilParamsEncoding;
-			return false;
-		}
-
-		this->SetEncodingParams(EncodingParams(json_ilParamsEncoding));
-
-		if( (pIt = mIter->value.FindMember("PlaintextModulus")) == mIter->value.MemberEnd() )
-			return false;
-		PlaintextModulus plaintextModulus = atoi(pIt->value.GetString());
-
-		LPCryptoParameters<Element>::SetPlaintextModulus(plaintextModulus);
-		return true;
-	}
-
-
 	/**
 	* == operator to compare to this instance of LPCryptoParametersNull object.
 	*
@@ -146,6 +66,19 @@ public:
 					*this->GetEncodingParams() == *el->GetEncodingParams();
 	}
 
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParameters<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullSchemeParameters"; }
 };
 
 template <class Element>
@@ -231,6 +164,19 @@ public:
 		return kp;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullEncryption"; }
 };
 
 
@@ -284,6 +230,19 @@ public:
 		return newCiphertext;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullPRE"; }
 };
 
 	/**
@@ -400,6 +359,19 @@ public:
 		return DecryptResult(plaintext->GetLength());
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullMultiparty"; }
 };
 
 /**
@@ -473,6 +445,20 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			throw std::logic_error("CanRingReduce not implemented for Null");
 		}
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "NullLeveledSHE"; }
 };
 
 template <class Element>
@@ -800,6 +786,21 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return evalKeys;
 		}
 
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "NullSHE"; }
+
 	private:
 		typename Element::PolyType ElementNullSchemeMultiply(const typename Element::PolyType& c1, const typename Element::PolyType& c2,
 				const BigInteger& ptmod) const {
@@ -877,6 +878,19 @@ public:
 		return true;
 	}
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullParamsGen"; }
 };
 
 
@@ -888,7 +902,7 @@ template <class Element>
 class LPPublicKeyEncryptionSchemeNull : public LPPublicKeyEncryptionScheme<Element> {
 public:
 	LPPublicKeyEncryptionSchemeNull() : LPPublicKeyEncryptionScheme<Element>() {
-		this->m_algorithmParamsGen = new LPAlgorithmParamsGenNull<Element>();
+		this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenNull<Element>());
 	}
 
 	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
@@ -902,36 +916,50 @@ public:
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			break;
 		case PRE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPRENull<Element>();
+				this->m_algorithmPRE.reset( new LPAlgorithmPRENull<Element>() );
 			break;
 		case MULTIPARTY:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyNull<Element>();
+				this->m_algorithmMultiparty.reset( new LPAlgorithmMultipartyNull<Element>() );
 			break;
 		case SHE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHENull<Element>();
+				this->m_algorithmSHE.reset( new LPAlgorithmSHENull<Element>() );
 			break;
 		case FHE:
 			throw std::logic_error("FHE feature not supported for Null scheme");
 		case LEVELEDSHE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmNull<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmNull<Element>() );
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmNull<Element>();
+				this->m_algorithmLeveledSHE.reset( new LPLeveledSHEAlgorithmNull<Element>() );
 			break;
 		}
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "NullScheme"; }
 };
 
 

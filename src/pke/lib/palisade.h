@@ -58,15 +58,16 @@ template<typename Element>
 using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 }
 
+#include "utils/serializable.h"
+#include "utils/inttypes.h"
+#include "utils/exception.h"
+
 #include "math/backend.h"
 #include "lattice/backend.h"
 #include "lattice/stdlatticeparms.h"
 
 #include "math/distrgen.h"
 #include "math/matrix.h"
-
-#include "utils/inttypes.h"
-#include "utils/exception.h"
 
 #include "encoding/encodings.h"
 #include "encoding/plaintextfactory.h"
@@ -82,11 +83,7 @@ using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 #include "bfvrnsB.h"
 #include "nullscheme.h"
 
-#include "utils/serializable.h"
-
 #include "ciphertext.h"
 #include "rationalciphertext.h"
-
-
 
 #endif /* SRC_LIB_PALISADE_H_ */

@@ -438,26 +438,71 @@ public:
 		this->SetLength(n); //SetLength() is an NTL call
 	}
 
-	//JSON FACILITY
-	/**
-	 * Serialize the object into a Serialized
-	 *
-	 * @param serObj is used to store the serialized result. It MUST
-	 * be a rapidjson Object (SetObject());
-	 *
-	 * @param fileFlag is an object-specific parameter for the
-	 * serialization
-	 *
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(lbcrypto::Serialized* serObj) const;
+	template <class Archive>
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( m_modulus.ToString() );
+		ar( m_modulus_state );
+		ar( this->GetLength() );
+		for(size_t i=0; i<this->GetLength(); i++ )
+			ar( (*this)[i] );
+	}
 
-	/**
-	 * Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const lbcrypto::Serialized& serObj);
+	template <class Archive>
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("m", m_modulus.ToString()) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+		ar( cereal::make_nvp("l", this->GetLength()) );
+		for(size_t i=0; i<this->GetLength(); i++ ) {
+			ar( cereal::make_nvp("v", (*this)[i].ToString()) );
+		}
+	}
+
+	template <class Archive>
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		std::string m;
+		ar( m );
+		m_modulus = m;
+		ar( m_modulus_state );
+		cereal::size_type len;
+		ar( len );
+		this->SetLength(len);
+
+		for(size_t i=0; i<len; i++ )
+			ar( (*this)[i] );
+	}
+
+	template <class Archive>
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		std::string m;
+		ar( cereal::make_nvp("m", m) );
+		m_modulus = m;
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+		cereal::size_type len;
+		ar( cereal::make_nvp("l", len) );
+		this->resize(len);
+		for(size_t i=0; i<len; i++ ) {
+			std::string s;
+			ar( cereal::make_nvp("v", s) );
+			(*this)[i] = s;
+		}
+	}
+
+	std::string SerializedObjectName() const { return "NTLVector"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 private:
 	//utility function to warn if modulus is no good
@@ -507,8 +552,6 @@ protected:
 	}
 
 }; //template class ends
-
-
 
 } // namespace NTL ends
 

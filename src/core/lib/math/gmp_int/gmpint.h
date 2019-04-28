@@ -447,30 +447,6 @@ public:
 	//limb data type.
 	static const usint m_log2LimbBitLength;
 
-	//Serialization functions
-
-	// note that for efficiency, we use [De]Serialize[To|From]String when serializing
-	// BigVectors, and [De]Serialize otherwise (to work the same as all
-	// other serialized objects.
-
-	const std::string SerializeToString(const myZZ& mod = 0) const;
-	const char * DeserializeFromString(const char * str, const myZZ& mod = 0);
-
-	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(lbcrypto::Serialized* serObj) const;
-
-	/**
-	 * Populate the object from the deserialization of the Serialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const lbcrypto::Serialized& serObj);
-
-
 	static const std::string IntegerTypeName() { return "NTL"; }
 
 	/**
@@ -514,6 +490,69 @@ public:
 	  return ret;
 	}
 	
+	template <class Archive>
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar, std::uint32_t const version ) const
+	{
+		void *data = this->rep.rep;
+		size_t len = 0;
+		if( data == nullptr ) {
+			ar( cereal::binary_data(&len, sizeof(len)) );
+		}
+		else {
+			len = _ntl_ALLOC(this->rep.rep);
+
+			ar( cereal::binary_data(&len, sizeof(len)) );
+			ar( cereal::binary_data(data, len*sizeof(_ntl_gbigint)) );
+			ar( cereal::make_nvp("mb", m_MSB) );
+		}
+	}
+
+	template <class Archive>
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("v", ToString()) );
+	}
+
+	template <class Archive>
+	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		size_t len;
+		ar( cereal::binary_data(&len, sizeof(len)) );
+		if( len == 0 ) {
+			*this = 0;
+			return;
+		}
+
+		void *mem = (void *)malloc( len*sizeof(_ntl_gbigint) );
+		ar( cereal::binary_data(mem, len*sizeof(_ntl_gbigint)) );
+		WrappedPtr<_ntl_gbigint_body, Deleter> newrep;
+		newrep.rep = (_ntl_gbigint_body *)mem;
+		_ntl_gswap( &this->rep, &newrep );
+
+		ar( cereal::make_nvp("mb", m_MSB) );
+	}
+
+	template <class Archive>
+	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
+	load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		std::string s;
+		ar( cereal::make_nvp("v", s) );
+		*this = s;
+	}
+
+	std::string SerializedObjectName() const { return "NTLInteger"; }
+	static uint32_t	SerializedVersion() { return 1; }
+
 private:
 	//adapter kits
 	void SetMSB();

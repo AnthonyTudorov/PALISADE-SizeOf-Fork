@@ -33,6 +33,21 @@
 
 ///////// definition of the quad-precision floating-point data type
 typedef NTL::quad_float QuadFloat;
+
+namespace cereal {
+	template<class Archive>
+	void CEREAL_SAVE_FUNCTION_NAME(Archive & archive, const QuadFloat& m)
+	{
+		archive( m.hi, m.lo );
+	}
+
+	template<class Archive>
+	void CEREAL_LOAD_FUNCTION_NAME(Archive & archive, QuadFloat& m)
+	{
+		archive( m.hi, m.lo );
+	}
+}
+
 typedef NTL::xdouble ExtendedDouble;
 
 namespace lbcrypto {

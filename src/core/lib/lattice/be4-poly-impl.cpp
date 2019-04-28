@@ -46,7 +46,6 @@ ONES_FOR_TYPE(M4Poly)
 IDENTITY_FOR_TYPE(M4Poly)
 GADGET_FOR_TYPE(M4Poly)
 NORM_FOR_TYPE(M4Poly)
-MATRIX_NOT_SERIALIZABLE(M4Poly)
 SPLIT64_FOR_TYPE(M4Poly)
 SPLIT64ALT_FOR_TYPE(M4Poly)
 SPLIT32ALT_FOR_TYPE(M4Poly)
@@ -58,7 +57,6 @@ ONES_FOR_TYPE(M4DCRTPoly)
 IDENTITY_FOR_TYPE(M4DCRTPoly)
 GADGET_FOR_TYPE_DCRT(M4DCRTPoly)
 NORM_FOR_TYPE(M4DCRTPoly)
-MATRIX_NOT_SERIALIZABLE(M4DCRTPoly)
 SPLIT64_FOR_TYPE(M4DCRTPoly)
 SPLIT64ALT_FOR_TYPE(M4DCRTPoly)
 SPLIT32ALT_FOR_TYPE(M4DCRTPoly)
@@ -66,3 +64,7 @@ template Matrix<M4Vector> RotateVecResult(Matrix<M4DCRTPoly> const& inMat);
 template Matrix<M4Integer> Rotate(Matrix<M4DCRTPoly> const& inMat);
 
 }  // namespace lbcrypto
+
+CEREAL_CLASS_VERSION( lbcrypto::M4Poly, lbcrypto::M4Poly::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::M4DCRTPoly, lbcrypto::M4DCRTPoly::SerializedVersion() );
+

@@ -38,7 +38,8 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "utils/serializablehelper.h"
+
+//#include "utils/ser-reg.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -53,25 +54,14 @@ keymaker(CryptoContext<Poly> ctx, string keyname)
 	LPKeyPair<Poly> kp = ctx->KeyGen();
 
 	if( kp.publicKey && kp.secretKey ) {
-		Serialized pubK, privK;
 
-		if( kp.publicKey->Serialize(&pubK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(pubK, DATAFOLDER + "/" + keyname + "PUB.txt") ) {
-				cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
-				return;
-			}
-		} else {
-			cerr << "Error serializing public key" << endl;
+		if( !Serializable::SerializeToFile(DATAFOLDER + "/" + keyname + "PUB.txt", kp.publicKey, Serializable::Type::JSON) ) {
+			cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 			return;
 		}
 
-		if( kp.secretKey->Serialize(&privK) ) {
-			if( !SerializableHelper::WriteSerializationToFile(privK, DATAFOLDER + "/" + keyname + "PRI.txt") ) {
-				cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
-				return;
-			}
-		} else {
-			cerr << "Error serializing private key" << endl;
+		if( !Serializable::SerializeToFile(DATAFOLDER + "/" + keyname + "PRI.txt", kp.secretKey, Serializable::Type::JSON) ) {
+			cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 			return;
 		}
 	} else {
@@ -87,19 +77,13 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 {
 
 	ofstream ctSer(DATAFOLDER + "/" + ciphertextname, ios::binary);
-	if( !ctSer.is_open() ) {
-		cerr << "could not open output file " << ciphertextname << endl;
-		return;
-	}
 
-	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + pubkeyname, &kser) == false ) {
+	// Initialize the public key containers.
+	LPPublicKey<Poly> pk;
+	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + pubkeyname, pk, Serializable::Type::JSON) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
-
-	// Initialize the public key containers.
-	LPPublicKey<Poly> pk = ctx->deserializePublicKey(kser);
 
 	if( !pk ) {
 		cerr << "Could not deserialize public key" << endl;
@@ -110,18 +94,11 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 	// now encrypt iPlaintext
 	auto ciphertext = ctx->Encrypt(pk, iPlaintext);
 
-	Serialized cSer;
-	if( ciphertext->Serialize(&cSer) ) {
-		if( !SerializableHelper::WriteSerializationToFile(cSer, DATAFOLDER + "/" + ciphertextname) ) {
-			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-			return;
-		}
-	} else {
-		cerr << "Error serializing ciphertext" << endl;
+	if( !Serializable::SerializeToFile(DATAFOLDER + "/" + ciphertextname, ciphertext, Serializable::Type::JSON) ) {
+		cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 		return;
 	}
 
-	ctSer.close();
 	return;
 }
 
@@ -131,42 +108,25 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 {
 	Plaintext iPlaintext;
 
-	Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + prikeyname, &kser) == false ) {
+	LPPrivateKey<Poly> sk;
+	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + prikeyname, sk, Serializable::Type::JSON) == false ) {
 		cerr << "Could not read private key" << endl;
 		return iPlaintext;
 	}
 
-	LPPrivateKey<Poly> sk = ctx->deserializeSecretKey(kser);
 	if( !sk ) {
 		cerr << "Could not deserialize private key" << endl;
 		return iPlaintext;
 	}
 
-	ifstream inCt(DATAFOLDER + "/" + ciphertextname, ios::binary);
-	if( !inCt.is_open() ) {
-		cerr << "Could not open ciphertext" << endl;
-		return iPlaintext;
-	}
-
-	//Serialized	kser;
-	if( SerializableHelper::ReadSerializationFromFile(DATAFOLDER + "/" + ciphertextname, &kser) == false ) {
+	Ciphertext<Poly> ct;
+	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + ciphertextname, ct, Serializable::Type::JSON) == false ) {
 		cerr << "Could not read ciphertext" << endl;
 		return iPlaintext;
 	}
 
-	// Initialize the public key containers.
-	Ciphertext<Poly> ct = ctx->deserializeCiphertext(kser);
-	if( ct == NULL ) {
-		cerr << "Could not deserialize ciphertext" << endl;
-		return iPlaintext;
-	}
-
-
 	// now decrypt iPlaintext
 	ctx->Decrypt(sk, ct, &iPlaintext);
-
-	inCt.close();
 
 	return iPlaintext;
 }

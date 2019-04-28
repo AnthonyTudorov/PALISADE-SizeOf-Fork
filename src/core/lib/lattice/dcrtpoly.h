@@ -974,23 +974,6 @@ public:
 	*/
 	double Norm() const;
 
-	//JSON FACILITY
-	/**
-	* @brief Stores this object's attribute name value pairs to a map for serializing this object to a JSON file.
-	* Invokes nested serialization of Vector.
-	*
-	* @param serializationMap stores this object's serialized attribute name value pairs.
-	* @return true on success
-	*/
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	* @brief Populate the object from the deserialization of the Setialized
-	* @param serObj contains the serialized object
-	* @return true on success
-	*/
-	bool Deserialize(const Serialized& serObj);
-
 	/**
 	 * @brief ostream operator
 	 * @param os the input preceding output stream
@@ -1084,6 +1067,28 @@ public:
 	friend inline DCRTPolyType operator*(const Integer &a, const DCRTPolyType &b) {
 		return b.Times(a);
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("v", m_vectors) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("v", m_vectors) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	std::string SerializedObjectName() const { return "DCRTPoly"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 private:
 	

@@ -623,25 +623,25 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 	{
 	case ENCRYPTION:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmLTV<Element>() );
 		break;
 	case PRE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmLTV<Element>() );
 		if (this->m_algorithmPRE == NULL)
-			this->m_algorithmPRE = new LPAlgorithmPRELTV<Element>();
+			this->m_algorithmPRE.reset( new LPAlgorithmPRELTV<Element>() );
 		break;
 	case SHE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmLTV<Element>() );
 		if (this->m_algorithmSHE == NULL)
-			this->m_algorithmSHE = new LPAlgorithmSHELTV<Element>();
+			this->m_algorithmSHE.reset( new LPAlgorithmSHELTV<Element>() );
 		break;
 	case LEVELEDSHE:
 		if (this->m_algorithmEncryption == NULL)
-			this->m_algorithmEncryption = new LPAlgorithmLTV<Element>();
+			this->m_algorithmEncryption.reset( new LPAlgorithmLTV<Element>() );
 		if (this->m_algorithmLeveledSHE == NULL)
-			this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmLTV<Element>();
+			this->m_algorithmLeveledSHE.reset( new LPLeveledSHEAlgorithmLTV<Element>() );
 		break;
 	case FHE:
 		throw std::logic_error("FHE feature not supported for LTV scheme");
@@ -649,9 +649,6 @@ void LPPublicKeyEncryptionSchemeLTV<Element>::Enable(PKESchemeFeature feature) {
 		throw std::logic_error("MULTIPARTY feature not supported for LTV scheme");
 	}
 }
-
-
-
 
 }  // namespace lbcrypto ends
 

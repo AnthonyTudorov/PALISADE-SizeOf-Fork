@@ -33,7 +33,6 @@
 #include "../native_int/binvect.h"
 #include "../nbtheory.h"
 #include "../../utils/debug.h"
-#include "../../utils/serializablehelper.h"
 
 
 namespace native_int {
@@ -630,74 +629,6 @@ NativeVector<IntegerType> NativeVector<IntegerType>::GetDigitAtIndexForBase(usin
 
 	return ans;
 }
-
-// Serialize Operation
-template<class IntegerType>
-bool NativeVector<IntegerType>::Serialize(lbcrypto::Serialized* serObj) const {
-
-        if( !serObj->IsObject() ){
-	  serObj->SetObject();
-	}
-
-
-	lbcrypto::SerialItem bbvMap(rapidjson::kObjectType);
-
-	bbvMap.AddMember("Modulus", this->GetModulus().ToString(), serObj->GetAllocator());
-	bbvMap.AddMember("IntegerType", IntegerType::IntegerTypeName(), serObj->GetAllocator());
-
-	size_t pkVectorLength = this->GetLength();
-
-	if( pkVectorLength > 0 ) {
-		std::string pkBufferString = "";
-		for (size_t i = 0; i < pkVectorLength; i++) {
-			pkBufferString += at(i).SerializeToString(this->GetModulus());
-		}
-		bbvMap.AddMember("VectorValues", pkBufferString, serObj->GetAllocator());
-	}
-
-	serObj->AddMember("BigVectorImpl", bbvMap, serObj->GetAllocator());
-
-	return true;
-}
-  
-// Deserialize Operation
-template<class IntegerType>
-bool NativeVector<IntegerType>::Deserialize(const lbcrypto::Serialized& serObj) {
-
-	lbcrypto::Serialized::ConstMemberIterator mIter = serObj.FindMember("BigVectorImpl");
-	if( mIter == serObj.MemberEnd() )
-		return false;
-
-	lbcrypto::SerialItem::ConstMemberIterator vIt;
-
-	if( (vIt = mIter->value.FindMember("IntegerType")) == mIter->value.MemberEnd() )
-		return false;
-	if( IntegerType::IntegerTypeName() != vIt->value.GetString() )
-		return false;
-
-	if( (vIt = mIter->value.FindMember("Modulus")) == mIter->value.MemberEnd() )
-		return false;
-	IntegerType bbiModulus(vIt->value.GetString());
-
-	if( (vIt = mIter->value.FindMember("VectorValues")) == mIter->value.MemberEnd() )
-		return false;
-
- 	NativeVector<IntegerType> newVec;
- 	newVec.SetModulus(bbiModulus);
-
-	IntegerType vectorElem;
-	const char *vp = vIt->value.GetString();
-	while( *vp != '\0' ) {
-		vp = vectorElem.DeserializeFromString(vp, bbiModulus);
-		newVec.m_data.push_back(vectorElem);
-	}
-
-	*this = std::move(newVec);
-
-	return true;
-
-}
-
 
 template class NativeVector<NativeInteger<uint64_t>>;
  

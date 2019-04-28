@@ -29,7 +29,7 @@
 
 #include <cmath>
 #include <vector>
-#include "obfuscatelp.h"
+#include "utils/serializable.h"
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "math/backend.h"
@@ -39,9 +39,7 @@
 #include "lattice/ilelement.h"
 #include "lattice/trapdoor.h"
 
-#include "utils/serializable.h"
-#include "utils/serializablehelper.h"
-#include "../utils/tdserializeablehelper.h"
+#include "obfuscatelp.h"
 
 /**
  * @namespace lbcrypto
@@ -100,21 +98,6 @@ namespace lbcrypto {
 
 
 		/**
-		 * @brief Serialize the object into a Serialized
-		 * @param serObj is used to store the serialized result. It should be a rapidjson Object (SetObject()) but will be set to one if needed;
-		 * @return true if successfully serialized will throw on error
-		 */
-		bool Serialize(Serialized* serObj) const;
-
-		
-		/**
-		 * @brief Populate the object from the deserialization of the Setialized
-		 * @param serObj contains the serialized object
-		 * @return true on success  will throw on error
-		 */
-		bool Deserialize(const Serialized& serObj);
-
-		/**
 		 * @brief ostream operator
 		 * @param os the input preceding output stream
 		 * @param vec the element to add to the output stream.
@@ -124,6 +107,20 @@ namespace lbcrypto {
 		  os << pat.GetPatternString();
 		  return os;
 		}
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+			ar( cereal::make_nvp("s", m_patternString) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+			ar( cereal::make_nvp("s", m_patternString) );
+		}
+
+		std::string SerializedObjectName() const { return "ClearLWEConjunctionPattern"; }
 
 	private:
 		// stores the local instance of the pattern string
@@ -136,7 +133,7 @@ namespace lbcrypto {
 	 * @tparam Element a ring element.
 	 */
 	template <class Element>
-	class ObfuscatedLWEConjunctionPattern : public ObfuscatedPattern<Element>, public ConjunctionPattern<Element>{
+	class ObfuscatedLWEConjunctionPattern : public Serializable, public ObfuscatedPattern<Element>, public ConjunctionPattern<Element> {
 		public:
 
 			/**
@@ -251,7 +248,6 @@ namespace lbcrypto {
 				this->m_ek = ek;
 			}
 
-
 			/**
 			 * Sets the matrices that define the obfuscated pattern.
 			 * @param S0_vec the S0 vector from the obfuscated pattern definition.
@@ -322,44 +318,47 @@ namespace lbcrypto {
 			*/
 			void SetBase(uint64_t base) { m_base = base; }
 
+			template <class Archive>
+			void save( Archive & ar, std::uint32_t const version ) const
+			{
+			    ar( cereal::base_class<ObfuscatedPattern<Element>>( this ) );
+			    ar( cereal::base_class<ConjunctionPattern<Element>>( this ) );
+				ar( cereal::make_nvp("l", m_length) );
+				ar( cereal::make_nvp("ep", m_elemParams) );
+				ar( cereal::make_nvp("rhf", m_rootHermiteFactor) );
+				ar( cereal::make_nvp("cs", m_chunkSize) );
+				ar( cereal::make_nvp("b", m_base) );
+				ar( cereal::make_nvp("sv", m_S_vec) );
+				ar( cereal::make_nvp("rv", m_R_vec) );
+				ar( cereal::make_nvp("sl", m_Sl) );
+				ar( cereal::make_nvp("rl", m_Rl) );
+				ar( cereal::make_nvp("pk", m_pk) );
+				ar( cereal::make_nvp("ek", m_ek) );
+			}
 
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version )
+			{
+				if( version > SerializedVersion() ) {
+					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+				}
+			    ar( cereal::base_class<ObfuscatedPattern<Element>>( this ) );
+			    ar( cereal::base_class<ConjunctionPattern<Element>>( this ) );
+				ar( cereal::make_nvp("l", m_length) );
+				ar( cereal::make_nvp("ep", m_elemParams) );
+				ar( cereal::make_nvp("rhf", m_rootHermiteFactor) );
+				ar( cereal::make_nvp("cs", m_chunkSize) );
+				ar( cereal::make_nvp("b", m_base) );
+				ar( cereal::make_nvp("sv", m_S_vec) );
+				ar( cereal::make_nvp("rv", m_R_vec) );
+				ar( cereal::make_nvp("sl", m_Sl) );
+				ar( cereal::make_nvp("rl", m_Rl) );
+				ar( cereal::make_nvp("pk", m_pk) );
+				ar( cereal::make_nvp("ek", m_ek) );
+			}
 
-
-			/**
-			 * @brief Serialize the object into a Serialized
-			 * @param serObj is used to store the serialized result. 
-			 * @return true if successfully serialized
-			 */
-			bool Serialize(Serialized* serObj) const;
-
-			/**
-			 * @brief Serialize the header and each section of the object info into a Serialized (memory efficient)
-			 * @param serObj is used to store the serialized result. 
-			 * @return true if successfully serialized
-			 */
-			bool SerializeHeader(Serialized* serObj) const;
-			bool SerializeSRV(std::string name, Serialized* serObj) const;
-			bool SerializeSRM(std::string name, Serialized* serObj) const;
-			bool SerializePK(Serialized* serObj) const;
-			bool SerializeEK(Serialized* serObj) const;	  	  
-
-			/**
-			 * @brief Populate the object from the deserialization of the Setialized
-			 * @param serObj contains the serialized object
-			 * @return true on success
-			 */
-			bool Deserialize(const Serialized& serObj);
-
-			/**
-			 * @brief DeSerialize the header and other info into a Serialized (more memory efficient)
-			 * @param serObj is used to store the serialized result. 
-			 * @return true if successfully serialized
-			 */
-			bool DeserializeHeader(const Serialized& serObj);
-			bool DeserializeSRV(std::string name, const Serialized& serObj);
-			bool DeserializeSRM(std::string name, const Serialized& serObj);
-			bool DeserializePK(const Serialized& serObj);
-			bool DeserializeEK(const Serialized& serObj);
+			std::string SerializedObjectName() const { return "ObfuscatedLWEConjunctionPattern"; }
+			static uint32_t	SerializedVersion() { return 1; }
 
 			/**
 			 * @brief Compare this with another pattern object
@@ -533,239 +532,37 @@ namespace lbcrypto {
 	shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const;
 
 	//////////////////////////////////////////////////
-	// helper templates for (de)serialiation  of Conj. Patterns to(from) files
 	template<typename T>
-	  void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<T> clearPattern,
-					    const string clearFileName, bool pretty_flag){
-	  
-	  bool dbg_flag = false;
-	  
-	  DEBUG("in SerializeClearPattern");
-	  
-	  Serialized serObj;
-	  serObj.SetObject();
-	  
-	  clearPattern.Serialize(&serObj);
-	  
-	  if (!SerializableHelper::WriteSerializationToFile(serObj, clearFileName+".json"))
-	       PALISADE_THROW(lbcrypto::serialize_error, "Can't write the clear pattern to file: " +clearFileName+".json");
-	  
-	  if (pretty_flag){
-	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, clearFileName+"pretty.json"))
-	       PALISADE_THROW(lbcrypto::serialize_error, "Can't write the clear pattern to the pretty file:"+clearFileName+"pretty.json");
-	  }
-	  DEBUG("done in SerializeClearPattern");
-	};
-	
-	//////////////////////////////////////////////////////////////
-	template<typename T>
-	  void  DeserializeClearPatternFromFile(const string clearFileName,
-						ClearLWEConjunctionPattern<T> &clearPattern){
-	  
-	  bool dbg_flag = false;
-	  DEBUG("in DeserializeClearPatternFromFile");
-	  
-	  Serialized serObj;
-	  serObj.SetObject();
-	  
-	  //clear the pattern string
-	  clearPattern.SetPatternString("");
-	  DEBUG("before deserialize:");
-	  DEBUGEXP(clearPattern.GetPatternString());  
-	  if (!SerializableHelper::ReadSerializationFromFile(clearFileName+".json", &serObj))
-	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't read the clear JSON string from file: "+clearFileName+".json");
-	  
-	  if (!clearPattern.Deserialize(serObj)){
-	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't deserialize the clear JSON string!");
-	  };
-	  
-	  DEBUGEXP(clearPattern.GetPatternString());  
-	  
-	  DEBUG("done in DeserializeClearPattern");
-	};
-	
-	////////////////////////////////////////////////////////
-	
+	void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<T> clearPattern, const string clearFileName) {
+		if( Serializable::SerializeToFile(clearFileName+".serial", clearPattern, Serializable::Type::BINARY) == false ) {
+			PALISADE_THROW(lbcrypto::serialize_error,
+					"Can't write serialization to file: "+ clearFileName );
+		}
+	}
 
 	template<typename T>
-	  void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
-						 const string obfFileName, bool pretty_flag){
-	  bool dbg_flag = false;
+	void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjunctionPattern<T> &clearPattern) {
+		if( Serializable::DeserializeFromFile(clearFileName+".serial", clearPattern, Serializable::Type::BINARY) == false ) {
+			PALISADE_THROW(lbcrypto::deserialize_error,
+					"Can't read serialization from file "+clearFileName);
+		}
+	}
 
-	  DEBUG("in SerializeObfuscatedPattern");
-	  DEBUGEXP(*obfuscatedPattern.GetParameters());
-
-	  Serialized serObj;
-	  serObj.SetObject();
-  
-	  obfuscatedPattern.Serialize(&serObj);
-  
-	  if (!SerializableHelper::WriteSerializationToFile(serObj, obfFileName+".json"))
-	    PALISADE_THROW(lbcrypto::serialize_error,
-			   "Can't write the obfuscated JSON string to the file: "+obfFileName+".json" );
-
-	  if (pretty_flag){
-	    if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, obfFileName+"pretty.json"))
-	      PALISADE_THROW(lbcrypto::serialize_error,
-			     "Can't write the obfuscated JSON string to the pretty file: "+obfFileName+"pretty.json" );
-	  }
-	  DEBUG("done in SerializeObfuscatedPattern");
-
-	};
-	//////////////////////////////////////////////////
 	template<typename T>
-	  void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern){
+	void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern, const string obfFileName) {
+		if( Serializable::SerializeToFile(obfFileName+".serial", obfuscatedPattern, Serializable::Type::BINARY) == false ) {
+			PALISADE_THROW(lbcrypto::serialize_error,
+					"Can't write serialization to file: "+ obfFileName );
+		}
+	}
 
-	  bool dbg_flag = false;
-
-	  DEBUG("in DeserializeObfuscatedPattern");
-
-	  Serialized serObj;
-	  serObj.SetObject();
-
-	  //clear the pattern string
-	  if (!SerializableHelper::ReadSerializationFromFile(obfFileName+".json", &serObj))
-	      PALISADE_THROW(lbcrypto::deserialize_error,
-			     "Can't read the obfuscated JSON string from the file:"+obfFileName+".json");
-
-	  if (!obsPattern.Deserialize(serObj)){
-	    PALISADE_THROW(lbcrypto::deserialize_error, "Can't Deserialize the obfuscated JSON string");
-	  };
-	  
-	  DEBUG("done in DeserializeObfuscatedPattern");
-	};
-
-	//////////////////////////////////////////////////
-	//a more memory efficient way to serialize, breaks up the serialization into pieces
 	template<typename T>
-	  void  SerializeObfuscatedPatternToFileSet(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern,
-						    const string obfFileName, bool pretty_flag){
-	  bool dbg_flag = false;
-	  TimeVar t1,t2; //for TIC TOC
-	  double serTime(0.0), subtime(0.0);
-	  DEBUG("in SerializeObfuscatedPatternToFileSet");
-	  DEBUGEXP(*obfuscatedPattern.GetParameters());
-
-	  string subname("");
-	  for (auto step = 0; step < 7; step++){
-	    {
-	      TIC(t1); //start timer 
-
-	      Serialized serObj;
-	      serObj.SetObject();
-	      DEBUGEXP(step);
-	      TIC(t2);
-	      switch (step) {
-	      case(0):
-		subname = "head";
-		obfuscatedPattern.SerializeHeader(&serObj);
-		break;
-	      case(1):
-		subname = "S";		
-		obfuscatedPattern.SerializeSRV("S",&serObj);
-		break;
-	      case(2):
-		subname = "R";		
-		obfuscatedPattern.SerializeSRV("R",&serObj);
-		break;
-	      case(3):
-		subname = "Sl";		
-		obfuscatedPattern.SerializeSRM("Sl",&serObj);
-		break;
-	      case(4):
-		subname = "Rl";		
-		obfuscatedPattern.SerializeSRM("Rl",&serObj);
-		break;
-	      case(5):
-		subname = "PK";		
-		obfuscatedPattern.SerializePK(&serObj);
-		break;
-	      case(6):
-		subname = "EK";		
-		obfuscatedPattern.SerializeEK(&serObj);	  	  
-		break;
-	      }		  
-	      subtime = TOC(t2);
-	      DEBUG(subname << " serialization time "<<subtime<<" ms");
-	      TIC(t2);
-	      string outfname = obfFileName+subname+".json";
-	      if (!SerializableHelper::WriteSerializationToFile(serObj, outfname ))
-		PALISADE_THROW(lbcrypto::serialize_error,
-			       "Can't write the obfuscated JSON string to the file: "+outfname );
-
-	      subtime = TOC(t2);	      
-	      DEBUG(subname << " write time  "<<subtime<<" ms");
-
-	      if (pretty_flag){
-		outfname = obfFileName+subname+"pretty.json";
-		if (!SerializableHelper::WriteSerializationToPrettyFile(serObj, outfname))
-		  PALISADE_THROW(lbcrypto::serialize_error,
-				 "Can't write the obfuscated JSON string to the pretty file: "+outfname );
-	      }
-	      serTime = TOC(t1);
-	      DEBUG("done, timing "<<serTime<<" ms");
-	    }
-	  }
-	  DEBUG("done in SerializeObfuscatedPatternToFileSet");
-	      
-	};
- 	//////////////////////////////////////////////////
-	//a more memory efficient way to serialize, breaks up the deserialization into pieces
-	template<typename T>
-	  void  DeserializeObfuscatedPatternFromFileSet(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern){
-	  bool dbg_flag = false;
-	  DEBUG("in DeserializeObfuscatedPatternFromFileSet");
-	  TimeVar t1; //for TIC TOC
-	  double serTime(0.0);
-
-	  vector<string> subname = {"head", "S", "R", "Sl", "Rl", "PK", "EK"};		
-	  for (auto step = 0; step < 7; step++){
-	    {
-	      TIC(t1); //start timer 
-
-	      Serialized serObj;
-	      serObj.SetObject();
-	      DEBUGEXP(step);
-	      string infname = obfFileName+subname[step]+".json";
-	      if (!SerializableHelper::ReadSerializationFromFile(infname, &serObj))
-		    PALISADE_THROW(lbcrypto::deserialize_error,
-				   "Can't read the obfuscated JSON string from the file:"+infname);
-	      
-	      bool result(false);
-	      switch (step) {
-	      case(0):
-		result = obsPattern.DeserializeHeader(serObj);
-		break;
-	      case(1):
-		result = obsPattern.DeserializeSRV("S",serObj);
-		break;
-	      case(2):
-		result = obsPattern.DeserializeSRV("R",serObj);
-		break;
-	      case(3):
-		result = obsPattern.DeserializeSRM("Sl",serObj);
-		break;
-	      case(4):
-		result = obsPattern.DeserializeSRM("Rl",serObj);
-		break;
-	      case(5):
-		result = obsPattern.DeserializePK(serObj);
-		break;
-	      case(6):
-		result = obsPattern.DeserializeEK(serObj);	  	  
-		break;
-	      }		  
-	      
-	      if (!result){
-		throw std::runtime_error ("Can't Deserialize the obfuscated JSON string read from file "+infname);
-	      };
-		
-	      serTime = TOC(t1);
-	      DEBUG("done, timing "<<serTime<<" ms");
-	    }
-	  }
-	  DEBUG("done in DeserializeObfuscatedPatternFromFileSet");
-	};
+	void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern) {
+		if( Serializable::DeserializeFromFile(obfFileName+".serial", obsPattern, Serializable::Type::BINARY) == false ) {
+			PALISADE_THROW(lbcrypto::deserialize_error,
+					"Can't read serialization from file "+obfFileName);
+		}
+	}
 
 } // namespace lbcrypto ends
 #endif

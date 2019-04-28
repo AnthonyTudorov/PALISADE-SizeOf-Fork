@@ -302,7 +302,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
-  SerializeClearPatternToFile(clearPattern, clearFileName, pretty_flag);
+  SerializeClearPatternToFile(clearPattern, clearFileName);
 
   if (verify_flag) { //verify the serialization
 
@@ -386,11 +386,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   DEBUG("Serializing Obfuscation" );
   string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
   TIC(t1);
-  if (single_flag) {
-    SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName, pretty_flag);
-  }else{
-    SerializeObfuscatedPatternToFileSet(obfuscatedPattern, obfFileName, pretty_flag);
-  }
+  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
   timeSerial = TOC(t1);
   PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
@@ -400,11 +396,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
     std::cout<<"Verifying Serialization"<<std::endl;
     ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
-    if (single_flag) {
-      DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
-    } else {
-      DeserializeObfuscatedPatternFromFileSet(obfFileName, testObfuscatedPattern);
-    }
+    DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
     
     if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
       std::cout<<"Serialization did verify"<<std::endl;
@@ -463,11 +455,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
     std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
   }
   TIC(t1);
-  if (single_flag) {
-    DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
-  } else {
-    DeserializeObfuscatedPatternFromFileSet(obfFileName, obfuscatedPattern);
-  }
+  DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
   timeRead = TOC(t1);
   PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
 

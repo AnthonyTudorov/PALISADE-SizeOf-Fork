@@ -28,7 +28,6 @@
 #ifndef _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
 #define _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
 
-#include "cryptocontext.h"
 #include "dgsampling.h"
 
 namespace lbcrypto {

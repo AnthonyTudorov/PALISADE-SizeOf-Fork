@@ -29,7 +29,6 @@
 #include <memory>
 using std::shared_ptr;
 using std::string;
-#include "../utils/serializablehelper.h"
 #include "../utils/debug.h"
 
 namespace lbcrypto
@@ -2150,77 +2149,6 @@ template<typename VecType>
 double DCRTPolyImpl<VecType>::Norm() const {
     PolyLargeType poly(CRTInterpolate());
     return poly.Norm();
-}
-
-template<typename VecType>
-bool DCRTPolyImpl<VecType>::Serialize(Serialized* serObj) const {
-    if ( !serObj->IsObject() ) {
-        serObj->SetObject();
-    }
-
-    Serialized obj(rapidjson::kObjectType, &serObj->GetAllocator());
-    if (!m_params->Serialize(&obj))
-        return false;
-
-
-    obj.AddMember(
-        "Format",
-        std::to_string(this->GetFormat()),
-        serObj->GetAllocator());
-
-    SerializeVector<PolyType>(
-        "Vectors",
-        "PolyImpl",
-        this->GetAllElements(),
-        &obj);
-
-    serObj->AddMember("DCRTPolyImpl", obj, serObj->GetAllocator());
-
-    return true;
-}
-
-template<typename VecType>
-bool DCRTPolyImpl<VecType>::Deserialize(const Serialized& serObj) {
-    SerialItem::ConstMemberIterator it = serObj.FindMember("DCRTPolyImpl");
-
-    if ( it == serObj.MemberEnd() )
-        return false;
-
-    SerialItem::ConstMemberIterator pIt = it->value.FindMember("ILDCRTParams");
-    if (pIt == it->value.MemberEnd()) return false;
-
-    Serialized parm(rapidjson::kObjectType);
-    parm.AddMember(
-        SerialItem(
-            pIt->name,
-            parm.GetAllocator()),
-        SerialItem(
-            pIt->value,
-            parm.GetAllocator()),
-        parm.GetAllocator());
-
-    shared_ptr<DCRTPolyImpl::Params> json_ilParams(new DCRTPolyImpl::Params());
-    if (!json_ilParams->Deserialize(parm))
-        return false;
-    m_params = json_ilParams;
-
-    SerialItem::ConstMemberIterator mIt = it->value.FindMember("Format");
-    if ( mIt == it->value.MemberEnd() ) return false;
-    this->m_format = static_cast<Format>(std::stoi(mIt->value.GetString()));
-
-    mIt = it->value.FindMember("Vectors");
-
-    if ( mIt == it->value.MemberEnd() ) {
-        return false;
-    }
-
-    bool ret = DeserializeVector<PolyType>(
-        "Vectors",
-        "PolyImpl",
-        mIt,
-        &this->m_vectors);
-
-    return ret;
 }
 
 

@@ -144,20 +144,6 @@ namespace lbcrypto {
 			virtual ~LPCryptoParametersBFVrnsB() {}
 			
 			/**
-			* Serialize the object
-			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized* serObj) const;
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj);
-
-			/**
 			* Computes all tables needed for decryption, homomorphic multiplication, and key switching
 			* @return true on success
 			*/
@@ -265,6 +251,27 @@ namespace lbcrypto {
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaTable() const { return m_qDivqiModtgammaTable; }
 
 			std::vector<std::vector<NativeInteger>> const &GetDCRTParamsqDivqiModtgammaPreconTable() const { return m_qDivqiModtgammaPreconTable; }
+
+			// NOTE that we do not serialize any of the members declared in this class.
+			// they are all cached computations, and get recomputed in any implementation
+			// that does a deserialization
+			template <class Archive>
+			void save ( Archive & ar, std::uint32_t const version ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version )
+			{
+				if( version > SerializedVersion() ) {
+					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+				}
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			std::string SerializedObjectName() const { return "BFVrnsBSchemeParameters"; }
+			static uint32_t SerializedVersion() { return 1; }
 
 		private:
 
@@ -405,6 +412,19 @@ namespace lbcrypto {
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsBParamsGen"; }
 	};
 
 	/**
@@ -457,7 +477,19 @@ namespace lbcrypto {
 			ConstCiphertext<Element> ciphertext,
 			NativePoly *plaintext) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
+		}
 
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsBEncryption"; }
 	};
 
 	/**
@@ -539,7 +571,19 @@ namespace lbcrypto {
 		Ciphertext<Element> EvalMultAndRelinearize(ConstCiphertext<Element> ct1,
 			ConstCiphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
+		}
 
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsBSHE"; }
 	};
 
 	/**
@@ -609,6 +653,19 @@ namespace lbcrypto {
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsBPRE"; }
 	};
 
 
@@ -646,7 +703,19 @@ namespace lbcrypto {
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		}
 
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsBMultiparty"; }
 	};
 
 
@@ -666,7 +735,22 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVrnsScheme"; }
 	};
 
 } // namespace lbcrypto ends
+
 #endif

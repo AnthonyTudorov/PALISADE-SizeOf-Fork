@@ -24,7 +24,6 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "palisade.h"
 #include "../lib/abecontext.h"
 
 using namespace lbcrypto;

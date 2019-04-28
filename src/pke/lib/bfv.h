@@ -177,20 +177,6 @@ namespace lbcrypto {
 			virtual ~LPCryptoParametersBFV() {}
 			
 			/**
-			* Serialize the object
-			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized* serObj) const;
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj);
-
-			/**
 			* Gets the value of the delta factor.
 			*
 			* @return the delta factor. It is an BFV-specific factor that is multiplied by the plaintext polynomial.
@@ -283,6 +269,34 @@ namespace lbcrypto {
 						" bigrootofunityarb: " << m_bigRootOfUnityArb;
 			}
 
+			template <class Archive>
+			void save ( Archive & ar, std::uint32_t const version ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( cereal::make_nvp("d", m_delta) );
+				ar( cereal::make_nvp("bm", m_bigModulus) );
+				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
+			}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version )
+			{
+				if( version > SerializedVersion() ) {
+					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+				}
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( cereal::make_nvp("d", m_delta) );
+				ar( cereal::make_nvp("bm", m_bigModulus) );
+				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
+			}
+
+			std::string SerializedObjectName() const { return "BFVSchemeParameters"; }
+			static uint32_t	SerializedVersion() { return 1; }
+
 		private:
 			// factor delta = floor(q/p) that is multipled by the plaintext polynomial 
 			// in BFV (most significant bit ranges are used to represent the message)
@@ -335,6 +349,19 @@ namespace lbcrypto {
 
 		virtual ~LPAlgorithmParamsGenBFV() {}
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVParamsGen"; }
 	};
 
 	/**
@@ -356,6 +383,8 @@ namespace lbcrypto {
 		 * Default constructor
 		 */
 		LPAlgorithmBFV() {}
+
+		virtual ~LPAlgorithmBFV() {}
 
 		/**
 		* Method for encrypting plaintext using BFV.
@@ -400,8 +429,19 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
 
-		virtual ~LPAlgorithmBFV() {}
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
 
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVEncryption"; }
 	};
 
 	/**
@@ -423,6 +463,8 @@ namespace lbcrypto {
 		 * Default constructor
 		 */
 		LPAlgorithmSHEBFV() {}
+
+		virtual ~LPAlgorithmSHEBFV() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.
@@ -635,6 +677,19 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVSHE"; }
 	};
 
 	/**
@@ -715,6 +770,19 @@ namespace lbcrypto {
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVPRE"; }
 	};
 
 
@@ -742,6 +810,8 @@ namespace lbcrypto {
 		* Default constructor
 		*/
 		LPAlgorithmMultipartyBFV() {}
+
+		virtual ~LPAlgorithmMultipartyBFV() {}
 
 		/**
 		* Function to generate public and private keys for multiparty homomrophic encryption in coordination with a leading client that generated a first public key.
@@ -797,6 +867,19 @@ namespace lbcrypto {
 		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVMultiparty"; }
 	};
 
 
@@ -816,7 +899,22 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVScheme"; }
 	};
 
 } // namespace lbcrypto ends
+
 #endif

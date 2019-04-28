@@ -25,7 +25,6 @@
  *
  */
 #include "../lib/abecontext.h"
-#include "palisade.h"
 
 using namespace lbcrypto;
 

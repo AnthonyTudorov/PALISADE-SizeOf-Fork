@@ -181,11 +181,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
     std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
   }
   TIC(t1);
-  if (single_flag) {
-    DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
-  } else {    
-    DeserializeObfuscatedPatternFromFileSet(obfFileName, obfuscatedPattern);
-  }
+  DeserializeObfuscatedPatternFromFile(obfFileName, obfuscatedPattern);
   timeRead = TOC(t1);
   PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
 

@@ -52,36 +52,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 namespace lbcrypto {
 
-
-	template <class Element>
-	bool LPCryptoParametersBGV<Element>::Serialize(Serialized* serObj) const {
-		if (!serObj->IsObject())
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if (this->SerializeRLWE(serObj, cryptoParamsMap) == false)
-			return false;
-
-		serObj->AddMember("LPCryptoParametersBGV", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersBGV", serObj->GetAllocator());
-
-		return true;
-	}
-
-
-	template <class Element>
-	bool LPCryptoParametersBGV<Element>::Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersBGV");
-		if (mIter == serObj.MemberEnd()) return false;
-
-		if (this->DeserializeRLWE(mIter) == false) {
-			return false;
-		}
-
-		return true;
-	}
-
-
 	//makeSparse is not used by this scheme
 	template <class Element>
 	LPKeyPair<Element> LPAlgorithmBGV<Element>::KeyGen(CryptoContext<Element> cc, bool makeSparse)
@@ -913,31 +883,31 @@ DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const v
 		{
 		case ENCRYPTION:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmBGV<Element>() );
 			break;
 		case PRE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmBGV<Element>() );
 			if (this->m_algorithmPRE == NULL)
-				this->m_algorithmPRE = new LPAlgorithmPREBGV<Element>();
+				this->m_algorithmPRE.reset( new LPAlgorithmPREBGV<Element>() );
 			break;
 		case SHE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmBGV<Element>() );
 			if (this->m_algorithmSHE == NULL)
-				this->m_algorithmSHE = new LPAlgorithmSHEBGV<Element>();
+				this->m_algorithmSHE.reset( new LPAlgorithmSHEBGV<Element>() );
 			break;
 		case LEVELEDSHE:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmBGV<Element>() );
 			if (this->m_algorithmLeveledSHE == NULL)
-				this->m_algorithmLeveledSHE = new LPLeveledSHEAlgorithmBGV<Element>();
+				this->m_algorithmLeveledSHE.reset( new LPLeveledSHEAlgorithmBGV<Element>() );
 			break;
 		case MULTIPARTY:
 			if (this->m_algorithmEncryption == NULL)
-				this->m_algorithmEncryption = new LPAlgorithmBGV<Element>();
+				this->m_algorithmEncryption.reset( new LPAlgorithmBGV<Element>() );
 			if (this->m_algorithmMultiparty == NULL)
-				this->m_algorithmMultiparty = new LPAlgorithmMultipartyBGV<Element>();
+				this->m_algorithmMultiparty.reset( new LPAlgorithmMultipartyBGV<Element>() );
 			break;
 		case FHE:
 			throw std::logic_error("FHE feature not supported for BGV scheme");

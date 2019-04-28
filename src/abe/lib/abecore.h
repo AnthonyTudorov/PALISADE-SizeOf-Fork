@@ -29,8 +29,9 @@
 
 #include <cmath>
 #include <vector>
-#include "palisade.h"
-#include "cryptocontexthelper.h"
+//#include "palisade.h"
+//#include "cryptocontexthelper.h"
+#include "encoding/plaintextfactory.h"
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "math/backend.h"

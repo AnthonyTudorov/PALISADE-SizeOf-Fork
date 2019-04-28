@@ -27,6 +27,7 @@
 #ifndef LBCRYPTO_MATH_MATRIXSTRASSEN_H
 #define LBCRYPTO_MATH_MATRIXSTRASSEN_H
 
+#include <assert.h>
 #include "matrix.h"
 
 namespace lbcrypto {
@@ -454,21 +455,6 @@ namespace lbcrypto {
              * Return a vector that is a rows x 1 matrix.
              */
             MatrixStrassen<Element> MultByRandomVector(std::vector<int> ranvec) const;
-
-//			/**
-//			* Serialize the object into a Serialized
-//			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-//			* @return true if successfully serialized
-//			*/
-			//bool Serialize(Serialized* serObj) const;
-
-//			/**
-//			* Populate the object from the deserialization of the Serialized
-//			* @param serObj contains the serialized object
-//			* @return true on success
-//			*/
-			//bool Deserialize(const Serialized& serObj);
-
 
         private:
 		   struct MatDescriptor {

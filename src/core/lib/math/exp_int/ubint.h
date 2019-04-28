@@ -759,25 +759,6 @@ public:
 	 */
 	const std::string ToString() const;
 
-	//Serialization functions
-	const std::string SerializeToString(const ubint& mod = 0) const;
-	const char * DeserializeFromString(const char * str, const ubint& mod = 0);
-
-
-	/**
-	 * Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(lbcrypto::Serialized* serObj) const;
-
-	/**
-	 * Populate the object from the deserialization of the Serialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const lbcrypto::Serialized& serObj);
-
 	// helper functions
 
 	/**
@@ -898,9 +879,6 @@ public:
 		return os;
 	}
 
-private:
-	static inline limb_t base64_to_value(const char &b64);
-
 public:
 #ifdef UBINT_32
 	static const std::string IntegerTypeName() { return "UBINT_32"; }
@@ -955,6 +933,27 @@ public:
 	 */
 	uschar GetBitAtIndex(usint index) const;
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+		ar( cereal::make_nvp("s", m_state) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("v", m_value) );
+		ar( cereal::make_nvp("m", m_MSB) );
+		ar( cereal::make_nvp("s", m_state) );
+	}
+
+	std::string SerializedObjectName() const { return "ExpInteger"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 protected:
 
@@ -975,8 +974,6 @@ protected:
 	 * @param guessIdxChar is the hint of the MSB position.
 	 */
 	void SetMSB(usint guessIdxChar);
-
-
 
 private:
 

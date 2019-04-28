@@ -158,20 +158,6 @@ namespace lbcrypto {
 			virtual ~LPCryptoParametersBGV() {}
 
 			/**
-			* Serialize the object into a Serialized
-			* @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-			* @return true if successfully serialized
-			*/
-			bool Serialize(Serialized* serObj) const;
-
-			/**
-			* Populate the object from the deserialization of the Serialized
-			* @param serObj contains the serialized object
-			* @return true on success
-			*/
-			bool Deserialize(const Serialized& serObj);
-
-			/**
 			* == operator to compare to this instance of LPCryptoParametersBGV object.
 			*
 			* @param &rhs LPCryptoParameters to check equality against.
@@ -188,6 +174,23 @@ namespace lbcrypto {
 				LPCryptoParametersRLWE<Element>::PrintParameters(os);
 			}
 
+			template <class Archive>
+			void save ( Archive & ar, std::uint32_t const version ) const
+			{
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			template <class Archive>
+			void load( Archive & ar, std::uint32_t const version )
+			{
+				if( version > SerializedVersion() ) {
+					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+				}
+			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			}
+
+			std::string SerializedObjectName() const { return "BGVSchemeParameters"; }
+			static uint32_t SerializedVersion() { return 1; }
 	};
 
 
@@ -257,6 +260,19 @@ namespace lbcrypto {
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVEncryption"; }
 	};
 
 	/**
@@ -483,6 +499,19 @@ namespace lbcrypto {
 			throw std::runtime_error(errMsg);
 		}
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVSHE"; }
 	};
 
 	/**
@@ -573,6 +602,19 @@ namespace lbcrypto {
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
 
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVPRE"; }
 	};
 
 	/**
@@ -652,6 +694,20 @@ namespace lbcrypto {
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
+
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVMultiparty"; }
 	};
 
 
@@ -740,6 +796,20 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBGV::CanRingReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
+
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVLeveledSHE"; }
 	};
 
 
@@ -759,7 +829,22 @@ namespace lbcrypto {
 		}
 
 		void Enable(PKESchemeFeature feature);
+
+		template <class Archive>
+		void save( Archive & ar, std::uint32_t const version ) const
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load( Archive & ar, std::uint32_t const version )
+		{
+		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVScheme"; }
 	};
 
 } // namespace lbcrypto ends
+
 #endif

@@ -61,13 +61,11 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 
 	std::cout << "Deserializing the crypto context...";
 
-	Serialized	ccSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
+	CryptoContext<DCRTPoly> cc;
+	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	cc->Enable(ENCRYPTION|SHE);
 
@@ -77,20 +75,20 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 }
 
 
-void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName)
-{
+void DeserializeEvalKeys(CryptoContext<DCRTPoly> cc, const string& emFileName) {
 
-	Serialized	emSer, esSer;
-
-	if (SerializableHelper::ReadSerializationFromFile(emFileName, &emSer) == false) {
-		cerr << "Could not read the eval mult key file" << endl;
+	std::ifstream emkeys(emFileName, std::ios::in|std::ios::binary);
+	if( !emkeys.is_open() ) {
+		cerr << "Could not read the eval mult key file " << endl;
 		return;
 	}
 
-	if( cc->DeserializeEvalMultKey(emSer) == false ) {
+	if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;
 		return;
 	}
+
+	emkeys.close();
 
 	std::cout << "Completed" << std::endl;
 }
@@ -263,25 +261,14 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 	std::cout << "Serializing private and public keys...";
 
 	if(kp.publicKey && kp.secretKey) {
-		Serialized pubK, privK;
 
-		if(kp.publicKey->Serialize(&pubK)) {
-			if(!SerializableHelper::WriteSerializationToFile(pubK, "demoData/PUB.txt")) {
-				cerr << "Error writing serialization of public key" << endl;
-				return;
-			}
-		} else {
-			cerr << "Error serializing public key" << endl;
+		if(!Serializable::SerializeToFile("demoData/PUB.txt", kp.publicKey, Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of public key" << endl;
 			return;
 		}
 
-		if(kp.secretKey->Serialize(&privK)) {
-			if(!SerializableHelper::WriteSerializationToFile(privK, "demoData/PRI.txt")) {
-				cerr << "Error writing serialization of private key" << endl;
-				return;
-			}
-		} else {
-			cerr << "Error serializing private key" << endl;
+		if(!Serializable::SerializeToFile("demoData/PRI.txt", kp.secretKey, Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of private key" << endl;
 			return;
 		}
 	} else {
@@ -292,16 +279,16 @@ void KeyGen(CryptoContext<DCRTPoly> cc) {
 
 	std::cout << "Serializing eval mult key...";
 
-	Serialized emKeys;
-
-	if (cc->SerializeEvalMultKey(&emKeys)) {
-		if (!SerializableHelper::WriteSerializationToFile(emKeys, "demoData/EVALMULT.txt")) {
+	ofstream emkeyfile("demoData/EVALMULT.txt", std::ios::out|std::ios::binary);
+	if( emkeyfile.is_open() ) {
+		if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
 			cerr << "Error writing serialization of the eval mult key" << endl;
 			return;
 		}
+		emkeyfile.close();
 	}
 	else {
-		cerr << "Error serializing eval mult key" << endl;
+		cerr << "Error serializing eval mult keys" << endl;
 		return;
 	}
 
@@ -328,15 +315,15 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 	TIC(t1);
 
+	// Initialize the public key containers.
+	LPPublicKey<DCRTPoly> pk;
 	string pubKeyLoc = "demoData/PUB.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(pubKeyLoc, &kser) == false) {
+
+	if(Serializable::DeserializeFromFile(pubKeyLoc, pk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
 
-	// Initialize the public key containers.
-	LPPublicKey<DCRTPoly> pk = cc->deserializePublicKey(kser);
 
 	timeSer = TOC(t1);
 
@@ -379,22 +366,9 @@ void Encrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 			TIC(t1);
 			string ciphertextname ="demoData/ciphertext-" + to_string(i+1) + "-" + to_string(k+1) + ".txt";
-			ofstream ctSer(ciphertextname, ios::binary);
 
-			if (!ctSer.is_open()) {
-				cerr << "could not open output file " << ciphertextname << endl;
-				return;
-			}
-
-			Serialized cSer;
-			if (imageRow[k]->Serialize(&cSer)) {
-				if (!SerializableHelper::WriteSerializationToFile(cSer, ciphertextname)) {
-					cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-					return;
-				}
-			}
-			else {
-				cerr << "Error serializing ciphertext" << endl;
+			if (!Serializable::SerializeToFile(ciphertextname, imageRow[k], Serializable::Type::BINARY)) {
+				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 				return;
 			}
 
@@ -442,14 +416,8 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 
 			string ciphertextname = "demoData/ciphertext-" + to_string(i+1) + "-" + to_string(k+1) + ".txt";
 
-			Serialized kser;
-			if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-				cerr << "Could not read ciphertext" << endl;
-				return;
-			}
-
-			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
-			if(ct == NULL) {
+			Ciphertext<DCRTPoly> ct;
+			if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
 				cerr << "Could not deserialize ciphertext" << endl;
 				return;
 			}
@@ -515,22 +483,9 @@ void Evaluate(CryptoContext<DCRTPoly> cc, size_t size)
 		for(int k = 0; k < width; k++) {
 
 			string ciphertextname ="demoData/ciphertext-result-" + to_string(i+1) + "-" + to_string(k+1) + ".txt";
-			ofstream ctSer(ciphertextname, ios::binary);
 
-			if (!ctSer.is_open()) {
-				cerr << "could not open output file " << ciphertextname << endl;
-				return;
-			}
-
-			Serialized cSer;
-			if (image2[i][k]->Serialize(&cSer)) {
-				if (!SerializableHelper::WriteSerializationToFile(cSer, ciphertextname)) {
-					cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-					return;
-				}
-			}
-			else {
-				cerr << "Error serializing ciphertext" << endl;
+			if (!Serializable::SerializeToFile(ciphertextname, image2[i][k], Serializable::Type::BINARY)) {
+				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 				return;
 			}
 		}
@@ -563,15 +518,14 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 	int height = size;
 	int width = size;
 
+	// Initialize the public key containers.
+	LPPrivateKey<DCRTPoly> sk;
 	string privKeyLoc = "demoData/PRI.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(privKeyLoc, &kser) == false) {
+
+	if(Serializable::DeserializeFromFile(privKeyLoc, sk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read privatekey" << endl;
 		return;
 	}
-
-	// Initialize the public key containers.
-	LPPrivateKey<DCRTPoly> sk = cc->deserializeSecretKey(kser);
 
 	std::cout << "Deserializing ciphertexts..." << std::flush;
 
@@ -584,14 +538,8 @@ void Decrypt(CryptoContext<DCRTPoly> cc, size_t size) {
 
 			string ciphertextname = "demoData/ciphertext-result-" + to_string(i+1) + "-" + to_string(k+1) + ".txt";
 
-			Serialized kser;
-			if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-				cerr << "Could not read ciphertext" << endl;
-				return;
-			}
-
-			Ciphertext<DCRTPoly> ct = cc->deserializeCiphertext(kser);
-			if(ct == NULL) {
+			Ciphertext<DCRTPoly> ct;
+			if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
 				cerr << "Could not deserialize ciphertext" << endl;
 				return;
 			}

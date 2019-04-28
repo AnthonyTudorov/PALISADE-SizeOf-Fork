@@ -120,25 +120,12 @@ main(int argc, char *argv[])
 	}
 
 	if( ctxtFile.length() > 0 ) {
-		ifstream in( ctxtFile );
-		if( !in.is_open() ) {
-			cout << "Cannot open input file " << ctxtFile << endl;
-			return 1;
-		}
-
-		Serialized serObj;
-		if( SerializableHelper::StreamToSerialization(in, &serObj) == false ) {
-			cout << "Input file could not be deserialized" << endl;
-			return 1;
-		}
-
 		if( element == POLY )
-			cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(serObj);
+			Serializable::DeserializeFromFile(ctxtFile, cc, Serializable::Type::JSON);
 		else if( element == DCRT )
-			dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
+			Serializable::DeserializeFromFile(ctxtFile, dcc, Serializable::Type::JSON);
 		else
-			ncc = CryptoContextFactory<NativePoly>::DeserializeAndCreateContext(serObj);
-
+			Serializable::DeserializeFromFile(ctxtFile, ncc, Serializable::Type::JSON);
 	}
 	else {
 		if( !knownParameterSet(ctxtName) ) {

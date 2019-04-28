@@ -100,7 +100,8 @@ SUBMAKEFILES := core pke trapdoor abe signature circuit wip
 # third party directories
 THIRDPARTYDIR := third-party
 THIRDPARTYLIBDIR := $(THIRDPARTYDIR)/lib
-THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/include -I $(THIRDPARTYDIR)/include/rapidjson
+## THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/include -I $(THIRDPARTYDIR)/include/rapidjson 
+THIRDPARTYINCLUDE := -I $(THIRDPARTYDIR)/cereal/include -I $(THIRDPARTYDIR)/include
 
 # dynamic lib directories on system
 ifeq ($(PREFIX),)
@@ -190,7 +191,7 @@ uninstall: uninstallcore uninstallpke uninstalltrapdoor uninstallwip uninstallci
 
 UNITTESTMAINOBJ := $(BINDIR)/unittest/Main_TestAll.o
 
-$(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backend.h src/version.h
+$(UNITTESTMAINOBJ): test/include/gtest/Main_TestAll.cpp src/core/lib/math/backend.h 
 	@mkdir -p $(BINDIR)/unittest
 	$(CC) -c $(CPPFLAGS) $(INC) -o $@ $<
 

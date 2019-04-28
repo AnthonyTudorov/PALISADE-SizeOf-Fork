@@ -482,26 +482,27 @@ public:
   
   // auxiliary functions
 
-  //JSON FACILITY
-  /**
-   * Serialize the object into a Serialized 
-   *
-   * @param serObj is used to store the serialized result. It MUST
-   * be a rapidjson Object (SetObject());
-   *
-   * @param fileFlag is an object-specific parameter for the
-   * serialization 
-   *
-   * @return true if successfully serialized
-   */
-  bool Serialize(lbcrypto::Serialized* serObj) const;
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("d", m_data) );
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
 
-  /**
-   * Populate the object from the deserialization of the Setialized
-   * @param serObj contains the serialized object
-   * @return true on success
-   */
-  bool Deserialize(const lbcrypto::Serialized& serObj);
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("d", m_data) );
+		ar( cereal::make_nvp("m", m_modulus) );
+		ar( cereal::make_nvp("ms", m_modulus_state) );
+	}
+
+	std::string SerializedObjectName() const { return "ExpVector"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 private:
   ubint_el_t m_modulus;

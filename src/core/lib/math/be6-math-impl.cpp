@@ -71,12 +71,13 @@ template class Matrix<M6Integer>;
 ONES_FOR_TYPE(M6Integer)
 IDENTITY_FOR_TYPE(M6Integer)
 GADGET_FOR_TYPE(M6Integer)
-MATRIX_NOT_SERIALIZABLE(M6Integer)
 
 template class Matrix<M6Vector>;
 ONES_FOR_TYPE(M6Vector)
 IDENTITY_FOR_TYPE(M6Vector)
 GADGET_FOR_TYPE(M6Vector)
-MATRIX_NOT_SERIALIZABLE(M6Vector)
 
 }
+
+CEREAL_CLASS_VERSION( M6Integer, M6Integer::SerializedVersion() );
+CEREAL_CLASS_VERSION( M6Vector, M6Vector::SerializedVersion() );

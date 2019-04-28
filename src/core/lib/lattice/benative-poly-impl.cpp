@@ -44,7 +44,6 @@ ONES_FOR_TYPE(NativePoly)
 IDENTITY_FOR_TYPE(NativePoly)
 GADGET_FOR_TYPE(NativePoly)
 NORM_FOR_TYPE(NativePoly)
-MATRIX_NOT_SERIALIZABLE(NativePoly)
 SPLIT64_FOR_TYPE(NativePoly)
 SPLIT64ALT_FOR_TYPE(NativePoly)
 SPLIT32ALT_FOR_TYPE(NativePoly)
@@ -52,3 +51,5 @@ template Matrix<NativeVector> RotateVecResult(Matrix<NativePoly> const& inMat);
 template Matrix<NativeInteger> Rotate(Matrix<NativePoly> const& inMat);
 
 }  // namespace lbcrypto
+
+CEREAL_CLASS_VERSION( lbcrypto::NativePoly, lbcrypto::NativePoly::SerializedVersion() );

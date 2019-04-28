@@ -57,3 +57,19 @@ bool LPAlgorithmParamsGenLTV<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameter
 }
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenLTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::Poly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenLTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::NativePoly>);

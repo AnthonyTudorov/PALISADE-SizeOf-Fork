@@ -38,3 +38,14 @@ template class LPEvalKeyNTRURelinImpl<DCRTPoly>;
 template class LPSHEAlgorithm<DCRTPoly>;
 }
 
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);
+

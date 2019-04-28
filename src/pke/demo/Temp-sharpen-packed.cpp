@@ -140,13 +140,11 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 
 	std::cout << "Deserializing the crypto context...";
 
-	Serialized	ccSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
+	CryptoContext<DCRTPoly> cc;
+	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
-
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
 
 	std::cout << "Completed" << std::endl;
 
@@ -159,21 +157,18 @@ CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName,
 
 	std::cout << "Deserializing the crypto context...";
 
-	Serialized	ccSer, eaSer;
-	if (SerializableHelper::ReadSerializationFromFile(ccFileName, &ccSer) == false) {
-		cerr << "Could not read the cryptocontext file" << endl;
+	CryptoContext<DCRTPoly> cc = DeserializeContext(ccFileName);
+	if( !cc )
 		return 0;
-	}
 
-	if (SerializableHelper::ReadSerializationFromFile(eaFileName, &eaSer) == false) {
+	std::ifstream eakeys(eaFileName, std::ios::in|std::ios::binary);
+	if( !eakeys.is_open() ) {
 		cerr << "Could not read the eval automorphism key file" << endl;
 		return 0;
 	}
 
-	CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(ccSer);
-
-	if( cc->DeserializeEvalAutomorphismKey(eaSer) == false ) {
-		cerr << "Could not deserialize the eval automorphism key file" << endl;
+	if( cc->DeserializeEvalAutomorphismKey(eakeys, Serializable::Type::BINARY) == false ) {
+		cerr << "Could not deserialize the eval automorphism keys" << endl;
 		return 0;
 	}
 
@@ -248,16 +243,8 @@ void KeyGen(size_t size) {
 
 	std::cout << "Serializing crypto context...";
 
-	Serialized ctxt;
-
-	if (cryptoContext->Serialize(&ctxt)) {
-		if (!SerializableHelper::WriteSerializationToFile(ctxt, "demoData/cryptocontext.txt")) {
-			cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
-			return;
-		}
-	}
-	else {
-		cerr << "Error serializing the crypto context" << endl;
+	if (!Serializable::SerializeToFile("demoData/cryptocontext.txt", cryptoContext, Serializable::Type::BINARY)) {
+		cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
 		return;
 	}
 
@@ -265,26 +252,15 @@ void KeyGen(size_t size) {
 
 	std::cout << "Serializing private and public keys...";
 
-    if(kp.publicKey && kp.secretKey) {
-		Serialized pubK, privK;
+	if(kp.publicKey && kp.secretKey) {
 
-		if(kp.publicKey->Serialize(&pubK)) {
-			if(!SerializableHelper::WriteSerializationToFile(pubK, "demoData/PUB.txt")) {
+		if(!Serializable::SerializeToFile("demoData/PUB.txt", kp.publicKey, Serializable::Type::BINARY)) {
 			cerr << "Error writing serialization of public key" << endl;
-			return;
-			}
-		} else {
-			cerr << "Error serializing public key" << endl;
 			return;
 		}
 
-		if(kp.secretKey->Serialize(&privK)) {
-			if(!SerializableHelper::WriteSerializationToFile(privK, "demoData/PRI.txt")) {
+		if(!Serializable::SerializeToFile("demoData/PRI.txt", kp.secretKey, Serializable::Type::BINARY)) {
 			cerr << "Error writing serialization of private key" << endl;
-			return;
-			}
-		} else {
-			cerr << "Error serializing private key" << endl;
 			return;
 		}
 	} else {
@@ -295,18 +271,19 @@ void KeyGen(size_t size) {
 
 	std::cout << "Serializing eval automorphism keys...";
 
-	Serialized eaKeys;
-
-	if (cryptoContext->SerializeEvalAutomorphismKey(&eaKeys)) {
-		if (!SerializableHelper::WriteSerializationToFile(eaKeys, "demoData/EVALAUTO.txt")) {
+	ofstream eakeyfile("demoData/EVALAUTO.txt", std::ios::out|std::ios::binary);
+	if( eakeyfile.is_open() ) {
+		if( cryptoContext->SerializeEvalAutomorphismKey(eakeyfile, Serializable::Type::BINARY) == false ) {
 			cerr << "Error writing serialization of the eval automorphism keys" << endl;
 			return;
 		}
+		eakeyfile.close();
 	}
 	else {
 		cerr << "Error serializing eval automorphism key" << endl;
 		return;
 	}
+
 
 	std::cout << "Completed" << std::endl;
 
@@ -337,15 +314,13 @@ void Encrypt(size_t size) {
 	const auto encodingParams = cryptoParams->GetEncodingParams();
 	uint32_t batchSize = encodingParams->GetBatchSize();
 
+	// Initialize the public key container
 	string pubKeyLoc = "demoData/PUB.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(pubKeyLoc, &kser) == false) {
+	LPPublicKey<DCRTPoly> pk;
+	if(Serializable::DeserializeFromFile(pubKeyLoc, pk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
-
-	// Initialize the public key containers.
-	LPPublicKey<DCRTPoly> pk = cryptoContext->deserializePublicKey(kser);
 
 	timeSer = TOC(t1);
 
@@ -399,22 +374,9 @@ void Encrypt(size_t size) {
 		TIC(t1);
 
 		string ciphertextname ="demoData/ciphertext-" + to_string(i+1) + ".txt";
-		ofstream ctSer(ciphertextname, ios::binary);
 
-		if (!ctSer.is_open()) {
-			cerr << "could not open output file " << ciphertextname << endl;
-			return;
-		}
-
-		Serialized cSer;
-		if (image[i]->Serialize(&cSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(cSer, ciphertextname)) {
-				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-				return;
-			}
-		}
-		else {
-			cerr << "Error serializing ciphertext" << endl;
+		if (!Serializable::SerializeToFile(ciphertextname, image[i], Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
 
@@ -463,17 +425,10 @@ void Evaluate(size_t size)
 
 	for(int i = 0; i < ciphertextCount; i++)
 	{
-
 		string ciphertextname = "demoData/ciphertext-" + to_string(i+1) + ".txt";
 
-		Serialized kser;
-		if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-				cerr << "Could not read ciphertext" << endl;
-				return;
-			}
-
-		Ciphertext<DCRTPoly> ct = cryptoContext->deserializeCiphertext(kser);
-		if(ct == NULL) {
+		Ciphertext<DCRTPoly> ct;
+		if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}
@@ -540,22 +495,9 @@ void Evaluate(size_t size)
 	{
 
 		string ciphertextname ="demoData/ciphertext-result-" + to_string(i+1) + ".txt";
-		ofstream ctSer(ciphertextname, ios::binary);
 
-		if (!ctSer.is_open()) {
-			cerr << "could not open output file " << ciphertextname << endl;
-			return;
-		}
-
-		Serialized cSer;
-		if (image2[i]->Serialize(&cSer)) {
-			if (!SerializableHelper::WriteSerializationToFile(cSer, ciphertextname)) {
-				cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
-				return;
-			}
-		}
-		else {
-			cerr << "Error serializing ciphertext" << endl;
+		if (!Serializable::SerializeToFile(ciphertextname, image2[i], Serializable::Type::BINARY)) {
+			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
 
@@ -594,15 +536,14 @@ void Decrypt(size_t size) {
 	size_t height = size;
 	size_t width = size;
 
+	// Initialize the public key containers.
 	string privKeyLoc = "demoData/PRI.txt";
-	Serialized kser;
-	if(SerializableHelper::ReadSerializationFromFile(privKeyLoc, &kser) == false) {
+	LPPrivateKey<DCRTPoly> sk;
+	if(Serializable::DeserializeFromFile(privKeyLoc, sk, Serializable::Type::BINARY) == false) {
 		cerr << "Could not read privatekey" << endl;
 		return;
 	}
 
-	// Initialize the public key containers.
-	LPPrivateKey<DCRTPoly> sk = cryptoContext->deserializeSecretKey(kser);
 
     int ciphertextCount;
 
@@ -620,14 +561,8 @@ void Decrypt(size_t size) {
 
 		string ciphertextname = "demoData/ciphertext-result-" + to_string(i+1) + ".txt";
 
-		Serialized kser;
-		if(SerializableHelper::ReadSerializationFromFile(ciphertextname, &kser) == false) {
-				cerr << "Could not read ciphertext" << endl;
-				return;
-			}
-
-		Ciphertext<DCRTPoly> ct = cryptoContext->deserializeCiphertext(kser);
-		if(ct == NULL) {
+		Ciphertext<DCRTPoly> ct;
+		if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}

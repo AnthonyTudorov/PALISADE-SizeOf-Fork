@@ -74,21 +74,13 @@ main(int argc, char *argv[])
 		}
 	}
 
-	Serialized serObj;
-	if( SerializableHelper::ReadSerializationFromFile(argv[aidx], &serObj) == false ) {
-		cout << "Unable to read CryptoContext" << endl;
-		return 1;
-	}
-
 	CryptoContext<Poly> cc;
 	CryptoContext<DCRTPoly> dcc;
 
-	if( element == POLY ) {
-		cc = CryptoContextFactory<Poly>::DeserializeAndCreateContext(serObj);
-	}
-	else {
-		dcc = CryptoContextFactory<DCRTPoly>::DeserializeAndCreateContext(serObj);
-	}
+	if( element == POLY )
+		Serializable::DeserializeFromFile(argv[aidx], cc, Serializable::Type::JSON);
+	else if( element == DCRT )
+		Serializable::DeserializeFromFile(argv[aidx], dcc, Serializable::Type::JSON);
 
 	if( cc == 0 && dcc == 0 ) {
 		cout << "Unable to deserialize CryptoContext" << endl;
@@ -104,7 +96,10 @@ main(int argc, char *argv[])
 	}
 
 	// save the context with the data
-	SerializableHelper::SerializationToStream(serObj, out);
+	if( element == POLY )
+		Serializable::Serialize(cc, out, Serializable::Type::JSON);
+	else if( element == DCRT )
+		Serializable::Serialize(dcc, out, Serializable::Type::JSON);
 
 	TimingStatisticsMap stats;
 	PlaintextEncodings pte = Packed;
@@ -120,9 +115,7 @@ main(int argc, char *argv[])
 		auto ts = tstat.second;
 
 		cout << ts << endl;
-		Serialized mSer;
-		ts.Serialize(&mSer);
-		SerializableHelper::SerializationToStream(mSer, out);
+		Serializable::Serialize(ts, out, Serializable::Type::JSON);
 	}
 
 	out.close();

@@ -141,39 +141,6 @@ public:
 	virtual ~LPCryptoParametersLTV() {}
 
 	/**
-	 * Serialize the LTV Crypto Parameters using rapidJson representation.
-	 *
-	 * @param serObj RapidJson object for the serializaion
-	 * @return True on success
-	 */
-	bool Serialize(Serialized* serObj) const {
-		if( !serObj->IsObject() )
-			return false;
-
-		SerialItem cryptoParamsMap(rapidjson::kObjectType);
-		if( this->SerializeRLWE(serObj, cryptoParamsMap) == false )
-			return false;
-
-		serObj->AddMember("LPCryptoParametersLTV", cryptoParamsMap.Move(), serObj->GetAllocator());
-		serObj->AddMember("LPCryptoParametersType", "LPCryptoParametersLTV", serObj->GetAllocator());
-
-		return true;
-	}
-
-	/**
-	 * Deserialize the LTV Crypto Parameters using rapidJson representation.
-	 *
-	 * @param serObj The serialized object to deserialize.
-	 * @return True on success
-	 */
-	bool Deserialize(const Serialized& serObj) {
-		Serialized::ConstMemberIterator mIter = serObj.FindMember("LPCryptoParametersLTV");
-		if( mIter == serObj.MemberEnd() ) return false;
-
-		return this->DeserializeRLWE(mIter);
-	}
-
-	/**
 	 * == operator to compare to this instance of LPCryptoParametersLTV object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
@@ -188,6 +155,20 @@ public:
 	void PrintParameters(std::ostream& os) const {
 		LPCryptoParametersRLWE<Element>::PrintParameters(os);
 	}
+
+	template <class Archive>
+	void save ( Archive & ar ) const
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load ( Archive & ar )
+	{
+	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVSchemeParameters"; }
 };
 
 /**
@@ -219,6 +200,19 @@ public:
 	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 		int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const;
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVParamsGen"; }
 };
 
 /**
@@ -291,6 +285,20 @@ public:
 	 * @return Public and private key pair.
 	 */
 	LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse = false);
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVEncryption"; }
 };
 
 /**
@@ -340,6 +348,19 @@ public:
 		ConstCiphertext<Element> ciphertext,
 		const LPPublicKey<Element> publicKey = nullptr) const;
 	
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVPRE"; }
 };
 
 	/**
@@ -425,6 +446,20 @@ public:
 		std::string errMsg = "LPAlgorithmPREBGV::MultipartyDecrypt is not implemented for the BGV Scheme.";
 		throw std::runtime_error(errMsg);
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVMultiparty"; }
 };
 
 /**
@@ -667,6 +702,19 @@ public:
 	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalAutomorphismKeyGen(const LPPublicKey<Element> publicKey,
 		const LPPrivateKey<Element> privateKey, const std::vector<usint> &indexList) const;
 
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVSHE"; }
 };
 
 /**
@@ -747,10 +795,24 @@ public:
 	* @return True if the security threshold is satisfied in the new ring dimension.
 	*/
 	bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const;
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVLeveledSHE"; }
 };
 
 /**
-* @brief This is the algorithms class for to enable deatures for an LTV encryption scheme, notably public key encryption, proxy re-encryption, somewhat homomorphic encryption and/or fully homomorphic encryption. 
+* @brief This is the algorithms class for to enable features for an LTV encryption scheme, notably public key encryption, proxy re-encryption, somewhat homomorphic encryption and/or fully homomorphic encryption.
  *
  * There have been recent advancements in the cryptanalysis of the LTV scheme, so this protocol should be used with care, if at all.  These weaknesses are derived from subfield lattice attacks which are descibed here:
  *   - Albrecht, Martin, Shi Bai, and Léo Ducas. "A subfield lattice attack on overstretched NTRU assumptions." Annual Cryptology Conference. Springer Berlin Heidelberg, 2016.
@@ -771,7 +833,7 @@ public:
 	* Inherited constructor
 	*/
 	LPPublicKeyEncryptionSchemeLTV() : LPPublicKeyEncryptionScheme<Element>() {
-		this->m_algorithmParamsGen = new LPAlgorithmParamsGenLTV<Element>();
+		this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenLTV<Element>());
 	}
 
 	bool operator==(const LPPublicKeyEncryptionScheme<Element>& sch) const {
@@ -786,6 +848,20 @@ public:
 	*@param feature code for the feature to enable
 	*/
 	void Enable(PKESchemeFeature feature);
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	}
+
+	std::string SerializedObjectName() const { return "LTVScheme"; }
 };
 
 }

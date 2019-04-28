@@ -716,20 +716,6 @@ public:
 	PolyImpl ShiftRight(unsigned int n) const;
 
 	/**
-	 * @brief Serialize the object into a Serialized
-	 * @param serObj is used to store the serialized result. It MUST be a rapidjson Object (SetObject());
-	 * @return true if successfully serialized
-	 */
-	bool Serialize(Serialized* serObj) const;
-
-	/**
-	 * @brief Populate the object from the deserialization of the Setialized
-	 * @param serObj contains the serialized object
-	 * @return true on success
-	 */
-	bool Deserialize(const Serialized& serObj);
-
-	/**
 	 * @brief ostream operator
 	 * @param os the input preceding output stream
 	 * @param vec the element to add to the output stream.
@@ -819,6 +805,28 @@ public:
 	friend inline PolyImpl operator*(const Integer &a, const PolyImpl &b) {
 		return b.Times(a);
 	}
+
+	template <class Archive>
+	void save( Archive & ar, std::uint32_t const version ) const
+	{
+		ar( cereal::make_nvp("v", m_values) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	template <class Archive>
+	void load( Archive & ar, std::uint32_t const version )
+	{
+		if( version > SerializedVersion() ) {
+			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
+		}
+		ar( cereal::make_nvp("v", m_values) );
+		ar( cereal::make_nvp("f", m_format) );
+		ar( cereal::make_nvp("p", m_params) );
+	}
+
+	std::string SerializedObjectName() const { return "Poly"; }
+	static uint32_t	SerializedVersion() { return 1; }
 
 private:
 

@@ -987,7 +987,7 @@ template <>
 LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrnsB<DCRTPoly>::KeySwitchGen(const LPPrivateKey<DCRTPoly> originalPrivateKey,
 	const LPPrivateKey<DCRTPoly> newPrivateKey) const {
 
-	LPEvalKeyRelin<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
+	LPEvalKey<DCRTPoly> ek(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
 
 	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsLWE =
 			std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(newPrivateKey->GetCryptoParameters());
@@ -1416,3 +1416,10 @@ template class LPAlgorithmMultipartyBFVrnsB<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrnsB<DCRTPoly>;
 
 }
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFVrnsB<lbcrypto::DCRTPoly>);
