@@ -37,9 +37,7 @@ using namespace std;
 using namespace lbcrypto;
 
 // TODO: temportary fix until Windows serialization is fixed
-#if defined(_WIN32) or defined(_WIN64)
-
-#elif
+#if not defined(_WIN32) and not defined(_WIN64)
 
 class UTPKESer : public ::testing::Test {
 protected:
