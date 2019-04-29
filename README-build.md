@@ -2,6 +2,12 @@ Effective release 1.6, we have transitioned to building with CMake.
 
 You must have cmake installed on your machine in order to build PALISADE.
 
+We have transitioned to the use of submodules. The first time you clone PALISADE,
+or the first time you change to this release, you may need to run the following commands
+
+	git submodule sync --recursive
+	git submodule update --init  --recursive
+
 CMake will check that all required build tools are installed.
 
 A cmake build can be run in any directory. Once you select a directory in which to build,
@@ -9,36 +15,36 @@ you simply run cmake and provide it the root directory of the source.
 
 To run builds in a subdirectory named "build":
 
-mkdir build
-cd build
-cmake ..
+	mkdir build
+	cd build
+	cmake ..
 
 This will create all the necessary makefiles. If you say "make help", all available targets are printed.
 
 NOTE if you are building on Windows using mingw64, you must initialize by saying
 
-cmake .. -G"Unix Makefiles"
+	cmake .. -G"Unix Makefiles"
 
 We also make use of git submodules for many of the pieces of code from third-party sources.
 The cereal, google-benchmark, google-test and gperftools code are all git submodules.
 
 If you want to use the tcmalloc package, you must
 
-make tcm
+	make tcm
 
 If you don't want to use tcmalloc any more, you must run
 
-make tcm_clean
+	make tcm_clean
 
 There is one big difference between the old scheme for running make and the new scheme,
 The difference has to do with the third-party GMP and NTL libraries. The user MUST build these
 libraries one time, with separate commands:
 
-make gmp_unpack
-make ntl_unpack
+	make gmp_unpack
+	make ntl_unpack
 
-make gmp_all
-make ntl_all
+	make gmp_all
+	make ntl_all
 
 The unpack targets force an unpacking of zipped distribution files. The all targets build the libraries.
 If you would like to force a rebuild of one of these third-party libraries, you can "make gmp_clobber" or
