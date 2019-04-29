@@ -75,7 +75,6 @@ LOCAL_MODULE := libgtest
 GOOGLETEST_ROOT = $(ANDROID_NDK)/sources/third_party/googletest/googletest
 
 LOCAL_SRC_FILES := $(GOOGLETEST_ROOT)/src/gtest_main.cc $(GOOGLETEST_ROOT)/src/gtest-all.cc
-##LOCAL_SRC_FILES := $(GTESTFILES:$(LOCAL_PATH)/%=%)
 
 LOCAL_C_INCLUDES := $(GOOGLETEST_ROOT) $(GOOGLETEST_ROOT)/include
 
@@ -99,7 +98,6 @@ LOCAL_SRC_FILES := $(UNIT_FILE_LIST:$(LOCAL_PATH)/%=%)
 GOOGLETEST_ROOT = $(ANDROID_NDK)/sources/third_party/googletest/googletest
 
 LOCAL_C_INCLUDES := $(GOOGLETEST_ROOT) $(GOOGLETEST_ROOT)/include jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib pke/lib 
-### LOCAL_C_INCLUDES := ../third-party/google-test/googletest ../third-party/google-test/googletest/include jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib pke/lib 
 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS=true

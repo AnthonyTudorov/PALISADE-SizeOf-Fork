@@ -13,9 +13,13 @@ Then, build the NTL library from source:
 
 Then, back up in this directory (src), run:
 
-~/Desktop/android-ndk-r16b/ndk-build NDK_PROJECT_PATH=$(pwd) NDK_APPLICATION_MK=$(pwd)/Application.mk APP_BUILD_SCRIPT=$(pwd)/Android.mk 
+export ANDROID_NDK=~/Desktop/android-ndk-r16b
+$ANDROID_NDK/ndk-build NDK_PROJECT_PATH=$(pwd) NDK_APPLICATION_MK=$(pwd)/Application.mk APP_BUILD_SCRIPT=$(pwd)/Android.mk 
 
-(you can give it the augument -j4 or -j8 to parallelize the make)
+(if you installed ANDROID_NDK in a different place, or if you are using
+ a different version, just set ANDROID_NDK accordingly)
+
+(you can give it the argument -j4 or -j8 to parallelize the make)
 
 this will create several files under src/libs:
 
