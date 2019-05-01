@@ -1,4 +1,4 @@
-set( REGEX_FLAG -DHAVE_STD_REGEX ) #note does not work for g++ <version 4.9
+set( REGEX_FLAG -DHAVE_STD_REGEX )
 
 if ( APPLE )
 	set( WARNING_FLAG "" )
@@ -13,6 +13,7 @@ file (GLOB BMARK_SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 foreach (app ${BMARK_SRC_FILES})
 	get_filename_component ( exe ${app} NAME_WE )
 	add_executable ( ${exe} ${app} )
+	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/benchmark)
 	target_include_directories( ${exe} PUBLIC ../third-party/google-benchmark/include )
 	set_target_properties( ${exe} PROPERTIES COMPILE_FLAGS
 		"${REGEX_FLAG} -DHAVE_STEADY_CLOCK -DNDEBUG ${WARNING_FLAG} -Wno-unused-variable" )
