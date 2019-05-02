@@ -272,37 +272,6 @@ main()
 	}
 
 	if( false ) {
-		stringstream s;
-		BigInteger W, X;
-
-		W = 5;
-		{
-			cereal::BinaryOutputArchive archive( s );
-			archive( W );
-		}
-		{
-			cereal::BinaryInputArchive archive( s );
-			archive( X );
-		}
-		cout << W << endl;
-		cout << X << endl;
-
-		s.str("");
-		s.clear();
-		W = 0; X = 17;
-		{
-			cereal::BinaryOutputArchive archive( s );
-			archive( W );
-		}
-		{
-			cereal::BinaryInputArchive archive( s );
-			archive( X );
-		}
-		cout << W << endl;
-		cout << X << endl;
-	}
-
-	if( false ) {
 		Foo	xxx(4);
 		Foo yyy, zzz;
 		stringstream ss;
@@ -318,11 +287,11 @@ main()
 
 		ss.str("");
 		{
-			cereal::BinaryOutputArchive archive( ss );
+			cereal::PortableBinaryOutputArchive archive( ss );
 			archive( cereal::make_nvp("Foo", xxx) );
 		}
 		{
-			cereal::BinaryInputArchive archive( ss );
+			cereal::PortableBinaryInputArchive archive( ss );
 			archive( cereal::make_nvp("Foo", zzz) );
 		}
 		cout << (xxx == zzz ? "yes" : "no") << endl << endl;
