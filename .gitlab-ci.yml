@@ -108,7 +108,7 @@ build:
     paths:
     - build/third-party/lib
     - build/lib
-    - build/bin/unittest
+    - build/unittest
     - build/bin/benchmark
     expire_in: 1 day
   dependencies: []
@@ -118,7 +118,7 @@ test_abe:
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
-  - build/bin/unittest/abe_tests --gtest_output=xml
+  - build/unittest/abe_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -140,7 +140,7 @@ test_abe:
 test_core:
   stage: unit_test
   script:
-  - build/bin/unittest/core_tests --gtest_output=xml
+  - build/unittest/core_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -151,7 +151,7 @@ test_core:
 test_pke:
   stage: unit_test
   script:
-  - build/bin/unittest/pke_tests --gtest_output=xml
+  - build/unittest/pke_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -162,7 +162,7 @@ test_pke:
 test_signature:
   stage: unit_test
   script:
-  - build/bin/unittest/signature_tests --gtest_output=xml
+  - build/unittest/signature_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -173,7 +173,7 @@ test_signature:
 test_trapdoor:
   stage: unit_test
   script:
-  - build/bin/unittest/trapdoor_tests --gtest_output=xml
+  - build/unittest/trapdoor_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
@@ -184,7 +184,7 @@ test_trapdoor:
 test_wip:
   stage: unit_test
   script:
-  - build/bin/unittest/wip_tests --gtest_output=xml
+  - build/unittest/wip_tests --gtest_output=xml
   artifacts:
     paths:
     - test_detail.xml
