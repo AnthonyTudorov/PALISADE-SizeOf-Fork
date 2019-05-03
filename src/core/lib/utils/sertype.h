@@ -1,5 +1,5 @@
-/*
-* @file cryptocontext-poly-impl.cpp - cryptocontext poly implementation
+/**
+ * @file sertype.h Definition of serialization type.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -22,32 +22,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */
+ */ 
 
-#include "cryptocontext.cpp"
+#ifndef LBCRYPTO_SERTYPE_H
+#define LBCRYPTO_SERTYPE_H
 
 namespace lbcrypto {
-template class CryptoContextFactory<Poly>;
-template class CryptoContextImpl<Poly>;
-template class CryptoObject<Poly>;
 
-template class CryptoContextFactory<NativePoly>;
-template class CryptoContextImpl<NativePoly>;
-template class CryptoObject<NativePoly>;
-
-template class CryptoContextFactory<DCRTPoly>;
-template class CryptoContextImpl<DCRTPoly>;
-template class CryptoObject<DCRTPoly>;
-
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<Poly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<NativePoly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<DCRTPoly>>& obj, std::istream& stream, SerType sertype);
+enum SerType {
+	JSON,
+	BINARY
+};
 
 }
 
-CEREAL_CLASS_VERSION( lbcrypto::CryptoContextImpl<lbcrypto::Poly>, lbcrypto::CryptoContextImpl<lbcrypto::Poly>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::CryptoContextImpl<lbcrypto::NativePoly>, lbcrypto::CryptoContextImpl<lbcrypto::NativePoly>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::CryptoContextImpl<lbcrypto::DCRTPoly>, lbcrypto::CryptoContextImpl<lbcrypto::DCRTPoly>::SerializedVersion() );
+#endif

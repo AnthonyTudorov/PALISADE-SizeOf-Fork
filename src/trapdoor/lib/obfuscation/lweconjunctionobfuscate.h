@@ -531,38 +531,5 @@ namespace lbcrypto {
 	template <>
 	shared_ptr<typename DCRTPoly::Params> LWEConjunctionObfuscationAlgorithm<DCRTPoly>::GenerateElemParams(double q, uint32_t n) const;
 
-	//////////////////////////////////////////////////
-	template<typename T>
-	void  SerializeClearPatternToFile(const ClearLWEConjunctionPattern<T> clearPattern, const string clearFileName) {
-		if( Serializable::SerializeToFile(clearFileName+".serial", clearPattern, Serializable::Type::BINARY) == false ) {
-			PALISADE_THROW(lbcrypto::serialize_error,
-					"Can't write serialization to file: "+ clearFileName );
-		}
-	}
-
-	template<typename T>
-	void  DeserializeClearPatternFromFile(const string clearFileName, ClearLWEConjunctionPattern<T> &clearPattern) {
-		if( Serializable::DeserializeFromFile(clearFileName+".serial", clearPattern, Serializable::Type::BINARY) == false ) {
-			PALISADE_THROW(lbcrypto::deserialize_error,
-					"Can't read serialization from file "+clearFileName);
-		}
-	}
-
-	template<typename T>
-	void  SerializeObfuscatedPatternToFile(const ObfuscatedLWEConjunctionPattern<T> obfuscatedPattern, const string obfFileName) {
-		if( Serializable::SerializeToFile(obfFileName+".serial", obfuscatedPattern, Serializable::Type::BINARY) == false ) {
-			PALISADE_THROW(lbcrypto::serialize_error,
-					"Can't write serialization to file: "+ obfFileName );
-		}
-	}
-
-	template<typename T>
-	void  DeserializeObfuscatedPatternFromFile(const string obfFileName, ObfuscatedLWEConjunctionPattern<T> &obsPattern) {
-		if( Serializable::DeserializeFromFile(obfFileName+".serial", obsPattern, Serializable::Type::BINARY) == false ) {
-			PALISADE_THROW(lbcrypto::deserialize_error,
-					"Can't read serialization from file "+obfFileName);
-		}
-	}
-
 } // namespace lbcrypto ends
 #endif

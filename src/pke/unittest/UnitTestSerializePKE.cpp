@@ -32,6 +32,7 @@
 #include "math/nbtheory.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
+#include "utils/serial.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -82,7 +83,7 @@ TEST_F(UTPKESer, LTV_Context_Factory) {
 }
 
 template<typename T>
-void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype, string msg) {
+void UnitTestContextWithSertype(CryptoContext<T> cc, SerType sertype, string msg) {
 
 	LPKeyPair<T> kp = cc->KeyGen();
 	try {
@@ -93,10 +94,10 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 	} catch(...) {}
 
 	stringstream s;
-	Serializable::Serialize(cc, s, sertype);
+	Serial::Serialize(cc, s, sertype);
 
 	CryptoContext<T> newcc;
-	Serializable::Deserialize(newcc, s, sertype);
+	Serial::Deserialize(newcc, s, sertype);
 
 	ASSERT_TRUE( newcc.get() != 0 ) << msg << " Deserialize failed";
 
@@ -109,10 +110,10 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 
 	s.str("");
 	s.clear();
-	Serializable::Serialize(kp.publicKey, s, sertype);
+	Serial::Serialize(kp.publicKey, s, sertype);
 
 	LPPublicKey<T> newPub;
-	Serializable::Deserialize(newPub, s, sertype);
+	Serial::Deserialize(newPub, s, sertype);
 	ASSERT_TRUE( newPub.get() != 0 ) << msg << " Key deserialize failed";
 
 	EXPECT_EQ( *kp.publicKey, *newPub ) << msg << " Key mismatch";
@@ -123,8 +124,8 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype,
 
 template<typename T>
 void UnitTestContext(CryptoContext<T> cc) {
-	UnitTestContextWithSertype(cc, Serializable::Type::JSON, "json");
-	UnitTestContextWithSertype(cc, Serializable::Type::BINARY, "binary");
+	UnitTestContextWithSertype(cc, SerType::JSON, "json");
+	UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
 }
 
 TEST_F(UTPKESer, LTV_Poly_Serial) {
@@ -183,7 +184,7 @@ TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
 }
 
 // USE BGV AS A REPRESENTITIVE CONTEXT
-void Test_keys_and_ciphertext(Serializable::Type sertype)
+void Test_keys_and_ciphertext(SerType sertype)
 {
 	bool dbg_flag = false;
 
@@ -221,12 +222,12 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	DEBUG("step 0");
 	{
 		stringstream s;
-		Serializable::Serialize(cc, s, sertype);
+		Serial::Serialize(cc, s, sertype);
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 0 );
 		cc.reset();
-		Serializable::Deserialize(cc, s, sertype);
+		Serial::Deserialize(cc, s, sertype);
 
 		ASSERT_TRUE( cc.get() != nullptr ) << "Deser failed";
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
@@ -240,15 +241,15 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	DEBUG("step 1");
 	{
 		stringstream s;
-		Serializable::Serialize(kp.publicKey, s, sertype);
-		Serializable::Deserialize(kpnew.publicKey, s, sertype);
+		Serial::Serialize(kp.publicKey, s, sertype);
+		Serial::Deserialize(kpnew.publicKey, s, sertype);
 		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
 	}
 	DEBUG("step 2");
 	{
 		stringstream s;
-		Serializable::Serialize(kp.secretKey, s, sertype);
-		Serializable::Deserialize(kpnew.secretKey, s, sertype);
+		Serial::Serialize(kp.secretKey, s, sertype);
+		Serial::Deserialize(kpnew.secretKey, s, sertype);
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
@@ -260,8 +261,8 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	Ciphertext<Poly> newC;
 	{
 		stringstream s;
-		Serializable::Serialize(ciphertext, s, sertype);
-		Serializable::Deserialize(newC, s, sertype);
+		Serial::Serialize(ciphertext, s, sertype);
+		Serial::Deserialize(newC, s, sertype);
 		EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
 	}
 
@@ -377,10 +378,10 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 }
 
 TEST_F(UTPKESer, Keys_and_ciphertext_json) {
-	Test_keys_and_ciphertext(Serializable::Type::JSON);
+	Test_keys_and_ciphertext(SerType::JSON);
 }
 
 TEST_F(UTPKESer, Keys_and_ciphertext_binary) {
-	Test_keys_and_ciphertext(Serializable::Type::BINARY);
+	Test_keys_and_ciphertext(SerType::BINARY);
 }
 #endif

@@ -228,7 +228,7 @@ main(int argc, char *argv[])
 
 	// GET CONTEXT
 	CryptoContext<DCRTPoly> cc;
-	if( Serializable::DeserializeFromFile(ctxtfile, cc, Serializable::Type::JSON) == false )
+	if( Serial::DeserializeFromFile(ctxtfile, cc, SerType::JSON) == false )
 		return 0;
 
 	const shared_ptr<const LPCryptoParametersBFVrns<DCRTPoly>> parms = dynamic_pointer_cast<const LPCryptoParametersBFVrns<DCRTPoly>>(cc->GetCryptoParameters());
@@ -349,7 +349,7 @@ main(int argc, char *argv[])
 
 		do {
 			TimingStatistics s;
-			Serializable::Deserialize(s, evalStatF, Serializable::Type::BINARY);
+			Serial::Deserialize(s, evalStatF, SerType::BINARY);
 			timings[TimingStatisticsKey(s.operation,s.argcnt)] = s;
 		} while( true );
 
