@@ -253,7 +253,7 @@ memleak:
 benchmark_basic:
   stage: benchmark
   script:
-  - bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv 
+  - build/bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv 
   dependencies:
   - build
   artifacts:
@@ -264,7 +264,7 @@ benchmark_basic:
 benchmark_crypto:
   stage: benchmark
   script:
-  - bin/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -275,7 +275,7 @@ benchmark_crypto:
 benchmark_encoding:
   stage: benchmark
   script:
-  - bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -286,7 +286,7 @@ benchmark_encoding:
 benchmark_integermath:
   stage: benchmark
   script:
-  - bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -297,7 +297,7 @@ benchmark_integermath:
 benchmark_lattice:
   stage: benchmark
   script:
-  - bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -308,7 +308,7 @@ benchmark_lattice:
 benchmark_nbtheory:
   stage: benchmark
   script:
-  - bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -319,7 +319,7 @@ benchmark_nbtheory:
 benchmark_she:
   stage: benchmark
   script:
-  - bin/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -330,7 +330,7 @@ benchmark_she:
 benchmark_vectormath:
   stage: benchmark
   script:
-  - bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:
@@ -341,7 +341,7 @@ benchmark_vectormath:
 benchmark_lib:
   stage: benchmark
   script:
-  - bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  - build/bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - build
   artifacts:

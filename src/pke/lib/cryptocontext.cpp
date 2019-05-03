@@ -26,6 +26,7 @@
  */
 
 #include "cryptocontext.h"
+#include "utils/serial.h"
 
 namespace lbcrypto {
 
@@ -275,7 +276,7 @@ void CryptoContextImpl<Element>::InsertEvalAutomorphismKey(const shared_ptr<std:
  * SerializeEvalMultKey for a single EvalMult key
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, const string id) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, SerType sertype, const string id) {
 	decltype(evalMultKeyMap)	*smap;
 	decltype(evalMultKeyMap)	omap;
 
@@ -290,7 +291,7 @@ bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Seriali
 		smap = &omap;
 		omap[ k->first ] = k->second;
 	}
-	Serializable::Serialize(*smap, ser, sertype);
+	Serial::Serialize(*smap, ser, sertype);
 	return true;
 }
 
@@ -299,7 +300,7 @@ bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Seriali
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc) {
 
 	decltype(evalMultKeyMap) omap;
 	for( const auto& k : evalMultKeyMap ) {
@@ -311,16 +312,16 @@ bool CryptoContextImpl<Element>::SerializeEvalMultKey(std::ostream& ser, Seriali
 	if( omap.size() == 0 )
 		return false;
 
-	Serializable::Serialize(omap, ser, sertype);
+	Serial::Serialize(omap, ser, sertype);
 	return true;
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::DeserializeEvalMultKey(std::istream& ser, Serializable::Type sertype) {
+bool CryptoContextImpl<Element>::DeserializeEvalMultKey(std::istream& ser, SerType sertype) {
 
 	decltype(evalMultKeyMap) evalMultKeys;
 
-	Serializable::Deserialize(evalMultKeys, ser, sertype);
+	Serial::Deserialize(evalMultKeys, ser, sertype);
 
 	// The deserialize call created any contexts that needed to be created.... so all we need to do
 	// is put the keys into the maps for their context
@@ -337,7 +338,7 @@ bool CryptoContextImpl<Element>::DeserializeEvalMultKey(std::istream& ser, Seria
  * SerializeEvalSumKey for all EvalSum keys
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, string id) {
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, SerType sertype, string id) {
 	decltype(evalSumKeyMap)*	smap;
 	decltype(evalSumKeyMap)		omap;
 	if( id.length() == 0 )
@@ -351,7 +352,7 @@ bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializ
 		smap = &omap;
 		omap[ k->first ] = k->second;
 	}
-	Serializable::Serialize(*smap, ser, sertype);
+	Serial::Serialize(*smap, ser, sertype);
 	return true;
 }
 
@@ -360,7 +361,7 @@ bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializ
  * method will serialize the context only once
  */
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc) {
 
 	decltype(evalSumKeyMap) omap;
 	for( const auto& k : evalSumKeyMap ) {
@@ -372,16 +373,16 @@ bool CryptoContextImpl<Element>::SerializeEvalSumKey(std::ostream& ser, Serializ
 	if( omap.size() == 0 )
 		return false;
 
-	Serializable::Serialize(omap, ser, sertype);
+	Serial::Serialize(omap, ser, sertype);
 	return true;
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::DeserializeEvalSumKey(std::istream& ser, Serializable::Type sertype) {
+bool CryptoContextImpl<Element>::DeserializeEvalSumKey(std::istream& ser, SerType sertype) {
 
 	decltype(evalSumKeyMap) evalSumKeys;
 
-	Serializable::Deserialize(evalSumKeys, ser, sertype);
+	Serial::Deserialize(evalSumKeys, ser, sertype);
 
 	// The deserialize call created any contexts that needed to be created.... so all we need to do
 	// is put the keys into the maps for their context
@@ -410,7 +411,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(ConstCiphertext<Element>
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser, Serializable::Type sertype, string id) {
+bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser, SerType sertype, string id) {
 	decltype(evalAutomorphismKeyMap)*	smap;
 	decltype(evalAutomorphismKeyMap)		omap;
 	if( id.length() == 0 )
@@ -424,12 +425,12 @@ bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser,
 		smap = &omap;
 		omap[ k->first ] = k->second;
 	}
-	Serializable::Serialize(*smap, ser, sertype);
+	Serial::Serialize(*smap, ser, sertype);
 	return true;
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser, Serializable::Type sertype, const CryptoContext<Element> cc) {
+bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc) {
 
 	decltype(evalAutomorphismKeyMap) omap;
 	for( const auto& k : evalAutomorphismKeyMap ) {
@@ -441,16 +442,16 @@ bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser,
 	if( omap.size() == 0 )
 		return false;
 
-	Serializable::Serialize(omap, ser, sertype);
+	Serial::Serialize(omap, ser, sertype);
 	return true;
 }
 
 template <typename Element>
-bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(std::istream& ser, Serializable::Type sertype) {
+bool CryptoContextImpl<Element>::DeserializeEvalAutomorphismKey(std::istream& ser, SerType sertype) {
 
 	decltype(evalAutomorphismKeyMap) evalSumKeys;
 
-	Serializable::Deserialize(evalSumKeys, ser, sertype);
+	Serial::Deserialize(evalSumKeys, ser, sertype);
 
 	// The deserialize call created any contexts that needed to be created.... so all we need to do
 	// is put the keys into the maps for their context
@@ -637,16 +638,16 @@ CryptoContextFactory<Element>::GetContextForPointer(
  */
 template<typename T>
 void
-Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype) {
+Serial::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, SerType sertype) {
 
 	CryptoContext<T> newob;
 
 	try {
-		if( sertype == Serializable::Type::JSON ) {
+		if( sertype == SerType::JSON ) {
 			cereal::JSONInputArchive archive( stream );
 			archive( newob );
 		}
-		else if( sertype == Serializable::Type::BINARY ) {
+		else if( sertype == SerType::BINARY ) {
 			cereal::PortableBinaryInputArchive archive( stream );
 			archive( newob );
 		}
@@ -656,6 +657,123 @@ Serializable::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istre
 	}
 
 	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm());
+}
+
+template<typename Element>
+void CryptoContextImpl<Element>::EncryptStream(
+	const LPPublicKey<Element> publicKey,
+	std::istream& instream,
+	std::ostream& outstream) const
+{
+	// NOTE timing this operation is not supported
+
+	if( publicKey == NULL || Mismatched(publicKey->GetCryptoContext()) )
+		throw std::logic_error("key passed to EncryptStream was not generated with this crypto context");
+
+	bool padded = false;
+	Plaintext px;
+	size_t chunkSize = this->GetRingDimension();
+	char *ptxt = new char[chunkSize];
+
+	while (instream.good()) {
+		instream.read(ptxt, chunkSize);
+		size_t nRead = instream.gcount();
+
+		if (nRead <= 0 && padded)
+			break;
+
+		px = this->MakeStringPlaintext(std::string(ptxt,nRead));
+
+		if (nRead < chunkSize) {
+			padded = true;
+		}
+
+		Ciphertext<Element> ciphertext = GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
+		if (!ciphertext) {
+			break;
+		}
+		ciphertext->SetEncodingType( px->GetEncodingType() );
+
+		Serial::Serialize(ciphertext, outstream, SerType::JSON);
+	}
+
+	delete [] ptxt;
+	return;
+}
+
+template<typename Element>
+size_t CryptoContextImpl<Element>::DecryptStream(
+	const LPPrivateKey<Element> privateKey,
+	std::istream& instream,
+	std::ostream& outstream)
+{
+	// NOTE timing this operation is not supported
+
+	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) )
+		throw std::logic_error("Information passed to DecryptStream was not generated with this crypto context");
+
+	size_t tot = 0;
+
+	bool firstTime = true;
+	Plaintext pte[2];
+	bool whichArray = false;
+
+	Ciphertext<Element> ct;
+	while( true ) {
+		try {
+			Serial::Deserialize(ct, instream, SerType::JSON);
+		}
+		catch( ... ) {
+			break;
+		}
+		if( ct ) {
+			if( ct->GetEncodingType() != String ) {
+				throw std::logic_error("Library can only stream string encodings");
+			}
+
+			pte[whichArray] = GetPlaintextForDecrypt(ct->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+			DecryptResult res = GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<NativePoly>());
+			if( !res.isValid )
+				return tot;
+			tot += res.messageLength;
+
+			pte[whichArray]->Decode();
+
+			if( !firstTime ) {
+				outstream << pte[!whichArray]->GetStringValue();
+			}
+			firstTime = false;
+			whichArray = !whichArray;
+		}
+		else
+			return tot;
+	}
+
+	outstream << pte[!whichArray]->GetStringValue();
+
+	return tot;
+}
+
+template<typename Element>
+void CryptoContextImpl<Element>::ReEncryptStream(
+	const LPEvalKey<Element> evalKey,
+	std::istream& instream,
+	std::ostream& outstream,
+	const LPPublicKey<Element> publicKey)
+{
+	// NOTE timing this operation is not supported
+
+	if( evalKey == NULL || Mismatched(evalKey->GetCryptoContext()) )
+		throw std::logic_error("Information passed to ReEncryptStream was not generated with this crypto context");
+
+	Ciphertext<Element> ct;
+	while( true ) {
+		Serial::Deserialize(ct, instream, SerType::JSON);
+		if( ct ) {
+			Ciphertext<Element> reCt = ReEncrypt(evalKey, ct, publicKey);
+			Serial::Serialize(reCt, outstream, SerType::JSON);
+		}
+	}
 }
 
 template <typename T>

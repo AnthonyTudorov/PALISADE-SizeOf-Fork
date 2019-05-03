@@ -31,6 +31,7 @@ using namespace std;
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
+#include "utils/serial.h"
 
 using namespace lbcrypto;
 
@@ -57,7 +58,7 @@ reencrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	string reciphertextname(argv[2]);
 
 	LPEvalKey<Element> evalKey;
-	if( Serializable::DeserializeFromFile(rekeyname, evalKey, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(rekeyname, evalKey, SerType::JSON) == false ) {
 		cerr << "Could not read re encryption key" << endl;
 		return;
 	}
@@ -100,7 +101,7 @@ decrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	string cleartextname(argv[2]);
 
 	LPPrivateKey<Element> sk;
-	if( Serializable::DeserializeFromFile(prikeyname, sk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(prikeyname, sk, SerType::JSON) == false ) {
 		cerr << "Could not read private key" << endl;
 		return;
 	}
@@ -128,7 +129,7 @@ decrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	}
 	else {
 		Ciphertext<Element> ct;
-		if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::JSON) == false ) {
+		if( Serial::DeserializeFromFile(ciphertextname, ct, SerType::JSON) == false ) {
 			cerr << "Could not read ciphertext" << endl;
 			return;
 		}
@@ -171,7 +172,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	// Initialize the public key container
 	LPPublicKey<Element> pk;
 
-	if( Serializable::DeserializeFromFile(pubkeyname, pk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(pubkeyname, pk, SerType::JSON) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
@@ -214,7 +215,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		// now encrypt iPlaintext
 		Ciphertext<Element> ciphertext = ctx->Encrypt(pk, iPlaintext);
 
-		if( !Serializable::SerializeToFile(ciphertextname, ciphertext, Serializable::Type::JSON) ) {
+		if( !Serial::SerializeToFile(ciphertextname, ciphertext, SerType::JSON) ) {
 			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
@@ -239,13 +240,13 @@ rekeymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 
 	// Initialize the public key containers.
 	LPPublicKey<Element> pk;
-	if( Serializable::DeserializeFromFile(pubname, pk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(pubname, pk, SerType::JSON) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
 
 	LPPrivateKey<Element> sk;
-	if( Serializable::DeserializeFromFile(privname, sk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(privname, sk, SerType::JSON) == false ) {
 		cerr << "Could not read private key" << endl;
 		return;
 	}
@@ -263,7 +264,7 @@ rekeymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	LPEvalKey<Element> evalKey = ctx->ReKeyGen(pk, sk);
 
 	if( evalKey ) {
-		if( !Serializable::SerializeToFile(rekeyname, evalKey, Serializable::Type::JSON) ) {
+		if( !Serial::SerializeToFile(rekeyname, evalKey, SerType::JSON) ) {
 			cerr << "Error writing serialization of recryption key to " + rekeyname << endl;
 			return;
 		}
@@ -290,14 +291,14 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	if( kp.publicKey && kp.secretKey ) {
 		ctx->EvalMultKeyGen(kp.secretKey);
 
-			if( !Serializable::SerializeToFile(keyname + "CTXT", ctx, Serializable::Type::JSON) ) {
+			if( !Serial::SerializeToFile(keyname + "CTXT", ctx, SerType::JSON) ) {
 				cerr << "Error writing serialization of cryptocontext to " + keyname + "CTXT" << endl;
 				return;
 			}
 
 			ofstream emkeyfile(keyname + "EMK", std::ios::out|std::ios::binary);
 			if( emkeyfile.is_open() ) {
-				if( ctx->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
+				if( ctx->SerializeEvalMultKey(emkeyfile, SerType::BINARY) == false ) {
 					cerr << "Error writing serialization of eval mult keys to " + keyname + "EMK" << endl;
 					return;
 				}
@@ -308,12 +309,12 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 				return;
 			}
 
-			if( !Serializable::SerializeToFile(keyname + "PUB", kp.publicKey, Serializable::Type::JSON) ) {
+			if( !Serial::SerializeToFile(keyname + "PUB", kp.publicKey, SerType::JSON) ) {
 				cerr << "Error writing serialization of public key to " + keyname + "PUB" << endl;
 				return;
 			}
 
-			if( !Serializable::SerializeToFile(keyname + "PRI", kp.secretKey, Serializable::Type::JSON) ) {
+			if( !Serial::SerializeToFile(keyname + "PRI", kp.secretKey, SerType::JSON) ) {
 				cerr << "Error writing serialization of private key to " + keyname + "PRI" << endl;
 				return;
 			}
@@ -338,18 +339,18 @@ evaladder(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 
 	Ciphertext<Element> c1, c2;
 
-	if( Serializable::DeserializeFromFile(cipher1name, c1, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(cipher1name, c1, SerType::JSON) == false ) {
 		cerr << "Could not read cipher1" << endl;
 		return;
 	}
-	if( Serializable::DeserializeFromFile(cipher2name, c2, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(cipher2name, c2, SerType::JSON) == false ) {
 		cerr << "Could not read cipher1" << endl;
 		return;
 	}
 
 	Ciphertext<Element> cdsum = ctx->EvalAdd(c1, c2);
 
-	if( Serializable::SerializeToFile(cipheraddname, cdsum, Serializable::Type::JSON) == false ) {
+	if( Serial::SerializeToFile(cipheraddname, cdsum, SerType::JSON) == false ) {
 		cerr << "Error writing serialization of ciphertext to " + cipheraddname << endl;
 		return;
 	}
@@ -371,18 +372,18 @@ evalmulter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 
 	Ciphertext<Element> c1, c2;
 
-	if( Serializable::DeserializeFromFile(cipher1name, c1, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(cipher1name, c1, SerType::JSON) == false ) {
 		cerr << "Could not read cipher1" << endl;
 		return;
 	}
-	if( Serializable::DeserializeFromFile(cipher2name, c2, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(cipher2name, c2, SerType::JSON) == false ) {
 		cerr << "Could not read cipher1" << endl;
 		return;
 	}
 
 	Ciphertext<Element> cdmul = ctx->EvalMult(c1, c2);
 
-	if( Serializable::SerializeToFile(ciphermulname, cdmul, Serializable::Type::JSON) == false ) {
+	if( Serial::SerializeToFile(ciphermulname, cdmul, SerType::JSON) == false ) {
 		cerr << "Error writing serialization of ciphertext to " + ciphermulname << endl;
 		return;
 	}
@@ -499,10 +500,10 @@ main( int argc, char *argv[] )
 		else if( arg == "-from" && cmdidx+1 < argc ) {
 			string cfile( string(argv[cmdidx+1])+"CTXT" );
 			if( ElementMode == POLY ) {
-				Serializable::DeserializeFromFile(cfile, ctx, Serializable::Type::JSON);
+				Serial::DeserializeFromFile(cfile, ctx, SerType::JSON);
 			}
 			else if( ElementMode == DCRT ) {
-				Serializable::DeserializeFromFile(cfile, dctx, Serializable::Type::JSON);
+				Serial::DeserializeFromFile(cfile, dctx, SerType::JSON);
 			}
 
 			if( !ctx && !dctx ) {
@@ -520,9 +521,9 @@ main( int argc, char *argv[] )
 			}
 
 			if( ElementMode == POLY )
-				result = ctx->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY);
+				result = ctx->DeserializeEvalMultKey(emkeys, SerType::BINARY);
 			else if( ElementMode == DCRT )
-				result = dctx->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY);
+				result = dctx->DeserializeEvalMultKey(emkeys, SerType::BINARY);
 
 			emkeys.close();
 

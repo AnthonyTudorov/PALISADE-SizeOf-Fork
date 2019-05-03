@@ -87,7 +87,7 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PALISADE_loadcontext
     	return false;
 
     stringstream ss(sctx);
-    Serializable::Deserialize(_cc, ss);
+    Serial::Deserialize(_cc, ss);
     return _cc != 0;
 }
 
@@ -106,7 +106,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkeyctx
     stringstream ss(kctx);
 
     LPPublicKey<Poly> pubkey;
-    Serializable::Deserialize(pubkey, ss);
+    Serial::Deserialize(pubkey, ss);
 
     _pubKeys.push_back(pubkey);
     return _pubKeys.size() - 1;
@@ -127,7 +127,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkeyctx
     stringstream ss(kctx);
 
     LPPrivateKey<Poly> privkey;
-    Serializable::Deserialize(privkey, ss);
+    Serial::Deserialize(privkey, ss);
 
     _privateKeys.push_back(privkey);
     return _pubKeys.size() - 1;
@@ -159,7 +159,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
 	auto key = _pubKeys[pubkeyId];
 
 	stringstream ss;
-	Serializable::Serialize(key,ss);
+	Serial::Serialize(key,ss);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -190,7 +190,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprivkey
 	auto key = _privateKeys[prikeyId];
 
 	stringstream ss;
-	Serializable::Serialize(key,ss);
+	Serial::Serialize(key,ss);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -229,7 +229,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprekey
     stringstream ss(kctx);
 
     LPEvalKey<Poly> prekey;
-    Serializable::Deserialize(prekey,ss);
+    Serial::Deserialize(prekey,ss);
 
     _preKeys.push_back(prekey);
     return _preKeys.size() - 1;
@@ -250,7 +250,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprekey
 	auto key = _preKeys[kId];
 
 	stringstream ss;
-	Serializable::Serialize(key,ss);
+	Serial::Serialize(key,ss);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -270,7 +270,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadct
     stringstream ss(kctx);
 
     Ciphertext<Poly> ct;
-    Serializable::Deserialize(ct, ss);
+    Serial::Deserialize(ct, ss);
 
     _ctexts.push_back(ct);
     return _ctexts.size() - 1;
@@ -290,7 +290,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serct
 	auto ct = _ctexts[ctId];
 
 	stringstream ss;
-	Serializable::Serialize(ct,ss);
+	Serial::Serialize(ct,ss);
 
 	return StringToByteArray(env, ss.str());
 }

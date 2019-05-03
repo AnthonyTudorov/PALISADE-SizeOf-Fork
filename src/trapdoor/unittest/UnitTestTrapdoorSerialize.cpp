@@ -37,6 +37,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
+#include "utils/serial.h"
 #include "lattice/elemparamfactory.h"
 #include "lattice/trapdoor.h"
 
@@ -113,15 +114,15 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
   stringstream ss;
 
   //serialize the vector
-  Serializable::Serialize(testvec, ss, Serializable::Type::BINARY);
+  Serial::Serialize(testvec, ss, SerType::BINARY);
 
   if (dbg_flag) {
 	  // write the result to cout for debug
-	  std::cout << Serializable::SerializeToString(testvec) << std::endl;
+	  std::cout << Serial::SerializeToString(testvec) << std::endl;
   }
 
   DEBUG("step 5");
-  Serializable::Deserialize(newvec, ss, Serializable::Type::BINARY);
+  Serial::Deserialize(newvec, ss, SerType::BINARY);
 
   DEBUG("step 6");
 

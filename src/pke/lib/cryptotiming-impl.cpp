@@ -31,7 +31,8 @@
  */
 
 #include "cryptocontext.h"
-#include "inttypes.h"
+#include "utils/inttypes.h"
+#include "utils/serial.h"
 #include <iostream>
 #include <string>
 #include <map>
@@ -448,7 +449,7 @@ generateTimings(TimingStatisticsMap& stats,
 
 #define PSSIZE(msg,x) { \
 		string str; \
-		str = Serializable::SerializeToString(x); \
+		str = Serial::SerializeToString(x); \
 		cout << (msg) << str.length() << endl; \
 }
 

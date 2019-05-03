@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file UnitTestSerialize.cpp
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,7 +24,7 @@
  *
  */
 /*
-  This code exercises the math libraries of the PALISADE lattice encryption library.
+  This code exercises serialization in CORE for the PALISADE lattice encryption library.
  */
 
 #include "include/gtest/gtest.h"
@@ -40,6 +40,8 @@
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
 
+#include "utils/serial.h"
+
 using namespace std;
 using namespace lbcrypto;
 
@@ -54,14 +56,14 @@ void bigint(const string& msg) {
 		stringstream s;
 		T deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
 
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
 	};
 
@@ -82,13 +84,13 @@ void hugeint(const string& msg) {
 		stringstream s;
 		T deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(val, deser) << msg << " " << siz << " integer binary ser/deser fails";
 	};
 
@@ -124,13 +126,13 @@ void vector_of_bigint(const string& msg) {
 		stringstream s;
 		V deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};
 
@@ -145,13 +147,13 @@ void ilparams_test(const string& msg) {
 		stringstream s;
 		decltype(p) deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
 	};
 
@@ -170,13 +172,13 @@ void ildcrtparams_test(const string& msg) {
 		stringstream s;
 		decltype(p) deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(*val, *deser) << msg << " json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(*val, *deser) << msg << " binary ser/deser fails";
 	};
 
@@ -197,13 +199,13 @@ void ilvector_test(const string& msg) {
 		stringstream s;
 		Element deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};
 
@@ -224,13 +226,13 @@ void ildcrtpoly_test(const string& msg) {
 		stringstream s;
 		Element deser;
 
-		Serializable::Serialize(val, s, Serializable::Type::JSON);
-		Serializable::Deserialize(deser, s, Serializable::Type::JSON);
+		Serial::Serialize(val, s, SerType::JSON);
+		Serial::Deserialize(deser, s, SerType::JSON);
 		EXPECT_EQ(val, deser) << msg << " vector json ser/deser fails";
 
 		s.str("");
-		Serializable::Serialize(val, s, Serializable::Type::BINARY);
-		Serializable::Deserialize(deser, s, Serializable::Type::BINARY);
+		Serial::Serialize(val, s, SerType::BINARY);
+		Serial::Deserialize(deser, s, SerType::BINARY);
 		EXPECT_EQ(val, deser) << msg << " vector binary ser/deser fails";
 	};
 
@@ -275,16 +277,16 @@ void serialize_matrix_bigint(const string& msg) {
 	//serialize the Matrix
 
 	stringstream ss;
-	Serializable::Serialize(testmat, ss, Serializable::Type::BINARY);
+	Serial::Serialize(testmat, ss, SerType::BINARY);
 
 	if (dbg_flag) {
-		std::cout << Serializable::SerializeToString(testmat) <<std::endl;
+		std::cout << Serial::SerializeToString(testmat) <<std::endl;
 	}
 	DEBUG("step 5");
 
 	Matrix<typename V::Integer> newmat(V::Integer::Allocator, 0, 0); //empty matrix
 
-	Serializable::Deserialize(newmat, ss, Serializable::Type::BINARY);
+	Serial::Deserialize(newmat, ss, SerType::BINARY);
 
 	DEBUG("step 9");
 	EXPECT_EQ( testmat, newmat ) << msg << " Mismatch after ser/deser";

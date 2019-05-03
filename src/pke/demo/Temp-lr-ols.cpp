@@ -47,6 +47,7 @@ field20: 0.000260
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
+#include "utils/serial.h"
 #include <random>
 
 #include "math/nbtheory.h"
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
 			KeyGen(keyDir, contextID, keyfileName);
 		}
 		else {
-			//Serializable::DisableKeysInSerializedContext();
+			//Serial::DisableKeysInSerializedContext();
 
 			if (std::string(argv[1]) == "encrypt") {
 				string keyDir = string(argv[2]);
@@ -250,13 +251,13 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 		std::cout << "Serializing public and private keys...";
 
 		if(kp.publicKey && kp.secretKey) {
-			if(!Serializable::SerializeToFile(keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt", kp.publicKey, Serializable::Type::BINARY)) {
+			if(!Serial::SerializeToFile(keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt", kp.publicKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of public key to "
 						<< keyDir+"/"+keyfileName+"-public" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 
-			if(!Serializable::SerializeToFile(keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt", kp.secretKey, Serializable::Type::BINARY)) {
+			if(!Serial::SerializeToFile(keyDir+"/"+keyfileName+"-private" + std::to_string(k) + ".txt", kp.secretKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of private key to key-private" + std::to_string(k) + ".txt"
 						<< endl;
 				return;
@@ -286,7 +287,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 		std::cout << "Serializing crypto context...";
 
-		if(!Serializable::SerializeToFile(keyDir+"/"+keyfileName+"-cryptocontext_" + std::to_string(k) + "_" + contextID + ".txt", cc, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(keyDir+"/"+keyfileName+"-cryptocontext_" + std::to_string(k) + "_" + contextID + ".txt", cc, SerType::BINARY)) {
 			cerr << "Error writing serialization of the crypto context to cryptotext" + std::to_string(k) + "_" + contextID + ".txt"
 					<< endl;
 			return;
@@ -298,7 +299,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 		ofstream emkeyfile(keyDir+"/"+keyfileName+"-cryptocontext_" + std::to_string(k) + "_" + contextID + "_EVALMULT.txt", std::ios::out|std::ios::binary);
 		if( emkeyfile.is_open() ) {
-			if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
+			if( cc->SerializeEvalMultKey(emkeyfile, SerType::BINARY) == false ) {
 				cerr << "Error writing serialization of the eval mult keys to " + keyfileName+"-cryptocontext_" + std::to_string(k) + "_" + contextID + "_EVALMULT.txt" << endl;
 				return;
 			}
@@ -311,7 +312,7 @@ void KeyGen(string keyDir, string contextID, string keyfileName)
 
 		ofstream eskeyfile(keyDir+"/"+ keyfileName + "-cryptocontext_" + std::to_string(k) + "_" + contextID + "_EVALSUM.txt", std::ios::out|std::ios::binary);
 		if( eskeyfile.is_open() ) {
-			if( cc->SerializeEvalSumKey(eskeyfile, Serializable::Type::BINARY) == false ) {
+			if( cc->SerializeEvalSumKey(eskeyfile, SerType::BINARY) == false ) {
 				cerr << "Error writing serialization of the eval sum keys to " + keyfileName + "-cryptocontext_" + std::to_string(k) + "_" + contextID + "_EVALSUM.txt" << endl;
 				return;
 			}
@@ -390,7 +391,7 @@ void Encrypt(string keyDir,
 		std::cout << "Deserializing the public key...";
 
 		LPPublicKey<DCRTPoly> pk;
-		if(Serializable::DeserializeFromFile(pkFileName, pk, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(pkFileName, pk, SerType::BINARY) == false) {
 			cerr << "Could not read public key" << endl;
 			return;
 		}
@@ -436,7 +437,7 @@ void Encrypt(string keyDir,
 
 		std::cout << "Serializing X...";
 
-		if(!Serializable::SerializeToFile(ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-x-" + std::to_string(k) + ".txt", xC, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-x-" + std::to_string(k) + ".txt", xC, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X to "
 					<< ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-x-" + std::to_string(k) + ".txt" << endl;
 			return;
@@ -446,7 +447,7 @@ void Encrypt(string keyDir,
 
 		std::cout << "Serializing y...";
 
-		if(!Serializable::SerializeToFile(ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt", yC, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt", yC, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext y to "
 					<< ciphertextDataDir+"/"+ciphertextDataFileName+"-ciphertext-y-" + std::to_string(k) + ".txt" << endl;
 			return;
@@ -530,7 +531,7 @@ void Compute(string keyDir,
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly> > > x(new Matrix<RationalCiphertext<DCRTPoly> >(zeroAlloc));
 
-		if(Serializable::DeserializeFromFile(xFileName, x, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(xFileName, x, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X" << endl;
 			return;
 		}
@@ -545,7 +546,7 @@ void Compute(string keyDir,
 		std::cout << "Deserializing y...";
 
 		Ciphertext<DCRTPoly> y;
-		if(Serializable::DeserializeFromFile(yFileName, y, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(yFileName, y, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext y" << endl;
 			return;
 		}
@@ -613,7 +614,7 @@ void Compute(string keyDir,
 
 		std::cout << "Serializing X^T X...";
 
-		if(!Serializable::SerializeToFile(ciphertextResultDir+"/"+ciphertextResultFileName+"-ciphertext-xtx-" + std::to_string(k) + ".txt", xTx, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(ciphertextResultDir+"/"+ciphertextResultFileName+"-ciphertext-xtx-" + std::to_string(k) + ".txt", xTx, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T X to "
 					<< "ciphertext-xtx-" + std::to_string(k) + ".txt" << endl;
 			return;
@@ -625,7 +626,7 @@ void Compute(string keyDir,
 
 		std::cout << "Serializing X^T y...";
 
-		if(!Serializable::SerializeToFile(ciphertextResultDir+"/"+ciphertextResultFileName+"-ciphertext-xty-" + std::to_string(k) + ".txt", xTy, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(ciphertextResultDir+"/"+ciphertextResultFileName+"-ciphertext-xty-" + std::to_string(k) + ".txt", xTy, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T y to "
 					<< "ciphertext-xty-" + std::to_string(k) + ".txt" << endl;
 			return;
@@ -697,7 +698,7 @@ void Decrypt(string keyDir,
 		std::cout << "Deserializing the private key...";
 
 		LPPrivateKey<DCRTPoly> sk;
-		if(Serializable::DeserializeFromFile(skFileName, sk, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(skFileName, sk, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -719,7 +720,7 @@ void Decrypt(string keyDir,
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly> > > xtx(new Matrix<RationalCiphertext<DCRTPoly> >(zeroAlloc));
 
-		if(Serializable::DeserializeFromFile(xtxFileName, xtx, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(xtxFileName, xtx, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T X" << endl;
 			return;
 		}
@@ -762,7 +763,7 @@ void Decrypt(string keyDir,
 		std::cout << "Deserializing matrix X^T y...";
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly> > > xty(new Matrix<RationalCiphertext<DCRTPoly> >(zeroAlloc));
-		if(Serializable::DeserializeFromFile(xtyFileName, xty, Serializable::Type::BINARY) == false) {
+		if(Serial::DeserializeFromFile(xtyFileName, xty, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T y" << endl;
 			return;
 		}
@@ -889,7 +890,7 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 	std::cout << "Deserializing the crypto context...";
 
 	CryptoContext<DCRTPoly> cc;
-	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
+	if (Serial::DeserializeFromFile(ccFileName, cc, SerType::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
@@ -904,7 +905,7 @@ CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName,
 	std::cout << "Deserializing the crypto context...";
 
 	CryptoContext<DCRTPoly> cc;
-	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
+	if (Serial::DeserializeFromFile(ccFileName, cc, SerType::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
@@ -921,12 +922,12 @@ CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName,
 		return 0;
 	}
 
-	if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+	if( cc->DeserializeEvalMultKey(emkeys, SerType::BINARY) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;
 		return 0;
 	}
 
-	if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+	if( cc->DeserializeEvalSumKey(eskeys, SerType::BINARY) == false ) {
 		cerr << "Could not deserialize the eval sum key file" << endl;
 		return 0;
 	}

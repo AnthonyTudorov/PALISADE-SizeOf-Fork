@@ -25,6 +25,7 @@
  */
 
 #include "glmfunctions.h"
+#include "utils/serial.h"
 
 #ifdef MEASURE_TIMING
 timingParams timingClient;
@@ -1142,7 +1143,7 @@ void ParseData(vector<vector<double>> &dataColumns, vector<vector<double>> &xPDo
 CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName){
 
 	CryptoContext<DCRTPoly> cc;
-	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
+	if (Serial::DeserializeFromFile(ccFileName, cc, SerType::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
@@ -1158,7 +1159,7 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName){
 LPPublicKey<DCRTPoly> DeserializePublicKey(CryptoContext<DCRTPoly> &cc, const string& pkFileName){
 
 	LPPublicKey<DCRTPoly> pkt;
-	if(Serializable::DeserializeFromFile(pkFileName, pkt, Serializable::Type::BINARY) == false) {
+	if(Serial::DeserializeFromFile(pkFileName, pkt, SerType::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return 0;
 	}
@@ -1174,7 +1175,7 @@ LPPublicKey<DCRTPoly> DeserializePublicKey(CryptoContext<DCRTPoly> &cc, const st
 LPPrivateKey<DCRTPoly> DeserializePrivateKey(CryptoContext<DCRTPoly> &cc, const string& skFileName){
 
 	LPPrivateKey<DCRTPoly> skt;
-	if(Serializable::DeserializeFromFile(skFileName, skt, Serializable::Type::BINARY) == false) {
+	if(Serial::DeserializeFromFile(skFileName, skt, SerType::BINARY) == false) {
 		cerr << "Could not read private key" << endl;
 		return 0;
 	}
@@ -1191,7 +1192,7 @@ Matrix<Ciphertext<DCRTPoly>> DeserializeCiphertext(CryptoContext<DCRTPoly> &cc, 
 	auto zeroAlloc = [=]() { return Ciphertext<DCRTPoly>(new CiphertextImpl<DCRTPoly>(cc)); };
 	Matrix<Ciphertext<DCRTPoly>> xt(zeroAlloc);
 
-	if(Serializable::DeserializeFromFile(xFileName, xt, Serializable::Type::BINARY) == false) {
+	if(Serial::DeserializeFromFile(xFileName, xt, SerType::BINARY) == false) {
 		logic_error("Could not read ciphertext"+ xFileName );
 	}
 
@@ -1208,7 +1209,7 @@ void DeserializeEvalMult(CryptoContext<DCRTPoly> &cc, const string& emFileName){
 		return;
 	}
 
-	if( cc->DeserializeEvalMultKey(emkeys, Serializable::Type::BINARY) == false ) {
+	if( cc->DeserializeEvalMultKey(emkeys, SerType::BINARY) == false ) {
 		cerr << "Could not deserialize the eval mult key file" << endl;
 		return;
 	}
@@ -1224,7 +1225,7 @@ void DeserializeEvalSum(CryptoContext<DCRTPoly> &cc, const string& esFileName){
 		return;
 	}
 
-	if( cc->DeserializeEvalSumKey(eskeys, Serializable::Type::BINARY) == false ) {
+	if( cc->DeserializeEvalSumKey(eskeys, SerType::BINARY) == false ) {
 		cerr << "Could not deserialize the eval sum key file" << endl;
 		return;
 	}
@@ -1233,7 +1234,7 @@ void DeserializeEvalSum(CryptoContext<DCRTPoly> &cc, const string& esFileName){
 }
 
 void SerializeContext(CryptoContext<DCRTPoly> &cc, const string &xFileName){
-	if(!Serializable::SerializeToFile(xFileName, cc, Serializable::Type::BINARY)) {
+	if(!Serial::SerializeToFile(xFileName, cc, SerType::BINARY)) {
 		cerr << "Error writing serialization of the crypto context to cryptotext" + xFileName << endl;
 		return;
 	}
@@ -1241,7 +1242,7 @@ void SerializeContext(CryptoContext<DCRTPoly> &cc, const string &xFileName){
 
 void SerializePublicKey(LPPublicKey<DCRTPoly> &kp, const string &xFileName){
 	if(kp){
-		if(!Serializable::SerializeToFile(xFileName, kp, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(xFileName, kp, SerType::BINARY)) {
 			cerr << "Error writing serialization of public key to " << xFileName << endl;
 			return;
 		}
@@ -1252,7 +1253,7 @@ void SerializePublicKey(LPPublicKey<DCRTPoly> &kp, const string &xFileName){
 
 void SerializePrivateKey(LPPrivateKey<DCRTPoly> &kp, const string &xFileName){
 	if(kp){
-		if(!Serializable::SerializeToFile(xFileName, kp, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile(xFileName, kp, SerType::BINARY)) {
 			cerr << "Error writing serialization of private key to key-private" + xFileName << endl;
 			return;
 		}
@@ -1263,7 +1264,7 @@ void SerializePrivateKey(LPPrivateKey<DCRTPoly> &kp, const string &xFileName){
 }
 
 void SerializeCiphertext(Matrix<Ciphertext<DCRTPoly>> &C, const string &xFileName){
-	if(!Serializable::SerializeToFile(xFileName, C, Serializable::Type::BINARY)) {
+	if(!Serial::SerializeToFile(xFileName, C, SerType::BINARY)) {
 		cerr << "Error writing serialization of ciphertext to "
 				<< xFileName << endl;
 		return;
@@ -1279,7 +1280,7 @@ void SerializeMultEvalKey(CryptoContext<DCRTPoly> &cc, const vector<LPEvalKey<DC
 	if(evalMultKey[0]) {
 		ofstream emkeyfile(xFileName, std::ios::out|std::ios::binary);
 		if( emkeyfile.is_open() ) {
-			if( cc->SerializeEvalMultKey(emkeyfile, Serializable::Type::BINARY) == false ) {
+			if( cc->SerializeEvalMultKey(emkeyfile, SerType::BINARY) == false ) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult" + xFileName << endl;
 				return;
 			}
@@ -1299,7 +1300,7 @@ void SerializeSumEvalKey(CryptoContext<DCRTPoly> &cc, const std::map<usint, LPEv
 	if(evalSumKey.begin()->second) {
 		ofstream eskeyfile(xFileName, std::ios::out|std::ios::binary);
 		if( eskeyfile.is_open() ) {
-			if( cc->SerializeEvalSumKey(eskeyfile, Serializable::Type::BINARY) == false ) {
+			if( cc->SerializeEvalSumKey(eskeyfile, SerType::BINARY) == false ) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-sum" + xFileName << endl;
 				return;
 			}
