@@ -31,6 +31,7 @@
 #include <vector>
 #include "utils/serializable.h"
 #include "utils/inttypes.h"
+#include "utils/serial.h"
 #include "lattice/elemparams.h"
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"

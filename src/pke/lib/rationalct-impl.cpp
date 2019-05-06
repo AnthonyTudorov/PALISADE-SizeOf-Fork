@@ -1,5 +1,5 @@
 /*
- * @file stst-dcrtpoly-impl.cpp - Stehle-Stenfeld dcrtpoly implementation.
+* @file rationalct-impl.cpp - template instantiations and methods for rational ciphertext
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -25,16 +25,15 @@
  */
 
 #include "cryptocontext.h"
-#include "ltv.h"
-#include "stst.h"
+#include "rationalciphertext.h"
 
 namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
-template class LPAlgorithmStSt<DCRTPoly>;
-}
+extern template class CryptoContextImpl<Poly>;
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::DCRTPoly>);
+template class RationalCiphertext<Poly>;
+template class RationalCiphertext<NativePoly>;
+
+extern template class CryptoContextImpl<DCRTPoly>;
+
+template class RationalCiphertext<DCRTPoly>;
+}

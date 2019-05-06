@@ -56,6 +56,5 @@ add_dependencies( allabe PALISADEabe allabedemos abe_tests )
 add_custom_command( OUTPUT abeinfocmd COMMAND echo Builds PALISADEabe and these apps: ${ABEAPPS} )
 add_custom_target( abeinfo DEPENDS abeinfocmd )
 
-add_custom_command( OUTPUT runabetests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/abe_tests )
-add_custom_target( testabe DEPENDS runabetests )
-
+add_custom_command( OUTPUT runabetests COMMAND ${CMAKE_BINARY_DIR}/unittest/abe_tests )
+add_custom_target( testabe DEPENDS abe_tests runabetests )

@@ -31,7 +31,9 @@ using namespace std;
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
-#include "utils/serial.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 
 using namespace lbcrypto;
 

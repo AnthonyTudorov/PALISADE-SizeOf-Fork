@@ -56,6 +56,5 @@ add_dependencies( allsignature PALISADEsignature allsignaturedemos signature_tes
 add_custom_command( OUTPUT signatureinfocmd COMMAND echo Builds PALISADEsignature and these apps: ${SIGAPPS} )
 add_custom_target( signatureinfo DEPENDS signatureinfocmd )
 
-add_custom_command( OUTPUT runsignaturetests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/signature_tests )
-add_custom_target( testsignature DEPENDS runsignaturetests )
-
+add_custom_command( OUTPUT runsignaturetests COMMAND ${CMAKE_BINARY_DIR}/unittest/signature_tests )
+add_custom_target( testsignature DEPENDS signature_tests runsignaturetests )

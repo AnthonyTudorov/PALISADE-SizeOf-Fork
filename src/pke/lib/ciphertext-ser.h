@@ -1,5 +1,5 @@
 /*
-* @file cryptocontext-poly-impl.cpp - cryptocontext poly implementation
+* @file ciphertext-ser.h - serialize ciphertexts; include this in any app that needs to serialize them
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,26 +24,15 @@
  *
  */
 
-#include "cryptocontext.cpp"
+#ifndef LBCRYPTO_CRYPTO_CIPHERTEXTSER_H
+#define LBCRYPTO_CRYPTO_CIPHERTEXTSER_H
 
-namespace lbcrypto {
-template class CryptoContextFactory<Poly>;
-template class CryptoContextImpl<Poly>;
-template class CryptoObject<Poly>;
+#include "palisade.h"
+#include "ciphertext-impl.cpp"
+#include "utils/serial.h"
 
-template class CryptoContextFactory<NativePoly>;
-template class CryptoContextImpl<NativePoly>;
-template class CryptoObject<NativePoly>;
+CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::Poly>, lbcrypto::CiphertextImpl<lbcrypto::Poly>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::NativePoly>, lbcrypto::CiphertextImpl<lbcrypto::NativePoly>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>, lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>::SerializedVersion() );
 
-template class CryptoContextFactory<DCRTPoly>;
-template class CryptoContextImpl<DCRTPoly>;
-template class CryptoObject<DCRTPoly>;
-
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<Poly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<NativePoly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<DCRTPoly>>& obj, std::istream& stream, SerType sertype);
-
-}
+#endif

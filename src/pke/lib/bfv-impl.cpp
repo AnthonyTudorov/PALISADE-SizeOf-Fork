@@ -1,5 +1,5 @@
 /*
-* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the BFV scheme.
+* @file bfv-impl.cpp - template instantiations and methods for the BFV scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,6 +28,26 @@
 #include "bfv.cpp"
 
 namespace lbcrypto {
+
+template<>
+LPPublicKeyEncryptionSchemeBFV<Poly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<Poly>() {
+	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<Poly>());
+}
+
+template<>
+LPPublicKeyEncryptionSchemeBFV<NativePoly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<NativePoly>() {
+	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<NativePoly>());
+}
+
+template class LPCryptoParametersBFV<Poly>;
+template class LPPublicKeyEncryptionSchemeBFV<Poly>;
+template class LPAlgorithmBFV<Poly>;
+template class LPAlgorithmParamsGenBFV<Poly>;
+
+template class LPCryptoParametersBFV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBFV<NativePoly>;
+template class LPAlgorithmBFV<NativePoly>;
+template class LPAlgorithmParamsGenBFV<NativePoly>;
 
 template <>
 LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV() {
@@ -92,9 +112,3 @@ template class LPAlgorithmParamsGenBFV<DCRTPoly>;
 
 }
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::DCRTPoly>);

@@ -1,5 +1,5 @@
 /*
- * @file nullscheme-dcrtpoly-impl.cpp - null scheme dcrtpoly implementation
+* @file nullscheme-impl.cpp - template instantiations and methods for the NULL scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,6 +28,89 @@
 #include "nullscheme.h"
 
 namespace lbcrypto {
+
+template<>
+Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(ConstCiphertext<Poly> ciphertext1,
+	ConstCiphertext<Poly> ciphertext2) const {
+
+	Ciphertext<Poly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const Poly& c1 = ciphertext1->GetElement();
+	const Poly& c2 = ciphertext2->GetElement();
+
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template<>
+Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(ConstCiphertext<Poly> ciphertext1,
+	ConstPlaintext plaintext) const {
+
+	Ciphertext<Poly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const Poly& c1 = ciphertext1->GetElement();
+	const Poly& c2 = plaintext->GetElement<Poly>();
+
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	Poly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template class LPCryptoParametersNull<Poly>;
+template class LPPublicKeyEncryptionSchemeNull<Poly>;
+template class LPAlgorithmNull<Poly>;
+}
+
+namespace lbcrypto {
+
+template<>
+Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(ConstCiphertext<NativePoly> ciphertext1,
+	ConstCiphertext<NativePoly> ciphertext2) const {
+
+	Ciphertext<NativePoly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const NativePoly& c1 = ciphertext1->GetElement();
+	const NativePoly& c2 = ciphertext2->GetElement();
+
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template<>
+Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(ConstCiphertext<NativePoly> ciphertext1,
+	ConstPlaintext plaintext) const {
+
+	Ciphertext<NativePoly> newCiphertext = ciphertext1->CloneEmpty();
+
+	const NativePoly& c1 = ciphertext1->GetElement();
+	const NativePoly& c2 = plaintext->GetElement<NativePoly>();
+
+	const auto ptm = ciphertext1->GetCryptoParameters()->GetPlaintextModulus();
+
+	NativePoly cResult = ElementNullSchemeMultiply(c1, c2, ptm);
+
+	newCiphertext->SetElement(cResult);
+
+	return newCiphertext;
+}
+
+template class LPCryptoParametersNull<NativePoly>;
+template class LPPublicKeyEncryptionSchemeNull<NativePoly>;
+template class LPAlgorithmNull<NativePoly>;
 
 template<>
 Ciphertext<DCRTPoly> LPAlgorithmSHENull<DCRTPoly>::EvalMult(ConstCiphertext<DCRTPoly> ciphertext1,
@@ -88,11 +171,5 @@ Ciphertext<DCRTPoly> LPAlgorithmSHENull<DCRTPoly>::EvalMult(ConstCiphertext<DCRT
 template class LPCryptoParametersNull<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeNull<DCRTPoly>;
 template class LPAlgorithmNull<DCRTPoly>;
-}
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersNull<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmNull<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHENull<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::DCRTPoly>);
+}

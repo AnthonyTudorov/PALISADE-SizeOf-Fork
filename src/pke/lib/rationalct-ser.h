@@ -1,5 +1,5 @@
 /*
- * @file pubkeylp-dcrtpoly-impl.cpp - public key dcrtpoly implementation
+* @file rationalct-ser.h - serialize rational ciphertext; include this in any app that needs to serialize them
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,28 +24,15 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "pubkeylp.cpp"
+#ifndef LBCRYPTO_CRYPTO_RATIONALCTSER_H
+#define LBCRYPTO_CRYPTO_RATIONALCTSER_H
 
-namespace lbcrypto {
-extern template class CryptoContextImpl<DCRTPoly>;
+#include "palisade.h"
+#include "rationalct-impl.cpp"
+#include "utils/serial.h"
 
-template class LPPublicKeyImpl<DCRTPoly>;
-template class LPPrivateKeyImpl<DCRTPoly>;
-template class LPEvalKeyRelinImpl<DCRTPoly>;
-template class LPEvalKeyNTRUImpl<DCRTPoly>;
-template class LPEvalKeyNTRURelinImpl<DCRTPoly>;
-template class LPSHEAlgorithm<DCRTPoly>;
-}
+CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::Poly>, lbcrypto::RationalCiphertext<lbcrypto::Poly>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::NativePoly>, lbcrypto::RationalCiphertext<lbcrypto::NativePoly>::SerializedVersion() );
+CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>, lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>::SerializedVersion() );
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>, lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>);
-
+#endif

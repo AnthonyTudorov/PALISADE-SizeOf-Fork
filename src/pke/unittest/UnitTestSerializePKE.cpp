@@ -34,10 +34,20 @@
 #include "utils/parmfactory.h"
 #include "utils/serial.h"
 
+#include "bfv-ser.h"
+#include "bfvrns-ser.h"
+#include "bfvrnsB-ser.h"
+#include "bgv-ser.h"
+#include "nullscheme-ser.h"
+#include "ltv-ser.h"
+#include "stst-ser.h"
+#include "pubkeylp-ser.h"
+#include "ciphertext-ser.h"
+
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temportary fix until Windows serialization is fixed
+// TODO: temporary fix until Windows serialization is fixed
 #if not defined(_WIN32) and not defined(_WIN64)
 
 class UTPKESer : public ::testing::Test {

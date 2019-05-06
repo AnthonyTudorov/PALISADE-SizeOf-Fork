@@ -1,5 +1,5 @@
 /*
-* @file rationalct-poly-impl.cpp - rational ciphertext poly implementation
+ * @file stst-impl.cpp - template instantiations and methods for the StSt scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,15 +24,17 @@
  *
  */
 
+
 #include "cryptocontext.h"
-#include "ciphertext.h"
+#include "ltv.h"
+#include "stst.h"
 
 namespace lbcrypto {
-extern template class CryptoContextImpl<Poly>;
+template class LPCryptoParametersStehleSteinfeld<Poly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
+template class LPAlgorithmStSt<Poly>;
 
-template class RationalCiphertext<Poly>;
-template class RationalCiphertext<NativePoly>;
+template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
+template class LPAlgorithmStSt<DCRTPoly>;
 }
-
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::Poly>, lbcrypto::RationalCiphertext<lbcrypto::Poly>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::NativePoly>, lbcrypto::RationalCiphertext<lbcrypto::NativePoly>::SerializedVersion() );

@@ -38,7 +38,10 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
-#include "utils/serial.h"
+#include "bfv-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 
 //#include "utils/ser-reg.h"
 

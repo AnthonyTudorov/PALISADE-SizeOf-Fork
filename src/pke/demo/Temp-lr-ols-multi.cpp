@@ -63,7 +63,10 @@ bin/demo/pke/Temp-lr-ols-multi fusedecode demoData ccLRMulti demoData A demoData
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
-#include "utils/serial.h"
+#include "bgv-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 #include <random>
 
 #include "math/nbtheory.h"

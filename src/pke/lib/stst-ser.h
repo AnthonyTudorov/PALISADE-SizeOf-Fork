@@ -1,5 +1,5 @@
 /*
-* @file bgv-poly-impl.cpp - BGV scheme poly implementation
+ * @file stst-ser.h - serialize StSt; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,30 +24,29 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "bgv.cpp"
 
-namespace lbcrypto {
-template class LPCryptoParametersBGV<Poly>;
-template class LPPublicKeyEncryptionSchemeBGV<Poly>;
-template class LPAlgorithmBGV<Poly>;
+#ifndef LBCRYPTO_CRYPTO_STSTSER_H
+#define LBCRYPTO_CRYPTO_STSTSER_H
 
-template class LPCryptoParametersBGV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeBGV<NativePoly>;
-template class LPAlgorithmBGV<NativePoly>;
-}
+#include "palisade.h"
+#include "stst-impl.cpp"
+#include "utils/serial.h"
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::NativePoly>);
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::NativePoly>);
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::NativePoly>);
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::NativePoly>);
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::NativePoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::DCRTPoly>);
+
+#endif

@@ -1,5 +1,5 @@
 /*
- * @file stst-poly-impl.cpp - Stehle-Stenfeld poly implementation.
+* @file bfvrns-ser.h - serialize BFVrns; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,25 +24,20 @@
  *
  */
 
+#ifndef LBCRYPTO_CRYPTO_BFVRNSSER_H
+#define LBCRYPTO_CRYPTO_BFVRNSSER_H
 
-#include "cryptocontext.h"
-#include "ltv.h"
-#include "stst.h"
+#include "bfv-ser.h"
+#include "palisade.h"
+#include "bfvrns-impl.cpp"
+#include "utils/serial.h"
 
-namespace lbcrypto {
-template class LPCryptoParametersStehleSteinfeld<Poly>;
-template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
-template class LPAlgorithmStSt<Poly>;
-}
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFVrns<lbcrypto::DCRTPoly>);
 
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeStehleSteinfeld<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmStSt<lbcrypto::NativePoly>);
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::Poly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEStSt<lbcrypto::NativePoly>);
+#endif

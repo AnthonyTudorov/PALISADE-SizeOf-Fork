@@ -57,6 +57,5 @@ add_dependencies( allwip PALISADEwip wip_tests )
 add_custom_command( OUTPUT wipinfocmd COMMAND echo Builds PALISADEwip )
 add_custom_target( wipinfo DEPENDS wipinfocmd )
 
-add_custom_command( OUTPUT runwiptests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/wip_tests )
-add_custom_target( testwip DEPENDS runwiptests )
-
+add_custom_command( OUTPUT runwiptests COMMAND ${CMAKE_BINARY_DIR}/unittest/wip_tests )
+add_custom_target( testwip DEPENDS wip_tests runwiptests )

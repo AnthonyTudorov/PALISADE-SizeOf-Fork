@@ -41,7 +41,10 @@ BFV RNS testing programs
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
-#include "utils/serial.h"
+#include "bfvrns-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;

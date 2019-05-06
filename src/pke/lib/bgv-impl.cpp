@@ -1,5 +1,5 @@
 /*
- * @file bgv-dcrtpoly-impl.cpp - BGV dcrtpoly implementation.
+ * @file bgv-impl.cpp - template instantiations and methods for the BGV scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -28,6 +28,15 @@
 #include "bgv.cpp"
 
 namespace lbcrypto {
+
+template class LPCryptoParametersBGV<Poly>;
+template class LPPublicKeyEncryptionSchemeBGV<Poly>;
+template class LPAlgorithmBGV<Poly>;
+
+template class LPCryptoParametersBGV<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBGV<NativePoly>;
+template class LPAlgorithmBGV<NativePoly>;
+
 template class LPCryptoParametersBGV<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBGV<DCRTPoly>;
 template class LPAlgorithmBGV<DCRTPoly>;
@@ -115,9 +124,3 @@ LPEvalKey<DCRTPoly> LPAlgorithmPREBGV<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRT
 }
 
 }
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::DCRTPoly>);

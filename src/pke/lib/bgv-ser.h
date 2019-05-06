@@ -1,5 +1,5 @@
 /*
-* @file cryptocontext-poly-impl.cpp - cryptocontext poly implementation
+* @file bgv-ser.h -- serialize BGV; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,26 +24,32 @@
  *
  */
 
-#include "cryptocontext.cpp"
+#ifndef LBCRYPTO_CRYPTO_BGVSER_H
+#define LBCRYPTO_CRYPTO_BGVSER_H
 
-namespace lbcrypto {
-template class CryptoContextFactory<Poly>;
-template class CryptoContextImpl<Poly>;
-template class CryptoObject<Poly>;
+#include "palisade.h"
+#include "bgv-impl.cpp"
+#include "utils/serial.h"
 
-template class CryptoContextFactory<NativePoly>;
-template class CryptoContextImpl<NativePoly>;
-template class CryptoObject<NativePoly>;
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>);
 
-template class CryptoContextFactory<DCRTPoly>;
-template class CryptoContextImpl<DCRTPoly>;
-template class CryptoObject<DCRTPoly>;
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::NativePoly>);
 
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<Poly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<NativePoly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<DCRTPoly>>& obj, std::istream& stream, SerType sertype);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::NativePoly>);
 
-}
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::Poly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBGV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBGV<lbcrypto::DCRTPoly>);
+
+#endif

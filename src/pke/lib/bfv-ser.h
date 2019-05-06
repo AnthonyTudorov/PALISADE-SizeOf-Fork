@@ -1,5 +1,5 @@
-/*
-* @file bfv-poly-impl.cpp - poly implementation for the BFV scheme.
+﻿/**
+ * @file bfv-ser.h -- serialize BFV; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,34 +24,12 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "bfv.cpp"
+#ifndef LBCRYPTO_CRYPTO_BFVSER_H
+#define LBCRYPTO_CRYPTO_BFVSER_H
 
-namespace lbcrypto {
-
-template<>
-LPPublicKeyEncryptionSchemeBFV<Poly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<Poly>() {
-	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<Poly>());
-
-}
-
-template<>
-LPPublicKeyEncryptionSchemeBFV<NativePoly>::LPPublicKeyEncryptionSchemeBFV() : LPPublicKeyEncryptionScheme<NativePoly>() {
-	this->m_algorithmParamsGen.reset(new LPAlgorithmParamsGenBFV<NativePoly>());
-
-}
-
-template class LPCryptoParametersBFV<Poly>;
-template class LPPublicKeyEncryptionSchemeBFV<Poly>;
-template class LPAlgorithmBFV<Poly>;
-template class LPAlgorithmParamsGenBFV<Poly>;
-
-template class LPCryptoParametersBFV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeBFV<NativePoly>;
-template class LPAlgorithmBFV<NativePoly>;
-template class LPAlgorithmParamsGenBFV<NativePoly>;
-
-}
+#include "palisade.h"
+#include "bfv-impl.cpp"
+#include "utils/serial.h"
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::NativePoly>);
@@ -70,3 +48,12 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::NativePoly>);
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::DCRTPoly>);
+
+#endif

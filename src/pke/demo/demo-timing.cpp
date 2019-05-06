@@ -33,7 +33,9 @@
 #include "palisade.h"
 #include "cryptocontextgen.h"
 #include "cryptocontextparametersets.h"
-#include "utils/serial.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 using namespace lbcrypto;
 using std::cout;
 

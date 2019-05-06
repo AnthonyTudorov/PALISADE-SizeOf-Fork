@@ -1,5 +1,5 @@
 /*
-* @file rationalct-dcrtpoly-impl.cpp - rational ciphertext dcrtpoly implementation
+* @file bfvrnsB-ser.h - serialize BFVrnsB; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,13 +24,18 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "ciphertext.h"
+#ifndef LBCRYPTO_CRYPTO_BFVRNSBSER_H
+#define LBCRYPTO_CRYPTO_BFVRNSBSER_H
 
-namespace lbcrypto {
-extern template class CryptoContextImpl<DCRTPoly>;
+#include "palisade.h"
+#include "bfvrnsB-impl.cpp"
+#include "utils/serial.h"
 
-template class RationalCiphertext<DCRTPoly>;
-}
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBFVrnsB<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFVrnsB<lbcrypto::DCRTPoly>);
 
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>, lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>::SerializedVersion() );
+#endif

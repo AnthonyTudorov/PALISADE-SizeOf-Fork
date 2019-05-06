@@ -1,5 +1,5 @@
 /*
-* @file bfv-dcrtpoly-impl.cpp - dcrtpoly implementation for the HPS variant of the BFV scheme.
+* @file bfvrns-impl.cpp - template instantiations and methods for the BFVrns scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -27,9 +27,269 @@
 #include "cryptocontext.h"
 #include "bfvrns.cpp"
 
-#define PROFILE
-
 namespace lbcrypto {
+
+#define NOPOLY \
+		std::string errMsg = "BFVrns does not support Poly. Use DCRTPoly instead."; \
+		throw std::runtime_error(errMsg);
+
+#define NONATIVEPOLY \
+		std::string errMsg = "BFVrns does not support NativePoly. Use DCRTPoly instead."; \
+		throw std::runtime_error(errMsg);
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(){
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(){
+	NONATIVEPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs){
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(const LPCryptoParametersBFVrns &rhs){
+	NONATIVEPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
+		const PlaintextModulus &plaintextModulus,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(shared_ptr<typename NativePoly::Params> params,
+		const PlaintextModulus &plaintextModulus,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NONATIVEPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<Poly>::LPCryptoParametersBFVrns(shared_ptr<typename Poly::Params> params,
+		EncodingParams encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NOPOLY
+}
+
+template <>
+LPCryptoParametersBFVrns<NativePoly>::LPCryptoParametersBFVrns(shared_ptr<typename NativePoly::Params> params,
+		EncodingParams encodingParams,
+		float distributionParameter,
+		float assuranceMeasure,
+		float securityLevel,
+		usint relinWindow,
+		MODE mode,
+		int depth,
+		int maxDepth){
+	NONATIVEPOLY
+}
+
+// Parameter generation for BFV-RNS
+template <>
+bool LPCryptoParametersBFVrns<Poly>::PrecomputeCRTTables(){
+	NOPOLY
+}
+
+template <>
+bool LPCryptoParametersBFVrns<NativePoly>::PrecomputeCRTTables(){
+	NONATIVEPOLY
+}
+
+template <>
+LPPublicKeyEncryptionSchemeBFVrns<Poly>::LPPublicKeyEncryptionSchemeBFVrns(){
+	NOPOLY
+}
+
+template <>
+LPPublicKeyEncryptionSchemeBFVrns<NativePoly>::LPPublicKeyEncryptionSchemeBFVrns(){
+	NONATIVEPOLY
+}
+
+template <>
+bool LPAlgorithmParamsGenBFVrns<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+{
+	NOPOLY
+}
+
+template <>
+bool LPAlgorithmParamsGenBFVrns<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams, int32_t evalAddCount,
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+{
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPublicKey<Poly> publicKey,
+		Poly ptxt) const
+{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmBFVrns<NativePoly>::Encrypt(const LPPublicKey<NativePoly> publicKey,
+		NativePoly ptxt) const
+{
+	NONATIVEPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmBFVrns<Poly>::Decrypt(const LPPrivateKey<Poly> privateKey,
+		ConstCiphertext<Poly> ciphertext,
+		NativePoly *plaintext) const
+{
+	NOPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmBFVrns<NativePoly>::Decrypt(const LPPrivateKey<NativePoly> privateKey,
+		ConstCiphertext<NativePoly> ciphertext,
+		NativePoly *plaintext) const
+{
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmBFVrns<Poly>::Encrypt(const LPPrivateKey<Poly> privateKey,
+		Poly ptxt) const
+{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmBFVrns<NativePoly>::Encrypt(const LPPrivateKey<NativePoly> privateKey,
+		NativePoly ptxt) const
+{
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMult(ConstCiphertext<Poly> ciphertext1,
+	ConstCiphertext<Poly> ciphertext2) const {
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMult(ConstCiphertext<NativePoly> ciphertext1,
+	ConstCiphertext<NativePoly> ciphertext2) const {
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalAdd(ConstCiphertext<Poly> ct,
+		ConstPlaintext pt) const{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalAdd(ConstCiphertext<NativePoly> ct,
+		ConstPlaintext pt) const{
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalSub(ConstCiphertext<Poly> ct,
+	ConstPlaintext pt) const{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalSub(ConstCiphertext<NativePoly> ct,
+	ConstPlaintext pt) const{
+	NONATIVEPOLY
+}
+
+template <>
+LPEvalKey<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitchGen(const LPPrivateKey<Poly> originalPrivateKey,
+	const LPPrivateKey<Poly> newPrivateKey) const {
+	NOPOLY
+}
+
+template <>
+LPEvalKey<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitchGen(const LPPrivateKey<NativePoly> originalPrivateKey,
+	const LPPrivateKey<NativePoly> newPrivateKey) const {
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::KeySwitch(const LPEvalKey<Poly> keySwitchHint,
+	ConstCiphertext<Poly> cipherText) const{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::KeySwitch(const LPEvalKey<NativePoly> keySwitchHint,
+	ConstCiphertext<NativePoly> cipherText) const{
+	NONATIVEPOLY
+}
+
+template <>
+Ciphertext<Poly> LPAlgorithmSHEBFVrns<Poly>::EvalMultAndRelinearize(ConstCiphertext<Poly> ct1,
+	ConstCiphertext<Poly> ct, const vector<LPEvalKey<Poly>> &ek) const{
+	NOPOLY
+}
+
+template <>
+Ciphertext<NativePoly> LPAlgorithmSHEBFVrns<NativePoly>::EvalMultAndRelinearize(ConstCiphertext<NativePoly> ct1,
+	ConstCiphertext<NativePoly> ct, const vector<LPEvalKey<NativePoly>> &ek) const{
+	NONATIVEPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmMultipartyBFVrns<Poly>::MultipartyDecryptFusion(const vector<Ciphertext<Poly>>& ciphertextVec,
+		NativePoly *plaintext) const {
+	NOPOLY
+}
+
+template <>
+DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(const vector<Ciphertext<NativePoly>>& ciphertextVec,
+		NativePoly *plaintext) const {
+	NONATIVEPOLY
+}
+
+template class LPCryptoParametersBFVrns<Poly>;
+template class LPPublicKeyEncryptionSchemeBFVrns<Poly>;
+template class LPAlgorithmBFVrns<Poly>;
+template class LPAlgorithmPREBFVrns<Poly>;
+template class LPAlgorithmSHEBFVrns<Poly>;
+template class LPAlgorithmMultipartyBFVrns<Poly>;
+template class LPAlgorithmParamsGenBFVrns<Poly>;
+
+template class LPCryptoParametersBFVrns<NativePoly>;
+template class LPPublicKeyEncryptionSchemeBFVrns<NativePoly>;
+template class LPAlgorithmBFVrns<NativePoly>;
+template class LPAlgorithmPREBFVrns<NativePoly>;
+template class LPAlgorithmSHEBFVrns<NativePoly>;
+template class LPAlgorithmMultipartyBFVrns<NativePoly>;
+template class LPAlgorithmParamsGenBFVrns<NativePoly>;
+
+#undef NOPOLY
+#undef NONATIVEPOLY
 
 // Precomputation of CRT tables encryption, decryption, and homomorphic multiplication
 template <>
@@ -1227,7 +1487,6 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 
 }
 
-
 template class LPCryptoParametersBFVrns<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<DCRTPoly>;
 template class LPAlgorithmBFVrns<DCRTPoly>;
@@ -1236,11 +1495,3 @@ template class LPAlgorithmMultipartyBFVrns<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrns<DCRTPoly>;
 
 }
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPREBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHEBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenBFVrns<lbcrypto::DCRTPoly>);

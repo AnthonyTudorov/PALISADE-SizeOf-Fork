@@ -56,6 +56,5 @@ add_dependencies( alltrapdoor PALISADEtrapdoor alltrapdoordemos trapdoor_tests )
 add_custom_command( OUTPUT trapdoorinfocmd COMMAND echo Builds PALISADEtrapdoor and these apps: ${TRAPDOORAPPS} )
 add_custom_target( trapdoorinfo DEPENDS trapdoorinfocmd )
 
-add_custom_command( OUTPUT runtrapdoortests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/trapdoor_tests )
-add_custom_target( testtrapdoor DEPENDS runtrapdoortests )
-
+add_custom_command( OUTPUT runtrapdoortests COMMAND ${CMAKE_BINARY_DIR}/unittest/trapdoor_tests )
+add_custom_target( testtrapdoor DEPENDS trapdoor_tests runtrapdoortests )

@@ -32,6 +32,7 @@
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
 #include "utils/serial.h"
+#include "cryptocontext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;

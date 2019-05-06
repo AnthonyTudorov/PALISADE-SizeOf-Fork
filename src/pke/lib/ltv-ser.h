@@ -1,5 +1,5 @@
 /*
-* @file ltv-poly-impl.cpp - poly implementation for the LTV scheme.
+* @file ltv-ser.h - serialize LTV; include this in any app that needs to serialize this scheme
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,39 +24,12 @@
  *
  */
 
-#include "cryptocontext.h"
-#include "ltv.cpp"
+#ifndef LBCRYPTO_CRYPTO_LTVSER_H
+#define LBCRYPTO_CRYPTO_LTVSER_H
 
-namespace lbcrypto {
-template class LPCryptoParametersLTV<Poly>;
-template class LPPublicKeyEncryptionSchemeLTV<Poly>;
-template class LPAlgorithmLTV<Poly>;
-template class LPAlgorithmPRELTV<Poly>;
-template class LPAlgorithmSHELTV<Poly>;
-template class LPLeveledSHEAlgorithmLTV<Poly>;
-
-template class LPCryptoParametersLTV<NativePoly>;
-template class LPPublicKeyEncryptionSchemeLTV<NativePoly>;
-template class LPAlgorithmLTV<NativePoly>;
-template class LPAlgorithmPRELTV<NativePoly>;
-template class LPAlgorithmSHELTV<NativePoly>;
-template class LPLeveledSHEAlgorithmLTV<NativePoly>;
-
-template <>
-bool LPAlgorithmParamsGenLTV<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
-{
-	return false;
-}
-
-template <>
-bool LPAlgorithmParamsGenLTV<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams,
-		int32_t evalAddCount, int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
-{
-	return false;
-}
-
-}
+#include "palisade.h"
+#include "ltv-impl.cpp"
+#include "utils/serial.h"
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::Poly>);
@@ -73,3 +46,13 @@ CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::NativePoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::NativePoly>);
+
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenLTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmLTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRELTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHELTV<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::DCRTPoly>);
+
+#endif
