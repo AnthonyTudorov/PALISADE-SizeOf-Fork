@@ -34,13 +34,8 @@
 #include "utils/parmfactory.h"
 #include "utils/serial.h"
 
-#include "bfv-ser.h"
-#include "bfvrns-ser.h"
-#include "bfvrnsB-ser.h"
-#include "bgv-ser.h"
-#include "nullscheme-ser.h"
 #include "ltv-ser.h"
-#include "stst-ser.h"
+#include "bgv-ser.h"
 #include "pubkeylp-ser.h"
 #include "ciphertext-ser.h"
 
@@ -138,26 +133,6 @@ void UnitTestContext(CryptoContext<T> cc) {
 	UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
 }
 
-TEST_F(UTPKESer, LTV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("LTV5");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, LTV_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, StSt_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, StSt_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
 TEST_F(UTPKESer, BGV_Poly_Serial) {
 	CryptoContext<Poly> cc = GenerateTestCryptoContext("BGV2");
 	UnitTestContext<Poly>(cc);
@@ -165,31 +140,6 @@ TEST_F(UTPKESer, BGV_Poly_Serial) {
 
 TEST_F(UTPKESer, BGV_DCRTPoly_Serial) {
 	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BGV2", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, Null_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("Null");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, Null_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, BFV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
 
