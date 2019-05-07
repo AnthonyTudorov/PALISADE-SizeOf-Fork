@@ -28,8 +28,28 @@
 #define LBCRYPTO_CRYPTO_LTVSER_H
 
 #include "palisade.h"
-#include "ltv-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::LPCryptoParametersLTV<lbcrypto::Poly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmLTV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmPRELTV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmSHELTV<lbcrypto::Poly>;
+extern template class lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::Poly>;
+
+extern template class lbcrypto::LPCryptoParametersLTV<lbcrypto::NativePoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::NativePoly>;
+extern template class lbcrypto::LPAlgorithmLTV<lbcrypto::NativePoly>;
+extern template class lbcrypto::LPAlgorithmPRELTV<lbcrypto::NativePoly>;
+extern template class lbcrypto::LPAlgorithmSHELTV<lbcrypto::NativePoly>;
+extern template class lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPCryptoParametersLTV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmLTV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmPRELTV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmSHELTV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPLeveledSHEAlgorithmLTV<lbcrypto::DCRTPoly>;
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersLTV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeLTV<lbcrypto::Poly>);

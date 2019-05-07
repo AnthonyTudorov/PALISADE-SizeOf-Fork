@@ -29,8 +29,26 @@
 #define LBCRYPTO_CRYPTO_STSTSER_H
 
 #include "palisade.h"
-#include "stst-impl.cpp"
 #include "utils/serial.h"
+
+namespace lbcrypto {
+extern template class LPCryptoParametersStehleSteinfeld<Poly>;
+extern template class LPCryptoParametersStehleSteinfeld<NativePoly>;
+
+extern template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
+extern template class LPPublicKeyEncryptionSchemeStehleSteinfeld<NativePoly>;
+
+extern template class LPAlgorithmStSt<Poly>;
+extern template class LPAlgorithmStSt<NativePoly>;
+
+extern template class LPAlgorithmSHEStSt<Poly>;
+extern template class LPAlgorithmSHEStSt<NativePoly>;
+
+extern template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
+extern template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
+extern template class LPAlgorithmStSt<DCRTPoly>;
+extern template class LPAlgorithmSHEStSt<DCRTPoly>;
+}
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersStehleSteinfeld<lbcrypto::NativePoly>);

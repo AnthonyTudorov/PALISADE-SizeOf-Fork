@@ -38,7 +38,6 @@
 #include "bfvrns-ser.h"
 #include "bfvrnsB-ser.h"
 #include "nullscheme-ser.h"
-#include "ltv-ser.h"
 #include "stst-ser.h"
 
 using namespace std;

@@ -289,3 +289,6 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests 
 add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 
 add_subdirectory(benchmark)
+
+## clobber cleans AND cleans the third-party stuff
+add_custom_target( clobber DEPENDS clean gmp_clobber ntl_clobber )

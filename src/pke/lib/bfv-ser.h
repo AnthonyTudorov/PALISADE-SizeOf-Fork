@@ -28,8 +28,32 @@
 #define LBCRYPTO_CRYPTO_BFVSER_H
 
 #include "palisade.h"
-#include "bfv-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::LPCryptoParametersBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPCryptoParametersBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmPREBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmPREBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmSHEBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmSHEBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPCryptoParametersBFV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBFV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmBFV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmPREBFV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmSHEBFV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmParamsGenBFV<lbcrypto::DCRTPoly>;
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFV<lbcrypto::NativePoly>);

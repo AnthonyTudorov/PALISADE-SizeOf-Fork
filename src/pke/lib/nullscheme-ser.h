@@ -28,8 +28,33 @@
 #define LBCRYPTO_CRYPTO_NULLSCHEMESER_H
 
 #include "palisade.h"
-#include "nullscheme-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::LPCryptoParametersNull<lbcrypto::Poly>;
+extern template class lbcrypto::LPCryptoParametersNull<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::Poly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmNull<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmNull<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmSHENull<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmSHENull<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::Poly>;
+extern template class lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::NativePoly>;
+
+
+extern template class lbcrypto::LPCryptoParametersNull<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeNull<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmNull<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmParamsGenNull<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmSHENull<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPLeveledSHEAlgorithmNull<lbcrypto::DCRTPoly>;
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersNull<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersNull<lbcrypto::NativePoly>);

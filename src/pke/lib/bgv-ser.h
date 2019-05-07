@@ -28,8 +28,28 @@
 #define LBCRYPTO_CRYPTO_BGVSER_H
 
 #include "palisade.h"
-#include "bgv-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>;
+extern template class lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::Poly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmBGV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmBGV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPAlgorithmSHEBGV<lbcrypto::Poly>;
+extern template class lbcrypto::LPAlgorithmSHEBGV<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPCryptoParametersBGV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBGV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmBGV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmMultipartyBGV<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmSHEBGV<lbcrypto::DCRTPoly>;
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBGV<lbcrypto::NativePoly>);
