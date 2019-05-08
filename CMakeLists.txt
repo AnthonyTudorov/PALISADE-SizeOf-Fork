@@ -268,7 +268,9 @@ set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static)
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
-add_custom_target(third-party ALL DEPENDS ${GMPLIBFILE} ${NTLLIBFILE})
+add_custom_target(third-party ALL
+ COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || return 0
+)
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)
@@ -291,4 +293,17 @@ add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
 add_subdirectory(benchmark)
 
 ## clobber cleans AND cleans the third-party stuff
-add_custom_target( clobber DEPENDS clean gmp_clobber ntl_clobber )
+add_custom_target( clobber DEPENDS gmp_clobber ntl_clobber
+        COMMAND make clean
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_target( testall
+	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests wip_tests
+	COMMAND echo core: && unittest/core_tests -t
+	COMMAND echo pke: && unittest/pke_tests -t
+	COMMAND echo trapdoor: && unittest/trapdoor_tests -t
+	COMMAND echo abe: && unittest/abe_tests -t
+	COMMAND echo signature: && unittest/signature_tests -t
+	COMMAND echo wip: && unittest/wip_tests -t
+)

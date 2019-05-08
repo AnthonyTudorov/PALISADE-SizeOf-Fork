@@ -28,8 +28,36 @@
 #define LBCRYPTO_CRYPTO_PUBKEYLPSER_H
 
 #include "palisade.h"
-#include "pubkeylp-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::LPCryptoParameters<lbcrypto::Poly>;
+extern template class lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPCryptoParametersRLWE<lbcrypto::Poly>;
+extern template class lbcrypto::LPCryptoParametersRLWE<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::Poly>;
+extern template class lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPEvalKeyImpl<lbcrypto::Poly>;
+extern template class lbcrypto::LPEvalKeyImpl<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPEvalKeyRelinImpl<lbcrypto::Poly>;
+extern template class lbcrypto::LPEvalKeyRelinImpl<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::Poly>;
+extern template class lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::Poly>;
+extern template class lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::NativePoly>;
+
+extern template class lbcrypto::LPCryptoParameters<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPCryptoParametersRLWE<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionScheme<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPEvalKeyImpl<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPEvalKeyRelinImpl<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPEvalKeyNTRUImpl<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPEvalKeyNTRURelinImpl<lbcrypto::DCRTPoly>;
 
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::Poly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParameters<lbcrypto::NativePoly>);
