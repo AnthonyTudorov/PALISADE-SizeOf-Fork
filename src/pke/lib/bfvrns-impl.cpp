@@ -1490,6 +1490,7 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 template class LPCryptoParametersBFVrns<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFVrns<DCRTPoly>;
 template class LPAlgorithmBFVrns<DCRTPoly>;
+template class LPAlgorithmPREBFVrns<DCRTPoly>;
 template class LPAlgorithmSHEBFVrns<DCRTPoly>;
 template class LPAlgorithmMultipartyBFVrns<DCRTPoly>;
 template class LPAlgorithmParamsGenBFVrns<DCRTPoly>;

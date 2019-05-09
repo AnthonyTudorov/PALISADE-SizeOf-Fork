@@ -43,11 +43,15 @@ template class LPCryptoParametersBFV<Poly>;
 template class LPPublicKeyEncryptionSchemeBFV<Poly>;
 template class LPAlgorithmBFV<Poly>;
 template class LPAlgorithmParamsGenBFV<Poly>;
+template class LPAlgorithmPREBFV<Poly>;
+template class LPAlgorithmSHEBFV<Poly>;
 
 template class LPCryptoParametersBFV<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBFV<NativePoly>;
 template class LPAlgorithmBFV<NativePoly>;
 template class LPAlgorithmParamsGenBFV<NativePoly>;
+template class LPAlgorithmPREBFV<NativePoly>;
+template class LPAlgorithmSHEBFV<NativePoly>;
 
 template <>
 LPCryptoParametersBFV<DCRTPoly>::LPCryptoParametersBFV() {
@@ -109,6 +113,8 @@ template class LPCryptoParametersBFV<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBFV<DCRTPoly>;
 template class LPAlgorithmBFV<DCRTPoly>;
 template class LPAlgorithmParamsGenBFV<DCRTPoly>;
+template class LPAlgorithmPREBFV<DCRTPoly>;
+template class LPAlgorithmSHEBFV<DCRTPoly>;
 
 }
 

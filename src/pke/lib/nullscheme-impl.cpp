@@ -68,9 +68,9 @@ Ciphertext<Poly> LPAlgorithmSHENull<Poly>::EvalMult(ConstCiphertext<Poly> cipher
 template class LPCryptoParametersNull<Poly>;
 template class LPPublicKeyEncryptionSchemeNull<Poly>;
 template class LPAlgorithmNull<Poly>;
-}
-
-namespace lbcrypto {
+template class LPAlgorithmParamsGenNull<Poly>;
+template class LPAlgorithmSHENull<Poly>;
+template class LPLeveledSHEAlgorithmNull<Poly>;
 
 template<>
 Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(ConstCiphertext<NativePoly> ciphertext1,
@@ -111,6 +111,9 @@ Ciphertext<NativePoly> LPAlgorithmSHENull<NativePoly>::EvalMult(ConstCiphertext<
 template class LPCryptoParametersNull<NativePoly>;
 template class LPPublicKeyEncryptionSchemeNull<NativePoly>;
 template class LPAlgorithmNull<NativePoly>;
+template class LPAlgorithmParamsGenNull<NativePoly>;
+template class LPAlgorithmSHENull<NativePoly>;
+template class LPLeveledSHEAlgorithmNull<NativePoly>;
 
 template<>
 Ciphertext<DCRTPoly> LPAlgorithmSHENull<DCRTPoly>::EvalMult(ConstCiphertext<DCRTPoly> ciphertext1,
@@ -171,5 +174,8 @@ Ciphertext<DCRTPoly> LPAlgorithmSHENull<DCRTPoly>::EvalMult(ConstCiphertext<DCRT
 template class LPCryptoParametersNull<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeNull<DCRTPoly>;
 template class LPAlgorithmNull<DCRTPoly>;
+template class LPAlgorithmParamsGenNull<DCRTPoly>;
+template class LPAlgorithmSHENull<DCRTPoly>;
+template class LPLeveledSHEAlgorithmNull<DCRTPoly>;
 
 }

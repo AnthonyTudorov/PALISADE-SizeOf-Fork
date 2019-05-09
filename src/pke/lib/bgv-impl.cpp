@@ -32,14 +32,20 @@ namespace lbcrypto {
 template class LPCryptoParametersBGV<Poly>;
 template class LPPublicKeyEncryptionSchemeBGV<Poly>;
 template class LPAlgorithmBGV<Poly>;
+template class LPAlgorithmMultipartyBGV<Poly>;
+template class LPAlgorithmSHEBGV<Poly>;
 
 template class LPCryptoParametersBGV<NativePoly>;
 template class LPPublicKeyEncryptionSchemeBGV<NativePoly>;
 template class LPAlgorithmBGV<NativePoly>;
+template class LPAlgorithmMultipartyBGV<NativePoly>;
+template class LPAlgorithmSHEBGV<NativePoly>;
 
 template class LPCryptoParametersBGV<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeBGV<DCRTPoly>;
 template class LPAlgorithmBGV<DCRTPoly>;
+template class LPAlgorithmMultipartyBGV<DCRTPoly>;
+template class LPAlgorithmSHEBGV<DCRTPoly>;
 
 template <>
 LPEvalKey<DCRTPoly> LPAlgorithmPREBGV<DCRTPoly>::ReKeyGen(const LPPublicKey<DCRTPoly> newPK,

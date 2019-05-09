@@ -2792,7 +2792,7 @@ namespace lbcrypto {
 			}
 		}
 
-		const std::shared_ptr<LPEncryptionAlgorithm<const Element>> getAlgorithm() const { return m_algorithmEncryption; }
+		const std::shared_ptr<LPEncryptionAlgorithm<Element>> getAlgorithm() const { return m_algorithmEncryption; }
 
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const

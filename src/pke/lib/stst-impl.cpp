@@ -33,8 +33,15 @@ namespace lbcrypto {
 template class LPCryptoParametersStehleSteinfeld<Poly>;
 template class LPPublicKeyEncryptionSchemeStehleSteinfeld<Poly>;
 template class LPAlgorithmStSt<Poly>;
+template class LPAlgorithmSHEStSt<Poly>;
+
+template class LPCryptoParametersStehleSteinfeld<NativePoly>;
+template class LPPublicKeyEncryptionSchemeStehleSteinfeld<NativePoly>;
+template class LPAlgorithmStSt<NativePoly>;
+template class LPAlgorithmSHEStSt<NativePoly>;
 
 template class LPCryptoParametersStehleSteinfeld<DCRTPoly>;
 template class LPPublicKeyEncryptionSchemeStehleSteinfeld<DCRTPoly>;
 template class LPAlgorithmStSt<DCRTPoly>;
+template class LPAlgorithmSHEStSt<DCRTPoly>;
 }
