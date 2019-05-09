@@ -54,7 +54,9 @@ Once this is completed, you can "make all" to make the entire PALISADE distribut
 
 The "make clean" removes all build products (but not the third-party libraries).
 
-Running "make install" installs executables, etc into a sub directory of the source, named "installed".
+Running "make install" installs executables, etc onto your machine; you probably need "sudo make install"
+unless you are specifying some other install location. You can change the install location by running
+"cmake -DCMAKE_INSTALL_PREFIX=/your/path".
 
 Each component (core, pke, abe, trapdoor, signature, wip) has a set of common targets defined.
 You can make allX, allXdemos, testX, or Xinfo, where X is the component (for example, make testpke will

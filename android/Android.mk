@@ -14,10 +14,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libPALISADEcore
 
-CORE_FILE_LIST := $(shell find core/lib -name '*.cpp')
+CORE_FILE_LIST := $(shell find $(LOCAL_PATH)/../src/core/lib -name '*.cpp')
 LOCAL_SRC_FILES := $(CORE_FILE_LIST:$(LOCAL_PATH)/%=%)
 
-LOCAL_C_INCLUDES := jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/jni/gmp/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../src/jni/ntl/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../third-party/cereal/include $(LOCAL_PATH)/../src $(LOCAL_PATH)/../src/core/lib
 
 LOCAL_CPP_FEATURES := rtti exceptions
 
@@ -32,10 +32,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libPALISADEpke
 
-PKE_FILE_LIST := $(shell find pke/lib -name '*-impl.cpp')
+PKE_FILE_LIST := $(shell find $(LOCAL_PATH)/../src/pke/lib -name '*-impl.cpp')
 LOCAL_SRC_FILES := $(PKE_FILE_LIST:$(LOCAL_PATH)/%=%)
 
-LOCAL_C_INCLUDES := jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib pke/lib
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/jni/gmp/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../src/jni/ntl/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../third-party/cereal/include $(LOCAL_PATH)/../src $(LOCAL_PATH)/../src/core/lib $(LOCAL_PATH)/../src/pke/lib
 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS=true
@@ -52,10 +52,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libPALISADEjni
 
-JNI_FILE_LIST := $(shell find jni/PALISADE -name '*.cpp')
+JNI_FILE_LIST := $(shell find $(LOCAL_PATH)/jni/PALISADE -name '*.cpp')
 LOCAL_SRC_FILES := $(JNI_FILE_LIST:$(LOCAL_PATH)/%=%)
 
-LOCAL_C_INCLUDES := jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib pke/lib jni/PALISADE
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/jni/gmp/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../src/jni/ntl/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../third-party/cereal/include $(LOCAL_PATH)/../src $(LOCAL_PATH)/../src/core/lib $(LOCAL_PATH)/../src/pke/lib $(LOCAL_PATH)/../src/jni/PALISADE
 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS=true
@@ -90,14 +90,14 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := PALISADEunit
 
-UNIT_FILE_LIST := jni/unittest/testmain2.cpp
-UNIT_FILE_LIST += $(shell find core/unittest -name '*.cpp')
-UNIT_FILE_LIST += $(shell find pke/unittest -name '*.cpp')
+UNIT_FILE_LIST := $(LOCAL_PATH)/jni/unittest/testmain2.cpp
+UNIT_FILE_LIST += $(shell find $(LOCAL_PATH)/../src/core/unittest -name '*.cpp')
+UNIT_FILE_LIST += $(shell find $(LOCAL_PATH)/../src/pke/unittest -name '*.cpp')
 LOCAL_SRC_FILES := $(UNIT_FILE_LIST:$(LOCAL_PATH)/%=%)
 
 GOOGLETEST_ROOT = $(ANDROID_NDK)/sources/third_party/googletest/googletest
 
-LOCAL_C_INCLUDES := $(GOOGLETEST_ROOT) $(GOOGLETEST_ROOT)/include jni/gmp/prebuilt/$(APP_ABI) jni/ntl/prebuilt/$(APP_ABI) ../third-party/cereal/include core/lib pke/lib 
+LOCAL_C_INCLUDES := $(GOOGLETEST_ROOT) $(GOOGLETEST_ROOT)/include $(LOCAL_PATH)/jni/gmp/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../src/jni/ntl/prebuilt/$(APP_ABI) $(LOCAL_PATH)/../third-party/cereal/include $(LOCAL_PATH)/../src $(LOCAL_PATH)/../src/core/lib $(LOCAL_PATH)/../src/pke/lib 
 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS=true

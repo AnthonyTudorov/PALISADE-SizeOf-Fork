@@ -52,7 +52,7 @@ else()
 	message(FATAL_ERROR  "You are using ${CMAKE_CXX_COMPILER_ID} version ${CMAKE_CXX_COMPILER_VERSION}, which is unsupported.")
 endif()
 
-set (CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
+message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
 set (CMAKE_INSTALL_MESSAGE LAZY)
 
 # use, i.e. don't skip the full RPATH for the build tree

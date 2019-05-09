@@ -29,15 +29,7 @@
 #include "cryptocontext.h"
 
 namespace lbcrypto {
-//extern template class CryptoContextImpl<Poly>;
-
 template class CiphertextImpl<Poly>;
-
-//extern template class CryptoContextImpl<NativePoly>;
-
 template class CiphertextImpl<NativePoly>;
-
-//extern template class CryptoContextImpl<DCRTPoly>;
-
 template class CiphertextImpl<DCRTPoly>;
 }

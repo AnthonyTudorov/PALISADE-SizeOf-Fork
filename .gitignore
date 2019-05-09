@@ -4,9 +4,7 @@
 *.o.d
 *.gcov
 bin/
-installed/
 build/
-installed/
 
 test/build
 test/bin
@@ -52,8 +50,8 @@ src/circuit/lib/parse.cpp
 src/circuit/lib/parse.hpp
 src/circuit/lib/*.hh
 
-src/obj
-src/libs
+android/obj
+android/libs
 
 # vagrant output
 .vagrant/

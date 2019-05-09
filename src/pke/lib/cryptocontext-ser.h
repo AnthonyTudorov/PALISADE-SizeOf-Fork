@@ -28,8 +28,11 @@
 #define LBCRYPTO_CRYPTO_CRYPTOCONTEXTSER_H
 
 #include "palisade.h"
-#include "cryptocontext-impl.cpp"
 #include "utils/serial.h"
+
+extern template class lbcrypto::CryptoContextImpl<lbcrypto::Poly>;
+extern template class lbcrypto::CryptoContextImpl<lbcrypto::NativePoly>;
+extern template class lbcrypto::CryptoContextFactory<lbcrypto::DCRTPoly>;
 
 CEREAL_CLASS_VERSION( lbcrypto::CryptoContextImpl<lbcrypto::Poly>, lbcrypto::CryptoContextImpl<lbcrypto::Poly>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::CryptoContextImpl<lbcrypto::NativePoly>, lbcrypto::CryptoContextImpl<lbcrypto::NativePoly>::SerializedVersion() );

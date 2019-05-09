@@ -31,6 +31,10 @@
 #include "rationalct-impl.cpp"
 #include "utils/serial.h"
 
+extern template class lbcrypto::RationalCiphertext<lbcrypto::Poly>;
+extern template class lbcrypto::RationalCiphertext<lbcrypto::NativePoly>;
+extern template class lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>;
+
 CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::Poly>, lbcrypto::RationalCiphertext<lbcrypto::Poly>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::NativePoly>, lbcrypto::RationalCiphertext<lbcrypto::NativePoly>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>, lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>::SerializedVersion() );

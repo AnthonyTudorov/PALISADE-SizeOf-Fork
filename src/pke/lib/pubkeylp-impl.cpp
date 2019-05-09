@@ -39,14 +39,6 @@ template class LPEvalKeyNTRUImpl<Poly>;
 template class LPEvalKeyNTRURelinImpl<Poly>;
 template class LPCryptoParameters<Poly>;
 template class LPCryptoParametersRLWE<Poly>;
-//
-//template class LPParameterGenerationAlgorithm<Poly>;
-//template class LPEncryptionAlgorithm<Poly>;
-//template class LPPREAlgorithm<Poly>;
-//template class LPMultipartyAlgorithm<Poly>;
-//template class LPSHEAlgorithm<Poly>;
-//template class LPFHEAlgorithm<Poly>;
-//template class LPLeveledSHEAlgorithm<Poly>;
 template class LPPublicKeyEncryptionScheme<Poly>;
 
 extern template class CryptoContextImpl<NativePoly>;
@@ -59,8 +51,6 @@ template class LPEvalKeyNTRUImpl<NativePoly>;
 template class LPEvalKeyNTRURelinImpl<NativePoly>;
 template class LPCryptoParameters<NativePoly>;
 template class LPCryptoParametersRLWE<NativePoly>;
-//template class LPSHEAlgorithm<NativePoly>;
-//template class LPEncryptionAlgorithm<NativePoly>;
 template class LPPublicKeyEncryptionScheme<NativePoly>;
 
 extern template class CryptoContextImpl<DCRTPoly>;
@@ -73,7 +63,5 @@ template class LPEvalKeyNTRUImpl<DCRTPoly>;
 template class LPEvalKeyNTRURelinImpl<DCRTPoly>;
 template class LPCryptoParameters<DCRTPoly>;
 template class LPCryptoParametersRLWE<DCRTPoly>;
-//template class LPSHEAlgorithm<DCRTPoly>;
-//template class LPEncryptionAlgorithm<DCRTPoly>;
 template class LPPublicKeyEncryptionScheme<DCRTPoly>;
 }

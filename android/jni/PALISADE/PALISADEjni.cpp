@@ -28,6 +28,7 @@
 #include "com_palisade_PALISADE.h"
 #include "palisade.h"
 #include "cryptocontext.h"
+#include "utils/serial.h"
 
 using namespace lbcrypto;
 
