@@ -42,10 +42,7 @@ foreach (app ${PKE_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/pke)
 	set( PKEAPPS ${PKEAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${PKELIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/pke )
 endforeach()
-
-install(TARGETS pke_tests DESTINATION unittest)
 
 add_custom_target( allpkedemos )
 add_dependencies( allpkedemos ${PKEAPPS} )

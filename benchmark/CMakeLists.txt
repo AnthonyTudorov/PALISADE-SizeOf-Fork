@@ -19,7 +19,6 @@ foreach (app ${BMARK_SRC_FILES})
 		"${REGEX_FLAG} -DHAVE_STEADY_CLOCK -DNDEBUG ${WARNING_FLAG} -Wno-unused-variable" )
 	target_link_libraries ( ${exe} ${BMLIBS} )
 	set (BMAPPS ${BMAPPS} ${exe})
-        install ( TARGETS ${exe} DESTINATION benchmark )
 endforeach()
 
 add_custom_target( allbenchmark )

@@ -52,7 +52,11 @@ If you would like to force a rebuild of one of these third-party libraries, you 
 
 Once this is completed, you can "make all" to make the entire PALISADE distribution.
 
-The "make clean" removes all build products (but not the third-party libraries).
+There is no longer a giant unit test executable that runs every single test. You can still "make testall",
+which really means "run the unit test for each component".
+
+The "make clean" removes all build products (but not the third-party libraries). "make clobber" undoes the third-party
+build products as well as PALISADE
 
 Running "make install" installs executables, etc onto your machine; you probably need "sudo make install"
 unless you are specifying some other install location. You can change the install location by running
@@ -67,11 +71,7 @@ Notes, and remaining things to do:
 1. there is no longer a separate clean target for each component. You cannot, for example, "make cleancore".
 If you need to do this, remove everything under build/src/core
 
-2. There is not (yet) a giant unit test executable that runs every single test, and there may not be,
-going forward. "Test everything" really means "run the unit test for each component", and as we decouple
-pieces of the library each from the other, having a giant monolithic unit test might not make sense
+2. At the moment we do NOT include the following in the new cmake: circuit
 
-3. At the moment we do NOT include the following in the new cmake: circuit
-
-4. There needs to be a better way to manage version numbering, so that we don't need to edit five
+3. There needs to be a better way to manage version numbering, so that we don't need to edit five
 different files to make this stuff work.

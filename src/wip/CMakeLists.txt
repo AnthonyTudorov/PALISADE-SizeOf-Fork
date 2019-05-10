@@ -42,10 +42,7 @@ foreach (app ${WIP_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/wip)
 	set( WIPAPPS ${WIPAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${WIPLIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/wip )
 endforeach()
-
-install(TARGETS wip_tests DESTINATION unittest)
 
 ### NOTE there's no WIP demos...
 ### add_custom_target( allwipdemos )

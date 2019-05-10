@@ -41,10 +41,7 @@ foreach (app ${CIRCUIT_DEMO_SRC_FILES})
 	add_executable ( ${exe} ${app} )
 	set( CIRCUITAPPS ${CIRCUITAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${CIRCUITLIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/circuit )
 endforeach()
-
-install(TARGETS circuit_tests DESTINATION unittest)
 
 add_custom_target( allcircuit )
 add_dependencies( allcircuit PALISADEcircuit ${CIRCUITAPPS} circuit_tests )

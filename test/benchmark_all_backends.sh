@@ -1,3 +1,4 @@
+
 smallbmargs="--benchmark_report_aggregates_only=true --benchmark_format=csv"
 largebmargs="--benchmark_repetitions=20 --benchmark_report_aggregates_only=true --benchmark_format=csv"
 
@@ -19,19 +20,19 @@ do
 	export PATH=bin/backend-$i/lib:third-party/lib:$PATH
 
 	echo "****************************"
-	echo Benchmarking MATHBACKEND $i
+	echo "Benchmarking MATHBACKEND $i"
 	echo "****************************"
 
 	for bm in BigIntegerMath NativeIntegerMath BigVectorMath NativeVectorMath NbTheory Lattice LatticeNative
 	do
 		echo $bm:
-		$BMDIR/${bm} ${smallbmargs} 
+		"$BMDIR/${bm}" "${smallbmargs}" 
 	done
 
 	for bm in Encoding Crypto SHE
 	do
 		echo $bm:
-		$BMDIR/${bm} ${largebmargs} 
+		"$BMDIR/${bm}" "${largebmargs}" 
 	done
 
 	echo "****************************"

@@ -42,10 +42,7 @@ foreach (app ${TRAPDOOR_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/trapdoor)
 	set( TRAPDOORAPPS ${TRAPDOORAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${TRAPDOORLIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/trapdoor )
 endforeach()
-
-install(TARGETS trapdoor_tests DESTINATION unittest)
 
 add_custom_target( alltrapdoordemos )
 add_dependencies( alltrapdoordemos ${TRAPDOORAPPS} )

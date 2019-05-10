@@ -42,10 +42,7 @@ foreach (app ${SIG_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/signature)
 	set( SIGAPPS ${SIGAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${SIGLIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/signature )
 endforeach()
-
-install(TARGETS signature_tests DESTINATION unittest)
 
 add_custom_target( allsignaturedemos )
 add_dependencies( allsignaturedemos ${SIGAPPS} )

@@ -42,10 +42,7 @@ foreach (app ${ABE_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/abe)
 	set( ABEAPPS ${ABEAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${ABELIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/abe )
 endforeach()
-
-install(TARGETS abe_tests DESTINATION unittest)
 
 add_custom_target( allabedemos )
 add_dependencies( allabedemos ${ABEAPPS} )

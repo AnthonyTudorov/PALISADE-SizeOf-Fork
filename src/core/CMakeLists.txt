@@ -43,10 +43,7 @@ foreach (app ${CORE_DEMO_SRC_FILES})
 	set_property(TARGET ${exe} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/demo/core)
 	set( COREAPPS ${COREAPPS} ${exe} )
 	target_link_libraries ( ${exe} ${CORELIBS} )
-	install ( TARGETS ${exe} DESTINATION demo/core )
 endforeach()
-
-install(TARGETS core_tests DESTINATION unittest)
 
 add_custom_target( allcoredemos )
 add_dependencies( allcoredemos ${COREAPPS} )
