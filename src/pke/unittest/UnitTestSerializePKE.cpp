@@ -25,14 +25,7 @@
  */
 
 #include "include/gtest/gtest.h"
-#include <iostream>
-
-#include "palisade.h"
-#include "cryptocontext.h"
-#include "math/nbtheory.h"
-#include "utils/utilities.h"
-#include "utils/parmfactory.h"
-#include "utils/serial.h"
+#include "UnitTestSer.h"
 
 #include "ltv-ser.h"
 #include "bgv-ser.h"
@@ -60,7 +53,7 @@ protected:
 	}
 };
 
-static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
+CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
 	PlaintextModulus modulusP(256);
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmsetName,
 			EncodingParams(new EncodingParamsImpl(modulusP,8)));
@@ -69,7 +62,7 @@ static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) 
 	return cc;
 }
 
-static CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
 	CryptoContext<DCRTPoly> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -85,46 +78,6 @@ TEST_F(UTPKESer, LTV_Context_Factory) {
 	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV5");
 	EXPECT_EQ(cc.get(), cc2.get()) << "Context mismatch";
 	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "Context count error";
-}
-
-template<typename T>
-void UnitTestContextWithSertype(CryptoContext<T> cc, SerType sertype, string msg) {
-
-	LPKeyPair<T> kp = cc->KeyGen();
-	try {
-		cc->EvalMultKeyGen(kp.secretKey);
-	} catch(...) {}
-	try {
-		cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
-	} catch(...) {}
-
-	stringstream s;
-	Serial::Serialize(cc, s, sertype);
-
-	CryptoContext<T> newcc;
-	Serial::Deserialize(newcc, s, sertype);
-
-	ASSERT_TRUE( newcc.get() != 0 ) << msg << " Deserialize failed";
-
-	EXPECT_EQ( *cc, *newcc ) << msg << " Mismatched context";
-
-	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << msg << " Scheme mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << msg << " Crypto parms mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << msg << " Encoding parms mismatch after ser/deser";
-	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << msg << " Enabled features mismatch after ser/deser";
-
-	s.str("");
-	s.clear();
-	Serial::Serialize(kp.publicKey, s, sertype);
-
-	LPPublicKey<T> newPub;
-	Serial::Deserialize(newPub, s, sertype);
-	ASSERT_TRUE( newPub.get() != 0 ) << msg << " Key deserialize failed";
-
-	EXPECT_EQ( *kp.publicKey, *newPub ) << msg << " Key mismatch";
-
-	CryptoContext<T> newccFromkey = newPub->GetCryptoContext();
-	EXPECT_EQ( *cc, *newccFromkey ) << msg << " Key deser has wrong context";
 }
 
 template<typename T>

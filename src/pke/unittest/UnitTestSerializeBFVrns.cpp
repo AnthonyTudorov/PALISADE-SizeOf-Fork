@@ -1,5 +1,5 @@
 /*
-* @file rationalct-ser.h - serialize rational ciphertext; include this in any app that needs to serialize them
+ * @file 
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -24,18 +24,43 @@
  *
  */
 
-#ifndef LBCRYPTO_CRYPTO_RATIONALCTSER_H
-#define LBCRYPTO_CRYPTO_RATIONALCTSER_H
+#include "include/gtest/gtest.h"
+#include "UnitTestSer.h"
 
-#include "palisade.h"
-#include "utils/serial.h"
+#include "bfvrns-ser.h"
 
-extern template class lbcrypto::RationalCiphertext<lbcrypto::Poly>;
-extern template class lbcrypto::RationalCiphertext<lbcrypto::NativePoly>;
-extern template class lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>;
+using namespace std;
+using namespace lbcrypto;
 
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::Poly>, lbcrypto::RationalCiphertext<lbcrypto::Poly>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::NativePoly>, lbcrypto::RationalCiphertext<lbcrypto::NativePoly>::SerializedVersion() );
-CEREAL_CLASS_VERSION( lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>, lbcrypto::RationalCiphertext<lbcrypto::DCRTPoly>::SerializedVersion() );
+// TODO: temporary fix until Windows serialization is fixed
+#if not defined(_WIN32) and not defined(_WIN64)
+
+class UTPKESer : public ::testing::Test {
+protected:
+	void SetUp() {
+	}
+
+	void TearDown() {
+		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextFactory<Poly>::ReleaseAllContexts();
+		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	}
+};
+
+extern CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits);
+
+template<typename T>
+void UnitTestContext(CryptoContext<T> cc) {
+	UnitTestContextWithSertype(cc, SerType::JSON, "json");
+	UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
+}
+
+TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
+	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
+	UnitTestContext<DCRTPoly>(cc);
+}
 
 #endif
