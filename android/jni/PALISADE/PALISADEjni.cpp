@@ -28,7 +28,10 @@
 #include "com_palisade_PALISADE.h"
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
+#include "pubkeylp-ser.h"
 
 using namespace lbcrypto;
 
@@ -88,7 +91,7 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PALISADE_loadcontext
     	return false;
 
     stringstream ss(sctx);
-    Serial::Deserialize(_cc, ss);
+    Serial::Deserialize(_cc, ss, SerType::BINARY);
     return _cc != 0;
 }
 
@@ -107,7 +110,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkeyctx
     stringstream ss(kctx);
 
     LPPublicKey<Poly> pubkey;
-    Serial::Deserialize(pubkey, ss);
+    Serial::Deserialize(pubkey, ss, SerType::BINARY);
 
     _pubKeys.push_back(pubkey);
     return _pubKeys.size() - 1;
@@ -128,7 +131,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkeyctx
     stringstream ss(kctx);
 
     LPPrivateKey<Poly> privkey;
-    Serial::Deserialize(privkey, ss);
+    Serial::Deserialize(privkey, ss, SerType::BINARY);
 
     _privateKeys.push_back(privkey);
     return _pubKeys.size() - 1;
@@ -160,7 +163,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
 	auto key = _pubKeys[pubkeyId];
 
 	stringstream ss;
-	Serial::Serialize(key,ss);
+	Serial::Serialize(key,ss, SerType::BINARY);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -191,7 +194,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprivkey
 	auto key = _privateKeys[prikeyId];
 
 	stringstream ss;
-	Serial::Serialize(key,ss);
+	Serial::Serialize(key,ss, SerType::BINARY);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -230,7 +233,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprekey
     stringstream ss(kctx);
 
     LPEvalKey<Poly> prekey;
-    Serial::Deserialize(prekey,ss);
+    Serial::Deserialize(prekey,ss, SerType::BINARY);
 
     _preKeys.push_back(prekey);
     return _preKeys.size() - 1;
@@ -251,7 +254,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprekey
 	auto key = _preKeys[kId];
 
 	stringstream ss;
-	Serial::Serialize(key,ss);
+	Serial::Serialize(key,ss, SerType::BINARY);
 
 	return StringToByteArray(env, ss.str());
 }
@@ -271,7 +274,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadct
     stringstream ss(kctx);
 
     Ciphertext<Poly> ct;
-    Serial::Deserialize(ct, ss);
+    Serial::Deserialize(ct, ss, SerType::BINARY);
 
     _ctexts.push_back(ct);
     return _ctexts.size() - 1;
@@ -291,7 +294,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serct
 	auto ct = _ctexts[ctId];
 
 	stringstream ss;
-	Serial::Serialize(ct,ss);
+	Serial::Serialize(ct,ss, SerType::BINARY);
 
 	return StringToByteArray(env, ss.str());
 }
