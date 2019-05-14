@@ -31,11 +31,117 @@ using namespace std;
 #include "palisade.h"
 
 #include "cryptocontexthelper.h"
+#include "utils/serialize-json.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
 
 using namespace lbcrypto;
+
+template<typename Element>
+void EncryptStream(
+		CryptoContext<Element> cc,
+		const LPPublicKey<Element> publicKey,
+		std::istream& instream,
+		std::ostream& outstream)
+{
+	bool padded = false;
+	Plaintext px;
+	size_t chunkSize = cc->GetRingDimension();
+	char *ptxt = new char[chunkSize];
+
+	while (instream.good()) {
+		instream.read(ptxt, chunkSize);
+		size_t nRead = instream.gcount();
+
+		if (nRead <= 0 && padded)
+			break;
+
+		px = cc->MakeStringPlaintext(std::string(ptxt,nRead));
+
+		if (nRead < chunkSize) {
+			padded = true;
+		}
+
+		Ciphertext<Element> ciphertext = cc->GetEncryptionAlgorithm()->Encrypt(publicKey, px->GetElement<Element>());
+		if (!ciphertext) {
+			break;
+		}
+		ciphertext->SetEncodingType( px->GetEncodingType() );
+
+		Serial::Serialize(ciphertext, outstream, SerType::JSON);
+	}
+
+	delete [] ptxt;
+	return;
+}
+
+template<typename Element>
+size_t DecryptStream(
+		CryptoContext<Element> cc,
+		const LPPrivateKey<Element> privateKey,
+		std::istream& instream,
+		std::ostream& outstream)
+{
+	size_t tot = 0;
+
+	bool firstTime = true;
+	Plaintext pte[2];
+	bool whichArray = false;
+
+	Ciphertext<Element> ct;
+	while( true ) {
+		try {
+			Serial::Deserialize(ct, instream, SerType::JSON);
+		}
+		catch( ... ) {
+			break;
+		}
+		if( ct ) {
+			if( ct->GetEncodingType() != String ) {
+				throw std::logic_error("Library can only stream string encodings");
+			}
+
+			pte[whichArray] = cc->GetPlaintextForDecrypt(ct->GetEncodingType(), cc->GetElementParams(), cc->GetEncodingParams());
+			DecryptResult res = cc->GetEncryptionAlgorithm()->Decrypt(privateKey, ct, &pte[whichArray]->GetElement<NativePoly>());
+			if( !res.isValid )
+				return tot;
+			tot += res.messageLength;
+
+			pte[whichArray]->Decode();
+
+			if( !firstTime ) {
+				outstream << pte[!whichArray]->GetStringValue();
+			}
+			firstTime = false;
+			whichArray = !whichArray;
+		}
+		else
+			return tot;
+	}
+
+	outstream << pte[!whichArray]->GetStringValue();
+
+	return tot;
+}
+
+template<typename Element>
+void ReEncryptStream(
+		CryptoContext<Element> cc,
+		const LPEvalKey<Element> evalKey,
+		std::istream& instream,
+		std::ostream& outstream,
+		const LPPublicKey<Element> publicKey = nullptr)
+{
+	Ciphertext<Element> ct;
+	while( true ) {
+		Serial::Deserialize(ct, instream, SerType::JSON);
+		if( ct ) {
+			Ciphertext<Element> reCt = cc->ReEncrypt(evalKey, ct, publicKey);
+			Serial::Serialize(reCt, outstream, SerType::JSON);
+		}
+	}
+}
 
 enum CmdMode { INTMODE, BYTEMODE } CommandMode = BYTEMODE;
 enum ElMode { POLY, DCRT } ElementMode = POLY;
@@ -83,7 +189,7 @@ reencrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 		return;
 	}
 
-	ctx->ReEncryptStream(evalKey, inCt, outCt);
+	ReEncryptStream(ctx, evalKey, inCt, outCt);
 
 	inCt.close();
 	outCt.close();
@@ -127,7 +233,7 @@ decrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	if( CommandMode == BYTEMODE ) {
-		ctx->DecryptStream(sk, inCt, outF);
+		DecryptStream(ctx, sk, inCt, outF);
 	}
 	else {
 		Ciphertext<Element> ct;
@@ -194,7 +300,7 @@ encrypter(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 	}
 
 	if( CommandMode == BYTEMODE ) {
-		ctx->EncryptStream(pk, inf, ctSer);
+		EncryptStream(ctx, pk, inf, ctSer);
 	}
 	else {
 		ctSer.close();
@@ -300,7 +406,7 @@ keymaker(CryptoContext<Element> ctx, string cmd, int argc, char *argv[]) {
 
 			ofstream emkeyfile(keyname + "EMK", std::ios::out|std::ios::binary);
 			if( emkeyfile.is_open() ) {
-				if( ctx->SerializeEvalMultKey(emkeyfile, SerType::BINARY) == false ) {
+				if( ctx->SerializeEvalMultKey(emkeyfile, SerType::JSON) == false ) {
 					cerr << "Error writing serialization of eval mult keys to " + keyname + "EMK" << endl;
 					return;
 				}
@@ -523,9 +629,9 @@ main( int argc, char *argv[] )
 			}
 
 			if( ElementMode == POLY )
-				result = ctx->DeserializeEvalMultKey(emkeys, SerType::BINARY);
+				result = ctx->DeserializeEvalMultKey(emkeys, SerType::JSON);
 			else if( ElementMode == DCRT )
-				result = dctx->DeserializeEvalMultKey(emkeys, SerType::BINARY);
+				result = dctx->DeserializeEvalMultKey(emkeys, SerType::JSON);
 
 			emkeys.close();
 

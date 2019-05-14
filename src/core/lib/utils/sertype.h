@@ -29,10 +29,19 @@
 
 namespace lbcrypto {
 
-enum SerType {
-	JSON,
-	BINARY
-};
+namespace SerType {
+	class SERJSON {
+//	public:
+//		int	dummy;
+	};
+	static SERJSON JSON;
+
+	class SERBINARY {
+//	public:
+//		int	dummy;
+	};
+	static SERBINARY BINARY;
+}
 
 }
 

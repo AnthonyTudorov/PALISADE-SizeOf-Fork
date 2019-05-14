@@ -312,7 +312,7 @@ namespace lbcrypto {
 			template <class Archive>
 			void save ( Archive & ar, std::uint32_t const version ) const
 			{
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			template <class Archive>
@@ -321,7 +321,7 @@ namespace lbcrypto {
 				if( version > SerializedVersion() ) {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 
 			    PrecomputeCRTTables();
 			}
@@ -425,13 +425,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsParamsGen"; }
@@ -490,13 +490,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsEncryption"; }
@@ -584,13 +584,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsSHE"; }
@@ -666,13 +666,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsPRE"; }
@@ -716,13 +716,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		    ar( ::cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsMultiparty"; }
@@ -749,13 +749,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsScheme"; }

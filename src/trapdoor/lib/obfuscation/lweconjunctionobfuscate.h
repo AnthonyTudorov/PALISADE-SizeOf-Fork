@@ -111,13 +111,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::make_nvp("s", m_patternString) );
+			ar( ::cereal::make_nvp("s", m_patternString) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-			ar( cereal::make_nvp("s", m_patternString) );
+			ar( ::cereal::make_nvp("s", m_patternString) );
 		}
 
 		std::string SerializedObjectName() const { return "ClearLWEConjunctionPattern"; }
@@ -321,19 +321,19 @@ namespace lbcrypto {
 			template <class Archive>
 			void save( Archive & ar, std::uint32_t const version ) const
 			{
-			    ar( cereal::base_class<ObfuscatedPattern<Element>>( this ) );
-			    ar( cereal::base_class<ConjunctionPattern<Element>>( this ) );
-				ar( cereal::make_nvp("l", m_length) );
-				ar( cereal::make_nvp("ep", m_elemParams) );
-				ar( cereal::make_nvp("rhf", m_rootHermiteFactor) );
-				ar( cereal::make_nvp("cs", m_chunkSize) );
-				ar( cereal::make_nvp("b", m_base) );
-				ar( cereal::make_nvp("sv", m_S_vec) );
-				ar( cereal::make_nvp("rv", m_R_vec) );
-				ar( cereal::make_nvp("sl", m_Sl) );
-				ar( cereal::make_nvp("rl", m_Rl) );
-				ar( cereal::make_nvp("pk", m_pk) );
-				ar( cereal::make_nvp("ek", m_ek) );
+			    ar( ::cereal::base_class<ObfuscatedPattern<Element>>( this ) );
+			    ar( ::cereal::base_class<ConjunctionPattern<Element>>( this ) );
+				ar( ::cereal::make_nvp("l", m_length) );
+				ar( ::cereal::make_nvp("ep", m_elemParams) );
+				ar( ::cereal::make_nvp("rhf", m_rootHermiteFactor) );
+				ar( ::cereal::make_nvp("cs", m_chunkSize) );
+				ar( ::cereal::make_nvp("b", m_base) );
+				ar( ::cereal::make_nvp("sv", m_S_vec) );
+				ar( ::cereal::make_nvp("rv", m_R_vec) );
+				ar( ::cereal::make_nvp("sl", m_Sl) );
+				ar( ::cereal::make_nvp("rl", m_Rl) );
+				ar( ::cereal::make_nvp("pk", m_pk) );
+				ar( ::cereal::make_nvp("ek", m_ek) );
 			}
 
 			template <class Archive>
@@ -342,19 +342,19 @@ namespace lbcrypto {
 				if( version > SerializedVersion() ) {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
-			    ar( cereal::base_class<ObfuscatedPattern<Element>>( this ) );
-			    ar( cereal::base_class<ConjunctionPattern<Element>>( this ) );
-				ar( cereal::make_nvp("l", m_length) );
-				ar( cereal::make_nvp("ep", m_elemParams) );
-				ar( cereal::make_nvp("rhf", m_rootHermiteFactor) );
-				ar( cereal::make_nvp("cs", m_chunkSize) );
-				ar( cereal::make_nvp("b", m_base) );
-				ar( cereal::make_nvp("sv", m_S_vec) );
-				ar( cereal::make_nvp("rv", m_R_vec) );
-				ar( cereal::make_nvp("sl", m_Sl) );
-				ar( cereal::make_nvp("rl", m_Rl) );
-				ar( cereal::make_nvp("pk", m_pk) );
-				ar( cereal::make_nvp("ek", m_ek) );
+			    ar( ::cereal::base_class<ObfuscatedPattern<Element>>( this ) );
+			    ar( ::cereal::base_class<ConjunctionPattern<Element>>( this ) );
+				ar( ::cereal::make_nvp("l", m_length) );
+				ar( ::cereal::make_nvp("ep", m_elemParams) );
+				ar( ::cereal::make_nvp("rhf", m_rootHermiteFactor) );
+				ar( ::cereal::make_nvp("cs", m_chunkSize) );
+				ar( ::cereal::make_nvp("b", m_base) );
+				ar( ::cereal::make_nvp("sv", m_S_vec) );
+				ar( ::cereal::make_nvp("rv", m_R_vec) );
+				ar( ::cereal::make_nvp("sl", m_Sl) );
+				ar( ::cereal::make_nvp("rl", m_Rl) );
+				ar( ::cereal::make_nvp("pk", m_pk) );
+				ar( ::cereal::make_nvp("ek", m_ek) );
 			}
 
 			std::string SerializedObjectName() const { return "ObfuscatedLWEConjunctionPattern"; }

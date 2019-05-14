@@ -33,6 +33,7 @@
 #include "palisade.h"
 #include "cryptocontextgen.h"
 #include "cryptocontextparametersets.h"
+#include "utils/serialize-json.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"

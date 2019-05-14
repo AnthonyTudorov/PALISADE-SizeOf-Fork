@@ -1295,7 +1295,7 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("v", m_value) );
+		ar( ::cereal::make_nvp("v", m_value) );
 	}
 
 	template <class Archive>
@@ -1304,7 +1304,7 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("v", m_value) );
+		ar( ::cereal::make_nvp("v", m_value) );
 	}
 
 	std::string SerializedObjectName() const { return "NativeInteger"; }

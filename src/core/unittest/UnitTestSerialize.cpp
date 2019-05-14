@@ -40,11 +40,11 @@
 #include "utils/parmfactory.h"
 #include "lattice/elemparamfactory.h"
 
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
+#include "utils/serialize-json.h"
 
 using namespace std;
 using namespace lbcrypto;
-
 
 template<typename T>
 void bigint(const string& msg) {

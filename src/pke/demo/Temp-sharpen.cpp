@@ -38,6 +38,7 @@
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
+#include "utils/serialize-binary.h"
 #include "bfvrns-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"

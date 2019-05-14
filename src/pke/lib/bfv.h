@@ -272,12 +272,12 @@ namespace lbcrypto {
 			template <class Archive>
 			void save ( Archive & ar, std::uint32_t const version ) const
 			{
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-				ar( cereal::make_nvp("d", m_delta) );
-				ar( cereal::make_nvp("bm", m_bigModulus) );
-				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
-				ar( cereal::make_nvp("bma", m_bigModulusArb) );
-				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( ::cereal::make_nvp("d", m_delta) );
+				ar( ::cereal::make_nvp("bm", m_bigModulus) );
+				ar( ::cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( ::cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( ::cereal::make_nvp("bra", m_bigRootOfUnityArb) );
 			}
 
 			template <class Archive>
@@ -286,12 +286,12 @@ namespace lbcrypto {
 				if( version > SerializedVersion() ) {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-				ar( cereal::make_nvp("d", m_delta) );
-				ar( cereal::make_nvp("bm", m_bigModulus) );
-				ar( cereal::make_nvp("br", m_bigRootOfUnity) );
-				ar( cereal::make_nvp("bma", m_bigModulusArb) );
-				ar( cereal::make_nvp("bra", m_bigRootOfUnityArb) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+				ar( ::cereal::make_nvp("d", m_delta) );
+				ar( ::cereal::make_nvp("bm", m_bigModulus) );
+				ar( ::cereal::make_nvp("br", m_bigRootOfUnity) );
+				ar( ::cereal::make_nvp("bma", m_bigModulusArb) );
+				ar( ::cereal::make_nvp("bra", m_bigRootOfUnityArb) );
 			}
 
 			std::string SerializedObjectName() const { return "BFVSchemeParameters"; }
@@ -352,13 +352,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVParamsGen"; }
@@ -432,13 +432,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVEncryption"; }
@@ -680,13 +680,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVSHE"; }
@@ -773,13 +773,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVPRE"; }
@@ -870,13 +870,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVMultiparty"; }
@@ -903,13 +903,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVScheme"; }

@@ -1071,9 +1071,9 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("v", m_vectors) );
-		ar( cereal::make_nvp("f", m_format) );
-		ar( cereal::make_nvp("p", m_params) );
+		ar( ::cereal::make_nvp("v", m_vectors) );
+		ar( ::cereal::make_nvp("f", m_format) );
+		ar( ::cereal::make_nvp("p", m_params) );
 	}
 
 	template <class Archive>
@@ -1082,9 +1082,9 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("v", m_vectors) );
-		ar( cereal::make_nvp("f", m_format) );
-		ar( cereal::make_nvp("p", m_params) );
+		ar( ::cereal::make_nvp("v", m_vectors) );
+		ar( ::cereal::make_nvp("f", m_format) );
+		ar( ::cereal::make_nvp("p", m_params) );
 	}
 
 	std::string SerializedObjectName() const { return "DCRTPoly"; }

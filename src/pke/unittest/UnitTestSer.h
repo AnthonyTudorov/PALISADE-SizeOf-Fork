@@ -31,13 +31,15 @@
 #include "math/nbtheory.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
-#include "utils/serial.h"
+#include "utils/serialize-json.h"
+#include "utils/serialize-binary.h"
+#include "cryptocontext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-template<typename T>
-void UnitTestContextWithSertype(CryptoContext<T> cc, SerType sertype, string msg) {
+template<typename T, typename ST>
+void UnitTestContextWithSertype(CryptoContext<T> cc, const ST& sertype, string msg) {
 
 	LPKeyPair<T> kp = cc->KeyGen();
 	try {

@@ -253,7 +253,9 @@ add_custom_target(
 )
 
 add_library(tcmalloc SHARED IMPORTED GLOBAL)
-set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal.so)
+set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_SHARED_LIBRARY_SUFFIX})
+add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
+set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if(MINGW)
 	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static)

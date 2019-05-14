@@ -25,7 +25,10 @@
  */
 
 #include "glmfunctions.h"
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
+#include "pubkeylp-ser.h"
+#include "ciphertext-ser.h"
+#include "cryptocontext-ser.h"
 
 #ifdef MEASURE_TIMING
 timingParams timingClient;

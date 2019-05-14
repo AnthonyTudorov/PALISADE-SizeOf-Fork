@@ -32,7 +32,6 @@
 
 #include "cryptocontext.h"
 #include "utils/inttypes.h"
-#include "utils/serial.h"
 #include <iostream>
 #include <string>
 #include <map>
@@ -445,26 +444,26 @@ generateTimings(TimingStatisticsMap& stats,
 	if( verbose )
 		cerr << "Results:" << endl;
 
-	string str;
-
-#define PSSIZE(msg,x) { \
-		string str; \
-		str = Serial::SerializeToString(x); \
-		cout << (msg) << str.length() << endl; \
-}
-
-	if( PrintSizes ) {
-		cout << endl;
-		cout << "Plaintext: array of " << cc->GetRingDimension() << " "
-				<< (sizeof(int64_t) * 8) << " bit integers: "
-				<< cc->GetRingDimension()*sizeof(int64_t) << endl;
-
-		//cout << "Plaintext size: " << sizeof( *inputs[0] ) << endl;
-		PSSIZE("Public key size: ", kp.publicKey );
-		PSSIZE("Private key size: ", kp.secretKey );
-		PSSIZE("Ciphertext size : ", crypt );
-		if( rekey1 ) PSSIZE("PRE Key 1 size: ", rekey1 );
-	}
+//	string str;
+//
+//#define PSSIZE(msg,x) { \
+//		string str; \
+//		str = Serial::SerializeToString(x); \
+//		cout << (msg) << str.length() << endl; \
+//}
+//
+//	if( PrintSizes ) {
+//		cout << endl;
+//		cout << "Plaintext: array of " << cc->GetRingDimension() << " "
+//				<< (sizeof(int64_t) * 8) << " bit integers: "
+//				<< cc->GetRingDimension()*sizeof(int64_t) << endl;
+//
+//		//cout << "Plaintext size: " << sizeof( *inputs[0] ) << endl;
+//		PSSIZE("Public key size: ", kp.publicKey );
+//		PSSIZE("Private key size: ", kp.secretKey );
+//		PSSIZE("Ciphertext size : ", crypt );
+//		if( rekey1 ) PSSIZE("PRE Key 1 size: ", rekey1 );
+//	}
 }
 
 template

@@ -1,5 +1,5 @@
 /**
- * @file serial.h Serialization utilities.
+ * @file serialize-json.h - include to enable json serialization
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -23,8 +23,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */ 
-#ifndef LBCRYPTO_SERIAL_H
-#define LBCRYPTO_SERIAL_H
+#ifndef LBCRYPTO_SERIALIZE_JSON_H
+#define LBCRYPTO_SERIALIZE_JSON_H
 
 #include <vector>
 #include <unordered_map>
@@ -55,6 +55,7 @@
 #endif
 
 #include "cereal/cereal.hpp"
+#include "cereal/archives/json.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/types/map.hpp"
@@ -71,90 +72,64 @@
 #pragma clang diagnostic pop
 #endif
 
-#include "utils/sertype.h"
+#include "utils/serial.h"
 
 namespace lbcrypto {
 
 template<typename Element>
 class CryptoContextImpl;
 
-namespace Serial
-{
-	/**
-	 * SerializeToString - serialize the object to a JSON string and return the string
-	 * @param t - any serializable object
-	 * @return JSON string
-	 */
-	template <typename T>
-	inline static std::string SerializeToString(const std::shared_ptr<T> t) {
-		std::stringstream s;
-		{
-			extern void Serialize(decltype(t), std::ostream&, SerType::SERJSON);
-			Serialize(t, s, SerType::JSON);
-		}
-		return s.str();
+namespace Serial {
+
+/**
+ * Serialize an object
+ * @param obj - object to serialize
+ * @param stream - Stream to serialize to
+ * @param sertype - type of serialization; default is BINARY
+ */
+template<typename T>
+inline static void
+Serialize(const T& obj, std::ostream& stream, const SerType::SERJSON& ser) {
+	cereal::JSONOutputArchive archive( stream );
+	archive( obj );
+}
+
+/**
+ * Deserialize an object
+ * @param obj - object to deserialize into
+ * @param stream - Stream to deserialize from
+ * @param sertype - type of serialization; default is BINARY
+ */
+template<typename T>
+inline static void
+Deserialize(T& obj, std::istream& stream, const SerType::SERJSON& ser) {
+	cereal::JSONInputArchive archive( stream );
+	archive( obj );
+}
+
+template <typename T>
+inline static bool SerializeToFile(std::string filename, const T& obj, const SerType::SERJSON& sertype) {
+	std::ofstream file(filename, std::ios::out|std::ios::binary);
+	if( file.is_open() ) {
+		Serial::Serialize(obj, file, sertype);
+		file.close();
+		return true;
 	}
+	return false;
+}
 
-	/**
-	 * SerializeToString - serialize the object to a JSON string and return the string
-	 * @param t - any serializable object
-	 * @return JSON string
-	 */
-	template <typename T>
-	inline static std::string SerializeToString(const T& t) {
-		std::stringstream s;
-		{
-			extern void Serialize(decltype(t), std::ostream&, SerType::SERJSON);
-			Serialize(t, s, SerType::JSON);
-		}
-		return s.str();
+template <typename T>
+inline static bool DeserializeFromFile(std::string filename, T& obj, const SerType::SERJSON& sertype) {
+	std::ifstream file(filename, std::ios::in|std::ios::binary);
+	if( file.is_open() ) {
+		Serial::Deserialize(obj, file, sertype);
+		file.close();
+		return true;
 	}
-
-	/**
-	 * Deserialize a CryptoContext as a special case
-	 * @param obj - CryptoContext to deserialize into
-	 * @param stream - Stream to deserialize from
-	 * @param sertype - binary serialization
-	 */
-	template<typename T>
-	static void
-	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, const SerType::SERBINARY& st);
-
-	/**
-	 * Deserialize a CryptoContext as a special case
-	 * @param obj - CryptoContext to deserialize into
-	 * @param stream - Stream to deserialize from
-	 * @param sertype - JSON serialization
-	 */
-	template<typename T>
-	static void
-	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, const SerType::SERJSON& ser);
-
-	/**
-	 * Serialize an object; uses the default serialization of BINARY
-	 * @param obj - object to serialize
-	 * @param stream - Stream to serialize to
-	 */
-	template<typename T>
-	inline static void
-	Serialize(const T& t, std::ostream& stream) {
-		extern void Serialize(decltype(t), std::ostream&, const SerType::SERBINARY&);
-		Serialize(t, stream, SerType::BINARY);
-	}
-
-	/**
-	 * Deserialize an object; uses the default serialization of BINARY
-	 * @param obj - object to deserialize into
-	 * @param stream - Stream to deserialize from
-	 */
-	template<typename T>
-	inline static void
-	Deserialize(T& t, std::istream& stream) {
-		extern void Serialize(decltype(t), std::ostream&, const SerType::SERBINARY&);
-		Serialize(t, stream, SerType::BINARY);
-	}
+	return false;
 }
 
 }
 
+}
 #endif

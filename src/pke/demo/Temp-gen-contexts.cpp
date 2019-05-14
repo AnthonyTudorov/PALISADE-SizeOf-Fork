@@ -31,7 +31,7 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
-#include "utils/serial.h"
+#include "utils/serialize-json.h"
 #include "cryptocontext-ser.h"
 
 using namespace std;

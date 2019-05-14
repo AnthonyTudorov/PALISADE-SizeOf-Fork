@@ -300,7 +300,8 @@ public:
 	 * @param id for key to serialize - if empty string, serialize them all
 	 * @return true on success
 	 */
-	static bool SerializeEvalMultKey(std::ostream& ser, SerType sertype, string id = "");
+	template<typename ST>
+	static bool SerializeEvalMultKey(std::ostream& ser, const ST&, string id = "");
 
 	/**
 	 * SerializeEvalMultKey for all EvalMultKeys made in a given context
@@ -310,7 +311,8 @@ public:
 	 * @param sertype - type of serialization
 	 * @return true on success (false on failure or no keys found)
 	 */
-	static bool SerializeEvalMultKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc);
+	template<typename ST>
+	static bool SerializeEvalMultKey(std::ostream& ser, const ST&, const CryptoContext<Element> cc);
 
 	/**
 	 * DeserializeEvalMultKey deserialize all keys in the serialization
@@ -320,7 +322,8 @@ public:
 	 * @param serObj - stream with a serialization
 	 * @return true on success
 	 */
-	static bool DeserializeEvalMultKey(std::istream& ser, SerType sertype);
+	template<typename ST>
+	static bool DeserializeEvalMultKey(std::istream& ser, const ST&);
 
 	/**
 	 * ClearEvalMultKeys - flush EvalMultKey cache
@@ -358,7 +361,8 @@ public:
 	 * @param id - key to serialize; empty string means all keys
 	 * @return true on success
 	 */
-	static bool SerializeEvalSumKey(std::ostream& ser, SerType sertype, string id = "");
+	template<typename ST>
+	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, string id = "");
 
 	/**
 	 * SerializeEvalSumKey for all of the EvalSum keys for a context
@@ -368,7 +372,8 @@ public:
 	 * @param cc - context
 	 * @return true on success
 	 */
-	static bool SerializeEvalSumKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc);
+	template<typename ST>
+	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc);
 
 	/**
 	 * DeserializeEvalSumKey deserialize all keys in the serialization
@@ -379,7 +384,8 @@ public:
 	 * @param sertype - type of serialization
 	 * @return true on success
 	 */
-	static bool DeserializeEvalSumKey(std::istream& ser, SerType sertype);
+	template<typename ST>
+	static bool DeserializeEvalSumKey(std::istream& ser, const ST& sertype);
 
 	/**
 	 * ClearEvalSumKeys - flush EvalSumKey cache
@@ -417,7 +423,8 @@ public:
 	 * @param id - key to serialize; empty string means all keys
 	 * @return true on success
 	 */
-	static bool SerializeEvalAutomorphismKey(std::ostream& ser, SerType sertype, string id = "");
+	template<typename ST>
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, string id = "");
 
 	/**
 	 * SerializeEvalAutomorphismKey for all of the EvalAuto keys for a context
@@ -427,7 +434,8 @@ public:
 	 * @param cc - context
 	 * @return true on success
 	 */
-	static bool SerializeEvalAutomorphismKey(std::ostream& ser, SerType sertype, const CryptoContext<Element> cc);
+	template<typename ST>
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc);
 
 	/**
 	 * DeserializeEvalAutomorphismKey deserialize all keys in the serialization
@@ -438,7 +446,8 @@ public:
 	 * @param sertype - type of serialization
 	 * @return true on success
 	 */
-	static bool DeserializeEvalAutomorphismKey(std::istream& ser, SerType sertype);
+	template<typename ST>
+	static bool DeserializeEvalAutomorphismKey(std::istream& ser, const ST& sertype);
 
 	/**
 	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache
@@ -958,7 +967,7 @@ public:
 	void EncryptStream(
 		const LPPublicKey<Element> publicKey,
 		std::istream& instream,
-		std::ostream& outstream) const;
+		std::ostream& outstream) const __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	// PLAINTEXT FACTORY METHODS
 	// FIXME to be deprecated in 2.0
@@ -1041,7 +1050,6 @@ public:
 		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value, value2 );
 	}
 
-private:
 	static Plaintext
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> evp, EncodingParams ep) {
 		shared_ptr<typename NativePoly::Params> vp(
@@ -1302,7 +1310,7 @@ public:
 	size_t DecryptStream(
 		const LPPrivateKey<Element> privateKey,
 		std::istream& instream,
-		std::ostream& outstream);
+		std::ostream& outstream) __attribute__ ((deprecated("serialization changed, see wiki for details")));
 
 	/**
 	* ReEncrypt - Proxy Re Encryption mechanism for PALISADE
@@ -1344,7 +1352,8 @@ public:
 		const LPEvalKey<Element> evalKey,
 		std::istream& instream,
 		std::ostream& outstream,
-		const LPPublicKey<Element> publicKey = nullptr);
+		const LPPublicKey<Element> publicKey = nullptr) __attribute__ ((deprecated("serialization changed, see wiki for details")));
+
 	/**
 	 * EvalAdd - PALISADE EvalAdd method for a pair of ciphertexts
 	 * @param ct1
@@ -2126,8 +2135,8 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("cc", params) );
-		ar( cereal::make_nvp("kt", scheme) );
+		ar( ::cereal::make_nvp("cc", params) );
+		ar( ::cereal::make_nvp("kt", scheme) );
 	}
 
 	template <class Archive>
@@ -2136,8 +2145,8 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("cc", params) );
-		ar( cereal::make_nvp("kt", scheme) );
+		ar( ::cereal::make_nvp("cc", params) );
+		ar( ::cereal::make_nvp("kt", scheme) );
 
 		// NOTE: a pointer to this object will be wrapped in a shared_ptr, and is a "CryptoContext".
 		// PALISADE relies on the notion that identical CryptoContextImpls are not duplicated in memory
@@ -2208,8 +2217,8 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("cc", context) );
-		ar( cereal::make_nvp("kt", keyTag) );
+		ar( ::cereal::make_nvp("cc", context) );
+		ar( ::cereal::make_nvp("kt", keyTag) );
 	}
 
 	template <class Archive>
@@ -2218,8 +2227,8 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("cc", context) );
-		ar( cereal::make_nvp("kt", keyTag) );
+		ar( ::cereal::make_nvp("cc", context) );
+		ar( ::cereal::make_nvp("kt", keyTag) );
 
 		context = CryptoContextFactory<Element>::GetContext(context->GetCryptoParameters(),context->GetEncryptionAlgorithm());
 	}

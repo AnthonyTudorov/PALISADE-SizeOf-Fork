@@ -37,7 +37,7 @@
 #include <algorithm>
 #include "obfuscation/lweconjunctionobfuscate.h"
 #include "utils/debug.h"
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
 
 using namespace lbcrypto;
 
@@ -303,13 +303,13 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size)+".serial";
-  Serial::SerializeToFile(clearFileName, clearPattern);
+  Serial::SerializeToFile(clearFileName, clearPattern, SerType::BINARY);
 
   if (verify_flag) { //verify the serialization
 
     ClearLWEConjunctionPattern<DCRTPoly> testClearPattern("");
   
-    Serial::DeserializeFromFile(clearFileName, testClearPattern);
+    Serial::DeserializeFromFile(clearFileName, testClearPattern, SerType::BINARY);
 
     if (clearPattern.GetPatternString() == testClearPattern.GetPatternString()) {
       std::cout<< "Clear Pattern Serialization succeed"<<std::endl;
@@ -387,7 +387,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
   DEBUG("Serializing Obfuscation" );
   string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size)+".serial";
   TIC(t1);
-  Serial::SerializeToFile(obfFileName,obfuscatedPattern);
+  Serial::SerializeToFile(obfFileName,obfuscatedPattern, SerType::BINARY);
   timeSerial = TOC(t1);
   PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
@@ -397,7 +397,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size,
     std::cout<<"Verifying Serialization"<<std::endl;
     ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
-	Serial::DeserializeFromFile(obfFileName, testObfuscatedPattern);
+	Serial::DeserializeFromFile(obfFileName, testObfuscatedPattern, SerType::BINARY);
     
     if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
       std::cout<<"Serialization did verify"<<std::endl;
@@ -440,9 +440,9 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern("");
   string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size)+".serial";
 
-  DEBUG("reading clearPattern from file: "<<clearFileName<<".json");
+  DEBUG("reading clearPattern from file: "<<clearFileName<<".serial");
   TIC(t1);
-  Serial::DeserializeFromFile(clearFileName, clearPattern);
+  Serial::DeserializeFromFile(clearFileName, clearPattern, SerType::BINARY);
   timeRead = TOC(t1);
   PROFILELOG("Read time: " << "\t" << timeRead << " ms");
 
@@ -456,7 +456,7 @@ bool EvaluateConjObfs(bool dbg_flag, int n, usint pattern_size, usint n_evals, b
     std::cout<<"Deserializing Obfuscated Pattern from fileset "<<obfFileName<<std::endl;
   }
   TIC(t1);
-  Serial::DeserializeFromFile(obfFileName, obfuscatedPattern);
+  Serial::DeserializeFromFile(obfFileName, obfuscatedPattern, SerType::BINARY);
   timeRead = TOC(t1);
   PROFILELOG("Done, Read time: " << "\t" << timeRead << " ms");
 

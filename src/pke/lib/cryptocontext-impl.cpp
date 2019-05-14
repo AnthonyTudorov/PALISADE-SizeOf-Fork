@@ -25,6 +25,7 @@
  */
 
 #include "cryptocontext.cpp"
+#include "cryptocontextfactory.cpp"
 
 namespace lbcrypto {
 template class CryptoContextFactory<Poly>;
@@ -38,12 +39,5 @@ template class CryptoObject<NativePoly>;
 template class CryptoContextFactory<DCRTPoly>;
 template class CryptoContextImpl<DCRTPoly>;
 template class CryptoObject<DCRTPoly>;
-
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<Poly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<NativePoly>>& obj, std::istream& stream, SerType sertype);
-template void
-Serial::Deserialize(std::shared_ptr<CryptoContextImpl<DCRTPoly>>& obj, std::istream& stream, SerType sertype);
 
 }

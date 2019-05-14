@@ -647,9 +647,9 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("d", data) );
-		ar( cereal::make_nvp("r", rows) );
-		ar( cereal::make_nvp("c", cols) );
+		ar( ::cereal::make_nvp("d", data) );
+		ar( ::cereal::make_nvp("r", rows) );
+		ar( ::cereal::make_nvp("c", cols) );
 	}
 
 	template <class Archive>
@@ -658,9 +658,9 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("d", data) );
-		ar( cereal::make_nvp("r", rows) );
-		ar( cereal::make_nvp("c", cols) );
+		ar( ::cereal::make_nvp("d", data) );
+		ar( ::cereal::make_nvp("r", rows) );
+		ar( ::cereal::make_nvp("c", cols) );
 
 		// users will need to SetAllocator for any newly deserialized matrix
 	}

@@ -37,7 +37,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 #include "utils/parmfactory.h"
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
 #include "lattice/elemparamfactory.h"
 #include "lattice/trapdoor.h"
 

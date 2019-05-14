@@ -28,6 +28,7 @@
 #define LBCRYPTO_CRYPTO_RATIONALCTSER_H
 
 #include "palisade.h"
+#include "rationalct-impl.cpp"
 #include "utils/serial.h"
 
 extern template class lbcrypto::RationalCiphertext<lbcrypto::Poly>;

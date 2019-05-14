@@ -177,7 +177,7 @@ namespace lbcrypto {
 			template <class Archive>
 			void save ( Archive & ar, std::uint32_t const version ) const
 			{
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			template <class Archive>
@@ -186,7 +186,7 @@ namespace lbcrypto {
 				if( version > SerializedVersion() ) {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			std::string SerializedObjectName() const { return "BGVSchemeParameters"; }
@@ -263,13 +263,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVEncryption"; }
@@ -502,13 +502,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVSHE"; }
@@ -605,13 +605,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVPRE"; }
@@ -698,13 +698,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVMultiparty"; }
@@ -800,13 +800,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save ( Archive & ar ) const
 		{
-		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load ( Archive & ar )
 		{
-		    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVLeveledSHE"; }
@@ -833,13 +833,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BGVScheme"; }

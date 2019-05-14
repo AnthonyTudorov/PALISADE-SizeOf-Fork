@@ -97,7 +97,8 @@ TEST_F(UTPKESer, BGV_DCRTPoly_Serial) {
 }
 
 // USE BGV AS A REPRESENTITIVE CONTEXT
-void Test_keys_and_ciphertext(SerType sertype)
+template<typename ST>
+void Test_keys_and_ciphertext(const ST& sertype)
 {
 	bool dbg_flag = false;
 

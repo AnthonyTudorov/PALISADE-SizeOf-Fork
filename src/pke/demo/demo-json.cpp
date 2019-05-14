@@ -38,6 +38,7 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
+#include "utils/serialize-json.h"
 #include "bfv-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"

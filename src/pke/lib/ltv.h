@@ -159,13 +159,13 @@ public:
 	template <class Archive>
 	void save ( Archive & ar ) const
 	{
-	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load ( Archive & ar )
 	{
-	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVSchemeParameters"; }
@@ -203,13 +203,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVParamsGen"; }
@@ -289,13 +289,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVEncryption"; }
@@ -351,13 +351,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPPREAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVPRE"; }
@@ -450,13 +450,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVMultiparty"; }
@@ -705,13 +705,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVSHE"; }
@@ -799,13 +799,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
+	    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVLeveledSHE"; }
@@ -852,13 +852,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "LTVScheme"; }

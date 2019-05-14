@@ -7,7 +7,9 @@
 
 #include "palisade.h"
 #include "cryptocontext.h"
-#include "utils/serial.h"
+#include "utils/serialize-binary.h"
+#include "utils/serialize-json.h"
+#include "ciphertext-ser.h"
 using namespace lbcrypto;
 
 class Foo {
@@ -157,7 +159,7 @@ public:
 	template <class Archive>
 	void serialize( Archive & ar )
 	{
-		ar( cereal::base_class<Base>(this), CEREAL_NVP(x) );
+		ar( ::cereal::base_class<Base>(this), CEREAL_NVP(x) );
 	}
 };
 
@@ -174,7 +176,7 @@ public:
 	template <class Archive>
 	void serialize( Archive & ar )
 	{
-		ar( cereal::base_class<Base>(this), CEREAL_NVP(y) );
+		ar( ::cereal::base_class<Base>(this), CEREAL_NVP(y) );
 	}
 };
 
@@ -278,22 +280,22 @@ main()
 		stringstream ss;
 		{
 			cereal::JSONOutputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", xxx) );
+			archive( ::cereal::make_nvp("Foo", xxx) );
 		}
 		{
 			cereal::JSONInputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", yyy) );
+			archive( ::cereal::make_nvp("Foo", yyy) );
 		}
 		cout << (xxx == yyy ? "yes" : "no") << endl;
 
 		ss.str("");
 		{
 			cereal::PortableBinaryOutputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", xxx) );
+			archive( ::cereal::make_nvp("Foo", xxx) );
 		}
 		{
 			cereal::PortableBinaryInputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", zzz) );
+			archive( ::cereal::make_nvp("Foo", zzz) );
 		}
 		cout << (xxx == zzz ? "yes" : "no") << endl << endl;
 

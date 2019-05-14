@@ -32,9 +32,9 @@
 #include <iostream>
 
 #include "encodingparams.h"
-#include "../utils/inttypes.h"
-#include "../math/backend.h"
-#include "../lattice/backend.h"
+#include "utils/inttypes.h"
+#include "math/backend.h"
+#include "lattice/backend.h"
 
 using std::shared_ptr;
 

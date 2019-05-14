@@ -259,10 +259,10 @@ class CiphertextImpl;
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( cereal::make_nvp("v", m_elements) );
-			ar( cereal::make_nvp("d", m_depth) );
-			ar( cereal::make_nvp("e", encodingType) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( ::cereal::make_nvp("v", m_elements) );
+			ar( ::cereal::make_nvp("d", m_depth) );
+			ar( ::cereal::make_nvp("e", encodingType) );
 		}
 
 		template <class Archive>
@@ -271,10 +271,10 @@ class CiphertextImpl;
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + to_string(version) + " is from a later version of the library");
 			}
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( cereal::make_nvp("v", m_elements) );
-			ar( cereal::make_nvp("d", m_depth) );
-			ar( cereal::make_nvp("e", encodingType) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( ::cereal::make_nvp("v", m_elements) );
+			ar( ::cereal::make_nvp("d", m_depth) );
+			ar( ::cereal::make_nvp("e", encodingType) );
 		}
 
 		std::string SerializedObjectName() const { return "Ciphertext"; }
