@@ -348,20 +348,6 @@ namespace lbcrypto {
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const;
 
 		virtual ~LPAlgorithmParamsGenBFV() {}
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVParamsGen"; }
 	};
 
 	/**
@@ -428,20 +414,6 @@ namespace lbcrypto {
 		* @return key pair including the private and public key
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVEncryption"; }
 	};
 
 	/**
@@ -676,20 +648,6 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBFV::EvalAutomorphismKeyGen is not implemented for BFV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVSHE"; }
 	};
 
 	/**
@@ -769,22 +727,7 @@ namespace lbcrypto {
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVPRE"; }
 	};
-
 
 
 	/**
@@ -866,20 +809,6 @@ namespace lbcrypto {
 		 */
 		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVMultiparty"; }
 	};
 
 

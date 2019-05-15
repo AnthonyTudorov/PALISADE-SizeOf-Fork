@@ -163,20 +163,6 @@ public:
 
 		return kp;
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "NullEncryption"; }
 };
 
 
@@ -229,20 +215,6 @@ public:
 		Ciphertext<Element> newCiphertext( new CiphertextImpl<Element>(*ciphertext) );
 		return newCiphertext;
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "NullPRE"; }
 };
 
 	/**
@@ -358,20 +330,6 @@ public:
 		*plaintext = b.DecryptionCRTInterpolate(ptm);
 		return DecryptResult(plaintext->GetLength());
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "NullMultiparty"; }
 };
 
 /**
@@ -445,20 +403,6 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
 			throw std::logic_error("CanRingReduce not implemented for Null");
 		}
-
-		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version ) const
-		{
-		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version )
-		{
-		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "NullLeveledSHE"; }
 };
 
 template <class Element>
@@ -786,21 +730,6 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 			return evalKeys;
 		}
 
-
-		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version ) const
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version )
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "NullSHE"; }
-
 	private:
 		typename Element::PolyType ElementNullSchemeMultiply(const typename Element::PolyType& c1, const typename Element::PolyType& c2,
 				const BigInteger& ptmod) const {
@@ -877,20 +806,6 @@ public:
 		int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const {
 		return true;
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( ::cereal::base_class<LPParameterGenerationAlgorithm<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "NullParamsGen"; }
 };
 
 

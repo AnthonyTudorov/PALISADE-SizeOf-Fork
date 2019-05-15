@@ -259,20 +259,6 @@ namespace lbcrypto {
 		* @return KeyPair containting private key and public key.
 		*/
 		LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false);
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPEncryptionAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BGVEncryption"; }
 	};
 
 	/**
@@ -498,20 +484,6 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBGV::EvalAutomorphismKeyGen is not implemented for BGV SHE Scheme.";
 			throw std::runtime_error(errMsg);
 		}
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPSHEAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BGVSHE"; }
 	};
 
 	/**
@@ -601,20 +573,6 @@ namespace lbcrypto {
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPPREAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BGVPRE"; }
 	};
 
 	/**
@@ -694,20 +652,6 @@ namespace lbcrypto {
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BGVMultiparty"; }
 	};
 
 
@@ -796,20 +740,6 @@ namespace lbcrypto {
 			std::string errMsg = "LPAlgorithmSHEBGV::CanRingReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( ::cereal::base_class<LPLeveledSHEAlgorithm<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BGVLeveledSHE"; }
 	};
 
 

@@ -321,6 +321,7 @@ private:
 		for( size_t i=0; i < m_parms.size(); i++ ) {
 			out << "   " << i << ":" << *m_parms[i] << std::endl;
 		}
+		out << "OriginalModulus " << originalModulus << std::endl;
 		return out;
 	}
 
