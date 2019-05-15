@@ -67,8 +67,6 @@
 #pragma clang diagnostic pop
 #endif
 
-#include "utils/sertype.h"
-
 namespace lbcrypto {
 
 using Serialized = void *;

@@ -444,6 +444,7 @@ generateTimings(TimingStatisticsMap& stats,
 	if( verbose )
 		cerr << "Results:" << endl;
 
+/***********************************************************
 //	string str;
 //
 //#define PSSIZE(msg,x) { \
@@ -464,6 +465,7 @@ generateTimings(TimingStatisticsMap& stats,
 //		PSSIZE("Ciphertext size : ", crypt );
 //		if( rekey1 ) PSSIZE("PRE Key 1 size: ", rekey1 );
 //	}
+***********************************************************/
 }
 
 template
