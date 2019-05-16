@@ -261,8 +261,8 @@ public:
 				return false;
 		}
 
-		if (originalModulus != dcrtParams->originalModulus)
-			return false;
+//		if (originalModulus != dcrtParams->originalModulus)
+//			return false;
 		
 		return true;
 	}
