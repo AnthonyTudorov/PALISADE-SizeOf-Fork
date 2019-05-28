@@ -56,6 +56,11 @@ endif()
 
 project (PALISADE C CXX)
 
+set(PALISADE_VERSION_MAJOR 1)
+set(PALISADE_VERSION_MINOR 6)
+set(PALISADE_VERSION_PATCH 0)
+set(PALISADE_VERSION ${PALISADE_VERSION_MAJOR}.${PALISADE_VERSION_MINOR}.${PALISADE_VERSION_PATCH})
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # require at least gcc 6.1
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.1)
@@ -97,7 +102,7 @@ if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-set(COMPILEFLAGS "-g -Wall -Werror -O3")
+set(COMPILEFLAGS "-g -Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
@@ -124,7 +129,7 @@ find_package (Doxygen REQUIRED dot)
 if (DOXYGEN_FOUND)
 
     add_custom_target( apidocs 
-        COMMAND ${DOXYGEN_EXECUTABLE} lbcrypto-doxy-config
+        COMMAND sh -c "( cat ${CMAKE_CURRENT_SOURCE_DIR}/lbcrypto-doxy-config && echo PROJECT_NUMBER=${PALISADE_VERSION} ) | ${DOXYGEN_EXECUTABLE} -"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM )

@@ -28,12 +28,15 @@
 #define SRC_VERSION_H_
 
 #include <string>
-#define PALISADE_VERSION "v1.5.0"
+
+// version string is passed as a preprocessor define, which gets macro'd up into a string
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
 
 /**
- * Returns PALISADE Version string
+ * GetPALISADEVersion - Returns PALISADE Version string
  * @return
  */
-inline std::string GetPALISADEVersion() { return PALISADE_VERSION; }
+inline std::string GetPALISADEVersion() { return STR(PALISADE_VERSION); }
 
 #endif /* SRC_VERSION_H_ */

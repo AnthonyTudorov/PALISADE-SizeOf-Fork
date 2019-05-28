@@ -72,6 +72,3 @@ Notes, and remaining things to do:
 If you need to do this, remove everything under build/src/core
 
 2. At the moment we do NOT include the following in the new cmake: circuit
-
-3. There needs to be a better way to manage version numbering, so that we don't need to edit five
-different files to make this stuff work.
