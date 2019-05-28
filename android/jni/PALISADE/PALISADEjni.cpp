@@ -27,19 +27,19 @@
 
 #include "com_palisade_PALISADE.h"
 #include "palisade.h"
-#include "cryptocontext.h"
+#include "cryptocontexthelper.h"
 #include "utils/serialize-binary.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
 #include "pubkeylp-ser.h"
+#include "bfvrns-ser.h"
 
 using namespace lbcrypto;
 
-CryptoContext<Poly> _cc;
-vector<Ciphertext<Poly>>	_ctexts;
-vector<LPPublicKey<Poly>>	_pubKeys;
-vector<LPPrivateKey<Poly>>	_privateKeys;
-vector<LPEvalKey<Poly>>		_preKeys;
+vector<Ciphertext<DCRTPoly>>	_ctexts;
+vector<LPPublicKey<DCRTPoly>>	_pubKeys;
+vector<LPPrivateKey<DCRTPoly>>	_privateKeys;
+vector<LPEvalKey<DCRTPoly>>		_preKeys;
 
 static bool ByteArrayToString(JNIEnv *env, jbyteArray bytes, string *str) {
 	// convert byte array into a std::string
@@ -91,8 +91,9 @@ JNIEXPORT jboolean JNICALL Java_com_palisade_PALISADE_loadcontext
     	return false;
 
     stringstream ss(sctx);
-    Serial::Deserialize(_cc, ss, SerType::BINARY);
-    return _cc != 0;
+    CryptoContext<DCRTPoly> cc;
+    Serial::Deserialize(cc, ss, SerType::BINARY);
+    return CryptoContextFactory<DCRTPoly>::GetContextCount() == 1;
 }
 
 /*
@@ -109,8 +110,11 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadpubkeyctx
 
     stringstream ss(kctx);
 
-    LPPublicKey<Poly> pubkey;
+    LPPublicKey<DCRTPoly> pubkey;
     Serial::Deserialize(pubkey, ss, SerType::BINARY);
+
+    if( CryptoContextFactory<DCRTPoly>::GetContextCount() != 1 )
+	return -1;
 
     _pubKeys.push_back(pubkey);
     return _pubKeys.size() - 1;
@@ -130,11 +134,13 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprivkeyctx
 
     stringstream ss(kctx);
 
-    LPPrivateKey<Poly> privkey;
+    LPPrivateKey<DCRTPoly> privkey;
     Serial::Deserialize(privkey, ss, SerType::BINARY);
+    if( CryptoContextFactory<DCRTPoly>::GetContextCount() != 1 )
+	return -1;
 
     _privateKeys.push_back(privkey);
-    return _pubKeys.size() - 1;
+    return _privateKeys.size() - 1;
 }
 
 /*
@@ -157,7 +163,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serpubkey
 (JNIEnv *env, jobject, jint pubkeyId) {
 
 	// get the appropriate key
-	if( pubkeyId < 0 || pubkeyId >= _pubKeys.size() )
+	if( pubkeyId < 0 || pubkeyId >= (jint)_pubKeys.size() )
 		return NULL;
 
 	auto key = _pubKeys[pubkeyId];
@@ -188,7 +194,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprivkey
 (JNIEnv *env, jobject, jint prikeyId) {
 
 	// get the appropriate key
-	if( prikeyId < 0 || prikeyId >= _privateKeys.size() )
+	if( prikeyId < 0 || prikeyId >= (jint)_privateKeys.size() )
 		return NULL;
 
 	auto key = _privateKeys[prikeyId];
@@ -202,17 +208,17 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprivkey
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_genprekey
   (JNIEnv *, jobject, jint pubKeyId, jint secretKeyId) {
 
-	if( pubKeyId < 0 || pubKeyId >= _pubKeys.size() )
+	if( pubKeyId < 0 || pubKeyId >= (jint)_pubKeys.size() )
 		return -1;
 
 	auto pubkey = _pubKeys[pubKeyId];
 
-	if( secretKeyId < 0 || secretKeyId >= _privateKeys.size() )
+	if( secretKeyId < 0 || secretKeyId >= (jint)_privateKeys.size() )
 		return -1;
 
 	auto seckey = _privateKeys[secretKeyId];
 
-	auto preKey = _cc->ReKeyGen(pubkey, seckey);
+	auto preKey = CryptoContextFactory<DCRTPoly>::GetSingleContext()->ReKeyGen(pubkey, seckey);
 
 	_preKeys.push_back(preKey);
     return _preKeys.size() - 1;
@@ -232,8 +238,11 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadprekey
 
     stringstream ss(kctx);
 
-    LPEvalKey<Poly> prekey;
+    LPEvalKey<DCRTPoly> prekey;
     Serial::Deserialize(prekey,ss, SerType::BINARY);
+
+    if( CryptoContextFactory<DCRTPoly>::GetContextCount() != 1 )
+	return -1;
 
     _preKeys.push_back(prekey);
     return _preKeys.size() - 1;
@@ -248,7 +257,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serprekey
 (JNIEnv *env, jobject, jint kId) {
 
 	// get the appropriate key
-	if( kId < 0 || kId >= _preKeys.size() )
+	if( kId < 0 || kId >= (jint)_preKeys.size() )
 		return NULL;
 
 	auto key = _preKeys[kId];
@@ -273,8 +282,11 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadct
 
     stringstream ss(kctx);
 
-    Ciphertext<Poly> ct;
+    Ciphertext<DCRTPoly> ct;
     Serial::Deserialize(ct, ss, SerType::BINARY);
+
+    if( CryptoContextFactory<DCRTPoly>::GetContextCount() != 1 )
+	return -1;
 
     _ctexts.push_back(ct);
     return _ctexts.size() - 1;
@@ -288,7 +300,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_loadct
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_serct
 (JNIEnv *env, jobject, jint ctId) {
 
-	if( ctId < 0 || ctId >= _ctexts.size() )
+	if( ctId < 0 || ctId >= (jint)_ctexts.size() )
 		return NULL;
 
 	auto ct = _ctexts[ctId];
@@ -308,7 +320,7 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_encrypt
   (JNIEnv *env, jobject, jbyteArray ptxt, jint pubkeyId) {
 
 	// get the appropriate key
-	if( pubkeyId < 0 || pubkeyId >= _pubKeys.size() )
+	if( pubkeyId < 0 || pubkeyId >= (jint)_pubKeys.size() )
 		return -1;
 
 	auto key = _pubKeys[pubkeyId];
@@ -318,9 +330,14 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_encrypt
 	if( !ByteArrayToString(env, ptxt, &sptxt) )
 		return -1;
 
-	auto pt = _cc->MakeStringPlaintext(sptxt);
+	vector<int64_t> vec(sptxt.length() + 1);
+	vec[0] = sptxt.length();
+	for( size_t i = 1; i < sptxt.length() + 1; i++ )
+		vec[i] = sptxt[i-1];
 
-	auto ct = _cc->Encrypt(key, pt);
+	auto pt = CryptoContextFactory<DCRTPoly>::GetSingleContext()->MakeCoefPackedPlaintext(vec);
+
+	auto ct = CryptoContextFactory<DCRTPoly>::GetSingleContext()->Encrypt(key, pt);
 
     _ctexts.push_back(ct);
     return _ctexts.size() - 1;
@@ -334,17 +351,17 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_encrypt
 JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_reencrypt
   (JNIEnv *, jobject, jint ctId, jint keyId) {
 
-	if( ctId < 0 || ctId >= _ctexts.size() )
+	if( ctId < 0 || ctId >= (jint)_ctexts.size() )
 		return -1;
 
 	auto ct = _ctexts[ctId];
 
-	if( keyId < 0 || keyId >= _preKeys.size() )
+	if( keyId < 0 || keyId >= (jint)_preKeys.size() )
 		return -1;
 
 	auto key = _preKeys[keyId];
 
-	auto newct = _cc->ReEncrypt(key, ct);
+	auto newct = CryptoContextFactory<DCRTPoly>::GetSingleContext()->ReEncrypt(key, ct);
 
     _ctexts.push_back(newct);
     return _ctexts.size() - 1;
@@ -358,22 +375,26 @@ JNIEXPORT jint JNICALL Java_com_palisade_PALISADE_reencrypt
 JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_decrypt
   (JNIEnv *env, jobject, jint ctId, jint keyId) {
 
-	if( ctId < 0 || ctId >= _ctexts.size() )
+	if( ctId < 0 || ctId >= (jint)_ctexts.size() )
 		return NULL;
 
 	auto ct = _ctexts[ctId];
 
-	if( keyId < 0 || keyId >= _privateKeys.size() )
+	if( keyId < 0 || keyId >= (jint)_privateKeys.size() )
 		return NULL;
 
 	auto key = _privateKeys[keyId];
 
 	Plaintext p;
-	auto result = _cc->Decrypt(key, ct, &p);
-
+	/*auto result =*/ CryptoContextFactory<DCRTPoly>::GetSingleContext()->Decrypt(key, ct, &p);
 	// FIXME check result
 
-	string ptx = p->GetStringValue();
+	auto plain = p->GetCoefPackedValue();
+	string ptx;
+
+	for( int i = 1; i < plain[0]+1; i++ )
+		ptx += (char)(plain[i]&0xff);
+
 	return StringToByteArray(env, ptx);
 }
 
@@ -393,15 +414,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_runtest
 	string input;
 	ByteArrayToString(env, pt, &input);
 
-	CryptoContext<Poly> cc;
+	CryptoContext<DCRTPoly> cc;
 	try {
-		cc = GenTestCryptoContext<Poly>("StSt", 4096, 256, 80);
+		cc = GenTestCryptoContext<DCRTPoly>("StSt", 4096, 256, 80);
 	} catch( ... ) {
 		return StringToByteArray(env, "no context");
 	}
 
-	LPKeyPair<Poly> kp1 = cc->KeyGen();
-	LPKeyPair<Poly> kp2 = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp1 = cc->KeyGen();
+	LPKeyPair<DCRTPoly> kp2 = cc->KeyGen();
 	auto preKey = cc->ReKeyGen(kp2.publicKey, kp1.secretKey);
 
 	auto ptx = cc->MakeStringPlaintext(input);
@@ -410,6 +431,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_palisade_PALISADE_runtest
 	auto ct2 = cc->ReEncrypt(preKey, ct1);
 
 	Plaintext result;
-	DecryptResult d = cc->Decrypt(kp2.secretKey, ct2, &result);
+	/*DecryptResult d =*/ cc->Decrypt(kp2.secretKey, ct2, &result);
+	// FIXME check result
 	return StringToByteArray(env, result->GetStringValue());
 }

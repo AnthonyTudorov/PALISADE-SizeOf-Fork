@@ -36,6 +36,8 @@ public class PALISADE {
         this.initialized = false;
     }
 
+    public boolean isInitialized() { return this.initialized; }
+
     /**
      * Initializes PALISADE from a serialized context
      *

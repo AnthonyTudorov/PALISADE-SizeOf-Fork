@@ -36,6 +36,24 @@ if(APPLE AND USE_OpenMP)
     endif()
 endif()
 
+### several of the third-party tools use automake and autoconf
+### we need to make sure that they are installed
+execute_process(COMMAND automake --version OUTPUT_VARIABLE AUTOMAKE_VER)
+execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)
+
+string(LENGTH "${AUTOMAKE_VER}" AUTOMAKE_VER_LEN)
+string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
+
+if( ${AUTOMAKE_VER_LEN} EQUAL 0 OR ${AUTOCONF_VER_LEN} EQUAL 0 )
+	if( ${AUTOMAKE_VER_LEN} EQUAL 0 )
+		message(SEND_ERROR "Automake is not installed.")
+	endif()
+	if( ${AUTOCONF_VER_LEN} EQUAL 0 )
+		message(SEND_ERROR "Autoconf is not installed.")
+	endif()
+	message(FATAL_ERROR "Cmake will exit")
+endif()
+
 project (PALISADE C CXX)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -282,6 +300,7 @@ add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
 ## FIXME ## add_subdirectory(src/circuit)
+add_subdirectory(android)
 
 ### build the google test handlers
 add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
