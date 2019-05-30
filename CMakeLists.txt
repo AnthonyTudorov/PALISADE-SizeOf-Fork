@@ -38,16 +38,16 @@ endif()
 
 ### several of the third-party tools use automake and autoconf
 ### we need to make sure that they are installed
-execute_process(COMMAND automake --version OUTPUT_VARIABLE AUTOMAKE_VER)
+execute_process(COMMAND autogen --version OUTPUT_VARIABLE AUTOGEN_VER)
 execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)
 
-string(LENGTH "${AUTOMAKE_VER}" AUTOMAKE_VER_LEN)
+string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
 string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 
-if( ${AUTOMAKE_VER_LEN} EQUAL 0 OR ${AUTOCONF_VER_LEN} EQUAL 0 )
-	if( ${AUTOMAKE_VER_LEN} EQUAL 0 )
-		message(SEND_ERROR "Automake is not installed.")
-	endif()
+if( ${AUTOCONF_VER_LEN} EQUAL 0 )
+	#if( ${AUTOGEN_VER_LEN} EQUAL 0 )
+	#	message(SEND_ERROR "Autogen is not installed.")
+	#endif()
 	if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 		message(SEND_ERROR "Autoconf is not installed.")
 	endif()
@@ -125,7 +125,7 @@ endif()
 
 find_package (Git REQUIRED)
 
-find_package (Doxygen REQUIRED dot)
+find_package (Doxygen QUIET COMPONENTS dot)
 if (DOXYGEN_FOUND)
 
     add_custom_target( apidocs 
@@ -135,7 +135,7 @@ if (DOXYGEN_FOUND)
         VERBATIM )
 
 else (DOXYGEN_FOUND)
-  message("Doxygen need to be installed to generate the doxygen documentation")
+  message("Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
 
 include (ExternalProject)
