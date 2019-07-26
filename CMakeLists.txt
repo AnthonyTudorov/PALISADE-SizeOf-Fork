@@ -148,7 +148,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 include_directories( ${THIRDPARTYDIR}/cereal/include )
 
 include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature circuit wip)
+set (SUBMAKEFILES core pke trapdoor abe signature wip)
 foreach( dir ${SUBMAKEFILES} )
 	include_directories( src/${dir}/lib )
 endforeach( dir )
@@ -304,7 +304,6 @@ add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
 add_subdirectory(src/wip)
-## FIXME ## add_subdirectory(src/circuit)
 add_subdirectory(android)
 
 ### build the google test handlers
