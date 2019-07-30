@@ -35,23 +35,25 @@ if(APPLE AND USE_OpenMP)
       set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
     endif()
 endif()
-
+	
 ### several of the third-party tools use automake and autoconf
 ### we need to make sure that they are installed
 execute_process(COMMAND autogen --version OUTPUT_VARIABLE AUTOGEN_VER)
-execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)
+# execute_process in Windows by default does not run in a shell
+if(WIN32)
+	execute_process(COMMAND sh autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)
+else()
+	execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)	
+endif()
 
-string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
+#string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
 string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 
+#if( ${AUTOGEN_VER_LEN} EQUAL 0 )
+#	message(SEND_ERROR "Autogen is not installed.")
+#endif()
 if( ${AUTOCONF_VER_LEN} EQUAL 0 )
-	#if( ${AUTOGEN_VER_LEN} EQUAL 0 )
-	#	message(SEND_ERROR "Autogen is not installed.")
-	#endif()
-	if( ${AUTOCONF_VER_LEN} EQUAL 0 )
-		message(SEND_ERROR "Autoconf is not installed.")
-	endif()
-	message(FATAL_ERROR "Cmake will exit")
+	message(SEND_ERROR "Autoconf is not installed.")
 endif()
 
 project (PALISADE C CXX)
@@ -102,7 +104,16 @@ if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-set(COMPILEFLAGS "-g -Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION}")
+# Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+		set (IGNORE_WARNINGS "")
+	else()
+		set (IGNORE_WARNINGS "-Wno-parentheses -Wno-pessimizing-move")
+	endif()
+endif()
+
+set(COMPILEFLAGS "-g -Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGNORE_WARNINGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
@@ -164,7 +175,7 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if(MINGW)
+if(WIN32)
 	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 else()
@@ -213,7 +224,7 @@ set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if(MINGW)
+if(WIN32)
 	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 else()
@@ -280,7 +291,7 @@ set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINA
 add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(MINGW)
+if(WIN32)
 	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static)
 else()
 	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)

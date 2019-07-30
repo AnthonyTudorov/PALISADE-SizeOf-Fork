@@ -113,7 +113,7 @@ typedef uint32_t integral_dtype;
 	**/
 
 #ifndef BigIntegerBitLength
-#define BigIntegerBitLength 1500 //for documentation on tests
+#define BigIntegerBitLength 3000 //for documentation on tests
 #endif
 
 #if BigIntegerBitLength < 600
@@ -201,23 +201,24 @@ namespace lbcrypto {
 	using BigInteger = M6Integer;
 	using BigVector = M6Vector;
 
-	typedef unsigned __int128 DoubleNativeInt;
-
-	// it would be better, instead of the line above, to use the
-	// commented lines, but (a) the HAVE_INTRINSIC define's broken,
-	// for some compilers, and (b) some code doesn't work nicely
-	// when you plonk in BigInteger...
-	/********************************************************
-	// if we do not have an int128 built in,
-	// then we must use a multiprecision type
-	#if ABSL_HAVE_INTRINSIC_INT128
-	typedef unsigned __int128 DoubleNativeInt;
-	#else
-	typedef BigInteger DoubleNativeInt;
-	#endif
-	********************************************************/
-
 #endif
+
+typedef unsigned __int128 DoubleNativeInt;
+
+// it would be better, instead of the line above, to use the
+// commented lines, but (a) the HAVE_INTRINSIC define's broken,
+// for some compilers, and (b) some code doesn't work nicely
+// when you plonk in BigInteger...
+/********************************************************
+// if we do not have an int128 built in,
+// then we must use a multiprecision type
+#if ABSL_HAVE_INTRINSIC_INT128
+typedef unsigned __int128 DoubleNativeInt;
+#else
+typedef BigInteger DoubleNativeInt;
+#endif
+********************************************************/
+
 }
 
 ////////// definitions for native integer and native vector
