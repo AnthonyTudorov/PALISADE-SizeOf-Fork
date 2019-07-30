@@ -66,9 +66,5 @@ Each component (core, pke, abe, trapdoor, signature, wip) has a set of common ta
 You can make allX, allXdemos, testX, or Xinfo, where X is the component (for example, make testpke will
 build and run the pke unit tests).
 
-Notes, and remaining things to do:
-
-1. there is no longer a separate clean target for each component. You cannot, for example, "make cleancore".
+Note that there is no longer a separate clean target for each component. You cannot, for example, "make cleancore".
 If you need to do this, remove everything under build/src/core
-
-2. At the moment we do NOT include the following in the new cmake: circuit
