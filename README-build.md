@@ -21,10 +21,6 @@ To run builds in a subdirectory named "build":
 
 This will create all the necessary makefiles. If you say "make help", all available targets are printed.
 
-NOTE if you are building on Windows using mingw64, you must initialize by saying
-
-	cmake .. -G"Unix Makefiles"
-
 We also make use of git submodules for many of the pieces of code from third-party sources.
 The cereal, google-benchmark, google-test and gperftools code are all git submodules.
 
@@ -68,3 +64,32 @@ build and run the pke unit tests).
 
 Note that there is no longer a separate clean target for each component. You cannot, for example, "make cleancore".
 If you need to do this, remove everything under build/src/core
+
+MSYS2/MINGW64 instructions
+===================
+
+Download and install MSYS2 from http://www.msys2.org/ using default settings. Start the MSYS2 MINGW 64-bit shell and execute the following command
+
+	pacman -Syu
+
+to update all packages (you may need to run it twice as it often fails the first time; just reopen the console and reenter the command. This may also happen for the other installs below).
+
+Run the following commands to install all pre-requisites 
+
+	pacman -S mingw-w64-x86_64-gcc
+	pacman -S mingw-w64-x86_64-cmake
+	pacman -S autoconf
+	pacman -S make
+
+for GMP and NTL
+
+	pacman -S tar
+	pacman -S lzip
+
+Use the following comnand to run cmake
+
+	cmake .. -G"Unix Makefiles"
+
+update ORIGINAL_PATH variable in c:\msys64\etc\profile to point to "lib" 
+
+Follow the instructions above for other CMAKE/MAKE-related steps.
