@@ -45,8 +45,6 @@
 
 namespace lbcrypto {
 
-//#define FIXED_SEED
-
 /**
 * @brief Abstract class describing generator requirements.
 *
