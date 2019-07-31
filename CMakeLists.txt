@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.4)
 
+project (PALISADE C CXX)
+
 set(BUILD_STATIC "NO") # set to yes to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -39,8 +41,8 @@ endif()
 ### several of the third-party tools use automake and autoconf
 ### we need to make sure that they are installed
 execute_process(COMMAND autogen --version OUTPUT_VARIABLE AUTOGEN_VER)
-# execute_process in Windows by default does not run in a shell
-if(WIN32)
+# execute_process in MINGW by default does not run in a shell
+if(MINGW)
 	execute_process(COMMAND sh autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)
 else()
 	execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)	
@@ -55,8 +57,6 @@ string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 	message(SEND_ERROR "Autoconf is not installed.")
 endif()
-
-project (PALISADE C CXX)
 
 set(PALISADE_VERSION_MAJOR 1)
 set(PALISADE_VERSION_MINOR 6)
@@ -99,7 +99,7 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
@@ -130,6 +130,7 @@ if (OpenMP_CXX_FOUND)
 	endif()
 
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	#set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
@@ -181,7 +182,7 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if(WIN32)
+if (MINGW)
 	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 else()
@@ -230,7 +231,7 @@ set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if(WIN32)
+if(MINGW)
 	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 else()
@@ -297,7 +298,7 @@ set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINA
 add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(WIN32)
+if(MINGW)
 	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static)
 else()
 	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)
