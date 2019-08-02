@@ -205,15 +205,15 @@ public:
 	template <class Archive>
 	void save ( Archive & ar ) const
 	{
-	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+	    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( ::cereal::make_nvp("dp", m_distributionParameterStSt) );
 	}
 
 	template <class Archive>
 	void load ( Archive & ar )
 	{
-	    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
-	    ar( cereal::make_nvp("dp", m_distributionParameterStSt) );
+	    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+	    ar( ::cereal::make_nvp("dp", m_distributionParameterStSt) );
 		this->SetDistributionParameterStSt(m_distributionParameterStSt);
 	}
 
@@ -297,20 +297,6 @@ public:
 
 		return kp;
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( cereal::base_class<LPAlgorithmLTV<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "StStEncryption"; }
 };
 
 template <class Element>
@@ -389,20 +375,6 @@ public:
 		const std::vector<usint> &indexList) const {
 		throw std::runtime_error("LPAlgorithmSHELTV::EvalAutomorphismKeyGen is not implemented for Stehle-Steinfeld SHE Scheme.");
 	}
-
-	template <class Archive>
-	void save( Archive & ar, std::uint32_t const version ) const
-	{
-	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
-	}
-
-	template <class Archive>
-	void load( Archive & ar, std::uint32_t const version )
-	{
-	    ar( cereal::base_class<LPAlgorithmSHELTV<Element>>( this ) );
-	}
-
-	std::string SerializedObjectName() const { return "StStSHE"; }
 };
 
 /**
@@ -470,13 +442,13 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar, std::uint32_t const version )
 	{
-	    ar( cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
+	    ar( ::cereal::base_class<LPPublicKeyEncryptionSchemeLTV<Element>>( this ) );
 	}
 
 	std::string SerializedObjectName() const { return "StStScheme"; }

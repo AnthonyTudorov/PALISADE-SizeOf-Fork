@@ -256,10 +256,10 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( cereal::make_nvp("n", m_numerator) );
-			ar( cereal::make_nvp("d", m_denominator) );
-			ar( cereal::make_nvp("d", m_integerFlag) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( ::cereal::make_nvp("n", m_numerator) );
+			ar( ::cereal::make_nvp("d", m_denominator) );
+			ar( ::cereal::make_nvp("d", m_integerFlag) );
 		}
 
 		template <class Archive>
@@ -268,10 +268,10 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( cereal::make_nvp("n", m_numerator) );
-			ar( cereal::make_nvp("d", m_denominator) );
-			ar( cereal::make_nvp("d", m_integerFlag) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( ::cereal::make_nvp("n", m_numerator) );
+			ar( ::cereal::make_nvp("d", m_denominator) );
+			ar( ::cereal::make_nvp("d", m_integerFlag) );
 		}
 
 		std::string SerializedObjectName() const { return "RationalCiphertext"; }

@@ -31,6 +31,8 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
+#include "utils/serialize-json.h"
+#include "cryptocontext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -79,7 +81,7 @@ void GenContexts(usint ORDER, PlaintextModulus ptm, string nameroot) {
 			if( cc ) {
 				string tfn = fn+cx;
 				cout << "Generating " << tfn << endl;
-				Serializable::SerializeToFile(tfn, cc, Serializable::Type::JSON);
+				Serial::SerializeToFile(tfn, cc, SerType::JSON);
 			}
 			else {
 				cout << "No context" << endl;

@@ -211,7 +211,6 @@ namespace cpu_int{
 	template<typename uint_type,usint BITLENGTH>
 	class BigInteger : public lbcrypto::BigIntegerInterface<BigInteger<uint_type,BITLENGTH>>
 	{
-
 	public:
 
     /**
@@ -251,7 +250,7 @@ namespace cpu_int{
      * Construct a BigInteger from a NativeInteger
      * @param native
      */
-    BigInteger(const NativeInteger& native) : BigInteger( native.ConvertToInt() ) {}
+    BigInteger(const native_int::NativeInteger& native);
 
     /**
      * Constructors from smaller basic types
@@ -307,7 +306,7 @@ namespace cpu_int{
       return *this;
     }
 
-    const BigInteger& operator=(const NativeInteger& val) {
+    const BigInteger& operator=(const native_int::NativeInteger& val) {
       *this = BigInteger(val);
       return *this;
     }
@@ -907,16 +906,16 @@ namespace cpu_int{
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
 	save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::binary_data(m_value, sizeof(m_value)) );
-		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
+		ar( ::cereal::binary_data(m_value, sizeof(m_value)) );
+		ar( ::cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
 	}
 
 	template <class Archive>
 	typename std::enable_if <cereal::traits::is_text_archive<Archive>::value,void>::type
 	save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("v", m_value) );
-		ar( cereal::make_nvp("m", m_MSB) );
+		ar( ::cereal::make_nvp("v", m_value) );
+		ar( ::cereal::make_nvp("m", m_MSB) );
 	}
 
 	template <class Archive>
@@ -926,8 +925,8 @@ namespace cpu_int{
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::binary_data(m_value, sizeof(m_value)) );
-		ar( cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
+		ar( ::cereal::binary_data(m_value, sizeof(m_value)) );
+		ar( ::cereal::binary_data(&m_MSB, sizeof(m_MSB)) );
 	}
 
 	template <class Archive>
@@ -937,8 +936,8 @@ namespace cpu_int{
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("v", m_value) );
-		ar( cereal::make_nvp("m", m_MSB) );
+		ar( ::cereal::make_nvp("v", m_value) );
+		ar( ::cereal::make_nvp("m", m_MSB) );
 	}
 
 	std::string SerializedObjectName() const { return "CPUInteger"; }

@@ -532,7 +532,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 		size_t size = m_data.size();
 		ar( size );
 		if( size > 0 )
-			ar( cereal::binary_data(m_data.data(), size*sizeof(IntegerType)) );
+			ar( ::cereal::binary_data(m_data.data(), size*sizeof(IntegerType)) );
 		ar( m_modulus );
 	}
 
@@ -540,8 +540,8 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	typename std::enable_if<cereal::traits::is_text_archive<Archive>::value,void>::type
 	save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("v",m_data) );
-		ar( cereal::make_nvp("m",m_modulus.ConvertToInt()) );
+		ar( ::cereal::make_nvp("v",m_data) );
+		ar( ::cereal::make_nvp("m",m_modulus.ConvertToInt()) );
 	}
 
 	template <class Archive>
@@ -556,7 +556,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 		m_data.resize(size);
 		if( size > 0 ) {
 			IntegerType *data = (IntegerType *)malloc( size*sizeof(IntegerType) );
-			ar( cereal::binary_data(data, size*sizeof(IntegerType)) );
+			ar( ::cereal::binary_data(data, size*sizeof(IntegerType)) );
 			for( size_t i = 0; i<size; i++ )
 				m_data[i] = data[i];
 			free( data );
@@ -571,9 +571,9 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("v",m_data) );
+		ar( ::cereal::make_nvp("v",m_data) );
 		uint64_t m;
-		ar( cereal::make_nvp("m",m) );
+		ar( ::cereal::make_nvp("m",m) );
 		m_modulus = m;
 	}
 
@@ -604,7 +604,7 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 namespace cereal {
 //! Serialization for vector of NativeInteger
 template <class Archive, class A> inline
-void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger<uint64_t>, A> const & vector )
+void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger, A> const & vector )
 {
 	ar( make_size_tag( static_cast<cereal::size_type>(vector.size()) ) ); // number of elements
 	for(const auto v : vector)
@@ -613,7 +613,7 @@ void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInte
 
 //! Deserialization for vector of NativeInteger
 template <class Archive, class A> inline
-void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger<uint64_t>, A> & vector )
+void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, std::vector<native_int::NativeInteger, A> & vector )
 {
 	cereal::size_type size;
 	ar( make_size_tag( size ) );

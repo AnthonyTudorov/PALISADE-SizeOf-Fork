@@ -33,6 +33,10 @@
 #include "palisade.h"
 #include "cryptocontextgen.h"
 #include "cryptocontextparametersets.h"
+#include "utils/serialize-json.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 using namespace lbcrypto;
 using std::cout;
 
@@ -121,11 +125,11 @@ main(int argc, char *argv[])
 
 	if( ctxtFile.length() > 0 ) {
 		if( element == POLY )
-			Serializable::DeserializeFromFile(ctxtFile, cc, Serializable::Type::JSON);
+			Serial::DeserializeFromFile(ctxtFile, cc, SerType::JSON);
 		else if( element == DCRT )
-			Serializable::DeserializeFromFile(ctxtFile, dcc, Serializable::Type::JSON);
+			Serial::DeserializeFromFile(ctxtFile, dcc, SerType::JSON);
 		else
-			Serializable::DeserializeFromFile(ctxtFile, ncc, Serializable::Type::JSON);
+			Serial::DeserializeFromFile(ctxtFile, ncc, SerType::JSON);
 	}
 	else {
 		if( !knownParameterSet(ctxtName) ) {

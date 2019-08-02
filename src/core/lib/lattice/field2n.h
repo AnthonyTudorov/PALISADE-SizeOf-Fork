@@ -303,8 +303,8 @@ public:
 	template <class Archive>
 	void save ( Archive & ar, std::uint32_t const version ) const
 	{
-	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
-	    ar( cereal::make_nvp("f",format) );
+	    ar( ::cereal::base_class<std::vector<std::complex<double>>>( this ) );
+	    ar( ::cereal::make_nvp("f",format) );
 	}
 
 	template <class Archive>
@@ -313,8 +313,8 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-	    ar( cereal::base_class<std::vector<std::complex<double>>>( this ) );
-	    ar( cereal::make_nvp("f",format) );
+	    ar( ::cereal::base_class<std::vector<std::complex<double>>>( this ) );
+	    ar( ::cereal::make_nvp("f",format) );
 	}
 
 	std::string SerializedObjectName() const { return "Field2n"; }

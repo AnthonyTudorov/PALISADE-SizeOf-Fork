@@ -1,0 +1,37 @@
+this directory has a copy of the NTL 10.5.0 distro, with some modifications
+to makefile, and with some shell scripts added to build for android phones
+
+TODO: really should separate out the script changes, cleanly, so that
+the src directory is an exact, unchanged copy of the distro
+
+To build the library you need to have the Android NDK installed on your
+machine. We use android-ndk-r16b.
+
+Set the environment variable NDK_DIR to the pathname for your NDK
+installation. The default location, if one is not set, is
+$HOME/Desktop/android-ndk-r16b
+
+We build for targets x86_64 and arm64-v8a
+
+Building NTL involves two steps:
+1. preparing for the build by customizing header files for the target runtime
+2. building using the customized header files
+
+To build, change to the src directory.
+
+The "prepare" step is run by using the build-setup shell script.
+You MUST have an emulator or a phone for the target environment.
+The "adb" program will be used to connect to the emulator or phone.
+This is used by the "prepare" process to build test programs, run them
+on the emulator/phone, and use the results to customize the header files.
+
+Run the prepare step by running "build-setup.sh x86_64" or
+"build-setup.sh arm64-v8a"
+
+The prepare step will conclude by copying header files into the appropriate
+subdirectory of prebuilt.
+
+The "build" step is executed by running "build.sh x86_64" or
+"build.sh arm64-v8a"
+
+The build step will conclude by copying the library into prebuilt

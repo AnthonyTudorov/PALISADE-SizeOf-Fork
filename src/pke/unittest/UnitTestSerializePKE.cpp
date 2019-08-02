@@ -25,18 +25,17 @@
  */
 
 #include "include/gtest/gtest.h"
-#include <iostream>
+#include "UnitTestSer.h"
 
-#include "palisade.h"
-#include "cryptocontext.h"
-#include "math/nbtheory.h"
-#include "utils/utilities.h"
-#include "utils/parmfactory.h"
+#include "ltv-ser.h"
+#include "bgv-ser.h"
+#include "pubkeylp-ser.h"
+#include "ciphertext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temportary fix until Windows serialization is fixed
+// TODO: temporary fix until Windows serialization is fixed
 #if not defined(_WIN32) and not defined(_WIN64)
 
 class UTPKESer : public ::testing::Test {
@@ -54,7 +53,7 @@ protected:
 	}
 };
 
-static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
+CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) {
 	PlaintextModulus modulusP(256);
 	CryptoContext<Poly> cc = CryptoContextHelper::getNewContext(parmsetName,
 			EncodingParams(new EncodingParamsImpl(modulusP,8)));
@@ -63,7 +62,7 @@ static CryptoContext<Poly> GenerateTestCryptoContext(const string& parmsetName) 
 	return cc;
 }
 
-static CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
+CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits) {
 	CryptoContext<DCRTPoly> cc = CryptoContextHelper::getNewDCRTContext(parmsetName, nTower, pbits);
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
@@ -82,69 +81,9 @@ TEST_F(UTPKESer, LTV_Context_Factory) {
 }
 
 template<typename T>
-void UnitTestContextWithSertype(CryptoContext<T> cc, Serializable::Type sertype, string msg) {
-
-	LPKeyPair<T> kp = cc->KeyGen();
-	try {
-		cc->EvalMultKeyGen(kp.secretKey);
-	} catch(...) {}
-	try {
-		cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
-	} catch(...) {}
-
-	stringstream s;
-	Serializable::Serialize(cc, s, sertype);
-
-	CryptoContext<T> newcc;
-	Serializable::Deserialize(newcc, s, sertype);
-
-	ASSERT_TRUE( newcc ) << msg << " Deserialize failed";
-
-	EXPECT_EQ( *cc, *newcc ) << msg << " Mismatched context";
-
-	EXPECT_EQ( *cc->GetEncryptionAlgorithm(), *newcc->GetEncryptionAlgorithm() ) << msg << " Scheme mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetCryptoParameters(), *newcc->GetCryptoParameters() ) << msg << " Crypto parms mismatch after ser/deser";
-	EXPECT_EQ( *cc->GetEncodingParams(), *newcc->GetEncodingParams() ) << msg << " Encoding parms mismatch after ser/deser";
-	EXPECT_EQ( cc->GetEncryptionAlgorithm()->GetEnabled(), newcc->GetEncryptionAlgorithm()->GetEnabled() ) << msg << " Enabled features mismatch after ser/deser";
-
-	s.str("");
-	s.clear();
-	Serializable::Serialize(kp.publicKey, s, sertype);
-
-	LPPublicKey<T> newPub;
-	Serializable::Deserialize(newPub, s, sertype);
-	ASSERT_TRUE( newPub ) << msg << " Key deserialize failed";
-
-	EXPECT_EQ( *kp.publicKey, *newPub ) << msg << " Key mismatch";
-
-	CryptoContext<T> newccFromkey = newPub->GetCryptoContext();
-	EXPECT_EQ( *cc, *newccFromkey ) << msg << " Key deser has wrong context";
-}
-
-template<typename T>
 void UnitTestContext(CryptoContext<T> cc) {
-	UnitTestContextWithSertype(cc, Serializable::Type::JSON, "json");
-	UnitTestContextWithSertype(cc, Serializable::Type::BINARY, "binary");
-}
-
-TEST_F(UTPKESer, LTV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("LTV5");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, LTV_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, StSt_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("StSt6");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, StSt_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
+	UnitTestContextWithSertype(cc, SerType::JSON, "json");
+	UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
 }
 
 TEST_F(UTPKESer, BGV_Poly_Serial) {
@@ -157,33 +96,9 @@ TEST_F(UTPKESer, BGV_DCRTPoly_Serial) {
 	UnitTestContext<DCRTPoly>(cc);
 }
 
-TEST_F(UTPKESer, Null_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("Null");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, Null_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("Null", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, BFV_Poly_Serial) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
-	UnitTestContext<Poly>(cc);
-}
-
-TEST_F(UTPKESer, BFVrns_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrns2", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
-TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
-
 // USE BGV AS A REPRESENTITIVE CONTEXT
-void Test_keys_and_ciphertext(Serializable::Type sertype)
+template<typename ST>
+void Test_keys_and_ciphertext(const ST& sertype)
 {
 	bool dbg_flag = false;
 
@@ -221,13 +136,14 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	DEBUG("step 0");
 	{
 		stringstream s;
-		Serializable::Serialize(cc, s, sertype);
+		Serial::Serialize(cc, s, sertype);
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 0 );
-		Serializable::Deserialize(cc, s, sertype);
+		cc.reset();
+		Serial::Deserialize(cc, s, sertype);
 
-		ASSERT_TRUE( cc ) << "Deser failed";
+		ASSERT_TRUE( cc.get() != nullptr ) << "Deser failed";
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 	}
 
@@ -239,15 +155,15 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	DEBUG("step 1");
 	{
 		stringstream s;
-		Serializable::Serialize(kp.publicKey, s, sertype);
-		Serializable::Deserialize(kpnew.publicKey, s, sertype);
+		Serial::Serialize(kp.publicKey, s, sertype);
+		Serial::Deserialize(kpnew.publicKey, s, sertype);
 		EXPECT_EQ( *kp.publicKey, *kpnew.publicKey ) << "Public key mismatch after ser/deser";
 	}
 	DEBUG("step 2");
 	{
 		stringstream s;
-		Serializable::Serialize(kp.secretKey, s, sertype);
-		Serializable::Deserialize(kpnew.secretKey, s, sertype);
+		Serial::Serialize(kp.secretKey, s, sertype);
+		Serial::Deserialize(kpnew.secretKey, s, sertype);
 		EXPECT_EQ( *kp.secretKey, *kpnew.secretKey ) << "Secret key mismatch after ser/deser";
 	}
 	DEBUG("step 3");
@@ -259,8 +175,8 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 	Ciphertext<Poly> newC;
 	{
 		stringstream s;
-		Serializable::Serialize(ciphertext, s, sertype);
-		Serializable::Deserialize(newC, s, sertype);
+		Serial::Serialize(ciphertext, s, sertype);
+		Serial::Deserialize(newC, s, sertype);
 		EXPECT_EQ( *ciphertext, *newC ) << "Ciphertext mismatch";
 	}
 
@@ -376,10 +292,10 @@ void Test_keys_and_ciphertext(Serializable::Type sertype)
 }
 
 TEST_F(UTPKESer, Keys_and_ciphertext_json) {
-	Test_keys_and_ciphertext(Serializable::Type::JSON);
+	Test_keys_and_ciphertext(SerType::JSON);
 }
 
 TEST_F(UTPKESer, Keys_and_ciphertext_binary) {
-	Test_keys_and_ciphertext(Serializable::Type::BINARY);
+	Test_keys_and_ciphertext(SerType::BINARY);
 }
 #endif

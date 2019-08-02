@@ -35,6 +35,7 @@
 #include <fstream>
 #include "obfuscation/lweconjunctionobfuscate.h"
 #include "utils/debug.h"
+#include "utils/serialize-binary.h"
 
 using namespace lbcrypto;
 
@@ -275,14 +276,14 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
   DEBUG("clear pattern "<<inputPattern);    
   ClearLWEConjunctionPattern<DCRTPoly> clearPattern(inputPattern);
 
-  string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size);
-  SerializeClearPatternToFile(clearPattern, clearFileName);
+  string clearFileName = "cp"+to_string(n)+"_"+to_string(pattern_size)+".serial";
+  Serial::SerializeToFile(clearFileName, clearPattern, SerType::BINARY);
 
   if (verify_flag) { //verify the serialization
 
     ClearLWEConjunctionPattern<DCRTPoly> testClearPattern("");
   
-    DeserializeClearPatternFromFile(clearFileName, testClearPattern);
+    Serial::DeserializeFromFile(clearFileName, testClearPattern, SerType::BINARY);
 
     if (clearPattern.GetPatternString() == testClearPattern.GetPatternString()) {
       std::cout<< "Clear Pattern Serialization succeed"<<std::endl;
@@ -358,9 +359,9 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 
 
   DEBUG("Serializing Obfuscation" );
-  string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size);
+  string obfFileName = "op"+to_string(n)+"_"+to_string(pattern_size)+".serial";
   TIC(t1);
-  SerializeObfuscatedPatternToFile(obfuscatedPattern, obfFileName);
+  Serial::SerializeToFile(obfFileName,obfuscatedPattern, SerType::BINARY);
   timeSerial = TOC(t1);
   PROFILELOG("Serialization  time: " << "\t" << timeSerial << " ms");
 
@@ -370,7 +371,7 @@ bool GenerateConjObfs(bool dbg_flag, int n, usint pattern_size, bool eval_flag, 
 	  std::cout<<"Verifying Serialization"<<std::endl;
 	  ObfuscatedLWEConjunctionPattern<DCRTPoly> testObfuscatedPattern;
 
-	  DeserializeObfuscatedPatternFromFile(obfFileName, testObfuscatedPattern);
+	  Serial::DeserializeFromFile(obfFileName, testObfuscatedPattern, SerType::BINARY);
 
 	  if (!obfuscatedPattern.Compare(testObfuscatedPattern)) {
 		  std::cout<<"Serialization did verify"<<std::endl;

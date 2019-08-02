@@ -23,11 +23,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "../native_int/binint.h"
+#include "math/backend.h"
 
 namespace native_int
 {
-template class NativeInteger<uint64_t>;
 
 //helper template to stream vector contents provided T has an stream operator<< 
 template < typename T >

@@ -37,23 +37,11 @@
 */
 
 #define _USE_MATH_DEFINES
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #include <iostream>
 
-#include "math/backend.h"
-#include "utils/inttypes.h"
-#include "math/nbtheory.h"
-#include "lattice/elemparams.h"
-#include "lattice/ilparams.h"
-#include "lattice/ildcrtparams.h"
-#include "lattice/ilelement.h"
-#include "math/distrgen.h"
-#include "lattice/backend.h"
-#include "lattice/poly.h"
-#include "lattice/dcrtpoly.h"
-#include "utils/utilities.h"
-
+#include "palisade.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -414,4 +402,4 @@ BENCHMARK(BM_PROU3);		// register benchmark
 
 
 //execute the benchmarks
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

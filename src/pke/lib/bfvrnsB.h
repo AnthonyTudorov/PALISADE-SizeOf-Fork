@@ -178,17 +178,17 @@ namespace lbcrypto {
 
 			std::vector<NativeInteger> const &GetDCRTParamsqModuli() const { return m_qModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsqModulimu() const { return m_qModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskModuli() const { return m_BskModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsBskModulimu() const { return m_BskModulimu; }
 
 			NativeInteger const &GetDCRTParamsmtilde() const { return m_mtilde; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsBskmtildeModuli() const { return m_BskmtildeModuli; }
 
-			std::vector<DoubleNativeInteger> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
+			std::vector<DoubleNativeInt> const &GetDCRTParamsBskmtildeModulimu() const { return m_BskmtildeModulimu; }
 
 			std::vector<NativeInteger> const &GetDCRTParamsmtildeqDivqiModqi() const { return m_mtildeqDivqiTable; }
 
@@ -258,7 +258,7 @@ namespace lbcrypto {
 			template <class Archive>
 			void save ( Archive & ar, std::uint32_t const version ) const
 			{
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			template <class Archive>
@@ -267,7 +267,7 @@ namespace lbcrypto {
 				if( version > SerializedVersion() ) {
 					PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 				}
-			    ar( cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
+			    ar( ::cereal::base_class<LPCryptoParametersRLWE<Element>>( this ) );
 			}
 
 			std::string SerializedObjectName() const { return "BFVrnsBSchemeParameters"; }
@@ -301,7 +301,7 @@ namespace lbcrypto {
 
 			// 6) Stores the crt moduli of base B (size of B moduli is chosen such that )
 			std::vector<NativeInteger> m_qModuli;
-			std::vector<DoubleNativeInteger> m_qModulimu;
+			std::vector<DoubleNativeInt> m_qModulimu;
 
 			// 7) Stores the auxilliary base B moduli
 			std::vector<NativeInteger> m_BModuli;
@@ -311,11 +311,11 @@ namespace lbcrypto {
 
 			// 9) Stores the crt moduli of base Bsk = {B U msk}
 			std::vector<NativeInteger> m_BskModuli;
-			std::vector<DoubleNativeInteger> m_BskModulimu;
+			std::vector<DoubleNativeInt> m_BskModulimu;
 
 			// 10) Stores the crt moduli of base Bskmtilde = {Bsk U mtilde}
 			std::vector<NativeInteger> m_BskmtildeModuli;
-			std::vector<DoubleNativeInteger> m_BskmtildeModulimu; // Barrett constant
+			std::vector<DoubleNativeInt> m_BskmtildeModulimu; // Barrett constant
 
 			// 11) Stores (q/qi)^-1 mod qi
 			std::vector<NativeInteger> m_qDivqiModqiTable;
@@ -411,20 +411,6 @@ namespace lbcrypto {
 		*/
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( cereal::base_class<LPAlgorithmParamsGenBFV<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVrnsBParamsGen"; }
 	};
 
 	/**
@@ -476,20 +462,6 @@ namespace lbcrypto {
 		DecryptResult Decrypt(const LPPrivateKey<Element> privateKey,
 			ConstCiphertext<Element> ciphertext,
 			NativePoly *plaintext) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( cereal::base_class<LPAlgorithmBFV<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVrnsBEncryption"; }
 	};
 
 	/**
@@ -570,20 +542,6 @@ namespace lbcrypto {
 		*/
 		Ciphertext<Element> EvalMultAndRelinearize(ConstCiphertext<Element> ct1,
 			ConstCiphertext<Element> ct, const vector<LPEvalKey<Element>> &ek) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( cereal::base_class<LPAlgorithmSHEBFV<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVrnsBSHE"; }
 	};
 
 	/**
@@ -652,20 +610,6 @@ namespace lbcrypto {
 		Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> EK,
 			ConstCiphertext<Element> ciphertext,
 			const LPPublicKey<Element> publicKey = nullptr) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( cereal::base_class<LPAlgorithmPREBFV<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVrnsBPRE"; }
 	};
 
 
@@ -702,20 +646,6 @@ namespace lbcrypto {
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
-
-		template <class Archive>
-		void save ( Archive & ar ) const
-		{
-		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
-		}
-
-		template <class Archive>
-		void load ( Archive & ar )
-		{
-		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
-		}
-
-		std::string SerializedObjectName() const { return "BFVrnsBMultiparty"; }
 	};
 
 
@@ -739,13 +669,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
+		    ar( ::cereal::base_class<LPPublicKeyEncryptionScheme<Element>>( this ) );
 		}
 
 		std::string SerializedObjectName() const { return "BFVrnsScheme"; }

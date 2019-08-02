@@ -149,19 +149,19 @@ public:
 	template <class Archive>
 	void save( Archive & ar ) const
 	{
-		ar( cereal::make_nvp("o", operation) );
-		ar( cereal::make_nvp("s", samples) );
-		ar( cereal::make_nvp("a", average) );
-		ar( cereal::make_nvp("c", argcnt) );
+		ar( ::cereal::make_nvp("o", operation) );
+		ar( ::cereal::make_nvp("s", samples) );
+		ar( ::cereal::make_nvp("a", average) );
+		ar( ::cereal::make_nvp("c", argcnt) );
 	}
 
 	template <class Archive>
 	void load( Archive & ar )
 	{
-		ar( cereal::make_nvp("o", operation) );
-		ar( cereal::make_nvp("s", samples) );
-		ar( cereal::make_nvp("a", average) );
-		ar( cereal::make_nvp("c", argcnt) );
+		ar( ::cereal::make_nvp("o", operation) );
+		ar( ::cereal::make_nvp("s", samples) );
+		ar( ::cereal::make_nvp("a", average) );
+		ar( ::cereal::make_nvp("c", argcnt) );
 	}
 
 	std::string SerializedObjectName() const { return "TimingStatistics"; }

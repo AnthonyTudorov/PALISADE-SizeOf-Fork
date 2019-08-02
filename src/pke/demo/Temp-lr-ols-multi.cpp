@@ -63,6 +63,11 @@ bin/demo/pke/Temp-lr-ols-multi fusedecode demoData ccLRMulti demoData A demoData
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
+#include "utils/serialize-binary.h"
+#include "bgv-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 #include <random>
 
 #include "math/nbtheory.h"
@@ -187,7 +192,7 @@ int main(int argc, char* argv[]) {
 			ParamGen(paramDir,contextID);
 		}
 		else {
-			//Serializable::DisableKeysInSerializedContext();
+			//Serial::DisableKeysInSerializedContext();
 			{
 				if (std::string(argv[1]) == "keygen1")
 				{
@@ -398,7 +403,7 @@ void ParamGen(string &paramDir, const string &contextID) {
 
 		std::cout << "Serializing crypto context...";
 
-		if (!Serializable::SerializeToFile(paramDir + "/cryptocontext_" + std::to_string(k) + "_" + contextID + ".txt", cc)) {
+		if (!Serial::SerializeToFile(paramDir + "/cryptocontext_" + std::to_string(k) + "_" + contextID + ".txt", cc, SerType::BINARY)) {
 			cerr << "Error writing serialization of the crypto context to cryptotext_" + std::to_string(k) + "_" + contextID + ".txt" << endl;
 			return;
 		}
@@ -440,12 +445,12 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 
 		if (kp.publicKey && kp.secretKey) {
 
-			if (!Serializable::SerializeToFile(keyDir1 + "/" + "key-public-A-" +  jointKeyId + "-" + std::to_string(k) + ".txt", kp.publicKey)) {
+			if (!Serial::SerializeToFile(keyDir1 + "/" + "key-public-A-" +  jointKeyId + "-" + std::to_string(k) + ".txt", kp.publicKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of public key to " << "key-public-A-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 
-			if (!Serializable::SerializeToFile(keyDir1 + "/" + "key-private-A-" +  jointKeyId + "-" + std::to_string(k) + ".txt", kp.secretKey)) {
+			if (!Serial::SerializeToFile(keyDir1 + "/" + "key-private-A-" +  jointKeyId + "-" + std::to_string(k) + ".txt", kp.secretKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of private key to key-private-A-" + jointKeyId + " - " + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -467,7 +472,7 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 
 		if (evalMultKey) {
 
-			if (!Serializable::SerializeToFile(keyDir1 + "/" + "key-eval-mult-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMultKey)) {
+			if (!Serial::SerializeToFile(keyDir1 + "/" + "key-eval-mult-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMultKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult-A-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -493,7 +498,7 @@ void KeyGen1(const string &paramDir,  const string &contextID, const string &key
 		for (std::map<usint, LPEvalKey<DCRTPoly>>::iterator it = evalSumKeys.begin(); it != evalSumKeys.end(); ++it)
 		{
 			if (it->second) {
-				if (!Serializable::SerializeToFile(keyDir1 + "/" + "key-eval-sum-A-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt", it->second)) {
+				if (!Serial::SerializeToFile(keyDir1 + "/" + "key-eval-sum-A-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt", it->second, SerType::BINARY)) {
 					cerr << "Error writing serialization of summation evaluation key to " << "key-eval-sum-A-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt" << endl;
 					return;
 				}
@@ -533,7 +538,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the public key of party A...";
 
 		LPPublicKey<DCRTPoly> pk;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-public-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-public-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk, SerType::BINARY) == false) {
 			cerr << "Could not read public key of A" << endl;
 			return;
 		}
@@ -560,12 +565,12 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 
 		if (kp.publicKey && kp.secretKey) {
 
-			if (!Serializable::SerializeToFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", kp.publicKey)) {
+			if (!Serial::SerializeToFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", kp.publicKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of public key to " << "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
 
-			if (!Serializable::SerializeToFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", kp.secretKey)) {
+			if (!Serial::SerializeToFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", kp.secretKey, SerType::BINARY)) {
 				cerr << "Error writing serialization of private key to key-private-B-" + jointKeyId + " - " + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -583,7 +588,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the stage 1 multiplication evaluation key for A...";
 
 		LPEvalKey<DCRTPoly> em;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-eval-mult-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", em) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-eval-mult-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", em, SerType::BINARY) == false) {
 			cerr << "Could not read mulplication evaluation key" << endl;
 			return;
 		}
@@ -619,7 +624,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Serializing multiplication evaluation key for stage 2...";
 
 		if (evalMultAdd) {
-			if (!Serializable::SerializeToFile(keyDir2 + "/" + "key-eval-mult-AB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMultAdd)) {
+			if (!Serial::SerializeToFile(keyDir2 + "/" + "key-eval-mult-AB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMultAdd, SerType::BINARY)) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult-AB-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -643,7 +648,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Serializing multiplication evaluation key for stage 3...";
 
 		if (evalMult3) {
-			if (!Serializable::SerializeToFile(keyDir2 + "/" + "key-eval-mult-BAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMult3)) {
+			if (!Serial::SerializeToFile(keyDir2 + "/" + "key-eval-mult-BAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMult3, SerType::BINARY)) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult-BAB-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -679,7 +684,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 			
 			LPEvalKey<DCRTPoly> es;
 			string tempFileName = keyDir1 + "/" + "key-eval-sum-A-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
-			if (Serializable::DeserializeFromFile(tempFileName, es) == false) {
+			if (Serial::DeserializeFromFile(tempFileName, es, SerType::BINARY) == false) {
 				cerr << "Could not read the evaluation key at index " << g << endl;
 				return;
 			}
@@ -721,7 +726,7 @@ void KeyGen2(const string &paramDir,  const string &contextID, const string &key
 				// tag for the joint key
 				it->second->SetKeyTag(kp.publicKey->GetKeyTag());
 
-				if (!Serializable::SerializeToFile(keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt", it->second)) {
+				if (!Serial::SerializeToFile(keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt", it->second, SerType::BINARY)) {
 					cerr << "Error writing serialization of summation evaluation key to " << "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(it->first) + ".txt" << endl;
 					return;
 				}
@@ -760,7 +765,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the stage 2 multiplication evaluation key...";
 
 		LPEvalKey<DCRTPoly> em;
-		if (Serializable::DeserializeFromFile(keyDir2 + "/" + "key-eval-mult-AB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em) == false) {
+		if (Serial::DeserializeFromFile(keyDir2 + "/" + "key-eval-mult-AB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em, SerType::BINARY) == false) {
 			cerr << "Could not read multiplication evaluation key" << endl;
 			return;
 		}
@@ -777,7 +782,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the private key for A...";
 
 		LPPrivateKey<DCRTPoly> sk;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", sk) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", sk, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -802,7 +807,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the stage 3 multiplication evaluation key for s_b*(s_a + s_b)...";
 
 		LPEvalKey<DCRTPoly> emBAB;
-		if (Serializable::DeserializeFromFile(keyDir2 + "/" + "key-eval-mult-BAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", emBAB) == false) {
+		if (Serial::DeserializeFromFile(keyDir2 + "/" + "key-eval-mult-BAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", emBAB, SerType::BINARY) == false) {
 			cerr << "Could not read mulplication evaluation key" << endl;
 			return;
 		}
@@ -826,7 +831,7 @@ void KeyGen3(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Serializing final multiplication evaluation key...";
 
 		if (evalMult4) {
-			if (!Serializable::SerializeToFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMult4)) {
+			if (!Serial::SerializeToFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", evalMult4, SerType::BINARY)) {
 				cerr << "Error writing serialization of multiplication evaluation key to key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -862,7 +867,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		std::cout << "Deserializing the joint public key...";
 
 		LPPublicKey<DCRTPoly> pk;
-		if (Serializable::DeserializeFromFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk) == false) {
+		if (Serial::DeserializeFromFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk, SerType::BINARY) == false) {
 			cerr << "Could not read joint public key" << endl;
 			return;
 		}
@@ -879,7 +884,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		std::cout << "Deserializing the joint multiplication evaluation key...";
 
 		LPEvalKey<DCRTPoly> em;
-		if (Serializable::DeserializeFromFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em) == false) {
+		if (Serial::DeserializeFromFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em, SerType::BINARY) == false) {
 			cerr << "Could not read mulplication evaluation key" << endl;
 			return;
 		}
@@ -920,7 +925,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 
 			LPEvalKey<DCRTPoly> es;
 			string tempFileName = keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
-			if (Serializable::DeserializeFromFile(tempFileName, es) == false) {
+			if (Serial::DeserializeFromFile(tempFileName, es, SerType::BINARY) == false) {
 				cerr << "Could not read the evaluation key at index " << g << endl;
 				return;
 			}
@@ -944,7 +949,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		std::cout << "Deserializing the private key for A...";
 
 		LPPrivateKey<DCRTPoly> skA;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -961,7 +966,7 @@ void TestEvalKeys(const string &paramDir,  const string &contextID, const string
 		std::cout << "Deserializing the private key for B...";
 
 		LPPrivateKey<DCRTPoly> skB;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -1126,7 +1131,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 		std::cout << "Deserializing the joint public key...";
 
 		LPPublicKey<DCRTPoly> pk;
-		if (Serializable::DeserializeFromFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk) == false) {
+		if (Serial::DeserializeFromFile(keyDir2 + "/" + "key-public-J-" + jointKeyId + "-" + std::to_string(k) + ".txt", pk, SerType::BINARY) == false) {
 			cerr << "Could not read joint public key" << endl;
 			return;
 		}
@@ -1153,7 +1158,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 			std::cout << "Serializing X...";
 
-			if (!Serializable::SerializeToFile(ctxtDir + "/" + "ciphertext-x-" + ctxId + "-" + std::to_string(k) + ".txt", xC)) {
+			if (!Serial::SerializeToFile(ctxtDir + "/" + "ciphertext-x-" + ctxId + "-" + std::to_string(k) + ".txt", xC, SerType::BINARY)) {
 				cerr << "Error writing serialization of ciphertext X to " << "ciphertext-x-" + ctxId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -1172,7 +1177,7 @@ void Encrypt(const string &paramDir,  const string &contextID, const string &key
 
 			std::cout << "Serializing y...";
 
-			if (!Serializable::SerializeToFile(ctxtDir + "/" + "ciphertext-y-" + ctxId + "-" + std::to_string(k) + ".txt", yC)) {
+			if (!Serial::SerializeToFile(ctxtDir + "/" + "ciphertext-y-" + ctxId + "-" + std::to_string(k) + ".txt", yC, SerType::BINARY)) {
 				cerr << "Error writing serialization of ciphertext y to " << ctxtDir + "/" + "ciphertext-y-" + ctxId + "-" + std::to_string(k) + ".txt" << endl;
 				return;
 			}
@@ -1262,7 +1267,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		std::cout << "Deserializing the joint multiplication evaluation key...";
 
 		LPEvalKey<DCRTPoly> em;
-		if (Serializable::DeserializeFromFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em) == false) {
+		if (Serial::DeserializeFromFile(keyDir3 + "/" + "key-eval-mult-ABAB-" + jointKeyId + "-" + std::to_string(k) + ".txt", em, SerType::BINARY) == false) {
 			cerr << "Could not read mulplication evaluation key" << endl;
 			return;
 		}
@@ -1303,7 +1308,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 			LPEvalKey<DCRTPoly> es;
 			string tempFileName = keyDir2 + "/" + "key-eval-sum-AB-" + jointKeyId + "-" + std::to_string(k) + "-" + std::to_string(g) + ".txt";
-			if (Serializable::DeserializeFromFile(tempFileName, es) == false) {
+			if (Serial::DeserializeFromFile(tempFileName, es, SerType::BINARY) == false) {
 				cerr << "Could not read the evaluation key at index " << g << endl;
 				return;
 			}
@@ -1332,7 +1337,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xA;
-		if ( !Serializable::DeserializeFromFile(xFileName, xA) ) {
+		if ( !Serial::DeserializeFromFile(xFileName, xA, SerType::BINARY) ) {
 			cerr << "Could not deserialize ciphertext x" << endl;
 			return;
 		}
@@ -1348,7 +1353,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Trying to deserialize y...";
 
-		if ( !Serializable::DeserializeFromFile(yFileName, y) ) {
+		if ( !Serial::DeserializeFromFile(yFileName, y, SerType::BINARY) ) {
 			cout << "Could not read ciphertext y. Will attempt to extract y from provider B. " << endl;
 		}
 		else {
@@ -1362,7 +1367,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 		std::cout << "Deserializing row vector X for B...";
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xB;
-		if ( !Serializable::DeserializeFromFile(xFileName, xB) ) {
+		if ( !Serial::DeserializeFromFile(xFileName, xB, SerType::BINARY) ) {
 			cerr << "Could not deserialize ciphertext x" << endl;
 			return;
 		}
@@ -1378,7 +1383,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 			std::cout << "Trying to deserialize y...";
 
-			if (!Serializable::DeserializeFromFile(yFileName, y) ) {
+			if (!Serial::DeserializeFromFile(yFileName, y, SerType::BINARY) ) {
 				cout << "Could not read ciphertext y." << endl;
 				return;
 			}
@@ -1460,7 +1465,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Serializing X^T X...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xTx)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xTx, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T X to " << ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -1471,7 +1476,7 @@ void ComputeMultiparty(const string &paramDir,  const string &contextID, const s
 
 		std::cout << "Serializing X^T y...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xTy)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xTy, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T y to " << ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -1509,7 +1514,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 		std::cout << "Deserializing the private key for A...";
 
 		LPPrivateKey<DCRTPoly> skA;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -1526,7 +1531,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 		std::cout << "Deserializing the private key for B...";
 
 		LPPrivateKey<DCRTPoly> skB;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -1555,7 +1560,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx;
-		if ( !Serializable::DeserializeFromFile(xtxFileName, xtx) ) {
+		if ( !Serial::DeserializeFromFile(xtxFileName, xtx, SerType::BINARY) ) {
 			cerr << "Could not deserialize ciphertext X^T X" << endl;
 			return;
 		}
@@ -1599,7 +1604,7 @@ void TestLR(const string &paramDir,  const string &contextID, const string &keyD
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty;
 
-		if ( !Serializable::DeserializeFromFile(xtyFileName, xty) ) {
+		if ( !Serial::DeserializeFromFile(xtyFileName, xty, SerType::BINARY) ) {
 			cerr << "Could not deserialize ciphertext X^T y" << endl;
 			return;
 		}
@@ -1758,7 +1763,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 		std::cout << "Deserializing the private key for A...";
 
 		LPPrivateKey<DCRTPoly> skA;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-A-" + jointKeyId + "-" + std::to_string(k) + ".txt", skA, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -1779,7 +1784,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-		if (Serializable::DeserializeFromFile(xFileName, xtx) == false) {
+		if (Serial::DeserializeFromFile(xFileName, xtx, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T X" << endl;
 			return;
 		}
@@ -1796,7 +1801,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
-		if (Serializable::DeserializeFromFile(yFileName, xty) == false) {
+		if (Serial::DeserializeFromFile(yFileName, xty, SerType::BINARY) == false) {
 			cout << "Could not read ciphertext X^T y." << endl;
 			return;
 		}
@@ -1831,7 +1836,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Serializing X^T X...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtxDecrypted)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtxDecrypted, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T X to " << ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -1842,7 +1847,7 @@ void PartialDecrypt1(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Serializing X^T y...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtyDecrypted)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtyDecrypted, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T y to " << ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -1878,7 +1883,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 		std::cout << "Deserializing the private key for B...";
 
 		LPPrivateKey<DCRTPoly> skB;
-		if (Serializable::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB) == false) {
+		if (Serial::DeserializeFromFile(keyDir1 + "/" + "key-private-B-" + jointKeyId + "-" + std::to_string(k) + ".txt", skB, SerType::BINARY) == false) {
 			cerr << "Could not read private key" << endl;
 			return;
 		}
@@ -1898,7 +1903,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-		if (Serializable::DeserializeFromFile(xFileName, xtx) == false) {
+		if (Serial::DeserializeFromFile(xFileName, xtx, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T X" << endl;
 			return;
 		}
@@ -1914,7 +1919,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
-		if (Serializable::DeserializeFromFile(yFileName, xty) == false) {
+		if (Serial::DeserializeFromFile(yFileName, xty, SerType::BINARY) == false) {
 			cout << "Could not read ciphertext X^T y." << endl;
 			return;
 		}
@@ -1949,7 +1954,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Serializing X^T X...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtxDecrypted)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtxDecrypted, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T X to " << ctxtOutDir + "/" + "ciphertext-xtx-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -1960,7 +1965,7 @@ void PartialDecrypt2(const string &paramDir,  const string &contextID, const str
 
 		std::cout << "Serializing X^T y...";
 
-		if (!Serializable::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtyDecrypted)) {
+		if (!Serial::SerializeToFile(ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt", xtyDecrypted, SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext X^T y to " << ctxtOutDir + "/" + "ciphertext-xty-" + ctxOutId + "-" + std::to_string(k) + ".txt" << endl;
 			return;
 		}
@@ -2025,7 +2030,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		auto zeroAlloc = [=]() { return RationalCiphertext<DCRTPoly>(cc); };
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx1(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-		if (Serializable::DeserializeFromFile(xFileName, xtx1) == false) {
+		if (Serial::DeserializeFromFile(xFileName, xtx1, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T X" << endl;
 			return;
 		}
@@ -2041,7 +2046,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty1(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
-		if (Serializable::DeserializeFromFile(yFileName, xty1) == false) {
+		if (Serial::DeserializeFromFile(yFileName, xty1, SerType::BINARY) == false) {
 			cout << "Could not read ciphertext X^T y." << endl;
 			return;
 		}
@@ -2056,7 +2061,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 		std::cout << "Deserializing X^T X...";
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xtx2(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
-		if (Serializable::DeserializeFromFile(xFileName, xtx2) == false) {
+		if (Serial::DeserializeFromFile(xFileName, xtx2, SerType::BINARY) == false) {
 			cerr << "Could not read ciphertext X^T X" << endl;
 			return;
 		}
@@ -2072,7 +2077,7 @@ void FuseDecode(const string &paramDir, const string &contextID,
 
 		shared_ptr<Matrix<RationalCiphertext<DCRTPoly>>> xty2(new Matrix<RationalCiphertext<DCRTPoly>>(zeroAlloc));
 
-		if (Serializable::DeserializeFromFile(yFileName, xty2) == false) {
+		if (Serial::DeserializeFromFile(yFileName, xty2, SerType::BINARY) == false) {
 			cout << "Could not read ciphertext X^T y." << endl;
 			return;
 		}
@@ -2218,7 +2223,7 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 	std::cout << "Deserializing the crypto context...";
 
 	CryptoContext<DCRTPoly> cc;
-	if (Serializable::DeserializeFromFile(ccFileName, cc) == false) {
+	if (Serial::DeserializeFromFile(ccFileName, cc, SerType::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}

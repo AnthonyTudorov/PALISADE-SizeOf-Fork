@@ -1,5 +1,5 @@
 /**
- * @file serializable.h Serialization utilities.
+ * @file serializable.h Legacy Serialization utilities.
  * @author  TPOC: palisade@njit.edu
  *
  * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
@@ -55,13 +55,6 @@
 #endif
 
 #include "cereal/cereal.hpp"
-#include "cereal/archives/json.hpp"
-#include "cereal/archives/binary.hpp"
-#include "cereal/archives/portable_binary.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/vector.hpp"
-#include "cereal/types/map.hpp"
-#include "cereal/types/memory.hpp"
 #include "cereal/types/polymorphic.hpp"
 
 #ifdef __GNUC__
@@ -74,23 +67,23 @@
 #pragma clang diagnostic pop
 #endif
 
-/**
- * @namespace lbcrypto
- * The namespace of lbcrypto
- */
 namespace lbcrypto {
 
-template<typename Element>
-class CryptoContextImpl;
+using Serialized = void *;
 
-using Serialized = rapidjson::Document;
-
+/**
+ * \class Serializable
+ *
+ * \brief Base class for PALISADE serialization
+ *
+ * This class is inherited by every class that needs to be serialized.
+ * The class contains some deprecated methods from the older mechanisms
+ * for serialization
+ */
 class Serializable
 {
 public:
 	virtual ~Serializable() {}
-
-	enum Type {JSON,BINARY};
 
 	/**
 	 * Serialize the object into a Serialized
@@ -107,111 +100,6 @@ public:
 	 * @return true on success
 	 */
 	bool Deserialize(const Serialized& serObj) __attribute__ ((deprecated("serialization changed, see wiki for details")));
-
-	/**
-	 * SerializeToString - serialize the object to a JSON string and return the string
-	 * @param t - any serializable object
-	 * @return JSON string
-	 */
-	template <typename T>
-	inline static std::string SerializeToString(const std::shared_ptr<T> t) {
-		std::stringstream s;
-		{
-			Serialize(t, s, Serializable::Type::JSON);
-		}
-		return s.str();
-	}
-
-	/**
-	 * SerializeToString - serialize the object to a JSON string and return the string
-	 * @param t - any serializable object
-	 * @return JSON string
-	 */
-	template <typename T>
-	inline static std::string SerializeToString(const T& t) {
-		std::stringstream s;
-		{
-			Serialize(t, s, Serializable::Type::JSON);
-		}
-		return s.str();
-	}
-
-	/**
-	 * Serialize an object
-	 * @param obj - object to serialize
-	 * @param stream - Stream to serialize to
-	 * @param sertype - type of serialization; default is BINARY
-	 */
-	template<typename T>
-	inline static void
-	Serialize(const T& obj, std::ostream& stream, Serializable::Type sertype = Serializable::Type::BINARY) {
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONOutputArchive archive( stream );
-			archive( obj );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryOutputArchive archive( stream );
-			archive( obj );
-		}
-		else {
-
-		}
-	}
-
-	/**
-	 * Deserialize an object
-	 * @param obj - object to deserialize into
-	 * @param stream - Stream to deserialize from
-	 * @param sertype - type of serialization; default is BINARY
-	 */
-	template<typename T>
-	inline static void
-	Deserialize(T& obj, std::istream& stream, Serializable::Type sertype = Serializable::Type::BINARY) {
-		if( sertype == Serializable::Type::JSON ) {
-			cereal::JSONInputArchive archive( stream );
-			archive( obj );
-		}
-		else if( sertype == Serializable::Type::BINARY ) {
-			cereal::PortableBinaryInputArchive archive( stream );
-			archive( obj );
-		}
-		else {
-
-		}
-	}
-
-	/**
-	 * Deserialize a CryptoContext as a special case
-	 * @param obj - CryptoContext to deserialize into
-	 * @param stream - Stream to deserialize from
-	 * @param sertype - type of serialization; default is BINARY
-	 */
-	template<typename T>
-	static void
-	Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& stream, Serializable::Type sertype = Serializable::Type::BINARY);
-
-	template <typename T>
-	inline static bool SerializeToFile(std::string filename, const T& obj, Serializable::Type sertype = Serializable::Type::BINARY) {
-		std::ofstream file(filename, std::ios::out|std::ios::binary);
-		if( file.is_open() ) {
-			Serializable::Serialize(obj, file, sertype);
-			file.close();
-			return true;
-		}
-		return false;
-	}
-
-	template <typename T>
-	inline static bool DeserializeFromFile(std::string filename, T& obj, Serializable::Type sertype = Serializable::Type::BINARY) {
-		std::ifstream file(filename, std::ios::in|std::ios::binary);
-		if( file.is_open() ) {
-			Serializable::Deserialize(obj, file, sertype);
-			file.close();
-			return true;
-		}
-		return false;
-	}
-
 };
 
 //helper template to stream vector contents provided T has an stream operator<< 

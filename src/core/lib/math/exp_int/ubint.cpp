@@ -149,6 +149,13 @@ ubint<limb_t>::ubint(const std::string& str){
 	DEBUG("final msb ="<<this->m_MSB);
 }
 
+/**
+ * Construct from a NativeInteger
+ * @param n
+ */
+template<typename limb_t>
+ubint<limb_t>::ubint(const NativeInteger& n) : ubint(n.ConvertToInt()) {}
+
 //copy constructor
 template<typename limb_t>
 ubint<limb_t>::ubint(const ubint& rhs){

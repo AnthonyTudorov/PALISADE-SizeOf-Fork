@@ -30,23 +30,32 @@
 
 #include "version.h"
 
-#include "utils/inttypes.h"
-#include "utils/parallel.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <type_traits>
+#include <typeinfo>
+#include <limits>
+#include <stdexcept>
+#include <functional>
+#include <cstdlib>
+#include <memory>
 
+#include "interface.h"
+#include "utils/inttypes.h"
+#include "utils/serializable.h"
+#include "utils/memory.h"
+#include "utils/palisadebase64.h"
+#include "utils/exception.h"
+#include "utils/parallel.h"
+#include "utils/debug.h"
  
 // use of MS VC is not permitted because of various incompatibilities
 #ifdef _MSC_VER
 #error "MSVC COMPILER IS NOT SUPPORTED"
 #endif
-
-////////// definitions for native integer and native vector
-#include "native_int/binint.h"
-#include "native_int/binvect.h"
-#include <initializer_list>
-
-typedef native_int::NativeInteger<uint64_t>			NativeInteger;
-typedef native_int::NativeVector<NativeInteger>		NativeVector;
-typedef unsigned __int128 DoubleNativeInteger;
 
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
@@ -79,6 +88,11 @@ typedef unsigned __int128 DoubleNativeInteger;
 //To select backend, please UNCOMMENT the appropriate line rather than changing the number on the
 //uncommented line (and breaking the documentation of the line)
 
+namespace native_int
+{
+	class NativeInteger;
+}
+
 #ifndef MATHBACKEND
 //#define MATHBACKEND 2
 //#define MATHBACKEND 4
@@ -99,7 +113,7 @@ typedef uint32_t integral_dtype;
 	**/
 
 #ifndef BigIntegerBitLength
-#define BigIntegerBitLength 1500 //for documentation on tests
+#define BigIntegerBitLength 3000 //for documentation on tests
 #endif
 
 #if BigIntegerBitLength < 600
@@ -188,9 +202,32 @@ namespace lbcrypto {
 	using BigVector = M6Vector;
 
 #endif
+
+typedef unsigned __int128 DoubleNativeInt;
+
+// it would be better, instead of the line above, to use the
+// commented lines, but (a) the HAVE_INTRINSIC define's broken,
+// for some compilers, and (b) some code doesn't work nicely
+// when you plonk in BigInteger...
+/********************************************************
+// if we do not have an int128 built in,
+// then we must use a multiprecision type
+#if ABSL_HAVE_INTRINSIC_INT128
+typedef unsigned __int128 DoubleNativeInt;
+#else
+typedef BigInteger DoubleNativeInt;
+#endif
+********************************************************/
+
 }
 
-#endif
+////////// definitions for native integer and native vector
+#include "native_int/binint.h"
+#include "native_int/binvect.h"
+#include <initializer_list>
+
+typedef native_int::NativeInteger NativeInteger;
+typedef native_int::NativeVector<NativeInteger>		NativeVector;
 
 // COMMON TESTING DEFINITIONS
 extern bool TestB2;
@@ -221,4 +258,5 @@ extern bool TestNative;
 	if( TestNative ) { using V = NativeVector; FUNCTION<V>("Native " MESSAGE); } \
 }
 
+#endif
 

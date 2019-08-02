@@ -22,7 +22,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "benchmark/benchmark_api.h"
+#include "benchmark/benchmark.h"
 
 #define BASIC_BENCHMARK_TEST(x) BENCHMARK(x)->Arg(8)->Arg(512)->Arg(8192)
 
@@ -119,4 +119,4 @@ void BM_empty_stop_start(benchmark::State& state) {
 BENCHMARK(BM_empty_stop_start);
 BENCHMARK(BM_empty_stop_start)->ThreadPerCpu();
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

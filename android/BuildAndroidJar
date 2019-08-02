@@ -1,0 +1,4 @@
+cd jni/PALISADE
+
+javac $(find . -name PALISADE.java)
+jar cf ../../libs/PALISADE.jar $(find . -name '*.class')

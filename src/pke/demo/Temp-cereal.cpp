@@ -7,6 +7,9 @@
 
 #include "palisade.h"
 #include "cryptocontext.h"
+#include "utils/serialize-binary.h"
+#include "utils/serialize-json.h"
+#include "ciphertext-ser.h"
 using namespace lbcrypto;
 
 class Foo {
@@ -76,19 +79,19 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 
 	cout << "JSON serialization: " << endl;
 		s.str("");
-		Serializable::Serialize(obj, s, Serializable::JSON);
+		Serial::Serialize(obj, s, SerType::JSON);
 	cout << "   bytes: " << s.tellp() << endl;
 
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		s.str("");
-		Serializable::Serialize(obj, s, Serializable::JSON);
+		Serial::Serialize(obj, s, SerType::JSON);
 	}
 	cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		newobj.reset( new T() );
-		Serializable::Deserialize(newobj, s, Serializable::JSON);
+		Serial::Deserialize(newobj, s, SerType::JSON);
 		s.clear();
 		s.seekg(0, std::ios::beg);
 	}
@@ -98,19 +101,19 @@ void RunSerialOptions(const shared_ptr<T> obj, string nam) {
 	cout << "BINARY serialization: " << endl;
 	{
 		s.str("");
-		Serializable::Serialize(obj, s, Serializable::BINARY);
+		Serial::Serialize(obj, s, SerType::BINARY);
 	}
 	cout << "   bytes: " << s.tellp() << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		s.str("");
-		Serializable::Serialize(obj, s, Serializable::BINARY);
+		Serial::Serialize(obj, s, SerType::BINARY);
 	}
 	cout << "   serialization time: " << (double)TOC_US(t)/repcount << "us" << endl;
 	TIC(t);
 	for( int i=0; i<repcount; i++ ) {
 		newobj.reset( new T() );
-		Serializable::Deserialize(newobj, s, Serializable::BINARY);
+		Serial::Deserialize(newobj, s, SerType::BINARY);
 		s.clear();
 		s.seekg(0, std::ios::beg);
 	}
@@ -156,7 +159,7 @@ public:
 	template <class Archive>
 	void serialize( Archive & ar )
 	{
-		ar( cereal::base_class<Base>(this), CEREAL_NVP(x) );
+		ar( ::cereal::base_class<Base>(this), CEREAL_NVP(x) );
 	}
 };
 
@@ -173,7 +176,7 @@ public:
 	template <class Archive>
 	void serialize( Archive & ar )
 	{
-		ar( cereal::base_class<Base>(this), CEREAL_NVP(y) );
+		ar( ::cereal::base_class<Base>(this), CEREAL_NVP(y) );
 	}
 };
 
@@ -200,9 +203,9 @@ void tryit() {
 		archive( v2 );
 		archive( v3 );
 	}
-	Serializable::Serialize(v1, s1, Serializable::Type::JSON);
-	Serializable::Serialize(v2, s1, Serializable::Type::JSON);
-	Serializable::Serialize(v3, s1, Serializable::Type::JSON);
+	Serial::Serialize(v1, s1, SerType::JSON);
+	Serial::Serialize(v2, s1, SerType::JSON);
+	Serial::Serialize(v3, s1, SerType::JSON);
 
 	cout << s1.str() << endl;
 
@@ -235,71 +238,40 @@ main()
 		BigVector bv(8, m, {345, 212, 984, 2405, 107040, 10312, 0, 909});
 		NativeVector nv(8, m, {345, 212, 984, 2405, 107040, 10312, 0, 909});
 
-		cout << Serializable::SerializeToString(sv) << endl;
-		cout << Serializable::SerializeToString(nv) << endl;
+		cout << Serial::SerializeToString(sv) << endl;
+		cout << Serial::SerializeToString(nv) << endl;
 		{
 			stringstream s;
 
 			NativeVector re;
-			Serializable::Serialize(nv, s, Serializable::Type::JSON);
-			Serializable::Deserialize(re, s, Serializable::Type::JSON);
-			cout << "json " << Serializable::SerializeToString(re) << endl;
+			Serial::Serialize(nv, s, SerType::JSON);
+			Serial::Deserialize(re, s, SerType::JSON);
+			cout << "json " << Serial::SerializeToString(re) << endl;
 
 			s.str("");
 			NativeVector re2;
-			Serializable::Serialize(nv, s, Serializable::Type::BINARY);
-			Serializable::Deserialize(re2, s, Serializable::Type::BINARY);
-			cout << "binary " << Serializable::SerializeToString(re2) << endl;
+			Serial::Serialize(nv, s, SerType::BINARY);
+			Serial::Deserialize(re2, s, SerType::BINARY);
+			cout << "binary " << Serial::SerializeToString(re2) << endl;
 		}
 
-		cout << Serializable::SerializeToString(bv) << endl;
+		cout << Serial::SerializeToString(bv) << endl;
 		{
 			stringstream s;
 
 			BigVector re;
-			Serializable::Serialize(bv, s, Serializable::Type::JSON);
-			Serializable::Deserialize(re, s, Serializable::Type::JSON);
-			cout << "json " << Serializable::SerializeToString(re) << endl;
+			Serial::Serialize(bv, s, SerType::JSON);
+			Serial::Deserialize(re, s, SerType::JSON);
+			cout << "json " << Serial::SerializeToString(re) << endl;
 
 			s.str("");
 			BigVector re2;
-			Serializable::Serialize(bv, s, Serializable::Type::BINARY);
-			Serializable::Deserialize(re2, s, Serializable::Type::BINARY);
-			cout << "binary " << Serializable::SerializeToString(re2) << endl;
+			Serial::Serialize(bv, s, SerType::BINARY);
+			Serial::Deserialize(re2, s, SerType::BINARY);
+			cout << "binary " << Serial::SerializeToString(re2) << endl;
 		}
 
 
-	}
-
-	if( false ) {
-		stringstream s;
-		BigInteger W, X;
-
-		W = 5;
-		{
-			cereal::BinaryOutputArchive archive( s );
-			archive( W );
-		}
-		{
-			cereal::BinaryInputArchive archive( s );
-			archive( X );
-		}
-		cout << W << endl;
-		cout << X << endl;
-
-		s.str("");
-		s.clear();
-		W = 0; X = 17;
-		{
-			cereal::BinaryOutputArchive archive( s );
-			archive( W );
-		}
-		{
-			cereal::BinaryInputArchive archive( s );
-			archive( X );
-		}
-		cout << W << endl;
-		cout << X << endl;
 	}
 
 	if( false ) {
@@ -308,22 +280,22 @@ main()
 		stringstream ss;
 		{
 			cereal::JSONOutputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", xxx) );
+			archive( ::cereal::make_nvp("Foo", xxx) );
 		}
 		{
 			cereal::JSONInputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", yyy) );
+			archive( ::cereal::make_nvp("Foo", yyy) );
 		}
 		cout << (xxx == yyy ? "yes" : "no") << endl;
 
 		ss.str("");
 		{
-			cereal::BinaryOutputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", xxx) );
+			cereal::PortableBinaryOutputArchive archive( ss );
+			archive( ::cereal::make_nvp("Foo", xxx) );
 		}
 		{
-			cereal::BinaryInputArchive archive( ss );
-			archive( cereal::make_nvp("Foo", zzz) );
+			cereal::PortableBinaryInputArchive archive( ss );
+			archive( ::cereal::make_nvp("Foo", zzz) );
 		}
 		cout << (xxx == zzz ? "yes" : "no") << endl << endl;
 

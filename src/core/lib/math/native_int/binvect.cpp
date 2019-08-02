@@ -630,6 +630,6 @@ NativeVector<IntegerType> NativeVector<IntegerType>::GetDigitAtIndexForBase(usin
 	return ans;
 }
 
-template class NativeVector<NativeInteger<uint64_t>>;
+template class NativeVector<NativeInteger>;
  
 } // namespace lbcrypto ends

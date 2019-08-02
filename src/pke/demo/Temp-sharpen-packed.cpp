@@ -41,6 +41,11 @@ BFV RNS testing programs
 #include "encoding/encodings.h"
 
 #include "utils/debug.h"
+#include "utils/serialize-binary.h"
+#include "bfvrns-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -141,7 +146,7 @@ CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 	std::cout << "Deserializing the crypto context...";
 
 	CryptoContext<DCRTPoly> cc;
-	if (Serializable::DeserializeFromFile(ccFileName, cc, Serializable::Type::BINARY) == false) {
+	if (Serial::DeserializeFromFile(ccFileName, cc, SerType::BINARY) == false) {
 		cerr << "Could not read the cryptocontext file" << endl;
 		return 0;
 	}
@@ -167,7 +172,7 @@ CryptoContext<DCRTPoly> DeserializeContextWithEvalKeys(const string& ccFileName,
 		return 0;
 	}
 
-	if( cc->DeserializeEvalAutomorphismKey(eakeys, Serializable::Type::BINARY) == false ) {
+	if( cc->DeserializeEvalAutomorphismKey(eakeys, SerType::BINARY) == false ) {
 		cerr << "Could not deserialize the eval automorphism keys" << endl;
 		return 0;
 	}
@@ -243,7 +248,7 @@ void KeyGen(size_t size) {
 
 	std::cout << "Serializing crypto context...";
 
-	if (!Serializable::SerializeToFile("demoData/cryptocontext.txt", cryptoContext, Serializable::Type::BINARY)) {
+	if (!Serial::SerializeToFile("demoData/cryptocontext.txt", cryptoContext, SerType::BINARY)) {
 		cerr << "Error writing serialization of the crypto context to cryptocontext.txt" << endl;
 		return;
 	}
@@ -254,12 +259,12 @@ void KeyGen(size_t size) {
 
 	if(kp.publicKey && kp.secretKey) {
 
-		if(!Serializable::SerializeToFile("demoData/PUB.txt", kp.publicKey, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile("demoData/PUB.txt", kp.publicKey, SerType::BINARY)) {
 			cerr << "Error writing serialization of public key" << endl;
 			return;
 		}
 
-		if(!Serializable::SerializeToFile("demoData/PRI.txt", kp.secretKey, Serializable::Type::BINARY)) {
+		if(!Serial::SerializeToFile("demoData/PRI.txt", kp.secretKey, SerType::BINARY)) {
 			cerr << "Error writing serialization of private key" << endl;
 			return;
 		}
@@ -273,7 +278,7 @@ void KeyGen(size_t size) {
 
 	ofstream eakeyfile("demoData/EVALAUTO.txt", std::ios::out|std::ios::binary);
 	if( eakeyfile.is_open() ) {
-		if( cryptoContext->SerializeEvalAutomorphismKey(eakeyfile, Serializable::Type::BINARY) == false ) {
+		if( cryptoContext->SerializeEvalAutomorphismKey(eakeyfile, SerType::BINARY) == false ) {
 			cerr << "Error writing serialization of the eval automorphism keys" << endl;
 			return;
 		}
@@ -317,7 +322,7 @@ void Encrypt(size_t size) {
 	// Initialize the public key container
 	string pubKeyLoc = "demoData/PUB.txt";
 	LPPublicKey<DCRTPoly> pk;
-	if(Serializable::DeserializeFromFile(pubKeyLoc, pk, Serializable::Type::BINARY) == false) {
+	if(Serial::DeserializeFromFile(pubKeyLoc, pk, SerType::BINARY) == false) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
@@ -375,7 +380,7 @@ void Encrypt(size_t size) {
 
 		string ciphertextname ="demoData/ciphertext-" + to_string(i+1) + ".txt";
 
-		if (!Serializable::SerializeToFile(ciphertextname, image[i], Serializable::Type::BINARY)) {
+		if (!Serial::SerializeToFile(ciphertextname, image[i], SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
@@ -428,7 +433,7 @@ void Evaluate(size_t size)
 		string ciphertextname = "demoData/ciphertext-" + to_string(i+1) + ".txt";
 
 		Ciphertext<DCRTPoly> ct;
-		if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
+		if( Serial::DeserializeFromFile(ciphertextname, ct, SerType::BINARY) == false ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}
@@ -496,7 +501,7 @@ void Evaluate(size_t size)
 
 		string ciphertextname ="demoData/ciphertext-result-" + to_string(i+1) + ".txt";
 
-		if (!Serializable::SerializeToFile(ciphertextname, image2[i], Serializable::Type::BINARY)) {
+		if (!Serial::SerializeToFile(ciphertextname, image2[i], SerType::BINARY)) {
 			cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 			return;
 		}
@@ -539,7 +544,7 @@ void Decrypt(size_t size) {
 	// Initialize the public key containers.
 	string privKeyLoc = "demoData/PRI.txt";
 	LPPrivateKey<DCRTPoly> sk;
-	if(Serializable::DeserializeFromFile(privKeyLoc, sk, Serializable::Type::BINARY) == false) {
+	if(Serial::DeserializeFromFile(privKeyLoc, sk, SerType::BINARY) == false) {
 		cerr << "Could not read privatekey" << endl;
 		return;
 	}
@@ -562,7 +567,7 @@ void Decrypt(size_t size) {
 		string ciphertextname = "demoData/ciphertext-result-" + to_string(i+1) + ".txt";
 
 		Ciphertext<DCRTPoly> ct;
-		if( Serializable::DeserializeFromFile(ciphertextname, ct, Serializable::Type::BINARY) == false ) {
+		if( Serial::DeserializeFromFile(ciphertextname, ct, SerType::BINARY) == false ) {
 			cerr << "Could not deserialize ciphertext" << endl;
 			return;
 		}

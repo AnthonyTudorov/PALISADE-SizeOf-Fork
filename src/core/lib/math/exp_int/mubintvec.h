@@ -485,9 +485,9 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( cereal::make_nvp("d", m_data) );
-		ar( cereal::make_nvp("m", m_modulus) );
-		ar( cereal::make_nvp("ms", m_modulus_state) );
+		ar( ::cereal::make_nvp("d", m_data) );
+		ar( ::cereal::make_nvp("m", m_modulus) );
+		ar( ::cereal::make_nvp("ms", m_modulus_state) );
 	}
 
 	template <class Archive>
@@ -496,9 +496,9 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( cereal::make_nvp("d", m_data) );
-		ar( cereal::make_nvp("m", m_modulus) );
-		ar( cereal::make_nvp("ms", m_modulus_state) );
+		ar( ::cereal::make_nvp("d", m_data) );
+		ar( ::cereal::make_nvp("m", m_modulus) );
+		ar( ::cereal::make_nvp("ms", m_modulus_state) );
 	}
 
 	std::string SerializedObjectName() const { return "ExpVector"; }

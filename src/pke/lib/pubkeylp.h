@@ -124,13 +124,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
 		}
 	};
 
@@ -265,8 +265,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::base_class<LPKey<Element>>( this ) );
-			ar( cereal::make_nvp("h",m_h) );
+			ar( ::cereal::base_class<LPKey<Element>>( this ) );
+			ar( ::cereal::make_nvp("h",m_h) );
 		}
 
 		template <class Archive>
@@ -275,8 +275,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-			ar( cereal::base_class<LPKey<Element>>( this ) );
-			ar( cereal::make_nvp("h",m_h) );
+			ar( ::cereal::base_class<LPKey<Element>>( this ) );
+			ar( ::cereal::make_nvp("h",m_h) );
 		}
 
 		std::string SerializedObjectName() const { return "PublicKey"; }
@@ -419,13 +419,13 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		    ar( ::cereal::base_class<LPKey<Element>>( this ) );
 		}
 
 		template <class Archive>
 		void load( Archive & ar, std::uint32_t const version )
 		{
-		    ar( cereal::base_class<LPKey<Element>>( this ) );
+		    ar( ::cereal::base_class<LPKey<Element>>( this ) );
 		}
 		std::string SerializedObjectName() const { return "EvalKey"; }
 	};
@@ -576,8 +576,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_rKey) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_rKey) );
 		}
 
 		template <class Archive>
@@ -586,8 +586,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_rKey) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_rKey) );
 		}
 		std::string SerializedObjectName() const { return "EvalKeyRelin"; }
 		static uint32_t	SerializedVersion() { return 1; }
@@ -712,8 +712,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_rKey) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_rKey) );
 		}
 
 		template <class Archive>
@@ -722,8 +722,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_rKey) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_rKey) );
 		}
 
 		std::string SerializedObjectName() const { return "EvalKeyNTRURelin"; }
@@ -848,8 +848,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_Key) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_Key) );
 		}
 
 		template <class Archive>
@@ -858,8 +858,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-		    ar( cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
-		    ar( cereal::make_nvp("k", m_Key) );
+		    ar( ::cereal::base_class<LPEvalKeyImpl<Element>>( this ) );
+		    ar( ::cereal::make_nvp("k", m_Key) );
 		}
 
 		std::string SerializedObjectName() const { return "EvalKeyNTRU"; }
@@ -967,8 +967,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::base_class<LPKey<Element>>( this ) );
-			ar( cereal::make_nvp("s",m_sk) );
+			ar( ::cereal::base_class<LPKey<Element>>( this ) );
+			ar( ::cereal::make_nvp("s",m_sk) );
 		}
 
 		template <class Archive>
@@ -977,8 +977,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-			ar( cereal::base_class<LPKey<Element>>( this ) );
-			ar( cereal::make_nvp("s",m_sk) );
+			ar( ::cereal::base_class<LPKey<Element>>( this ) );
+			ar( ::cereal::make_nvp("s",m_sk) );
 		}
 
 		std::string SerializedObjectName() const { return "PrivateKey"; }
@@ -1033,14 +1033,6 @@ namespace lbcrypto {
 		*/
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
 			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const = 0;
-
-		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version ) const {}
-
-		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version ) {}
-
-		std::string SerializedObjectName() const { return "ParamsGen"; }
 	};
 
 	/**
@@ -1092,15 +1084,6 @@ namespace lbcrypto {
 			 * @return function ran correctly.
 			 */
 			virtual LPKeyPair<Element> KeyGen(CryptoContext<Element> cc, bool makeSparse=false) = 0;
-
-
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const {}
-
-			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version ) {}
-
-			std::string SerializedObjectName() const { return "Encryption"; }
 	};
 
 
@@ -1159,14 +1142,6 @@ namespace lbcrypto {
 			* @param rootHermiteFactor is the security threshold
 			*/
 			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const = 0;
-
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const {}
-
-			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version ) {}
-
-			std::string SerializedObjectName() const { return "LeveledSHE"; }
 	};
 
 	/**
@@ -1201,14 +1176,6 @@ namespace lbcrypto {
 			virtual Ciphertext<Element> ReEncrypt(const LPEvalKey<Element> evalKey,
 				ConstCiphertext<Element> ciphertext,
 				const LPPublicKey<Element> publicKey = nullptr) const = 0;
-
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const {}
-
-			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version ) {}
-
-			std::string SerializedObjectName() const { return "PRE"; }
 	};
 
 	/**
@@ -1284,14 +1251,6 @@ namespace lbcrypto {
 			 */
 			virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 				NativePoly *plaintext) const = 0;
-
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const {}
-
-			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version ) {}
-
-			std::string SerializedObjectName() const { return "MultiParty"; }
 	};
 
 	/**
@@ -1928,15 +1887,6 @@ namespace lbcrypto {
 
 		}
 
-
-		template <class Archive>
-		void save( Archive & ar, std::uint32_t const version ) const {}
-
-		template <class Archive>
-		void load( Archive & ar, std::uint32_t const version ) {}
-
-		std::string SerializedObjectName() const { return "SHE"; }
-
 		private:
 
 			std::vector<usint> GenerateIndices_2n(usint batchSize, usint m) const {
@@ -1995,14 +1945,6 @@ namespace lbcrypto {
 			 */
 			virtual void Bootstrap(ConstCiphertext<Element> &ciphertext,
 				Ciphertext<Element> *newCiphertext) const = 0;
-
-			template <class Archive>
-			void save( Archive & ar, std::uint32_t const version ) const {}
-
-			template <class Archive>
-			void load( Archive & ar, std::uint32_t const version ) {}
-
-			std::string SerializedObjectName() const { return "FHE"; }
 	};
 
 	/**
@@ -2086,8 +2028,8 @@ namespace lbcrypto {
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::make_nvp("elp", m_params) );
-			ar( cereal::make_nvp("enp", m_encodingParams) );
+			ar( ::cereal::make_nvp("elp", m_params) );
+			ar( ::cereal::make_nvp("enp", m_encodingParams) );
 		}
 
 		template <class Archive>
@@ -2096,8 +2038,8 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-			ar( cereal::make_nvp("elp", m_params) );
-			ar( cereal::make_nvp("enp", m_encodingParams) );
+			ar( ::cereal::make_nvp("elp", m_params) );
+			ar( ::cereal::make_nvp("enp", m_encodingParams) );
 		}
 
 		std::string SerializedObjectName() const { return "CryptoParameters"; }
@@ -2792,18 +2734,12 @@ namespace lbcrypto {
 			}
 		}
 
-		const std::shared_ptr<LPEncryptionAlgorithm<const Element>> getAlgorithm() const { return m_algorithmEncryption; }
+		const std::shared_ptr<LPEncryptionAlgorithm<Element>> getAlgorithm() const { return m_algorithmEncryption; }
 
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
-			ar( cereal::make_nvp("e",m_algorithmEncryption) );
-			ar( cereal::make_nvp("p",m_algorithmPRE) );
-			ar( cereal::make_nvp("m",m_algorithmMultiparty) );
-			ar( cereal::make_nvp("s",m_algorithmSHE) );
-			ar( cereal::make_nvp("f",m_algorithmFHE) );
-			ar( cereal::make_nvp("ls",m_algorithmLeveledSHE) );
+			ar( ::cereal::make_nvp("enabled",GetEnabled()) );
 		}
 
 		template <class Archive>
@@ -2812,13 +2748,10 @@ namespace lbcrypto {
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 			}
-			ar( cereal::make_nvp("pg",m_algorithmParamsGen) );
-			ar( cereal::make_nvp("e",m_algorithmEncryption) );
-			ar( cereal::make_nvp("p",m_algorithmPRE) );
-			ar( cereal::make_nvp("m",m_algorithmMultiparty) );
-			ar( cereal::make_nvp("s",m_algorithmSHE) );
-			ar( cereal::make_nvp("f",m_algorithmFHE) );
-			ar( cereal::make_nvp("ls",m_algorithmLeveledSHE) );
+
+			usint enabled;
+			ar( ::cereal::make_nvp("enabled",enabled) );
+			this->Enable(enabled);
 		}
 
 		virtual std::string SerializedObjectName() const { return "Scheme"; }

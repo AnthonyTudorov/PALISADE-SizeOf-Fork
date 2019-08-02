@@ -38,6 +38,11 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "utils/debug.h"
+#include "utils/serialize-json.h"
+#include "bfv-ser.h"
+#include "pubkeylp-ser.h"
+#include "cryptocontext-ser.h"
+#include "ciphertext-ser.h"
 
 //#include "utils/ser-reg.h"
 
@@ -55,12 +60,12 @@ keymaker(CryptoContext<Poly> ctx, string keyname)
 
 	if( kp.publicKey && kp.secretKey ) {
 
-		if( !Serializable::SerializeToFile(DATAFOLDER + "/" + keyname + "PUB.txt", kp.publicKey, Serializable::Type::JSON) ) {
+		if( !Serial::SerializeToFile(DATAFOLDER + "/" + keyname + "PUB.txt", kp.publicKey, SerType::JSON) ) {
 			cerr << "Error writing serialization of public key to " + keyname + "PUB.txt" << endl;
 			return;
 		}
 
-		if( !Serializable::SerializeToFile(DATAFOLDER + "/" + keyname + "PRI.txt", kp.secretKey, Serializable::Type::JSON) ) {
+		if( !Serial::SerializeToFile(DATAFOLDER + "/" + keyname + "PRI.txt", kp.secretKey, SerType::JSON) ) {
 			cerr << "Error writing serialization of private key to " + keyname + "PRI.txt" << endl;
 			return;
 		}
@@ -80,7 +85,7 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 
 	// Initialize the public key containers.
 	LPPublicKey<Poly> pk;
-	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + pubkeyname, pk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(DATAFOLDER + "/" + pubkeyname, pk, SerType::JSON) == false ) {
 		cerr << "Could not read public key" << endl;
 		return;
 	}
@@ -94,7 +99,7 @@ encrypter(CryptoContext<Poly> ctx, Plaintext iPlaintext, string pubkeyname, stri
 	// now encrypt iPlaintext
 	auto ciphertext = ctx->Encrypt(pk, iPlaintext);
 
-	if( !Serializable::SerializeToFile(DATAFOLDER + "/" + ciphertextname, ciphertext, Serializable::Type::JSON) ) {
+	if( !Serial::SerializeToFile(DATAFOLDER + "/" + ciphertextname, ciphertext, SerType::JSON) ) {
 		cerr << "Error writing serialization of ciphertext to " + ciphertextname << endl;
 		return;
 	}
@@ -109,7 +114,7 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 	Plaintext iPlaintext;
 
 	LPPrivateKey<Poly> sk;
-	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + prikeyname, sk, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(DATAFOLDER + "/" + prikeyname, sk, SerType::JSON) == false ) {
 		cerr << "Could not read private key" << endl;
 		return iPlaintext;
 	}
@@ -120,7 +125,7 @@ decrypter(CryptoContext<Poly> ctx, string ciphertextname, string prikeyname)
 	}
 
 	Ciphertext<Poly> ct;
-	if( Serializable::DeserializeFromFile(DATAFOLDER + "/" + ciphertextname, ct, Serializable::Type::JSON) == false ) {
+	if( Serial::DeserializeFromFile(DATAFOLDER + "/" + ciphertextname, ct, SerType::JSON) == false ) {
 		cerr << "Could not read ciphertext" << endl;
 		return iPlaintext;
 	}

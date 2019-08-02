@@ -1,0 +1,106 @@
+
+if test -f GetTime.cpp
+then
+   rm GetTime.cpp
+fi
+
+echo "does anybody really know what time it is?"
+
+
+sh RemoveProg TestGetTime
+sh AndroidRemoveProg $3/TestGetTime
+echo $1 TestGetTime.cpp GetTime1.cpp
+$1 TestGetTime.cpp GetTime1.cpp
+echo $2 -o TestGetTime TestGetTime.o GetTime1.o
+$2 -o TestGetTime TestGetTime.o GetTime1.o
+
+adb push TestGetTime $3/
+
+if test -f TestGetTime
+then
+if adb shell $3/TestGetTime 1 1048576 1048575
+then
+cp GetTime1.cpp GetTime.cpp
+echo "using GetTime1.cpp"
+exit 0
+fi
+fi
+
+
+sh RemoveProg TestGetTime
+sh AndroidRemoveProg $3/TestGetTime
+echo $1 TestGetTime.cpp GetTime2.cpp
+$1 TestGetTime.cpp GetTime2.cpp
+echo $2 -o TestGetTime TestGetTime.o GetTime2.o
+$2 -o TestGetTime TestGetTime.o GetTime2.o
+
+adb push TestGetTime $3/
+
+if test -f TestGetTime
+then
+if adb shell $3/TestGetTime 1 1048576 1048575
+then
+cp GetTime2.cpp GetTime.cpp
+echo "using GetTime2.cpp"
+exit 0
+fi
+fi
+
+sh RemoveProg TestGetTime
+sh AndroidRemoveProg $3/TestGetTime
+echo $1 TestGetTime.cpp GetTime3.cpp
+$1 TestGetTime.cpp GetTime3.cpp
+echo $2 -o TestGetTime TestGetTime.o GetTime3.o
+$2 -o TestGetTime TestGetTime.o GetTime3.o
+
+adb push TestGetTime $3/
+
+if test -f TestGetTime
+then
+if adb shell $3/TestGetTime 1 1048576 1048575
+then
+cp GetTime3.cpp GetTime.cpp
+echo "using GetTime3.cpp"
+exit 0
+fi
+fi
+
+sh RemoveProg TestGetTime
+sh AndroidRemoveProg $3/TestGetTime
+echo $1 TestGetTime.cpp GetTime4.cpp
+$1 TestGetTime.cpp GetTime4.cpp
+echo $2 -o TestGetTime TestGetTime.o GetTime4.o
+$2 -o TestGetTime TestGetTime.o GetTime4.o
+
+adb push TestGetTime $3/
+
+if test -f TestGetTime
+then
+if adb shell $3/TestGetTime 1 1048576 1048575
+then
+cp GetTime4.cpp GetTime.cpp
+echo "using GetTime4.cpp"
+exit 0
+fi
+fi
+
+sh RemoveProg TestGetTime
+sh AndroidRemoveProg $3/TestGetTime
+echo $1 TestGetTime.cpp GetTime5.cpp
+$1 TestGetTime.cpp GetTime5.cpp
+echo $2 -o TestGetTime TestGetTime.o GetTime5.o
+$2 -o TestGetTime TestGetTime.o GetTime5.o
+
+adb push TestGetTime $3/
+
+if test -f TestGetTime
+then
+cp GetTime5.cpp GetTime.cpp
+echo "using GetTime5.cpp"
+echo "warning: this GetTime function always returns 0"
+exit 0
+else
+echo "something is wrong..."
+exit 1
+fi
+
