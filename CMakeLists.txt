@@ -18,6 +18,8 @@ if(APPLE)
 	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
 endif()
 
+OPTION (USE_OpenMP "Use OpenMP to enable <omp.h>" ON)
+
 # Find OpenMP
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -117,11 +119,7 @@ set(COMPILEFLAGS "-g -Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
-OPTION (USE_OpenMP "Use OpenMP to enamble <omp.h>" ON)
-
-if(USE_OpenMP)
-	include(FindOpenMP)
-endif()
+find_package (OpenMP)
 
 if (OpenMP_CXX_FOUND)
 	if( APPLE )
