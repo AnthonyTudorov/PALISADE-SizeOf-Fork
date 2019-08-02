@@ -8,37 +8,31 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(TAR "tar")
 if(APPLE)
-	set(TAR "gnutar")
+	set(TAR "gtar")
 endif()
 
 if(APPLE)
-	set(CMAKE_C_COMPILER /opt/local/bin/clang)
-	set(CMAKE_CXX_COMPILER /opt/local/bin/clang++)
-	set(OPENMP_LIBRARIES "/opt/local/lib/openmpi-clang70/openmpi")
-	set(OPENMP_INCLUDES "/opt/local/include/openmpi-clang70")
+	set(OPENMP_LIBRARIES "/usr/local/opt/libomp/lib")
+	set(OPENMP_INCLUDES "/usr/local/opt/libomp/include")
 endif()
 
-# Find OpenMP
+OPTION (USE_OpenMP "Use OpenMP to enable <omp.h>" ON)
+
+# Set OpenMP configuration manually for MacOS
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        set(OpenMP_C "${CMAKE_C_COMPILER}")
-        set(OpenMP_C_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
-        set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
-        set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})
-        set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})
-        set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})
+       set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument")
+       set(OpenMP_C_LIB_NAMES "libomp")
+       set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")
-      set(OpenMP_CXX_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
-      set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")
-      set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
-      set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
-      set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+       set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument")
+       set(OpenMP_CXX_LIB_NAMES "libomp")
+       set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
     endif()
 endif()
 	
-### several of the third-party tools use automake and autoconf
+### several of the third-party tools use auto-make and autoconf
 ### we need to make sure that they are installed
 execute_process(COMMAND autogen --version OUTPUT_VARIABLE AUTOGEN_VER)
 # execute_process in MINGW by default does not run in a shell
@@ -117,29 +111,23 @@ set(COMPILEFLAGS "-g -Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
-OPTION (USE_OpenMP "Use OpenMP to enamble <omp.h>" ON)
+find_package (OpenMP)
 
-if(USE_OpenMP)
-	include(FindOpenMP)
+if( APPLE AND USE_OpenMP)
+	include_directories("${OPENMP_INCLUDES}")
+	link_directories("${OPENMP_LIBRARIES}")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
 
 if (OpenMP_CXX_FOUND)
-	if( APPLE )
-		include_directories("${OPENMP_INCLUDES}")
-		link_directories("${OPENMP_LIBRARIES}")
-	endif()
-
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-	#set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 if (OpenMP_C_FOUND)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
-
-#set(THREADS_PREFER_PTHREAD_FLAG ON) # Without this flag CMake may resort to just '-lpthread'
-#find_package(Threads)
 
 find_package (Git REQUIRED)
 
