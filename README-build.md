@@ -93,3 +93,22 @@ Use the following comnand to run cmake
 update ORIGINAL_PATH variable in c:\msys64\etc\profile to point to "lib" 
 
 Follow the instructions above for other CMAKE/MAKE-related steps.
+
+macOS instructions
+===================
+
+These instructions were tested in macOS Mojave but should also work for other recent releases. It is assumed that the clang compiler that comes with Xcode is used for building PALISADE.
+
+Install cmake, autoconf, and OpenMP library using Homebrew:
+
+	brew install cmake
+	brew install autoconf
+	brew install libomp
+	
+For GMP and NTL, you may need to install the following archiving tools
+
+	brew install gnu-tar
+	brew install lzip
+	
+Follow the instructions above for other CMAKE/MAKE-related steps.
+
