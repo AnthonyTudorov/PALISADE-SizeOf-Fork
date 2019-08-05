@@ -26,14 +26,10 @@
 
 #include "include/gtest/gtest.h"
 #include "UnitTestSer.h"
-
 #include "stst-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
-
-// TODO: temporary fix until Windows serialization is fixed
-#if not defined(_WIN32) and not defined(_WIN64)
 
 class UTPKESer : public ::testing::Test {
 protected:
@@ -69,5 +65,3 @@ TEST_F(UTPKESer, StSt_DCRTPoly_Serial) {
 	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("StSt6", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
-
-#endif

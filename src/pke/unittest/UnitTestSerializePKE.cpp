@@ -35,9 +35,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temporary fix until Windows serialization is fixed
-#if not defined(_WIN32) and not defined(_WIN64)
-
 class UTPKESer : public ::testing::Test {
 protected:
 	void SetUp() {
@@ -298,4 +295,3 @@ TEST_F(UTPKESer, Keys_and_ciphertext_json) {
 TEST_F(UTPKESer, Keys_and_ciphertext_binary) {
 	Test_keys_and_ciphertext(SerType::BINARY);
 }
-#endif

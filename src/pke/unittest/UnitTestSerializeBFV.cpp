@@ -32,9 +32,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temporary fix until Windows serialization is fixed
-#if not defined(_WIN32) and not defined(_WIN64)
-
 class UTPKESer : public ::testing::Test {
 protected:
 	void SetUp() {
@@ -62,5 +59,3 @@ TEST_F(UTPKESer, BFV_Poly_Serial) {
 	CryptoContext<Poly> cc = GenerateTestCryptoContext("BFV2");
 	UnitTestContext<Poly>(cc);
 }
-
-#endif
