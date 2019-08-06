@@ -171,8 +171,8 @@ bool RunFigure2A() {
 				for(usint j =0; j < results.GetCols(); j++){
 					if (results(i,j) != matrixTobeDecomposed(i,j)) {
 						std::cout << "index i = " << i << "; index j = " << j << std::endl;
-						std::cout<< results(i,j) <<std::endl;
-						std::cout<< matrixTobeDecomposed(i,j) <<std::endl;
+						//std::cout<< results(i,j) <<std::endl;
+						//std::cout<< matrixTobeDecomposed(i,j) <<std::endl;
 						return false;
 					}
 				}

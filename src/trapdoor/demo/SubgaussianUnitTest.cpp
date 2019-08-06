@@ -7,20 +7,10 @@
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
-//created files
-#include "subgaussian/inv_g.cpp"
-#include "subgaussian/BcBD.cpp"
 
 #include "utils/debug.h"
 
 #include "subgaussian/subgaussian.h"
-
-//NTL
-
-#include <NTL/ZZ.h>
-#include <NTL/vector.h>
-#include <NTL/matrix.h>
-#include <NTL/RR.h>
 
 using namespace std;
 using namespace lbcrypto;
@@ -32,18 +22,10 @@ int main(){
 	double timeEval;
 
 	long b = 2; long q = 1073741827; long k = (long)ceil(log2(q)/log2(b));
-	NTL::Vec<long> output; output.SetLength(k);
 
 	long u = pow(3,5);
 
 	const size_t count = 10000;
-
-	TIC(t1); //start timer for total time
-	for (size_t i = 0; i<count; i++)
-		inv_g(b, q, u, k, output);
-	timeEval = TOC_US(t1);
-
-	std::cout << "Old impl sampling time: " << timeEval/count << " microseconds" << std::endl;
 
 	LatticeSubgaussianUtility<NativeInteger> sampler(b,q,k);
 
@@ -55,19 +37,6 @@ int main(){
 	timeEval = TOC_US(t1);
 
 	std::cout << "PALISADE impl sampling time: " << timeEval/count << " microseconds" << std::endl;
-
-	NTL::RR a = NTL::RR(10.0/27); NTL::RR c = NTL::RR(19.0/27);
-
-//test the output
-long test = 0; long b_i = 1;
-cout<<"********************** output = "<<endl;
-	for(int i = 0; i<k; i++){
-		test += output[i]*b_i;
-		b_i = b_i*b;
-		cout<<output[i]<<endl;
-	}
-
-cout<<"g^t * output = "<<test<<endl;
 
 //test the output
 int64_t test1 = 0; int64_t b_i1 = 1;
