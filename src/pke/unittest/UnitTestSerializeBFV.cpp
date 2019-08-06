@@ -39,10 +39,10 @@ protected:
 
 	void TearDown() {
 		CryptoContextImpl<Poly>::ClearEvalMultKeys();
-		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextImpl<Poly>::ClearEvalSumKeys();
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextImpl<DCRTPoly>::ClearEvalSumKeys();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
 };

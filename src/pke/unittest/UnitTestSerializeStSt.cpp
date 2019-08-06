@@ -27,6 +27,7 @@
 #include "include/gtest/gtest.h"
 #include "UnitTestSer.h"
 #include "stst-ser.h"
+#include "pubkeylp-ser.h"
 
 using namespace std;
 using namespace lbcrypto;
@@ -38,10 +39,10 @@ protected:
 
 	void TearDown() {
 		CryptoContextImpl<Poly>::ClearEvalMultKeys();
-		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextImpl<Poly>::ClearEvalSumKeys();
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextImpl<DCRTPoly>::ClearEvalSumKeys();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
 };
