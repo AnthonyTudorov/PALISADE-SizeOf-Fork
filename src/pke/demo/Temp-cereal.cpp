@@ -10,6 +10,7 @@
 #include "utils/serialize-binary.h"
 #include "utils/serialize-json.h"
 #include "ciphertext-ser.h"
+#include "bfvrns-ser.h"
 using namespace lbcrypto;
 
 class Foo {

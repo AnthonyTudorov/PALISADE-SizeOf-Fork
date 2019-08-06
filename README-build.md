@@ -13,11 +13,15 @@ CMake will check that all required build tools are installed.
 A cmake build can be run in any directory. Once you select a directory in which to build,
 you simply run cmake and provide it the root directory of the source.
 
-To run builds in a subdirectory named "build":
+To run builds in a subdirectory named "build" (in the Release mode):
 
 	mkdir build
 	cd build
 	cmake ..
+	
+If compiling in the debug mode, use the following cmake command
+
+	cmake -DCMAKE_BUILD_TYPE=Debug .. 
 
 This will create all the necessary makefiles. If you say "make help", all available targets are printed.
 
@@ -86,11 +90,7 @@ for GMP and NTL
 	pacman -S tar
 	pacman -S lzip
 
-Use the following comnand to run cmake
-
-	cmake .. -G"Unix Makefiles"
-
-update ORIGINAL_PATH variable in c:\msys64\etc\profile to point to "lib" 
+Update ORIGINAL_PATH variable in c:\msys64\etc\profile to include "lib". 
 
 Follow the instructions above for other CMAKE/MAKE-related steps.
 

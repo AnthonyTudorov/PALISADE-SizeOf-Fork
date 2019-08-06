@@ -50,6 +50,7 @@ void UnitTestContextWithSertype(CryptoContext<T> cc, const ST& sertype, string m
 	} catch(...) {}
 
 	stringstream s;
+
 	Serial::Serialize(cc, s, sertype);
 
 	CryptoContext<T> newcc;

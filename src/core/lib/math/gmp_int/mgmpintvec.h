@@ -442,11 +442,19 @@ public:
 	typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value,void>::type
 	save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( m_modulus.ToString() );
-		ar( m_modulus_state );
-		ar( this->GetLength() );
-		for(size_t i=0; i<this->GetLength(); i++ )
-			ar( (*this)[i] );
+		// YSP. This was seg-faulting in MINGW
+		//ar( m_modulus.ToString() );
+		//ar( m_modulus_state );
+		//ar( this->GetLength() );
+		//for(size_t i=0; i<this->GetLength(); i++ )
+		//	ar( (*this)[i] );
+		ar( ::cereal::make_nvp("m", m_modulus.ToString()) );
+		ar( ::cereal::make_nvp("ms", m_modulus_state) );
+		ar( ::cereal::make_nvp("l", this->GetLength()) );
+		for(size_t i=0; i<this->GetLength(); i++ ) {
+			ar( ::cereal::make_nvp("v", (*this)[i].ToString()) );
+		}
+
 	}
 
 	template <class Archive>
@@ -468,16 +476,30 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(lbcrypto::deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		std::string m;
-		ar( m );
-		m_modulus = m;
-		ar( m_modulus_state );
-		cereal::size_type len;
-		ar( len );
-		this->SetLength(len);
+		// YSP. This was seg-faulting in MINGW
+		//std::string m;
+		//ar( m );
+		//m_modulus = m;
+		//ar( m_modulus_state );
+		//cereal::size_type len;
+		//ar( len );
+		//this->SetLength(len);
+		//for(size_t i=0; i<len; i++ )
+		//	ar( (*this)[i] );
 
-		for(size_t i=0; i<len; i++ )
-			ar( (*this)[i] );
+		std::string m;
+		ar( ::cereal::make_nvp("m", m) );
+		m_modulus = m;
+		ar( ::cereal::make_nvp("ms", m_modulus_state) );
+		cereal::size_type len;
+		ar( ::cereal::make_nvp("l", len) );
+		this->resize(len);
+		for(size_t i=0; i<len; i++ ) {
+			std::string s;
+			ar( ::cereal::make_nvp("v", s) );
+			(*this)[i] = s;
+		}
+
 	}
 
 	template <class Archive>

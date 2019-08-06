@@ -32,9 +32,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temporary fix until Windows serialization is fixed
-#if not defined(_WIN32) and not defined(_WIN64)
-
 class UTPKESer : public ::testing::Test {
 protected:
 	void SetUp() {
@@ -42,10 +39,10 @@ protected:
 
 	void TearDown() {
 		CryptoContextImpl<Poly>::ClearEvalMultKeys();
-		CryptoContextImpl<Poly>::ClearEvalMultKeys();
+		CryptoContextImpl<Poly>::ClearEvalSumKeys();
 		CryptoContextFactory<Poly>::ReleaseAllContexts();
 		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
+		CryptoContextImpl<DCRTPoly>::ClearEvalSumKeys();
 		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
 	}
 };
@@ -69,6 +66,3 @@ TEST_F(UTPKESer, LTV_DCRTPoly_Serial) {
 	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("LTV5", 3, 20);
 	UnitTestContext<DCRTPoly>(cc);
 }
-
-
-#endif
