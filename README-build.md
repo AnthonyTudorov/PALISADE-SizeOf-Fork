@@ -110,5 +110,5 @@ For GMP and NTL, you may need to install the following archiving tools
 	brew install gnu-tar
 	brew install lzip
 	
-Follow the instructions above for other CMAKE/MAKE-related steps.
+Follow the instructions above for other CMAKE/MAKE-related steps. Please note that in macOS "cmake .." needs to be run twice (the first time) but this will be fixed before v1.6 is out.
 
