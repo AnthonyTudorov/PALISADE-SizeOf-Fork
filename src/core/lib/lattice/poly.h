@@ -641,7 +641,6 @@ public:
 
 	/**
 	 * @brief Make the element values sparse. Sets every index not equal to zero mod the wFactor to zero.
-	 * This is particularly useful for the LTV-based ring reduction operations.
 	 *
 	 * @param &wFactor ratio between the original ring dimension and the new ring dimension.
 	 */

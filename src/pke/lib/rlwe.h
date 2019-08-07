@@ -266,7 +266,7 @@ public:
 	void SetMode(MODE mode) { m_mode = mode; }
 
 	/**
-	 * == operator to compare to this instance of LPCryptoParametersLTV object.
+	 * == operator to compare to this instance of LPCryptoParametersRLWE object.
 	 *
 	 * @param &rhs LPCryptoParameters to check equality against.
 	 */

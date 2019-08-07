@@ -64,21 +64,7 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 		return 0;
 	}
 
-	if( parmtype == "LTV" ) {
-		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
-				!getValueForName(s, "relinWindow", relinWindow) ||
-				!getValueForName(s, "stDev", stDev) ) {
-			return 0;
-		}
-
-		if( ep.get() != 0 )
-			return CryptoContextFactory<Element>::genCryptoContextLTV(parms, ep,
-					stoul(relinWindow), stof(stDev));
-
-		return CryptoContextFactory<Element>::genCryptoContextLTV(parms, stoul(plaintextModulus),
-				stoul(relinWindow), stof(stDev));
-	}
-	else if( parmtype == "StehleSteinfeld" ) {
+	if ( parmtype == "StehleSteinfeld" ) {
 		if( !getValueForName(s, "plaintextModulus", plaintextModulus) ||
 				!getValueForName(s, "relinWindow", relinWindow) ||
 				!getValueForName(s, "stDev", stDev) ||
@@ -223,8 +209,6 @@ CreateSchemeGivenName(const string& schemeName) {
 //	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrns<Element>());
 //	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBFVrnsB<Element>());
 //	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeBGV<Element>());
-	else if( schemeName == "LTV" )
-		return shared_ptr<LPPublicKeyEncryptionScheme<Element>>( new LPPublicKeyEncryptionSchemeLTV<Element>());
 //	shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme( new LPPublicKeyEncryptionSchemeStehleSteinfeld<T>());
 //	};
 //
@@ -293,11 +277,7 @@ CryptoContextHelper::ContextFromAppProfile(const string& sch,
 //	usint relinWindow;
 //	float dist;
 //
-//	if( sch == "LTV") {
-//		return CryptoContextFactory<Element>::genCryptoContextLTV(ptm, secFactor, relinWindow, dist,
-//				nA, nM, nK);
-//	}
-//////	else if( sch == "StSt" ) {
+// if( sch == "StSt" ) {
 //////		return CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(parms, p, relinWindow, stdev, 98.4359);
 //////	}
 //	else if( sch == "BFVrns" ) {

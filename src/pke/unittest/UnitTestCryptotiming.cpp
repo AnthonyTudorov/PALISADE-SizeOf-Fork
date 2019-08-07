@@ -265,7 +265,7 @@ TEST_F(UTCryptotiming, eval_sum) {
 
     PackedEncoding::SetParams(m, encodingParams);
 
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, encodingParams, 16, stdDev);
+    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextBGV(params, encodingParams, 16, stdDev);
 
     cc->Enable(ENCRYPTION|SHE);
     vector<TimingInfo> times;
@@ -279,7 +279,7 @@ TEST_F(UTCryptotiming, eval_sum) {
     ciphertext = cc->Encrypt(kp.publicKey, intArray);
     auto len = times.size();
 
-    cc->EvalSumKeyGen(kp.secretKey, kp.publicKey);
+    cc->EvalSumKeyGen(kp.secretKey);
     ASSERT_TRUE(times.size() > len) << "EvalSumKeyGen op failed to push to timing vector";
     ASSERT_TRUE(times.back().operation == OpEvalSumKeyGen) << "EvalSumKeyGen op applied an incorrect optype to its data:";
     if (times.size() == len + 1) { len++; }
@@ -382,27 +382,6 @@ TEST_F(UTCryptotiming, eval_index){
     auto ciphertext = cc->Encrypt(kp.publicKey, cc->MakePackedPlaintext(vectorOfInts));
 
     cc->EvalAtIndex(ciphertext, 2);
-
-}
-
-TEST_F(UTCryptotiming, ring_reduce){
-    usint m = 16;
-    float stdDev = 4;
-    shared_ptr<Poly::Params> params = ElemParamFactory::GenElemParams<Poly::Params>(m);
-    CryptoContext<Poly> cc = CryptoContextFactory<Poly>::genCryptoContextLTV(params, 2, 1, stdDev);
-    cc->Enable(ENCRYPTION|LEVELEDSHE|SHE);
-    vector<TimingInfo>	times;
-    cc->StartTiming(&times);
-
-    LPKeyPair<Poly> kp = cc->KeyGen();
-    LPKeyPair<Poly> kp2 = cc->SparseKeyGen();// TODO ADD test for this keygen, or determine if it best falls here
-    Ciphertext<Poly> ct1 = cc->Encrypt(kp.publicKey, cc->MakeIntegerPlaintext(0));
-    auto swk = cc->KeySwitchGen(kp.secretKey, kp2.secretKey);
-    auto len = times.size();
-
-    cc->RingReduce(ct1, swk);
-    ASSERT_TRUE(times.size() > len) << "RingReduce op failed to push to timing vector";
-    ASSERT_TRUE(times.back().operation == OpRingReduce) << "RingReduce op applied an incorrect optype to its data:";
 
 }
 

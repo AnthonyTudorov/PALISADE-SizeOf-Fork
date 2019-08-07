@@ -27,7 +27,6 @@
 #include "include/gtest/gtest.h"
 #include "UnitTestSer.h"
 
-#include "ltv-ser.h"
 #include "bgv-ser.h"
 #include "pubkeylp-ser.h"
 #include "ciphertext-ser.h"
@@ -64,17 +63,6 @@ CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName,
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 	return cc;
-}
-
-TEST_F(UTPKESer, LTV_Context_Factory) {
-	CryptoContext<Poly> cc = GenerateTestCryptoContext("LTV5");
-	CryptoContextFactory<Poly>::ReleaseAllContexts();
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 0) << "Contexts not cleared";
-
-	cc = GenerateTestCryptoContext("LTV5");
-	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV5");
-	EXPECT_EQ(cc.get(), cc2.get()) << "Context mismatch";
-	EXPECT_EQ(CryptoContextFactory<Poly>::GetContextCount(), 1) << "Context count error";
 }
 
 template<typename T>
@@ -144,7 +132,7 @@ void Test_keys_and_ciphertext(const ST& sertype)
 		ASSERT_TRUE( CryptoContextFactory<Poly>::GetContextCount() == 1 );
 	}
 
-	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("LTV4");
+	CryptoContext<Poly> cc2 = GenerateTestCryptoContext("BGV4");
 
 	LPKeyPair<Poly> kp = cc->KeyGen();
 	LPKeyPair<Poly> kpnew;

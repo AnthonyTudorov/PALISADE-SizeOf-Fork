@@ -194,7 +194,6 @@ void UnitTestMultiparty(CryptoContext<Element> cc) {
 	EXPECT_EQ(plaintextAddNew->GetCoefPackedValue(), plaintextMultipartyNew->GetCoefPackedValue()) << "Multiparty: Does not match the results of direction encryption.";
 }
 
-// LTV NOT SUPPORTED
 // StSt NOT SUPPORTED
 
 TEST_F(UTMultiparty, BFVrns_RLWE_DCRTPoly_Multiparty_pri) {
