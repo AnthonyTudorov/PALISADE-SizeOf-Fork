@@ -2263,66 +2263,6 @@ public:
 	static const vector<CryptoContext<Element>>& GetAllContexts();
 
 	/**
-	* construct a PALISADE CryptoContextImpl for the LTV Scheme
-	* @param params ring parameters
-	* @param plaintextModulus plaintext modulus
-	* @param relinWindow bits in the base of digits in key switching/relinearization
-	* @param stdDev sigma - distribution parameter for error distribution
-	* @param depth of supported computation circuit (not used; for future use)
-	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
-	* @param security level - root Hermite factor
-	* @return new context
-	*/
-	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
-		const PlaintextModulus plaintextmodulus,
-		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
-
-	/**
-	* construct a PALISADE CryptoContextImpl for the LTV Scheme
-	* @param params ring parameters
-	* @param encodingParams plaintext encoding parameters
-	* @param relinWindow bits in the base of digits in key switching/relinearization
-	* @param stdDev sigma - distribution parameter for error distribution
-	* @param depth of supported computation circuit (not used; for future use)
-	* @param assuranceMeasure alpha - effective bound for gaussians: - sqrt{alpha}*sigma..sqrt{alpha}*sigma
-	* @param security level - root Hermite factor
-	* @return new context
-	*/
-	static CryptoContext<Element> genCryptoContextLTV(shared_ptr<typename Element::Params> params,
-		EncodingParams encodingParams,
-		usint relinWindow, float stDev, int depth = 1, int assuranceMeasure = 9, float securityLevel = 1.006);
-
-	/**
-	* construct a PALISADE CryptoContextImpl for the LTV Scheme using the scheme's ParamsGen methods
-	* @param plaintextModulus plaintext modulus
-	* @param security level - root Hermite factor
-	* @param relinWindow bits in the base of digits in key switching/relinearization
-	* @param dist sigma - distribution parameter for error distribution
-	* @param numAdds - number/depth of homomorphic additions (assuming no other homomorphic operations are performed)
-	* @param numMults - multiplicative depth (assuming no other homomorphic operations are performed)
-	* @param numKeyswitches - depth of key switching/number of hops in proxy re-encryption (assuming no other homomorphic operations are performed)
-	* @return new context
-	*/
-	static CryptoContext<Element> genCryptoContextLTV(
-		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
-
-	/**
-	* construct a PALISADE CryptoContextImpl for the LTV Scheme using the scheme's ParamsGen methods
-	* @param encodingParams plaintext encoding parameters
-	* @param security level - root Hermite factor
-	* @param relinWindow bits in the base of digits in key switching/relinearization
-	* @param dist sigma - distribution parameter for error distribution
-	* @param numAdds - number/depth of homomorphic additions (assuming no other homomorphic operations are performed)
-	* @param numMults - multiplicative depth (assuming no other homomorphic operations are performed)
-	* @param numKeyswitches - depth of key switching/number of hops in proxy re-encryption (assuming no other homomorphic operations are performed)
-	* @return new context
-	*/
-	static CryptoContext<Element> genCryptoContextLTV(
-		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches);
-
-	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme
 	* @param params ring parameters
 	* @param plaintextModulus plaintext modulus

@@ -26,8 +26,7 @@
 
 
 #include "cryptocontext.h"
-#include "ltv.h"
-#include "stst.h"
+#include "stst.cpp"
 
 namespace lbcrypto {
 template class LPCryptoParametersStehleSteinfeld<Poly>;

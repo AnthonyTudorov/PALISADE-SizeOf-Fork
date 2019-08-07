@@ -154,7 +154,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 include_directories( ${THIRDPARTYDIR}/cereal/include )
 
 include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature wip)
+set (SUBMAKEFILES core pke trapdoor abe signature)
 foreach( dir ${SUBMAKEFILES} )
 	include_directories( src/${dir}/lib )
 endforeach( dir )
@@ -309,7 +309,6 @@ add_subdirectory(src/pke)
 add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
-add_subdirectory(src/wip)
 add_subdirectory(android)
 
 ### build the google test handlers
@@ -330,11 +329,10 @@ add_custom_target( clobber DEPENDS gmp_clobber ntl_clobber
 )
 
 add_custom_target( testall
-	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests wip_tests
+	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests 
 	COMMAND echo core: && unittest/core_tests -t
 	COMMAND echo pke: && unittest/pke_tests -t
 	COMMAND echo trapdoor: && unittest/trapdoor_tests -t
 	COMMAND echo abe: && unittest/abe_tests -t
 	COMMAND echo signature: && unittest/signature_tests -t
-	COMMAND echo wip: && unittest/wip_tests -t
 )

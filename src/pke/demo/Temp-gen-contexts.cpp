@@ -47,8 +47,6 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 	if( name == "Null" ) {
 		cc = CryptoContextFactory<Element>::genCryptoContextNull(ORDER, ptm);
 	}
-	else if( name == "LTV" )
-		cc = CryptoContextFactory<Element>::genCryptoContextLTV(p, ptm, 1, 4);
 	else if( name == "StSt" )
 		cc = CryptoContextFactory<Element>::genCryptoContextStehleSteinfeld(p, ptm, 1, 4, 41411.5);
 	else if( name == "BGV_rlwe" )
@@ -65,7 +63,7 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
  */
 
-vector<string> ctxts = { "Null", "LTV", "StSt", "BGV_rlwe", "BGV_opt", "BFV_rlwe", /*"BFV_opt",*/ "BFVrns_rlwe", "BFVrns_opt" };
+vector<string> ctxts = { "Null", "StSt", "BGV_rlwe", "BGV_opt", "BFV_rlwe", /*"BFV_opt",*/ "BFVrns_rlwe", "BFVrns_opt" };
 
 template<typename Element>
 void GenContexts(usint ORDER, PlaintextModulus ptm, string nameroot) {

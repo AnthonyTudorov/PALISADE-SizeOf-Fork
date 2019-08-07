@@ -333,7 +333,7 @@ public:
 };
 
 /**
- * @brief Concrete feature class for Leveled SHELTV operations
+ * @brief Concrete feature class for Leveled SHE operations
  * @tparam Element a ring element.
  */
 template <class Element>

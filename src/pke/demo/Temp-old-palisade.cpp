@@ -655,11 +655,11 @@ main( int argc, char *argv[] )
 	}
 
 	if( !ctx && !dctx ) {
-		cout << "Defaulting to LTV5" << endl;
+		cout << "Defaulting to Null" << endl;
 		if( ElementMode == POLY )
-			ctx = CryptoContextHelper::getNewContext( "LTV5" );
+			ctx = CryptoContextHelper::getNewContext( "Null" );
 		else if( ElementMode == DCRT )
-			dctx = CryptoContextHelper::getNewDCRTContext( "LTV5", 5, 32 );
+			dctx = CryptoContextHelper::getNewDCRTContext( "Null", 5, 32 );
 	}
 
 	if( !ctx && !dctx ) {

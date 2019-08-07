@@ -57,9 +57,6 @@ namespace lbcrypto {
 	class LPCryptoParameters;
 
 	template<typename Element>
-	class LPCryptoParametersLTV;
-
-	template<typename Element>
 	class LPCryptoParametersBGV;
 
 	template<typename Element>
@@ -1475,7 +1472,7 @@ namespace lbcrypto {
 			ConstCiphertext<Element> cipherText) const = 0;
 
 		/**
-		* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+		* Method for KeySwitching based on RLWE relinearization (used only for the StSt scheme).
 		* Function to generate 1..log(q) encryptions for each bit of the original private key
 		*
 		* @param &newPublicKey encryption key for the new ciphertext.
@@ -1485,7 +1482,7 @@ namespace lbcrypto {
 			const LPPrivateKey<Element> origPrivateKey) const = 0;
 
 		/**
-		* Method for KeySwitching based on RLWE relinearization (used only for the LTV scheme).
+		* Method for KeySwitching based on RLWE relinearization (used only for the StSt scheme).
 		*
 		* @param evalKey the evaluation key.
 		* @param ciphertext the input ciphertext.

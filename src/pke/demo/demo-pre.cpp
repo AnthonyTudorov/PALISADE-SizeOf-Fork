@@ -54,10 +54,9 @@ int main(int argc, char *argv[])
 	string input;
 
 	if (argc < 2) {
-	  std::cout << "\nThis code demonstrates the use of the BFV, BGV, StSt, Null and LTV schemes for basic proxy-re-encryption operations. " ;
+	  std::cout << "\nThis code demonstrates the use of the BFV, BGV, StSt, and Null schemes for basic proxy-re-encryption operations. " ;
 	  std::cout << "This code shows how to use schemes and pre-computed parameters for those schemes can be selected during run-time. " ;
 	  std::cout << "In this demonstration we encrypt data and then proxy re-encrypt it. " ;
-	  std::cout << "We do not generally recommend the use of the LTV scheme due to security concerns. " << std::endl;
 
 	  std::cout << "\nThis demo can be run as "<<argv[0]<<" <PARAMETER SET> " <<std::endl;
 	  std::cout << "\nChoose parameter set: ";

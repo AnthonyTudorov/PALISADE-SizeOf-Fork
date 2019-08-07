@@ -876,7 +876,7 @@ DecryptResult LPAlgorithmMultipartyBGV<Element>::MultipartyDecryptFusion(const v
 
 }
 
-	// Enable for LPPublicKeyEncryptionSchemeLTV
+	// Enable for LPPublicKeyEncryptionSchemeBGV
 	template <class Element>
 	void LPPublicKeyEncryptionSchemeBGV<Element>::Enable(PKESchemeFeature feature) {
 		switch (feature)

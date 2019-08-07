@@ -75,7 +75,6 @@ using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 #include "pubkeylp.h"
 
 #include "rlwe.h"
-#include "ltv.h"
 #include "stst.h"
 #include "bgv.h"
 #include "bfv.h"

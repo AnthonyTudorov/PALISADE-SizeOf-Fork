@@ -70,7 +70,6 @@ void ArbBGVInnerProductPackedArray();
 int main() {
 
 
-	//LTVAutomorphismIntArray();
 	usint m = 22;
 	std::vector<usint> totientList = GetTotientList(m);
 
