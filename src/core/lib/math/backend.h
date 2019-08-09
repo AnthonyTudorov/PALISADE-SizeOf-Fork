@@ -94,9 +94,9 @@ namespace native_int
 }
 
 #ifndef MATHBACKEND
-//#define MATHBACKEND 2
+#define MATHBACKEND 2
 //#define MATHBACKEND 4
-#define MATHBACKEND 6
+//#define MATHBACKEND 6
 #endif
 
 #if MATHBACKEND != 2 && MATHBACKEND != 4 && MATHBACKEND != 6
