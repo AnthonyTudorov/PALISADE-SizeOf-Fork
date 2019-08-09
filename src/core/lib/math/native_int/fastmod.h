@@ -1,6 +1,6 @@
 
-#ifndef FASTMOD_H
-#define FASTMOD_H
+#ifndef LBCRYPTO_MATH_NATIVE_FASTMOD_H
+#define LBCRYPTO_MATH_NATIVE_FASTMOD_H
 
 // This file defines fast modular multiplication and addition procedures proposed/developed by Victor Shoup and
 // described in https://arxiv.org/abs/1205.2926
@@ -17,7 +17,10 @@
 #define NTL_ULL_TYPE __uint128_t
 #define NTL_PRE_SHIFT1 (NTL_BITS_PER_LONG-NTL_SP_NBITS-4)
 
-#define NTL_PRE_SHIFT2 (2*((64)-4)+2)
+#ifndef NTL_PRE_SHIFT2
+	#define NTL_PRE_SHIFT2 (2*((64)-4)+2)
+#endif
+
 #define NTL_POST_SHIFT (0)
 
 namespace native_int {
@@ -110,7 +113,7 @@ PrepMulMod(long n)
    return sp_inverse(inv, shamt);
 }
 
-
+inline
 long sp_CorrectExcess(long a, long n)
 {
    return a-n >= 0 ? a-n : a;
@@ -234,6 +237,12 @@ inline long
 MulMod(long a, long b, long n, sp_inverse ninv)
 {
    return sp_NormalizedMulMod(a, b << ninv.shamt, n << ninv.shamt, ninv.inv) >> ninv.shamt;
+}
+
+inline 
+long MulMod(long a, long b, long n)
+{
+   return MulMod(a, b, n, PrepMulMod(n));
 }
 
 inline long MulModPrecon(long a, long b, long n, unsigned long bninv)
