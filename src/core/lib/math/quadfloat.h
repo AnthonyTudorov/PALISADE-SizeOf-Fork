@@ -28,13 +28,14 @@
 #ifndef LBCRYPTO_MATH_QUADFLOAT_H
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
-#include <NTL/quad_float.h>
+//#include <NTL/quad_float.h>
 #include <NTL/xdouble.h>
+#include <quadmath.h>
 
 ///////// definition of the quad-precision floating-point data type
-typedef NTL::quad_float QuadFloat;
+typedef __float128 QuadFloat;
 
-namespace cereal {
+/*namespace cereal {
 	template<class Archive>
 	void CEREAL_SAVE_FUNCTION_NAME(Archive & archive, const QuadFloat& m)
 	{
@@ -46,14 +47,15 @@ namespace cereal {
 	{
 		archive( m.hi, m.lo );
 	}
-}
+}*/
 
 typedef NTL::xdouble ExtendedDouble;
 
 namespace lbcrypto {
 
-int64_t quadFloatRound(const QuadFloat& input);
-QuadFloat quadFloatFromInt64(const long long int input);
+inline int64_t quadFloatRound(const QuadFloat& input) {return llroundq(input);}
+
+inline QuadFloat quadFloatFromInt64(const long long int input) {return QuadFloat(input);}
 
 } // namespace lbcrypto ends
 

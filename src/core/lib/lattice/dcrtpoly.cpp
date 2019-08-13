@@ -1395,7 +1395,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
                     curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
                 }
 
-                coefficients[ri] = (curIntSum + NativeInteger(quadFloatRound(curFloatSum - pFloat*floor(curFloatSum/pFloat)))).Mod(p);
+                coefficients[ri] = (curIntSum + NativeInteger(quadFloatRound(curFloatSum - pFloat*floorq(curFloatSum/pFloat)))).Mod(p);
             }
         }
         else

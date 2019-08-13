@@ -28,7 +28,7 @@
 #include "quadfloat.h"
 
 namespace lbcrypto {
-
+/*
 const QuadFloat HALF_QUADFLOAT = quadFloatFromInt64(1)/quadFloatFromInt64(2);
 
 //static void normalize(QuadFloat& z, const double& xhi, const double& xlo);
@@ -80,6 +80,8 @@ QuadFloat quadFloatFromInt64(const long long int n){
    return NTL::quad_float(xhi,xlo);
 
 }
+
+*/
 
 /*static void normalize(QuadFloat& z, const double& xhi, const double& xlo){
 
