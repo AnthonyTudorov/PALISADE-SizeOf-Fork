@@ -28,14 +28,21 @@
 #ifndef LBCRYPTO_MATH_QUADFLOAT_H
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
-//#include <NTL/quad_float.h>
+#define HAVE_NTL
+
+#ifdef  HAVE_NTL
+#include <NTL/quad_float.h>
 #include <NTL/xdouble.h>
+#else
 #include <quadmath.h>
+#endif
 
-///////// definition of the quad-precision floating-point data type
-typedef __float128 QuadFloat;
+///////// definition of the quad-precision floating-point and extended double data types
+#ifdef HAVE_NTL
+typedef NTL::quad_float QuadFloat;
+typedef NTL::xdouble ExtendedDouble;
 
-/*namespace cereal {
+namespace cereal {
 	template<class Archive>
 	void CEREAL_SAVE_FUNCTION_NAME(Archive & archive, const QuadFloat& m)
 	{
@@ -47,15 +54,43 @@ typedef __float128 QuadFloat;
 	{
 		archive( m.hi, m.lo );
 	}
-}*/
+}
+#else
+// If no NTL is available, use __float128 for both quad floats and extended doubles
+typedef __float128 QuadFloat;
+typedef QuadFloat ExtendedDouble;
+#endif
 
-typedef NTL::xdouble ExtendedDouble;
+namespace ext_double {
 
-namespace lbcrypto {
+#ifdef HAVE_NTL
+int64_t quadFloatRound(const QuadFloat& input);
+QuadFloat quadFloatFromInt64(const long long int input);
+inline QuadFloat floorq(const QuadFloat& input) {return NTL::floor(input); }
 
-inline int64_t quadFloatRound(const QuadFloat& input) {return llroundq(input);}
+inline ExtendedDouble sqrt(const ExtendedDouble& input) {return NTL::sqrt(input); }
+inline double log(const ExtendedDouble& input) {return NTL::log(input); }
+inline ExtendedDouble ceil(const ExtendedDouble& input) {return NTL::ceil(input); }
+inline long int to_long(const ExtendedDouble& input) {return NTL::to_long(input); }
+inline ExtendedDouble power(const ExtendedDouble& a, long b) {return NTL::power(a,b); }
+inline ExtendedDouble fabs(const ExtendedDouble& input) {return NTL::fabs(input); }
+inline ExtendedDouble floor(const ExtendedDouble& input) {return NTL::floor(input); }
 
+#else
+
+inline long long int quadFloatRound(const QuadFloat& input) {return llroundq(input);}
 inline QuadFloat quadFloatFromInt64(const long long int input) {return QuadFloat(input);}
+inline QuadFloat floorq(const QuadFloat& input) {return floorq(input); }
+
+inline QuadFloat sqrt(const QuadFloat& input) {return sqrtq(input); }
+inline QuadFloat log(const QuadFloat& input) {return logq(input); }
+inline QuadFloat ceil(const QuadFloat& input) {return ceilq(input); }
+inline long int to_long(const QuadFloat& input) {return lroundq(input); }
+inline QuadFloat power(const QuadFloat& a, const QuadFloat& b) {return powq(a,b); }
+inline QuadFloat fabs(const QuadFloat& input) {return fabsq(input); }
+inline QuadFloat floor(const QuadFloat& input) {return floorq(input); }
+
+#endif
 
 } // namespace lbcrypto ends
 

@@ -144,7 +144,7 @@ void KPABErns::Setup(
 				BigInteger qi = BigInteger(moduli[i].ConvertToInt());
 				int64_t numerator = ((q.DividedBy(qi)).ModInverse(qi) * BigInteger(p)).Mod(qi).ConvertToInt();
 				int64_t denominator = moduli[i].ConvertToInt();
-				CRTDecryptionQuadFloatTable[i] = quadFloatFromInt64(numerator)/quadFloatFromInt64(denominator);
+				CRTDecryptionQuadFloatTable[i] = ext_double::quadFloatFromInt64(numerator)/ext_double::quadFloatFromInt64(denominator);
 			}
 			m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
 		}

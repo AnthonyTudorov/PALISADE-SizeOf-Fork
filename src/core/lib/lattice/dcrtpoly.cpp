@@ -1378,7 +1378,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
 
         if (nTowers > 16) // handles the case when curFloatSum exceeds 2^63 (causing an an overflow in int)
             {
-            QuadFloat pFloat = quadFloatFromInt64(p.ConvertToInt());
+            QuadFloat pFloat = ext_double::quadFloatFromInt64(p.ConvertToInt());
 
 #pragma omp parallel for
             for( usint ri = 0; ri < ringDimension; ri++ ) {
@@ -1392,10 +1392,10 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
                     //curIntSum += xi.ModMul(alpha[vi],p);
                     curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
-                    curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+                    curFloatSum += ext_double::quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
                 }
 
-                coefficients[ri] = (curIntSum + NativeInteger(quadFloatRound(curFloatSum - pFloat*floorq(curFloatSum/pFloat)))).Mod(p);
+                coefficients[ri] = (curIntSum + NativeInteger(ext_double::quadFloatRound(curFloatSum - pFloat*ext_double::floorq(curFloatSum/pFloat)))).Mod(p);
             }
         }
         else
@@ -1412,10 +1412,10 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
                     //curIntSum += xi.ModMul(alpha[vi],p);
                     curIntSum += xi.ModMulPreconOptimized(alpha[vi],p,alphaPrecon[vi]);
 
-                    curFloatSum += quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
+                    curFloatSum += ext_double::quadFloatFromInt64(xi.ConvertToInt())*quadBeta[vi];
                 }
 
-                coefficients[ri] = (curIntSum + NativeInteger(quadFloatRound(curFloatSum))).Mod(p);
+                coefficients[ri] = (curIntSum + NativeInteger(ext_double::quadFloatRound(curFloatSum))).Mod(p);
             }
         }
     }
