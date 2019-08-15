@@ -28,7 +28,7 @@
 #ifndef LBCRYPTO_MATH_QUADFLOAT_H
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
-#define HAVE_NTL
+//#define HAVE_NTL
 
 #ifdef  HAVE_NTL
 #include <NTL/quad_float.h>
@@ -66,7 +66,7 @@ namespace ext_double {
 #ifdef HAVE_NTL
 int64_t quadFloatRound(const QuadFloat& input);
 QuadFloat quadFloatFromInt64(const long long int input);
-inline QuadFloat floorq(const QuadFloat& input) {return NTL::floor(input); }
+inline QuadFloat floor(const QuadFloat& input) {return NTL::floor(input); }
 
 inline ExtendedDouble sqrt(const ExtendedDouble& input) {return NTL::sqrt(input); }
 inline double log(const ExtendedDouble& input) {return NTL::log(input); }
@@ -76,11 +76,10 @@ inline ExtendedDouble power(const ExtendedDouble& a, long b) {return NTL::power(
 inline ExtendedDouble fabs(const ExtendedDouble& input) {return NTL::fabs(input); }
 inline ExtendedDouble floor(const ExtendedDouble& input) {return NTL::floor(input); }
 
-#else
+#else //use GCC quadmath
 
 inline long long int quadFloatRound(const QuadFloat& input) {return llroundq(input);}
 inline QuadFloat quadFloatFromInt64(const long long int input) {return QuadFloat(input);}
-inline QuadFloat floorq(const QuadFloat& input) {return floorq(input); }
 
 inline QuadFloat sqrt(const QuadFloat& input) {return sqrtq(input); }
 inline QuadFloat log(const QuadFloat& input) {return logq(input); }
