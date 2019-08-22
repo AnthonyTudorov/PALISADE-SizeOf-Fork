@@ -286,12 +286,16 @@ set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINA
 add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(MINGW)
-	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static -lquadmath)
-else()
-	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp -lquadmath)
+if(NOT APPLE)
+	set(QUADMATHLIB -lquadmath)
 endif()
-set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static -lquadmath)
+
+if(MINGW)
+	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
+else()
+	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp ${QUADMATHLIB})
+endif()
+set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
 
 ### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
 ### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
