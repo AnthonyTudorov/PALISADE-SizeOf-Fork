@@ -28,7 +28,7 @@
 
 CEREAL_CLASS_VERSION( lbcrypto::ElemParams<M2Integer>, lbcrypto::ElemParams<M2Integer>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::ElemParams<M4Integer>, lbcrypto::ElemParams<M4Integer>::SerializedVersion() );
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 CEREAL_CLASS_VERSION( lbcrypto::ElemParams<M6Integer>, lbcrypto::ElemParams<M6Integer>::SerializedVersion() );
 #endif
 CEREAL_CLASS_VERSION( lbcrypto::ElemParams<NativeInteger>, lbcrypto::ElemParams<NativeInteger>::SerializedVersion() );

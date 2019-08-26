@@ -28,7 +28,7 @@
 #ifndef LBCRYPTO_MATH_QUADFLOAT_H
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
-#ifdef  HAVE_NTL
+#ifdef  WITH_NTL
 #include <NTL/quad_float.h>
 #include <NTL/xdouble.h>
 #else
@@ -36,7 +36,7 @@
 #endif
 
 ///////// definition of the quad-precision floating-point and extended double data types
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 typedef NTL::quad_float QuadFloat;
 typedef NTL::xdouble ExtendedDouble;
 
@@ -61,7 +61,7 @@ typedef QuadFloat ExtendedDouble;
 
 namespace ext_double {
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 int64_t quadFloatRound(const QuadFloat& input);
 QuadFloat quadFloatFromInt64(const long long int input);
 inline QuadFloat floor(const QuadFloat& input) {return NTL::floor(input); }

@@ -163,7 +163,7 @@ ElemParamFactory::GenElemParams<ILDCRTParams<M4Integer>>(usint m, usint bits, us
 		DEBUGEXP(towersize);
 	return GenerateDCRTParams<M4Integer>(m, towersize, bits);
 }
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 template<>
 inline shared_ptr<ILDCRTParams<M6Integer>>
 ElemParamFactory::GenElemParams<ILDCRTParams<M6Integer>>(usint m, usint bits, usint towersize) {

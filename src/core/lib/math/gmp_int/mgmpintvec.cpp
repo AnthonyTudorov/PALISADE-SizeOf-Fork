@@ -30,7 +30,7 @@
  *
  */
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 
 #define FASTNLOOSE
 #define FORCE_NORMALIZATION

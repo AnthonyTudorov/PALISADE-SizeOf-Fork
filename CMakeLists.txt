@@ -290,13 +290,14 @@ if(NOT APPLE)
 	set(QUADMATHLIB -lquadmath)
 endif()
 
-if("${HAVE_NTL}" STREQUAL "true")
+if("${WITH_NTL}" STREQUAL "true")
 	if(MINGW)
 		set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
 	else()
 		set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp ${QUADMATHLIB})
 	endif()
 	set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
+	add_compile_definitions(WITH_NTL)
 else()
 	if(MINGW)
 		set(THIRDPARTYLIBS ${QUADMATHLIB})
@@ -312,7 +313,7 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
-if("${HAVE_NTL}" STREQUAL "true")
+if("${WITH_NTL}" STREQUAL "true")
 add_custom_target(third-party ALL
  COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo
 )

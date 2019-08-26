@@ -29,7 +29,7 @@
 
 namespace ext_double {
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 
 const QuadFloat HALF_QUADFLOAT = quadFloatFromInt64(1)/quadFloatFromInt64(2);
 

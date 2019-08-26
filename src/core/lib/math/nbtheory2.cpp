@@ -40,7 +40,7 @@
 
 namespace lbcrypto {
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 	//native NTL version
 	NTL::myZZ RNG(const NTL::myZZ& modulus)
 	{

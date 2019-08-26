@@ -35,7 +35,7 @@
 #ifndef LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
 #define LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 
 #include <iostream>
 #include <vector>

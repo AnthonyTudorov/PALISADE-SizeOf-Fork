@@ -25,7 +25,7 @@
  *
  */
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 
 #include "math/backend.h"
 #include "lattice/backend.h"

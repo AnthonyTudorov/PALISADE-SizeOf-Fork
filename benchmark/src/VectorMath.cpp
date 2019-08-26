@@ -84,7 +84,7 @@ static void BM_BigVec_Add(benchmark::State& state) { // benchmark
 DO_NATIVEVECTOR_BENCHMARK(BM_BigVec_Add)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Add, M2Vector)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Add, M4Vector)
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Add, M6Vector)
 #endif
 
@@ -110,7 +110,7 @@ static void BM_BigVec_Addeq(benchmark::State& state) { // benchmark
 DO_NATIVEVECTOR_BENCHMARK(BM_BigVec_Addeq)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Addeq, M2Vector)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Addeq, M4Vector)
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Addeq, M6Vector)
 #endif
 
@@ -136,7 +136,7 @@ static void BM_BigVec_Mult(benchmark::State& state) { // benchmark
 DO_NATIVEVECTOR_BENCHMARK(BM_BigVec_Mult)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Mult, M2Vector)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Mult, M4Vector)
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Mult, M6Vector)
 #endif
 
@@ -162,7 +162,7 @@ static void BM_BigVec_Multeq(benchmark::State& state) { // benchmark
 DO_NATIVEVECTOR_BENCHMARK(BM_BigVec_Multeq)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Multeq, M2Vector)
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Multeq, M4Vector)
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 DO_VECTOR_BENCHMARK_TEMPLATE(BM_BigVec_Multeq, M6Vector)
 #endif
 

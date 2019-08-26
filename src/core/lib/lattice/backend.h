@@ -42,7 +42,7 @@ template<typename VecType> class PolyImpl;
 
 using M2Poly = PolyImpl<M2Vector>;
 using M4Poly = PolyImpl<M4Vector>;
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 using M6Poly = PolyImpl<M6Vector>;
 #endif
 
@@ -50,7 +50,7 @@ using NativePoly = PolyImpl<NativeVector>;
 
 using M2Params = ILParamsImpl<M2Integer>;
 using M4Params = ILParamsImpl<M4Integer>;
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 using M6Params = ILParamsImpl<M6Integer>;
 #endif
 
@@ -71,13 +71,13 @@ template<typename VecType> class DCRTPolyImpl;
 
 using M2DCRTPoly = DCRTPolyImpl<M2Vector>;
 using M4DCRTPoly = DCRTPolyImpl<M4Vector>;
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 using M6DCRTPoly = DCRTPolyImpl<M6Vector>;
 #endif
 
 using M2DCRTParams = ILDCRTParams<M2Integer>;
 using M4DCRTParams = ILDCRTParams<M4Integer>;
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 using M6DCRTParams = ILDCRTParams<M6Integer>;
 #endif
 
@@ -88,7 +88,7 @@ using DCRTPoly = DCRTPolyImpl<BigVector>;
 
 #endif
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 #define RUN_BIG_POLYS(FUNCTION, MESSAGE) { \
     if ( TestB2 ) { \
         using V = M2Poly; \

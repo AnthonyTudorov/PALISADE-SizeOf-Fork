@@ -57,7 +57,7 @@
 #error "MSVC COMPILER IS NOT SUPPORTED"
 #endif
 
-#ifndef HAVE_NTL
+#ifndef WITH_NTL
 #ifdef _WIN32
 #define NTL_SP_NBITS 32
 #else
@@ -165,7 +165,7 @@ typedef ubint<expdtype> xubint;
 typedef mubintvec<xubint> xmubintvec;
 }
 
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpintvec.h" //rings of such
@@ -246,14 +246,14 @@ typedef native_int::NativeVector<NativeInteger>		NativeVector;
 // COMMON TESTING DEFINITIONS
 extern bool TestB2;
 extern bool TestB4;
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 extern bool TestB6;
 #endif
 extern bool TestNative;
 
 
 // macros for unit testing
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 #define RUN_BIG_BACKENDS_INT(FUNCTION, MESSAGE) { \
 	if( TestB2 ) { using T = M2Integer; FUNCTION<T>("BE2 " MESSAGE); } \
 	if( TestB4 ) { using T = M4Integer; FUNCTION<T>("BE4 " MESSAGE); } \

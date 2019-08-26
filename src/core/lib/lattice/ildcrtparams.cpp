@@ -62,7 +62,7 @@ ILDCRTParams<IntType>::ILDCRTParams(usint order, usint depth, usint bits) : Elem
 
 CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M2Integer>, lbcrypto::ILDCRTParams<M2Integer>::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M4Integer>, lbcrypto::ILDCRTParams<M4Integer>::SerializedVersion() );
-#ifdef HAVE_NTL
+#ifdef WITH_NTL
 CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<M6Integer>, lbcrypto::ILDCRTParams<M6Integer>::SerializedVersion() );
 #endif
 CEREAL_CLASS_VERSION( lbcrypto::ILDCRTParams<NativeInteger>, lbcrypto::ILDCRTParams<NativeInteger>::SerializedVersion() );
