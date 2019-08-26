@@ -6,6 +6,10 @@ set(BUILD_STATIC "NO") # set to yes to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+if("${WITH_NTL}" STREQUAL "true")
+	message("NTL is turned ON")
+endif()
+
 set(TAR "tar")
 if(APPLE)
 	set(TAR "gtar")
