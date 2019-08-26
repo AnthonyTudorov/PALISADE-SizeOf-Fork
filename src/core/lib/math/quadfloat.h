@@ -28,8 +28,6 @@
 #ifndef LBCRYPTO_MATH_QUADFLOAT_H
 #define LBCRYPTO_MATH_QUADFLOAT_H
 
-//#define HAVE_NTL
-
 #ifdef  HAVE_NTL
 #include <NTL/quad_float.h>
 #include <NTL/xdouble.h>

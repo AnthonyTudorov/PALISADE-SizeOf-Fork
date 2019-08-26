@@ -35,6 +35,8 @@
 #ifndef LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
 #define LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
 
+#ifdef HAVE_NTL
+
 #include <iostream>
 #include <vector>
 
@@ -577,5 +579,6 @@ protected:
 
 } // namespace NTL ends
 
-#endif // LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H
+#endif
 
+#endif // LBCRYPTO_MATH_GMPINT_MGMPINTVEC_H

@@ -28,7 +28,7 @@
 #ifndef LBCRYPTO_MATH_GMPINT_GMPINT_H
 #define LBCRYPTO_MATH_GMPINT_GMPINT_H
 
-
+#ifdef HAVE_NTL
 
 #include <iostream>
 #include <string>
@@ -573,6 +573,8 @@ private:
 
 NTL_DECLARE_RELOCATABLE((myZZ*))
 }//namespace ends
+
+#endif
 
 #endif //LBCRYPTO_MATH_GMPINT_GMPINT_H
 

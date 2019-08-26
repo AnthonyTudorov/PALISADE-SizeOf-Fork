@@ -29,6 +29,9 @@
  * This file contains the cpp implementation of  mgmpintvec, a <vector> of gmpint, with associated math operators.
  *
  */
+
+#ifdef HAVE_NTL
+
 #define FASTNLOOSE
 #define FORCE_NORMALIZATION
 
@@ -815,3 +818,5 @@ inline void  myVecP<myT>::modmul_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<
 } // namespace NTL ends
 
 template class NTL::myVecP<NTL::myZZ>;
+
+#endif

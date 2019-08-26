@@ -290,12 +290,21 @@ if(NOT APPLE)
 	set(QUADMATHLIB -lquadmath)
 endif()
 
-if(MINGW)
-	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
+if("${HAVE_NTL}" STREQUAL "true")
+	if(MINGW)
+		set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
+	else()
+		set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp ${QUADMATHLIB})
+	endif()
+	set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
 else()
-	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp ${QUADMATHLIB})
+	if(MINGW)
+		set(THIRDPARTYLIBS ${QUADMATHLIB})
+	else()
+		set(THIRDPARTYLIBS ${QUADMATHLIB})
+	endif()
+	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
 endif()
-set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
 
 ### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
 ### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
@@ -303,9 +312,14 @@ set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
+if("${HAVE_NTL}" STREQUAL "true")
 add_custom_target(third-party ALL
  COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo
 )
+else()
+add_custom_target(third-party ALL
+)
+endif()
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)

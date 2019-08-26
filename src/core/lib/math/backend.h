@@ -57,6 +57,14 @@
 #error "MSVC COMPILER IS NOT SUPPORTED"
 #endif
 
+#ifndef HAVE_NTL
+#ifdef _WIN32
+#define NTL_SP_NBITS 32
+#else
+#define NTL_SP_NBITS (64-4)
+#endif
+#endif
+
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
 // Each math backend is defined in its own namespace, and can be used at any time by referencing
@@ -157,6 +165,8 @@ typedef ubint<expdtype> xubint;
 typedef mubintvec<xubint> xmubintvec;
 }
 
+#ifdef HAVE_NTL
+
 #include "gmp_int/gmpint.h" //experimental gmp unsigned big ints
 #include "gmp_int/mgmpintvec.h" //rings of such
 
@@ -164,13 +174,17 @@ namespace gmp_int {
 typedef NTL::myZZ ubint;
 }
 
+using M6Integer = NTL::myZZ;
+using M6Vector = NTL::myVecP<M6Integer>;
+
+#endif
+
 // typedefs for the known math backends
 using M2Integer = cpu_int::BigInteger<integral_dtype,BigIntegerBitLength>;
 using M2Vector = cpu_int::BigVectorImpl<M2Integer>;
 using M4Integer = exp_int::xubint;
 using M4Vector = exp_int::xmubintvec;
-using M6Integer = NTL::myZZ;
-using M6Vector = NTL::myVecP<M6Integer>;
+
 
 /**
  * @namespace lbcrypto
@@ -232,25 +246,38 @@ typedef native_int::NativeVector<NativeInteger>		NativeVector;
 // COMMON TESTING DEFINITIONS
 extern bool TestB2;
 extern bool TestB4;
+#ifdef HAVE_NTL
 extern bool TestB6;
+#endif
 extern bool TestNative;
 
+
 // macros for unit testing
+#ifdef HAVE_NTL
 #define RUN_BIG_BACKENDS_INT(FUNCTION, MESSAGE) { \
 	if( TestB2 ) { using T = M2Integer; FUNCTION<T>("BE2 " MESSAGE); } \
 	if( TestB4 ) { using T = M4Integer; FUNCTION<T>("BE4 " MESSAGE); } \
 	if( TestB6 ) { using T = M6Integer; FUNCTION<T>("BE6 " MESSAGE); } \
 }
-
-#define RUN_ALL_BACKENDS_INT(FUNCTION, MESSAGE) { \
-	RUN_BIG_BACKENDS_INT(FUNCTION,MESSAGE) \
-	if( TestNative ) { using T = NativeInteger; FUNCTION<T>("Native " MESSAGE); } \
-}
-
 #define RUN_BIG_BACKENDS(FUNCTION, MESSAGE) { \
 	if( TestB2 ) { using V = M2Vector; FUNCTION<V>("BE2 " MESSAGE); } \
 	if( TestB4 ) { using V = M4Vector; FUNCTION<V>("BE4 " MESSAGE); } \
 	if( TestB6 ) { using V = M6Vector; FUNCTION<V>("BE6 " MESSAGE); } \
+}
+#else
+#define RUN_BIG_BACKENDS_INT(FUNCTION, MESSAGE) { \
+	if( TestB2 ) { using T = M2Integer; FUNCTION<T>("BE2 " MESSAGE); } \
+	if( TestB4 ) { using T = M4Integer; FUNCTION<T>("BE4 " MESSAGE); } \
+}
+#define RUN_BIG_BACKENDS(FUNCTION, MESSAGE) { \
+	if( TestB2 ) { using V = M2Vector; FUNCTION<V>("BE2 " MESSAGE); } \
+	if( TestB4 ) { using V = M4Vector; FUNCTION<V>("BE4 " MESSAGE); } \
+}
+#endif
+
+#define RUN_ALL_BACKENDS_INT(FUNCTION, MESSAGE) { \
+	RUN_BIG_BACKENDS_INT(FUNCTION,MESSAGE) \
+	if( TestNative ) { using T = NativeInteger; FUNCTION<T>("Native " MESSAGE); } \
 }
 
 #define RUN_ALL_BACKENDS(FUNCTION, MESSAGE) { \
