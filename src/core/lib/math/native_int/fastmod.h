@@ -211,13 +211,6 @@ inline unsigned long PrepMulModPrecon(long b, long n)
    return PrepMulModPrecon(b, n, PrepMulMod(n));
 }
 
-inline
-long AddMod(long a, long b, long n)
-{
-   long r = a+b;
-   return sp_CorrectExcess(r, n);
-}
-
 inline long
 sp_NormalizedMulMod(long a, long b, long n, unsigned long ninv)
 {

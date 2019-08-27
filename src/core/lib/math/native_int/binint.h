@@ -672,33 +672,27 @@ public:
 	}
 
 	/**
-	 * Fast modulo addition. NTL-optimized version.
+	 * Fast modulo addition. Optimized version.
 	 *
 	 * @param &b is the NativeInteger to add.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-#if NTL_BITS_PER_LONG==64
-		return (NativeInt)AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		return this->ModAddFast(b, modulus);
-#endif
+  		int64_t r = this->m_value + b.m_value;
+		return r-modulus.m_value >= 0 ? r-modulus.m_value : r;
 	}
 
 	/**
-	 * Fast modulo addition in-place. NTL-optimized version.
+	 * Fast modulo addition in-place. Optimized version.
 	 *
 	 * @param &b is the NativeInteger to add.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
 	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
-#if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		this->ModAddFastEq(b, modulus);
-#endif
+   		int64_t r = this->m_value + b.m_value;
+		this->m_value = r-modulus.m_value >= 0 ? r-modulus.m_value : r;
 		return *this;
 	}
 
