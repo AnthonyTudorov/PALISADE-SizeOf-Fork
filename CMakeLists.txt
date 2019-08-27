@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.4)
 
 project (PALISADE C CXX)
 
-set(BUILD_STATIC "NO") # set to yes to build static libs and apps
+set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
@@ -180,12 +180,6 @@ else()
 	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
-#if (MINGW)
-#	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
-#	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
-#else()
-#	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
-#endif()
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack gmp distro
@@ -225,7 +219,6 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
 
 ### Handle third-party libntl
-### note on Windows we build static
 
 set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
 set(NTLZIPNAME ntl-10.5.0.tar.gz)
@@ -238,14 +231,6 @@ if (MINGW)
 else()
 	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
-
-#if(MINGW)
-#	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
-#	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
-#else()
-
-#	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
-#endif()
 
 # unpack ntl distro
 
@@ -292,8 +277,6 @@ add_custom_target(
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
-#add_library(ntl_static STATIC IMPORTED GLOBAL)
-#set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE_STATIC})
 add_library(ntl SHARED IMPORTED GLOBAL)
 if(MINGW)
 set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libntl-35.dll)
@@ -332,20 +315,11 @@ if(NOT APPLE)
 endif()
 
 if("${WITH_NTL}" STREQUAL "true")
-	#if(MINGW)
-	#	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
-	#else()
-		set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp ${QUADMATHLIB})
-	#endif()
-	#set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static ${QUADMATHLIB})
-	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
+	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp )
+	set(THIRDPARTYSTATICLIBS PUBLIC ntl PUBLIC gmp )
 	add_definitions(-DWITH_NTL)
 else()
-	#if(MINGW)
-		set(THIRDPARTYLIBS ${QUADMATHLIB})
-	#else()
-	#	set(THIRDPARTYLIBS ${QUADMATHLIB})
-	#endif()
+	set(THIRDPARTYLIBS ${QUADMATHLIB})
 	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
 endif()
 
