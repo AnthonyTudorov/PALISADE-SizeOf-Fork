@@ -71,9 +71,11 @@
 #if PALISADE_NATIVEINT_BITS == 32
         typedef uint32_t        NativeInt
         typedef uint64_t        DNativeInt
+        typedef int32_t         SignedNativeInt
 #elif PALISADE_NATIVEINT_BITS == 64
         typedef uint64_t        				NativeInt;
         typedef lbcrypto::DoubleNativeInt		DNativeInt;
+        typedef int64_t							SignedNativeInt;
         #define PALISADE_NATIVE_LOWMASK (NativeInt)0xFFFFFFFF
         #define PALISADE_NATIVE_LOWSIZE 32
         #define PALISADE_NATIVE_HIMASK (PALISADE_NATIVE_LOWMASK << PALISADE_NATIVE_LOWSIZE)
@@ -679,8 +681,8 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-  		int64_t r = this->m_value + b.m_value;
-		return r-modulus.m_value >= 0 ? r-modulus.m_value : r;
+  		SignedNativeInt r = SignedNativeInt(this->m_value) + SignedNativeInt(b.m_value);
+		return r-SignedNativeInt(modulus.m_value) >= 0 ? r-SignedNativeInt(modulus.m_value) : r;
 	}
 
 	/**
@@ -691,8 +693,8 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
-   		int64_t r = this->m_value + b.m_value;
-		this->m_value = r-modulus.m_value >= 0 ? r-modulus.m_value : r;
+		SignedNativeInt r = SignedNativeInt(this->m_value) + SignedNativeInt(b.m_value);
+		this->m_value = r-SignedNativeInt(modulus.m_value) >= 0 ? r-SignedNativeInt(modulus.m_value) : r;
 		return *this;
 	}
 
