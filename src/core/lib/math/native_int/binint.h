@@ -681,8 +681,8 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-  		SignedNativeInt r = SignedNativeInt(this->m_value) + SignedNativeInt(b.m_value);
-		return r-SignedNativeInt(modulus.m_value) >= 0 ? r-SignedNativeInt(modulus.m_value) : r;
+  		NativeInt r = this->m_value + b.m_value;
+		return r>=modulus.m_value ? r-modulus.m_value : r;
 	}
 
 	/**
@@ -693,8 +693,8 @@ public:
 	 * @return result of the modulus addition operation.
 	 */
 	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
-		SignedNativeInt r = SignedNativeInt(this->m_value) + SignedNativeInt(b.m_value);
-		this->m_value = r-SignedNativeInt(modulus.m_value) >= 0 ? r-SignedNativeInt(modulus.m_value) : r;
+		this->m_value += b.m_value;
+		this->m_value = this->m_value>=modulus.m_value ? this->m_value-modulus.m_value : this->m_value;
 		return *this;
 	}
 
