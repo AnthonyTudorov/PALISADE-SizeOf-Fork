@@ -174,11 +174,16 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
+if(MINGW)
+	set(GMPLIBFILE ${GMPLIBDIR}/libgmp.dll.a)
+else()
+	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
+endif()
+
 #if (MINGW)
 #	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 #	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 #else()
-	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
 #	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 #endif()
 set(GMPCONF ${GMPSRCDIR}/config.h)
@@ -209,7 +214,12 @@ add_custom_target(
 #add_library(gmp_static STATIC IMPORTED GLOBAL)
 #set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
 add_library(gmp SHARED IMPORTED GLOBAL)
-set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+if(MINGW)
+	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libgmp-10.dll)
+	set_target_properties(gmp PROPERTIES IMPORTED_IMPLIB ${GMPLIBFILE})
+else()
+	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
@@ -223,27 +233,49 @@ set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
+if (MINGW)
+	set(NTLLIBFILE ${NTLLIBDIR}/libntl.dll.a)
+else()
+	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+endif()
+
 #if(MINGW)
 #	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 #	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 #else()
-	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
+
 #	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 #endif()
 
 # unpack ntl distro
 
+if(MINGW)
+add_custom_target(
+	ntl_unpack
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off LIBTOOL_LINK_FLAGS=-no-undefined
+)
+else()
 add_custom_target(
 	ntl_unpack
 	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
 	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 )
+endif()
 
+if(MINGW)
+add_custom_target(
+	ntl_unpack_nowizard
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off TUNE=generic LIBTOOL_LINK_FLAGS=-no-undefined
+)
+else()
 add_custom_target(
 	ntl_unpack_nowizard
 	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
 	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off TUNE=generic
 )
+endif()
 
 add_custom_target(
 	ntl_clobber
@@ -263,7 +295,12 @@ add_custom_target(
 #add_library(ntl_static STATIC IMPORTED GLOBAL)
 #set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE_STATIC})
 add_library(ntl SHARED IMPORTED GLOBAL)
+if(MINGW)
+set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libntl-35.dll)
+set_target_properties(ntl PROPERTIES IMPORTED_IMPLIB ${NTLLIBFILE})
+else()
 set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
