@@ -25,6 +25,8 @@
  *
  */
 
+#ifdef WITH_NTL
+
 #include "math/backend.h"
 #include "lattice/backend.h"
 #include "math/matrix.cpp"
@@ -67,3 +69,5 @@ template Matrix<M6Integer> Rotate(Matrix<M6DCRTPoly> const& inMat);
 
 CEREAL_CLASS_VERSION( lbcrypto::M6Poly, lbcrypto::M6Poly::SerializedVersion() );
 CEREAL_CLASS_VERSION( lbcrypto::M6DCRTPoly, lbcrypto::M6DCRTPoly::SerializedVersion() );
+
+#endif

@@ -2,9 +2,13 @@ cmake_minimum_required (VERSION 3.4)
 
 project (PALISADE C CXX)
 
-set(BUILD_STATIC "NO") # set to yes to build static libs and apps
+set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+if("${WITH_NTL}" STREQUAL "true")
+	message("NTL is turned ON")
+endif()
 
 set(TAR "tar")
 if(APPLE)
@@ -170,13 +174,12 @@ set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if (MINGW)
-	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
-	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
+if(MINGW)
+	set(GMPLIBFILE ${GMPLIBDIR}/libgmp.dll.a)
 else()
 	set(GMPLIBFILE ${GMPLIBDIR}/libgmp${CMAKE_SHARED_LIBRARY_SUFFIX})
-	set(GMPLIBFILE_STATIC ${GMPLIBDIR}/libgmp${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
+
 set(GMPCONF ${GMPSRCDIR}/config.h)
 
 # unpack gmp distro
@@ -184,7 +187,7 @@ set(GMPCONF ${GMPSRCDIR}/config.h)
 add_custom_target(
 	gmp_unpack
 	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf gmp-6.1.2.tar.lz
-	COMMAND cd ${GMPSRCDIR} && ./configure --host=${CROSS_TRIPLE} --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party
+	COMMAND cd ${GMPSRCDIR} && ./configure --host=${CROSS_TRIPLE} --prefix=${CMAKE_CURRENT_BINARY_DIR}/third-party --disable-static --enable-shared
 )
 
 add_custom_target(
@@ -202,16 +205,20 @@ add_custom_target(
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
-add_library(gmp_static STATIC IMPORTED GLOBAL)
-set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
+#add_library(gmp_static STATIC IMPORTED GLOBAL)
+#set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
 add_library(gmp SHARED IMPORTED GLOBAL)
-set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+if(MINGW)
+	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libgmp-10.dll)
+	set_target_properties(gmp PROPERTIES IMPORTED_IMPLIB ${GMPLIBFILE})
+else()
+	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
 
 ### Handle third-party libntl
-### note on Windows we build static
 
 set(NTLSRCDIR ${THIRDPARTYDIR}/distros/ntl-10.5.0/src)
 set(NTLZIPNAME ntl-10.5.0.tar.gz)
@@ -219,27 +226,41 @@ set(NTLTARGET all)
 
 set(NTLCONF ${NTLSRCDIR}/../include/NTL/config.h)
 set(NTLLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
-if(MINGW)
-	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
-	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
+if (MINGW)
+	set(NTLLIBFILE ${NTLLIBDIR}/libntl.dll.a)
 else()
 	set(NTLLIBFILE ${NTLLIBDIR}/libntl${CMAKE_SHARED_LIBRARY_SUFFIX})
-	set(NTLLIBFILE_STATIC ${NTLLIBDIR}/libntl${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
 # unpack ntl distro
 
+if(MINGW)
+add_custom_target(
+	ntl_unpack
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off LIBTOOL_LINK_FLAGS=-no-undefined
+)
+else()
 add_custom_target(
 	ntl_unpack
 	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
 	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off
 )
+endif()
 
+if(MINGW)
+add_custom_target(
+	ntl_unpack_nowizard
+	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
+	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off TUNE=generic LIBTOOL_LINK_FLAGS=-no-undefined
+)
+else()
 add_custom_target(
 	ntl_unpack_nowizard
 	COMMAND cd ${THIRDPARTYDIR}/distros && ${TAR} xf ${NTLZIPNAME}
 	COMMAND cd ${NTLSRCDIR} && ./configure PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party GMP_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third-party NTL_THREADS=on NTL_THREAD_BOOST=on NTL_EXCEPTIONS=on SHARED=on NTL_STD_CXX11=on NTL_SAFE_VECTORS=off TUNE=generic
 )
+endif()
 
 add_custom_target(
 	ntl_clobber
@@ -256,10 +277,13 @@ add_custom_target(
 	WORKING_DIRECTORY ${NTLSRCDIR}
 )
 
-add_library(ntl_static STATIC IMPORTED GLOBAL)
-set_target_properties(ntl_static PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE_STATIC})
 add_library(ntl SHARED IMPORTED GLOBAL)
+if(MINGW)
+set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libntl-35.dll)
+set_target_properties(ntl PROPERTIES IMPORTED_IMPLIB ${NTLLIBFILE})
+else()
 set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
@@ -286,12 +310,18 @@ set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINA
 add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(MINGW)
-	set(THIRDPARTYLIBS PUBLIC ntl_static PUBLIC gmp_static)
-else()
-	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp)
+if(NOT APPLE)
+	set(QUADMATHLIB -lquadmath)
 endif()
-set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static)
+
+if("${WITH_NTL}" STREQUAL "true")
+	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp )
+	set(THIRDPARTYSTATICLIBS PUBLIC ntl PUBLIC gmp )
+	add_definitions(-DWITH_NTL)
+else()
+	set(THIRDPARTYLIBS ${QUADMATHLIB})
+	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
+endif()
 
 ### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
 ### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
@@ -299,9 +329,14 @@ set(THIRDPARTYSTATICLIBS PUBLIC ntl_static PUBLIC gmp_static)
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
+if("${WITH_NTL}" STREQUAL "true")
 add_custom_target(third-party ALL
  COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo
 )
+else()
+add_custom_target(third-party ALL
+)
+endif()
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)

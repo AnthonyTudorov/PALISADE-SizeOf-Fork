@@ -163,7 +163,7 @@ ElemParamFactory::GenElemParams<ILDCRTParams<M4Integer>>(usint m, usint bits, us
 		DEBUGEXP(towersize);
 	return GenerateDCRTParams<M4Integer>(m, towersize, bits);
 }
- 
+#ifdef WITH_NTL
 template<>
 inline shared_ptr<ILDCRTParams<M6Integer>>
 ElemParamFactory::GenElemParams<ILDCRTParams<M6Integer>>(usint m, usint bits, usint towersize) {
@@ -175,7 +175,7 @@ ElemParamFactory::GenElemParams<ILDCRTParams<M6Integer>>(usint m, usint bits, us
 		DEBUGEXP(towersize);
 	return GenerateDCRTParams<M6Integer>(m, towersize, bits);
 }
-
+#endif
 } /* namespace lbcrypto */
 
 #endif /* SRC_CORE_LIB_LATTICE_ELEMPARAMFACTORY_H_ */

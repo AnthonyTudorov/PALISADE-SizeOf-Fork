@@ -40,6 +40,7 @@
 
 namespace lbcrypto {
 
+#ifdef WITH_NTL
 	//native NTL version
 	NTL::myZZ RNG(const NTL::myZZ& modulus)
 	{
@@ -70,6 +71,7 @@ namespace lbcrypto {
 
 		return (bool)ProbPrime(p, niter); //TODO: check to see if niter >maxint
 	}
+#endif
 
 	/*
 		Finds multiplicative inverse using the Extended Euclid Algorithms

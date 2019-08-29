@@ -102,7 +102,7 @@ void SHERun() {
 
 	//Set Crypto Parameters
 	CryptoContext<DCRTPoly> cryptoContext = CryptoContextFactory<DCRTPoly>::genCryptoContextBFVrns(
-			ptm, rootHermiteFactor, sigma, 0, 5, 0, OPTIMIZED,3,0,60);
+			ptm, rootHermiteFactor, sigma, 0, 5, 0, OPTIMIZED,3,0,55);
 
 	// enable features that you wish to use
 	cryptoContext->Enable(ENCRYPTION);
@@ -110,7 +110,7 @@ void SHERun() {
 
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 	std::cout << "n = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetCyclotomicOrder() / 2 << std::endl;
-	std::cout << "log2 q = " << log2(cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().ConvertToDouble()) << std::endl;
+	std::cout << "log2 q = " << cryptoContext->GetCryptoParameters()->GetElementParams()->GetModulus().GetMSB() << std::endl;
 
 	// Initialize Public Key Containers
 	LPKeyPair<DCRTPoly> keyPair;

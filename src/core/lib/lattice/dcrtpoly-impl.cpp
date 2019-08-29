@@ -43,7 +43,8 @@ template class ILDCRTParams<M2Integer>;
 template class DCRTPolyImpl<M2Vector>;
 template class ILDCRTParams<M4Integer>;
 template class DCRTPolyImpl<M4Vector>;
+#ifdef WITH_NTL
 template class ILDCRTParams<M6Integer>;
 template class DCRTPolyImpl<M6Vector>;
-
+#endif
 }

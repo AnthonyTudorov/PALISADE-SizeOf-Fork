@@ -58,8 +58,6 @@ public:
 	}
 };
 
-const usint dcrtBits = 40;
-
 #if !defined(_MSC_VER)
 
 TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {

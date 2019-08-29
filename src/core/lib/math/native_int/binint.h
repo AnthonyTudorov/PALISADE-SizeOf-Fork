@@ -42,7 +42,6 @@
 #include <stdexcept>
 #include <functional>
 #include <cstdlib>
-#include <NTL/ZZ.h>
 #include <memory>
 #include "../interface.h"
 #include "utils/inttypes.h"
@@ -52,6 +51,7 @@
 #include "utils/exception.h"
 #include "utils/debug.h"
 #include "../nbtheory.h"
+#include "fastmod.h"
 
 // the default behavior of the native integer layer is
 // to assume that the user does not need bounds/range checks
@@ -71,9 +71,11 @@
 #if PALISADE_NATIVEINT_BITS == 32
         typedef uint32_t        NativeInt
         typedef uint64_t        DNativeInt
+        typedef int32_t         SignedNativeInt
 #elif PALISADE_NATIVEINT_BITS == 64
         typedef uint64_t        				NativeInt;
         typedef lbcrypto::DoubleNativeInt		DNativeInt;
+        typedef int64_t							SignedNativeInt;
         #define PALISADE_NATIVE_LOWMASK (NativeInt)0xFFFFFFFF
         #define PALISADE_NATIVE_LOWSIZE 32
         #define PALISADE_NATIVE_HIMASK (PALISADE_NATIVE_LOWMASK << PALISADE_NATIVE_LOWSIZE)
@@ -672,33 +674,27 @@ public:
 	}
 
 	/**
-	 * Fast modulo addition. NTL-optimized version.
+	 * Fast modulo addition. Optimized version.
 	 *
 	 * @param &b is the NativeInteger to add.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
 	NativeInteger ModAddFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-#if NTL_BITS_PER_LONG==64
-		return (NativeInt)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		return this->ModAddFast(b, modulus);
-#endif
+  		NativeInt r = this->m_value + b.m_value;
+		return r>=modulus.m_value ? r-modulus.m_value : r;
 	}
 
 	/**
-	 * Fast modulo addition in-place. NTL-optimized version.
+	 * Fast modulo addition in-place. Optimized version.
 	 *
 	 * @param &b is the NativeInteger to add.
 	 * @param modulus is the modulus to perform operations with.
 	 * @return result of the modulus addition operation.
 	 */
 	const NativeInteger& ModAddFastOptimizedEq(const NativeInteger& b, const NativeInteger& modulus) {
-#if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)NTL::AddMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		this->ModAddFastEq(b, modulus);
-#endif
+		this->m_value += b.m_value;
+		this->m_value = this->m_value>=modulus.m_value ? this->m_value-modulus.m_value : this->m_value;
 		return *this;
 	}
 
@@ -894,7 +890,7 @@ public:
 	 */
 	NativeInteger ModMulFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
-		return (NativeInt)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+		return (NativeInt)MulMod(this->m_value,b.m_value,modulus.m_value);
 #else
 		return this->ModMulFast(b, modulus);
 #endif
@@ -910,7 +906,7 @@ public:
 	 */
 	const NativeInteger& ModMulFastEqOptimized(const NativeInteger& b, const NativeInteger& modulus) {
 #if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)NTL::MulMod(this->m_value,b.m_value,modulus.m_value);
+		this->m_value = (NativeInt)MulMod(this->m_value,b.m_value,modulus.m_value);
 #else
 		this->ModMulFastEq(b, modulus);
 #endif
@@ -927,7 +923,7 @@ public:
 	 */
 	NativeInteger ModMulPreconOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
 #if NTL_BITS_PER_LONG==64
-		return (NativeInt)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+		return (NativeInt)MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
 		return this->ModMulFast(b, modulus);
 #endif
@@ -943,7 +939,7 @@ public:
 	 */
 	const NativeInteger& ModMulPreconOptimizedEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
 #if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)NTL::MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
+		this->m_value = (NativeInt)MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
 #else
 		this->ModMulFastEq(b, modulus);
 #endif
@@ -958,7 +954,7 @@ public:
 	 */
 	const NativeInteger PrepModMulPreconOptimized(const NativeInteger& modulus) const {
 #if NTL_BITS_PER_LONG==64
-		return (NativeInt)NTL::PrepMulModPrecon(this->m_value,modulus.m_value);
+		return (NativeInt)PrepMulModPrecon(this->m_value,modulus.m_value);
 #else
 		return 0;
 #endif

@@ -25,6 +25,8 @@
  *
  */
 
+#ifdef WITH_NTL
+
 #include "math/backend.h"
 #include "math/matrix.h"
 
@@ -81,3 +83,5 @@ GADGET_FOR_TYPE(M6Vector)
 
 CEREAL_CLASS_VERSION( M6Integer, M6Integer::SerializedVersion() );
 CEREAL_CLASS_VERSION( M6Vector, M6Vector::SerializedVersion() );
+
+#endif

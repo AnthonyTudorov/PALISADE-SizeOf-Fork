@@ -1300,8 +1300,10 @@ void GetInternalRepresentation(const string& msg) {
   //define what is correct based on math backend selected
   string correct("2 0 0 16");
 
+#ifdef WITH_NTL
   if( typeid(T) == typeid(M6Integer) )
 	  correct = "2 68719476736";
+#endif
 
   EXPECT_EQ(correct, x_limbs) << msg;
 }
