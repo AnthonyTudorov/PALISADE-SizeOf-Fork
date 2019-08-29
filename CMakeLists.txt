@@ -6,7 +6,7 @@ set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-if("${WITH_NTL}" STREQUAL "true")
+if("${WITH_NTL}" STREQUAL "Y")
 	message("-- NTL is turned ON")
 else()
 	message("-- NTL is turned OFF")	
@@ -116,9 +116,9 @@ endif()
 if (OpenMP_CXX_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-	message("-- OpenMP is enabled.")
+	message("-- OpenMP is ON.")
 else()
-	message("-- OpenMP is disabled.")
+	message("-- OpenMP is OFF.")
 endif()
 
 if (OpenMP_C_FOUND)
@@ -132,10 +132,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	else()
 		set (IGNORE_WARNINGS "-Wno-parentheses -Wno-pessimizing-move")
 	endif()
-endif()
-
-if (NOT OpenMP_CXX_FOUND)
-	set(IGNORE_WARNINGS "${IGNORE_WARNINGS} -Wno-unknown-pragmas")
 endif()
 
 set(COMPILEFLAGS "-Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGNORE_WARNINGS}")
@@ -323,7 +319,7 @@ if(NOT APPLE)
 	set(QUADMATHLIB -lquadmath)
 endif()
 
-if("${WITH_NTL}" STREQUAL "true")
+if("${WITH_NTL}" STREQUAL "Y")
 	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp )
 	set(THIRDPARTYSTATICLIBS PUBLIC ntl PUBLIC gmp )
 	add_definitions(-DWITH_NTL)
@@ -341,14 +337,14 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
 set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)
 
-if("${WITH_NTL}" STREQUAL "true")
+if("${WITH_NTL}" STREQUAL "Y")
 add_custom_target(third-party ALL
  COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo "-- NTL/GMP is already installed"
- COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "Copied demoData files" || echo "-- demoData folder already exists"
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "-- Copied demoData files" || echo "-- demoData folder already exists"
 )
 else()
 add_custom_target(third-party ALL
- COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "Copied demoData files" || echo "-- demoData folder already exists"
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "-- Copied demoData files" || echo "-- demoData folder already exists"
 )
 endif()
 
@@ -396,3 +392,7 @@ LIST(APPEND            clean_files ${ADDITIONAL_CLEAN_FILES})
 LIST(REMOVE_DUPLICATES clean_files)
 LIST(REMOVE_ITEM       clean_files "")
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
+
+if (NOT OpenMP_CXX_FOUND)
+	message(SEND_ERROR "** ERROR ** OpenMP is not installed. If using macOS/clang, please rerun 'cmake ..' once more.")
+endif()
