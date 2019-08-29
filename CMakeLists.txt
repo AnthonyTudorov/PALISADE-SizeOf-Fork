@@ -7,7 +7,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 if("${WITH_NTL}" STREQUAL "true")
-	message("NTL is turned ON")
+	message("-- NTL is turned ON")
+else()
+	message("-- NTL is turned OFF")	
 endif()
 
 set(TAR "tar")
@@ -145,7 +147,7 @@ if (DOXYGEN_FOUND)
         VERBATIM )
 
 else (DOXYGEN_FOUND)
-  message("Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
+  message("-- Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
 
 include (ExternalProject)
@@ -329,14 +331,23 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
+set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
+set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)
+
 if("${WITH_NTL}" STREQUAL "true")
 add_custom_target(third-party ALL
- COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo
+ COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo "-- NTL/GMP is already installed"
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "Copied demoData files" || echo "-- demoData folder already exists"
 )
 else()
 add_custom_target(third-party ALL
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "Copied demoData files" || echo "-- demoData folder already exists"
 )
 endif()
+
+SET(ADDITIONAL_CLEAN_FILES "")
+LIST(APPEND ADDITIONAL_CLEAN_FILES ${BINDEMODATAPATH})
+LIST(APPEND ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeCache.txt)
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)
@@ -371,3 +382,10 @@ add_custom_target( testall
 	COMMAND echo abe: && unittest/abe_tests -t
 	COMMAND echo signature: && unittest/signature_tests -t
 )
+
+# Add the additional "make clean" files
+GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
+LIST(APPEND            clean_files ${ADDITIONAL_CLEAN_FILES})
+LIST(REMOVE_DUPLICATES clean_files)
+LIST(REMOVE_ITEM       clean_files "")
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
