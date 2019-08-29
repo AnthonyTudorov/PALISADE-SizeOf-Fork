@@ -104,19 +104,6 @@ if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-# Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-		set (IGNORE_WARNINGS "")
-	else()
-		set (IGNORE_WARNINGS "-Wno-parentheses -Wno-pessimizing-move")
-	endif()
-endif()
-
-set(COMPILEFLAGS "-Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGNORE_WARNINGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
-
 find_package (OpenMP)
 
 if( APPLE AND USE_OpenMP)
@@ -129,11 +116,31 @@ endif()
 if (OpenMP_CXX_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+	message("-- OpenMP is enabled.")
+else()
+	message("-- OpenMP is disabled.")
 endif()
 
 if (OpenMP_C_FOUND)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
+
+# Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+		set (IGNORE_WARNINGS "")
+	else()
+		set (IGNORE_WARNINGS "-Wno-parentheses -Wno-pessimizing-move")
+	endif()
+endif()
+
+if (NOT OpenMP_CXX_FOUND)
+	set(IGNORE_WARNINGS "${IGNORE_WARNINGS} -Wno-unknown-pragmas")
+endif()
+
+set(COMPILEFLAGS "-Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGNORE_WARNINGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
 find_package (Git REQUIRED)
 
