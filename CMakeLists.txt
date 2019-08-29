@@ -10,6 +10,15 @@ if("${WITH_NTL}" STREQUAL "Y")
 	message("-- NTL is turned ON")
 else()
 	message("-- NTL is turned OFF")	
+	if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		message(SEND_ERROR "NTL is required for macOS/clang")
+	endif()
+endif()
+
+if("${WITH_TCM}" STREQUAL "Y")
+	message("-- tcmalloc is turned ON")
+else()
+	message("-- tcmalloc is turned OFF")	
 endif()
 
 set(TAR "tar")
@@ -77,9 +86,6 @@ else()
 	message(FATAL_ERROR  "You are using ${CMAKE_CXX_COMPILER_ID} version ${CMAKE_CXX_COMPILER_VERSION}, which is unsupported.")
 endif()
 
-message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
-set (CMAKE_INSTALL_MESSAGE LAZY)
-
 # use, i.e. don't skip the full RPATH for the build tree
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
@@ -116,14 +122,17 @@ endif()
 if (OpenMP_CXX_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-	message("-- OpenMP is ON.")
+	message("-- OpenMP is turned ON")
 else()
-	message("-- OpenMP is OFF.")
+	message("-- OpenMP is turned OFF")
 endif()
 
 if (OpenMP_C_FOUND)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
+
+message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
+set (CMAKE_INSTALL_MESSAGE LAZY)
 
 # Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -328,9 +337,10 @@ else()
 	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
 endif()
 
-### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
-### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
-###
+if("${WITH_TCM}" STREQUAL "Y")
+	set(THIRDPARTYLIBS ${THIRDPARTYLIBS} PUBLIC tcmalloc)
+	set(THIRDPARTYSTATICLIBS ${THIRDPARTYLIBS} PUBLIC tcmalloc_static )
+endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
