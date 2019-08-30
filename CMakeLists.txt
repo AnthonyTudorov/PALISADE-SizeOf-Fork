@@ -398,6 +398,14 @@ add_custom_target( testall
 	COMMAND echo signature: && unittest/signature_tests -t
 )
 
+add_custom_target( alldemos 
+	DEPENDS allcoredemos allpkedemos alltrapdoordemos allabedemos allsignaturedemos
+)
+
+add_custom_target( allmodules
+	DEPENDS PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature
+)
+
 # Add the additional "make clean" files
 GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
 LIST(APPEND            clean_files ${ADDITIONAL_CLEAN_FILES})
