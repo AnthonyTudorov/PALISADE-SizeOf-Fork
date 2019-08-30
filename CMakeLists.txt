@@ -36,7 +36,7 @@ endif()
 
 OPTION (USE_OpenMP "Use OpenMP to enable <omp.h>" ON)
 
-# Set OpenMP configuration manually for MacOS
+# Set OpenMP configuration manually for macOS
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument")
@@ -60,12 +60,12 @@ else()
 	execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)	
 endif()
 
-#string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
+string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
 string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 
-#if( ${AUTOGEN_VER_LEN} EQUAL 0 )
-#	message(SEND_ERROR "Autogen is not installed.")
-#endif()
+if( "${WITH_TCM}" STREQUAL "Y" AND ${AUTOGEN_VER_LEN} EQUAL 0 )
+	message(SEND_ERROR "Autogen is not installed: needed for building tcmalloc.")
+endif()
 if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 	message(SEND_ERROR "Autoconf is not installed.")
 endif()
@@ -160,6 +160,7 @@ if (DOXYGEN_FOUND)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM )
+	message ("-- Doxygen and dot are found")
 
 else (DOXYGEN_FOUND)
   message("-- Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
@@ -187,7 +188,6 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
 set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
-### note on Windows we build static
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
@@ -222,8 +222,6 @@ add_custom_target(
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
-#add_library(gmp_static STATIC IMPORTED GLOBAL)
-#set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
 add_library(gmp SHARED IMPORTED GLOBAL)
 if(MINGW)
 	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libgmp-10.dll)
@@ -327,9 +325,7 @@ set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINA
 add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(NOT APPLE)
-	set(QUADMATHLIB -lquadmath)
-endif()
+set(QUADMATHLIB -lquadmath)
 
 if("${WITH_TCM}" STREQUAL "Y")
 	set(THIRDPARTYLIBS PUBLIC tcmalloc)
@@ -345,13 +341,13 @@ else()
 	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
 
-message(${THIRDPARTYLIBS})
-
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
 set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)
 
+# copies demoData folder from the root of the repo to build/demoData if the folder does not exist
+# also checks whether NTL and GMP have been installed if the user chose to use NTL by setting WITH_NTL=Y
 if("${WITH_NTL}" STREQUAL "Y")
 add_custom_target(third-party ALL
  COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo "-- NTL/GMP is already installed"
@@ -363,6 +359,7 @@ add_custom_target(third-party ALL
 )
 endif()
 
+# when running "make clean", additionally deletes the demoData folder and CMake cache file
 SET(ADDITIONAL_CLEAN_FILES "")
 LIST(APPEND ADDITIONAL_CLEAN_FILES ${BINDEMODATAPATH})
 LIST(APPEND ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeCache.txt)
