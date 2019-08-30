@@ -232,6 +232,11 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
+# also copies the gmp dll file
+if(MINGW)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		FILES_MATCHING PATTERN "libgmp*" )
+endif()
 
 ### Handle third-party libntl
 
@@ -302,6 +307,11 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
+# also copies the dll file
+if(MINGW)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		FILES_MATCHING PATTERN "libntl*" )
+endif()
 
 ### Handle third-party gperftools for optional tcmalloc
 
@@ -414,5 +424,5 @@ LIST(REMOVE_ITEM       clean_files "")
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
 
 if (NOT OpenMP_CXX_FOUND)
-	message(SEND_ERROR "** ERROR ** OpenMP is not installed. If using macOS/clang, please rerun 'cmake ..' once more.")
+	message(SEND_ERROR "** ERROR ** OpenMP is not installed. If using macOS/clang, please run 'cmake ..' again.")
 endif()
