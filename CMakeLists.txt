@@ -306,7 +306,7 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
-	FILES_MATCHING PATTERN "libntl.*" )
+	FILES_MATCHING PATTERN "libntl.*" EXCLUDE PATTERN "libntl.a" )
 # also copies the dll file
 if(MINGW)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
