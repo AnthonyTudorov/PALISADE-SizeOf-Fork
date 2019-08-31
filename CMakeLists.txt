@@ -328,8 +328,13 @@ add_custom_target(
 
 add_library(tcmalloc SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_SHARED_LIBRARY_SUFFIX})
-add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
+add_library(tcmalloc_static STATIC IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+if("${WITH_TCM}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+		FILES_MATCHING PATTERN "libtcmalloc_minimal.*" EXCLUDE PATTERN "libtcmalloc_minimal.a*" )
+endif()
 
 set(QUADMATHLIB -lquadmath)
 
