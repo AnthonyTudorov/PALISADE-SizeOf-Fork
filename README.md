@@ -23,7 +23,7 @@ The library is based on modular architecture with the following layers:
 
 A major focus is on the usability of the schemes. For instance, all HE schemes use the same common API, and are implemented using runtime polymorphism.
 
-PALISADE implements efficient Residue Number System (RNS) algorithms to achieve high performance, e.g., PALISADE was used as the library for a winning genome-wide association studies solution at iDASH’18. 
+PALISADE implements efficient Residue Number System (RNS) algorithms to achieve high performance, e.g., PALISADE was used as the library for a winning genome-wide association studies solution at iDASHâ€™18. 
 
 By default, the library is built without external dependencies. But the user is also provided options to add GMP/NTL and/or tcmalloc third-party libraries if desired.
 
@@ -48,42 +48,50 @@ We use CMake to build PALISADE. The high-level (platform-independent) procedure 
 2. Clone the PALISADE repo to your local machine.
 
 3. Download information about submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
-
-	git submodule sync --recursive
-	git submodule update --init  --recursive
+```
+git submodule sync --recursive
+git submodule update --init  --recursive
+```
 	
 4. Create a directory where the binaries will be built. The typical choice is a subfolder "build". In this case, the commands are:
-
-	mkdir build
-	cd build
-	cmake ..
+```
+mkdir build
+cd build
+cmake ..
+```
 	
 Note that cmake will check for any system dependencies that are needed for the build process. 
 	
 5. If you want to install any external libraries, such as NTL/GMP or tcmalloc, install these libraries.
 
 6. Build PALISADE by running the following command (this will take few minutes; using the -j<threads> make command-line flag is suggested to speed up the build)
-
-	make
-
+```
+make
+```
 7. Install PALISADE in a system directoy (if desired or for production purposes)
-
-	make install
-	
+```
+make install
+```	
 You would probably need to run "sudo make install" unless you are specifying some other install location. You can change the install location by running
 "cmake -DCMAKE_INSTALL_PREFIX=/your/path ..".
 
-Run unit tests to make sure all capabilities operate as expected
+Testing and cleaning the build
+-------------------
 
-	make testall
+Run unit tests to make sure all capabilities operate as expected
+```
+make testall
+```
 
 Run sample code to test, e.g., 
-	
-	bin/demo/pke/demo-bfvrns
-	
-To remove the files built by make, you can execute
+```
+bin/demo/pke/demo-bfvrns
+```
 
-	make clean
+To remove the files built by make, you can execute
+```
+make clean
+```
 	
 More detailed steps for some common platforms are provided in the following Wiki articles:
 
