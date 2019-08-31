@@ -1,140 +1,96 @@
 PALISADE Lattice Cryptography Library
 =====================================
 
+PALISADE is a general lattice cryptography library that currently includes efficient implementations of the following lattice cryptography capabilities:
+* Homomorphic Encryption (HE): Brakerski/Fan-Vercauteren (3 variants), Brakerski-Gentry-Vaikuntanathan, and Stehle-Steinfeld schemes
+* Proxy Re-Encryption for all HE schemes
+* Digital Signature
+* Identity-Based Encryption
+* Ciphertext-Policy Attribute-Based Encryption
+
+PALISADE is a cross-platform C++11 library supporting Linux, Windows, and macOS. The supported compilers are g++ and clang++. 
+
+The library also includes unit tests and sample application demos.
+
+PALISADE is available under the BSD 2-clause license.
+
+The library is based on modular architecture with the following layers:
+
+* Math operations layer supporting low-level modular arithmetic, number theoretic transforms, and integer sampling.  This layer is implemented to be portable to multiple hardware computation substrates.
+* Lattice operations layer supporting lattice operations, ring algebra, and lattice trapdoor sampling. 
+* Crypto layer containing efficient implementations of lattice cryptography schemes.
+* Encoding layer supporting multiple plaintext encodings for cryptographic schemes.
+
+A major focus is on the usability of the schemes. For instance, all HE schemes use the same common API, and are implemented using runtime polymorphism.
+
+PALISADE implements efficient Residue Number System (RNS) algorithms to achieve high performance, e.g., PALISADE was used as the library for a winning genome-wide association studies solution at iDASH’18. 
+
+By default, the library is built without external dependencies. But the user is also provided options to add GMP/NTL and/or tcmalloc third-party libraries if desired.
+
+Further information about PALISADE:
+
 [License Information](License.md)
 
 [Contact Information](Contact.md)
 
 [Library Contributors](Contributors.md)
 
-[Library Wiki with documentation](https://git.njit.edu/palisade/palisade-student-edition/wikis/home)
+[Library Wiki with documentation](https://gitlab.com/palisade/palisade-development/wikis/home)
 
-This is a software library for general lattice crypto.  We implement this library in the following multiple layers:
-
-* Math operations layer to support low-level modulus arithmetic.  This layer is implemented to be portable to multiple hardware computation substrates.
-* Lattice operations layer to support lattice operations and ring algebra.  This layer makes calls to the math operations layer.
-* Crypto layer to contain multiple implementations of lattice encryption schemes, including PRE schemes, leveled homomorphic encryption schemes, lattice trapdoors and lattice signature schemes.
-
-The library includes unit tests and several sample application demos.
-
-The library is implemented in C++11.
-
-We build and run the library on Windows, Linux and Mac OSX environments.
 
 Build Instructions
 =====================================
 
-Effective release 1.6, we have transitioned to building with CMake.
+We use CMake to build PALISADE. The high-level (platform-independent) procedure for building PALISADE is as follows:
 
-You must have cmake installed on your machine in order to build PALISADE.
+1. Install system prerequisites (if not already installed), including a C++ compiler with OMP support, cmake, make, and autoconf.
 
-We have transitioned to the use of submodules. The first time you clone PALISADE,
-or the first time you change to this release, you may need to run the following commands
+2. Clone the PALISADE repo to your local machine.
+
+3. Download information about submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
 
 	git submodule sync --recursive
 	git submodule update --init  --recursive
-
-CMake will check that all required build tools are installed.
-
-A cmake build can be run in any directory. Once you select a directory in which to build,
-you simply run cmake and provide it the root directory of the source.
-
-To run builds in a subdirectory named "build" (in the Release mode):
+	
+4. Create a directory where the binaries will be built. The typical choice is a subfolder "build". In this case, the commands are:
 
 	mkdir build
 	cd build
 	cmake ..
 	
-If compiling in the debug mode, use the following cmake command
-
-	cmake -DCMAKE_BUILD_TYPE=Debug .. 
-
-This will create all the necessary makefiles. If you say "make help", all available targets are printed.
-
-We also make use of git submodules for many of the pieces of code from third-party sources.
-The cereal, google-benchmark, google-test and gperftools code are all git submodules.
-
-If you want to use the tcmalloc package, you must
-
-	make tcm
-
-If you don't want to use tcmalloc any more, you must run
-
-	make tcm_clean
-
-There is one big difference between the old scheme for running make and the new scheme,
-The difference has to do with the third-party GMP and NTL libraries. The user MUST build these
-libraries one time, with separate commands:
-
-	make gmp_unpack
-	make ntl_unpack
-
-	make gmp_all
-	make ntl_all
-
-The unpack targets force an unpacking of zipped distribution files. The all targets build the libraries.
-If you would like to force a rebuild of one of these third-party libraries, you can "make gmp_clobber" or
-"make ntl_clobber" to reset all the files. You will need to re-unpack and then build the all target.
-
-Once this is completed, you can "make all" to make the entire PALISADE distribution.
-
-There is no longer a giant unit test executable that runs every single test. You can still "make testall",
-which really means "run the unit test for each component".
-
-The "make clean" removes all build products (but not the third-party libraries). "make clobber" undoes the third-party
-build products as well as PALISADE
-
-Running "make install" installs executables, etc onto your machine; you probably need "sudo make install"
-unless you are specifying some other install location. You can change the install location by running
-"cmake -DCMAKE_INSTALL_PREFIX=/your/path".
-
-Each component (core, pke, abe, trapdoor, signature, wip) has a set of common targets defined.
-You can make allX, allXdemos, testX, or Xinfo, where X is the component (for example, make testpke will
-build and run the pke unit tests).
-
-Note that there is no longer a separate clean target for each component. You cannot, for example, "make cleancore".
-If you need to do this, remove everything under build/src/core
-
-MSYS2/MINGW64 instructions
--------------------
-
-Download and install MSYS2 from http://www.msys2.org/ using default settings. Start the MSYS2 MINGW 64-bit shell and execute the following command
-
-	pacman -Syu
-
-to update all packages (you may need to run it twice as it often fails the first time; just reopen the console and reenter the command. This may also happen for the other installs below).
-
-Run the following commands to install all pre-requisites 
-
-	pacman -S mingw-w64-x86_64-gcc
-	pacman -S mingw-w64-x86_64-cmake
-	pacman -S autoconf
-	pacman -S make
-
-for GMP and NTL
-
-	pacman -S tar
-	pacman -S lzip
-
-Update ORIGINAL_PATH variable in c:\msys64\etc\profile to include "lib". 
-
-Follow the instructions above for other CMAKE/MAKE-related steps.
-
-macOS instructions
------------------
-
-These instructions were tested in macOS Mojave but should also work for other recent releases. It is assumed that the clang compiler that comes with Xcode is used for building PALISADE.
-
-Install cmake, autoconf, and OpenMP library using Homebrew:
-
-	brew install cmake
-	brew install autoconf
-	brew install libomp
+Note that cmake will check for any system dependencies that are needed for the build process. 
 	
-For GMP and NTL, you may need to install the following archiving tools
+5. If you want to install any external libraries, such as NTL/GMP or tcmalloc, install these libraries.
 
-	brew install gnu-tar
-	brew install lzip
+6. Build PALISADE by running the following command (this will take few minutes; using the -j<threads> make command-line flag is suggested to speed up the build)
+
+	make
+
+7. Install PALISADE in a system directoy (if desired or for production purposes)
+
+	make install
 	
-Follow the instructions above for other CMAKE/MAKE-related steps. Please note that in macOS "cmake .." needs to be run twice (the first time) but this will be fixed before v1.6 is out.
+You would probably need to run "sudo make install" unless you are specifying some other install location. You can change the install location by running
+"cmake -DCMAKE_INSTALL_PREFIX=/your/path ..".
 
+Run unit tests to make sure all capabilities operate as expected
+
+	make testall
+
+Run sample code to test, e.g., 
+	
+	bin/demo/pke/demo-bfvrns
+	
+To remove the files built by make, you can execute
+
+	make clean
+	
+More detailed steps for some common platforms are provided in the following Wiki articles:
+
+[Instructions for building PALISADE in Linux](wikis/Instructions-for-building-PALISADE-in-Linux)
+[Instructions for building PALISADE in Windows](wikis/Instructions-for-building-PALISADE-in-Windows)
+[Instructions for building PALISADE in macOS](wikis/Instructions-for-building-PALISADE-in-macOS)
+
+PALISADE provides many CMake/make configuration options, such as installing specific modules of the library, compiling only libraries w/o any unit tests and demos, choosing the Debug mode for compilation, turning on/off NTL/GMP. These options are described in detail in the following Wiki article:
+
+[Configuration flags to customize the build](wikis/Configuration-flags-to-customize-the-build) 
