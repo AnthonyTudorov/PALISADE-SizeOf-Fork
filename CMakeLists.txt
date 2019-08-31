@@ -60,12 +60,8 @@ else()
 	execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)	
 endif()
 
-string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
 string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 
-if( "${WITH_TCM}" STREQUAL "Y" AND ${AUTOGEN_VER_LEN} EQUAL 0 )
-	message(SEND_ERROR "Autogen is not installed: needed for building tcmalloc.")
-endif()
 if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 	message(SEND_ERROR "Autoconf is not installed.")
 endif()
