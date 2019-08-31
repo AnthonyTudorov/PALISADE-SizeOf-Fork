@@ -302,7 +302,7 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
-	FILES_MATCHING PATTERN "libntl.*" EXCLUDE PATTERN "libntl.a" )
+	FILES_MATCHING PATTERN "libntl.*" )
 # also copies the dll file
 if(MINGW)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
@@ -333,7 +333,7 @@ set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRE
 
 if("${WITH_TCM}" STREQUAL "Y")
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
-		FILES_MATCHING PATTERN "libtcmalloc_minimal.*" EXCLUDE PATTERN "libtcmalloc_minimal.a*" )
+		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
 set(QUADMATHLIB -lquadmath)
