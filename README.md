@@ -92,11 +92,16 @@ To remove the files built by make, you can execute
 ```
 make clean
 ```
+
+Detailed information about building PALISADE
+------------------------------
 	
 More detailed steps for some common platforms are provided in the following Wiki articles:
 
 [Instructions for building PALISADE in Linux](wikis/Instructions-for-building-PALISADE-in-Linux)
+
 [Instructions for building PALISADE in Windows](wikis/Instructions-for-building-PALISADE-in-Windows)
+
 [Instructions for building PALISADE in macOS](wikis/Instructions-for-building-PALISADE-in-macOS)
 
 PALISADE provides many CMake/make configuration options, such as installing specific modules of the library, compiling only libraries w/o any unit tests and demos, choosing the Debug mode for compilation, turning on/off NTL/GMP. These options are described in detail in the following Wiki article:
