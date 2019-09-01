@@ -47,7 +47,7 @@ We use CMake to build PALISADE. The high-level (platform-independent) procedure 
 
 2. Clone the PALISADE repo to your local machine.
 
-3. Download information about submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
+3. Download git submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
 
 	git submodule sync --recursive
 	git submodule update --init  --recursive

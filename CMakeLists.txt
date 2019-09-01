@@ -6,6 +6,19 @@ set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	message("-- Building in DEBUG mode")
+else()
+	message("-- Building in RELEASE mode")
+endif()
+
+string(LENGTH "${MATHBACKEND}" MATHBACKEND_LEN)
+
+if(${MATHBACKEND_LEN} GREATER 0)
+	add_definitions(-DMATHBACKEND=${MATHBACKEND})
+	message ("-- MATHBACKEND is set to " ${MATHBACKEND})
+endif()
+
 if("${WITH_NTL}" STREQUAL "Y")
 	message("-- NTL is turned ON")
 else()
