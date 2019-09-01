@@ -8,7 +8,7 @@ PALISADE is a general lattice cryptography library that currently includes effic
 * Identity-Based Encryption
 * Ciphertext-Policy Attribute-Based Encryption
 
-PALISADE is a cross-platform C++11 library supporting Linux, Windows, and macOS. The supported compilers are g++ and clang++. 
+PALISADE is a cross-platform C++11 library supporting Linux, Windows, and macOS. The supported compilers are g++ v6.1 or later and clang++ v6.0 or later. 
 
 The library also includes unit tests and sample application demos.
 
