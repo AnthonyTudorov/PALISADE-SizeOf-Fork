@@ -6,8 +6,35 @@ set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-if("${WITH_NTL}" STREQUAL "true")
-	message("NTL is turned ON")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	message("-- Building in DEBUG mode")
+else()
+	message("-- Building in RELEASE mode")
+endif()
+
+string(LENGTH "${MATHBACKEND}" MATHBACKEND_LEN)
+
+if(${MATHBACKEND_LEN} GREATER 0)
+	add_definitions(-DMATHBACKEND=${MATHBACKEND})
+	message ("-- MATHBACKEND is set to " ${MATHBACKEND})
+endif()
+
+if("${WITH_NTL}" STREQUAL "Y")
+	message("-- NTL is turned ON")
+else()
+	message("-- NTL is turned OFF")	
+	if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		message(SEND_ERROR "***ERROR*** NTL is required for macOS/clang")
+	endif()
+endif()
+
+if("${WITH_TCM}" STREQUAL "Y")
+	message("-- tcmalloc is turned ON")
+	if(MINGW)
+		message(SEND_ERROR "***ERROR*** tcmalloc is not supported for MinGW")
+	endif()
+else()
+	message("-- tcmalloc is turned OFF")	
 endif()
 
 set(TAR "tar")
@@ -22,7 +49,7 @@ endif()
 
 OPTION (USE_OpenMP "Use OpenMP to enable <omp.h>" ON)
 
-# Set OpenMP configuration manually for MacOS
+# Set OpenMP configuration manually for macOS
 if(APPLE AND USE_OpenMP)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument")
@@ -46,12 +73,8 @@ else()
 	execute_process(COMMAND autoconf --version OUTPUT_VARIABLE AUTOCONF_VER)	
 endif()
 
-#string(LENGTH "${AUTOGEN_VER}" AUTOGEN_VER_LEN)
 string(LENGTH "${AUTOCONF_VER}" AUTOCONF_VER_LEN)
 
-#if( ${AUTOGEN_VER_LEN} EQUAL 0 )
-#	message(SEND_ERROR "Autogen is not installed.")
-#endif()
 if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 	message(SEND_ERROR "Autoconf is not installed.")
 endif()
@@ -74,9 +97,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 else()
 	message(FATAL_ERROR  "You are using ${CMAKE_CXX_COMPILER_ID} version ${CMAKE_CXX_COMPILER_VERSION}, which is unsupported.")
 endif()
-
-message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
-set (CMAKE_INSTALL_MESSAGE LAZY)
 
 # use, i.e. don't skip the full RPATH for the build tree
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
@@ -102,6 +122,30 @@ if(APPLE)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+find_package (OpenMP)
+
+if( APPLE AND USE_OpenMP)
+	include_directories("${OPENMP_INCLUDES}")
+	link_directories("${OPENMP_LIBRARIES}")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+endif()
+
+if (OpenMP_CXX_FOUND)
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+	message("-- OpenMP is turned ON")
+else()
+	message("-- OpenMP is turned OFF")
+endif()
+
+if (OpenMP_C_FOUND)
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+endif()
+
+message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
+set (CMAKE_INSTALL_MESSAGE LAZY)
+
 # Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
@@ -115,24 +159,6 @@ set(COMPILEFLAGS "-Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGN
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILEFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILEFLAGS}")
 
-find_package (OpenMP)
-
-if( APPLE AND USE_OpenMP)
-	include_directories("${OPENMP_INCLUDES}")
-	link_directories("${OPENMP_LIBRARIES}")
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-endif()
-
-if (OpenMP_CXX_FOUND)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-
-if (OpenMP_C_FOUND)
-	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-endif()
-
 find_package (Git REQUIRED)
 
 find_package (Doxygen QUIET COMPONENTS dot)
@@ -143,9 +169,10 @@ if (DOXYGEN_FOUND)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM )
+	message ("-- Doxygen and dot are found")
 
 else (DOXYGEN_FOUND)
-  message("Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
+  message("-- Doxygen and dot (from graphviz) need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
 
 include (ExternalProject)
@@ -170,7 +197,6 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
 set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
 
 ### handle third-party gmp
-### note on Windows we build static
 
 set(GMPSRCDIR ${THIRDPARTYDIR}/distros/gmp-6.1.2)
 set(GMPLIBDIR ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib)
@@ -205,8 +231,6 @@ add_custom_target(
 	WORKING_DIRECTORY ${GMPSRCDIR}
 )
 
-#add_library(gmp_static STATIC IMPORTED GLOBAL)
-#set_target_properties(gmp_static PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE_STATIC})
 add_library(gmp SHARED IMPORTED GLOBAL)
 if(MINGW)
 	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/libgmp-10.dll)
@@ -217,6 +241,11 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libgmp.*" )
+# also copies the gmp dll file
+if(MINGW)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		FILES_MATCHING PATTERN "libgmp*" )
+endif()
 
 ### Handle third-party libntl
 
@@ -287,6 +316,11 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
 	FILES_MATCHING PATTERN "libntl.*" )
+# also copies the dll file
+if(MINGW)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		FILES_MATCHING PATTERN "libntl*" )
+endif()
 
 ### Handle third-party gperftools for optional tcmalloc
 
@@ -307,36 +341,52 @@ add_custom_target(
 
 add_library(tcmalloc SHARED IMPORTED GLOBAL)
 set_target_properties(tcmalloc PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_SHARED_LIBRARY_SUFFIX})
-add_library(tcmalloc_static SHARED IMPORTED GLOBAL)
+add_library(tcmalloc_static STATIC IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-if(NOT APPLE)
-	set(QUADMATHLIB -lquadmath)
+if("${WITH_TCM}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
-if("${WITH_NTL}" STREQUAL "true")
-	set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp )
-	set(THIRDPARTYSTATICLIBS PUBLIC ntl PUBLIC gmp )
+set(QUADMATHLIB -lquadmath)
+
+if("${WITH_TCM}" STREQUAL "Y")
+	set(THIRDPARTYLIBS PUBLIC tcmalloc)
+	set(THIRDPARTYSTATICLIBS PUBLIC tcmalloc_static )
+endif()
+
+if("${WITH_NTL}" STREQUAL "Y")
+	set(THIRDPARTYLIBS "${THIRDPARTYLIBS}" PUBLIC ntl PUBLIC gmp )
+	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" PUBLIC ntl PUBLIC gmp )
 	add_definitions(-DWITH_NTL)
 else()
-	set(THIRDPARTYLIBS ${QUADMATHLIB})
-	set(THIRDPARTYSTATICLIBS ${QUADMATHLIB})
+	set(THIRDPARTYLIBS "${THIRDPARTYLIBS}" "${QUADMATHLIB}")
+	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
-
-### NEED TO ADD THIS LINE IF tcmalloc IS BEING USED
-### set(THIRDPARTYLIBS PUBLIC ntl PUBLIC gmp PUBLIC tcmalloc)
-###
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 
-if("${WITH_NTL}" STREQUAL "true")
+set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
+set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)
+
+# copies demoData folder from the root of the repo to build/demoData if the folder does not exist
+# also checks whether NTL and GMP have been installed if the user chose to use NTL by setting WITH_NTL=Y
+if("${WITH_NTL}" STREQUAL "Y")
 add_custom_target(third-party ALL
- COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo
+ COMMAND [ ! -f  ${GMPLIBFILE} ] && echo ***ERROR*** Be sure to run \"make gmp_unpack\" and \"make gmp_all\" || [ ! -f  ${NTLLIBFILE} ] && echo ***ERROR*** Be sure to run \"make ntl_unpack\" and \"make ntl_all\" || echo "-- NTL/GMP is already installed"
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "-- Copied demoData files" || echo "-- demoData folder already exists"
 )
 else()
 add_custom_target(third-party ALL
+ COMMAND [ ! -d ${BINDEMODATAPATH} ] && cp -R ${DEMODATAPATH} ${BINDEMODATAPATH} && echo "-- Copied demoData files" || echo "-- demoData folder already exists"
 )
 endif()
+
+# when running "make clean", additionally deletes the demoData folder and CMake cache file
+SET(ADDITIONAL_CLEAN_FILES "")
+LIST(APPEND ADDITIONAL_CLEAN_FILES ${BINDEMODATAPATH})
+LIST(APPEND ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeCache.txt)
 
 ### add each of the subdirs of src
 add_subdirectory(src/core)
@@ -371,3 +421,22 @@ add_custom_target( testall
 	COMMAND echo abe: && unittest/abe_tests -t
 	COMMAND echo signature: && unittest/signature_tests -t
 )
+
+add_custom_target( alldemos 
+	DEPENDS allcoredemos allpkedemos alltrapdoordemos allabedemos allsignaturedemos
+)
+
+add_custom_target( allmodules
+	DEPENDS PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature
+)
+
+# Add the additional "make clean" files
+GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
+LIST(APPEND            clean_files ${ADDITIONAL_CLEAN_FILES})
+LIST(REMOVE_DUPLICATES clean_files)
+LIST(REMOVE_ITEM       clean_files "")
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
+
+if (NOT OpenMP_CXX_FOUND)
+	message(SEND_ERROR "** ERROR ** OpenMP is not installed. If using macOS/clang, please run 'cmake ..' again.")
+endif()
