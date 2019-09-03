@@ -721,11 +721,14 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(const usint &k) const
 			if (k % 2 == 0)
 				throw std::runtime_error("automorphism index should be odd\n");
 
+			usint logm = std::round(log2(m));
+
 			for (usint j = 1; j < m; j = j + 2) {
 
 				//determines which power of primitive root unity we should switch to
-				usint idx = (j*k) % m;
-				result.m_values->operator[]((j + 1) / 2 - 1)= GetValues().operator[]((idx + 1) / 2 - 1);
+				// computes (j*k) % m more efficiently
+				usint idx = (j*k) - (((j*k)>>logm)<<logm);
+				result.m_values->operator[](j >> 1)= GetValues().operator[](idx >> 1);
 
 			}
 
