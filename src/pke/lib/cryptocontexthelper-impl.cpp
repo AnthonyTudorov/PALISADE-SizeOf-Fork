@@ -81,7 +81,7 @@ buildContextFromSerialized(const map<string,string>& s, shared_ptr<typename Elem
 			return 0;
 
 		return CryptoContextFactory<Element>::genCryptoContextBFV(stoul(plaintextModulus), stof(secLevel), 2, 4,
-				0, 0, 1);
+				0, 1, 0);
 
 	}
 	else if( parmtype == "BFVrns" ) {
