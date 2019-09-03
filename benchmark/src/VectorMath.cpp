@@ -100,9 +100,10 @@ static void BM_BigVec_Addeq(benchmark::State& state) { // benchmark
 	size_t idx = ElemParamFactory::GetNearestIndex(p);
 	typename V::Integer q( ElemParamFactory::DefaultSet[idx].q);
 	V b = makeVector<V>(p, q);
+	V a = makeVector<V>(p, q);
 
 	while (state.KeepRunning()) {
-		V a = makeVector<V>(p, q);
+		//V a = makeVector<V>(p, q);
 		addeq_BigVec<V>(a,b);
 	}
 }
@@ -152,9 +153,10 @@ static void BM_BigVec_Multeq(benchmark::State& state) { // benchmark
 	size_t idx = ElemParamFactory::GetNearestIndex(p);
 	typename V::Integer q( ElemParamFactory::DefaultSet[idx].q);
 	V b = makeVector<V>(p, q);
+	V a = makeVector<V>(p, q);
 
 	while (state.KeepRunning()) {
-		V a = makeVector<V>(p, q);
+		//V a = makeVector<V>(p, q);
 		multeq_BigVec<V>(a,b);
 	}
 }
