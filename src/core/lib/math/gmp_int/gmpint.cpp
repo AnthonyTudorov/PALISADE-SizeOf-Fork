@@ -286,26 +286,26 @@ namespace NTL {
 
   //palisade conversion methods
 
-  uint64_t myZZ::ConvertToInt() const{
-    bool dbg_flag = false;
+   uint64_t myZZ::ConvertToInt() const{
+     bool dbg_flag = false;
 
-    DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
-    DEBUG("in myZZ::ConvertToInt() this "<<*this);
+     DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
+     DEBUG("in myZZ::ConvertToInt() this "<<*this);
 
-    std::stringstream s; //slower
-    s <<*this;
-    //uint64_t result = s.str().stoull();
-    uint64_t result;
-    s>>result;
+     std::stringstream s; //slower
+     s <<*this;
+     //uint64_t result = s.str().stoull();
+     uint64_t result;
+     s>>result;
 
-    if ((this->GetMSB() >= (sizeof(uint64_t)*8)) ||
-	(this->GetMSB() > NTL_ZZ_NBITS)) {
-      std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
-      std::cerr<<"input  "<< *this<<std::endl;			
-      std::cerr<<"result  "<< result<<std::endl;			
-    }
-    return result; 
-  }
+     if ((this->GetMSB() > (sizeof(uint64_t)*8)) ||
+ 	(this->GetMSB() > NTL_ZZ_NBITS)) {
+       std::cerr<<"Warning myZZ::ConvertToInt() Loss of precision. "<<std::endl;
+       std::cerr<<"input  "<< *this<<std::endl;
+       std::cerr<<"result  "<< result<<std::endl;
+     }
+     return result;
+   }
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
 
