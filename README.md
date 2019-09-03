@@ -47,7 +47,7 @@ We use CMake to build PALISADE. The high-level (platform-independent) procedure 
 
 2. Clone the PALISADE repo to your local machine.
 
-3. Download information about submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
+3. Download git submodules by running the following commands (PALISADE downloads submodules for cereal, google-benchmark, google-test, and gperftools open-source libraries):
 ```
 git submodule sync --recursive
 git submodule update --init  --recursive
@@ -62,15 +62,17 @@ cmake ..
 	
 Note that cmake will check for any system dependencies that are needed for the build process. 
 	
-5. If you want to install any external libraries, such as NTL/GMP or tcmalloc, install these libraries.
+5. If you want to use any external libraries, such as NTL/GMP or tcmalloc, install these libraries.
 
-6. Build PALISADE by running the following command (this will take few minutes; using the -j<threads> make command-line flag is suggested to speed up the build)
+6. Build PALISADE by running the following command (this will take few minutes; using the -j make command-line flag is suggested to speed up the build)
 ```
 make
 ```
 If you want to build only library files or some other subset of PALISADE, please review the last paragraph of this page.  
 
-7. Install PALISADE in a system directoy (if desired or for production purposes)
+After the "make" completes, you should see the PALISADE library files in the lib folder, binaries of demos in bin/demo, binaries of benchmarks in bib/benchmark, and binaries for unit tests in the unittest folder.
+
+7. Install PALISADE to a system directory (if desired or for production purposes)
 ```
 make install
 ```	
