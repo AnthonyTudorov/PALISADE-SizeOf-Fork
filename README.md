@@ -89,7 +89,7 @@ make testall
 
 Run sample code to test, e.g., 
 ```
-bin/demo/pke/demo-bfvrns
+bin/demo/pke/demo-simple-example
 ```
 
 To remove the files built by make, you can execute

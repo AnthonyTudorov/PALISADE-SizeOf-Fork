@@ -59,6 +59,9 @@ int main()
 	// Generate the relinearization key
 	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
 
+	// Generate the rotation evaluation keys
+	cryptoContext->EvalAtIndexKeyGen(keyPair.secretKey,{1,2,-1,-2});
+
 	//Sample Program: Step 3 – Encryption
 
 	// First plaintext vector is encoded
@@ -86,6 +89,12 @@ int main()
 	auto ciphertextMul12 = cryptoContext->EvalMult(ciphertext1,ciphertext2);
 	auto ciphertextMultResult = cryptoContext->EvalMult(ciphertextMul12,ciphertext3);
 
+	// Homomorphic rotations
+	auto ciphertextRot1 = cryptoContext->EvalAtIndex(ciphertext1,1);
+	auto ciphertextRot2 = cryptoContext->EvalAtIndex(ciphertext1,2);
+	auto ciphertextRot3 = cryptoContext->EvalAtIndex(ciphertext1,-1);
+	auto ciphertextRot4 = cryptoContext->EvalAtIndex(ciphertext1,-2);
+
 	//Sample Program: Step 5 – Decryption
 
 	// Decrypt the result of additions
@@ -96,9 +105,33 @@ int main()
 	Plaintext plaintextMultResult;
 	cryptoContext->Decrypt(keyPair.secretKey, ciphertextMultResult, &plaintextMultResult);
 
+	// Decrypt the result of rotations
+	Plaintext plaintextRot1;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRot1, &plaintextRot1);
+	Plaintext plaintextRot2;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRot2, &plaintextRot2);
+	Plaintext plaintextRot3;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRot3, &plaintextRot3);
+	Plaintext plaintextRot4;
+	cryptoContext->Decrypt(keyPair.secretKey, ciphertextRot4, &plaintextRot4);
+
+	plaintextRot1->SetLength(vectorOfInts1.size());
+	plaintextRot2->SetLength(vectorOfInts1.size());
+	plaintextRot3->SetLength(vectorOfInts1.size());
+	plaintextRot4->SetLength(vectorOfInts1.size());
+
+	cout << "Plaintext #1: " << plaintext1 << std::endl;
+	cout << "Plaintext #2: " << plaintext2 << std::endl;
+	cout << "Plaintext #3: " << plaintext3 << std::endl;
+
 	// Output results
-	cout << plaintextAddResult << endl;
-	cout << plaintextMultResult << endl;
+	cout << "\nResults of homomorphic computations" << endl;
+	cout << "#1 + #2 + #3: " << plaintextAddResult << endl;
+	cout << "#1 * #2 * #3: " << plaintextMultResult << endl;
+	cout << "Left rotation of #1 by 1: " << plaintextRot1 << endl;
+	cout << "Left rotation of #1 by 2: " << plaintextRot2 << endl;
+	cout << "Right rotation of #1 by 1: " << plaintextRot3 << endl;
+	cout << "Right rotation of #1 by 2: " << plaintextRot4 << endl;
 
 	return 0;
 }
