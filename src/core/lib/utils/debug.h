@@ -43,11 +43,8 @@
 
 #if!defined(NDEBUG) 
 
-// note that for the following dbg_flag needs to be defined in some scope
-
-#define DEBUG_FLAG(x) { \
-	bool dbg_flag = x; \
-} while(0)
+// note that for the following dbg_flag needs to be defined in some scope using DEBUG_FLAG
+#define DEBUG_FLAG(x) bool dbg_flag = x;
 
 // debugging macro prints value of x on cerr
 #define DEBUG(x) do {					\
