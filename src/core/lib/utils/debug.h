@@ -79,7 +79,7 @@
     if (true){ std::cout << #x << ":" << x << " at " << __FILE__ << " line "<< __LINE__ << std::endl;} \
   } while (0)
 
-#else //#if defined(PROFILE) //profiling a noop
+#else //#if!defined(PROFILE) //profiling a noop
 #define PROFILELOG(x)  
 #define PROFILELOGEXP(x)
 #define PROFILELOGWHERE(x)

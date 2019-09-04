@@ -27,6 +27,8 @@
 BFV RNS testing programs
 */
 
+#define PROFILE
+
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -62,8 +64,6 @@ int main() {
 	//cin.get();
 	return 0;
 }
-
-#define PROFILE
 
 void SHERun() {
 
