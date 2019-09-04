@@ -623,16 +623,14 @@ MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const
 template<class Element>
 MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> const& other,int nrec,int pad) const{
 
-
-
-
-//	double rowlog;
 	int allrows = rows;
-	int allcols = cols;
 
 	NUM_THREADS = omp_get_max_threads();
 
 	if (pad == -1) {
+
+		//int allcols = cols;
+
 		/*
 		 * Calculate the optimal number of padding rows and padding columns.  (Note that these
 		 * do not need to be the same, allowing rectangular matrices to be handled.)
@@ -648,7 +646,7 @@ MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> co
 		rowpad = ceil(rows/powtemp)*(int)powtemp - rows;
 		colpad = ceil(cols/powtemp)*(int)powtemp - cols;
 		allrows = rows + rowpad;
-		allcols = cols + colpad;
+		//allcols = cols + colpad;
 	} else {
 		/* Apply the indicated padding rows and columns.  (For now they are equal, assuming
 		 * square matrices.  Note that the dimension of the matrix after padding must support
@@ -658,15 +656,18 @@ MatrixStrassen<Element> MatrixStrassen<Element>::Mult(MatrixStrassen<Element> co
 		 * need to provide a padding value, as setting the padding value to -1 will cause this
 		 * code to caluclate the optimal padding for the number of levels of recursion.
 		 */
+
 		rowpad = pad;
 		colpad = pad;
 		allrows = rows + pad;
-		allcols = cols + pad;
 		//allrows/(2^nrec) and allcols/(2^nrec) must be integers
+#if!defined(NDEBUG)
+		int allcols = cols + pad;
 		double temp = allrows / pow(2,nrec);
 		assert((int)temp == ceil(temp));
 		temp = allcols / pow(2,nrec);
 		assert((int)temp == ceil(temp));
+#endif
 
 	}
 

@@ -57,7 +57,7 @@ namespace NTL {
 
   myZZ::myZZ(uint64_t d): ZZ(0) {
 
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     static_assert(NTL_ZZ_NBITS != sizeof(uint64_t) , "can't compile gmpint on this architecture");
     
     DEBUGEXP(NTL_ZZ_NBITS);
@@ -143,7 +143,7 @@ namespace NTL {
 
   //Splits the binary string to equi sized chunks and then populates the internal array values.
   myZZ myZZ::FromBinaryString(const std::string& vin){
-    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG_FLAG(false);		// if true then print dbg output
     DEBUG("FromBinaryString");
 
     std::string v = vin;
@@ -238,7 +238,7 @@ namespace NTL {
   
   
   usint myZZ::GetDigitAtIndexForBase(usint index, usint base) const{
-    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG_FLAG(false);		// if true then print dbg output
     DEBUG("myZZ::GetDigitAtIndexForBase:  index = " << index
 	  << ", base = " << base);
 
@@ -256,7 +256,7 @@ namespace NTL {
   // note that msb is 1 like all other bit indicies in PALISADE. 
 
   uschar myZZ::GetBitAtIndex(usint index) const{
-    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG_FLAG(false);		// if true then print dbg output
     DEBUG("myZZ::GetBitAtIndex(" << index << "), this=" << *this);
     return (uschar) GetBitRangeAtIndex( index, 1);
   }
@@ -265,7 +265,7 @@ namespace NTL {
   // note that msb is 1 like all other bit indicies in PALISADE. 
 
   uschar myZZ::Get6BitsAtIndex(usint index) const{
-    bool dbg_flag = false;		// if true then print dbg output
+    DEBUG_FLAG(false);		// if true then print dbg output
     DEBUG("myZZ::Get6BitsAtIndex(" << index << "), this=" << *this);
     return (uschar) GetBitRangeAtIndex( index, 6);
   }
@@ -287,7 +287,7 @@ namespace NTL {
   //palisade conversion methods
 
    uint64_t myZZ::ConvertToInt() const{
-     bool dbg_flag = false;
+     DEBUG_FLAG(false);
 
      DEBUG("in myZZ::ConvertToInt() this.size() "<<this->size());
      DEBUG("in myZZ::ConvertToInt() this "<<*this);
@@ -319,7 +319,7 @@ namespace NTL {
   }
 
   std::ostream& operator<<(std::ostream& os, const myZZ& ptr_obj){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     ZZ tmp = ptr_obj;
     DEBUG("in operator<< "<<tmp);
 
@@ -346,7 +346,7 @@ namespace NTL {
   }
   myZZ myZZ::DivideAndRound(const myZZ &q) const 
   {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     
     //check for garbage initialization and 0 condition
     //check for garbage initialization and 0 condition

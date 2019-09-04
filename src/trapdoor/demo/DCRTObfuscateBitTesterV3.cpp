@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "  arg2 indicates number of evaluation operations to run.  Possible values are 1, 2 or 3.  Default is 1." << std::endl;
 		std::cout << "If no input is given, then this message is displayed, defaults are assumed and user is prompted for ring dimension." << std::endl;
 	}
-	bool dbg_flag = false;
+	bool dbg_flag = false;;
 
 	if (argc >= 2) {
 		if (atoi(argv[1]) != 0) {

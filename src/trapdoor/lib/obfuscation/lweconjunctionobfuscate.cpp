@@ -164,7 +164,7 @@ shared_ptr<Matrix<Element>>  ObfuscatedLWEConjunctionPattern<Element>::GetS(usin
 // Compare Operation
 template<typename  Element>
 bool ObfuscatedLWEConjunctionPattern<Element>::Compare(const ObfuscatedLWEConjunctionPattern<Element>& b){
-  bool dbg_flag= false;
+  DEBUG_FLAG(false);
   bool success = true;
   DEBUG("in ObfuscatedLWEConjunctionPattern<Element>Compare()");
   DEBUG("comparing length");
@@ -415,10 +415,12 @@ template <class Element>
 void LWEConjunctionObfuscationAlgorithm<Element>::KeyGen(typename Element::DggType &dgg,
 				ObfuscatedLWEConjunctionPattern<Element> *obfuscatedPattern) const {
 	TimeVar t1,t2; // for TIC TOC
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	TIC(t1);
 
+#if!defined(NDEBUG)
 	usint k = obfuscatedPattern->GetLogModulus();
+#endif
 
 	DEBUG("BitLength in KeyGen: " << k);
 
@@ -479,7 +481,7 @@ shared_ptr<Matrix<Element>> LWEConjunctionObfuscationAlgorithm<Element>::Encode(
 				uint64_t base) const {
 
         TimeVar t1,t2, t3, t_total; // for TIC TOC
-	bool dbg_flag = false;//set to 0 for no debug statements
+	DEBUG_FLAG(false);//set to 0 for no debug statements
 
 	TIC(t_total);	      // time the  overall Encode function with a timer;
         TIC(t2);
@@ -548,7 +550,7 @@ void LWEConjunctionObfuscationAlgorithm<Element>::Obfuscate(
 				bool optimized) const {
 
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	//obfuscatedPattern->SetLength(clearPattern.GetLength());
 	usint l = obfuscatedPattern->GetLength();
@@ -792,7 +794,7 @@ bool LWEConjunctionObfuscationAlgorithm<Element>::Evaluate(
 
 	//Evaluation of Obfuscated Conjunction Pattern
 	TimeVar t1; // for TIC TOC
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	TIC(t1);
 
 	usint l = obfuscatedPattern.GetLength();

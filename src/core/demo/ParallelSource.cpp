@@ -59,7 +59,7 @@ void verify(float *foo, uint32_t array_size){
 
 int main(int argc, char* argv[]){
   // note if you set dbg_flag = true then all  the following DEBUG() statments print to stdout.
-  bool dbg_flag = true;
+  DEBUG_FLAG(true);
 
   lbcrypto::PalisadeParallelControls.Enable();
 
@@ -120,7 +120,9 @@ int main(int argc, char* argv[]){
   DEBUGEXP(array_size);
   DEBUGWHERE(array_size);
 
-  dbg_flag = false; 
+#if!defined(NDEBUG)
+  dbg_flag = false;
+#endif
   //these three no longer report any value
   DEBUG("array_size = "<< array_size);
   DEBUGEXP(array_size);

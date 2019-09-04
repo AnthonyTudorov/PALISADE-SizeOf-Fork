@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
   //todo: allow clear pattern as input
    
   int opt; //used in getting options
-  bool dbg_flag = false; //if true print debugging info
+  bool dbg_flag = false;; //if true print debugging info
   usint pattern_size(8); //size of the cleartext pattern
   bool eval_flag = false; //if true, also run evaluation to verify correct generation.
   int n_bits = 8;	 // number of bits in underlying vector length

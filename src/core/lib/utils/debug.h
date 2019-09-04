@@ -45,6 +45,10 @@
 
 // note that for the following dbg_flag needs to be defined in some scope
 
+#define DEBUG_FLAG(x) { \
+	bool dbg_flag = x; \
+} while(0)
+
 // debugging macro prints value of x on cerr
 #define DEBUG(x) do {					\
     if (dbg_flag) { std::cerr << x <<std::endl; }	\
@@ -99,6 +103,7 @@
 
 //these are turned off functions
 
+#define DEBUG_FLAG(x)
 #define DEBUG(x) 
 #define DEBUGEXP(x) 
 #define DEBUGWHERE(x)
@@ -107,16 +112,16 @@
 #define PROFILELOGEXP(x)
 #define PROFILELOGWHERE(x)
 
-
-#define TIC(t) 0
-#define TOC(t) 0
-#define TOC_NS(t) 0
-#define TOC_US(t) 0
-#define TOC_MS(t) 0
+#define TIC(t) t=timeNow()
+#define TOC(t) std::chrono::steady_clock::duration::zero().count()
+#define TOC_NS(t) std::chrono::steady_clock::duration::zero().count()
+#define TOC_US(t) std::chrono::steady_clock::duration::zero().count()
+#define TOC_MS(t) std::chrono::steady_clock::duration::zero().count()
 
 #else //PROFILE
 //if PROFILE is turned on, then TIC TOC still work and 
 
+#define DEBUG_FLAG(x)
 #define DEBUG(x) 
 #define DEBUGEXP(x) 
 #define DEBUGWHERE(x)

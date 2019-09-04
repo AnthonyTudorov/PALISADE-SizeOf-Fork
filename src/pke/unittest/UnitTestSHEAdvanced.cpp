@@ -109,7 +109,7 @@ TEST_F(UTSHEAdvanced, test_eval_mult_single_crt) {
 }
 
 TEST_F(UTSHEAdvanced, test_eval_add_single_crt) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	usint m = 16;
 	PlaintextModulus ptm = 20;
 

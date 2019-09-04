@@ -65,7 +65,7 @@ namespace lbcrypto {
 		* @return is the output result of the transform.
 		*/
 		static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
-	        bool dbg_flag = false;
+	        DEBUG_FLAG(false);
 		usint n = cycloOrder;
 
 		auto modulus = element.GetModulus();
@@ -178,7 +178,7 @@ namespace lbcrypto {
 		if (typeid(IntType) == typeid(NativeInteger))
 		{
 
-			bool dbg_flag = false;
+			DEBUG_FLAG(false);
 			usint n = cycloOrder;
 
 			IntType modulus = element.GetModulus();

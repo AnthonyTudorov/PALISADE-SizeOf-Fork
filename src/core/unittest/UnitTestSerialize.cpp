@@ -103,7 +103,7 @@ TEST(UTSer,hugeint){
 
 template<typename V>
 void vector_of_bigint(const string& msg) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	const int vecsize = 100;
 
 	DEBUG("step 0");
@@ -246,7 +246,7 @@ TEST(UTSer,ildcrtpoly_test) {
 ////////////////////////////////////////////////////////////
 template<typename V>
 void serialize_matrix_bigint(const string& msg) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	//dimensions of matrix.
 	const int nrows = 4;
 	const int ncols = 8;
@@ -279,9 +279,11 @@ void serialize_matrix_bigint(const string& msg) {
 	stringstream ss;
 	Serial::Serialize(testmat, ss, SerType::BINARY);
 
+#if!defined(NDEBUG)
 	if (dbg_flag) {
 		std::cout << Serial::SerializeToString(testmat) <<std::endl;
 	}
+#endif
 	DEBUG("step 5");
 
 	Matrix<typename V::Integer> newmat(V::Integer::Allocator, 0, 0); //empty matrix

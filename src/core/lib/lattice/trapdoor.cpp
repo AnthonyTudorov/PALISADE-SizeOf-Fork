@@ -102,7 +102,7 @@ namespace lbcrypto {
 			const RLWETrapdoorPair<DCRTPoly> &Tprime,
 			const DCRTPoly::DggType& dgg, const DCRTPoly::DggType& dggLargeSigma,
 			shared_ptr<Matrix<DCRTPoly>> perturbationVector){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		TimeVar t1, t2, t3, t1_tot, t2_tot, t3_tot;
 
 		TIC(t1);

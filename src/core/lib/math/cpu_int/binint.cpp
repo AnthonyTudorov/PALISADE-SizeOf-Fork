@@ -1017,7 +1017,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::DividedB
 //Reference:http://pctechtips.org/convert-from-decimal-to-binary-with-recursion-in-java/
 template<typename uint_type,usint BITLENGTH>
 void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
-        bool dbg_flag = false;
+        DEBUG_FLAG(false);
 	uschar *DecValue;//array of decimal values
 	int arrSize=v.length();
 	
@@ -1028,9 +1028,11 @@ void BigInteger<uint_type,BITLENGTH>::AssignVal(const std::string& v){
 		DecValue[i] = (uschar) atoi(v.substr(i,1).c_str());
 
 	DEBUG("v=" << v);
+#if!defined(NDEBUG)
 	if( dbg_flag )
 		for( int i=0;i<arrSize;i++)
 			DEBUG("DecValue[" << i << "]=" << (int)DecValue[i]);
+#endif
 
 	int zptr = 0;
 	//index of highest non-zero number in decimal number
@@ -1876,7 +1878,7 @@ usint BigInteger<uint_type,BITLENGTH>::GetMSBUint_type(uint_type x){
 template<typename uint_type,usint BITLENGTH>
 usint BigInteger<uint_type,BITLENGTH>::GetDigitAtIndexForBase(usint index, usint base) const{
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("BigInteger::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
 	usint DigitLen = ceil(log2(base));
 
@@ -2125,7 +2127,7 @@ template<typename uint_type,usint BITLENGTH>
 
 template<typename uint_type,usint BITLENGTH>
 uschar BigInteger<uint_type,BITLENGTH>::GetBitAtIndex(usint index) const{
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	DEBUG("BigInteger::GetBitAtIndex(" << index << ")");
 	if(index<=0){

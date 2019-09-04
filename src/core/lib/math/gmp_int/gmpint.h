@@ -198,7 +198,7 @@ public:
 	myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
 
 	myZZ ModInverse(const myZZ& modulus) const {
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUGEXP(modulus);
 
 		//Error if modulus is 0
@@ -240,7 +240,7 @@ public:
 	//to be consistent with BE 2
 	myZZ ModSub(const myZZ& b, const myZZ& modulus) const
 	{
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		myZZ newthis(*this%modulus);
 		myZZ newb(b%modulus);
 
@@ -260,7 +260,7 @@ public:
 
 	const myZZ& ModSubEq(const myZZ& b, const myZZ& modulus)
 	{
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		this->ModEq(modulus);
 		myZZ newb(b%modulus);
 
@@ -314,7 +314,7 @@ public:
 	inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this, b, modulus);};
 
 	inline myZZ ModExp(const myZZ& b, const myZZ& modulus) const {
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		//      myZZ res(*this);
 		myZZ res;
 		DEBUG("ModExp this :"<< *this);

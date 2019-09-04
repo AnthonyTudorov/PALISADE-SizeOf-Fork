@@ -132,7 +132,7 @@ template<typename Element>
 void switch_format_decompose_single_crt(const string& msg) {
 	using Params = typename Element::Params;
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	usint m1 = 16;
 
 	typename Element::Integer modulus = FirstPrime<typename Element::Integer>(22, m1);
@@ -185,7 +185,7 @@ TEST(UTNTT, switch_format_decompose_single_crt) {
 
 template<typename Element>
 void decomposeMult_double_crt(const string& msg) {
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
 	usint init_m = 16;
 
 	float init_stdDev = 4;
@@ -258,7 +258,7 @@ template<typename Element>
 void decomposeMult_single_crt(const string& msg) {
 	using Params = typename Element::Params;
 
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
 	usint m1 = 16;
 
 	typename Element::Integer modulus("17729");

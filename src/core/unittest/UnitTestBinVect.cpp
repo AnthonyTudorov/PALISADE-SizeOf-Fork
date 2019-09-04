@@ -67,7 +67,7 @@ using namespace lbcrypto;
 */
 template<typename V>
 void AtAndSetModulusTest(const string& msg) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	usint len = 10;
 	V m(len);
 
@@ -232,7 +232,7 @@ TEST(UTBinVect,ModAddBigModulus) {
 
 template<typename V>
 void ModAddSmallerModulus(const string& msg) {
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
 
 	typename V::Integer q("3534");	// constructor calling to set mod value
 	V m(5,q);		// calling constructor to create a vector of length 5 and passing value of q
@@ -368,7 +368,7 @@ TEST(UTBinVect,ModMulTest) {
 */
 template<typename V>
 void ModExpTest(const string& msg) {
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
 	typename V::Integer q("3534");			// constructor calling to set mod value
 	V m(5,q);				// calling constructor to create a vector of length 5 and passing value of q
 	typename V::Integer n("3");
@@ -473,7 +473,7 @@ TEST(UTBinVect,modadd_vector_result_smaller_modulus) {
 
 template<typename V>
 void modadd_vector_result_greater_modulus(const string& msg) {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
 	typename V::Integer q("657");		// constructor calling to set mod value
 	V m(5,q);			// calling constructor to create a vector of length 5 and passing value of q
 	V n(5,q);
@@ -510,7 +510,7 @@ TEST(UTBinVect,modadd_vector_result_greater_modulus) {
 */
 template<typename V>
 void method_plus_equals_vector_operation(const string& msg) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	typename V::Integer q("657");
 	V m(5,q); // calling constructor to create a vector of length 5 and passing value of q
 	V n(5,q);
