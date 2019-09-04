@@ -12,8 +12,6 @@
 
 using namespace lbcrypto;
 
-#define PROFILE
-
 template <class Integer, class Vector>
 void RunHETests(uint32_t n, uint32_t base, const Integer &q, double std, GINVERSEMODE mode);
 

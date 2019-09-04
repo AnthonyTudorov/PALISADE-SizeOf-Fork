@@ -29,8 +29,6 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 #define LBCRYPTO_OBFUSCATE_LWEBPCHCPRF_CPP
 
-#define PROFILE  //define this to enable PROFILELOG and TIC/TOC
-
 #include "utils/debug.h"
 
 #include "lwebpchcprf.h"

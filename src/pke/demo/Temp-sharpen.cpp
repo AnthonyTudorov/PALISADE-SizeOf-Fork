@@ -24,6 +24,8 @@
  *
  */
 
+#define PROFILE
+
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -59,8 +61,6 @@ void KeyGen(CryptoContext<DCRTPoly> cc);
 void Encrypt(CryptoContext<DCRTPoly> cc, size_t size);
 void Evaluate(CryptoContext<DCRTPoly> cc, size_t size);
 void Decrypt(CryptoContext<DCRTPoly> cc, size_t size);
-
-#define PROFILE
 
 CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName) {
 

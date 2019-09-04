@@ -29,6 +29,8 @@
  *
  */
 
+#define PROFILE
+
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -40,8 +42,6 @@
 #include "cryptocontextgen.h"
 #include "encoding/encodings.h"
 #include "utils/debug.h"
-
-#define PROFILE
 
 using namespace std;
 using namespace lbcrypto;
