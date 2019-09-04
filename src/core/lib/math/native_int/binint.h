@@ -988,6 +988,35 @@ public:
 		return;
 	}
 
+	void ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
+
+		DNativeInt prod = DNativeInt(this->m_value)*DNativeInt(b.m_value);
+		DNativeInt q(prod);
+
+		unsigned int n = modulus.GetMSB();
+		unsigned int alpha = n + 3;
+		int beta = -2;
+
+		q >>= n + beta;
+		q = q*DNativeInt(mu.m_value);
+		q >>= alpha - beta;
+		prod -= q*DNativeInt(modulus.m_value);
+
+		this->m_value = NativeInt(prod);
+
+		if (!(this->m_value<modulus.m_value))
+			this->m_value -= modulus.m_value;
+
+		return;
+
+	}
+
+	NativeInteger ComputeMu() {
+		DNativeInt temp(1);
+		temp <<= 2 * this->GetMSB() + 3;
+		return NativeInt(temp / DNativeInt(this->m_value));
+	}
+
 	/**
 	 * Modulo multiplication where Barrett modular reduction is used.
 	 * Included here for compatibility with backend 2.
