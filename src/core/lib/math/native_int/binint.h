@@ -988,24 +988,63 @@ public:
 		return;
 	}
 
+	struct type128 {
+	   uint64_t hi, lo;
+	};
+
+	inline void
+	Mult128(type128& x, uint64_t a, uint64_t b)
+	{
+	   __asm__ (
+	   "mulq %[b]" :
+	   [lo] "=a" (x.lo), [hi] "=d" (x.hi) :
+	   [a] "%[lo]" (a), [b] "rm" (b) :
+	   "cc"
+	   );
+	}
+
+	uint64_t
+	RShift128(type128 x, long shift)
+	{
+       return (x.lo >> shift) | (x.hi << (64-shift));
+	}
+
+	inline uint64_t
+	GetLow128(const type128& x)
+	{
+	   return x.lo;
+	}
+
 	void ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
 
-		if (this->m_value > modulus.m_value)
-			this->m_value %= modulus.m_value;
+		//if (this->m_value > modulus.m_value)
+		//	this->m_value %= modulus.m_value;
 
-		DNativeInt prod = DNativeInt(this->m_value)*DNativeInt(b.m_value);
-		DNativeInt q(prod);
+		type128 prod;
+		Mult128(prod, this->m_value, b.m_value);
+		type128 q(prod);
 
-		unsigned int n = modulus.GetMSB();
-		unsigned int alpha = n + 3;
-		int beta = -2;
+		//DNativeInt prod = DNativeInt(this->m_value)*DNativeInt(b.m_value);
+		//DNativeInt q(prod);
 
-		q >>= n + beta;
-		q = q*DNativeInt(mu.m_value);
-		q >>= alpha - beta;
-		prod -= q*DNativeInt(modulus.m_value);
+		long n = modulus.GetMSB();
+		long alpha = n + 3;
+		long beta = -2;
 
-		this->m_value = NativeInt(prod);
+		//q >>= n + beta;
+
+		uint64_t ql = RShift128(q,n + beta);
+		Mult128(q, ql, mu.m_value);
+		ql = RShift128(q,alpha - beta);
+		Mult128(q, ql , modulus.m_value);
+
+		this->m_value = GetLow128(prod)-GetLow128(q);
+
+		//q = q*DNativeInt(mu.m_value);
+		//q >>= alpha - beta;
+		//prod -= q*DNativeInt(modulus.m_value);
+
+		//this->m_value = NativeInt(prod);
 
 		if (!(this->m_value<modulus.m_value))
 			this->m_value -= modulus.m_value;
