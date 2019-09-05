@@ -566,11 +566,19 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
 	}
 
 	NativeVector ans(*this);
-
 	IntegerType modulus = this->m_modulus;
-	IntegerType mu = modulus.ComputeMu();
-	for(usint i=0;i<this->m_data.size();i++)
-		ans.m_data[i].ModBarrettMulEq(b[i],modulus,mu);
+
+	if (modulus.GetMSB() < 61)
+	{
+		IntegerType mu = modulus.ComputeMu();
+		for(usint i=0;i<this->m_data.size();i++)
+			ans.m_data[i].ModBarrettMulEq(b[i],modulus,mu);
+	}
+	else
+	{
+		for(usint i=0;i<this->m_data.size();i++)
+			ans.m_data[i].ModMulFastEq(b[i],modulus);
+	}
 
 	return ans;
 
