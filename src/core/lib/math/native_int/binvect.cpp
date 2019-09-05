@@ -390,6 +390,11 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 			 ans.m_data[i].ModMulFastEqOptimized(bLocal,modulus);
 	}
 	else{
+		/*if (bLocal > modulus)
+			bLocal.ModEq(modulus);
+		IntegerType mu = modulus.ComputeMu();
+		for(usint i=0;i<this->m_data.size();i++)
+			ans.m_data[i].ModBarrettMulInPlace(bLocal,modulus,mu);*/
 		for(usint i=0;i<this->m_data.size();i++)
 			ans.m_data[i].ModMulFastEq(bLocal,modulus);
 	}
@@ -561,21 +566,11 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
 	}
 
 	NativeVector ans(*this);
-	IntegerType modulus = this->m_modulus;
 
-	if (modulus.GetMSB() < 63)
-	{
-		//for(usint i=0;i<this->m_data.size();i++)
-		//	ans.m_data[i].ModMulFastEqOptimized(b[i],modulus);
-		IntegerType mu = modulus.ComputeMu();
-		for(usint i=0;i<this->m_data.size();i++)
-			ans.m_data[i].ModBarrettMulEq(b[i],modulus,mu);
-	}
-	else
-	{
-		for(usint i=0;i<this->m_data.size();i++)
-			ans.m_data[i].ModMulFastEq(b[i],modulus);
-	}
+	IntegerType modulus = this->m_modulus;
+	IntegerType mu = modulus.ComputeMu();
+	for(usint i=0;i<this->m_data.size();i++)
+		ans.m_data[i].ModBarrettMulEq(b[i],modulus,mu);
 
 	return ans;
 

@@ -990,6 +990,9 @@ public:
 
 	void ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
 
+		if (this->m_value > modulus.m_value)
+			this->m_value %= modulus.m_value;
+
 		DNativeInt prod = DNativeInt(this->m_value)*DNativeInt(b.m_value);
 		DNativeInt q(prod);
 
