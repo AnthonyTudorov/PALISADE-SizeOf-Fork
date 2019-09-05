@@ -198,7 +198,7 @@ public:
 	inline void push_back(const myT& a) { this->append(a);};
 
 	static inline myVecP Single(const myT& val, const myT &modulus) {
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("single in");
 		myVecP vec(1);
 		DEBUG("a");
@@ -358,7 +358,7 @@ public:
 
 	//sets modulus and the NTL init function uint64_t argument
 	inline void SetModulus(const uint64_t& value){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("SetModulus(const uint64_t& "<<value<<")");
 		if (value == 0) {
 			PALISADE_THROW(lbcrypto::palisade_error, "SetModulus(uint64_t) cannot be zero");
@@ -372,7 +372,7 @@ public:
 
 	//sets modulus and the NTL init function myT argument
 	void SetModulus(const myT& value){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("SetModulus(const myT& "<<value<<")");
 		if (value == myT(0)) {
 			PALISADE_THROW( lbcrypto::palisade_error, "SetModulus(myT) cannot be zero");
@@ -384,7 +384,7 @@ public:
 
 	//sets modulus and the NTL init function string argument
 	inline void SetModulus(const std::string& value){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("SetModulus(const string& "<<value<<")");
 		this->m_modulus = myT(value);
 		if (this->m_modulus == myT(0)) {
@@ -397,7 +397,7 @@ public:
 	};
 	//sets modulus and the NTL init function uses same modulus
 	inline void SetModulus(const myVecP& value){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("SetModulus(const myVecP& "<<value<<")");
 		this->m_modulus = value.GetModulus();
 		if (this->m_modulus == myT(0)) {
@@ -418,7 +418,7 @@ public:
 	}
 
 	inline int CopyModulus(const myVecP& rhs){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("CopyModulus(const myVecP& modulus is "<<rhs.m_modulus);
 		DEBUG("CopyModulus(const myVecP& modulus_state is "<<rhs.m_modulus_state);
 		this->m_modulus = rhs.m_modulus;
@@ -550,7 +550,7 @@ private:
 
 	//used to make sure all entries in this are <=current modulus
 	void Renormalize(void) {
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("mgmpintvec Renormalize modulus"<<m_modulus);
 		DEBUG("mgmpintvec size"<< this->GetLength());
 		//loop over each entry and fail if !=

@@ -27,6 +27,8 @@
 BFV RNS testing programs
 */
 
+#define PROFILE
+
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -137,8 +139,6 @@ int main(int argc, char **argv) {
 	//cin.get();
 	return 0;
 }
-
-#define PROFILE
 
 CryptoContext<DCRTPoly> DeserializeContext(const string& ccFileName)
 {

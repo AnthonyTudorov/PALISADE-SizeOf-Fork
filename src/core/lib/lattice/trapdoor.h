@@ -178,7 +178,7 @@ public:
 			const RLWETrapdoorPair<Element> &Tprime,
 			const typename Element::DggType& dgg, const typename Element::DggType& dggLargeSigma,
 			shared_ptr<Matrix<Element>> perturbationVector){
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 				TimeVar t1, t2, t3, t1_tot, t2_tot, t3_tot;
 
 				TIC(t1);

@@ -692,7 +692,7 @@ void ChineseRemainderTransformFTT<VecType>::Reset() {
 	template<typename VecType>
 	void ChineseRemainderTransformArb<VecType>::SetPreComputedNTTDivisionModulus(usint cyclotoOrder, const IntType &modulus, const IntType &nttMod,
 		const IntType &nttRootBig) {
-        bool dbg_flag = false;
+        DEBUG_FLAG(false);
 
 		usint n = GetTotient(cyclotoOrder);
 		DEBUG("GetTotient("<<cyclotoOrder<<")= "<<n);

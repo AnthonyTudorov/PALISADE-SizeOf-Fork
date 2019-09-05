@@ -320,10 +320,11 @@ static void BM_addeq_LATTICE(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		b = TestParameters.GetPoly<E>(state.range(0),1);
+		a = TestParameters.GetPoly<E>(state.range(0),0);
 	}
 
 	while (state.KeepRunning()) {
-		a = TestParameters.GetPoly<E>(state.range(0),0);
+		//a = TestParameters.GetPoly<E>(state.range(0),0);
 		addeq_LATTICE<E>(a,b);
 	}
 }
@@ -385,10 +386,11 @@ static void BM_multeq_LATTICE(benchmark::State& state) { // benchmark
 
 	if( state.thread_index == 0 ) {
 		b = TestParameters.GetPoly<E>(state.range(0),1);
+		a = TestParameters.GetPoly<E>(state.range(0),0);
 	}
 
 	while (state.KeepRunning()) {
-		a = TestParameters.GetPoly<E>(state.range(0),0);
+		//a = TestParameters.GetPoly<E>(state.range(0),0);
 		multeq_LATTICE<E>(a, b);
 	}
 }

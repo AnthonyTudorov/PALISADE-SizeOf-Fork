@@ -85,7 +85,7 @@ TEST_F(UTPKESer, BGV_DCRTPoly_Serial) {
 template<typename ST>
 void Test_keys_and_ciphertext(const ST& sertype)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	CryptoContextImpl<Poly>::ClearEvalMultKeys();
 	CryptoContextImpl<Poly>::ClearEvalSumKeys();

@@ -119,7 +119,7 @@ PolyImpl<VecType>::PolyImpl( DiscreteUniformGeneratorImpl<VecType> &dug, const s
 template<typename VecType>
 PolyImpl<VecType>::PolyImpl(const BinaryUniformGeneratorImpl<VecType> &bug, const shared_ptr<PolyImpl::Params> params, Format format)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	m_params = params;
 
 	usint vectorSize = params->GetRingDimension();
@@ -151,7 +151,7 @@ PolyImpl<VecType>::PolyImpl(const TernaryUniformGeneratorImpl<VecType> &tug, con
 template<typename VecType>
 PolyImpl<VecType>::PolyImpl(const PolyImpl &element, shared_ptr<PolyImpl::Params>) : m_format(element.m_format), m_params(element.m_params)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	if (!IsEmpty()){
 		DEBUG("in ctor & m_values was "<<*m_values);
 	} else {
@@ -195,7 +195,7 @@ template<typename VecType>
 PolyImpl<VecType>::PolyImpl(PolyImpl &&element, shared_ptr<PolyImpl::Params>) : m_format(element.m_format), m_params(element.m_params)
 //m_values(element.m_values) //note this becomes move below
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	if (!IsEmpty()){
 		DEBUG("in ctor && m_values was "<<*m_values);
 	}else{
@@ -618,7 +618,7 @@ PolyImpl<VecType> PolyImpl<VecType>::Times(const PolyImpl &element) const
 template<typename VecType>
 const PolyImpl<VecType>& PolyImpl<VecType>::operator+=(const PolyImpl &element)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	if (!(*this->m_params == *element.m_params)){
 		DEBUGEXP(*this->m_params);
 		DEBUGEXP(*element.m_params);
@@ -721,11 +721,14 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(const usint &k) const
 			if (k % 2 == 0)
 				throw std::runtime_error("automorphism index should be odd\n");
 
+			usint logm = std::round(log2(m));
+
 			for (usint j = 1; j < m; j = j + 2) {
 
 				//determines which power of primitive root unity we should switch to
-				usint idx = (j*k) % m;
-				result.m_values->operator[]((j + 1) / 2 - 1)= GetValues().operator[]((idx + 1) / 2 - 1);
+				// computes (j*k) % m more efficiently
+				usint idx = (j*k) - (((j*k)>>logm)<<logm);
+				result.m_values->operator[](j >> 1)= GetValues().operator[](idx >> 1);
 
 			}
 
@@ -814,7 +817,7 @@ template<typename VecType>
 void PolyImpl<VecType>::SwitchFormat()
 {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	if (m_values == nullptr) {
 		std::string errMsg = "Poly switch format to empty values";
 		throw std::runtime_error(errMsg);
@@ -849,7 +852,7 @@ template<typename VecType>
 void PolyImpl<VecType>::ArbitrarySwitchFormat()
 {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	if (m_values == nullptr) {
 		std::string errMsg = "Poly switch format to empty values";
 		throw std::runtime_error(errMsg);
@@ -984,7 +987,7 @@ double PolyImpl<VecType>::Norm() const
 template<typename VecType>
 std::vector<PolyImpl<VecType>> PolyImpl<VecType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	DEBUG("PolyImpl::BaseDecompose" );
 	usint nBits = m_params->GetModulus().GetLengthForBase(2);

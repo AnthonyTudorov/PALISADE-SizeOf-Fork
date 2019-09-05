@@ -79,7 +79,7 @@ public:
 		if( cyclotomic_order == 0 )
 			return;
 
- 	          bool dbg_flag(false);
+ 	          DEBUG_FLAG(false);
 		  DEBUG("in ILDCRTParams(const usint cyclotomic_order, const IntType &modulus, const IntType& rootOfUnity");
 		  DEBUGEXP(cyclotomic_order);
 		  DEBUGEXP(modulus);

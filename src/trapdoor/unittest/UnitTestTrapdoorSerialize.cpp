@@ -60,7 +60,7 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
   //Serialize/DeserializeVectorOfRLWETrapdoorPair is a helper function to test
   //note the object has to be created outside of the function.
   
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
   const int vecsize = 4;
 
   DEBUG("step 0");
@@ -116,10 +116,12 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
   //serialize the vector
   Serial::Serialize(testvec, ss, SerType::BINARY);
 
+#if!defined(NDEBUG)
   if (dbg_flag) {
 	  // write the result to cout for debug
 	  std::cout << Serial::SerializeToString(testvec) << std::endl;
   }
+#endif
 
   DEBUG("step 5");
   Serial::Deserialize(newvec, ss, SerType::BINARY);

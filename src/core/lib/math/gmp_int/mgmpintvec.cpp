@@ -56,7 +56,7 @@ template<class myT>
 myVecP<myT>::myVecP(const myVecP<myT> &a) : Vec<myT>(INIT_SIZE, a.length())
 //note use .length() here to return long which Vec expects
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in myVecP(myVecP&) length "<<a.length());
 	DEBUG("input vector "<<a);
 	DEBUG("input modulus "<<a.GetModulus());
@@ -78,7 +78,7 @@ template<class myT>
 myVecP<myT>::myVecP(myVecP<myT> &&a) : Vec<myT>(INIT_SIZE, a.length())
 //note use .length() here to return long which Vec expects
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in myVecP copymove, myvecP<myT> alength "<<a.length());
 	int rv = this->CopyModulus(a);
 	if (rv==-1) {
@@ -94,7 +94,7 @@ myVecP<myT>::myVecP(myVecP<myT> &&a) : Vec<myT>(INIT_SIZE, a.length())
 template<class myT>
 myVecP<myT>::myVecP(const long n, const myT &q): Vec<myT>(INIT_SIZE,n)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("myVecP(n,ZZ) n:"<<n);
 	DEBUG("q:"<<q);
 	this->SetModulus(q);
@@ -106,7 +106,7 @@ myVecP<myT>::myVecP(const long n, const myT &q): Vec<myT>(INIT_SIZE,n)
 template<class myT>
 myVecP<myT>::myVecP(const long n, const myT &q, std::initializer_list<uint64_t> rhs): Vec<myT>(INIT_SIZE,n)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("myVecP(n,ZZ) n:"<<n);
 	DEBUG("q:"<<q);
 	this->SetModulus(q);
@@ -124,7 +124,7 @@ myVecP<myT>::myVecP(const long n, const myT &q, std::initializer_list<uint64_t> 
 template<class myT>
 myVecP<myT>::myVecP(const long n, const myT &q, std::initializer_list<std::string> rhs): Vec<myT>(INIT_SIZE,n)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("myVecP(n,ZZ) n:"<<n);
 	DEBUG("q:"<<q);
 	this->SetModulus(q);
@@ -229,7 +229,7 @@ myVecP<myT>::myVecP(std::vector<std::string> &s, const uint64_t q){
 
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<uint64_t> rhs){
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in op=initializerlist <uint64_t>");
 
 	size_t len = rhs.size();
@@ -258,7 +258,7 @@ const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<uint64_t> rhs){
 //for some dumb reason they coded this., it is dangerous
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int32_t> rhs){
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in op=initializerlist <uint64_t>");
 
 	size_t len = rhs.size();
@@ -291,7 +291,7 @@ const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<int32_t> rhs){
 //keeps current modulus
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<std::string> rhs){
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in op=initializerlist <string>");
 	size_t len = rhs.size();
 	if (this->GetLength()< len){
@@ -320,7 +320,7 @@ const myVecP<myT>& myVecP<myT>::operator=(std::initializer_list<std::string> rhs
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=(uint64_t val)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in op=uint64_t");
 
 	(*this)[0] = myT(val);
@@ -339,7 +339,7 @@ const myVecP<myT>& myVecP<myT>::operator=(uint64_t val)
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=(const myVecP<myT> &rhs)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in op=const myVecP<myT>&");
 	DEBUG("setting size "<<rhs.GetLength());
 	this->resize(rhs.GetLength());
@@ -360,7 +360,7 @@ const myVecP<myT>& myVecP<myT>::operator=(const myVecP<myT> &rhs)
 template<class myT>
 const myVecP<myT>& myVecP<myT>::operator=( myVecP<myT> &&rhs)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	if (this != &rhs) {
 		DEBUG("in op=const myVecP<myT>&");
@@ -383,7 +383,7 @@ template<class myT>
 void myVecP<myT>::clear(myVecP<myT>& x)
 {
 	//sets all elements to zero, but does not change size
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("in clear myVec");
 	//using NTL_NAMESPACE::clear;
 	size_t n = x.GetLength();
@@ -410,7 +410,7 @@ template<class myT>
 void myVecP<myT>::SwitchModulus(const myT& newModulus)
 {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("Switch modulus old mod :"<<this->m_modulus);
 	DEBUG("Switch modulus old this :"<<*this);
 
@@ -453,7 +453,7 @@ void myVecP<myT>::SwitchModulus(const myT& newModulus)
 template<class myT>
 myVecP<myT> myVecP<myT>::Mod(const myT& modulus) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("mgmpintvec" <<*this);
 	DEBUG("MOD("<<modulus<<")");
 	if (modulus == myT(2)) {
@@ -483,7 +483,7 @@ myVecP<myT> myVecP<myT>::Mod(const myT& modulus) const
 template<class myT>
 const myVecP<myT>& myVecP<myT>::ModEq(const myT& modulus)
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("mgmpintvec" <<*this);
 	DEBUG("MOD("<<modulus<<")");
 	if (modulus == myT(2)) {
@@ -577,7 +577,7 @@ myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myT &b) const{
 //template<class myT>
 //myVecP<myT> myVecP<myT>::operator-(const myVecP<myT> &b) const
 //{
-//	bool dbg_flag = false;
+//	DEBUG_FLAG(false);
 //	DEBUG("in myVecP::operator-");
 //	ArgCheckVector(b, "myVecP::op-");
 //	myVecP<myT> res(b.GetLength());
@@ -596,7 +596,7 @@ myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myT &b) const{
 //template<class myT>
 //myVecP<myT> myVecP<myT>::operator-(void)
 //{
-//	bool dbg_flag = false;
+//	DEBUG_FLAG(false);
 //	DEBUG("in myVecP::operator-negate");
 //	myVecP<myT> tmp (this->GetLength());
 //	myVecP<myT>::clear(tmp);
@@ -635,7 +635,7 @@ myVecP<myT> myVecP<myT>::ModAddAtIndex(size_t i, const myT &b) const{
 //template<class myT>
 //myVecP<myT> myVecP<myT>::operator*(myVecP<myT> const& b) const
 //{
-//	bool dbg_flag = false;
+//	DEBUG_FLAG(false);
 //	DEBUG("in myVecP::operator*");
 //	ArgCheckVector(b, "myVecP::operator*");
 //	myVecP<myT> res;
@@ -720,7 +720,7 @@ myVecP<myT> myVecP<myT>::ModInverse(void) const
 template<class myT>
 myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(size_t index, usint base) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("myVecP::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
 	myVecP ans(*this);
 	for(size_t i=0; i < this->GetLength(); i++){
@@ -735,7 +735,7 @@ myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(size_t index, usint base) const
 template<class myT>
 inline  void  myVecP<myT>::modadd_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	a.ArgCheckVector(b, "myVecP::modadd()");
 	size_t n = a.GetLength();
 	if (b.GetLength() != n) LogicError("myVecP<>vector add: dimension mismatch");
@@ -761,7 +761,7 @@ inline  void  myVecP<myT>::modadd_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP
 template<class myT>
 void  myVecP<myT>::modsub_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	a.ArgCheckVector(b, "myVecP::sub()");
 	size_t n = a.GetLength();
@@ -789,7 +789,7 @@ void  myVecP<myT>::modsub_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> co
 template<class myT>
 inline void  myVecP<myT>::modmul_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	a.ArgCheckVector(b, "myVecP::mul()");
 	unsigned int n = a.GetLength();
 	if (b.GetLength() != n) LogicError("myVecP<>vector sub: dimension mismatch");

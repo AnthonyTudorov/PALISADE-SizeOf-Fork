@@ -44,7 +44,7 @@ namespace lbcrypto {
 	//native NTL version
 	NTL::myZZ RNG(const NTL::myZZ& modulus)
 	{
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("in NTL RNG");
 		return RandomBnd(modulus);
 
@@ -53,7 +53,7 @@ namespace lbcrypto {
 	//define an NTL native implementation 
 	NTL::myZZ GreatestCommonDivisor(const NTL::myZZ& a, const NTL::myZZ& b)
 	{
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("NTL::GCD a " << a << " b " << b);
 		return GCD(a, b);
 	}
@@ -61,7 +61,7 @@ namespace lbcrypto {
 	//NTL native version
 	bool MillerRabinPrimalityTest(const NTL::myZZ& p, const usint niter)
 	{
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		DEBUG("in NTL MRPT");
 		if (p < NTL::myZZ(2) || ((p != NTL::myZZ(2)) &&
 			(p.Mod(NTL::myZZ(2)) == NTL::myZZ(0))))

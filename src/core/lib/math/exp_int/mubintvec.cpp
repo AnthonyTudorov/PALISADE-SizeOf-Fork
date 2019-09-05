@@ -51,7 +51,7 @@ namespace exp_int {
   // basic constructor
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_modulus = 0;
     m_modulus_state = GARBAGE;
     DEBUG("mubintvec ctor()");
@@ -60,7 +60,7 @@ namespace exp_int {
   // Basic constructor for specifying the length of the vector.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
 
     //this->m_data = new ubint_el_t*[m_length];
@@ -75,7 +75,7 @@ namespace exp_int {
   // Basic constructor for specifying the length of the vector and modulus.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const usint &modulus){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
       this->m_data[i] = 0;
@@ -90,7 +90,7 @@ namespace exp_int {
   // Basic constructor for specifying the length of the vector and modulus.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
       this->m_data[i] = 0;
@@ -107,7 +107,7 @@ namespace exp_int {
 
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<uint64_t>rhs){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -127,7 +127,7 @@ namespace exp_int {
 
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const ubint_el_t &modulus, std::initializer_list<std::string>rhs){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
     m_modulus = modulus;
     m_modulus_state = INITIALIZED;
@@ -146,7 +146,7 @@ namespace exp_int {
   // Baspic constructor for specifying the length of the vector and modulus.
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const usint length, const std::string &modulus){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(length);
     for (usint i = 0; i < length; i++){
       this->m_data[i] = 0;
@@ -161,7 +161,7 @@ namespace exp_int {
   // constructor specifying the mubintvec as a vector of strings and modulus
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const std::vector<std::string> &s, const ubint_el_t &modulus) {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(s.size());
     m_modulus = ubint_el_t(modulus);
     m_modulus_state = INITIALIZED;
@@ -174,7 +174,7 @@ namespace exp_int {
  //constructor specifying the mubintvec as a vector of strings with string modulus
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const std::vector<std::string> &s, const std::string &modulus) {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data.resize(s.size());
     m_modulus = ubint_el_t(modulus);
     m_modulus_state = INITIALIZED;
@@ -189,7 +189,7 @@ namespace exp_int {
   //copy constructor
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(const mubintvec &in_bintvec){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
 
     size_t length = in_bintvec.m_data.size();
     this->m_data.resize(length);
@@ -204,7 +204,7 @@ namespace exp_int {
 
   template<class ubint_el_t>
   mubintvec<ubint_el_t>::mubintvec(mubintvec &&in_bintvec){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     this->m_data = std::move(in_bintvec.m_data);
     this->m_modulus = std::move(in_bintvec.m_modulus);
     this->m_modulus_state = std::move(in_bintvec.m_modulus_state);
@@ -218,7 +218,7 @@ namespace exp_int {
   //will overwrite target modulus
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(const mubintvec &rhs){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     if(this!=&rhs){
       if(this->m_data.size()==rhs.m_data.size()){
         for (usint i = 0; i < this->m_data.size(); i++){
@@ -244,7 +244,7 @@ namespace exp_int {
   //Assignment with initializer list of usints
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<uint64_t> rhs){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     size_t len = rhs.size();
     if (this->m_data.size()< len){
       this->m_data.resize(len);
@@ -266,7 +266,7 @@ namespace exp_int {
   //Assignment with initializer list of strings
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(std::initializer_list<std::string> rhs){
-    bool dbg_flag = true;
+    DEBUG_FLAG(true);
     size_t len = rhs.size();
     if (this->m_data.size()< len){
       this->m_data.resize(len);
@@ -288,7 +288,7 @@ namespace exp_int {
   // move copy allocator
   template<class ubint_el_t>
   const mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::operator=(mubintvec &&rhs){
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
 
     if(this!=&rhs){
       this->m_data.swap(rhs.m_data); //swap the two vector contents,

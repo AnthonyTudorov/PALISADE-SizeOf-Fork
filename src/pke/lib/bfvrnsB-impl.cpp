@@ -27,8 +27,6 @@
 #include "cryptocontext.h"
 #include "bfvrnsB.cpp"
 
-#define PROFILE
-
 //#define USE_KARATSUBA
 
 namespace lbcrypto {

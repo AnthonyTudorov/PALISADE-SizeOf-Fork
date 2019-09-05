@@ -332,7 +332,7 @@ void method_primitive_root_of_unity_VERY_LONG(const string& msg) {
 
   //Exception handling
   {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	int m = 32;
 	T modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
 

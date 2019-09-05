@@ -403,7 +403,7 @@ Format DCRTPolyImpl<VecType>::GetFormat() const
 template<typename VecType>
 std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::BaseDecompose(usint baseBits, bool evalModeAnswer) const
 {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     DEBUG("...::BaseDecompose" );
     DEBUG("baseBits=" << baseBits );
 
@@ -522,7 +522,7 @@ PolyImpl<NativeVector>& DCRTPolyImpl<VecType>::ElementAtIndex(usint i)
 template<typename VecType>
 std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::PowersOfBase(usint baseBits) const
 {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
 
     std::vector<DCRTPolyImpl<VecType>> result;
 
@@ -707,7 +707,7 @@ const DCRTPolyImpl<VecType> & DCRTPolyImpl<VecType>::operator=(DCRTPolyImpl&& rh
 template<typename VecType>
 DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::initializer_list<uint64_t> rhs)
 {
-        bool dbg_flag = false;
+        DEBUG_FLAG(false);
 	usint len = rhs.size();
 	static PolyType::Integer ZERO(0);
 	if(!IsEmpty()) {
@@ -741,7 +741,7 @@ DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::initializer_list<ui
 template<typename VecType>
 DCRTPolyImpl<VecType>& DCRTPolyImpl<VecType>::operator=(std::initializer_list<std::string> rhs)
 {
-        bool dbg_flag = false;
+        DEBUG_FLAG(false);
 	usint len = rhs.size();
 	static PolyType::Integer ZERO(0);
 	if(!IsEmpty()) {
@@ -1022,7 +1022,7 @@ void DCRTPolyImpl<VecType>::DropLastElement()
 template<typename VecType>
 void DCRTPolyImpl<VecType>::ModReduce(const Integer &plaintextModulus)
 {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     if(m_format != Format::EVALUATION) {
         throw std::logic_error("Mod Reduce function expects EVAL Formatted DCRTPolyImpl. It was passed COEFF Formatted DCRTPolyImpl.");
     }
@@ -1130,7 +1130,7 @@ const typename DCRTPolyImpl<VecType>::Integer& DCRTPolyImpl<VecType>::operator[]
 template<typename VecType>
 typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpolate() const
 {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
 
     usint ringDimension = GetRingDimension();
     usint nTowers = m_vectors.size();
@@ -1226,7 +1226,7 @@ typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpol
 template<typename VecType>
 typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpolateIndex(usint i) const
 {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	usint ringDimension = GetRingDimension();
 	usint nTowers = m_vectors.size();

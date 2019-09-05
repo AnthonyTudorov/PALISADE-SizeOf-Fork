@@ -137,7 +137,7 @@ namespace lbcrypto {
 	Matrix<DCRTPoly> RLWETrapdoorUtility<DCRTPoly>::GaussSamp(size_t n, size_t k, const Matrix<DCRTPoly>& A,
 		const RLWETrapdoorPair<DCRTPoly>& T, const DCRTPoly &u,
 		typename DCRTPoly::DggType &dgg, typename DCRTPoly::DggType &dggLargeSigma, int64_t base){
-				bool dbg_flag = false;
+				DEBUG_FLAG(false);
 		TimeVar t1, t1_tot, t2, t2_tot, t3, t3_tot;
 		TIC(t1);
 		TIC(t1_tot);

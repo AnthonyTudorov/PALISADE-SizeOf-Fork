@@ -1,5 +1,13 @@
 cmake_minimum_required (VERSION 3.4)
 
+# if no build type is chose, set the Release mode
+if( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE Release CACHE STRING
+       "Choose the type of build, options are: None Debug Release RelWithDebInfo
+MinSizeRel."
+       FORCE )
+endif()
+
 project (PALISADE C CXX)
 
 set(BUILD_STATIC "NO") # set to YES to build static libs and apps

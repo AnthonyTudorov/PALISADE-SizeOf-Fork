@@ -288,7 +288,7 @@ void PackedEncoding::SetParams(usint m, EncodingParams params)
 template<typename P>
 void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	usint m = ring->GetCyclotomicOrder();//cyclotomic order
 	NativeInteger modulusNI(modulus);//native int modulus
@@ -362,7 +362,7 @@ void PackedEncoding::Pack(P *ring, const PlaintextModulus &modulus) const {
 template<typename P>
 void PackedEncoding::Unpack(P *ring, const PlaintextModulus &modulus) const {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 
 	usint m = ring->GetCyclotomicOrder(); // cyclotomic order
 	NativeInteger modulusNI(modulus); //native int modulus

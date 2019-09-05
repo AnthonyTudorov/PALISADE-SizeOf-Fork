@@ -131,7 +131,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(std::initi
 
 template<class IntegerType>
 const NativeVector<IntegerType>& NativeVector<IntegerType>::operator=(std::initializer_list<std::string> rhs){
-        bool dbg_flag = false;
+        DEBUG_FLAG(false);
 	usint len = rhs.size();
 	for(usint i=0;i<m_data.size();i++){ // this loops over each tower
 		if(i<len) {
@@ -181,7 +181,7 @@ void NativeVector<IntegerType>::SetModulus(const IntegerType& value){
 */
 template<class IntegerType>
 void NativeVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
-    bool dbg_flag = false;
+    DEBUG_FLAG(false);
     DEBUG("Switch modulus old mod :"<<this->m_modulus);
     DEBUG("Switch modulus old this :"<<*this);
 	
@@ -619,7 +619,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::MultWithOutMod(const Native
 //Gets the ind
 template<class IntegerType>
 NativeVector<IntegerType> NativeVector<IntegerType>::GetDigitAtIndexForBase(usint index, usint base) const{
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	DEBUG("NativeVector::GetDigitAtIndexForBase:  index = " << index << ", base = " << base);
 	NativeVector ans(*this);
 	for(usint i=0;i<this->m_data.size();i++){

@@ -50,7 +50,7 @@ void testDCRTPolyConstructorNegative(std::vector<NativePoly> &towers);
 template<typename Element>
 void DCRT_constructors(const string& msg) {
 
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	usint m = 8;
 	usint towersize = 3;
 

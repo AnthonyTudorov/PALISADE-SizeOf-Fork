@@ -30,10 +30,10 @@
  * this paper: https://eprint.iacr.org/2017/601.pdf
  */
 
+#define PROFILE
+
 #include "kp_abe_rns.h"
 #include "utils/debug.h"
-
-#define PROFILE
 
 namespace lbcrypto {
 

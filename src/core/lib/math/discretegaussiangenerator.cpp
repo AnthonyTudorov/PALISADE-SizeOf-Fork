@@ -259,7 +259,7 @@ namespace lbcrypto {
 
 	template<typename VecType>
 	int32_t DiscreteGaussianGeneratorImpl<VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
-		bool dbg_flag = false;
+		DEBUG_FLAG(false);
 		int32_t x;
 
 		#pragma omp critical 

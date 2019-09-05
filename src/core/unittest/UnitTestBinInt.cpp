@@ -986,7 +986,7 @@ TEST_F(UTBinInt,mod_arithmetic) {
 
 template<typename T>
 void big_modexp(const string& msg) {
-	bool dbg_flag = false;
+	DEBUG_FLAG(false);
 	TimeVar t;
 
 	TIC(t);
@@ -1283,7 +1283,7 @@ TEST_F(UTBinInt,GetBitAtIndex) {
 
 template<typename T>
 void GetInternalRepresentation(const string& msg) {
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
   T x(1);
 
   x <<= 100; //x has one bit at 128
@@ -1291,11 +1291,13 @@ void GetInternalRepresentation(const string& msg) {
 
   auto x_limbs = x.GetInternalRepresentation();
 
+#if!defined(NDEBUG)
   if (dbg_flag) {
     DEBUG(x_limbs);
     DEBUG("x_limbs "<< x_limbs);
     DEBUG("x "<<x);
   }
+#endif
 
   //define what is correct based on math backend selected
   string correct("2 0 0 16");

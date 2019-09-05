@@ -14,8 +14,6 @@ using namespace lbcrypto;
 
 shared_ptr<Matrix<DCRTPoly>> InverseG(const Matrix<DCRTPoly> &A, usint base);
 
-#define PROFILE
-
 int main()
 {
 
