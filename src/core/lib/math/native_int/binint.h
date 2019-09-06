@@ -488,6 +488,20 @@ public:
 	   );
 	}
 
+	inline static NativeInt
+	Get128Hi(const type128& x)
+	{
+	   return x.hi;
+	}
+
+	inline static NativeInt
+	Mult128Hi(NativeInt a, NativeInt b)
+	{
+	  type128 x;
+	  Mult128(x, a, b);
+	  return Get128Hi(x);
+	}
+
 	static NativeInt
 	RShift128(type128 x, long shift)
 	{
@@ -1006,11 +1020,10 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulPreconOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
-#if NTL_BITS_PER_LONG==64
-		return (NativeInt)MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
-#else
-		return this->ModMulFast(b, modulus);
-#endif
+	   NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
+	   NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
+	   SignedNativeInt a = rr;
+	   return a-modulus.m_value >= 0 ? NativeInt(a-modulus.m_value) : NativeInt(a);
 	}
 
 	/**
@@ -1022,11 +1035,10 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const NativeInteger& ModMulPreconOptimizedEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
-#if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)MulModPrecon(this->m_value,b.m_value,modulus.m_value,bInv.m_value);
-#else
-		this->ModMulFastEq(b, modulus);
-#endif
+		NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
+		NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
+		SignedNativeInt a = rr;
+		this->m_value = a-modulus.m_value >= 0 ? NativeInt(a-modulus.m_value) : NativeInt(a);
 		return *this;
 	}
 
