@@ -102,6 +102,10 @@ namespace native_int {
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
 const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
+struct type128 {
+   NativeInt hi, lo;
+};
+
 
 /**
  * @brief Main class for big integers represented as an array of native (primitive) unsigned integers
@@ -470,6 +474,31 @@ public:
 	}
 
 	//modular arithmetic operations
+
+	// subroutines and data types for fast native modular arithmetic
+
+	inline static void
+	Mult128(type128& x, NativeInt a, NativeInt b)
+	{
+	   __asm__ (
+	   "mulq %[b]" :
+	   [lo] "=a" (x.lo), [hi] "=d" (x.hi) :
+	   [a] "%[lo]" (a), [b] "rm" (b) :
+	   "cc"
+	   );
+	}
+
+	static NativeInt
+	RShift128(type128 x, long shift)
+	{
+	   	   return (x.lo >> shift) | (x.hi << (64-shift));
+	}
+
+	static inline DNativeInt
+	Get128(const type128& x)
+	{
+	   return (DNativeInt(x.hi) << 64) | x.lo;;
+	}
 
 	/**
 	 * returns the modulus with respect to the input value
@@ -881,19 +910,51 @@ public:
 		return *this = this->ModMulFast(b, modulus);
 	}
 
+	NativeInteger ComputeMu() const {
+		DNativeInt temp(1);
+		temp <<= 2 * this->GetMSB() + 3;
+		return NativeInt(temp / DNativeInt(this->m_value));
+	}
+
 	/**
 	 * Modulo multiplication. Optimized NTL version.
 	 *
 	 * @param &b is the NativeInteger to multiply.
-	 * @param modulus is the modulus to perform operations with.
+	 * @param &modulus is the modulus to perform operations with.
+	 * @param &mu precomputed Barrett modular reduction parameter.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	NativeInteger ModMulFastOptimized(const NativeInteger& b, const NativeInteger& modulus) const {
-#if NTL_BITS_PER_LONG==64
-		return (NativeInt)MulMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		return this->ModMulFast(b, modulus);
-#endif
+	NativeInteger ModMulFastOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) const {
+
+		NativeInteger ans(*this);
+
+		if (ans.m_value > modulus.m_value)
+			ans.m_value %= modulus.m_value;
+
+		type128 prod1;
+		Mult128(prod1, ans.m_value, b.m_value);
+		DNativeInt prod = Get128(prod1);
+		type128 qO(prod1);
+
+		long n = modulus.GetMSB();
+		long alpha = n + 3;
+		long beta = -2;
+
+		NativeInt ql = RShift128(qO,n + beta);
+		Mult128(qO, ql, mu.m_value);
+		DNativeInt q = Get128(qO);
+
+		// we cannot use RShift128 here because alpha - beta > 63
+		// for q larger than 57 bits
+		q >>= alpha - beta;
+		prod -= q*DNativeInt(modulus.m_value);
+
+		ans.m_value = NativeInt(prod);
+
+		if (ans.m_value > modulus.m_value)
+			ans.m_value -= modulus.m_value;
+
+		return ans;
 
 	}
 
@@ -901,16 +962,39 @@ public:
 	 * Modulus multiplication in place. Optimized NTL version.
 	 *
 	 * @param &b is the NativeInteger to multiply.
-	 * @param modulus is the modulus to perform operations with.
+	 * @param &modulus is the modulus to perform operations with.
+	 * @param &mu precomputed Barrett modular reduction parameter.
 	 * @return is the result of the modulus multiplication operation.
 	 */
-	const NativeInteger& ModMulFastEqOptimized(const NativeInteger& b, const NativeInteger& modulus) {
-#if NTL_BITS_PER_LONG==64
-		this->m_value = (NativeInt)MulMod(this->m_value,b.m_value,modulus.m_value);
-#else
-		this->ModMulFastEq(b, modulus);
-#endif
-		return *this;
+	void ModMulFastEqOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
+
+		if (this->m_value > modulus.m_value)
+			this->m_value %= modulus.m_value;
+
+		type128 prod1;
+		Mult128(prod1, this->m_value, b.m_value);
+		DNativeInt prod = Get128(prod1);
+		type128 qO(prod1);
+
+		long n = modulus.GetMSB();
+		long alpha = n + 3;
+		long beta = -2;
+
+		NativeInt ql = RShift128(qO,n + beta);
+		Mult128(qO, ql, mu.m_value);
+		DNativeInt q = Get128(qO);
+
+		// we cannot use RShift128 here because alpha - beta > 63
+		// for q larger than 57 bits
+		q >>= alpha - beta;
+		prod -= q*DNativeInt(modulus.m_value);
+
+		this->m_value = NativeInt(prod);
+
+		if (this->m_value > modulus.m_value)
+			this->m_value -= modulus.m_value;
+
+		return;
 	}
 
 	/**
@@ -986,71 +1070,6 @@ public:
 	void ModBarrettMulInPlace(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
 		*this = this->ModMulFast(b,modulus);
 		return;
-	}
-
-	struct type128 {
-	   uint64_t hi, lo;
-	};
-
-	inline void
-	Mult128(type128& x, uint64_t a, uint64_t b)
-	{
-	   __asm__ (
-	   "mulq %[b]" :
-	   [lo] "=a" (x.lo), [hi] "=d" (x.hi) :
-	   [a] "%[lo]" (a), [b] "rm" (b) :
-	   "cc"
-	   );
-	}
-
-	uint64_t
-	RShift128(type128 x, long shift)
-	{
-       	   return (x.lo >> shift) | (x.hi << (64-shift));
-	}
-
-	inline DNativeInt
-	Get128(const type128& x)
-	{
-	   return (DNativeInt(x.hi) << 64) | x.lo;;
-	}
-
-	void ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
-
-		if (this->m_value > modulus.m_value)
-			this->m_value %= modulus.m_value;
-
-		type128 prod1;
-		Mult128(prod1, this->m_value, b.m_value);
-		DNativeInt prod = Get128(prod1);
-		type128 qO(prod1);
-
-		long n = modulus.GetMSB();
-		long alpha = n + 3;
-		long beta = -2;
-
-		NativeInt ql = RShift128(qO,n + beta);
-		Mult128(qO, ql, mu.m_value);
-		DNativeInt q = Get128(qO);
-
-		// we cannot use RShift128 here because alpha - beta > 63
-		// for q larger than 57 bits
-		q >>= alpha - beta;
-		prod -= q*DNativeInt(modulus.m_value);
-
-		this->m_value = NativeInt(prod);
-
-		if (this->m_value > modulus.m_value)
-			this->m_value -= modulus.m_value;
-
-		return;
-
-	}
-
-	NativeInteger ComputeMu() {
-		DNativeInt temp(1);
-		temp <<= 2 * this->GetMSB() + 3;
-		return NativeInt(temp / DNativeInt(this->m_value));
 	}
 
 	/**

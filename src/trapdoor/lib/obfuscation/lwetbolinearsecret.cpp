@@ -173,16 +173,18 @@ shared_ptr<NativeVector> LWETBOLinearSecret::Obfuscate(const shared_ptr<LWETBOKe
 
 	shared_ptr<NativeVector> ciphertext(new NativeVector(m_N,m_modulus));
 
+	NativeInteger mu = m_modulus.ComputeMu();
+
 #pragma omp parallel for schedule(dynamic)
 	for (size_t Ni = 0; Ni < m_N; Ni++)
 	{
 		shared_ptr<NativeVector> secretKey = keyPair->GetSecretKey(Ni);
 
 		for (size_t ni = 0; ni < m_n; ni++){
-			(*ciphertext)[Ni].ModAddEq((*secretKey)[ni].ModMulFastOptimized(keyPair->GetPublicRandomVector()[ni],m_modulus),m_modulus);
+			(*ciphertext)[Ni].ModAddEq((*secretKey)[ni].ModMulFastOptimized(keyPair->GetPublicRandomVector()[ni],m_modulus,mu),m_modulus);
 		}
 
-		(*ciphertext)[Ni].ModAddFastOptimizedEq(NativeInteger(m_p).ModMulFastOptimized(m_dgg.GenerateInteger(m_modulus),m_modulus),m_modulus);
+		(*ciphertext)[Ni].ModAddFastOptimizedEq(NativeInteger(m_p).ModMulFastOptimized(m_dgg.GenerateInteger(m_modulus),m_modulus,mu),m_modulus);
 
 		(*ciphertext)[Ni].ModAddFastOptimizedEq(weights[Ni],m_modulus);
 

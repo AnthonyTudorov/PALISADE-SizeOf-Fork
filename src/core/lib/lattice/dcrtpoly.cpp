@@ -1467,6 +1467,12 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
     usint nTowers = m_vectors.size();
     usint nTowersNew = ans.m_vectors.size();
 
+    std::vector<NativeInteger> mu(nTowersNew);
+    for (usint i = 0; i < nTowersNew; i ++ ) {
+    	const NativeInteger &si = ans.m_vectors[i].GetModulus();
+    	mu[i] = si.ComputeMu();
+    }
+
 #pragma omp parallel for
     for( usint rIndex = 0; rIndex < ringDimension; rIndex++ ) {
 
@@ -1502,7 +1508,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(
             const NativeInteger &curNativeValue = NativeInteger(BarrettUint128ModUint64( curValue, si.ConvertToInt(), siModulimu[newvIndex]));
 
             //second round - remove q-overflows
-            ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si),si);
+            ans.m_vectors[newvIndex].at(rIndex) = curNativeValue.ModSubFast(alpha.ModMulFastOptimized(qModsi[newvIndex],si,mu[newvIndex]),si);
 
         }
 
