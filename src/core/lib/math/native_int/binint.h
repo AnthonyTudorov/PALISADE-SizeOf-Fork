@@ -101,7 +101,8 @@ namespace native_int {
 const double LOG2_10 = 3.32192809;	//!< @brief A pre-computed constant of Log base 2 of 10.
 const usint BARRETT_LEVELS = 8;		//!< @brief The number of levels (precomputed values) used in the Barrett reductions.
 
-struct type128 {
+// a data structure to represent a double-word integer as two single-word integers
+struct typeD {
    NativeInt hi, lo;
 };
 
@@ -476,8 +477,16 @@ public:
 
 	// subroutines and data types for fast native modular arithmetic
 
+	/**
+	 * Multiplies two single-word integers and stores the result in a typeD data structure
+	 * Currently this is hard-coded to 64-bit words on a x86-64 processor
+	 *
+	 * @param a multiplier
+	 * @param b multiplicand
+	 * @param &x result of multiplication
+	 */
 	inline static void
-	Mult128(type128& x, NativeInt a, NativeInt b)
+	MultD(NativeInt a, NativeInt b, typeD& x)
 	{
 	   __asm__ (
 	   "mulq %[b]" :
@@ -487,30 +496,58 @@ public:
 	   );
 	}
 
+	/**
+	 * Extracts the high word of a two-word integer
+	 *
+	 * @param &x double-word input
+	 * @return the high word
+	 */
 	inline static NativeInt
-	Get128Hi(const type128& x)
+	GetDHi(const typeD& x)
 	{
 	   return x.hi;
 	}
 
+	/**
+	 * Multiplies two single-word integers and stores the high word of the result
+	 *
+	 * @param a multiplier
+	 * @param b multiplicand
+	 * @return the high word of the result
+	 */
 	inline static NativeInt
-	Mult128Hi(NativeInt a, NativeInt b)
+	MultDHi(NativeInt a, NativeInt b)
 	{
-	  type128 x;
-	  Mult128(x, a, b);
-	  return Get128Hi(x);
+	  typeD x;
+	  MultD(a, b, x);
+	  return GetDHi(x);
 	}
 
+	/**
+	 * Right shifts a typeD integer by a specific number of bits
+	 * and stores the result as a single-word integer.
+	 *
+	 * @param &x double-word input
+	 * @param shift the number of bits to shift by
+	 * @return the result of right-shifting
+	 */
 	static NativeInt
-	RShift128(type128 x, long shift)
+	RShiftD(const typeD &x, long shift)
 	{
-	   	   return (x.lo >> shift) | (x.hi << (64-shift));
+	   	   return (x.lo >> shift) | (x.hi << (PALISADE_NATIVEINT_BITS-shift));
 	}
 
+	/**
+	 * Converts a double-word integer from typeD representation
+	 * to DNativeInt.
+	 *
+	 * @param &x double-word input
+	 * @return the result as DNativeInt
+	 */
 	static inline DNativeInt
-	Get128(const type128& x)
+	GetD(const typeD& x)
 	{
-	   return (DNativeInt(x.hi) << 64) | x.lo;;
+	   return (DNativeInt(x.hi) << PALISADE_NATIVEINT_BITS) | x.lo;
 	}
 
 	/**
@@ -923,6 +960,14 @@ public:
 		return *this = this->ModMulFast(b, modulus);
 	}
 
+	// Optimized modular multiplication subroutines
+
+	/**
+	 * Precomputes a parameter for generalized Barrett modular multiplication. Used by
+	 * ModMulFastOptimized and ModMulFastEqOptimized.
+	 *
+	 * @return the precomputed parameter.
+	 */
 	NativeInteger ComputeMu() const {
 		DNativeInt temp(1);
 		temp <<= 2 * this->GetMSB() + 3;
@@ -930,7 +975,7 @@ public:
 	}
 
 	/**
-	 * Modulo multiplication. Optimized NTL version.
+	 * Modular multiplication using the generalized Barrett modular reduction algorithm.
 	 *
 	 * @param &b is the NativeInteger to multiply.
 	 * @param &modulus is the modulus to perform operations with.
@@ -939,31 +984,50 @@ public:
 	 */
 	NativeInteger ModMulFastOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) const {
 
+		/* Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+		@article{knezevicspeeding,
+		  title={Speeding Up Barrett and Montgomery Modular Multiplications},
+		  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+		}
+		We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally
+		proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail
+		in the PhD thesis of the author published at
+		http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+		We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
+		Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
+		We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
+		is computed by NativeVector::ComputeMu.
+		*/
+
 		NativeInteger ans(*this);
 
+		// handles cases when the multiplier is larger than the modulus
+		// as Barrett's method requires this
 		if (ans.m_value > modulus.m_value)
 			ans.m_value %= modulus.m_value;
 
-		type128 prod1;
-		Mult128(prod1, ans.m_value, b.m_value);
-		DNativeInt prod = Get128(prod1);
-		type128 qO(prod1);
+		typeD prod1;
+		MultD(ans.m_value, b.m_value, prod1);
+		DNativeInt prod = GetD(prod1);
+		typeD qO(prod1);
 
 		long n = modulus.GetMSB();
 		long alpha = n + 3;
 		long beta = -2;
 
-		NativeInt ql = RShift128(qO,n + beta);
-		Mult128(qO, ql, mu.m_value);
-		DNativeInt q = Get128(qO);
+		// RShiftD is more efficient than the right-shifting of DNativeInt
+		NativeInt ql = RShiftD(qO,n + beta);
+		MultD(ql, mu.m_value, qO);
+		DNativeInt q = GetD(qO);
 
-		// we cannot use RShift128 here because alpha - beta > 63
+		// we cannot use RShiftD here because alpha - beta > 63
 		// for q larger than 57 bits
 		q >>= alpha - beta;
 		prod -= q*DNativeInt(modulus.m_value);
 
 		ans.m_value = NativeInt(prod);
 
+		// correction at the end
 		if (ans.m_value > modulus.m_value)
 			ans.m_value -= modulus.m_value;
 
@@ -972,7 +1036,7 @@ public:
 	}
 
 	/**
-	 * Modulus multiplication in place. Optimized NTL version.
+	 * Modular multiplication in place using the generalized Barrett modular reduction algorithm.
 	 *
 	 * @param &b is the NativeInteger to multiply.
 	 * @param &modulus is the modulus to perform operations with.
@@ -981,21 +1045,39 @@ public:
 	 */
 	void ModMulFastEqOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& mu) {
 
+		/* Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
+		@article{knezevicspeeding,
+		  title={Speeding Up Barrett and Montgomery Modular Multiplications},
+		  author={Knezevic, Miroslav and Vercauteren, Frederik and Verbauwhede, Ingrid}
+		}
+		We use the Generalized Barrett modular reduction algorithm described in Algorithm 2 of the Source. The algorithm was originally
+		proposed in J.-F. Dhem. Modified version of the Barrett algorithm. Technical report, 1994 and described in more detail
+		in the PhD thesis of the author published at
+		http://users.belgacom.net/dhem/these/these_public.pdf (Section 2.2.4).
+		We take \alpha equal to n + 3. So in our case, \mu = 2^(n + \alpha) = 2^(2*n + 3).
+		Generally speaking, the value of \alpha should be \ge \gamma + 1, where \gamma + n is the number of digits in the dividend.
+		We use the upper bound of dividend assuming that none of the dividends will be larger than 2^(2*n + 3). The value of \mu
+		is computed by NativeVector::ComputeMu.
+		*/
+
+		// handles cases when the multiplier is larger than the modulus
+		// as Barrett's method requires this
 		if (this->m_value > modulus.m_value)
 			this->m_value %= modulus.m_value;
 
-		type128 prod1;
-		Mult128(prod1, this->m_value, b.m_value);
-		DNativeInt prod = Get128(prod1);
-		type128 qO(prod1);
+		typeD prod1;
+		MultD(this->m_value, b.m_value, prod1);
+		DNativeInt prod = GetD(prod1);
+		typeD qO(prod1);
 
 		long n = modulus.GetMSB();
 		long alpha = n + 3;
 		long beta = -2;
 
-		NativeInt ql = RShift128(qO,n + beta);
-		Mult128(qO, ql, mu.m_value);
-		DNativeInt q = Get128(qO);
+		// RShiftD is more efficient than the right-shifting of DNativeInt
+		NativeInt ql = RShiftD(qO,n + beta);
+		MultD(ql, mu.m_value, qO);
+		DNativeInt q = GetD(qO);
 
 		// we cannot use RShift128 here because alpha - beta > 63
 		// for q larger than 57 bits
@@ -1004,50 +1086,58 @@ public:
 
 		this->m_value = NativeInt(prod);
 
+		// correction at the end
 		if (this->m_value > modulus.m_value)
 			this->m_value -= modulus.m_value;
 
 		return;
 	}
 
+	/*  The next three subroutines implement the modular multiplication algorithm for the case
+		when the multiplicand is used multiple times (known in advance), as in NTT. The algorithm is described
+		in https://arxiv.org/pdf/1205.2926.pdf (Dave Harvey, FASTER ARITHMETIC FOR NUMBER-THEORETIC
+		TRANSFORMS). The algorithm is described in lines 5-7 of Algorithm 2. The algorithm was originally proposed and
+		implemented in NTL (https://www.shoup.net/ntl/) by Victor Shoup.
+	*/
+
 	/**
-	 * NTL-optimized modulo multiplication using a precomputation for the multiplicand
+	 * Modular multiplication using a precomputation for the multiplicand
 	 *
 	 * @param &b is the NativeInteger to multiply.
 	 * @param modulus is the modulus to perform operations with.
-	 * @param &bInv NTL precomputation for b.
+	 * @param &bInv precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModMulPreconOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
-	   NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
-	   NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
-	   return SignedNativeInt(rr)-SignedNativeInt(modulus.m_value) >= 0 ? rr-modulus.m_value : rr;
+	   NativeInt q = MultDHi(this->m_value, bInv.m_value);
+	   NativeInt yprime = this->m_value*b.m_value - q*modulus.m_value;
+	   return SignedNativeInt(yprime)-SignedNativeInt(modulus.m_value) >= 0 ? yprime-modulus.m_value :  yprime;
 	}
 
 	/**
-	 * NTL-optimized modulo multiplication in place using a precomputation for the multiplicand
+	 * Optimized modulo multiplication in place using a precomputation for the multiplicand. In-place version.
 	 *
 	 * @param &b is the NativeInteger to multiply.
 	 * @param modulus is the modulus to perform operations with.
-	 * @param &bInv NTL precomputation for b.
+	 * @param &bInv precomputation for b.
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	const NativeInteger& ModMulPreconOptimizedEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
-		NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
-		NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
-		this->m_value = SignedNativeInt(rr)-SignedNativeInt(modulus.m_value) >= 0 ? rr-modulus.m_value : rr;
+		NativeInt q = MultDHi(this->m_value, bInv.m_value);
+		NativeInt yprime = this->m_value*b.m_value - q*modulus.m_value;
+		this->m_value = SignedNativeInt(yprime)-SignedNativeInt(modulus.m_value) >= 0 ? yprime-modulus.m_value : yprime;
 		return *this;
 	}
 
 	/**
-	 * NTL precomputations for a multiplicand
+	 * Precomputation for a multiplicand.
 	 *
 	 * @param modulus is the modulus to perform operations with.
-	 * @return the precomputed factor
+	 * @return the precomputed factor.
 	 */
 	const NativeInteger PrepModMulPreconOptimized(const NativeInteger& modulus) const {
-		DNativeInt t = DNativeInt(this->m_value)<<64;
-		return NativeInt(t / DNativeInt(modulus.m_value));
+		DNativeInt w = DNativeInt(this->m_value)<<64;
+		return NativeInt(w / DNativeInt(modulus.m_value));
 	}
 
 	/**
