@@ -283,7 +283,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const IntegerType &b
 	IntegerType bLocal = b;
 
 	NativeVector ans(*this);
-	if (this->m_modulus.GetMSB() < 61)
+	if (this->m_modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		if (bLocal > m_modulus)
 			bLocal.ModEq(modulus);
@@ -305,7 +305,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const Integ
 	IntegerType modulus = this->m_modulus;
 	IntegerType bLocal = b;
 
-	if (this->m_modulus.GetMSB() < 61)
+	if (this->m_modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		if (bLocal > m_modulus)
 			bLocal.ModEq(modulus);
@@ -382,7 +382,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const IntegerType &b
 	IntegerType modulus = this->m_modulus;
 	IntegerType bLocal = b;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		if (bLocal > modulus)
 			bLocal.ModEq(modulus);
@@ -406,7 +406,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Integ
 	IntegerType modulus = this->m_modulus;
 	IntegerType bLocal = b;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		if (bLocal > modulus)
 			bLocal.ModEq(modulus);
@@ -456,7 +456,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModAdd(const NativeVector &
 
 	IntegerType modulus = this->m_modulus;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		for(usint i=0;i<ans.m_data.size();i++)
 			ans.m_data[i].ModAddFastOptimizedEq(b[i],modulus);
@@ -480,7 +480,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModAddEq(const Nativ
 
 	IntegerType modulus = this->m_modulus;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		for(usint i=0;i<this->m_data.size();i++)
 			this->m_data[i].ModAddFastOptimizedEq(b[i],modulus);
@@ -565,7 +565,7 @@ NativeVector<IntegerType> NativeVector<IntegerType>::ModMul(const NativeVector &
 	NativeVector ans(*this);
 	IntegerType modulus = this->m_modulus;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		IntegerType mu = modulus.ComputeMu();
 		for(usint i=0;i<this->m_data.size();i++)
@@ -590,7 +590,7 @@ const NativeVector<IntegerType>& NativeVector<IntegerType>::ModMulEq(const Nativ
 
 	IntegerType modulus = this->m_modulus;
 
-	if (modulus.GetMSB() < 61)
+	if (modulus.GetMSB() <= MAX_MODULUS_SIZE)
 	{
 		IntegerType mu = modulus.ComputeMu();
 		for(usint i=0;i<this->m_data.size();i++)

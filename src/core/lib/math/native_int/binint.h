@@ -51,7 +51,6 @@
 #include "utils/exception.h"
 #include "utils/debug.h"
 #include "../nbtheory.h"
-#include "fastmod.h"
 
 // the default behavior of the native integer layer is
 // to assume that the user does not need bounds/range checks
