@@ -413,7 +413,7 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::BaseDecompose(usint ba
 
     std::vector<PolyLargeType> bdV = v.BaseDecompose(baseBits, false);
 
-#if!define(NDEBUG)
+#if!defined(NDEBUG)
     DEBUG("<bdV>" );
     for( auto i : bdV )
         DEBUG(i );
@@ -430,7 +430,7 @@ std::vector<DCRTPolyImpl<VecType>> DCRTPolyImpl<VecType>::BaseDecompose(usint ba
         result.push_back( std::move(dv) );
     }
 
-#if!define(NDEBUG)
+#if!defined(NDEBUG)
     DEBUG("<BaseDecompose.result>" );
     for( auto i : result )
         DEBUG(i );
