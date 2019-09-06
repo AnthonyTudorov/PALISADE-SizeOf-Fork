@@ -1022,8 +1022,7 @@ public:
 	NativeInteger ModMulPreconOptimized(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) const {
 	   NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
 	   NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
-	   SignedNativeInt a = rr;
-	   return a-modulus.m_value >= 0 ? NativeInt(a-modulus.m_value) : NativeInt(a);
+	   return SignedNativeInt(rr)-SignedNativeInt(modulus.m_value) >= 0 ? rr-modulus.m_value : rr;
 	}
 
 	/**
@@ -1037,8 +1036,7 @@ public:
 	const NativeInteger& ModMulPreconOptimizedEq(const NativeInteger& b, const NativeInteger& modulus, const NativeInteger& bInv) {
 		NativeInt qq = Mult128Hi(this->m_value, bInv.m_value);
 		NativeInt rr = this->m_value*b.m_value - qq*modulus.m_value;
-		SignedNativeInt a = rr;
-		this->m_value = a-modulus.m_value >= 0 ? NativeInt(a-modulus.m_value) : NativeInt(a);
+		this->m_value = SignedNativeInt(rr)-SignedNativeInt(modulus.m_value) >= 0 ? rr-modulus.m_value : rr;
 		return *this;
 	}
 
@@ -1049,13 +1047,9 @@ public:
 	 * @return the precomputed factor
 	 */
 	const NativeInteger PrepModMulPreconOptimized(const NativeInteger& modulus) const {
-#if NTL_BITS_PER_LONG==64
-		return (NativeInt)PrepMulModPrecon(this->m_value,modulus.m_value);
-#else
-		return 0;
-#endif
+		DNativeInt t = DNativeInt(this->m_value)<<64;
+		return NativeInt(t / DNativeInt(modulus.m_value));
 	}
-
 
 	/**
 	 * Modulo multiplication where Barrett modular reduction is used.
