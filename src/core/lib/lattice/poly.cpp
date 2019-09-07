@@ -1028,10 +1028,12 @@ std::vector<PolyImpl<VecType>> PolyImpl<VecType>::BaseDecompose(usint baseBits, 
 		DEBUG("<xDigit.SwitchFormat." << i << ">" << std::endl << xDigit << "</xDigit.SwitchFormat." << i << ">" );
 	}
 
+#if!defined(NDEBUG)
 	DEBUG("<result>" );
 	for( auto i : result){
 		DEBUG(i );
 	}
+#endif
 	DEBUG("</result>" );
 
 	return std::move(result);

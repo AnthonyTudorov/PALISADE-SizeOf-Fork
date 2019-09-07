@@ -208,7 +208,7 @@ namespace lbcrypto {
 
 			usint logn = log2(n);
 
-			if (modulus.GetMSB() < NTL_SP_NBITS + 1)
+			if (modulus.GetMSB() < MAX_MODULUS_SIZE + 1)
 			{
 				for (usint logm = 1; logm <= logn; logm++)
 				{

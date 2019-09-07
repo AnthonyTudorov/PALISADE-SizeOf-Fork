@@ -57,13 +57,7 @@
 #error "MSVC COMPILER IS NOT SUPPORTED"
 #endif
 
-#ifndef WITH_NTL
-#ifdef _WIN32
-#define NTL_SP_NBITS 32
-#else
-#define NTL_SP_NBITS (64-4)
-#endif
-#endif
+#define MAX_MODULUS_SIZE 60
 
 /*! Define the underlying default math implementation being used by defining MATHBACKEND */
 
