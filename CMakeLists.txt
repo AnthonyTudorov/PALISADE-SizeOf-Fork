@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.4)
+cmake_minimum_required (VERSION 3.5.1)
 
 # if no build type is chose, set the Release mode
 if( NOT CMAKE_BUILD_TYPE )
@@ -139,7 +139,9 @@ if( APPLE AND USE_OpenMP)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
 
-if (OpenMP_CXX_FOUND)
+# OpenMP_CXX_FOUND was added in cmake 3.9.x
+# so we are also checking the OpenMP_FOUND flag
+if (OpenMP_CXX_FOUND OR OpenMP_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 	message("-- OpenMP is turned ON")
@@ -448,6 +450,8 @@ LIST(REMOVE_DUPLICATES clean_files)
 LIST(REMOVE_ITEM       clean_files "")
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
 
-if (NOT OpenMP_CXX_FOUND)
+# OpenMP_CXX_FOUND was added in cmake 3.9.x
+# so we are also checking the OpenMP_FOUND flag
+if (NOT (OpenMP_CXX_FOUND OR OpenMP_FOUND))
 	message(SEND_ERROR "** ERROR ** OpenMP is not installed. If using macOS/clang, please run 'cmake ..' again.")
 endif()
