@@ -17,7 +17,7 @@ do
 	echo Building MATHBACKEND $i
 	echo "****************************"
 
-	touch src/core/lib/math/backend.h
+	touch ../src/core/lib/math/backend.h
 
 	make -j8  BINDIR=$BINDIR BACKEND=$i COVERAGE=yes all >/dev/null 2>&1
 	if [ $? -eq 0 ];

@@ -31,10 +31,6 @@ Further information about PALISADE:
 
 [License Information](License.md)
 
-[Contact Information](Contact.md)
-
-[Library Contributors](Contributors.md)
-
 [Library Wiki with documentation](https://gitlab.com/palisade/palisade-development/wikis/home)
 
 
