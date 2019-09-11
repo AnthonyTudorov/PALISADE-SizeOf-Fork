@@ -5,7 +5,7 @@ PALISADE Lattice Cryptography Library - Tests
 
 Document Description
 ===================
-This document discusses the scripts and procedured in the test/ directory
+This document discusses the scripts and procedures in the test/ directory. **Note that these scripts were written for the previous make configuration. They need to be updated to use the new CMake flags and build directory.** 
 
 Test Directory Description
 ==========================
