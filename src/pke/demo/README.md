@@ -20,7 +20,6 @@ File Listing
 * Demo programs
 - [demo-automorphism.cpp](src/pke/demo/demo-automorphism.cpp): demonstrates use of EvalAutomorphism for different schemes, plaintext encodings, and cyclotomic rings
 - [demo-bfvrns.cpp](src/pke/demo/demo-bfvrns.cpp): demonstrates use of the BFVrns scheme for basic SHE operations
-- [demo-cross-correlation.cpp](src/pke/demo/demo-cross-correlation.cpp): a demo program that demonstrates the use of serialization, DCRT, arbitrary cyclotomics, and packed encoding for an application that computes cross-correlation using inner products.
 - [demo-cross-correlation-bfvrns.cpp](src/pke/demo/demo-cross-correlation-bfrns.cpp): a demo program that demonstrates the use of serialization, DCRT, power-of-two-cyclotomics, and packed encoding for an application that computes cross-correlation using inner products.
 - [demo-crypt-pre-text.cpp](src/pke/demo/demo-crypt-pre-text.cpp): demonstrates use of PALISADE for encryption, re-encryption and decryption of text
 - [demo-depth-bfvrns.cpp](src/pke/demo/demo-depth-bfvrns.cpp): demonstrates use of the BFVrns scheme for basic homomorphic encryption
@@ -35,6 +34,5 @@ File Listing
 - [demo-she.cpp](src/pke/demo/demo-she.cpp): demonstrates SHE operations using several schemes
 - [demo-simple-example.cpp](src/pke/demo/demo-simple-example.cpp): simple demo showing homomorphic additions, multiplications, and rotations
 - [demo-simple-example-serial.cpp](src/pke/demo/demo-simple-example-serial.cpp): simple demo showing typical serialization/deserialization calls for a prototype computing homomorphic additions, multiplications, and rotations
-- [demo-timing.cpp](src/pke/demo/demo-timing.cpp): demonstrate the use of the TimingInfo feature of the CryptoContext
 - [run-bfvrns.cpp](src/pke/demo/run-bfvrns.cpp): demonstrates benchmarking of RNS operations for BFVrns
 - [run-bfvrns-b.cpp](src/pke/demo/run-bfvrns-b.cpp): demonstrates benchmarking of RNS operations for BFVrnsB
