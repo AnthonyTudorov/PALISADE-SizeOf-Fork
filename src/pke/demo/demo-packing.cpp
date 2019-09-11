@@ -69,7 +69,7 @@ int main() {
 void ArbBGVInnerProductPackedArray() {
 
 	usint m = 22;
-	PlaintextModulus p = 89;
+	PlaintextModulus p = 2333;
 	BigInteger modulusP(p);
 	/*BigInteger modulusQ("577325471560727734926295560417311036005875689");
 	BigInteger squareRootOfRoot("576597741275581172514290864170674379520285921");*/
