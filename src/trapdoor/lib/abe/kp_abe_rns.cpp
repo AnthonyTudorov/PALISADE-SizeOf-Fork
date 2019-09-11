@@ -1,10 +1,8 @@
 /**
  * @file
- * @author  TPOC: Dr. Kurt Rohloff <rohloff@njit.edu>,
+ * @author  TPOC: contact@palisade-crypto.org
  *
- * @section LICENSE
- *
- * Copyright (c) 2015, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:

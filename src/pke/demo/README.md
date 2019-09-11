@@ -3,8 +3,6 @@ PALISADE Lattice Cryptography Library - Demos
 
 [License Information](License.md)
 
-[Contact Information](Contact.md)
-
 Document Description
 ===================
 This document describes the demo programs included with the PALISADE lattice crypto library.

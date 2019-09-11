@@ -3,11 +3,9 @@ PALISADE Lattice Cryptography Library - Tests
 
 [License Information](License.md)
 
-[Contact Information](Contact.md)
-
 Document Description
 ===================
-This document discusses the scripts and procedured in the test/ directory
+This document discusses the scripts and procedures in the test/ directory. **Note that these scripts were written for the previous make configuration. They need to be updated to use the new CMake flags and build directory.** 
 
 Test Directory Description
 ==========================
@@ -15,7 +13,9 @@ Test Directory Description
 Directory Objective
 -------------------
 This directory contains common test code and shell scripts useful for executing and automating
-various PALISADE tests
+various PALISADE tests.
+
+The scripts have to be run from the build directory, e.g., ../test/build_all_backends.sh.
 
 File Listing
 ------------

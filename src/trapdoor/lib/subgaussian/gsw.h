@@ -2,7 +2,7 @@
  * @file gsw.h Provides implementation of the GSW variant described in
  * https://eprint.iacr.org/2014/094
  *
- * @author  TPOC: palisade@njit.edu
+ * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2018, New Jersey Institute of Technology (NJIT)
  * All rights reserved.

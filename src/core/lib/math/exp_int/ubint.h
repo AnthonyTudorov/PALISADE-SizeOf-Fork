@@ -4,9 +4,9 @@
  * native integer type is supplied as a template parameter.  Currently
  * implementation based on uint32_t and uint64_t is
  * supported. a native double the base integer size is also needed.
- * @author  TPOC: palisade@njit.edu
+ * @author  TPOC: contact@palisade-crypto.org
  *
- * @copyright Copyright (c) 2017, New Jersey Institute of Technology (NJIT)
+ * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:

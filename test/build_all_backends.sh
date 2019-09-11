@@ -21,7 +21,7 @@ do
 	echo Building MATHBACKEND $i
 	echo "****************************"
 
-	touch src/core/lib/math/backend.h
+	touch ../src/core/lib/math/backend.h
 	result=build-backend-$i-result
 
 	make -j8  BINDIR=bin/backend-$i BACKEND=$i all benchmark >build-backend-$i-result 2>&1
