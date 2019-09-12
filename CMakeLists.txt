@@ -252,12 +252,14 @@ else()
 	set_target_properties(gmp PROPERTIES IMPORTED_LOCATION ${GMPLIBFILE})
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
-	FILES_MATCHING PATTERN "libgmp.*" )
-# also copies the gmp dll file
-if(MINGW)
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
-		FILES_MATCHING PATTERN "libgmp*" )
+if("${WITH_NTL}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+		FILES_MATCHING PATTERN "libgmp.*" )
+	# also copies the gmp dll file
+	if(MINGW)
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+			FILES_MATCHING PATTERN "libgmp*" )
+	endif()
 endif()
 
 ### Handle third-party libntl
@@ -327,12 +329,14 @@ else()
 set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
-	FILES_MATCHING PATTERN "libntl.*" )
-# also copies the dll file
-if(MINGW)
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
-		FILES_MATCHING PATTERN "libntl*" )
+if("${WITH_NTL}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+		FILES_MATCHING PATTERN "libntl.*" )
+	# also copies the dll file
+	if(MINGW)
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+			FILES_MATCHING PATTERN "libntl*" )
+	endif()
 endif()
 
 ### Handle third-party gperftools for optional tcmalloc
@@ -378,7 +382,9 @@ else()
 	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
+if("${WITH_NTL}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
+endif()
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
 set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)
