@@ -37,7 +37,7 @@ Further information about PALISADE:
 Build Instructions
 =====================================
 
-We use CMake to build PALISADE. The high-level (platform-independent) procedure for building PALISADE is as follows:
+We use CMake to build PALISADE. The high-level (platform-independent) procedure for building PALISADE is as follows (for OS-specific instructions, see the section "Detailed information about building PALISADE" at the bottom of this page):
 
 1. Install system prerequisites (if not already installed), including a C++ compiler with OMP support, cmake, make, and autoconf.
 
@@ -56,7 +56,7 @@ cd build
 cmake ..
 ```
 	
-Note that cmake will check for any system dependencies that are needed for the build process. 
+Note that CMake will check for any system dependencies that are needed for the build process. If the CMake build does not complete successfully, please review the error CMake shows at the end. If the error does not go away (even though you installed the dependency), try running "make clean" to clear the CMake cache.
 	
 5. If you want to use any external libraries, such as NTL/GMP or tcmalloc, install these libraries.
 
@@ -92,6 +92,7 @@ To remove the files built by make, you can execute
 ```
 make clean
 ```
+
 
 Detailed information about building PALISADE
 ------------------------------
