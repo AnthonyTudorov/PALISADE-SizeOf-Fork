@@ -93,7 +93,6 @@ To remove the files built by make, you can execute
 make clean
 ```
 
-Please run 
 
 Detailed information about building PALISADE
 ------------------------------
