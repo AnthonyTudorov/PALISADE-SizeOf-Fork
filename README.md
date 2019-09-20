@@ -33,6 +33,10 @@ Further information about PALISADE:
 
 [Library Wiki with documentation](https://gitlab.com/palisade/palisade-development/wikis/home)
 
+[Code of Conduct](Code-of-conduct.md)
+
+[Governance](Governance.md)
+
 
 Build Instructions
 =====================================
