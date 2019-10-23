@@ -1,4 +1,5 @@
 stages:
+- setup
 - build
 - unit_test
 - benchmark
@@ -13,9 +14,14 @@ before_script:
 # - apt-get install --yes cmake
 - whoami
 - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(pwd)/build/third-party/lib:$(pwd)/build/lib
+# - export DO_CI="OFF"
 
 default_build:
   stage: build
+  only:
+    refs: 
+      - master
+      - merge_requests
   cache:
     key: default-build-libs
     paths:
@@ -37,6 +43,10 @@ default_build:
 
 noflag_mb4_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: noflag-mb4-build-libs
     paths:
@@ -58,6 +68,10 @@ noflag_mb4_build:
 
 debug_mb2_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: debug-mb2-build-libs
     paths:
@@ -79,6 +93,10 @@ debug_mb2_build:
 
 debug_mb4_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: debug-mb4-build-libs
     paths:
@@ -101,6 +119,10 @@ debug_mb4_build:
 
 ntl_mb6_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: ntl-mb6-build-libs
     paths:
@@ -126,6 +148,10 @@ ntl_mb6_build:
 
 tcm_mb2_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: tcm-mb2-build-libs
     paths:
@@ -148,6 +174,10 @@ tcm_mb2_build:
 
 tcm_mb4_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: tcm-mb4-build-libs
     paths:
@@ -169,6 +199,10 @@ tcm_mb4_build:
 
 tcm_ntl_mb6_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: tcm-ntl-mb6-build-libs
     paths:
@@ -194,6 +228,10 @@ tcm_ntl_mb6_build:
 
 debug_tcm_ntl_mb6_build:
   stage: build
+  only:
+    refs:
+      - master
+      - merge_requests
   cache:
     key: tcm-ntl-mb6-build-libs
     paths:
@@ -219,6 +257,10 @@ debug_tcm_ntl_mb6_build:
 
 default_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -232,6 +274,10 @@ default_test_abe:
 
 noflag_mb4_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -245,6 +291,10 @@ noflag_mb4_test_abe:
 
 debug_mb2_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -258,6 +308,10 @@ debug_mb2_test_abe:
 
 debug_mb4_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -271,6 +325,10 @@ debug_mb4_test_abe:
 
 ntl_mb6_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -284,6 +342,10 @@ ntl_mb6_test_abe:
 
 tcm_mb2_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -297,6 +359,10 @@ tcm_mb2_test_abe:
 
 tcm_mb4_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -310,6 +376,10 @@ tcm_mb4_test_abe:
 
 tcm_ntl_mb6_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -323,6 +393,10 @@ tcm_ntl_mb6_test_abe:
 
 debug_tcm_ntl_mb6_test_abe:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -336,6 +410,10 @@ debug_tcm_ntl_mb6_test_abe:
 
 default_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -349,6 +427,10 @@ default_test_core:
 
 noflag_mb4_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -362,6 +444,10 @@ noflag_mb4_test_core:
 
 debug_mb2_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -375,6 +461,10 @@ debug_mb2_test_core:
 
 debug_mb4_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -388,6 +478,10 @@ debug_mb4_test_core:
 
 ntl_mb6_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -401,6 +495,10 @@ ntl_mb6_test_core:
 
 tcm_mb2_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -414,6 +512,10 @@ tcm_mb2_test_core:
 
 tcm_mb4_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -427,6 +529,10 @@ tcm_mb4_test_core:
 
 tcm_ntl_mb6_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -440,6 +546,10 @@ tcm_ntl_mb6_test_core:
 
 debug_tcm_ntl_mb6_test_core:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -453,6 +563,10 @@ debug_tcm_ntl_mb6_test_core:
 
 default_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -466,6 +580,10 @@ default_test_pke:
 
 noflag_mb4_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -479,6 +597,10 @@ noflag_mb4_test_pke:
 
 debug_mb2_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -492,6 +614,10 @@ debug_mb2_test_pke:
 
 debug_mb4_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -505,6 +631,10 @@ debug_mb4_test_pke:
 
 ntl_mb6_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -518,6 +648,10 @@ ntl_mb6_test_pke:
 
 tcm_mb2_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -531,6 +665,10 @@ tcm_mb2_test_pke:
 
 tcm_mb4_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -544,6 +682,10 @@ tcm_mb4_test_pke:
 
 tcm_ntl_mb6_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -557,6 +699,10 @@ tcm_ntl_mb6_test_pke:
 
 debug_tcm_ntl_mb6_test_pke:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -570,6 +716,10 @@ debug_tcm_ntl_mb6_test_pke:
 
 default_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -583,6 +733,10 @@ default_test_signature:
 
 noflag_mb4_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -596,6 +750,10 @@ noflag_mb4_test_signature:
 
 debug_mb2_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -609,6 +767,10 @@ debug_mb2_test_signature:
 
 debug_mb4_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -622,6 +784,10 @@ debug_mb4_test_signature:
 
 ntl_mb6_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -635,6 +801,10 @@ ntl_mb6_test_signature:
 
 tcm_mb2_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -648,6 +818,10 @@ tcm_mb2_test_signature:
 
 tcm_mb4_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -661,6 +835,10 @@ tcm_mb4_test_signature:
 
 tcm_ntl_mb6_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -674,6 +852,10 @@ tcm_ntl_mb6_test_signature:
 
 debug_tcm_ntl_mb6_test_signature:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -687,6 +869,10 @@ debug_tcm_ntl_mb6_test_signature:
 
 default_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -700,6 +886,10 @@ default_test_trapdoor:
 
 noflag_mb4_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -713,6 +903,10 @@ noflag_mb4_test_trapdoor:
 
 debug_mb2_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -726,6 +920,10 @@ debug_mb2_test_trapdoor:
 
 debug_mb4_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -739,6 +937,10 @@ debug_mb4_test_trapdoor:
 
 ntl_mb6_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -752,6 +954,10 @@ ntl_mb6_test_trapdoor:
 
 tcm_mb2_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -765,6 +971,10 @@ tcm_mb2_test_trapdoor:
 
 tcm_mb4_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -778,6 +988,10 @@ tcm_mb4_test_trapdoor:
 
 tcm_ntl_mb6_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -791,6 +1005,10 @@ tcm_ntl_mb6_test_trapdoor:
 
 debug_tcm_ntl_mb6_test_trapdoor:
   stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - pwd
   - echo $LD_LIBRARY_PATH
@@ -819,6 +1037,10 @@ debug_tcm_ntl_mb6_test_trapdoor:
 
 benchmark_basic:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -841,6 +1063,10 @@ benchmark_basic:
 
 benchmark_encoding:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -852,6 +1078,10 @@ benchmark_encoding:
 
 benchmark_integermath:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -863,6 +1093,10 @@ benchmark_integermath:
 
 benchmark_lattice:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -874,6 +1108,10 @@ benchmark_lattice:
 
 benchmark_nbtheory:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -896,6 +1134,10 @@ benchmark_nbtheory:
 
 benchmark_vectormath:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
@@ -907,10 +1149,1101 @@ benchmark_vectormath:
 
 benchmark_lib:
   stage: benchmark
+  only:
+    refs:
+      - master
+      - merge_requests
   script:
   - build/bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
   dependencies:
   - tcm_mb2_build
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+# Manual Trigger CI
+
+default_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: default_manual-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake ..
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+noflag_mb4_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: noflag-mb4-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DMATHBACKEND=4 ..
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+debug_mb2_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: debug-mb2-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Debug -DMATHBACKEND=2 ..
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+debug_mb4_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: debug-mb4-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Debug -DMATHBACKEND=4 ..
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+
+ntl_mb6_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: ntl-mb6-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DWITH_NTL=Y -DMATHBACKEND=6 ..
+  - make gmp_unpack
+  - make ntl_unpack_nowizard
+  - make -j $(nproc) gmp_all
+  - make -j $(nproc) ntl_all
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+tcm_mb2_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: tcm-mb2-build-libs
+    paths:
+      - build
+  script:
+  - whoami
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DWITH_TCM=Y -DMATHBACKEND=2 ..
+  - make tcm
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+tcm_mb4_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: tcm-mb4-build-libs
+    paths:
+      - build
+  script:
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DWITH_TCM=Y -DMATHBACKEND=4 ..
+  - make tcm
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+tcm_ntl_mb6_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: tcm-ntl-mb6-build-libs
+    paths:
+      - build
+  script:
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DWITH_NTL=Y -DWITH_TCM=Y -DMATHBACKEND=6 ..
+  - make tcm
+  - make gmp_unpack
+  - make ntl_unpack_nowizard
+  - make -j $(nproc) gmp_all
+  - make -j $(nproc) ntl_all
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+debug_tcm_ntl_mb6_build_manual:
+  stage: build
+  only:
+    variables:
+      - $DO_CI
+  cache:
+    key: tcm-ntl-mb6-build-libs
+    paths:
+      - build
+  script:
+  - mkdir -p build
+  - cd build
+  - CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_NTL=Y -DWITH_TCM=Y -DMATHBACKEND=6 ..
+  - make tcm
+  - make gmp_unpack
+  - make ntl_unpack_nowizard
+  - make -j $(nproc) gmp_all
+  - make -j $(nproc) ntl_all
+  - make -j $(nproc) all
+  artifacts:
+    paths:
+    - build/third-party/lib
+    - build/lib
+    - build/unittest
+    - build/bin/benchmark
+    expire_in: 1 day
+  dependencies: []
+
+default_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build_manual
+
+noflag_mb4_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build_manual
+
+debug_mb2_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build_manual
+
+debug_mb4_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build_manual
+
+ntl_mb6_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build_manual
+
+tcm_mb2_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build_manual
+
+tcm_mb4_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build_manual
+
+tcm_ntl_mb6_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build_manual
+
+debug_tcm_ntl_mb6_test_abe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/abe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build_manual
+
+default_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build_manual
+
+noflag_mb4_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build_manual
+
+debug_mb2_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build_manual
+
+debug_mb4_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build_manual
+
+ntl_mb6_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build_manual
+
+tcm_mb2_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build_manual
+
+tcm_mb4_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build_manual
+
+tcm_ntl_mb6_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build_manual
+
+debug_tcm_ntl_mb6_test_core_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/core_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build_manual
+
+default_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build_manual
+
+noflag_mb4_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build_manual
+
+debug_mb2_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build_manual
+
+debug_mb4_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build_manual
+
+ntl_mb6_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build_manual
+
+tcm_mb2_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build_manual
+
+tcm_mb4_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build_manual
+
+tcm_ntl_mb6_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build_manual
+
+debug_tcm_ntl_mb6_test_pke_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/pke_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build_manual
+
+default_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build_manual
+
+noflag_mb4_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build_manual
+
+debug_mb2_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build_manual
+
+debug_mb4_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build_manual
+
+ntl_mb6_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build_manual
+
+tcm_mb2_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build_manual
+
+tcm_mb4_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build_manual
+
+tcm_ntl_mb6_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build_manual
+
+debug_tcm_ntl_mb6_test_signature_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/signature_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build_manual
+
+default_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build_manual
+
+noflag_mb4_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build_manual
+
+debug_mb2_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build_manual
+
+debug_mb4_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build_manual
+
+ntl_mb6_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build_manual
+
+tcm_mb2_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build_manual
+
+tcm_mb4_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build_manual
+
+tcm_ntl_mb6_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build_manual
+
+debug_tcm_ntl_mb6_test_trapdoor_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/trapdoor_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build_manual
+
+# coverage:
+#   stage: docs
+#   script:
+#   - make -j $(nproc) all COVERAGE=1
+#   - make -j $(nproc) testall COVERAGE=1
+#   - mkdir -p doc/coverage
+#   - gcovr -j $(nproc) --verbose -r . --filter src/[^/]+/lib/* --filter src/* --html --html-details -o doc/coverage/index.html --print-summary
+#   allow_failure: true
+#   dependencies:
+#   - default_build
+#   artifacts:
+#     paths:
+#     - doc/coverage
+#     expire_in: 3 hours
+
+benchmark_basic_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/basic_test --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+# benchmark_crypto:
+#   stage: benchmark
+#   script:
+#   - build/bin/benchmark/Crypto --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+#   dependencies:
+#   - build
+#   artifacts:
+#     paths:
+#       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+#     expire_in: 1 month
+
+benchmark_encoding_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/Encoding --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+benchmark_integermath_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/IntegerMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+benchmark_lattice_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/Lattice --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+benchmark_nbtheory_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/NbTheory --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+# benchmark_she:
+#   stage: benchmark
+#   script:
+#   - build/bin/benchmark/SHE --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+#   dependencies:
+#   - build
+#   artifacts:
+#     paths:
+#       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+#     expire_in: 1 month
+
+benchmark_vectormath_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/VectorMath --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
+  artifacts:
+    paths:
+      - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
+    expire_in: 1 month
+
+benchmark_lib_manual:
+  stage: benchmark
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - build/bin/benchmark/lib-benchmark --benchmark_out="${CI_JOB_NAME}_${CI_COMMIT_SHA}" --benchmark_out_format=csv
+  dependencies:
+  - tcm_mb2_build_manual
   artifacts:
     paths:
       - "${CI_JOB_NAME}_${CI_COMMIT_SHA}"
