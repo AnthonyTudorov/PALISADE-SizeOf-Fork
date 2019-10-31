@@ -227,6 +227,10 @@ void tryit() {
 int
 main()
 {
+#ifdef NO_QUADMATH
+    std::cout << "This demo uses BFVrns which is currently not available for this architecture"<<std::endl;
+	exit(0);
+#endif
 	if( false ) {
 		tryit();
 	}

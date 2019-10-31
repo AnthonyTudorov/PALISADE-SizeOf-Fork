@@ -133,6 +133,12 @@ int maxThreads;
 
 int main(int argc, char **argv) {
 
+  
+#ifdef NO_QUADMATH
+    std::cout << "BFVrns is currently not available for this architecture"<<std::endl;
+    exit(0);
+#endif
+
 	PalisadeParallelControls.Enable();
 	maxThreads = omp_get_max_threads();
 

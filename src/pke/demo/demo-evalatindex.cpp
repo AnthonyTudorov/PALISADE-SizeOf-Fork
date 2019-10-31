@@ -59,8 +59,12 @@ int main() {
 	std::cout << "\nThis code shows how the EvalAtIndex and EvalMerge operations work for different cyclotomic rings (both power-of-two and cyclic).\n" << std::endl;
 
 	std::cout << "\n========== BFVrns.EvalAtIndex - Power-of-Two Cyclotomics ===========" << std::endl;
-
+#ifdef NO_QUADMATH
+	std::cout << "BFVrns is currently not available for this architecture. Skipping"<<std::endl;
+#else
 	BFVrnsEvalAtIndex2n();
+#endif
+
 
 	std::cout << "\n========== Null.EvalAtIndex - Power-of-Two Cyclotomics ===========" << std::endl;
 
@@ -71,8 +75,13 @@ int main() {
 	BFVEvalAtIndexCyclic();
 
 	std::cout << "\n========== BFVrns.EvalMerge - Power-of-Two Cyclotomics ===========" << std::endl;
-
+#ifdef NO_QUADMATH
+	std::cout << "BFVrns is currently not available for this architecture. Skipping"<<std::endl;
+#else
 	BFVrnsEvalMerge2n();
+#endif
+
+
 
 	std::cout << "\n========== Null.EvalMerge - Power-of-Two Cyclotomics ===========" << std::endl;
 

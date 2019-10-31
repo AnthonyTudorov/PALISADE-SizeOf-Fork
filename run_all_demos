@@ -1,0 +1,19 @@
+#!/bin/bash
+skip="build/bin/demo/core/SamplingSource"
+
+for directory in build/bin/demo/*; do
+	echo "========================"
+	echo " Directory: $directory"
+	echo "========================"	
+	for file in ${directory}/* ; do
+		echo "========================"
+		ls "$file"
+		echo "========================"
+		if [[ $file == $skip ]]; then
+			echo "skipping"
+		else
+			./"$file"
+		fi
+		
+	done
+done	

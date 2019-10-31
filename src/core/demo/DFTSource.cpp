@@ -107,7 +107,4 @@ int main() {
 	std::vector<std::complex<double>> dftVec3 = DiscreteFourierTransform::ForwardTransform(dftVec);
 	end = currentDateTime();
 	std::cout << "With table: " << end - start << " ms" << std::endl<<std::endl;
-
-	std::cin.ignore();
-	std::cin.get();
 }
