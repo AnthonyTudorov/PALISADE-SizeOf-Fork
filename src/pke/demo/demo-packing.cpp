@@ -60,9 +60,9 @@ int main() {
 	ArbBGVInnerProductPackedArray();
 
 
-	std::cout << "Please press any key to continue..." << std::endl;
+	//std::cout << "Please press any key to continue..." << std::endl;
 
-	cin.get();
+	//cin.get();
 	return 0;
 }
 

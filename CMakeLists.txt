@@ -1,5 +1,17 @@
 cmake_minimum_required (VERSION 3.5.1)
 
+# determine the architecture on a unix system (important for
+if(CMAKE_HOST_UNIX)
+  EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+else()
+  set(ARCHITECTURE "unknown")
+endif()
+  
+if(ARCHITECTURE)
+  message("-- Architecture is " ${ARCHITECTURE})
+endif()
+
+
 # if no build type is chose, set the Release mode
 if( NOT CMAKE_BUILD_TYPE )
   set( CMAKE_BUILD_TYPE Release CACHE STRING
@@ -366,7 +378,12 @@ if("${WITH_TCM}" STREQUAL "Y")
 		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
-set(QUADMATHLIB -lquadmath)
+#quad math is not supported by the compiler in ARM
+if("${ARCHITECTURE}" STREQUAL "aarch64")
+  set(QUADMATHLIB )
+else()
+  set(QUADMATHLIB -lquadmath)
+endif()
 
 if("${WITH_TCM}" STREQUAL "Y")
 	set(THIRDPARTYLIBS PUBLIC tcmalloc)

@@ -772,9 +772,14 @@ public:
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const NativeInteger &p, const std::vector<NativeInteger> &alpha,
-			const std::vector<double> &beta, const std::vector<NativeInteger> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
-			const std::vector<long double> &extBeta) const;
-
+						   const std::vector<double> &beta,
+						   const std::vector<NativeInteger> &alphaPrecon,
+#ifndef NO_QUADMATH
+						   const std::vector<QuadFloat> &quadBeta,
+#endif						   
+						   const std::vector<long double> &extBeta
+						   ) const;
+	
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
 	*

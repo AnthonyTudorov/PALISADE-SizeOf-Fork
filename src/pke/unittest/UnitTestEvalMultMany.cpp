@@ -47,7 +47,7 @@ public:
 };
 
 static CryptoContext<Poly> MakeBFVPolyCC() {
-  bool dbg_flag = false;
+  DEBUG_FLAG(false);
   DEBUG("in MakeBFVPolyCC");
 	int relWindow = 8;
 	int plaintextModulus = 256;
@@ -98,7 +98,7 @@ TEST(UTBFVrnsEVALMM, Poly_BFVrns_Eval_Mult_Many_Operations) {
 
 template<typename Element>
 static void RunEvalMultManyTest(CryptoContext<Element> cryptoContext, string msg) {
-    bool dbg_flag = false;
+        DEBUG_FLAG(false);
 	////////////////////////////////////////////////////////////
 	//Perform the key generation operation.
 	////////////////////////////////////////////////////////////

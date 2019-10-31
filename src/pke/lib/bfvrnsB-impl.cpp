@@ -618,6 +618,11 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	if ((dcrtBits < 30) || (dcrtBits > 60))
 		PALISADE_THROW(math_error, "BFVrnsB.ParamsGen: Number of bits in CRT moduli should be in the range from 30 to 60");
 
+#ifdef NO_QUADMATH
+	if (dcrtBits >= 58)
+	  	PALISADE_THROW(math_error, "BFVrnsB.ParamsGen: Number of bits in CRT moduli should be in < 58 for this architecture");
+
+#endif
 	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsBFVrnsB = std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(cryptoParams);
 
 	ExtendedDouble sigma = ExtendedDouble(cryptoParamsBFVrnsB->GetDistributionParameter());

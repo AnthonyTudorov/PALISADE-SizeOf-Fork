@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# list_include_item "10 11 12" "2"
+function list_include_item {
+  local list="$1"
+  local item="$2"
+  if [[ $list =~ (^|[[:space:]])"$item"($|[[:space:]]) ]] ; then
+    # yes, list include item
+    result=0
+  else
+    result=1
+  fi
+  return $result
+}
+
+#determine architecture
+arch=`uname -m`
+echo "$arch"
+if [ $arch == "aarch64" ]
+then #arm64 skip demos that don't run on that architecture or take too long for automation
+  echo "Not running trapdoor demos"
+  skip="../build/bin/demo/core/SamplingSource 
+        ../build/bin/demo/pke/run-bfvrns
+        ../build/bin/demo/pke/run-bfvrns-b
+        ../build/bin/demo/trapdoor/DCRTCHCPRF
+        ../build/bin/demo/trapdoor/DCRTCHCPRFBP
+        ../build/bin/demo/trapdoor/DCRTObfuscateBitTesterV3
+        ../build/bin/demo/trapdoor/DCRTObfuscateEvalV4
+        ../build/bin/demo/trapdoor/DCRTObfuscateGenV4
+        ../build/bin/demo/trapdoor/GSW
+        ../build/bin/demo/trapdoor/oakland-conj-32
+        ../build/bin/demo/trapdoor/oakland-conj-64
+        ../build/bin/demo/trapdoor/oakland-gbp-32
+        ../build/bin/demo/trapdoor/oakland-linear
+        ../build/bin/demo/trapdoor/oakland-vbb-conj-32
+        ../build/bin/demo/trapdoor/oakland-vbb-conj-64
+        ../build/bin/demo/trapdoor/palisade-tbo-conj-40
+        ../build/bin/demo/trapdoor/palisade-tbo-gbp-32
+        ../build/bin/demo/trapdoor/palisade-tbo-linear
+        ../build/bin/demo/trapdoor/palisade-vbb-conj
+        ../build/bin/demo/trapdoor/palisade-vbb-conj-40
+        ../build/bin/demo/trapdoor/rnsKPABE
+        ../build/bin/demo/trapdoor/run-ec19-GSW
+        ../build/bin/demo/trapdoor/run-ec19-noise
+        ../build/bin/demo/trapdoor/run-ec19-subgaussian
+        ../build/bin/demo/trapdoor/SubgaussianKPABE
+        ../build/bin/demo/trapdoor/SubgaussianUnitTest
+		"
+elif [ $arch == "x86_64" ]
+then #vanilla pc with linux
+  echo "Not running trapdoor demos"
+  skip="../build/bin/demo/core/SamplingSource 
+        ../build/bin/demo/trapdoor/DCRTCHCPRF
+        ../build/bin/demo/trapdoor/DCRTCHCPRFBP
+        ../build/bin/demo/trapdoor/DCRTObfuscateBitTesterV3
+        ../build/bin/demo/trapdoor/DCRTObfuscateEvalV4
+        ../build/bin/demo/trapdoor/DCRTObfuscateGenV4
+        ../build/bin/demo/trapdoor/GSW
+        ../build/bin/demo/trapdoor/oakland-conj-32
+        ../build/bin/demo/trapdoor/oakland-conj-64
+        ../build/bin/demo/trapdoor/oakland-gbp-32
+        ../build/bin/demo/trapdoor/oakland-linear
+        ../build/bin/demo/trapdoor/oakland-vbb-conj-32
+        ../build/bin/demo/trapdoor/oakland-vbb-conj-64
+        ../build/bin/demo/trapdoor/palisade-tbo-conj-40
+        ../build/bin/demo/trapdoor/palisade-tbo-gbp-32
+        ../build/bin/demo/trapdoor/palisade-tbo-linear
+        ../build/bin/demo/trapdoor/palisade-vbb-conj
+        ../build/bin/demo/trapdoor/palisade-vbb-conj-40
+        ../build/bin/demo/trapdoor/rnsKPABE
+        ../build/bin/demo/trapdoor/run-ec19-GSW
+        ../build/bin/demo/trapdoor/run-ec19-noise
+        ../build/bin/demo/trapdoor/run-ec19-subgaussian
+        ../build/bin/demo/trapdoor/SubgaussianKPABE
+        ../build/bin/demo/trapdoor/SubgaussianUnitTest
+		"
+else #put any demos you don't want automated here
+  skip=""
+fi
+
+for directory in ../build/bin/demo/*; do
+	echo "========================"
+	echo " Directory: $directory"
+	echo "========================"	
+	for file in ${directory}/* ; do
+		echo "========================"
+		ls "$file"
+		echo "========================"
+		if `list_include_item "$skip" "$file"`; then
+			echo "skipping"
+		else
+			#echo "running" ./"$file"
+			./"$file"
+		fi
+		
+	done
+done	

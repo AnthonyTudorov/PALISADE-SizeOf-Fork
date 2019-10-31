@@ -478,22 +478,37 @@ public:
 	// subroutines and data types for fast native modular arithmetic
 
 	/**
-	 * Multiplies two single-word integers and stores the result in a typeD data structure
-	 * Currently this is hard-coded to 64-bit words on a x86-64 processor
+	 * Multiplies two single-word integers and stores the result in a
+	 * typeD data structure. Currently this is hard-coded to 64-bit
+	 * words on a x86-64 or arm64 processor
 	 *
 	 * @param a multiplier
 	 * @param b multiplicand
 	 * @param &x result of multiplication
 	 */
 	inline static void
-	MultD(NativeInt a, NativeInt b, typeD& x)
+	MultD(NativeInt a, NativeInt b, typeD& res)
 	{
-	   __asm__ (
-	   "mulq %[b]" :
-	   [lo] "=a" (x.lo), [hi] "=d" (x.hi) :
-	   [a] "%[lo]" (a), [b] "rm" (b) :
-	   "cc"
-	   );
+      #ifdef  __x86_64__
+	    __asm__ (
+				 "mulq %[b]" :
+				 [lo] "=a" (res.lo), [hi] "=d" (res.hi) :
+				 [a] "%[lo]" (a), [b] "rm" (b) :
+				 "cc"
+				 );
+      #elif  __aarch64__
+		typeD x;
+		x.hi = 0; x.lo = a;
+		NativeInt y(b);
+		res.lo = x.lo * y;
+		asm( "umulh %0, %1, %2\n\t" :
+			 "=r" (res.hi) :
+			 "r" (x.lo), "r" (y)
+			 );
+		res.hi += x.hi * y;
+      #else
+        # error Architecture not supported for MultD()
+      #endif
 	}
 
 	/**

@@ -113,6 +113,7 @@ LWEConjunctionCHCPRFAlgorithm<Element>::LWEConjunctionCHCPRFAlgorithm(usint base
 	}
 	else
 	{
+#ifndef NO_QUADMATH
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
 
@@ -123,6 +124,10 @@ LWEConjunctionCHCPRFAlgorithm<Element>::LWEConjunctionCHCPRFAlgorithm(usint base
 			CRTDecryptionQuadFloatTable[i] = ext_double::quadFloatFromInt64(numerator)/ext_double::quadFloatFromInt64(denominator);
 		}
 		m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+#else
+			PALISADE_THROW(math_error, "LWEConjunctionCHCPRFAlgorithm: Number of bits in CRT moduli should be in < 58 for this architecture");
+	
+#endif		
 	}
 
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
@@ -371,7 +376,9 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 
 	const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
 	const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
+#ifndef NO_QUADMATH
 	const std::vector<QuadFloat> &lyamQuadTable = m_CRTDecryptionQuadFloatTable;
+#endif
 	const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
 	const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
@@ -386,7 +393,11 @@ shared_ptr<vector<NativePoly>> LWEConjunctionCHCPRFAlgorithm<Element>::Transform
 	auto element = input;
 	element.SwitchFormat();
 
+#ifndef NO_QUADMATH
 	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+#else
+	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamExtTable);
+#endif
 
 	return result;
 

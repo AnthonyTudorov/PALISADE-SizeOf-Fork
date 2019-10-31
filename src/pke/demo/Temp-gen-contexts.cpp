@@ -63,7 +63,7 @@ GenTestCryptoContext(const string& name, usint ORDER, PlaintextModulus ptm, usin
 		cc = GenCryptoContextBFVrns<Element>(ptm, OPTIMIZED);
  */
 #ifdef NO_QUADMATH
-  std::cout << "Skipping  BFVrns which is currently not available for this architecture"<<std::endl;
+//std::cout << "Skipping  BFVrns which is currently not available for this architecture"<<std::endl;
   vector<string> ctxts = { "Null", "StSt", "BGV_rlwe", "BGV_opt", "BFV_rlwe", /*"BFV_opt", "BFVrns_rlwe", "BFVrns_opt"*/ };
 #else
   vector<string> ctxts = { "Null", "StSt", "BGV_rlwe", "BGV_opt", "BFV_rlwe", /*"BFV_opt",*/ "BFVrns_rlwe", "BFVrns_opt" };
