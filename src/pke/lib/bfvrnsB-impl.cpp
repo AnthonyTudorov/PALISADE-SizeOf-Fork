@@ -611,7 +611,10 @@ template <>
 bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
-
+#ifdef NO_EXTENDEDDOUBLE
+    PALISADE_THROW(not_available_error, "BFVrnsB is not available on this architecture");
+	return (0);
+#else
 	if (!cryptoParams)
 		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrnsB ParamsGen");
 
@@ -847,7 +850,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	cryptoParamsBFVrnsB->SetElementParams(params);
 
 	return cryptoParamsBFVrnsB->PrecomputeCRTTables();
-
+#endif //ifdef NO_EXTENDEDDOUBLE
 }
 
 

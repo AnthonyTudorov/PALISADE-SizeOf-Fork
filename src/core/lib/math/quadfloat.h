@@ -66,7 +66,9 @@ typedef QuadFloat ExtendedDouble;
 
 //no QUADMATH IS USED
 #define NO_QUADMATH
-typedef long double ExtendedDouble;
+
+#define NO_EXTENDEDDOUBLE
+
 #endif
 
 namespace ext_double {
@@ -98,15 +100,17 @@ inline QuadFloat fabs(const QuadFloat& input) {return fabsq(input); }
 inline QuadFloat floor(const QuadFloat& input) {return floorq(input); }
 
 #else //arm
+
+#ifndef NO_EXTENDEDDOUBLE
  inline ExtendedDouble sqrt(const ExtendedDouble& input) {return sqrt(input); }
  inline double log(const ExtendedDouble& input) {return log(input); }
  inline ExtendedDouble ceil(const ExtendedDouble& input) {return ceil(input); }
  inline long to_long(const ExtendedDouble& input) {return long(input); }
  
-inline ExtendedDouble power(const ExtendedDouble& a, long b) {return power(a,b); }
-inline ExtendedDouble fabs(const ExtendedDouble& input) {return fabs(input); }
-inline ExtendedDouble floor(const ExtendedDouble& input) {return floor(input); }
-
+ inline ExtendedDouble power(const ExtendedDouble& a, long b) {return power(a,b); }
+ inline ExtendedDouble fabs(const ExtendedDouble& input) {return fabs(input); }
+ inline ExtendedDouble floor(const ExtendedDouble& input) {return floor(input); }
+#endif
 
 #endif
 

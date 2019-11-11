@@ -571,6 +571,12 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
 {
 
+#ifdef NO_EXTENDEDDOUBLE
+      PALISADE_THROW(not_available_error, "BFVrns is not available on this architecture");
+	return (0);
+#else
+
+
 	if (!cryptoParams)
 		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrns ParamsGen");
 
@@ -800,7 +806,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	cryptoParamsBFVrns->SetElementParams(params);
 
 	return cryptoParamsBFVrns->PrecomputeCRTTables();
-
+#endif // infdef NO_EXTENDEDDOUBLE
 }
 
 template <>

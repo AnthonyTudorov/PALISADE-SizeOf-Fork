@@ -20,8 +20,6 @@ if [ $arch == "aarch64" ]
 then #arm64 skip demos that don't run on that architecture or take too long for automation
   echo "Not running trapdoor demos"
   skip="../build/bin/demo/core/SamplingSource 
-        ../build/bin/demo/pke/run-bfvrns
-        ../build/bin/demo/pke/run-bfvrns-b
         ../build/bin/demo/trapdoor/DCRTCHCPRF
         ../build/bin/demo/trapdoor/DCRTCHCPRFBP
         ../build/bin/demo/trapdoor/DCRTObfuscateBitTesterV3
