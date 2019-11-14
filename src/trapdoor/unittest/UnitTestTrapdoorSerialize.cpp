@@ -44,9 +44,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-// TODO: temportary fix until Windows serialization is fixed
-#if not defined(_WIN32) and not defined(_WIN64)
-
 class UnitTestSerialize : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -145,5 +142,3 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
 	  << "Mismatch after ser/deser in entry "<<i<<" m_e ";
   }
 }
-
-#endif
