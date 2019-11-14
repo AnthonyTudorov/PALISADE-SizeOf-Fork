@@ -26,7 +26,7 @@ The library is based on modular architecture with the following layers:
 * Crypto layer containing efficient implementations of lattice cryptography schemes.
 * Encoding layer supporting multiple plaintext encodings for cryptographic schemes.
 
-A major focus is on the usability of the schemes. For instance, all HE schemes use the same common API, and are implemented using runtime polymorphism.
+A major focus is on the usability of the schemes. For instance, all HE schemes with packing use the same common API, and are implemented using runtime polymorphism.
 
 PALISADE implements efficient Residue Number System (RNS) algorithms to achieve high performance, e.g., PALISADE was used as the library for a winning genome-wide association studies solution at iDASH’18. 
 
