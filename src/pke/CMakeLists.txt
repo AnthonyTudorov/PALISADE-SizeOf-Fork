@@ -53,6 +53,6 @@ add_dependencies( allpke PALISADEpke allpkedemos pke_tests )
 add_custom_command( OUTPUT pkeinfocmd COMMAND echo Builds PALISADEpke and these apps: ${PKEAPPS} )
 add_custom_target( pkeinfo DEPENDS pkeinfocmd )
 
-add_custom_command( OUTPUT runpketests COMMAND ${CMAKE_BINARY_DIR}/unittest/pke_tests )
+add_custom_command( OUTPUT runpketests WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${CMAKE_BINARY_DIR}/unittest/pke_tests )
 add_custom_target( testpke DEPENDS pke_tests runpketests )
 

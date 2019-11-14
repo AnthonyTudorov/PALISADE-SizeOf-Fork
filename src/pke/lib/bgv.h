@@ -652,6 +652,40 @@ namespace lbcrypto {
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
+
+		LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
+			const LPEvalKey<Element> ek) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> eAuto,
+			const std::vector<usint> &indexList) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> eSum) const;
+
+		LPEvalKey<Element> MultiAddEvalKeys(LPEvalKey<Element> a, LPEvalKey<Element> b) const;
+
+		LPEvalKey<Element> MultiMultEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiAddEvalSumKeys(const shared_ptr<std::map<usint, LPEvalKey<Element>>> es1,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> es2) const;
+
+		LPEvalKey<Element> MultiAddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2) const;
+
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BGVMultiparty"; }
+
 	};
 
 
@@ -720,7 +754,7 @@ namespace lbcrypto {
 		* @return resulting ciphertext.
 		*/
 		virtual Ciphertext<Element> LevelReduce(ConstCiphertext<Element> cipherText1,
-			const LPEvalKey<Element> linearKeySwitchHint) const 
+			const LPEvalKey<Element> linearKeySwitchHint, size_t levels) const
 		{
 			std::string errMsg = "LPAlgorithmSHEBGV::LevelReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);

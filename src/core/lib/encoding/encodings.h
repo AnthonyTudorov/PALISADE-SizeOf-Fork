@@ -36,6 +36,7 @@
 #include "encoding/packedencoding.h"
 #include "encoding/scalarencoding.h"
 #include "encoding/stringencoding.h"
+#include "encoding/ckkspackedencoding.h"
 
 
 #endif /* SRC_CORE_LIB_ENCODING_ENCODINGS_H_ */

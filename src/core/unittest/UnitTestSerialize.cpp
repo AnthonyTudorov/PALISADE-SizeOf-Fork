@@ -189,6 +189,8 @@ TEST(UTSer,ildcrtparams_test) {
 	RUN_BIG_DCRTPOLYS(ildcrtparams_test, "ildcrtparams_test")
 }
 
+#if not defined(_WIN32) and not defined(_WIN64)
+
 template<typename Element>
 void ilvector_test(const string& msg) {
 	auto p = ElemParamFactory::GenElemParams<typename Element::Params>(1024);
@@ -215,6 +217,8 @@ void ilvector_test(const string& msg) {
 TEST(UTSer,ilvector_test) {
 	RUN_ALL_POLYS(ilvector_test, "ilvector_test")
 }
+
+#endif
 
 template<typename Element>
 void ildcrtpoly_test(const string& msg) {

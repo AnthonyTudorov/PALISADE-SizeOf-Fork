@@ -596,7 +596,7 @@ namespace lbcrypto {
 		const T& ModSubEq(const T &b);
 
 		// inlines for overloaded operator unary minus
-		inline friend T operator-(const T& a) { return a.ModMul(I(-1)); }
+		inline friend T operator-(const T& a) { return a.ModMul(a.GetModulus()-I(1)); }
 
 		// inlines for overloaded operators
 		inline friend T operator-(const T& a, const I& b) { return a.ModSub(b); }

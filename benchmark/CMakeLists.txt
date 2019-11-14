@@ -6,7 +6,7 @@ else()
 	set( WARNING_FLAG -Wno-unused-but-set-variable )
 endif()
 
-set (BMLIBS PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
+set (BMLIBS PUBLIC PALISADEpke PUBLIC PALISADEbinfhe PUBLIC PALISADEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
 
 set (BMAPPS "")
 file (GLOB BMARK_SRC_FILES CONFIGURE_DEPENDS src/*.cpp)

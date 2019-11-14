@@ -62,6 +62,9 @@ public:
 		case Fractional:
 			pt.reset( new FractionalEncoding(vp,ep) );
 			break;
+		case CKKSPacked:
+			pt.reset( new CKKSPackedEncoding(vp,ep) );
+			break;
 		}
 
 		return pt;
@@ -92,6 +95,9 @@ public:
 		case Fractional:
 			pt.reset( new FractionalEncoding(vp,ep) );
 			break;
+		case CKKSPacked:
+			pt.reset( new CKKSPackedEncoding(vp,ep) );
+			break;
 		}
 
 		return pt;
@@ -121,6 +127,9 @@ public:
 			break;
 		case Fractional:
 			pt.reset( new FractionalEncoding(vp,ep) );
+			break;
+		case CKKSPacked:
+			pt.reset( new CKKSPackedEncoding(vp,ep) );
 			break;
 		}
 

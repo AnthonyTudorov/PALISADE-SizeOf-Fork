@@ -1,5 +1,5 @@
 /*
- * @file
+ * @file  demo-simple-example.cpp - Simple demo for BFVrns.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)

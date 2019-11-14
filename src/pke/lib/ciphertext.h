@@ -49,7 +49,7 @@ class CiphertextImpl;
 		/**
 		* Default constructor
 		*/
-		CiphertextImpl() : CryptoObject<Element>(), m_depth(1), encodingType(Unknown) {}
+		CiphertextImpl() : CryptoObject<Element>(), m_depth(1), encodingType(Unknown), m_scalingFactor(1), m_level(0) { }
 
 		/**
 		 * Construct a new ciphertext in the given context
@@ -57,7 +57,7 @@ class CiphertextImpl;
 		 * @param cc
 		 */
 		CiphertextImpl(CryptoContext<Element> cc, const string& id = "", PlaintextEncodings encType = Unknown) :
-			CryptoObject<Element>(cc, id), m_depth(1), encodingType(encType) {}
+			CryptoObject<Element>(cc, id), m_depth(1), encodingType(encType), m_scalingFactor(1), m_level(0) { }
 
 		/**
 		 * Construct a new ciphertext from the parameters of a given public key
@@ -65,7 +65,7 @@ class CiphertextImpl;
 		 * @param k key whose CryptoObject parameters will get cloned
 		 */
 		CiphertextImpl(const shared_ptr<LPKey<Element>> k) :
-			CryptoObject<Element>(k->GetCryptoContext(), k->GetKeyTag()), m_depth(1), encodingType(Unknown)  {}
+			CryptoObject<Element>(k->GetCryptoContext(), k->GetKeyTag()), m_depth(1), encodingType(Unknown), m_scalingFactor(1), m_level(0) { }
 
 		/**
 		* Copy constructor
@@ -73,12 +73,16 @@ class CiphertextImpl;
 		CiphertextImpl(const CiphertextImpl<Element> &ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = ciphertext.m_elements;
 			m_depth = ciphertext.m_depth;
+			m_level = ciphertext.m_level;
+			m_scalingFactor = ciphertext.m_scalingFactor;
 			encodingType = ciphertext.encodingType;
 		}
 
 		CiphertextImpl(Ciphertext<Element> ciphertext) : CryptoObject<Element>(*ciphertext) {
 			m_elements = ciphertext->m_elements;
 			m_depth = ciphertext->m_depth;
+			m_level = ciphertext->m_level;
+			m_scalingFactor = ciphertext->m_scalingFactor;
 			encodingType = ciphertext->encodingType;
 		}
 
@@ -88,12 +92,16 @@ class CiphertextImpl;
 		CiphertextImpl(CiphertextImpl<Element> &&ciphertext) : CryptoObject<Element>(ciphertext) {
 			m_elements = std::move(ciphertext.m_elements);
 			m_depth = std::move(ciphertext.m_depth);
+			m_level = std::move(ciphertext.m_level);
+			m_scalingFactor = std::move(ciphertext.m_scalingFactor);
 			encodingType = std::move(ciphertext.encodingType);
 		}
 
 		CiphertextImpl(Ciphertext<Element> &&ciphertext) : CryptoObject<Element>(*ciphertext) {
 			m_elements = std::move(ciphertext->m_elements);
 			m_depth = std::move(ciphertext->m_depth);
+			m_level = std::move(ciphertext->m_level);
+			m_scalingFactor = std::move(ciphertext->m_scalingFactor);
 			encodingType = std::move(ciphertext->encodingType);
 		}
 
@@ -130,6 +138,8 @@ class CiphertextImpl;
 				CryptoObject<Element>::operator=(rhs);
 				this->m_elements = rhs.m_elements;
 				this->m_depth = rhs.m_depth;
+				this->m_level = rhs.m_level;
+				this->m_scalingFactor = rhs.m_scalingFactor;
 				this->encodingType = rhs.encodingType;
 			}
 
@@ -147,6 +157,8 @@ class CiphertextImpl;
 				CryptoObject<Element>::operator=(rhs);
 				this->m_elements = std::move(rhs.m_elements);
 				this->m_depth = std::move(rhs.m_depth);
+				this->m_level = std::move(rhs.m_level);
+				this->m_scalingFactor = std::move(rhs.m_scalingFactor);
 				this->encodingType = std::move(rhs.encodingType);
 			}
 
@@ -217,6 +229,43 @@ class CiphertextImpl;
 			m_depth = depth;
 		}
 
+		/**
+		* Get the level of the ciphertext.
+		*/
+		const size_t GetLevel() const {
+			return m_level;
+		}
+
+		/**
+		* Set the level of the ciphertext.
+		*/
+		void SetLevel(size_t level) {
+			m_level = level;
+		}
+
+		/**
+		* Get the scaling factor of the ciphertext.
+		*/
+		const double GetScalingFactor() const {
+			return m_scalingFactor;
+		}
+
+		/**
+		* Set the scaling factor of the ciphertext.
+		*/
+		void SetScalingFactor(double sf) {
+			m_scalingFactor = sf;
+		}
+
+		Ciphertext<Element> Clone() const {
+			Ciphertext<Element> cRes = this->CloneEmpty();
+			cRes->SetElements(this->GetElements());
+			cRes->SetDepth(this->GetDepth());
+			cRes->SetLevel(this->GetLevel());
+			cRes->SetScalingFactor(this->GetScalingFactor());
+			return cRes;
+		}
+
 		bool operator==(const CiphertextImpl<Element>& rhs) const {
 			if( !CryptoObject<Element>::operator==(rhs) )
 				return false;
@@ -259,10 +308,12 @@ class CiphertextImpl;
 		template <class Archive>
 		void save( Archive & ar, std::uint32_t const version ) const
 		{
-		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( ::cereal::make_nvp("v", m_elements) );
-			ar( ::cereal::make_nvp("d", m_depth) );
-			ar( ::cereal::make_nvp("e", encodingType) );
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("v", m_elements) );
+			ar( cereal::make_nvp("d", m_depth) );
+			ar( cereal::make_nvp("l", m_level) );
+			ar( cereal::make_nvp("s", m_scalingFactor) );
+			ar( cereal::make_nvp("e", encodingType) );
 		}
 
 		template <class Archive>
@@ -271,10 +322,12 @@ class CiphertextImpl;
 			if( version > SerializedVersion() ) {
 				PALISADE_THROW(deserialize_error, "serialized object version " + to_string(version) + " is from a later version of the library");
 			}
-		    ar( ::cereal::base_class<CryptoObject<Element>>( this ) );
-			ar( ::cereal::make_nvp("v", m_elements) );
-			ar( ::cereal::make_nvp("d", m_depth) );
-			ar( ::cereal::make_nvp("e", encodingType) );
+		    ar( cereal::base_class<CryptoObject<Element>>( this ) );
+			ar( cereal::make_nvp("v", m_elements) );
+			ar( cereal::make_nvp("d", m_depth) );
+			ar( cereal::make_nvp("l", m_level) );
+			ar( cereal::make_nvp("s", m_scalingFactor) );
+			ar( cereal::make_nvp("e", encodingType) );
 		}
 
 		std::string SerializedObjectName() const { return "Ciphertext"; }
@@ -288,6 +341,9 @@ class CiphertextImpl;
 		std::vector<Element> m_elements;		/*!< vector of ring elements for this Ciphertext */
 		size_t m_depth; // holds the multiplicative depth of the ciphertext.
 		PlaintextEncodings	encodingType;	/*!< how was this Ciphertext encoded? */
+
+		double m_scalingFactor;
+		size_t m_level; // holds the number of rescalings performed before getting this ciphertext - initially 0
 	};
 
 	// FIXME the op= are not doing the work in-place, and should be updated

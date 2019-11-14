@@ -126,8 +126,9 @@ public:
 	 * @param &tug the input Ternary Uniform Generator.
 	 * @param &params the input params.
 	 * @param format - EVALUATION or COEFFICIENT
+	 * @param h - Hamming weight for sparse ternary distribution (by default, when h = 0, the distribution is NOT sparse)
 	 */
-	PolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION);
+	PolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION, uint32_t h = 0);
 
 	/**
 	 * @brief Construct with a vector from a given generator
@@ -433,6 +434,13 @@ public:
 	 */
 	PolyImpl Times(const Integer &element) const;
 
+	/**
+	 * @brief Scalar multiplication - by a signed integer.
+	 *
+	 * @param &element is the element to multiply entry-wise.
+	 * @return is the return value of the times operation.
+	 */
+	PolyImpl Times(int64_t element) const;
 
 	// VECTOR OPERATIONS
 
@@ -593,6 +601,10 @@ public:
 	}
 
 	PolyNative DecryptionCRTInterpolate(PlaintextModulus ptm) const;
+
+	PolyNative ToNativePoly() const;
+
+	PolyNative ToNativePolyCloneParams() const;
 
 	/**
 	 * @brief Transpose the ring element using the automorphism operation
@@ -805,6 +817,26 @@ public:
 		return b.Times(a);
 	}
 
+	/**
+	 * @brief Element-signed-integer multiplication operator.
+	 * @param a element to multiply.
+	 * @param b integer to multiply.
+	 * @return the result of the multiplication operation.
+	 */
+	friend inline PolyImpl operator*(const PolyImpl &a, int64_t b) {
+		return a.Times(b);
+	}
+
+	/**
+	 * @brief signed-integer-element multiplication operator.
+	 * @param a integer to multiply.
+	 * @param b element to multiply.
+	 * @return the result of the multiplication operation.
+	 */
+	friend inline PolyImpl operator*(int64_t a, const PolyImpl &b) {
+		return b.Times(a);
+	}
+
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
@@ -846,6 +878,30 @@ inline PolyImpl<NativeVector>
 PolyImpl<NativeVector>::DecryptionCRTInterpolate(PlaintextModulus ptm) const {
 	return this->Mod(ptm);
 }
+
+// biginteger version
+template<>
+inline PolyImpl<NativeVector>
+PolyImpl<BigVector>::ToNativePolyCloneParams() const {
+
+	PolyImpl<NativeVector> interp(
+			shared_ptr<ILParamsImpl<NativeInteger>>( new ILParamsImpl<NativeInteger>(this->GetCyclotomicOrder(), this->GetModulus().ConvertToInt(), this->GetRootOfUnity().ConvertToInt()) ),
+															this->GetFormat(), true);
+
+	for (usint i = 0; i<this->GetLength(); i++) {
+		interp[i] = (*this)[i].ConvertToInt();
+	}
+
+	return std::move( interp );
+}
+
+// native poly version
+template<>
+inline PolyImpl<NativeVector>
+PolyImpl<NativeVector>::ToNativePolyCloneParams() const {
+	return *this;
+}
+
 
 } //namespace lbcrypto ends
 

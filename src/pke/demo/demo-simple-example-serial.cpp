@@ -1,5 +1,5 @@
 /*
- * @file
+ * @file  demo-simple-example.cpp - Simple demo for BFVrns with serialization.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -125,7 +125,7 @@ int main()
 	}
 
 	// Generate the rotation evaluation keys
-	cryptoContext->EvalAtIndexKeyGen(keyPair.secretKey,{1,2,-1,-2});
+	cc->EvalAtIndexKeyGen(keyPair.secretKey,{1,2,-1,-2});
 
 	cout << "The rotation keys have been generated." << std::endl;
 
@@ -230,10 +230,10 @@ int main()
 	auto ciphertextMultResult = cc->EvalMult(ciphertextMul12,ciphertext3);
 
 	// Homomorphic rotations
-	auto ciphertextRot1 = cryptoContext->EvalAtIndex(ct1,1);
-	auto ciphertextRot2 = cryptoContext->EvalAtIndex(ct1,2);
-	auto ciphertextRot3 = cryptoContext->EvalAtIndex(ct1,-1);
-	auto ciphertextRot4 = cryptoContext->EvalAtIndex(ct1,-2);
+	auto ciphertextRot1 = cc->EvalAtIndex(ct1,1);
+	auto ciphertextRot2 = cc->EvalAtIndex(ct1,2);
+	auto ciphertextRot3 = cc->EvalAtIndex(ct1,-1);
+	auto ciphertextRot4 = cc->EvalAtIndex(ct1,-2);
 
 	//Sample Program: Step 5 – Decryption
 
@@ -255,13 +255,13 @@ int main()
 
 	// Decrypt the result of rotations
 	Plaintext plaintextRot1;
-	cryptoContext->Decrypt(sk, ciphertextRot1, &plaintextRot1);
+	cc->Decrypt(sk, ciphertextRot1, &plaintextRot1);
 	Plaintext plaintextRot2;
-	cryptoContext->Decrypt(sk, ciphertextRot2, &plaintextRot2);
+	cc->Decrypt(sk, ciphertextRot2, &plaintextRot2);
 	Plaintext plaintextRot3;
-	cryptoContext->Decrypt(sk, ciphertextRot3, &plaintextRot3);
+	cc->Decrypt(sk, ciphertextRot3, &plaintextRot3);
 	Plaintext plaintextRot4;
-	cryptoContext->Decrypt(sk, ciphertextRot4, &plaintextRot4);
+	cc->Decrypt(sk, ciphertextRot4, &plaintextRot4);
 
 	// Shows only the same number of elements as in the original plaintext vector
 	// By default it will show all coefficients in the BFV-encoded polynomial

@@ -113,9 +113,8 @@ typedef uint32_t integral_dtype;
 		The bitwidth can be decreased to the least value still supporting BigInteger operations for a specific application -
 		to achieve smaller runtimes
 	**/
-
 #ifndef BigIntegerBitLength
-#define BigIntegerBitLength 3000 //for documentation on tests
+#define BigIntegerBitLength 3500 //for documentation on tests
 #endif
 
 #if BigIntegerBitLength < 600

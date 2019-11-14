@@ -54,5 +54,5 @@ add_dependencies( allcore PALISADEcore allcoredemos core_tests )
 add_custom_command( OUTPUT coreinfocmd COMMAND echo Builds PALISADEcore and these apps: ${COREAPPS} )
 add_custom_target( coreinfo DEPENDS coreinfocmd )
 
-add_custom_command( OUTPUT runcoretests COMMAND ${CMAKE_BINARY_DIR}/unittest/core_tests )
+add_custom_command( OUTPUT runcoretests WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${CMAKE_BINARY_DIR}/unittest/core_tests )
 add_custom_target( testcore DEPENDS core_tests runcoretests )
