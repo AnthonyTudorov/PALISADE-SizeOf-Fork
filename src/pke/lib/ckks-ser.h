@@ -39,12 +39,4 @@ extern template class lbcrypto::LPAlgorithmSHECKKS<lbcrypto::DCRTPoly>;
 CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersCKKS<lbcrypto::DCRTPoly>);
 CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeCKKS<lbcrypto::DCRTPoly>);
 
-//CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmCKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmPRECKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmSHECKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmParamsGenCKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPAlgorithmMultipartyCKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPLeveledSHEAlgorithmCKKS<lbcrypto::DCRTPoly>);
-//CEREAL_REGISTER_TYPE(lbcrypto::LPFHEAlgorithmCKKS<lbcrypto::DCRTPoly>);
-
 #endif
