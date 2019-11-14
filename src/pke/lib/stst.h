@@ -609,10 +609,14 @@ public:
 			break;
 		case MULTIPARTY:
 			throw std::logic_error("MULTIPARTY feature not supported for StehleSteinfeld scheme");
-		case FHE:
-			throw std::logic_error("FHE feature not supported for StehleSteinfeld scheme");
 		case LEVELEDSHE:
 			throw std::logic_error("LEVELEDSHE feature not supported for StehleSteinfeld scheme");
+		case FHE:
+			throw std::logic_error("FHE feature not supported for StehleSteinfeld scheme");
+		case ADVANCEDSHE:
+			throw std::logic_error("ADVANCEDSHE feature not supported for StehleSteinfeld scheme");
+		case ADVANCEDMP:
+			throw std::logic_error("ADVANCEDMP feature not supported for StehleSteinfeld scheme");
 		}
 	}
 

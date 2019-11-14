@@ -56,16 +56,18 @@ public:
 	* @brief  Generates a vector of random values within the Ternary Uniform Distribution.
 	* @param size length of the vector.
 	* @param modulus the modulus applied to all values of the vector.
+	* @param h - Hamming weight for sparse ternary distribution (by default, when h = 0, the distribution is NOT sparse)
 	* @return A vector of random values within the Ternary Uniform Distribution.
 	*/
-	VecType GenerateVector  (usint size, const typename VecType::Integer &modulus) const;
+	VecType GenerateVector  (usint size, const typename VecType::Integer &modulus, usint h = 0) const;
 
 	/**
 	* @brief      Returns a generated vector of integers.
 	* @param size The number of values to return.
+	* @param h - Hamming weight for sparse ternary distribution (by default, when h = 0, the distribution is NOT sparse)
 	* @return     A pointer to an array of integer values generated with the distribution.
 	*/
-	std::shared_ptr<int32_t> GenerateIntVector (usint size) const;
+	std::shared_ptr<int32_t> GenerateIntVector (usint size, usint h = 0) const;
 
 private:
 	static std::uniform_int_distribution<int> m_distribution;

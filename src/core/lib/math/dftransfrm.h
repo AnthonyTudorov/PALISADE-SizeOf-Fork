@@ -44,7 +44,7 @@
 
 namespace lbcrypto {
 
-	/**
+/**
 	* @brief Discrete Fourier Transform FFT implemetation.
 	*/
 	class DiscreteFourierTransform
@@ -82,6 +82,10 @@ namespace lbcrypto {
 		*/
 		static std::vector<std::complex<double>> InverseTransform(std::vector<std::complex<double>> A);
 
+		static void FFTSpecialInv(std::vector<std::complex<double>> &vals);
+
+		static void FFTSpecial(std::vector<std::complex<double>> &vals);
+
 		/**
 		* Reset cached values for the transform to empty.
 		*/
@@ -89,8 +93,21 @@ namespace lbcrypto {
 
 		static void PreComputeTable(uint32_t s);
 
+		static void Initialize(size_t m, size_t nh);
+
 	private:
 		static std::complex<double>* rootOfUnityTable;
+
+		static size_t m_M;
+		static size_t m_Nh;
+
+		static std::vector<uint32_t> m_rotGroup; ///< precomputed rotation group indexes
+		static std::vector<std::complex<double>> m_ksiPows; ///< precomputed ksi powers
+
+		static void FFTSpecialInvLazy(std::vector<std::complex<double>> &vals);
+
+		static void BitReverse(std::vector<std::complex<double>> &vals);
+
 	};
 
 } // namespace lbcrypto ends

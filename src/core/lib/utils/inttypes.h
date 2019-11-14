@@ -102,7 +102,9 @@ enum PKESchemeFeature{
 	SHE=0x04,
 	FHE=0x08,
 	LEVELEDSHE=0x10,
-	MULTIPARTY=0x20
+	MULTIPARTY=0x20,
+	ADVANCEDSHE=0x40,
+	ADVANCEDMP=0x80
 };
 
 /**
@@ -110,7 +112,8 @@ enum PKESchemeFeature{
 */
 enum MODE {
 	RLWE = 0,
-	OPTIMIZED = 1
+	OPTIMIZED = 1,
+	SPARSE = 2
 };
 
 #endif

@@ -44,7 +44,6 @@
 using namespace std;
 using namespace lbcrypto;
 
-
 class UnitTestSerialize : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -143,4 +142,3 @@ TEST(UTTDSer, serialize_vector_RLWETrapdoorPair) {
 	  << "Mismatch after ser/deser in entry "<<i<<" m_e ";
   }
 }
-

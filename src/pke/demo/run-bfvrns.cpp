@@ -1,5 +1,5 @@
 /*
- * @file 
+ * @file run-bfvrns.cpp - benchmark for BFVrns (it was used to generate Table 3 in https://eprint.iacr.org/2018/117)
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)

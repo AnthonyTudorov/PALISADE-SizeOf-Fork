@@ -1,4 +1,3 @@
-
 /**
  * @file cryptocontext.h -- Control for encryption operations.
  * @author  TPOC: contact@palisade-crypto.org
@@ -26,12 +25,13 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_DEMO_PRE_CRYPTOCONTEXT_H_
-#define SRC_DEMO_PRE_CRYPTOCONTEXT_H_
+#ifndef SRC_PKE_CRYPTOCONTEXT_H_
+#define SRC_PKE_CRYPTOCONTEXT_H_
 
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
+#include "../../core/lib/utils/debug.h"
 
 namespace lbcrypto {
 
@@ -61,7 +61,7 @@ template<typename Element>
 class CryptoContextImpl : public Serializable {
 	friend class CryptoContextFactory<Element>;
 
-private:
+protected:
 	shared_ptr<LPCryptoParameters<Element>>				params;			/*!< crypto parameters used for this context */
 	shared_ptr<LPPublicKeyEncryptionScheme<Element>>	scheme;			/*!< algorithm used; accesses all crypto methods */
 
@@ -72,12 +72,43 @@ private:
 	bool doTiming;
 	vector<TimingInfo>* timeSamples;
 
+	string m_schemeId;
+
+	size_t m_keyGenLevel;
+
+
 	/**
 	 * TypeCheck makes sure that an operation between two ciphertexts is permitted
 	 * @param a
 	 * @param b
 	 */
 	void TypeCheck(ConstCiphertext<Element> a, ConstCiphertext<Element> b) const {
+		if( a == NULL || b == NULL )
+			PALISADE_THROW( type_error, "Null Ciphertext");
+		if( a->GetCryptoContext().get() != this )
+			PALISADE_THROW( type_error, "Ciphertext was not created in this CryptoContext");
+		if( a->GetCryptoContext() != b->GetCryptoContext() )
+			PALISADE_THROW( type_error, "Ciphertexts were not created in the same CryptoContext");
+		if( a->GetKeyTag() != b->GetKeyTag() )
+			PALISADE_THROW( type_error, "Ciphertexts were not encrypted with same keys" );
+		if( a->GetEncodingType() != b->GetEncodingType() ) {
+			stringstream ss;
+			ss << "Ciphertext encoding types " << a->GetEncodingType();
+			ss << " and " << b->GetEncodingType();
+			ss << " do not match";
+			PALISADE_THROW( type_error, ss.str() );
+		}
+	}
+
+	/**
+	 * TypeCheck makes sure that an operation between two ciphertexts is permitted
+	 * This is intended for mutable methods, hence inputs are Ciphretext instead
+	 * of ConstCiphertext.
+	 *
+	 * @param a
+	 * @param b
+	 */
+	void TypeCheck(Ciphertext<Element> a, Ciphertext<Element> b) const {
 		if( a == NULL || b == NULL )
 			PALISADE_THROW( type_error, "Null Ciphertext");
 		if( a->GetCryptoContext().get() != this )
@@ -164,16 +195,94 @@ private:
 	}
 
 public:
+
+	LPPrivateKey<Element> privateKey;
+
+	/**
+	 * This stores the private key in the crypto context.
+	 * This is only intended for debugging and should not be
+	 * used in production systems. Please define DEBUG_KEY in
+	 * palisade.h to enable this.
+	 *
+	 * If used, one can create a key pair and store the secret
+	 * key in th crypto context like this:
+	 *
+	 * auto keys = cc->KeyGen();
+	 * cc->SetPrivateKey(keys.secretKey);
+	 *
+	 * After that, anyone in the code, one can access the
+	 * secret key by getting the crypto context and doing the
+	 * following:
+	 *
+	 * auto sk = cc->GetPrivateKey();
+	 *
+	 * This key can be used for decrypting any intermediate
+	 * ciphertexts for debugging purposes.
+	 *
+	 * @param sk the secret key
+	 *
+	 */
+	void SetPrivateKey(const LPPrivateKey<Element> sk) {
+#ifdef DEBUG_KEY
+			cerr << "Warning - SetPrivateKey is only intended to be used for debugging purposes - not for production systems." << endl;
+			this->privateKey = sk;
+#else
+			throw std::runtime_error("SetPrivateKey is only allowed if DEBUG_KEY is set in palisade.h");
+#endif
+	}
+
+	/**
+	 * This gets the private key from the crypto context.
+	 * This is only intended for debugging and should not be
+	 * used in production systems. Please define DEBUG_KEY in
+	 * palisade.h to enable this.
+	 *
+	 * If used, one can create a key pair and store the secret
+	 * key in th crypto context like this:
+	 *
+	 * auto keys = cc->KeyGen();
+	 * cc->SetPrivateKey(keys.secretKey);
+	 *
+	 * After that, anyone in the code, one can access the
+	 * secret key by getting the crypto context and doing the
+	 * following:
+	 *
+	 * auto sk = cc->GetPrivateKey();
+	 *
+	 * This key can be used for decrypting any intermediate
+	 * ciphertexts for debugging purposes.
+	 *
+	 * @return the secret key
+	 *
+	 */
+	const LPPrivateKey<Element> GetPrivateKey() {
+#ifdef DEBUG_KEY
+		return this->privateKey;
+#else
+		throw std::runtime_error("GetPrivateKey is only allowed if DEBUG_KEY is set in palisade.h");
+#endif
+	}
+
+	void setSchemeId(string schemeTag) {
+		this->m_schemeId = schemeTag;
+	}
+
+	string getSchemeId() {
+		return this->m_schemeId;
+	}
+
 	/**
 	 * CryptoContextImpl constructor from pointers to parameters and scheme
 	 * @param params - pointer to CryptoParameters
 	 * @param scheme - pointer to Crypto Scheme
 	 */
-	CryptoContextImpl(LPCryptoParameters<Element> *params = 0, LPPublicKeyEncryptionScheme<Element> *scheme = 0) {
+	CryptoContextImpl(LPCryptoParameters<Element> *params = 0, LPPublicKeyEncryptionScheme<Element> *scheme = 0, const string & schemeId = "Not") {
 		this->params.reset(params);
 		this->scheme.reset(scheme);
 		this->doTiming = false;
 		this->timeSamples = 0;
+		this->m_keyGenLevel = 0;
+		this->m_schemeId = schemeId;
 	}
 
 	/**
@@ -181,11 +290,13 @@ public:
 	 * @param params - shared pointer to CryptoParameters
 	 * @param scheme - sharedpointer to Crypto Scheme
 	 */
-	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme) {
+	CryptoContextImpl(shared_ptr<LPCryptoParameters<Element>> params, shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme, const string & schemeId = "Not") {
 		this->params = params;
 		this->scheme = scheme;
 		this->doTiming = false;
 		this->timeSamples = 0;
+		this->m_keyGenLevel = 0;
+		this->m_schemeId = schemeId;
 	}
 
 	/**
@@ -197,6 +308,8 @@ public:
 		scheme = c.scheme;
 		doTiming = c.doTiming;
 		timeSamples = c.timeSamples;
+		this->m_keyGenLevel = 0;
+		this->m_schemeId = c.m_schemeId;
 	}
 
 	/**
@@ -209,6 +322,8 @@ public:
 		scheme = rhs.scheme;
 		doTiming = rhs.doTiming;
 		timeSamples = rhs.timeSamples;
+		m_keyGenLevel = rhs.m_keyGenLevel;
+		m_schemeId = rhs.m_schemeId;
 		return *this;
 	}
 
@@ -499,6 +614,10 @@ public:
 	*/
 	const shared_ptr<LPCryptoParameters<Element>> GetCryptoParameters() const { return params; }
 
+	const size_t GetKeyGenLevel() const { return m_keyGenLevel; }
+
+	void SetKeyGenLevel(size_t level) { m_keyGenLevel = level; }
+
 	/**
 	 * Getter for element params
 	 * @return
@@ -685,12 +804,25 @@ public:
 		}
 
 		// determine which type of plaintext that you need to decrypt into
-		Plaintext decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		Plaintext decrypted = GetPlaintextForDecrypt(partialCiphertextVec[0]->GetEncodingType(), partialCiphertextVec[0]->GetElements()[0].GetParams(), this->GetEncodingParams());
 
-		result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<NativePoly>());
+		if ((partialCiphertextVec[0]->GetEncodingType() == CKKSPacked) && (typeid(Element) != typeid(NativePoly)))
+			result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<Poly>());
+		else
+			result = GetEncryptionAlgorithm()->MultipartyDecryptFusion(partialCiphertextVec, &decrypted->GetElement<NativePoly>());
 
 		if (result.isValid == false) return result;
-		decrypted->Decode();
+
+		if (partialCiphertextVec[0]->GetEncodingType() == CKKSPacked){
+			shared_ptr<CKKSPackedEncoding> decryptedCKKS = std::dynamic_pointer_cast<CKKSPackedEncoding>(decrypted);
+			const shared_ptr<LPCryptoParametersCKKS<DCRTPoly>> cryptoParamsCKKS =
+							std::dynamic_pointer_cast<LPCryptoParametersCKKS<DCRTPoly>>(this->GetCryptoParameters());
+			decryptedCKKS->Decode(partialCiphertextVec[0]->GetDepth(),
+					partialCiphertextVec[0]->GetScalingFactor(),
+					cryptoParamsCKKS->GetRescalingTechnique());
+		}
+		else
+			decrypted->Decode();
 
 		*plaintext = decrypted;
 
@@ -831,6 +963,9 @@ public:
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
+			ciphertext->SetScalingFactor( plaintext->GetScalingFactor() );
+			ciphertext->SetDepth( plaintext->GetDepth() );
+			ciphertext->SetLevel( plaintext->GetLevel() );
 		}
 
 		if( doTiming ) {
@@ -861,6 +996,9 @@ public:
 
 		if (ciphertext) {
 			ciphertext->SetEncodingType( plaintext->GetEncodingType() );
+			ciphertext->SetScalingFactor( plaintext->GetScalingFactor() );
+			ciphertext->SetDepth( plaintext->GetDepth() );
+			ciphertext->SetLevel( plaintext->GetLevel() );
 		}
 
 		if( doTiming ) {
@@ -1050,14 +1188,78 @@ public:
 		return PlaintextFactory::MakePlaintext( encoding, cc->GetElementParams(), cc->GetEncodingParams(), value, value2 );
 	}
 
+	/**
+	 * MakeCKKSPackedPlaintext constructs a CKKSPackedEncoding in this context
+	 * @param value
+	 * @return plaintext
+	 */
+	Plaintext MakeCKKSPackedPlaintext(const std::vector<std::complex<double>> &value,
+			size_t depth=1,	uint32_t level=0,
+			const shared_ptr<typename Element::Params> params=nullptr) const {
+
+		Plaintext p;
+		const shared_ptr<LPCryptoParametersCKKS<DCRTPoly>> cryptoParamsCKKS =
+				std::dynamic_pointer_cast<LPCryptoParametersCKKS<DCRTPoly>>(this->GetCryptoParameters());
+		double ptxtMod = cryptoParamsCKKS->GetEncodingParams()->GetPlaintextModulus();
+
+		double scFact = 1.0;
+		if (cryptoParamsCKKS->GetRescalingTechnique() == EXACTRESCALE) {
+			scFact = cryptoParamsCKKS->GetScalingFactorOfLevel(level);
+		} else {
+			scFact = pow(2, ptxtMod);
+		}
+
+		if (params == nullptr) {
+
+			shared_ptr<ILDCRTParams<DCRTPoly::Integer>> elemParamsPtr;
+			if (level != 0) {
+				ILDCRTParams<DCRTPoly::Integer> elemParams = *(cryptoParamsCKKS->GetElementParams());
+				for (uint32_t i=0; i<level; i++) {
+					elemParams.PopLastParam();
+				}
+				elemParamsPtr = std::make_shared<ILDCRTParams<DCRTPoly::Integer>>(elemParams);
+			} else {
+				elemParamsPtr = cryptoParamsCKKS->GetElementParams();
+			}
+
+			p = Plaintext( new CKKSPackedEncoding( elemParamsPtr, this->GetEncodingParams(), value, depth, level, scFact) );
+		} else
+			p = Plaintext( new CKKSPackedEncoding( params, this->GetEncodingParams(), value, depth, level, scFact) );
+
+		p->Encode();
+		return p;
+	}
+
+	/**
+	 * GetPlaintextForDecrypt returns a new Plaintext to be used in decryption.
+	 *
+	 * @param pte Type of plaintext we want to return
+	 * @param evp Element parameters
+	 * @param ep Encoding parameters
+	 * @return plaintext
+	 */
 	static Plaintext
 	GetPlaintextForDecrypt(PlaintextEncodings pte, shared_ptr<typename Element::Params> evp, EncodingParams ep) {
 		shared_ptr<typename NativePoly::Params> vp(
 				new typename NativePoly::Params(evp->GetCyclotomicOrder(), ep->GetPlaintextModulus(), 1) );
-		return PlaintextFactory::MakePlaintext(pte, vp, ep);
+
+		Plaintext tempPlaintext;
+
+		if (pte == CKKSPacked)
+		{
+			if (evp->GetModulus().GetMSB() < MAX_MODULUS_SIZE + 1)
+				tempPlaintext = PlaintextFactory::MakePlaintext(pte, vp, ep);
+			else
+				tempPlaintext = PlaintextFactory::MakePlaintext(pte, evp, ep);
+		}
+		else
+			tempPlaintext = PlaintextFactory::MakePlaintext(pte, vp, ep);
+
+		return tempPlaintext;
 	}
 
 public:
+
 	/**
 	 * Decrypt a single ciphertext into the appropriate plaintext
 	 *
@@ -1078,12 +1280,41 @@ public:
 		if( doTiming ) TIC(t);
 
 		// determine which type of plaintext that you need to decrypt into
-		Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		//Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), this->GetElementParams(), this->GetEncodingParams());
+		Plaintext decrypted = GetPlaintextForDecrypt(ciphertext->GetEncodingType(), ciphertext->GetElements()[0].GetParams(), this->GetEncodingParams());
 
-		DecryptResult result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<NativePoly>());
+		DecryptResult result;
+
+		if ((ciphertext->GetEncodingType() == CKKSPacked) && (typeid(Element) != typeid(NativePoly))) {
+			if (typeid(Element) == typeid(DCRTPoly))
+			{
+				if (ciphertext->GetElements()[0].GetModulus().GetMSB() < MAX_MODULUS_SIZE + 1) // only one tower in DCRTPoly
+					result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<NativePoly>());
+				else
+					result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<Poly>());
+			}
+			else
+				result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<Poly>());
+		}
+		else
+			result = GetEncryptionAlgorithm()->Decrypt(privateKey, ciphertext, &decrypted->GetElement<NativePoly>());
 
 		if (result.isValid == false) return result;
-		decrypted->Decode();
+
+		if (ciphertext->GetEncodingType() == CKKSPacked){
+			shared_ptr<CKKSPackedEncoding> decryptedCKKS = std::dynamic_pointer_cast<CKKSPackedEncoding>(decrypted);
+			decryptedCKKS->SetDepth(ciphertext->GetDepth());
+			decryptedCKKS->SetLevel(ciphertext->GetLevel());
+			decryptedCKKS->SetScalingFactor(ciphertext->GetScalingFactor());
+
+			const shared_ptr<LPCryptoParametersCKKS<DCRTPoly>> cryptoParamsCKKS =
+										std::dynamic_pointer_cast<LPCryptoParametersCKKS<DCRTPoly>>(this->GetCryptoParameters());
+
+			decryptedCKKS->Decode(ciphertext->GetDepth(), ciphertext->GetScalingFactor(), cryptoParamsCKKS->GetRescalingTechnique());
+
+		}
+		else
+			decrypted->Decode();
 
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpDecrypt, TOC_US(t)) );
@@ -1375,6 +1606,29 @@ public:
 	}
 
 	/**
+	 * EvalAdd - PALISADE EvalAddMutable method for a pair of ciphertexts.
+	 * This is a mutable version - input ciphertexts may get automatically
+	 * rescaled, or level-reduced.
+	 *
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 + ct2
+	 */
+	Ciphertext<Element>
+	EvalAddMutable(Ciphertext<Element> &ct1, Ciphertext<Element> &ct2) const
+	{
+		TypeCheck(ct1, ct2);
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalAddMutable(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAdd, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
 	 * EvalAddMatrix - PALISADE EvalAdd method for a pair of matrices of ciphertexts
 	 * @param ct1
 	 * @param ct2
@@ -1430,6 +1684,30 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalSub(ct1, ct2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSub, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+
+	/**
+	 * EvalSub - PALISADE EvalSubMutable method for a pair of ciphertexts
+	 * This is a mutable version - input ciphertexts may get automatically
+	 * rescaled, or level-reduced.
+	 *
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 - ct2
+	 */
+	Ciphertext<Element>
+	EvalSubMutable(Ciphertext<Element> &ct1, Ciphertext<Element> &ct2) const
+	{
+		TypeCheck(ct1, ct2);
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalSubMutable(ct1, ct2);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalSub, TOC_US(t)) );
 		}
@@ -1501,10 +1779,135 @@ public:
 		return rv;
 	}
 
+	/**
+	* EvalAdd - PALISADE EvalAddMutable method for a ciphertext and plaintext
+	* This is a mutable version - input ciphertexts may get automatically
+	* rescaled, or level-reduced.
+	*
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext + plaintext
+	*/
+	Ciphertext<Element>
+	EvalAddMutable(Ciphertext<Element> &ciphertext, Plaintext plaintext) const
+	{
+		TypeCheck((ConstCiphertext<Element>)ciphertext, (ConstPlaintext) plaintext);
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		plaintext->SetFormat(EVALUATION);
+
+		auto rv = GetEncryptionAlgorithm()->EvalAddMutable(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddPlain, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalAdd - PALISADE EvalAdd method for a ciphertext and constant
+	* @param ciphertext
+	* @param constant
+	* @return new ciphertext for ciphertext + constant
+	*/
+	Ciphertext<Element>
+	EvalAdd(ConstCiphertext<Element> ciphertext, double constant) const
+	{
+		TimeVar t;
+
+		Ciphertext<Element> rv;
+
+		if ( constant >= 0 ) {
+			if( doTiming ) TIC(t);
+			rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, constant);
+			if( doTiming ) {
+				timeSamples->push_back( TimingInfo(OpEvalAddConst, TOC_US(t)) );
+			}
+		} else {
+			TimeVar t;
+			if( doTiming ) TIC(t);
+			rv = GetEncryptionAlgorithm()->EvalSub(ciphertext, -constant);
+			if( doTiming ) {
+				timeSamples->push_back( TimingInfo(OpEvalAddConst, TOC_US(t)) );
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	* EvalLinearWSum - PALISADE EvalLinearWSum method to compute a linear weighted sum
+	*
+	* @param ciphertexts a list of ciphertexts
+	* @param constants a list of weights
+	* @return new ciphertext containing the weighted sum
+	*/
+	Ciphertext<Element> EvalLinearWSum(
+			vector<Ciphertext<Element>> ciphertexts,
+			vector<double> constants) const
+	{
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalLinearWSum(ciphertexts, constants);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalLinearWSum, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalLinearWSum - method to compute a linear weighted sum.
+	* This is a mutable version, meaning the level/depth of input
+	* ciphertexts may change in the process.
+	*
+	* @param ciphertexts a list of ciphertexts
+	* @param constants a list of weights
+	* @return new ciphertext containing the weighted sum
+	*/
+	Ciphertext<Element> EvalLinearWSumMutable(
+			vector<Ciphertext<Element>> ciphertexts,
+			vector<double> constants) const
+	{
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalLinearWSumMutable(ciphertexts, constants);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalLinearWSum, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+
+	inline Ciphertext<Element>
+	EvalLinearWSum(vector<double> constants,
+			vector<Ciphertext<Element>> ciphertexts) const
+	{
+		return EvalLinearWSum(ciphertexts, constants);
+	}
+
+	inline Ciphertext<Element>
+	EvalLinearWSumMutable(vector<double> constants,
+			vector<Ciphertext<Element>> ciphertexts) const
+	{
+		return EvalLinearWSumMutable(ciphertexts, constants);
+	}
+
 	inline Ciphertext<Element>
 	EvalAdd(ConstPlaintext plaintext, ConstCiphertext<Element> ciphertext) const
 	{
 		return EvalAdd(ciphertext, plaintext);
+	}
+
+	inline Ciphertext<Element>
+	EvalAddMutable(Plaintext plaintext, Ciphertext<Element> &ciphertext) const
+	{
+		return EvalAddMutable(ciphertext, plaintext);
+	}
+
+	inline Ciphertext<Element>
+	EvalAdd(double constant, ConstCiphertext<Element> ciphertext) const
+	{
+		return EvalAdd(ciphertext, constant);
 	}
 
 	/**
@@ -1527,10 +1930,78 @@ public:
 		return rv;
 	}
 
+	/**
+	* EvalSubPlain - PALISADE EvalSubMutable method for a ciphertext and plaintext
+	* This is a mutable version - input ciphertexts may get automatically
+	* rescaled, or level-reduced.
+	*
+	* @param ciphertext
+	* @param plaintext
+	* @return new ciphertext for ciphertext - plaintext
+	*/
+	Ciphertext<Element>
+	EvalSubMutable(Ciphertext<Element> &ciphertext, Plaintext plaintext) const
+	{
+		TypeCheck((ConstCiphertext<Element>)ciphertext, (ConstPlaintext) plaintext);
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalSubMutable(ciphertext, plaintext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalSubPlain, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalSub - PALISADE EvalSub method for a ciphertext and constant
+	* @param ciphertext
+	* @param constant
+	* @return new ciphertext for ciphertext - constant
+	*/
+	Ciphertext<Element>
+	EvalSub(ConstCiphertext<Element> ciphertext, double constant) const
+	{
+		TimeVar t;
+
+		Ciphertext<Element> rv;
+
+		if ( constant >= 0 ) {
+			if( doTiming ) TIC(t);
+			rv = GetEncryptionAlgorithm()->EvalSub(ciphertext, constant);
+			if( doTiming ) {
+				timeSamples->push_back( TimingInfo(OpEvalSubConst, TOC_US(t)) );
+			}
+		} else {
+			if( doTiming ) TIC(t);
+			rv = GetEncryptionAlgorithm()->EvalAdd(ciphertext, -constant);
+			if( doTiming ) {
+				timeSamples->push_back( TimingInfo(OpEvalSubConst, TOC_US(t)) );
+			}
+		}
+
+		return rv;
+	}
+
 	inline Ciphertext<Element>
 	EvalSub(ConstPlaintext plaintext, ConstCiphertext<Element> ciphertext) const
 	{
-		return EvalSub(ciphertext, plaintext);
+		return EvalAdd(EvalNegate(ciphertext), plaintext);
+	}
+
+	inline Ciphertext<Element>
+	EvalSubMutable(Plaintext plaintext, Ciphertext<Element> &ciphertext) const
+	{
+		Ciphertext<Element> negated = EvalNegate(ciphertext);
+		Ciphertext<Element> result = EvalAddMutable(negated, plaintext);
+		ciphertext = EvalNegate(negated);
+		return result;
+	}
+
+	inline Ciphertext<Element>
+	EvalSub(double constant, ConstCiphertext<Element> ciphertext) const
+	{
+		return EvalAdd(EvalNegate(ciphertext), constant);
 	}
 
 	/**
@@ -1549,6 +2020,31 @@ public:
 		TimeVar t;
 		if( doTiming ) TIC(t);
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, ct2, ek[0]);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMult method for a pair of ciphertexts - with key switching
+	 * This is a mutable version - input ciphertexts may get automatically
+	 * rescaled, or level-reduced.
+	 *
+	 * @param ct1
+	 * @param ct2
+	 * @return new ciphertext for ct1 * ct2
+	 */
+	Ciphertext<Element>
+	EvalMultMutable(Ciphertext<Element> &ct1, Ciphertext<Element> &ct2) const
+	{
+		TypeCheck(ct1, ct2);
+
+		auto ek = GetEvalMultKeyVector(ct1->GetKeyTag());
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalMultMutable(ct1, ct2, ek[0]);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
 		}
@@ -1601,6 +2097,49 @@ public:
 	}
 
 	/**
+	* EvalAddMany - Evaluate addition on a vector of ciphertexts.
+	* It computes the addition in a binary tree manner.
+	*
+	* @param ctList is the list of ciphertexts.
+	*
+	* @return new ciphertext.
+	*/
+	Ciphertext<Element> EvalAddMany(const vector<Ciphertext<Element>>& ctList) const{
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalAddMany(ctList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddMany, TOC_US(t)) );
+		}
+		return rv;
+
+	}
+
+	/**
+	* EvalAddManyInPlace - Evaluate addition on a vector of ciphertexts.
+	* Addition is computed in a binary tree manner. Difference with EvalAddMany
+	* is that EvalAddManyInPlace uses the input ciphertext vector to store
+	* intermediate results, to avoid the overhead of using extra tepmorary
+	* space.
+	*
+	* @param ctList is the list of ciphertexts.
+	*
+	* @return new ciphertext.
+	*/
+	Ciphertext<Element> EvalAddManyInPlace(vector<Ciphertext<Element>>& ctList) const{
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalAddManyInPlace(ctList);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalAddManyInPlace, TOC_US(t)) );
+		}
+		return rv;
+
+	}
+
+	/**
 	* Function for evaluating multiplication on ciphertext followed by relinearization operation.
 	* Currently it assumes that the input arguments have total depth smaller than the supported depth. Otherwise, it throws an error.
 	*
@@ -1624,6 +2163,27 @@ public:
 	}
 
 	/**
+	* Function for relinearization of a ciphertext.
+	*
+	* @param ct input ciphertext.
+	*
+	* @return relinearized ciphertext
+	*/
+	Ciphertext<Element> Relinearize(ConstCiphertext<Element> ct) const {
+
+		const auto ek = GetEvalMultKeyVector(ct->GetKeyTag());
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->Relinearize(ct, ek);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalRelin, TOC_US(t)) );
+		}
+		return rv;
+
+	}
+
+	/**
 	 * EvalMult - PALISADE EvalMult method for plaintext * ciphertext
 	 * @param pt2
 	 * @param ct1
@@ -1633,6 +2193,36 @@ public:
 	EvalMult(ConstPlaintext pt2, ConstCiphertext<Element> ct1) const
 	{
 		return EvalMult(ct1, pt2);
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMultMutable method for plaintext * ciphertext
+	 * @param pt2
+	 * @param ct1
+	 * @return new ciphertext for ct1 * pt2
+	 */
+	inline Ciphertext<Element>
+	EvalMultMutable(Plaintext pt2, Ciphertext<Element> &ct1) const
+	{
+		return EvalMultMutable(ct1, pt2);
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMult method for constant * ciphertext
+	 * @param constant
+	 * @param ct1
+	 * @return new ciphertext for ct1 * constant
+	 */
+	inline Ciphertext<Element>
+	EvalMult(double constant, ConstCiphertext<Element> ct1) const
+	{
+		return EvalMult(ct1, constant);
+	}
+
+	inline Ciphertext<Element>
+	EvalMultMutable(double constant, Ciphertext<Element> &ct1) const
+	{
+		return EvalMultMutable(ct1, constant);
 	}
 
 	/**
@@ -1678,6 +2268,72 @@ public:
 		auto rv = GetEncryptionAlgorithm()->EvalMult(ct1, pt2);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	 * EvalMult - PALISADE EvalMultMutable method for plaintext * ciphertext
+	 * This is a mutable version - input ciphertexts may get automatically
+	 * rescaled, or level-reduced.
+	 *
+	 * @param ct1
+	 * @param pt2
+	 * @return new ciphertext for ct1 * pt2
+	 */
+	Ciphertext<Element>
+	EvalMultMutable(Ciphertext<Element> &ct1, Plaintext pt2) const
+	{
+		TypeCheck((ConstCiphertext<Element>) ct1, (ConstPlaintext) pt2);
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalMultMutable(ct1, pt2);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMult, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalMult - PALISADE EvalSub method for a ciphertext and constant
+	* @param ciphertext
+	* @param constant
+	* @return new ciphertext for ciphertext - constant
+	*/
+	Ciphertext<Element>
+	EvalMult(ConstCiphertext<Element> ciphertext, double constant) const
+	{
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+
+		auto rv = GetEncryptionAlgorithm()->EvalMult(ciphertext, constant);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultConst, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	* EvalMult - PALISADE EvalSub method for a ciphertext and constant
+	* This is a mutable version - input ciphertexts may get automatically
+	* rescaled, or level-reduced.
+	*
+	* @param ciphertext
+	* @param constant
+	* @return new ciphertext for ciphertext - constant
+	*/
+	Ciphertext<Element>
+	EvalMultMutable(Ciphertext<Element> &ciphertext, double constant) const
+	{
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+
+		auto rv = GetEncryptionAlgorithm()->EvalMultMutable(ciphertext, constant);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpEvalMultConst, TOC_US(t)) );
 		}
 		return rv;
 	}
@@ -1843,6 +2499,14 @@ public:
 		const LPPrivateKey<Element> privateKey, 
 		const LPPublicKey<Element> publicKey = nullptr);
 
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalSumRowsKeyGen(
+		const LPPrivateKey<Element> privateKey,
+		const LPPublicKey<Element> publicKey = nullptr, usint rowSize = 0);
+
+	shared_ptr<std::map<usint, LPEvalKey<Element>>> EvalSumColsKeyGen(
+		const LPPrivateKey<Element> privateKey,
+		const LPPublicKey<Element> publicKey = nullptr);
+
 	/**
 	 * GetEvalSumKey  returns the map
 	 *
@@ -1861,6 +2525,10 @@ public:
 	*/
 	Ciphertext<Element> EvalSum(ConstCiphertext<Element> ciphertext, usint batchSize) const;
 
+	Ciphertext<Element> EvalSumRows(ConstCiphertext<Element> ciphertext, usint rowSize, const std::map<usint, LPEvalKey<Element>> &evalKeys) const;
+
+	Ciphertext<Element> EvalSumCols(ConstCiphertext<Element> ciphertext, usint rowSize, const std::map<usint, LPEvalKey<Element>> &evalKeys) const;
+
 	/**
 	* EvalSumKeyGen Generates the key map to be used by evalsum
 	*
@@ -1870,6 +2538,97 @@ public:
 	*/
 	void EvalAtIndexKeyGen(const LPPrivateKey<Element> privateKey,
 		const std::vector<int32_t> &indexList, const LPPublicKey<Element> publicKey = nullptr);
+
+
+	/**
+	 * EvalFastRotationPrecompute implements the precomputation step of
+	 * hoisted automorphisms.
+	 *
+	 * Please refer to Section 5 of Halevi and Shoup, "Faster Homomorphic
+	 * linear transformations in HELib." for more details, link:
+	 * https://eprint.iacr.org/2018/244.
+	 *
+	 * Generally, automorphisms are performed with three steps: (1) the automorphism is
+	 * applied on the ciphertext, (2) the automorphed values are decomposed into digits,
+	 * and (3) key switching is applied to make it possible to further compute on the
+	 * ciphertext.
+	 *
+	 * Hoisted automorphisms is a technique that performs the digit decomposition for the
+	 * original ciphertext first, and then performs the automorphism and the key switching
+	 * on the decomposed digits. The benefit of this is that the digit decomposition is
+	 * independent of the automorphism rotation index, so it can be reused for multiple
+	 * different indices. This can greatly improve performance when we have to compute many
+	 * automorphisms on the same ciphertext. This routinely happens when we do permutations
+	 * (EvalPermute).
+	 *
+	 * EvalFastRotationPrecompute implements the digit decomposition step of hoisted
+	 * automorphisms.
+	 *
+	 * @param ct the input ciphertext on which to do the precomputation (digit decomposition)
+	 */
+	shared_ptr<vector<Element>> EvalFastRotationPrecompute(
+			ConstCiphertext<Element> ct
+			) const {
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalFastRotationPrecompute(ct);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpFastRotPrecomp, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
+	 * EvalFastRotation implements the automorphism and key switching step of
+	 * hoisted automorphisms.
+	 *
+	 * Please refer to Section 5 of Halevi and Shoup, "Faster Homomorphic
+	 * linear transformations in HELib." for more details, link:
+	 * https://eprint.iacr.org/2018/244.
+	 *
+	 * Generally, automorphisms are performed with three steps: (1) the automorphism is
+	 * applied on the ciphertext, (2) the automorphed values are decomposed into digits,
+	 * and (3) key switching is applied to make it possible to further compute on the
+	 * ciphertext.
+	 *
+	 * Hoisted automorphisms is a technique that performs the digit decomposition for the
+	 * original ciphertext first, and then performs the automorphism and the key switching
+	 * on the decomposed digits. The benefit of this is that the digit decomposition is
+	 * independent of the automorphism rotation index, so it can be reused for multiple
+	 * different indices. This can greatly improve performance when we have to compute many
+	 * automorphisms on the same ciphertext. This routinely happens when we do permutations
+	 * (EvalPermute).
+	 *
+	 * EvalFastRotation implements the automorphism and key swithcing step of hoisted
+	 * automorphisms.
+	 *
+	 * This method assumes that all required rotation keys exist. This may not be true
+	 * if we are using baby-step/giant-step key switching. Please refer to Section 5.1 of
+	 * the above reference and EvalPermuteBGStepHoisted to see how to deal with this issue.
+	 *
+	 * @param ct the input ciphertext to perform the automorphism on
+	 * @param index the index of the rotation. Positive indices correspond to left rotations
+	 * 		  and negative indices correspond to right rotations.
+	 * @param m is the cyclotomic order
+	 * @param digits the digit decomposition created by EvalFastRotationPrecompute at
+	 * 		  the precomputation step.
+	 */
+	Ciphertext<Element> EvalFastRotation(
+			ConstCiphertext<Element> ct,
+			const usint index,
+			const usint m,
+			const shared_ptr<vector<Element>> digits
+			) const {
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->EvalFastRotation(ct, index, m, digits);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpFastRot, TOC_US(t)) );
+		}
+		return rv;
+	}
 
 	/**
 	* Merges multiple ciphertexts with encrypted results in slot 0 into a single ciphertext
@@ -1993,6 +2752,26 @@ public:
 	}
 
 	/**
+	 * Rescale - An alias for PALISADE ModReduce method.
+	 * This is because ModReduce is called Rescale in CKKS.
+	 *
+	 * @param ciphertext - vector of ciphertext
+	 * @return vector of mod reduced ciphertext
+	 */
+	Ciphertext<Element> Rescale(ConstCiphertext<Element> ciphertext) const {
+		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
+			throw std::logic_error("Information passed to Rescale was not generated with this crypto context");
+
+		TimeVar t;
+		if( doTiming ) TIC(t);
+		auto rv = GetEncryptionAlgorithm()->ModReduce(ciphertext);
+		if( doTiming ) {
+			timeSamples->push_back( TimingInfo(OpModReduce, TOC_US(t)) );
+		}
+		return rv;
+	}
+
+	/**
 	 * ModReduce - PALISADE ModReduce method
 	 * @param ciphertext - vector of ciphertext
 	 * @return vector of mod reduced ciphertext
@@ -2055,17 +2834,19 @@ public:
 	* @return vector of level reduced ciphertext
 	*/
 	Ciphertext<Element> LevelReduce(ConstCiphertext<Element> cipherText1,
-		const LPEvalKeyNTRU<Element> linearKeySwitchHint) const {
+		const LPEvalKeyNTRU<Element> linearKeySwitchHint, size_t levels = 1) const {
 
-		if( cipherText1 == NULL || linearKeySwitchHint == NULL ||
-				Mismatched(cipherText1->GetCryptoContext()) ||
-				Mismatched(linearKeySwitchHint->GetCryptoContext()) ) {
+		const shared_ptr<LPCryptoParametersCKKS<DCRTPoly>> cryptoParams =
+				std::dynamic_pointer_cast<LPCryptoParametersCKKS<DCRTPoly>>(cipherText1->GetCryptoParameters());
+
+		if( cipherText1 == NULL ||
+				Mismatched(cipherText1->GetCryptoContext()) ) {
 			throw std::logic_error("Information passed to LevelReduce was not generated with this crypto context");
 		}
 
 		TimeVar t;
 		if( doTiming ) TIC(t);
-		auto rv = GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint);
+		auto rv = GetEncryptionAlgorithm()->LevelReduce(cipherText1, linearKeySwitchHint, levels);
 		if( doTiming ) {
 			timeSamples->push_back( TimingInfo(OpLevelReduce, TOC_US(t)) );
 		}
@@ -2135,8 +2916,9 @@ public:
 	template <class Archive>
 	void save( Archive & ar, std::uint32_t const version ) const
 	{
-		ar( ::cereal::make_nvp("cc", params) );
-		ar( ::cereal::make_nvp("kt", scheme) );
+		ar( cereal::make_nvp("cc", params) );
+		ar( cereal::make_nvp("kt", scheme) );
+		ar( cereal::make_nvp("si", m_schemeId) );
 	}
 
 	template <class Archive>
@@ -2145,8 +2927,9 @@ public:
 		if( version > SerializedVersion() ) {
 			PALISADE_THROW(deserialize_error, "serialized object version " + std::to_string(version) + " is from a later version of the library");
 		}
-		ar( ::cereal::make_nvp("cc", params) );
-		ar( ::cereal::make_nvp("kt", scheme) );
+		ar( cereal::make_nvp("cc", params) );
+		ar( cereal::make_nvp("kt", scheme) );
+		ar( cereal::make_nvp("si", m_schemeId) );
 
 		// NOTE: a pointer to this object will be wrapped in a shared_ptr, and is a "CryptoContext".
 		// PALISADE relies on the notion that identical CryptoContextImpls are not duplicated in memory
@@ -2154,11 +2937,11 @@ public:
 		// for this object that's already existing in memory
 		// if it DOES exist, use it. If it does NOT exist, add this to the cache of all contexts
 
-		// That functionality gets handled in the Deserialize wrapper for CryptoContext
 	}
 
-	std::string SerializedObjectName() const { return "CryptoContext"; }
+	virtual std::string SerializedObjectName() const { return "CryptoContext"; }
 	static uint32_t	SerializedVersion() { return 1; }
+
 };
 
 /**
@@ -2173,6 +2956,7 @@ protected:
 	string					keyTag;		/*!< tag used to find the evaluation key needed for SHE/FHE operations */
 
 public:
+
 	CryptoObject(CryptoContext<Element> cc = 0, const string& tag = "") : context(cc), keyTag(tag) {}
 
 	CryptoObject(const CryptoObject& rhs) {
@@ -2210,6 +2994,8 @@ public:
 
 	const EncodingParams GetEncodingParameters() const { return context->GetCryptoParameters()->GetEncodingParams(); }
 
+
+
 	const string GetKeyTag() const { return keyTag; }
 
 	void SetKeyTag(const string& tag) { keyTag = tag; }
@@ -2245,9 +3031,13 @@ public:
 */
 template<typename Element>
 class CryptoContextFactory {
+
+protected:
+
 	static vector<CryptoContext<Element>>		AllContexts;
 
 public:
+
 	static void ReleaseAllContexts();
 
 	static int GetContextCount();
@@ -2256,7 +3046,8 @@ public:
 
 	static CryptoContext<Element> GetContext(
 			shared_ptr<LPCryptoParameters<Element>> params,
-			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme);
+			shared_ptr<LPPublicKeyEncryptionScheme<Element>> scheme,
+			const string & schemeId = "Not");
 
 	static CryptoContext<Element> GetContextForPointer(CryptoContextImpl<Element>* cc);
 
@@ -2323,11 +3114,12 @@ public:
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
  	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(
 		const PlaintextModulus plaintextModulus, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
@@ -2340,11 +3132,12 @@ public:
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
  	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(
 		const PlaintextModulus plaintextModulus, SecurityLevel securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
@@ -2356,11 +3149,12 @@ public:
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
  	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(
 		EncodingParams encodingParams, float securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFV Scheme using the scheme's ParamsGen methods
@@ -2372,11 +3166,12 @@ public:
 	* @param numKeyswitches  key-switching depth for homomorphic computations  (assumes numAdds and numMults are set to zero)
  	* @param mode secret key distribution mode (RLWE [Gaussian noise] or OPTIMIZED [ternary uniform distribution])
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFV(
 		EncodingParams encodingParams, SecurityLevel securityLevel, usint relinWindow, float dist,
-		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2);
+		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
@@ -2390,12 +3185,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow the key switching window (bits in the base for digits) used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
@@ -2409,12 +3205,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow the key switching window (bits in the base for digits) used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		const PlaintextModulus plaintextModulus, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
@@ -2428,12 +3225,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		EncodingParams encodingParams, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrns Scheme using the scheme's ParamsGen methods
@@ -2447,12 +3245,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrns(
 		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
@@ -2466,12 +3265,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
@@ -2485,12 +3285,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		const PlaintextModulus plaintextModulus, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
@@ -2504,12 +3305,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		EncodingParams encodingParams, float securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BFVrnsB Scheme using the scheme's ParamsGen methods
@@ -2523,12 +3325,13 @@ public:
 	* @param maxDepth the maximum power of secret key for which the relinearization key is generated (by default, it is 2); setting it to a value larger than 2 adds support for homomorphic multiplication w/o relinearization
 	* @param relinWindow  the key switching window used for digit decomposition (0 - means to use only CRT decomposition)
 	* @param dcrtBits size of "small" CRT moduli
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	* @return new context
 	*/
 	static CryptoContext<Element> genCryptoContextBFVrnsB(
 		EncodingParams encodingParams, SecurityLevel securityLevel, float dist,
 		unsigned int numAdds, unsigned int numMults, unsigned int numKeyswitches, MODE mode = OPTIMIZED, int maxDepth = 2,
-		uint32_t relinWindow = 0, size_t dcrtBits = 60);
+		uint32_t relinWindow = 0, size_t dcrtBits = 60, uint32_t n = 0);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the BGV Scheme
@@ -2559,6 +3362,113 @@ public:
 		EncodingParams encodingParams,
 		usint relinWindow, float stDev,
 		MODE mode = RLWE, int depth = 1);
+
+	/**
+	* construct a PALISADE CryptoContextImpl for the CKKS Scheme
+	* @param plaintextmodulus
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param mode
+	* @param depth
+	* @param maxDepth maximum depth of multiplications without
+	*    relinearization to support
+	* @param ksTech key switching technique to use (e.g., GHS or BV)
+	* @param rsTech rescaling technique to use (e.g., APPROXRESCALE or EXACTRESCALE)
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextCKKS(shared_ptr<typename Element::Params> params,
+		const PlaintextModulus plaintextmodulus,
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, int depth = 1, int maxDepth = 1,
+		KeySwitchTechnique ksTech = BV,
+		RescalingTechnique rsTech = APPROXRESCALE);
+
+	/**
+	* construct a PALISADE CryptoContextImpl for the CKKS Scheme
+	* @param encodingParams
+	* @param ringdim
+	* @param modulus
+	* @param rootOfUnity
+	* @param relinWindow
+	* @param stDev
+	* @param mode
+	* @param maxDepth is the maximum homomorphic multiplication depth
+	*    before performing relinearization
+	* @param ksTech key switching technique to use (e.g., GHS or BV)
+	* @param rsTech rescaling technique to use (e.g., APPROXRESCALE or EXACTRESCALE)
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextCKKS(shared_ptr<typename Element::Params> params,
+		EncodingParams encodingParams,
+		usint relinWindow, float stDev,
+		MODE mode = RLWE, int depth = 1, int maxDepth = 1,
+		enum KeySwitchTechnique ksTech = BV,
+		RescalingTechnique rsTech = APPROXRESCALE);
+
+	/**
+	* Automatically generate the moduli chain and construct a PALISADE
+	* CryptoContextImpl for the CKKS Scheme with it.
+	*
+	* @param cyclOrder the cyclotomic order M
+	* @param numPrimes the number of towers/primes to use when building the moduli chain
+	* @param scaleExp the plaintext scaling factor, which is equal to dcrtBits in our implementation of CKKS
+	* @param batchSize the batch size of the ciphertext
+	* @param mode RLWE or OPTIMIZED
+	* @param depth
+	* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
+	* @param firstModSize the bit-length of the first modulus
+	* @param ksTech key switching technique to use (e.g., GHS or BV)
+	* @param rsTech rescaling technique to use (e.g., APPROXRESCALE or EXACTRESCALE)
+	* @param numLargeDigits the number of big digits to use in HYBRID key switching
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextCKKSWithParamsGen(
+		   usint cyclOrder,
+		   usint numPrimes,
+		   usint scaleExp,
+		   usint relinWindow,
+		   usint batchSize,
+		   MODE mode,
+		   int depth = 1,
+		   int maxDepth = 1,
+		   usint firstModSize = 60,
+		   enum KeySwitchTechnique ksTech = BV,
+		   enum RescalingTechnique rsTech = APPROXRESCALE,
+		   uint32_t numLargeDigits = 4);
+
+	/**
+	* Construct a PALISADE CryptoContextImpl for the CKKS Scheme.
+	*
+	* @param multiplicativeDepth the depth of multiplications supported by the scheme (equal to number of towers - 1)
+	* @param scalingFactorBits the size of the scaling factor in bits
+	* @param batchSize the number of slots being used in the ciphertext
+	* @param stdLevel the standard security level we want the scheme to satisfy
+	* @param ringDim the ring dimension (if not specified selected automatically based on stdLevel)
+	* @param ksTech key switching technique to use (e.g., HYBRID, GHS or BV)
+	* @param rsTech rescaling technique to use (e.g., APPROXRESCALE or EXACTRESCALE)
+	* @param numLargeDigits the number of big digits to use in HYBRID key switching
+	* @param maxDepth is the maximum homomorphic multiplication depth before performing relinearization
+	* @param firstModSize the bit-length of the first modulus
+	* @param relinWindow the relinearization windows (used in BV key switching, use 0 for RNS decomposition)
+	* @param mode RLWE (gaussian distribution) or OPTIMIZED (ternary distribution)
+	* @return new context
+	*/
+	static CryptoContext<Element> genCryptoContextCKKS(
+			   usint multiplicativeDepth,
+			   usint scalingFactorBits,
+			   usint batchSize,
+			   SecurityLevel stdLevel = HEStd_128_classic,
+			   usint ringDim = 0,
+			   enum RescalingTechnique rsTech = EXACTRESCALE,
+			   enum KeySwitchTechnique ksTech = HYBRID,
+			   uint32_t numLargeDigits = 0,
+			   int maxDepth = 1,
+			   usint firstModSize = 60,
+			   usint relinWindow = 0,
+			   MODE mode = OPTIMIZED);
 
 	/**
 	* construct a PALISADE CryptoContextImpl for the StehleSteinfeld Scheme
@@ -2614,4 +3524,4 @@ public:
 
 }
 
-#endif /* SRC_DEMO_PRE_CRYPTOCONTEXT_H_ */
+#endif /* SRC_PKE_CRYPTOCONTEXT_H_ */

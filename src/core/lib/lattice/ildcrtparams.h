@@ -202,6 +202,33 @@ public:
 	}
 
 	/**
+	 * @brief Getter method that returns a subset of the component parameters.
+	 *
+	 * @param start The index of the first tower to include in the result.
+	 * @param end The index of the last tower to include.
+	 * @return A vector of the component polynomial parameters.
+	 */
+	std::vector<std::shared_ptr<ILNativeParams>> GetParamPartition(uint32_t start, uint32_t end) const {
+
+		if (end < start || end > this->GetParams().size()) {
+			std::string errMsg = "Incorrect parameters for GetParamPartition - (start: " +
+					std::to_string(start) + ", end:" + std::to_string(end) + ")";
+			throw std::logic_error(errMsg);
+		}
+
+		std::vector<std::shared_ptr<ILNativeParams>> resParams =
+				std::vector<std::shared_ptr<ILNativeParams>>(end - start + 1);
+
+		IntType q = IntType(1);
+		for (uint32_t i=0; i<=(end-start); i++) {
+			resParams[i] = this->GetParams()[i+start];
+			q = q.Times(IntType(this->GetParams()[i+start]->GetModulus()));
+		}
+
+		return resParams;
+	}
+
+	/**
 	 * @brief Simple getter method for the original modulus, not the ciphertex modulus.
 	 * @return The original  modulus, not the big ciphertext modulus.
 	 */

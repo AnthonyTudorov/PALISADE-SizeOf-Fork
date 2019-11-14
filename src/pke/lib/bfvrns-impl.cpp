@@ -132,14 +132,14 @@ LPPublicKeyEncryptionSchemeBFVrns<NativePoly>::LPPublicKeyEncryptionSchemeBFVrns
 
 template <>
 bool LPAlgorithmParamsGenBFVrns<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t n) const
 {
 	NOPOLY
 }
 
 template <>
 bool LPAlgorithmParamsGenBFVrns<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t n) const
 {
 	NONATIVEPOLY
 }
@@ -269,6 +269,18 @@ DecryptResult LPAlgorithmMultipartyBFVrns<Poly>::MultipartyDecryptFusion(const v
 template <>
 DecryptResult LPAlgorithmMultipartyBFVrns<NativePoly>::MultipartyDecryptFusion(const vector<Ciphertext<NativePoly>>& ciphertextVec,
 		NativePoly *plaintext) const {
+	NONATIVEPOLY
+}
+
+template <>
+LPEvalKey<Poly> LPAlgorithmMultipartyBFVrns<Poly>::MultiKeySwitchGen(const LPPrivateKey<Poly> originalPrivateKey, const LPPrivateKey<Poly> newPrivateKey,
+	const LPEvalKey<Poly> ek) const {
+	NOPOLY
+}
+
+template <>
+LPEvalKey<NativePoly> LPAlgorithmMultipartyBFVrns<NativePoly>::MultiKeySwitchGen(const LPPrivateKey<NativePoly> originalPrivateKey, const LPPrivateKey<NativePoly> newPrivateKey,
+	const LPEvalKey<NativePoly> ek) const {
 	NONATIVEPOLY
 }
 
@@ -563,7 +575,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 // Parameter generation for BFV-RNS
 template <>
 bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom) const
 {
 
 	if (!cryptoParams)
@@ -618,7 +630,13 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	};
 
 	//initial values
-	uint32_t n = 512;
+	uint32_t n;
+
+	if (nCustom > 0)
+		n = nCustom;
+	else
+		n = 512;
+
 	ExtendedDouble q = ExtendedDouble(0);
 
 	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
@@ -630,6 +648,9 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 
 		//initial value
 		q = qBFV(n);
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		while (nRLWE(q) > n) {
 			n = 2 * n;
@@ -668,6 +689,9 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q
 		//changes the requirement for n, which is rare but still theoretically possible
@@ -734,6 +758,9 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q
 		//changes the requirement for n, which is rare but still theoretically possible
@@ -1153,6 +1180,79 @@ LPEvalKey<DCRTPoly> LPAlgorithmSHEBFVrns<DCRTPoly>::KeySwitchGen(const LPPrivate
 	ek->SetBVector(std::move(evalKeyElementsGenerated));
 
 	return ek;
+
+}
+
+template <>
+LPEvalKey<DCRTPoly> LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultiKeySwitchGen(const LPPrivateKey<DCRTPoly> originalPrivateKey, const LPPrivateKey<DCRTPoly> newPrivateKey,
+	const LPEvalKey<DCRTPoly> ek) const {
+
+	LPEvalKeyRelin<DCRTPoly> keySwitchHintRelin(new LPEvalKeyRelinImpl<DCRTPoly>(newPrivateKey->GetCryptoContext()));
+
+	const shared_ptr<LPCryptoParametersRLWE<DCRTPoly>> cryptoParamsLWE =
+			std::dynamic_pointer_cast<LPCryptoParametersRLWE<DCRTPoly>>(newPrivateKey->GetCryptoParameters());
+	const shared_ptr<typename DCRTPoly::Params> elementParams = cryptoParamsLWE->GetElementParams();
+
+	//Getting a reference to the polynomials of new private key.
+	const DCRTPoly &sNew = newPrivateKey->GetPrivateElement();
+
+	//Getting a reference to the polynomials of original private key.
+	const DCRTPoly &s = originalPrivateKey->GetPrivateElement();
+
+	const typename DCRTPoly::DggType &dgg = cryptoParamsLWE->GetDiscreteGaussianGenerator();
+	typename DCRTPoly::DugType dug;
+
+	std::vector<DCRTPoly> evalKeyElements;
+	std::vector<DCRTPoly> evalKeyElementsGenerated;
+
+	uint32_t relinWindow = cryptoParamsLWE->GetRelinWindow();
+
+	const std::vector<DCRTPoly> &a = ek->GetBVector();
+
+	for (usint i = 0; i < s.GetNumOfElements(); i++)
+	{
+
+		if (relinWindow>0)
+		{
+			vector<typename DCRTPoly::PolyType> decomposedKeyElements = s.GetElementAtIndex(i).PowersOfBase(relinWindow);
+
+			for (size_t k = 0; k < decomposedKeyElements.size(); k++)
+			{
+
+				// Creates an element with all zeroes
+				DCRTPoly filtered(elementParams,EVALUATION,true);
+
+				filtered.SetElementAtIndex(i,decomposedKeyElements[k]);
+
+				// Generate a_i vectors
+				evalKeyElementsGenerated.push_back(a[i*decomposedKeyElements.size()+k]);
+
+				// Generate a_i * s + e - [oldKey]_qi [(q/qi)^{-1}]_qi (q/qi)
+				DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+				evalKeyElements.push_back(filtered - (a[i*decomposedKeyElements.size()+k]*sNew + e));
+			}
+		}
+		else
+		{
+			// Creates an element with all zeroes
+			DCRTPoly filtered(elementParams,EVALUATION,true);
+
+			filtered.SetElementAtIndex(i,s.GetElementAtIndex(i));
+
+			// Generate a_i vectors
+			evalKeyElementsGenerated.push_back(a[i]);
+
+			// Generate  [oldKey]_qi [(q/qi)^{-1}]_qi (q/qi) - (a_i * s + e)
+			DCRTPoly e(dgg, elementParams, Format::EVALUATION);
+			evalKeyElements.push_back(filtered - (a[i]*sNew + e));
+		}
+
+	}
+
+	keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
+	keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
+
+	return keySwitchHintRelin;
 
 }
 

@@ -423,6 +423,9 @@ namespace lbcrypto {
 	*/
 	uint32_t FindAutomorphismIndex2n(int32_t i, uint32_t m);
 
+	// For the CKKS scheme
+	uint32_t FindAutomorphismIndex2nComplex(int32_t i, uint32_t m);
+
 	/**
 	* Find an automorhism index for cyclic groups
 	* @param i is the plaintext array index

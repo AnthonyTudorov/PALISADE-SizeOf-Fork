@@ -418,9 +418,10 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		* @param dcrtBits number of bits in each CRT modulus
+		* @param n ring dimension in case the user wants to use a custom ring dimension
 		*/
 		bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60) const;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrBits = 60, uint32_t n = 0) const;
 	};
 
 	/**
@@ -656,6 +657,24 @@ namespace lbcrypto {
 		 */
 		DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
+
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPAlgorithmMultipartyBFV<Element>>( this ) );
+		}
+
+		LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
+			const LPEvalKey<Element> ek) const;
+
+		std::string SerializedObjectName() const { return "BFVrnsMultiparty"; }
+
 	};
 
 

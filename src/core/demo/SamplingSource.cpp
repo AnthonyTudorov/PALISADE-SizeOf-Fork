@@ -44,7 +44,7 @@ int main() {
 	DiscreteGaussianGenerator dggRejection(4);
 	DiscreteGaussianGenerator dgg4(stdBase); //for Peikert's method
 	double start, finish;
-	size_t count = 10000;
+	size_t count = 1000;
 	double SMOOTHING_PARAMETER =6;
 
 	std::cout << "Distribution parameter = " << std << std::endl;
