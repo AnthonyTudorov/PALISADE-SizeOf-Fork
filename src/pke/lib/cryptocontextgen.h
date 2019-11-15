@@ -306,7 +306,6 @@ GenCryptoContextCKKS( usint cyclOrder,
 	cc->Enable(SHE);
 	cc->Enable(LEVELEDSHE);
 	cc->Enable(MULTIPARTY);
-	cc->Enable(FHE);
 	return cc;
 
 }

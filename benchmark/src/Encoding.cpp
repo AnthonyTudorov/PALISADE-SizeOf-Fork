@@ -204,7 +204,7 @@ void BM_encoding_PackedCKKSPlaintext(benchmark::State& state) {
                           {0,0} };
 
         usint m = 1024;
-        usint numPrimes = 8;
+        usint numPrimes = 1;
         uint64_t p = 50;
         usint dcrtBits = p;
         usint relinWin = 0;
