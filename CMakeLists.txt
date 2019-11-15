@@ -198,7 +198,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 include_directories( ${THIRDPARTYDIR}/cereal/include )
 
 include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature binfhe duality)
+set (SUBMAKEFILES core pke trapdoor abe signature binfhe)
 foreach( dir ${SUBMAKEFILES} )
 	include_directories( src/${dir}/lib )
 endforeach( dir )
@@ -434,7 +434,7 @@ add_custom_target( clobber DEPENDS gmp_clobber ntl_clobber
 )
 
 add_custom_target( testall
-	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests
+	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests binfhe_tests
 	COMMAND echo core: && unittest/core_tests -t
 	COMMAND echo pke: && unittest/pke_tests -t
 	COMMAND echo trapdoor: && unittest/trapdoor_tests -t
