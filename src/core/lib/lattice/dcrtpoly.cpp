@@ -2065,6 +2065,7 @@ void DCRTPolyImpl<VecType>::FastBaseConvqToBskMontgomery(
         {
             // collapsing
             NativeInteger r_m_tilde = r_m_tildes[k]; // m_tilde < than all Bsk_i
+	    if (r_m_tilde >= mtilde/2) r_m_tilde += BskmtildeModuli[i] - mtilde; // centred remainder
             r_m_tilde.ModMulPreconOptimizedEq( currentqModBski, BskmtildeModuli[i], currentqModBskiPrecon ); // (r_mtilde) * q mod Bski
             r_m_tilde.ModAddFastOptimizedEq( m_vectors[numq+i][k], BskmtildeModuli[i] ); // (c``_m + (r_mtilde* q)) mod Bski
             m_vectors[numq+i][k] = r_m_tilde.ModMulPreconOptimized( mtildeInvModBskiTable[i], BskmtildeModuli[i], mtildeInvModBskiPreconTable[i] ); // (c``_m + (r_mtilde* q)) * mtilde mod Bski
