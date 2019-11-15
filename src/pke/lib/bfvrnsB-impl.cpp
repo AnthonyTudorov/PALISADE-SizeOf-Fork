@@ -648,7 +648,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 
 	//expansion factor delta
 	// We use the worst-case bound as the central limit theorem cannot be applied in this case
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(n); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(2*sqrt(n)); };
 
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
