@@ -343,9 +343,10 @@ namespace lbcrypto {
 		* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 		* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 		* @param dcrtBits number of bits in each CRT modulus - NOT USED IN BFV
+		* @param n ring dimension in case the user wants to use a custom ring dimension
 		*/
 		virtual bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const;
+			int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0, uint32_t n = 0) const;
 
 		virtual ~LPAlgorithmParamsGenBFV() {}
 	};
@@ -809,6 +810,41 @@ namespace lbcrypto {
 		 */
 		virtual DecryptResult MultipartyDecryptFusion(const vector<Ciphertext<Element>>& ciphertextVec,
 			NativePoly *plaintext) const;
+
+		LPEvalKey<Element> MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
+			const LPEvalKey<Element> ek) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> eAuto,
+			const std::vector<usint> &indexList) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> eSum) const;
+
+		LPEvalKey<Element> MultiAddEvalKeys(LPEvalKey<Element> a, LPEvalKey<Element> b) const;
+
+		LPEvalKey<Element> MultiMultEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk) const;
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> MultiAddEvalSumKeys(const shared_ptr<std::map<usint, LPEvalKey<Element>>> es1,
+			const shared_ptr<std::map<usint, LPEvalKey<Element>>> es2) const;
+
+		LPEvalKey<Element> MultiAddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2) const;
+
+
+		template <class Archive>
+		void save ( Archive & ar ) const
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		template <class Archive>
+		void load ( Archive & ar )
+		{
+		    ar( cereal::base_class<LPMultipartyAlgorithm<Element>>( this ) );
+		}
+
+		std::string SerializedObjectName() const { return "BFVMultiparty"; }
+
 	};
 
 

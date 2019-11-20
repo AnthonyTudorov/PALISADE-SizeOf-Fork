@@ -189,6 +189,14 @@ public:
 	virtual Element Times(const IntType &element) const = 0;
 
 	/**
+	* @brief Scalar multiplication - mulltiply by a signed integer
+	*
+	* @param &element is the element to multiply entry-wise.
+	* @return is the return value of the times operation.
+	*/
+	virtual Element Times(int64_t element) const;
+
+	/**
 	 * @brief Performs an addition operation and returns the result.
 	 *
 	 * @param &element is the element to add with.

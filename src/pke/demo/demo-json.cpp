@@ -1,5 +1,5 @@
 /*
- * @file demo_pre.cpp - PALISADE library.
+ * @file demo_json.cpp - PALISADE library.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @section LICENSE

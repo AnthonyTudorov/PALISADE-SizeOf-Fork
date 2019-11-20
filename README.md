@@ -2,7 +2,12 @@ PALISADE Lattice Cryptography Library
 =====================================
 
 PALISADE is a general lattice cryptography library that currently includes efficient implementations of the following lattice cryptography capabilities:
-* Homomorphic Encryption (HE): Brakerski/Fan-Vercauteren (3 variants), Brakerski-Gentry-Vaikuntanathan, and Stehle-Steinfeld schemes
+* Homomorphic Encryption (HE): 
+   * Brakerski/Fan-Vercauteren scheme (3 variants)
+   * Brakerski-Gentry-Vaikuntanathan scheme
+   * Cheon-Kim-Kim-Song scheme
+   * FHEW (Ducas-Micciancio) scheme
+   * Stehle-Steinfeld scheme
 * Proxy Re-Encryption for all HE schemes
 * Digital Signature
 * Identity-Based Encryption
@@ -21,7 +26,7 @@ The library is based on modular architecture with the following layers:
 * Crypto layer containing efficient implementations of lattice cryptography schemes.
 * Encoding layer supporting multiple plaintext encodings for cryptographic schemes.
 
-A major focus is on the usability of the schemes. For instance, all HE schemes use the same common API, and are implemented using runtime polymorphism.
+A major focus is on the usability of the schemes. For instance, all HE schemes with packing use the same common API, and are implemented using runtime polymorphism.
 
 PALISADE implements efficient Residue Number System (RNS) algorithms to achieve high performance, e.g., PALISADE was used as the library for a winning genome-wide association studies solution at iDASH’18. 
 

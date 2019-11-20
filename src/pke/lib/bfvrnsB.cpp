@@ -164,6 +164,10 @@ void LPPublicKeyEncryptionSchemeBFVrnsB<Element>::Enable(PKESchemeFeature featur
 		throw std::logic_error("FHE feature not supported for BFVrnsB scheme");
 	case LEVELEDSHE:
 		throw std::logic_error("LEVELEDSHE feature not supported for BFVrnsB scheme");
+	case ADVANCEDSHE:
+		throw std::logic_error("ADVANCEDSHE feature not supported for BFVrnsB scheme");
+	case ADVANCEDMP:
+		throw std::logic_error("ADVANCEDMP feature not supported for BFVrnsB scheme");
 	}
 }
 

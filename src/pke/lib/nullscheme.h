@@ -389,7 +389,7 @@ class LPLeveledSHEAlgorithmNull : public LPLeveledSHEAlgorithm<Element> {
 		* @param &cipherTextResult is the resulting ciphertext.
 		*/
 		Ciphertext<Element> LevelReduce(ConstCiphertext<Element> cipherText1,
-				const LPEvalKey<Element> linearKeySwitchHint) const {
+				const LPEvalKey<Element> linearKeySwitchHint, size_t levels) const {
 			throw std::logic_error("LevelReduce not implemented for Null");
 		}
 
@@ -506,6 +506,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		Ciphertext<Poly> EvalMult(ConstCiphertext<Poly> ciphertext1,
 			ConstPlaintext plaintext) const;
 
+		Ciphertext<Poly> EvalMult(ConstCiphertext<Poly> ciphertext,
+				double constant) const{
+			throw std::logic_error("Scalar multiplication is not implemented for this scheme");
+		}
+
 		/**
 		 * Function for evaluating multiplication on ciphertext.
 		 *
@@ -525,6 +530,11 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		*/
 		Ciphertext<NativePoly> EvalMult(ConstCiphertext<NativePoly> ciphertext1,
 			ConstPlaintext plaintext) const;
+
+	Ciphertext<NativePoly> EvalMult(ConstCiphertext<NativePoly> ciphertext,
+							  double constant) const{
+		throw std::logic_error("Scalar multiplication is not implemented for this scheme");
+	}
 
 		/**
 		 * Function for evaluating multiplication on ciphertext.
@@ -546,6 +556,10 @@ class LPAlgorithmSHENull : public LPSHEAlgorithm<Element> {
 		Ciphertext<DCRTPoly> EvalMult(ConstCiphertext<DCRTPoly> ciphertext,
 			ConstPlaintext plaintext) const;
 
+	Ciphertext<DCRTPoly> EvalMult(ConstCiphertext<DCRTPoly> ciphertext,
+							  double constant) const{
+		throw std::logic_error("Scalar multiplication is not implemented for this scheme");
+	}
 		/**
 		 * Function for evaluating multiplication on ciphertext followed by key switching operation.
 		 *
@@ -801,9 +815,10 @@ public:
 	* @param evalMultCount number of EvalMults assuming no EvalAdd and KeySwitch operations are performed.
 	* @param keySwitchCount number of KeySwitch operations assuming no EvalAdd and EvalMult operations are performed.
 	* @param dcrtBits number of bits in each CRT modulus
+	* @param n ring dimension in case the user wants to use a custom ring dimension
 	*/
 	bool ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount = 0,
-		int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0) const {
+		int32_t evalMultCount = 0, int32_t keySwitchCount = 0, size_t dcrtBits = 0, uint32_t n = 0) const {
 		return true;
 	}
 };
@@ -859,6 +874,10 @@ public:
 			if (this->m_algorithmLeveledSHE == NULL)
 				this->m_algorithmLeveledSHE.reset( new LPLeveledSHEAlgorithmNull<Element>() );
 			break;
+		case ADVANCEDSHE:
+			throw std::logic_error("ADVANCEDSHE feature not supported for NULL scheme");
+		case ADVANCEDMP:
+			throw std::logic_error("ADVANCEDMP feature not supported for NULL scheme");
 		}
 	}
 

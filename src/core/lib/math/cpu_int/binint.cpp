@@ -164,8 +164,22 @@ uint64_t BigInteger<uint_type, BITLENGTH>::ConvertToInt() const{
 
 //Converts the BigInteger to double using the std library functions.
 template<typename uint_type, usint BITLENGTH>
-double BigInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
-	return std::stod(this->ToString());
+inline double BigInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
+	//return std::stod(this->ToString());
+
+	double result = 0.0;
+
+	usint ceilInt = m_nSize - ceilIntByUInt(m_MSB);
+	double factor = pow(2.0,m_uintBitLength);
+	double power = 1.0;
+	//copy the values by shift and add
+	for (usint i = 0;(m_nSize - i - 1) >= ceilInt; i++){
+		result += (double)this->m_value[m_nSize - i - 1]*power;
+		power *= factor;
+	}
+
+	return result;
+
 }
 
 template<typename uint_type,usint BITLENGTH>

@@ -80,6 +80,7 @@ using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 #include "bfv.h"
 #include "bfvrns.h"
 #include "bfvrnsB.h"
+#include "ckks.h"
 #include "nullscheme.h"
 
 #include "ciphertext.h"

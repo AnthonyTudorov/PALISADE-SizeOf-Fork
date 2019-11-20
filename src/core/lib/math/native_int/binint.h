@@ -238,7 +238,7 @@ public:
 	 * @return double representation of the value.
 	 */
 	double ConvertToDouble() const {
-		return m_value;
+		return (double)m_value;
 	}
 
 	//Arithmetic Operations
@@ -840,7 +840,7 @@ public:
 		}
 
 		if(av >= bv){
-			return NativeInteger((av - bv) % mod);
+			return NativeInteger(av - bv);
 		}
 		else{
 			return NativeInteger((av + mod) - bv);

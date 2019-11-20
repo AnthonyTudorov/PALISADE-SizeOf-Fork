@@ -49,6 +49,7 @@ enum PlaintextEncodings {
 	Packed,
 	String,
 	Fractional,
+	CKKSPacked,
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
@@ -73,6 +74,9 @@ inline std::ostream& operator<<(std::ostream& out, const PlaintextEncodings p) {
 		break;
 	case Fractional:
 		out << "Fractional";
+		break;
+	case CKKSPacked:
+		out << "CKKSPacked";
 		break;
 	}
 	return out;
@@ -110,15 +114,22 @@ protected:
 	static const int			fracCTOR		= 0x04;
 	static const int			vecuintCTOR	= 0x08;
 
+	double scalingFactor;
+	size_t level;
+	size_t depth;
+
 public:
 	PlaintextImpl(shared_ptr<Poly::Params> vp, EncodingParams ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT),
+		scalingFactor(1), level(0), depth(1) {}
 
 	PlaintextImpl(shared_ptr<NativePoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsNativePoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsNativePoly), encodingParams(ep), encodedNativeVector(vp,COEFFICIENT),
+		scalingFactor(1), level(0), depth(1) {}
 
 	PlaintextImpl(shared_ptr<DCRTPoly::Params> vp, EncodingParams ep, bool isEncoded = false) :
-		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT) {}
+		isEncoded(isEncoded), typeFlag(IsDCRTPoly), encodingParams(ep), encodedVector(vp,COEFFICIENT), encodedVectorDCRT(vp,COEFFICIENT),
+		scalingFactor(1), level(0), depth(1) {}
 
 	virtual ~PlaintextImpl() {}
 
@@ -127,6 +138,20 @@ public:
 	 * @return Encoding type used by this plaintext
 	 */
 	virtual PlaintextEncodings GetEncodingType() const = 0;
+
+	/**
+	* Get the scaling factor of the plaintext.
+	*/
+	const double GetScalingFactor() const {
+		return scalingFactor;
+	}
+
+	/**
+	* Set the scaling factor of the plaintext.
+	*/
+	void SetScalingFactor(double sf) {
+		scalingFactor = sf;
+	}
 
 	/**
 	 * IsEncoded
@@ -229,11 +254,36 @@ public:
 	 */
 	virtual void SetLength(size_t newSize) { throw std::logic_error("resize not supported"); }
 
+	/*
+	 * Method to get the depth of a plaintext.
+	 *
+	 * @return the depth of the plaintext
+	 */
+	size_t GetDepth() const { return depth; }
+
+	/*
+	 * Method to set the depth of a plaintext.
+	 */
+	void SetDepth(size_t d) { depth = d; }
+
+	/*
+	 * Method to get the level of a plaintext.
+	 *
+	 * @return the level of the plaintext
+	 */
+	size_t GetLevel() const { return level; }
+
+	/*
+	 * Method to set the level of a plaintext.
+	 */
+	void SetLevel(size_t l) { level = l; }
+
 	virtual const std::string&		GetStringValue() const { throw std::logic_error("not a string"); }
 	virtual const int64_t			GetIntegerValue() const { throw std::logic_error("not an integer"); }
 	virtual const int64_t			GetScalarValue() const { throw std::logic_error("not a scalar"); }
 	virtual const vector<int64_t>&	GetCoefPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
 	virtual const vector<int64_t>&	GetPackedValue() const { throw std::logic_error("not a packed coefficient vector"); }
+	virtual const std::vector<std::complex<double>>& GetCKKSPackedValue() const { throw std::logic_error("not a packed vector of complex numbers"); }
 
 	virtual void SetStringValue(const std::string&) { throw std::logic_error("does not support a string"); }
 	virtual void SetIntegerValue(const int64_t) { throw std::logic_error("does not support an integer"); }
@@ -334,6 +384,8 @@ inline DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() {
 	return encodedVectorDCRT;
 }
 
+
 }
+
 
 #endif

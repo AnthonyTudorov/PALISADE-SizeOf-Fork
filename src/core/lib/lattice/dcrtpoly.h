@@ -123,8 +123,9 @@ public:
 	* @param &tug the input ternary uniform generator. The bug will be the seed to populate the towers of the DCRTPoly with random numbers.
 	* @param params parameter set required for DCRTPoly.
 	* @param format the input format fixed to EVALUATION. Format is a enum type that indicates if the polynomial is in Evaluation representation or Coefficient representation. It is defined in inttypes.h.
+	* @param h - Hamming weight for sparse ternary distribution (by default, when h = 0, the distribution is NOT sparse)
 	*/
-	DCRTPolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION);
+	DCRTPolyImpl(const TugType &tug, const shared_ptr<Params> params, Format format = EVALUATION, uint32_t h = 0);
 
 	/**
 	* @brief Constructor based on discrete uniform generator.
@@ -223,6 +224,36 @@ public:
 	 */
 	DCRTPolyType Clone() const {
 		return std::move(DCRTPolyImpl(*this));
+	}
+
+	/**
+	 * @brief Makes a copy of the DCRTPoly, but it includes only a sequential
+	 * subset of the towers that the original holds.
+	 *
+	 * @param startTower The index number of the first tower to clone
+	 * @param endTower The index number of the last tower to clone
+	 * @return new Element
+	 */
+	DCRTPolyType CloneTowers(uint32_t startTower, uint32_t endTower) const {
+
+		vector<NativeInteger> moduli(endTower - startTower + 1);
+		vector<NativeInteger> roots(endTower - startTower + 1);
+
+		for (uint32_t i=startTower; i<=endTower; i++) {
+			moduli[i-startTower] = this->GetParams()->GetParams()[i]->GetModulus();
+			roots[i-startTower] = this->GetParams()->GetParams()[i]->GetRootOfUnity();
+		}
+
+		auto params = DCRTPolyImpl::Params(this->GetCyclotomicOrder(),
+									moduli, roots, {}, {}, 0);
+
+		auto res = DCRTPolyImpl(std::make_shared<typename DCRTPolyImpl::Params>(params), EVALUATION, false);
+
+		for (uint32_t i=startTower; i<=endTower; i++) {
+			res.SetElementAtIndex(i-startTower, this->GetElementAtIndex(i));
+		}
+
+		return std::move(res);
 	}
 
 	/**
@@ -547,12 +578,34 @@ public:
 	DCRTPolyType Plus(const Integer &element) const;
 
 	/**
+	* @brief Scalar addition for elements in CRT format.
+	* CRT elements are represented as vector of integer elements which
+	* correspond to the represented number modulo the primes in the
+	* tower chain (in same order).
+	*
+	* @param &element is the element to add entry-wise.
+	* @return is the result of the addition operation.
+	*/
+	DCRTPolyType Plus(const vector<Integer> &element) const;
+
+	/**
 	* @brief Scalar subtraction - subtract an element to all entries.
 	*
 	* @param &element is the element to subtract entry-wise.
 	* @return is the return value of the minus operation.
 	*/
 	DCRTPolyType Minus(const Integer &element) const;
+
+	/**
+	 * @brief Scalar subtraction for elements in CRT format.
+	 * CRT elements are represented as vector of integer elements which
+	 * correspond to the represented number modulo the primes in the
+	 * tower chain (in same order).
+	 *
+	 * @param &element is the element to subtract entry-wise.
+	 * @return is the result of the subtraction operation.
+	 */
+	DCRTPolyType Minus(const vector<Integer> &element) const;
 
 	/**
 	* @brief Scalar multiplication - multiply all entries.
@@ -563,12 +616,28 @@ public:
 	DCRTPolyType Times(const Integer &element) const;
 
 	/**
+	* @brief Scalar multiplication - mulltiply by a signed integer
+	*
+	* @param &element is the element to multiply entry-wise.
+	* @return is the return value of the times operation.
+	*/
+	DCRTPolyType Times(int64_t element) const;
+
+	/**
 	* @brief Scalar multiplication by an integer represented in CRT Basis.
 	*
 	* @param &element is the element to multiply entry-wise.
 	* @return is the return value of the times operation.
 	*/
 	DCRTPolyType Times(const std::vector<NativeInteger> &element) const;
+
+	/**
+	* @brief Scalar modular multiplication by an integer represented in CRT Basis.
+	*
+	* @param &element is the element to multiply entry-wise.
+	* @return is the return value of the times operation.
+	*/
+	DCRTPolyType Times(const std::vector<Integer> &element) const;
 
 	/**
 	* @brief Scalar multiplication followed by division and rounding operation - operation on all entries.
@@ -733,6 +802,16 @@ public:
 	void DropLastElement();
 
 	/**
+	* @brief Drops the last i elements in the double-CRT representation.
+	*/
+	void DropLastElements(size_t i);
+
+	/**
+	* @brief Drops the last element in the double-CRT representation and scales down by the last CRT modulus. The resulting DCRTPoly element will have one less tower.
+	*/
+	void DropLastElementAndScale(const std::vector<typename PolyType::Integer> &omega);
+
+	/**
 	* @brief ModReduces reduces the DCRTPoly element's composite modulus by dropping the last modulus from the chain of moduli as well as dropping the last tower.
 	*
 	* @param plaintextModulus is the plaintextModulus used for the DCRTPoly
@@ -749,6 +828,7 @@ public:
 
 	PolyType DecryptionCRTInterpolate(PlaintextModulus ptm) const;
 
+	NativePoly ToNativePoly() const;
 
 	/**
 	* @brief Interpolates the DCRTPoly to an Poly based on the Chinese Remainder Transform Interpolation, only at element index i, all other elements are zero.
@@ -758,7 +838,6 @@ public:
 	*/
 	PolyLargeType CRTInterpolateIndex(usint i) const;
 	
-
 	/**
 	* @brief Computes Round(p/q*x) mod p as [\sum_i x_i*alpha_i + Round(\sum_i x_i*beta_i)] mod p for fast rounding in RNS;
 	* used in the decryption of BFVrns
@@ -780,6 +859,127 @@ public:
 						   const std::vector<long double> &extBeta
 						   ) const;
 	
+	/**
+	* @brief Computes and returns the product of primes in the current moduli chain.
+	* Compared to GetModulus, which always returns the product of all primes in the
+	* crypto parameters, this method will return a different modulus, based on the
+	* towers/moduli that are currently in the chain (some towers are dropped along the way).
+	*
+	* @return the product of moduli in the current towers.
+	*/
+	BigInteger GetWorkingModulus() const;
+
+	/**
+	* @brief Returns the element parameters for DCRTPoly elements in an extended
+	* CRT basis, which is the concatenation of the towers currently in "this" DCRTPoly,
+	* and the moduli in ParamsP.
+	*
+	* @return element parameters of the extended basis.
+	*/
+	shared_ptr<Params> GetExtendedCRTBasis(shared_ptr<Params> paramsP) const;
+
+	/**
+	* @brief Performs approximate CRT basis switching. Based on the Fast Basis
+	* Conversion algorithm presented in Section 2.3 of "A full RNS variant of
+	* approximate homomorphic encryption" by Cheon, et. al.
+	*
+	* Suppose we have two CRT bases: C={q_0, ..., q_{L-1}} with Q=q_0*...*q_{L-1}
+	* and B={p_0, ..., p_{K-1}} with P=p_0*...*p_{K-1}. Also, suppose that the
+	* input of the algorithm (the DCRTPoly in "this" in our case), is in basis C.
+	*
+	* The conversion algorithm Conv_{C->B}(this) does not return the representation
+	* of this in basis B, but instead, it returns the representation of (this + Q*t)
+	* in basis B, for some small t (hence we call it *approximate* CRT basis switch).
+	*
+	* The method computes the conversion as follows:
+	*
+	* Conv_{C->B}(this in C basis) =
+	*      Sum_{j=0}^{L-1}(this_j * invhatq_j * hatq_j) mod p_i
+	*
+	* Where:
+	* this_j = this mod q_j
+	* invhatq_j = \hat{q_j} = Q / q_j
+	* hatq_j = \hat{q_j}^{-1} = \hat{q_j}^{-1} mod q_j
+	*
+	* Values for (invhatq_j mod q_j) and (hatq_j mod p_i) must be pre-computed and
+	* supplied as arguments, to ensure the entirety of the conversion happens in RNS.
+	*
+	* @param &paramsFrom parameters for the CRT basis C
+	* @param &paramsTo parameters for the CRT basis B
+	* @param &hatInvModFrom precomputed values for (invhatq_j mod q_j)
+	* @param &hatInvModFromPrecon ModMul precomputed values for hatInvModFrom
+	* @param &hatModTo precomputed values for (hatq_j mod p_i)
+	* @param &modBarretPrecon 128-bit Barrett reduction precomputed values
+	* @return the representation of (this + Q*t) in basis B.
+	*/
+	DCRTPolyType ApproxSwitchCRTBasis(
+			const shared_ptr<Params> paramsFrom,
+	        const shared_ptr<Params> paramsTo,
+			const vector<NativeInteger> &hatInvModFrom,
+			const vector<NativeInteger> &hatInvModFromPrecon,
+			const vector<vector<NativeInteger>> &hatModTo,
+			const vector<DoubleNativeInt> &modBarretPrecon) const;
+
+	/**
+	* @brief Performs approximate modulus raising in RNS. Based on the algorithm
+	* presented in Section 3.2 of "A full RNS variant of approximate homomorphic
+	* encryption" by Cheon, et. al. Given a DCRTPoly "this" in basis C={q_0, ...,
+	* q_{L-1}} with Q=q_0*...*q_{L-1}, it uses ApproxSwitchCRTBasis internally,
+	* and computes the representation of (this + Q*t) in basis D={q_0, ...,
+	* q_{L-1}, p_L, ..., p_{L+K-1}}, where B={p_0, ..., p_{K-1}} with
+	* P=p_0*...*p_{K-1} is the basis we supply as argument in ParamsP.
+	*
+	* Values for (invhatq_j mod q_j) and (hatq_j mod p_i) must be supplied as
+	* arguments here too, because ApproxSwitchCRTBasis is used internally.
+	*
+	* @param &paramsQ parameters for the CRT basis C
+	* @param &paramsP parameters for the CRT basis B
+	* @param &qHatInvModQj precomputed values for (invhatq_j mod q_j)
+	* @param &qHatInvModQjPrecon ModMul precomputed values for qHatInvModQj
+	* @param &qHatModPi precomputed values for (hatq_j mod p_i)
+	* @param &modBarretPreconP 128-bit Barrett reduction precomputed values for p_i
+	* @return the representation of (this + Q*t) in the extended basis.
+	*/
+	DCRTPolyType ApproxModUp(
+				const shared_ptr<Params> paramsQ,
+				const shared_ptr<Params> paramsP,
+				const vector<vector<NativeInteger>> &qHatInvModQj,
+				const vector<vector<NativeInteger>> &qHatInvModQjPrecon,
+				const vector<vector<vector<NativeInteger>>> &qHatModPi,
+				const vector<DoubleNativeInt> &modBarretPreconP) const;
+
+	/**
+	* @brief Performs approximate modulus reduction in RNS. Based on the algorithm
+	* presented in Section 3.2 of "A full RNS variant of approximate homomorphic
+	* encryption" by Cheon, et. al. Given a DCRTPoly "this" in basis D={q_0, ...,
+	* q_{L-1}, p_L, ..., p_{L+K-1}}, it computes the representation of (P^-1 * this)
+	* is basis C={q_0, ..., q_{L-1}}. The reduction is approximate, so the result
+	* is not exactly (P^-1 * this), but a reasonable approximation to it.
+	*
+	* Values for (invhatq_j mod q_j) and (hatq_j mod p_i) must be supplied as
+	* arguments here too, because ApproxSwitchCRTBasis is used internally. Moreover,
+	* precomputed values for (P^{-1} mod q_j) must also be supplied.
+	*
+	* @param &paramsQ parameters for the CRT basis C.
+	* @param &paramsP parameters for the CRT basis B.
+	* @param &pInvModQj precomputed values for (P^{-1} mod q_j).
+	* @param &pInvModQjPrecon ModMul precomputed values for pInvModQj
+ 	* @param &pHatInvModPi precomputed values for (invhatq_j mod q_j).
+ 	* @param &pHatInvModPiPrecon ModMul precomputed values for pHatInvModPi
+	* @param &pHatModQj precomputed values for (hatq_j mod p_i).
+	* @param &modBarretPreconQ 128-bit Barrett reduction precomputed values for q_j
+	* @return the representation of (P^-1 * this) in basis C.
+	*/
+	DCRTPolyType ApproxModDown(
+			const shared_ptr<Params> paramsQ,
+			const shared_ptr<Params> paramsP,
+			const vector<NativeInteger> &pInvModQj,
+			const vector<NativeInteger> &pInvModQjPrecon,
+			const vector<NativeInteger> &pHatInvModPi,
+			const vector<NativeInteger> &pHatInvModPiPrecon,
+			const vector<vector<NativeInteger>> &pHatModQj,
+			const vector<DoubleNativeInt> &modBarretPreconQ) const;
+
 	/**
 	* @brief Switches polynomial from one CRT basis Q = q1*q2*...*qn to another CRT basis S = s1*s2*...*sn
 	*
@@ -1024,6 +1224,26 @@ public:
 	}
 	
 	/**
+	 * @brief Element-integer addition operator with CRT integer.
+	 * @param a first element to add.
+	 * @param b integer to add.
+	 * @return the result of the addition operation.
+	 */
+	friend inline DCRTPolyType operator+(const DCRTPolyType &a, const vector<Integer> &b) {
+		return a.Plus(b);
+	}
+
+	/**
+	 * @brief Integer-element addition operator with CRT integer.
+	 * @param a integer to add.
+	 * @param b element to add.
+	 * @return the result of the addition operation.
+	 */
+	friend inline DCRTPolyType operator+(const vector<Integer> &a, const DCRTPolyType &b) {
+		return b.Plus(a);
+	}
+
+	/**
 	 * @brief Element-element subtraction operator.
 	 * @param a element to subtract from.
 	 * @param b element to subtract.
@@ -1033,6 +1253,26 @@ public:
 		return a.Minus(b);
 	}
 	
+	/**
+	 * @brief Element-integer subtraction operator with CRT integer.
+	 * @param a first element to subtract.
+	 * @param b integer to subtract.
+	 * @return the result of the subtraction operation.
+	 */
+	friend inline DCRTPolyType operator-(const DCRTPolyType &a, const vector<Integer> &b) {
+		return a.Minus(b);
+	}
+
+	/**
+	 * @brief Integer-element subtraction operator with CRT integer.
+	 * @param a integer to subtract.
+	 * @param b element to subtract.
+	 * @return the result of the subtraction operation.
+	 */
+	friend inline DCRTPolyType operator-(const vector<Integer> &a, const DCRTPolyType &b) {
+		return b.Minus(a);
+	}
+
 	/**
 	 * @brief Element-integer subtraction operator.
 	 * @param a element to subtract from.
@@ -1064,12 +1304,42 @@ public:
 	}
 	
 	/**
+	 * @brief Element-CRT number multiplication operator.
+	 * @param a element to multiply.
+	 * @param b integer to multiply, in CRT format.
+	 * @return the result of the multiplication operation.
+	 */
+	friend inline DCRTPolyType operator*(const DCRTPolyType &a, const vector<Integer> &b) {
+		return a.Times(b);
+	}
+
+	/**
 	 * @brief Integer-element multiplication operator.
 	 * @param a integer to multiply.
 	 * @param b element to multiply.
 	 * @return the result of the multiplication operation.
 	 */
 	friend inline DCRTPolyType operator*(const Integer &a, const DCRTPolyType &b) {
+		return b.Times(a);
+	}
+
+	/**
+	 * @brief Element-signed-integer multiplication operator.
+	 * @param a element to multiply.
+	 * @param b integer to multiply.
+	 * @return the result of the multiplication operation.
+	 */
+	friend inline DCRTPolyType operator*(const DCRTPolyType &a, int64_t b) {
+		return a.Times(b);
+	}
+
+	/**
+	 * @brief signed-Integer-element multiplication operator.
+	 * @param a integer to multiply.
+	 * @param b element to multiply.
+	 * @return the result of the multiplication operation.
+	 */
+	friend inline DCRTPolyType operator*(int64_t a, const DCRTPolyType &b) {
 		return b.Times(a);
 	}
 

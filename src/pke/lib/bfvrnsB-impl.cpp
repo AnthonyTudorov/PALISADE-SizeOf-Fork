@@ -134,14 +134,14 @@ LPPublicKeyEncryptionSchemeBFVrnsB<NativePoly>::LPPublicKeyEncryptionSchemeBFVrn
 
 template <>
 bool LPAlgorithmParamsGenBFVrnsB<Poly>::ParamsGen(shared_ptr<LPCryptoParameters<Poly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t n) const
 {
 	NOPOLY
 }
 
 template <>
 bool LPAlgorithmParamsGenBFVrnsB<NativePoly>::ParamsGen(shared_ptr<LPCryptoParameters<NativePoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t n) const
 {
 	NONATIVEPOLY
 }
@@ -609,7 +609,7 @@ bool LPCryptoParametersBFVrnsB<DCRTPoly>::PrecomputeCRTTables(){
 // Parameter generation for BFV-RNS
 template <>
 bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom) const
 {
 #ifdef NO_EXTENDEDDOUBLE
     PALISADE_THROW(not_available_error, "BFVrnsB is not available on this architecture");
@@ -656,7 +656,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 
 	//expansion factor delta
 	// We use the worst-case bound as the central limit theorem cannot be applied in this case
-	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(n); };
+	auto delta = [](uint32_t n) -> ExtendedDouble { return ExtendedDouble(2*sqrt(n)); };
 
 	auto Vnorm = [&](uint32_t n) -> ExtendedDouble { return Berr*(1+2*delta(n)*Bkey);  };
 
@@ -673,7 +673,13 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	};
 
 	//initial values
-	uint32_t n = 512;
+	uint32_t n;
+
+	if (nCustom > 0)
+		n = nCustom;
+	else
+		n = 512;
+
 	ExtendedDouble q = ExtendedDouble(0);
 
 	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
@@ -685,6 +691,9 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 
 		//initial value
 		q = qBFV(n);
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		while (nRLWE(q) > n) {
 			n = 2 * n;
@@ -723,6 +732,9 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q
 		//changes the requirement for n, which is rare but still theoretically possible
@@ -789,6 +801,9 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 		ExtendedDouble qPrev = ExtendedDouble(1e6);
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q
 		//changes the requirement for n, which is rare but still theoretically possible

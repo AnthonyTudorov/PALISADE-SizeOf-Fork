@@ -100,8 +100,8 @@ if( ${AUTOCONF_VER_LEN} EQUAL 0 )
 endif()
 
 set(PALISADE_VERSION_MAJOR 1)
-set(PALISADE_VERSION_MINOR 6)
-set(PALISADE_VERSION_PATCH 0)
+set(PALISADE_VERSION_MINOR 7)
+set(PALISADE_VERSION_PATCH a)
 set(PALISADE_VERSION ${PALISADE_VERSION_MAJOR}.${PALISADE_VERSION_MINOR}.${PALISADE_VERSION_PATCH})
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -177,7 +177,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	endif()
 endif()
 if(APPLE AND "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	set(IGNORE_WARNINGS "${IGNORE_WARNINGS} -Wno-unused-private-field")
+	set(IGNORE_WARNINGS "${IGNORE_WARNINGS} -Wno-unused-private-field -Wno-shift-op-parentheses")
 endif()
 
 set(COMPILEFLAGS "-Wall -Werror -O3 -DPALISADE_VERSION=${PALISADE_VERSION} ${IGNORE_WARNINGS}")
@@ -210,7 +210,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 include_directories( ${THIRDPARTYDIR}/cereal/include )
 
 include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature)
+set (SUBMAKEFILES core pke trapdoor abe signature binfhe)
 foreach( dir ${SUBMAKEFILES} )
 	include_directories( src/${dir}/lib )
 endforeach( dir )
@@ -399,7 +399,7 @@ else()
 	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
 
-if("${WITH_NTL}" STREQUAL "Y")
+if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
 endif()
 
@@ -430,6 +430,7 @@ add_subdirectory(src/pke)
 add_subdirectory(src/trapdoor)
 add_subdirectory(src/abe)
 add_subdirectory(src/signature)
+add_subdirectory(src/binfhe)
 add_subdirectory(android)
 
 ### build the google test handlers
@@ -450,20 +451,21 @@ add_custom_target( clobber DEPENDS gmp_clobber ntl_clobber
 )
 
 add_custom_target( testall
-	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests 
+	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests binfhe_tests
 	COMMAND echo core: && unittest/core_tests -t
 	COMMAND echo pke: && unittest/pke_tests -t
 	COMMAND echo trapdoor: && unittest/trapdoor_tests -t
 	COMMAND echo abe: && unittest/abe_tests -t
 	COMMAND echo signature: && unittest/signature_tests -t
+	COMMAND echo binfhe: && unittest/binfhe_tests -t
 )
 
 add_custom_target( alldemos 
-	DEPENDS allcoredemos allpkedemos alltrapdoordemos allabedemos allsignaturedemos
+	DEPENDS allcoredemos allpkedemos alltrapdoordemos allabedemos allsignaturedemos allbinfhedemos
 )
 
 add_custom_target( allmodules
-	DEPENDS PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature
+	DEPENDS PALISADEcore PALISADEpke PALISADEtrapdoor PALISADEabe PALISADEsignature PALISADEbinfhe
 )
 
 # Add the additional "make clean" files

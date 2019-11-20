@@ -163,7 +163,7 @@ LPCryptoParametersBFV<Element>::LPCryptoParametersBFV(shared_ptr<typename Elemen
 
 template <class Element>
 bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<Element>> cryptoParams, int32_t evalAddCount,
-	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits) const
+	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom) const
 {
 
 	if (!cryptoParams)
@@ -214,7 +214,13 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 	};
 
 	//initial values
-	uint32_t n = 512;
+	uint32_t n;
+
+	if (nCustom > 0)
+		n = nCustom;
+	else
+		n = 512;
+
 	double q = 0;
 	
 	//only public key encryption and EvalAdd (optional when evalAddCount = 0) operations are supported
@@ -226,6 +232,9 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 
 		//initial value
 		q = qBFV(n);
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		while (nRLWE(q) > n) {
 			n = 2 * n;
@@ -246,6 +255,9 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 		double qPrev = 1e6;
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q 
 		//changes the requirement for n, which is rare but still theoretically possible
@@ -291,6 +303,9 @@ bool LPAlgorithmParamsGenBFV<Element>::ParamsGen(shared_ptr<LPCryptoParameters<E
 		double qPrev = 1e6;
 		q = qBFV(n, qPrev);
 		qPrev = q;
+
+		if ((nRLWE(q) > n) && (nCustom > 0))
+			PALISADE_THROW(config_error,"Ring dimension n specified by the user does not meet the security requirement. Please increase it.");
 
 		//this "while" condition is needed in case the iterative solution for q 
 		//changes the requirement for n, which is rare but still theortically possible
@@ -1397,6 +1412,221 @@ DecryptResult LPAlgorithmMultipartyBFV<Element>::MultipartyDecryptFusion(const v
 	return DecryptResult(plaintext->GetLength());
 }
 
+template <class Element>
+LPEvalKey<Element> LPAlgorithmMultipartyBFV<Element>::MultiKeySwitchGen(const LPPrivateKey<Element> originalPrivateKey, const LPPrivateKey<Element> newPrivateKey,
+	const LPEvalKey<Element> ek) const {
+		const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams = std::dynamic_pointer_cast<LPCryptoParametersRLWE<Element>>(originalPrivateKey->GetCryptoParameters());
+
+		const shared_ptr<typename Element::Params> originalKeyParams = cryptoParams->GetElementParams();
+
+		LPEvalKey<Element> keySwitchHintRelin(new LPEvalKeyRelinImpl<Element>(originalPrivateKey->GetCryptoContext()));
+
+		//Getting a reference to the polynomials of new private key.
+		const Element &sNew = newPrivateKey->GetPrivateElement();
+
+		//Getting a reference to the polynomials of original private key.
+		const Element &s = originalPrivateKey->GetPrivateElement();
+
+		//Getting a refernce to discrete gaussian distribution generator.
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+
+		//Relinearization window is used to calculate the base exponent.
+		usint relinWindow = cryptoParams->GetRelinWindow();
+
+		//Pushes the powers of base exponent of original key polynomial onto evalKeyElements.
+		std::vector<Element> evalKeyElements(s.PowersOfBase(relinWindow));
+
+		//evalKeyElementsGenerated hold the generated noise distribution.
+		std::vector<Element> evalKeyElementsGenerated;
+
+		const std::vector<Element> &a = ek->GetBVector();
+
+		for (usint i = 0; i < (evalKeyElements.size()); i++)
+		{
+
+			evalKeyElementsGenerated.push_back(a[i]); //alpha's of i
+
+			// Generate -(a_i * newSK + e) + PowerOfBase(oldSK)
+			Element e(dgg, originalKeyParams, Format::EVALUATION);
+
+			evalKeyElements.at(i) -= (a[i]*sNew + e);
+
+		}
+
+		keySwitchHintRelin->SetAVector(std::move(evalKeyElements));
+
+		keySwitchHintRelin->SetBVector(std::move(evalKeyElementsGenerated));
+
+		return keySwitchHintRelin;
+
+}
+
+template <class Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmMultipartyBFV<Element>::MultiEvalAutomorphismKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eAuto,
+	const std::vector<usint> &indexList) const {
+		const Element &privateKeyElement = privateKey->GetPrivateElement();
+
+		usint n = privateKeyElement.GetRingDimension();
+
+		LPPrivateKey<Element> tempPrivateKey(new LPPrivateKeyImpl<Element>(privateKey->GetCryptoContext()));
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> evalKeys(new std::map<usint, LPEvalKey<Element>>());
+
+		if (indexList.size() > n - 1)
+			throw std::runtime_error("size exceeds the ring dimension");
+		else {
+
+			for (usint i = 0; i < indexList.size(); i++)
+			{
+				Element permutedPrivateKeyElement = privateKeyElement.AutomorphismTransform(indexList[i]);
+
+				tempPrivateKey->SetPrivateElement(permutedPrivateKeyElement);
+
+				(*evalKeys)[indexList[i]] = MultiKeySwitchGen(tempPrivateKey, privateKey, eAuto->find(indexList[i])->second);
+
+			}
+
+		}
+
+		return evalKeys;
+}
+
+template <class Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmMultipartyBFV<Element>::MultiEvalSumKeyGen(const LPPrivateKey<Element> privateKey,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> eSum) const {
+
+		const shared_ptr<LPCryptoParameters<Element>> cryptoParams = privateKey->GetCryptoParameters();
+		const EncodingParams encodingParams = cryptoParams->GetEncodingParams();
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+		usint batchSize = encodingParams->GetBatchSize();
+		usint m = elementParams->GetCyclotomicOrder();
+
+		// stores automorphism indices needed for EvalSum
+		std::vector<usint> indices;
+
+		usint g = 5;
+		for (int i = 0; i < ceil(log2(batchSize)) - 1; i++)
+		{
+			indices.push_back(g);
+			g = (g * g) % m;
+		}
+		if (2*batchSize<m)
+			indices.push_back(g);
+		else
+			indices.push_back(m-1);
+
+		return MultiEvalAutomorphismKeyGen(privateKey, eSum, indices);
+
+}
+
+template <class Element>
+LPEvalKey<Element> LPAlgorithmMultipartyBFV<Element>::MultiAddEvalKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2) const {
+
+	LPEvalKey<Element> evalKeySum(new LPEvalKeyRelinImpl<Element>(evalKey1->GetCryptoContext()));
+
+	const std::vector<Element> &a = evalKey1->GetBVector();
+
+	const std::vector<Element> &b1 = evalKey1->GetAVector();
+	const std::vector<Element> &b2 = evalKey2->GetAVector();
+
+	std::vector<Element> b;
+
+	for (usint i = 0; i < b1.size(); i++)
+	{
+		b.push_back(b1[i] + b2[i]);
+	}
+
+	evalKeySum->SetAVector(std::move(b));
+
+	evalKeySum->SetBVector(std::move(a));
+
+	return evalKeySum;
+
+}
+
+template <class Element>
+LPEvalKey<Element> LPAlgorithmMultipartyBFV<Element>::MultiMultEvalKey(LPEvalKey<Element> evalKey, LPPrivateKey<Element> sk) const {
+
+		const shared_ptr<LPCryptoParametersRLWE<Element>> cryptoParams = std::static_pointer_cast<LPCryptoParametersRLWE<Element>>(evalKey->GetCryptoContext()->GetCryptoParameters());
+		const typename Element::DggType &dgg = cryptoParams->GetDiscreteGaussianGenerator();
+		const shared_ptr<typename Element::Params> elementParams = cryptoParams->GetElementParams();
+
+		LPEvalKey<Element> evalKeyResult(new LPEvalKeyRelinImpl<Element>(evalKey->GetCryptoContext()));
+
+		const std::vector<Element> &a0 = evalKey->GetBVector();
+		const std::vector<Element> &b0 = evalKey->GetAVector();
+
+		const Element &s = sk->GetPrivateElement();
+
+		std::vector<Element> a;
+		std::vector<Element> b;
+
+		for (usint i = 0; i < a0.size(); i++)
+		{
+			Element f1(dgg, elementParams, Format::COEFFICIENT);
+			f1.SwitchFormat();
+
+			Element f2(dgg, elementParams, Format::COEFFICIENT);
+			f2.SwitchFormat();
+
+			a.push_back(a0[i] * s + f1);
+			b.push_back(b0[i] * s + f2);
+		}
+
+		evalKeyResult->SetAVector(std::move(b));
+
+		evalKeyResult->SetBVector(std::move(a));
+
+		return evalKeyResult;
+
+}
+
+template <class Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> LPAlgorithmMultipartyBFV<Element>::MultiAddEvalSumKeys(const shared_ptr<std::map<usint, LPEvalKey<Element>>> es1,
+	const shared_ptr<std::map<usint, LPEvalKey<Element>>> es2) const {
+
+		shared_ptr<std::map<usint, LPEvalKey<Element>>> evalSumKeys(new std::map<usint, LPEvalKey<Element>>());
+
+		for (typename std::map<usint, LPEvalKey<Element>>::iterator it = es1->begin(); it != es1->end(); ++it)
+		{
+			(*evalSumKeys)[it->first] = this->MultiAddEvalKeys(it->second, es2->find(it->first)->second);
+			//std::cerr << "size1 = " << it->second->GetBVector().size() << "; size2 = " << es2->find(it->first)->second->GetBVector().size() << std::endl;
+		}
+
+		return evalSumKeys;
+}
+
+template <class Element>
+LPEvalKey<Element> LPAlgorithmMultipartyBFV<Element>::MultiAddEvalMultKeys(LPEvalKey<Element> evalKey1, LPEvalKey<Element> evalKey2) const {
+
+		LPEvalKey<Element> evalKeySum(new LPEvalKeyRelinImpl<Element>(evalKey1->GetCryptoContext()));
+
+		const std::vector<Element> &a1 = evalKey1->GetBVector();
+		const std::vector<Element> &a2 = evalKey2->GetBVector();
+
+		const std::vector<Element> &b1 = evalKey1->GetAVector();
+		const std::vector<Element> &b2 = evalKey2->GetAVector();
+
+		std::vector<Element> a;
+		std::vector<Element> b;
+
+		for (usint i = 0; i < a1.size(); i++)
+		{
+			a.push_back(a1[i] + a2[i]);
+			b.push_back(b1[i] + b2[i]);
+		}
+
+		evalKeySum->SetAVector(std::move(b));
+
+		evalKeySum->SetBVector(std::move(a));
+
+		return evalKeySum;
+
+}
+
+
 // Enable for LPPublicKeyEncryptionSchemeBFV
 template <class Element>
 void LPPublicKeyEncryptionSchemeBFV<Element>::Enable(PKESchemeFeature feature) {
@@ -1434,6 +1664,10 @@ void LPPublicKeyEncryptionSchemeBFV<Element>::Enable(PKESchemeFeature feature) {
 		throw std::logic_error("FHE feature not supported for BFV scheme");
 	case LEVELEDSHE:
 		throw std::logic_error("LEVELEDSHE feature not supported for BFV scheme");
+	case ADVANCEDSHE:
+		throw std::logic_error("ADVANCEDSHE feature not supported for BFV scheme");
+	case ADVANCEDMP:
+		throw std::logic_error("ADVANCEDMP feature not supported for BFV scheme");
 	}
 }
 

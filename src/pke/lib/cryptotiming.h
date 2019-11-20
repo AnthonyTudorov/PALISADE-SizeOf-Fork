@@ -44,6 +44,8 @@ enum OpType {
 	OpKeyGen,
 	OpMultiPartyKeyGenKey, OpMultiPartyKeyGenKeyvec,
 	OpMultiPartyDecryptLead, OpMultiPartyDecryptMain, OpMultiPartyDecryptFusion,
+	OpMultiKeySwitchGen, OpMultiEvalAutomorphismKeyGen, OpMultiEvalSumKeyGen, OpMultiAddEvalKeys,
+	OpMultiMultEvalKey,OpMultiAddEvalSumKeys, OpMultiAddEvalMultKeys,
 	OpSparseKeyGen,
 	OpReKeyGenPubPri,
 	OpEvalMultKeyGen,
@@ -52,9 +54,9 @@ enum OpType {
 	OpEncrypt, OpEncryptMatrixPlain, OpEncryptMatrixPacked,
 	OpDecrypt, OpDecryptMatrixPlain, OpDecryptMatrixPacked,
 	OpReEncrypt,
-	OpEvalAdd, OpEvalAddMatrix, OpEvalAddPlain,
-	OpEvalSub, OpEvalSubMatrix, OpEvalSubPlain,
-	OpEvalMult, OpEvalMultMany, OpEvalMultMatrix, OpEvalMultPlain,
+	OpEvalAdd, OpEvalAddMatrix, OpEvalAddPlain, OpEvalAddConst, OpEvalLinearWSum, OpEvalAddMany, OpEvalAddManyInPlace,
+	OpEvalSub, OpEvalSubMatrix, OpEvalSubPlain, OpEvalSubConst,
+	OpEvalMult, OpEvalMultMany, OpEvalMultMatrix, OpEvalMultPlain,OpEvalMultConst,OpEvalRelin,
 	OpEvalNeg, OpEvalNegMatrix,
 	OpEvalAutomorphismKeyGen,
 	OpEvalAutomorphismI,
@@ -62,8 +64,11 @@ enum OpType {
 	OpLinRegression, OpKeySwitch,
 	OpModReduce, OpModReduceRational, OpModReduceMatrix, OpLevelReduce, OpRingReduce, OpComposedEvalMult,
 	OpEvalSumKeyGen, OpEvalSum, OpEvalInnerProduct, OpEvalCrossCorrelation, OpEvalLinRegressionBatched,
-	OpEvalAtIndexKeyGen,OpEvalAtIndex,
+	OpEvalSumRowsKeyGen, OpEvalSumRows,OpEvalSumColsKeyGen, OpEvalSumCols,
+	OpEvalAtIndexKeyGen, OpEvalAtIndex, OpEvalAtIndexBGStep,
 	OpEvalMerge, OpEvalRightShift,
+	OpEvalPoly,OpEvalChebyshevSeries,
+	OpFastRot, OpFastRotPrecomp
 };
 
 extern std::map<OpType,string> OperatorName;

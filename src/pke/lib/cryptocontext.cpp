@@ -148,6 +148,54 @@ void CryptoContextImpl<Element>::EvalSumKeyGen(
 }
 
 template <typename Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> CryptoContextImpl<Element>::EvalSumRowsKeyGen(
+	const LPPrivateKey<Element> privateKey,
+	const LPPublicKey<Element> publicKey, usint rowSize) {
+
+	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
+		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
+	}
+
+	if( publicKey != NULL && privateKey->GetKeyTag() != publicKey->GetKeyTag() ) {
+		throw std::logic_error("Public key passed to EvalSumKeyGen does not match private key");
+	}
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto evalKeys = GetEncryptionAlgorithm()->EvalSumRowsKeyGen(privateKey,publicKey,rowSize);
+
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSumRowsKeyGen, currentDateTime() - start) );
+	}
+
+	return evalKeys;
+}
+
+template <typename Element>
+shared_ptr<std::map<usint, LPEvalKey<Element>>> CryptoContextImpl<Element>::EvalSumColsKeyGen(
+	const LPPrivateKey<Element> privateKey,
+	const LPPublicKey<Element> publicKey) {
+
+	if( privateKey == NULL || Mismatched(privateKey->GetCryptoContext()) ) {
+		throw std::logic_error("Private key passed to EvalSumKeyGen were not generated with this crypto context");
+	}
+
+	if( publicKey != NULL && privateKey->GetKeyTag() != publicKey->GetKeyTag() ) {
+		throw std::logic_error("Public key passed to EvalSumKeyGen does not match private key");
+	}
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto evalKeys = GetEncryptionAlgorithm()->EvalSumColsKeyGen(privateKey,publicKey);
+
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSumColsKeyGen, currentDateTime() - start) );
+	}
+
+	return evalKeys;
+}
+
+template <typename Element>
 const std::map<usint, LPEvalKey<Element>>& CryptoContextImpl<Element>::GetEvalSumKeyMap(const string& keyID) {
 	auto ekv = evalSumKeyMap.find(keyID);
 	if( ekv == evalSumKeyMap.end() )
@@ -220,6 +268,7 @@ void CryptoContextImpl<Element>::EvalAtIndexKeyGen(const LPPrivateKey<Element> p
 
 	evalAutomorphismKeyMap[privateKey->GetKeyTag()] = evalKeys;
 }
+
 
 template <typename Element>
 const std::map<usint, LPEvalKey<Element>>& CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(const string& keyID) {
@@ -417,6 +466,44 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalSum(ConstCiphertext<Element>
 }
 
 template <typename Element>
+Ciphertext<Element> CryptoContextImpl<Element>::EvalSumRows(ConstCiphertext<Element> ciphertext, usint rowSize,
+		const std::map<usint, LPEvalKey<Element>> &evalSumKeys) const {
+
+	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
+		throw std::logic_error("Information passed to EvalSum was not generated with this crypto context");
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalSumRows(ciphertext, rowSize, evalSumKeys);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSumRows, currentDateTime() - start) );
+	}
+	return rv;
+}
+
+
+template <typename Element>
+Ciphertext<Element> CryptoContextImpl<Element>::EvalSumCols(ConstCiphertext<Element> ciphertext, usint rowSize,
+		const std::map<usint, LPEvalKey<Element>> &evalSumKeysRight) const {
+
+	if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
+		throw std::logic_error("Information passed to EvalSum was not generated with this crypto context");
+
+	auto evalSumKeys = CryptoContextImpl<Element>::GetEvalSumKeyMap(ciphertext->GetKeyTag());
+
+	double start = 0;
+	if( doTiming ) start = currentDateTime();
+	auto rv = GetEncryptionAlgorithm()->EvalSumCols(ciphertext, rowSize, evalSumKeys, evalSumKeysRight);
+	if( doTiming ) {
+		timeSamples->push_back( TimingInfo(OpEvalSumCols, currentDateTime() - start) );
+	}
+	return rv;
+}
+/**
+ * SerializeEvalAutomorphismKey for all EvalAutomorphism keys
+ * method will serialize each CryptoContext only once
+ */
+template <typename Element>
 template <typename ST>
 bool CryptoContextImpl<Element>::SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, string id) {
 	decltype(evalAutomorphismKeyMap)*	smap;
@@ -497,10 +584,13 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(const vector<Ciphertex
 	auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertextVector[0]->GetKeyTag());
 	double start = 0;
 	if( doTiming ) start = currentDateTime();
+
 	auto rv = GetEncryptionAlgorithm()->EvalMerge(ciphertextVector, evalAutomorphismKeys);
+
 	if( doTiming ) {
 		timeSamples->push_back( TimingInfo(OpEvalMerge, currentDateTime() - start) );
 	}
+
 	return rv;
 }
 
@@ -577,6 +667,6 @@ CryptoContextImpl<Element>::EvalLinRegressBatched(const shared_ptr<Matrix<Ration
 		timeSamples->push_back( TimingInfo(OpEvalLinRegressionBatched, currentDateTime() - start) );
 	}
 	return rv;
-		}
+}
 
 }

@@ -262,8 +262,6 @@ namespace lbcrypto {
 		DEBUG_FLAG(false);
 		int32_t x;
 
-		#pragma omp critical 
-		{		
 		double t = log2(n)*stddev;  //this representation of log_2 is used for Visual Studio
 		DEBUG("DiscreteGaussianGeneratorImpl =========");
 		DEBUG("mean "<<mean);
@@ -311,7 +309,6 @@ namespace lbcrypto {
 
 		}
 
-		}//end pragma
 		return x;
 
 	}
