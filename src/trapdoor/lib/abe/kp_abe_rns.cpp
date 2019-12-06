@@ -135,6 +135,7 @@ void KPABErns::Setup(
 		}
 		else
 		{
+#ifndef NO_QUADMATH
 			//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 			std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
 
@@ -145,6 +146,10 @@ void KPABErns::Setup(
 				CRTDecryptionQuadFloatTable[i] = ext_double::quadFloatFromInt64(numerator)/ext_double::quadFloatFromInt64(denominator);
 			}
 			m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+#else
+			PALISADE_THROW(math_error, "kp_abe_rns.setup: Number of bits in CRT moduli should be in < 58 for this architecture");
+	
+#endif
 		}
 
 		//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
@@ -573,12 +578,18 @@ void KPABErns::EvalCT(
 
 		const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
 		const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
+#ifndef NO_QUADMATH
 		const std::vector<QuadFloat> &lyamQuadTable = m_CRTDecryptionQuadFloatTable;
+#endif
 		const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
 		const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
 		// this is the resulting vector of coefficients;
+#ifndef NO_QUADMATH
 		*ptext = dtext.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+#else
+		*ptext = dtext.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamExtTable);
+#endif
 
 	}
 

@@ -417,6 +417,7 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 	}
 	else
 	{
+#ifndef NO_QUADMATH	  
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
 
@@ -427,6 +428,10 @@ bool LPCryptoParametersBFVrns<DCRTPoly>::PrecomputeCRTTables(){
 			CRTDecryptionQuadFloatTable[i] = ext_double::quadFloatFromInt64(numerator)/ext_double::quadFloatFromInt64(denominator);
 		}
 		m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+#else
+		PALISADE_THROW(math_error, "BFVrns.PrecomputeCRTTables: Number of bits in CRT moduli should be in < 58 for this architecture");
+
+#endif
 	}
 
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
@@ -577,6 +582,12 @@ template <>
 bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom) const
 {
+
+#ifdef NO_EXTENDEDDOUBLE
+      PALISADE_THROW(not_available_error, "BFVrns is not available on this architecture");
+	return (0);
+#else
+
 
 	if (!cryptoParams)
 		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrns ParamsGen");
@@ -822,7 +833,7 @@ bool LPAlgorithmParamsGenBFVrns<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamete
 	cryptoParamsBFVrns->SetElementParams(params);
 
 	return cryptoParamsBFVrns->PrecomputeCRTTables();
-
+#endif // infdef NO_EXTENDEDDOUBLE
 }
 
 template <>
@@ -907,13 +918,18 @@ DecryptResult LPAlgorithmBFVrns<DCRTPoly>::Decrypt(const LPPrivateKey<DCRTPoly> 
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
+#ifndef NO_QUADMATH
 	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
+#endif
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
+#ifndef NO_QUADMATH
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
-
+#else
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamExtTable);
+#endif
 	//std::cout << "Decryption time (internal): " << TOC_US(t_total) << " us" << std::endl;
 
 	return DecryptResult(plaintext->GetLength());
@@ -1579,13 +1595,18 @@ DecryptResult LPAlgorithmMultipartyBFVrns<DCRTPoly>::MultipartyDecryptFusion(con
 
 	const std::vector<double> &lyamTable = cryptoParams->GetCRTDecryptionFloatTable();
 	const std::vector<long double> &lyamExtTable = cryptoParams->GetCRTDecryptionExtFloatTable();
+#ifndef NO_QUADMATH
 	const std::vector<QuadFloat> &lyamQuadTable = cryptoParams->GetCRTDecryptionQuadFloatTable();
+#endif
 	const std::vector<NativeInteger> &invTable = cryptoParams->GetCRTDecryptionIntTable();
 	const std::vector<NativeInteger> &invPreconTable = cryptoParams->GetCRTDecryptionIntPreconTable();
 
 	// this is the resulting vector of coefficients;
+#ifndef NO_QUADMATH
 	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
-
+#else
+	*plaintext = b.ScaleAndRound(p,invTable,lyamTable,invPreconTable,lyamExtTable);
+#endif
 	return DecryptResult(plaintext->GetLength());
 
 }

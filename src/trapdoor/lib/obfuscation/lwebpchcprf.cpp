@@ -109,6 +109,7 @@ BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, 
 	}
 	else
 	{
+#ifndef NO_QUADMATH
 		//compute the table of floating-point factors ((p*[(Q/qi)^{-1}]_qi)%qi)/qi - used only in MultipartyDecryptionFusion
 		std::vector<QuadFloat> CRTDecryptionQuadFloatTable(size);
 
@@ -119,6 +120,10 @@ BPCHCPRF<Element>::BPCHCPRF(usint base, usint chunkSize, usint length, usint n, 
 			CRTDecryptionQuadFloatTable[i] = ext_double::quadFloatFromInt64(numerator)/ext_double::quadFloatFromInt64(denominator);
 		}
 		m_CRTDecryptionQuadFloatTable = CRTDecryptionQuadFloatTable;
+#else
+			PALISADE_THROW(math_error, "BPCHCPRF: Number of bits in CRT moduli should be in < 58 for this architecture");
+	
+#endif	
 	}
 
 	//compute the table of integer factors floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p - used in decryption
@@ -374,7 +379,9 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(con
 
 	const std::vector<double> &lyamTable = m_CRTDecryptionFloatTable;
 	const std::vector<long double> &lyamExtTable = m_CRTDecryptionExtFloatTable;
+#ifndef NO_QUADMATH
 	const std::vector<QuadFloat> &lyamQuadTable = m_CRTDecryptionQuadFloatTable;
+#endif
 	const std::vector<NativeInteger> &invTable = m_CRTDecryptionIntTable;
 	const std::vector<NativeInteger> &invPreconTable = m_CRTDecryptionIntPreconTable;
 
@@ -392,7 +399,11 @@ shared_ptr<vector<NativePoly>> BPCHCPRF<Element>::TransformMatrixToPRFOutput(con
         element.SwitchFormat();
 
 	// For PRF, it is sufficient to use 128 coefficients; we currently use n coefficients
-	(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+#ifndef NO_QUADMATH
+		(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamQuadTable,lyamExtTable);
+#else
+		(*result)[0] = element.ScaleAndRound(NativeInteger(2),invTable,lyamTable,invPreconTable,lyamExtTable);
+#endif
 
 	return result;
 

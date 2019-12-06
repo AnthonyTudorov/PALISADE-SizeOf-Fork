@@ -66,7 +66,11 @@ void Evaluate(size_t size);
 void Decrypt(size_t size);
 
 int main(int argc, char **argv) {
-
+#ifdef NO_QUADMATH
+    std::cout << "This demo uses BFVrns which is currently not available for this architecture"<<std::endl;
+	exit(0);
+#endif
+	
 	static int operation_flag;
 	int opt;
 

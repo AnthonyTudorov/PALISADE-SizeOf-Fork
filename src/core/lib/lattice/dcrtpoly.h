@@ -851,9 +851,14 @@ public:
 	* @return the result of computation as a polynomial with native 64-bit coefficients
 	*/
 	PolyType ScaleAndRound(const NativeInteger &p, const std::vector<NativeInteger> &alpha,
-			const std::vector<double> &beta, const std::vector<NativeInteger> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
-			const std::vector<long double> &extBeta) const;
-
+						   const std::vector<double> &beta,
+						   const std::vector<NativeInteger> &alphaPrecon,
+#ifndef NO_QUADMATH
+						   const std::vector<QuadFloat> &quadBeta,
+#endif						   
+						   const std::vector<long double> &extBeta
+						   ) const;
+	
 	/**
 	* @brief Computes and returns the product of primes in the current moduli chain.
 	* Compared to GetModulus, which always returns the product of all primes in the

@@ -41,7 +41,11 @@ const std::string DATAFOLDER = "demoData";
 
 int main()
 {
-	// Sample Program: Step 1 – Set CryptoContext
+  #ifdef NO_QUADMATH
+  std::cout << "This demo uses BFVrns which is currently not available for this architecture"<<std::endl;
+  exit(0);
+#endif
+    // Sample Program: Step 1 – Set CryptoContext
 
 	// Set the main parameters
 	int plaintextModulus = 65537;

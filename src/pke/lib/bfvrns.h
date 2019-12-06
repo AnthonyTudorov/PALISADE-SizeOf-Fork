@@ -191,13 +191,14 @@ namespace lbcrypto {
 			*/
 			const std::vector<long double>& GetCRTDecryptionExtFloatTable() const { return m_CRTDecryptionExtFloatTable; }
 
+#ifndef NO_QUADMATH			
 			/**
 			* Gets the precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi; CRT modulus has 58..60 bits
 			*
 			* @return the precomputed table
 			*/
 			const std::vector<QuadFloat>& GetCRTDecryptionQuadFloatTable() const { return m_CRTDecryptionQuadFloatTable; }
-
+#endif
 			/**
 			* Gets the precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			*
@@ -351,10 +352,12 @@ namespace lbcrypto {
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			std::vector<long double> m_CRTDecryptionExtFloatTable;
 
+#ifndef NO_QUADMATH
 			// when log2 qi = 58..60 bits
 			// Stores a precomputed table of ((p*[(Q/qi)^{-1}]_qi)%qi)/qi
 			std::vector<QuadFloat> m_CRTDecryptionQuadFloatTable;
-
+#endif
+			
 			// Stores a precomputed table of floor[(p*[(Q/qi)^{-1}]_qi)/qi]_p
 			std::vector<NativeInteger> m_CRTDecryptionIntTable;
 

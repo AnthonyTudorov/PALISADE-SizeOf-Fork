@@ -611,13 +611,21 @@ template <>
 bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParameters<DCRTPoly>> cryptoParams, int32_t evalAddCount,
 	int32_t evalMultCount, int32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom) const
 {
-
+#ifdef NO_EXTENDEDDOUBLE
+    PALISADE_THROW(not_available_error, "BFVrnsB is not available on this architecture");
+	return (0);
+#else
 	if (!cryptoParams)
 		PALISADE_THROW(not_available_error, "No crypto parameters are supplied to BFVrnsB ParamsGen");
 
 	if ((dcrtBits < 30) || (dcrtBits > 60))
 		PALISADE_THROW(math_error, "BFVrnsB.ParamsGen: Number of bits in CRT moduli should be in the range from 30 to 60");
 
+#ifdef NO_QUADMATH
+	if (dcrtBits >= 58)
+	  	PALISADE_THROW(math_error, "BFVrnsB.ParamsGen: Number of bits in CRT moduli should be in < 58 for this architecture");
+
+#endif
 	const shared_ptr<LPCryptoParametersBFVrnsB<DCRTPoly>> cryptoParamsBFVrnsB = std::dynamic_pointer_cast<LPCryptoParametersBFVrnsB<DCRTPoly>>(cryptoParams);
 
 	ExtendedDouble sigma = ExtendedDouble(cryptoParamsBFVrnsB->GetDistributionParameter());
@@ -857,7 +865,7 @@ bool LPAlgorithmParamsGenBFVrnsB<DCRTPoly>::ParamsGen(shared_ptr<LPCryptoParamet
 	cryptoParamsBFVrnsB->SetElementParams(params);
 
 	return cryptoParamsBFVrnsB->PrecomputeCRTTables();
-
+#endif //ifdef NO_EXTENDEDDOUBLE
 }
 
 

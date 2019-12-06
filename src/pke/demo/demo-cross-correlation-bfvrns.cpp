@@ -69,7 +69,10 @@ const std::string DATAFOLDER = "demoData";
 
 
 int main(int argc, char* argv[]) {
-
+#ifdef NO_QUADMATH
+    std::cout << "This demo uses BFVrns which is currently not available for this architecture"<<std::endl;
+	exit(0);
+#endif
 	if (argc < 2) { // called with no arguments
 		std::cout << "Usage is `" << argv[0] << " arg1 ' where: " << std::endl;
 		std::cout << "  arg1 can be one of the following: keygen, encrypt, compute, or decrypt" << std::endl;

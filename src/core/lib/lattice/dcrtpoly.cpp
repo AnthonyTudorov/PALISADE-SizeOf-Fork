@@ -1473,7 +1473,10 @@ template<typename VecType>
 PolyImpl<NativeVector>
 DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
         const std::vector<NativeInteger> &alpha, const std::vector<double> &beta,
-        const std::vector<NativeInteger> &alphaPrecon, const std::vector<QuadFloat> &quadBeta,
+        const std::vector<NativeInteger> &alphaPrecon,
+#ifndef NO_QUADMATH
+		const std::vector<QuadFloat> &quadBeta,
+#endif									 
         const std::vector<long double> &extBeta) const {
 
     usint ringDimension = GetRingDimension();
@@ -1523,7 +1526,7 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
     }
     else
     {
-
+#ifndef NO_QUADMATH
         if (nTowers > 16) // handles the case when curFloatSum exceeds 2^63 (causing an an overflow in int)
             {
             QuadFloat pFloat = ext_double::quadFloatFromInt64(p.ConvertToInt());
@@ -1566,6 +1569,10 @@ DCRTPolyImpl<VecType>::ScaleAndRound(const NativeInteger &p,
                 coefficients[ri] = (curIntSum + NativeInteger(ext_double::quadFloatRound(curFloatSum))).Mod(p);
             }
         }
+#else
+		PALISADE_THROW(math_error, "BFVrns.ScaleAndRound(): Number of bits in CRT moduli should be in < 58 for this architecture");
+
+#endif
     }
 
     // Setting the root of unity to ONE as the calculation is expensive
