@@ -24,8 +24,8 @@
  *
  */
  
-#include "ternaryuniformgenerator.h"
-#include "binaryuniformgenerator.h"
+#include "math/ternaryuniformgenerator.h"
+#include "math/binaryuniformgenerator.h"
 #include <random>
 
 namespace lbcrypto {

@@ -30,10 +30,10 @@
 #include "include/gtest/gtest.h"
 #include <iostream>
 
-#include "../lib/lattice/dcrtpoly.h"
+#include "lattice/dcrtpoly.h"
 #include "math/backend.h"
-#include "../lib/math/transfrm.h"
-#include "../lib/math/transfrm.cpp"
+#include "math/transfrm.h"
+#include "math/transfrm.cpp"
 #include "utils/inttypes.h"
 #include "lattice/ilparams.h"
 #include "lattice/ildcrtparams.h"

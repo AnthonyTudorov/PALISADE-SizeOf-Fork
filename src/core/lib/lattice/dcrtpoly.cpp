@@ -24,12 +24,12 @@
  *
  */
 
-#include "dcrtpoly.h"
+#include "lattice/dcrtpoly.h"
 #include <fstream>
 #include <memory>
 using std::shared_ptr;
 using std::string;
-#include "../utils/debug.h"
+#include "utils/debug.h"
 
 namespace lbcrypto
 {

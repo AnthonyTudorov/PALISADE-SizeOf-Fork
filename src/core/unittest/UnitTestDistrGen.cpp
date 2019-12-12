@@ -39,7 +39,7 @@
 #include "utils/utilities.h"
 #include "utils/debug.h"
 
-#include "../lib/lattice/dcrtpoly.h"
+#include "lattice/dcrtpoly.h"
 using namespace std;
 using namespace lbcrypto;
 

@@ -24,7 +24,7 @@
  *
  */
 
-#include "packedencoding.h"
+#include "encoding/packedencoding.h"
 
 namespace lbcrypto {
 

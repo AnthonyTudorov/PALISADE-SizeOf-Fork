@@ -23,7 +23,7 @@
  *
  */
 
-#include "../lib/math/dftransfrm.h"
+#include "math/dftransfrm.h"
 
 using namespace lbcrypto;
 

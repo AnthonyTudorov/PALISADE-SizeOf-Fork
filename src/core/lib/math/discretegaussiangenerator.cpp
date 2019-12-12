@@ -25,9 +25,9 @@
  *
  */
  
-#include "discretegaussiangenerator.h"
-#include "nbtheory.h"
-#include "backend.h"
+#include "math/discretegaussiangenerator.h"
+#include "math/nbtheory.h"
+#include "math/backend.h"
  
 
 namespace lbcrypto {

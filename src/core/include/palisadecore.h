@@ -1,5 +1,5 @@
-/*
- * @file dcrtpoly-impl.cpp - implementation of the integer lattice using double-CRT representations.
+/**
+ * @file version.h -- PALISADE version strings
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -24,27 +24,13 @@
  *
  */
 
+#ifndef SRC_CORE_INCLUDE_PALISADECORE_H_
+#define SRC_CORE_INCLUDE_PALISADECORE_H_
+
+#include "version.h"
 #include "math/backend.h"
-#include "lattice/elemparams.cpp"
-#include "lattice/ildcrtparams.cpp"
-#include "math/discretegaussiangenerator.cpp"
-#include "math/discreteuniformgenerator.cpp"
-#include "math/binaryuniformgenerator.cpp"
-#include "math/ternaryuniformgenerator.cpp"
-#include "lattice/dcrtpoly.cpp"
-#include "lattice/poly.cpp"
+#include "encoding/encodings.h"
+#include "lattice/backend.h"
+#include "utils/debug.h"
 
-// This creates all the necessary class implementations for DCRTPoly
-
-namespace lbcrypto
-{
-
-template class ILDCRTParams<M2Integer>;
-template class DCRTPolyImpl<M2Vector>;
-template class ILDCRTParams<M4Integer>;
-template class DCRTPolyImpl<M4Vector>;
-#ifdef WITH_NTL
-template class ILDCRTParams<M6Integer>;
-template class DCRTPolyImpl<M6Vector>;
-#endif
-}
+#endif /* SRC_CORE_INCLUDE_PALISADECORE_H_ */

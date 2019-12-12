@@ -397,7 +397,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
 
 
 TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
-	DEBUG_FLAG(false);
+	DEBUG_FLAG(true);
 	DEBUG("start tests");
 	
 	usint m = 1024;
@@ -459,6 +459,28 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 
 	Matrix<Poly> z = SplitInt64AltIntoElements<Poly>(zHatBBI, n, params);
 	DEBUG("4.5");
+	DEBUG("z size " << z.GetRows() << " " << z.GetCols());
+    if (z.GetRows() == 1)
+      {
+	for (size_t row = 0; row < z.GetRows(); ++row) {
+#pragma omp parallel for
+	  for (size_t col = 0; col < z.GetCols(); ++col) {
+	    //data[row][col].SwitchFormat();
+	  }
+	}
+      }
+    else
+      {
+	for (size_t col = 0; col < z.GetCols(); ++col) {
+#pragma omp parallel for
+	  for (size_t row = 0; row < z.GetRows(); ++row) {
+		  DEBUG("r,c = " << row << "," << col);
+		  auto mmm = z.GetData()[row][col];
+		  mmm.SwitchFormat();
+	    //data[row][col].SwitchFormat();
+	  }
+	}
+      }
 
 	z.SwitchFormat();
 

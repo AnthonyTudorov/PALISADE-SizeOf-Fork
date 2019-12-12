@@ -209,11 +209,11 @@ include_directories( ${THIRDPARTYDIR}/include )
 ### Handle third-party CEREAL
 include_directories( ${THIRDPARTYDIR}/cereal/include )
 
-include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature binfhe)
-foreach( dir ${SUBMAKEFILES} )
-	include_directories( src/${dir}/lib )
-endforeach( dir )
+#include_directories( src )
+#set (SUBMAKEFILES core pke trapdoor abe signature binfhe)
+#foreach( dir ${SUBMAKEFILES} )
+#	include_directories( src/${dir}/lib )
+#endforeach( dir )
 
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
