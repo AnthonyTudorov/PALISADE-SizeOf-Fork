@@ -1,5 +1,10 @@
 file (GLOB ABE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( ../pke/include )
+include_directories( include )
+include_directories( lib )
+
 set(ABE_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(ABE_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(ABE_VERSION_PATCH ${PALISADE_VERSION_PATCH})
