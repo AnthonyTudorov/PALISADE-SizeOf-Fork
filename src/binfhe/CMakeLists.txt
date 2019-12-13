@@ -1,5 +1,10 @@
 file (GLOB BINFHE_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp)
 
+include_directories( ../core/include )
+include_directories( ../pke/include )
+include_directories( include )
+include_directories( lib )
+
 set(BINFHE_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(BINFHE_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(BINFHE_VERSION_PATCH ${PALISADE_VERSION_PATCH})
