@@ -6,11 +6,10 @@
  */
 
 #include "palisade.h"
-#include "cryptocontext.h"
 #include "utils/serialize-binary.h"
 #include "utils/serialize-json.h"
 #include "ciphertext-ser.h"
-#include "bfvrns-ser.h"
+#include "scheme/bfvrns/bfvrns-ser.h"
 using namespace lbcrypto;
 
 class Foo {

@@ -1,5 +1,5 @@
 /*
- * @file 
+* @file bfvrns-ser.h - serialize BFVrns; include this in any app that needs to serialize this scheme
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -24,38 +24,22 @@
  *
  */
 
-#include "include/gtest/gtest.h"
-#include "UnitTestSer.h"
+#ifndef LBCRYPTO_CRYPTO_BFVRNSSER_H
+#define LBCRYPTO_CRYPTO_BFVRNSSER_H
 
-#include "scheme/bfvrnsb/bfvrnsB-ser.h"
+#include "scheme/bfv/bfv-ser.h"
+#include "palisade.h"
+#include "utils/serial.h"
 
-using namespace std;
-using namespace lbcrypto;
+extern template class lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmPREBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmSHEBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmMultipartyBFVrns<lbcrypto::DCRTPoly>;
+extern template class lbcrypto::LPAlgorithmParamsGenBFVrns<lbcrypto::DCRTPoly>;
 
-class UTPKESer : public ::testing::Test {
-protected:
-	void SetUp() {
-	}
+CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>);
 
-	void TearDown() {
-		CryptoContextImpl<Poly>::ClearEvalMultKeys();
-		CryptoContextImpl<Poly>::ClearEvalSumKeys();
-		CryptoContextFactory<Poly>::ReleaseAllContexts();
-		CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
-		CryptoContextImpl<DCRTPoly>::ClearEvalSumKeys();
-		CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
-	}
-};
-
-extern CryptoContext<DCRTPoly> GenerateTestDCRTCryptoContext(const string& parmsetName, usint nTower, usint pbits);
-
-template<typename T>
-void UnitTestContext(CryptoContext<T> cc) {
-	UnitTestContextWithSertype(cc, SerType::JSON, "json");
-	UnitTestContextWithSertype(cc, SerType::BINARY, "binary");
-}
-
-TEST_F(UTPKESer, BFVrnsB_DCRTPoly_Serial) {
-	CryptoContext<DCRTPoly> cc = GenerateTestDCRTCryptoContext("BFVrnsB2", 3, 20);
-	UnitTestContext<DCRTPoly>(cc);
-}
+#endif

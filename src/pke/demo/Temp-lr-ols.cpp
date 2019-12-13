@@ -42,20 +42,13 @@ field20: 0.000260
 
 #include "palisade.h"
 
-#include "cryptocontexthelper.h"
-
-#include "encoding/encodings.h"
-
-#include "utils/debug.h"
 #include "utils/serialize-binary.h"
-#include "bgv-ser.h"
+#include "scheme/bgv/bgv-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
 #include <random>
 
-#include "math/nbtheory.h"
-#include "math/matrix.h"
 #include "../../core/lib/math/matrix.cpp"
 
 #include "Temp-matrixinverse.h"

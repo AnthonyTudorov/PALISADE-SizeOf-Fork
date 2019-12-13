@@ -27,7 +27,7 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONCHCPRF_CPP
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONCHCPRF_CPP
 
-#include "lweconjunctionchcprf.h"
+#include "obfuscation/lweconjunctionchcprf.h"
 
 namespace lbcrypto {
 

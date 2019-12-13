@@ -27,14 +27,12 @@
 #define PROFILE
 
 #include "palisade.h"
-#include "cryptocontexthelper.h"
-#include "lattice/stdlatticeparms.h"
 
 using namespace lbcrypto;
 
 int main()
 {
-	// Step 1 – Setup CryptoContext
+	// Step 1 ï¿½ Setup CryptoContext
 
 	// A. Specify main parameters
 	/* A1) Multiplicative depth:
@@ -124,7 +122,7 @@ int main()
 	cc->Enable(ENCRYPTION);
 	cc->Enable(SHE);
 
-	// B. Step 2 – Key Generation
+	// B. Step 2 ï¿½ Key Generation
 	/* B1) Generate encryption keys.
 	 * These are used for encryption/decryption, as well as in generating different
 	 * kinds of keys.
@@ -159,7 +157,7 @@ int main()
 	cc->EvalAtIndexKeyGen(keys.secretKey, { 1, -2 });
 
 
-	// Step 3 – Encoding and encryption of inputs
+	// Step 3 ï¿½ Encoding and encryption of inputs
 
 	// Inputs
 	vector<complex<double>> x1 = { 0.25, 0.5, 0.75, 1.0, 2.0, 3.0, 4.0, 5.0 };
@@ -176,7 +174,7 @@ int main()
 	auto c1 = cc->Encrypt(keys.publicKey, ptxt1);
 	auto c2 = cc->Encrypt(keys.publicKey, ptxt2);
 
-	// Step 4 – Evaluation
+	// Step 4 ï¿½ Evaluation
 
 	// Homomorphic addition
 	auto cAdd = cc->EvalAdd(c1, c2);
@@ -194,7 +192,7 @@ int main()
 	auto cRot1 = cc->EvalAtIndex(c1, 1);
 	auto cRot2 = cc->EvalAtIndex(c1, -2);
 
-	// Step 5 – Decryption and output
+	// Step 5 ï¿½ Decryption and output
 	Plaintext result;
 	// We set the cout precision to 8 decimal digits for a nicer output.
 	// If you want to see the error/noise introduced by CKKS, bump it up

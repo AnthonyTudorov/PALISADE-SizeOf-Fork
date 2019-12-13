@@ -459,28 +459,11 @@ TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
 
 	Matrix<Poly> z = SplitInt64AltIntoElements<Poly>(zHatBBI, n, params);
 	DEBUG("4.5");
-	DEBUG("z size " << z.GetRows() << " " << z.GetCols());
-    if (z.GetRows() == 1)
-      {
-	for (size_t row = 0; row < z.GetRows(); ++row) {
-#pragma omp parallel for
-	  for (size_t col = 0; col < z.GetCols(); ++col) {
-	    //data[row][col].SwitchFormat();
-	  }
-	}
-      }
-    else
-      {
-	for (size_t col = 0; col < z.GetCols(); ++col) {
-#pragma omp parallel for
-	  for (size_t row = 0; row < z.GetRows(); ++row) {
-		  DEBUG("r,c = " << row << "," << col);
-		  auto mmm = z.GetData()[row][col];
-		  mmm.SwitchFormat();
-	    //data[row][col].SwitchFormat();
-	  }
-	}
-      }
+	// FIXME for some reason I must do this before calling switchformat (which uses omp for parallel execution)
+	// FIXME my guess is there is a race in the calculation/caching of factors underneath, though the critical
+	// FIXME region *should* address that...
+	  auto mmm = z.GetData()[0][0];
+	  mmm.SwitchFormat();
 
 	z.SwitchFormat();
 

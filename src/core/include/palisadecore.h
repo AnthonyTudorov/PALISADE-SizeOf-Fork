@@ -33,6 +33,7 @@
 #include "math/distrgen.h"
 #include "encoding/encodings.h"
 #include "lattice/backend.h"
+#include "lattice/stdlatticeparms.h"
 #include "utils/debug.h"
 
 #endif /* SRC_CORE_INCLUDE_PALISADECORE_H_ */

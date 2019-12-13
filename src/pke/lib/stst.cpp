@@ -38,7 +38,7 @@
 #ifndef LBCRYPTO_CRYPTO_STST_C
 #define LBCRYPTO_CRYPTO_STST_C
 
-#include "stst.h"
+#include "scheme/stst/stst.h"
 
 namespace lbcrypto {
 

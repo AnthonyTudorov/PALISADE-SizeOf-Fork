@@ -30,7 +30,6 @@ using namespace std;
 
 #include "palisade.h"
 
-#include "cryptocontexthelper.h"
 #include "utils/serialize-json.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"

@@ -32,7 +32,7 @@
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
 #include "pubkeylp-ser.h"
-#include "bfvrns-ser.h"
+#include "scheme/bfvrns/bfvrns-ser.h"
 
 using namespace lbcrypto;
 

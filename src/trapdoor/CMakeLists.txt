@@ -1,5 +1,10 @@
 file (GLOB TRAPDOOR_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp lib/*/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( ../pke/include )
+include_directories( include )
+include_directories( lib )
+
 set(TRAPDOOR_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(TRAPDOOR_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(TRAPDOOR_VERSION_PATCH ${PALISADE_VERSION_PATCH})
