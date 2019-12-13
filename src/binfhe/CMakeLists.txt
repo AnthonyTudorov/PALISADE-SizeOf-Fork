@@ -25,6 +25,8 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEbinfhe_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/binfhe)
+
 target_include_directories (PALISADEbinfhe PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (BINFHELIBS PUBLIC PALISADEbinfhe PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

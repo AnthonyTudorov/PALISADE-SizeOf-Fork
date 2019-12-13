@@ -1,5 +1,11 @@
 cmake_minimum_required (VERSION 3.5.1)
 
+set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/palisade CACHE
+ STRING "Set" FORCE)
+message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
+set (CMAKE_INSTALL_MESSAGE LAZY)
+
+
 # determine the architecture on a unix system (important for
 if(CMAKE_HOST_UNIX)
   EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
@@ -125,16 +131,16 @@ SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 # (but later on when installing)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+SET(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIBINSTALL}" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+   SET(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
 set(CMAKE_CXX_STANDARD 11)
@@ -164,9 +170,6 @@ endif()
 if (OpenMP_C_FOUND)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
-
-message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
-set (CMAKE_INSTALL_MESSAGE LAZY)
 
 # Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -393,9 +396,9 @@ else()
 	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
 
-if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
-endif()
+#if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
+	#install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/include)
+#endif()
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
 set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)

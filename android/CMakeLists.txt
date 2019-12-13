@@ -1,3 +1,7 @@
+include_directories( ../src/core/include )
+include_directories( ../src/pke/include )
+include_directories( ../src/pke/lib )
+
 include(FindJNI)
 
 if( ${JNI_FOUND} )

@@ -25,6 +25,8 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEabe_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/abe)
+
 target_include_directories (PALISADEabe PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (ABELIBS PUBLIC PALISADEabe PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

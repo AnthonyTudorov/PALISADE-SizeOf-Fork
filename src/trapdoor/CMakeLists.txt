@@ -25,6 +25,8 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEtrapdoor_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/trapdoor)
+
 target_include_directories (PALISADEtrapdoor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (TRAPDOORLIBS PUBLIC PALISADEtrapdoor PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

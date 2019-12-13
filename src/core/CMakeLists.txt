@@ -24,6 +24,11 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEcore_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/core)
+#if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
+#	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/ DESTINATION include)
+#endif()
+
 target_include_directories (PALISADEcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (CORELIBS PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

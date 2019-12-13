@@ -24,6 +24,8 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEpke_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/pke)
+
 target_include_directories (PALISADEpke PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (PKELIBS PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

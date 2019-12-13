@@ -25,6 +25,8 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	install(TARGETS PALISADEsignature_static DESTINATION lib)
 endif()
 
+install(DIRECTORY include/ DESTINATION include/signature)
+
 target_include_directories (PALISADEsignature PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SIGLIBS PUBLIC PALISADEsignature PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

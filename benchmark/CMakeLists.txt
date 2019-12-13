@@ -1,3 +1,8 @@
+include_directories( ../src/core/include )
+include_directories( ../src/core/lib )
+include_directories( ../src/pke/include )
+include_directories( ../src/binfhe/include )
+
 set( REGEX_FLAG -DHAVE_STD_REGEX )
 
 if ( APPLE )
