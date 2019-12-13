@@ -34,6 +34,7 @@
 #include <string>
 #include "distributiongenerator.h"
 #include "discretegaussiangenerator.h"
+#include "discretegaussiangeneratorgeneric.h"
 #include "discreteuniformgenerator.h"
 #include "binaryuniformgenerator.h"
 #include "ternaryuniformgenerator.h"

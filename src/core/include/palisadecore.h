@@ -29,6 +29,8 @@
 
 #include "version.h"
 #include "math/backend.h"
+#include "math/nbtheory.h"
+#include "math/distrgen.h"
 #include "encoding/encodings.h"
 #include "lattice/backend.h"
 #include "utils/debug.h"
