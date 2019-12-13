@@ -48,7 +48,7 @@
 
 #include "math/nbtheory.h"
 #include "math/matrix.h"
-#include "math/matrix.cpp"
+#include "../../core/lib/math/matrix.cpp"
 
 using namespace std;
 using namespace lbcrypto;

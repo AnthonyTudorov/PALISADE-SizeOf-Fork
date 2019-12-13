@@ -1,5 +1,6 @@
 file (GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp)
 
+include_directories( ../core/include )
 include_directories( include )
 include_directories( lib )
 

@@ -27,7 +27,7 @@
  *
  */
 
-#include "math/matrix.cpp"
+#include "../../core/lib/math/matrix.cpp"
 #include "kp_abe_rns.cpp"
 
 namespace lbcrypto {

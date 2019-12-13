@@ -31,7 +31,7 @@
 #include "palisade.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
-#include "../../core/lib/utils/debug.h"
+#include "utils/debug.h"
 
 namespace lbcrypto {
 

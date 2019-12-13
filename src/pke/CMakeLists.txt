@@ -1,5 +1,9 @@
 file (GLOB PKE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( include )
+include_directories( lib )
+
 set(PKE_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(PKE_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(PKE_VERSION_PATCH ${PALISADE_VERSION_PATCH})

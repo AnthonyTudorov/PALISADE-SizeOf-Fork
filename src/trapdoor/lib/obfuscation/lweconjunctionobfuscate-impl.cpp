@@ -24,7 +24,7 @@
  *
  */
 
-#include "math/matrix.cpp"
+#include "../../core/lib/math/matrix.cpp"
 #include "lweconjunctionobfuscate.cpp"
 
 namespace lbcrypto {
