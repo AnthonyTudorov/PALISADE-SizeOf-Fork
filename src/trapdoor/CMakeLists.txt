@@ -18,14 +18,14 @@ add_library (PALISADEtrapdoor SHARED $<TARGET_OBJECTS:trapdoorobj>)
 set_property(TARGET PALISADEtrapdoor PROPERTY VERSION ${TRAPDOOR_VERSION})
 set_property(TARGET PALISADEtrapdoor PROPERTY SOVERSION ${TRAPDOOR_VERSION_MAJOR})
 set_property(TARGET PALISADEtrapdoor PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEtrapdoor DESTINATION lib)
+install(TARGETS PALISADEtrapdoor DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEtrapdoor_static STATIC $<TARGET_OBJECTS:trapdoorobj>)
 	set_property(TARGET PALISADEtrapdoor_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEtrapdoor_static DESTINATION lib)
+	install(TARGETS PALISADEtrapdoor_static DESTINATION palisade/lib)
 endif()
 
-install(DIRECTORY include/ DESTINATION include/trapdoor)
+install(DIRECTORY include/ DESTINATION palisade/include/trapdoor)
 
 target_include_directories (PALISADEtrapdoor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

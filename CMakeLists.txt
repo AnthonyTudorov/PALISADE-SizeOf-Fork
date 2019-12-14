@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.5.1)
 
-set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/palisade CACHE
- STRING "Set" FORCE)
 message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
 set (CMAKE_INSTALL_MESSAGE LAZY)
 
@@ -64,9 +62,6 @@ else()
 endif()
 
 set(TAR "tar")
-if(APPLE)
-	set(TAR "gtar")
-endif()
 
 if(APPLE)
 	set(OPENMP_LIBRARIES "/usr/local/opt/libomp/lib")
@@ -262,11 +257,11 @@ else()
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libgmp.*" )
 	# also copies the gmp dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
 			FILES_MATCHING PATTERN "libgmp*" )
 	endif()
 endif()
@@ -339,11 +334,11 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libntl.*" )
 	# also copies the dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
 			FILES_MATCHING PATTERN "libntl*" )
 	endif()
 endif()
@@ -371,7 +366,7 @@ add_library(tcmalloc_static STATIC IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if("${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
@@ -396,9 +391,9 @@ else()
 	set(THIRDPARTYSTATICLIBS "${THIRDPARTYSTATICLIBS}" "${QUADMATHLIB}")
 endif()
 
-#if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
-	#install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/include)
-#endif()
+if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/ DESTINATION palisade/include)
+endif()
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
 set(BINDEMODATAPATH ${CMAKE_CURRENT_BINARY_DIR}/demoData)

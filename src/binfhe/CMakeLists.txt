@@ -18,14 +18,14 @@ add_library (PALISADEbinfhe SHARED $<TARGET_OBJECTS:binfheobj>)
 set_property(TARGET PALISADEbinfhe PROPERTY VERSION ${BINFHE_VERSION})
 set_property(TARGET PALISADEbinfhe PROPERTY SOVERSION ${BINFHE_VERSION_MAJOR})
 set_property(TARGET PALISADEbinfhe PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEbinfhe DESTINATION lib)
+install(TARGETS PALISADEbinfhe DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEbinfhe_static STATIC $<TARGET_OBJECTS:binfheobj>)
 	set_property(TARGET PALISADEbinfhe_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEbinfhe_static DESTINATION lib)
+	install(TARGETS PALISADEbinfhe_static DESTINATION palisade/lib)
 endif()
 
-install(DIRECTORY include/ DESTINATION include/binfhe)
+install(DIRECTORY include/ DESTINATION palisade/include/binfhe)
 
 target_include_directories (PALISADEbinfhe PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

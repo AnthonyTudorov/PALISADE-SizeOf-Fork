@@ -18,14 +18,14 @@ add_library (PALISADEabe SHARED $<TARGET_OBJECTS:abeobj>)
 set_property(TARGET PALISADEabe PROPERTY VERSION ${ABE_VERSION})
 set_property(TARGET PALISADEabe PROPERTY SOVERSION ${ABE_VERSION_MAJOR})
 set_property(TARGET PALISADEabe PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEabe DESTINATION lib)
+install(TARGETS PALISADEabe DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEabe_static STATIC $<TARGET_OBJECTS:abeobj>)
 	set_property(TARGET PALISADEabe_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEabe_static DESTINATION lib)
+	install(TARGETS PALISADEabe_static DESTINATION palisade/lib)
 endif()
 
-install(DIRECTORY include/ DESTINATION include/abe)
+install(DIRECTORY include/ DESTINATION palisade/include/abe)
 
 target_include_directories (PALISADEabe PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
