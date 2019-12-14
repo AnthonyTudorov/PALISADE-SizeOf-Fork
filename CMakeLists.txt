@@ -206,6 +206,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 
 ### Handle third-party CEREAL
 include_directories( ${THIRDPARTYDIR}/cereal/include )
+install(DIRECTORY ${THIRDPARTYDIR}/cereal/include/ DESTINATION palisade/include)
 
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
