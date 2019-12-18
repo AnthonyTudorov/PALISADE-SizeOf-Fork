@@ -62,6 +62,9 @@ else()
 endif()
 
 set(TAR "tar")
+if(APPLE)
+	set(TAR "gtar")
+endif()
 
 if(APPLE)
 	set(OPENMP_LIBRARIES "/usr/local/opt/libomp/lib")
