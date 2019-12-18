@@ -48,8 +48,11 @@ link_directories( ${PALISADE_DIR}/palisade/lib )
 link_libraries( PALISADEcore PALISADEpke )
 
 ### if using NTL include the next two lines, else don't
-link_libraries( gmp NTL )
-add_definitions(-DWITH_NTL)
+#link_libraries( gmp NTL )
+#add_definitions(-DWITH_NTL)
 
 ### ADD YOUR EXECUTABLE(s) HERE
-add_executable( EXECUTABLE-NAME SOURCES )
+### add_executable( EXECUTABLE-NAME SOURCES )
+###
+### EXAMPLE: 
+### add_executable( test demo-simple-example.cpp )
