@@ -29,7 +29,6 @@
 #include <fstream>
 
 #include "palisade.h"
-#include "cryptocontexthelper.h"
 #include "cryptocontextgen.h"
 #include "utils/serialize-json.h"
 #include "cryptocontext-ser.h"

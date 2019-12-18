@@ -28,9 +28,9 @@ Description:
 	This class provides a class for big integers.
 */
 
-#include "../backend.h"
-#include "../../utils/serializable.h"
-#include "../../utils/debug.h"
+#include "math/backend.h"
+#include "utils/serializable.h"
+#include "utils/debug.h"
 
 namespace cpu_int {
 

@@ -27,7 +27,7 @@
 #ifndef LBCRYPTO_CRYPTO_CKKS_C
 #define LBCRYPTO_CRYPTO_CKKS_C
 
-#include "ckks.h"
+#include "scheme/ckks/ckks.h"
 
 namespace lbcrypto {
 

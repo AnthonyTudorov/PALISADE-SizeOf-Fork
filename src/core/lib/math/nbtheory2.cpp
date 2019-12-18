@@ -24,13 +24,13 @@
  *
  */
 
-#include "nbtheory.h"
-#include "distributiongenerator.h"
+#include "math/nbtheory.h"
+#include "math/distributiongenerator.h"
 
 #include "time.h"
 #include <chrono>
 
-#include "../utils/debug.h"
+#include "utils/debug.h"
 
 
 #define _USE_MATH_DEFINES 

@@ -28,7 +28,7 @@
  * this paper: https://eprint.iacr.org/2017/601.pdf
  */
 
-#include "kp_abe.h"
+#include "abe/kp_abe.h"
 
 namespace lbcrypto {
 

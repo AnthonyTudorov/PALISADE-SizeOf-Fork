@@ -24,8 +24,8 @@
  *
  */
 
-#include "ckkspackedencoding.h"
-#include "../math/dftransfrm.h"
+#include "encoding/ckkspackedencoding.h"
+#include "math/dftransfrm.h"
 
 namespace lbcrypto {
 

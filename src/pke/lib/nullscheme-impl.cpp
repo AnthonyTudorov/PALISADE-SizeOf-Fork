@@ -25,7 +25,7 @@
  */
 
 #include "cryptocontext.h"
-#include "nullscheme.h"
+#include "scheme/null/nullscheme.h"
 
 namespace lbcrypto {
 

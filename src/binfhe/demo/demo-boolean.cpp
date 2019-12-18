@@ -25,7 +25,6 @@
  */
 
 #include "binfhecontext.h"
-#include "utils/debug.h"
 
 using namespace lbcrypto;
 using namespace std;

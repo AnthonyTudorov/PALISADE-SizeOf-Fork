@@ -24,7 +24,7 @@
  *
  */
 
-#include "../lattice/backend.h"
+#include "lattice/backend.h"
 #include <fstream>
 #include <cmath>
 

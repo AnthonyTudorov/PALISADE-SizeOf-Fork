@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 3.5.1)
 
+message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
+set (CMAKE_INSTALL_MESSAGE LAZY)
+
+
 # determine the architecture on a unix system (important for
 if(CMAKE_HOST_UNIX)
   EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
@@ -125,16 +129,16 @@ SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 # (but later on when installing)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+SET(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIBINSTALL}" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+   SET(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
 set(CMAKE_CXX_STANDARD 11)
@@ -164,9 +168,6 @@ endif()
 if (OpenMP_C_FOUND)
 	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
-
-message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
-set (CMAKE_INSTALL_MESSAGE LAZY)
 
 # Added -Wno-parentheses -Wno-pessimizing-move for compatibility with g++ >= v9.0
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -208,12 +209,7 @@ include_directories( ${THIRDPARTYDIR}/include )
 
 ### Handle third-party CEREAL
 include_directories( ${THIRDPARTYDIR}/cereal/include )
-
-include_directories( src )
-set (SUBMAKEFILES core pke trapdoor abe signature binfhe)
-foreach( dir ${SUBMAKEFILES} )
-	include_directories( src/${dir}/lib )
-endforeach( dir )
+install(DIRECTORY ${THIRDPARTYDIR}/cereal/include/ DESTINATION palisade/include)
 
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
@@ -265,11 +261,11 @@ else()
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libgmp.*" )
 	# also copies the gmp dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
 			FILES_MATCHING PATTERN "libgmp*" )
 	endif()
 endif()
@@ -342,11 +338,11 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libntl.*" )
 	# also copies the dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
 			FILES_MATCHING PATTERN "libntl*" )
 	endif()
 endif()
@@ -374,7 +370,7 @@ add_library(tcmalloc_static STATIC IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if("${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib DESTINATION .
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
 		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
@@ -400,7 +396,7 @@ else()
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include DESTINATION .)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/ DESTINATION palisade/include)
 endif()
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)

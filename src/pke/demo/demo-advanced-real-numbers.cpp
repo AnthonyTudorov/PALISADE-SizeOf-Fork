@@ -28,8 +28,6 @@
 #define PROFILE
 
 #include "palisade.h"
-#include "cryptocontexthelper.h"
-#include "lattice/stdlatticeparms.h"
 
 using namespace lbcrypto;
 
@@ -97,7 +95,7 @@ int main(int argc, char* argv[]) {
 	 * on a relinearization window). GHS corresponds to ciphertext
 	 * modulus doubling, and HYBRID combines the characteristics of both
 	 * BV and GHS. Please refer to the documentation of KeySwitchBVGen,
-	 * KeySwitchGHSGen, and KeySwitchHybridGen in ckks.h for more details
+	 * KeySwitchGHSGen, and KeySwitchHybridGen in scheme/ckks/ckks.h for more details
 	 * about the different key switch techniques.
 	 *
 	 * For most cases, HYBRID will be the most appropriate and efficient
@@ -114,7 +112,7 @@ int main(int argc, char* argv[]) {
 	 * ciphertext, we can compute one part of the rotation algorithm once,
 	 * and reuse it multiple times. Please refer to the documentation of
 	 * EvalFastRotationPrecomputeBV, EvalFastRotationPrecomputeGHS, and
-	 * EvalFastRotationPrecomputeHybrid in ckks.h for more details on
+	 * EvalFastRotationPrecomputeHybrid in scheme/ckks/ckks.h for more details on
 	 * hoisting in BV, GHS, and HYBRID key switching.
 	 */
 	FastRotationsDemo1();

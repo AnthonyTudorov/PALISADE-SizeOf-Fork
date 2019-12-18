@@ -24,7 +24,7 @@
  *
  */
 
-#include "transfrm.h"
+#include "math/transfrm.h"
 
 namespace lbcrypto {
 

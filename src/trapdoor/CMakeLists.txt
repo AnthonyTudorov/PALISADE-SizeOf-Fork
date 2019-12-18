@@ -1,5 +1,10 @@
 file (GLOB TRAPDOOR_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp lib/*/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( ../pke/include )
+include_directories( include )
+include_directories( lib )
+
 set(TRAPDOOR_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(TRAPDOOR_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(TRAPDOOR_VERSION_PATCH ${PALISADE_VERSION_PATCH})
@@ -13,12 +18,14 @@ add_library (PALISADEtrapdoor SHARED $<TARGET_OBJECTS:trapdoorobj>)
 set_property(TARGET PALISADEtrapdoor PROPERTY VERSION ${TRAPDOOR_VERSION})
 set_property(TARGET PALISADEtrapdoor PROPERTY SOVERSION ${TRAPDOOR_VERSION_MAJOR})
 set_property(TARGET PALISADEtrapdoor PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEtrapdoor DESTINATION lib)
+install(TARGETS PALISADEtrapdoor DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEtrapdoor_static STATIC $<TARGET_OBJECTS:trapdoorobj>)
 	set_property(TARGET PALISADEtrapdoor_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEtrapdoor_static DESTINATION lib)
+	install(TARGETS PALISADEtrapdoor_static DESTINATION palisade/lib)
 endif()
+
+install(DIRECTORY include/ DESTINATION palisade/include/trapdoor)
 
 target_include_directories (PALISADEtrapdoor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

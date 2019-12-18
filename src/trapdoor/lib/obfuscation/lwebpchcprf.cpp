@@ -31,7 +31,7 @@
 
 #include "utils/debug.h"
 
-#include "lwebpchcprf.h"
+#include "obfuscation/lwebpchcprf.h"
 
 namespace lbcrypto {
 

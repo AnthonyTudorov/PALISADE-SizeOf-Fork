@@ -44,7 +44,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_BFV_C
 #define LBCRYPTO_CRYPTO_BFV_C
 
-#include "bfv.h"
+#include "scheme/bfv/bfv.h"
 #include <iostream>
 #include <fstream>
 

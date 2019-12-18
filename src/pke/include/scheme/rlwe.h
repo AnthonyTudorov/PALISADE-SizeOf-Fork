@@ -31,7 +31,7 @@
 #include "lattice/poly.h"
 #include "lattice/stdlatticeparms.h"
 #include <string>
-#include "../../core/lib/lattice/dcrtpoly.h"
+#include "lattice/dcrtpoly.h"
 
 namespace lbcrypto {
 

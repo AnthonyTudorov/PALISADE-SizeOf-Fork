@@ -1,5 +1,5 @@
 /**
- * @file distrgen.h This code provides basic noise generation functionality.
+ * @file version.h -- PALISADE version strings
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -24,18 +24,16 @@
  *
  */
 
-#ifndef LBCRYPTO_MATH_DISTRGEN_H_
-#define LBCRYPTO_MATH_DISTRGEN_H_
+#ifndef SRC_CORE_INCLUDE_PALISADECORE_H_
+#define SRC_CORE_INCLUDE_PALISADECORE_H_
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <random>
-#include <bitset>
-#include <string>
-#include "distributiongenerator.h"
-#include "discretegaussiangenerator.h"
-#include "discreteuniformgenerator.h"
-#include "binaryuniformgenerator.h"
-#include "ternaryuniformgenerator.h"
+#include "version.h"
+#include "math/backend.h"
+#include "math/nbtheory.h"
+#include "math/distrgen.h"
+#include "encoding/encodings.h"
+#include "lattice/backend.h"
+#include "lattice/stdlatticeparms.h"
+#include "utils/debug.h"
 
-#endif // LBCRYPTO_MATH_DISTRGEN_H_
+#endif /* SRC_CORE_INCLUDE_PALISADECORE_H_ */

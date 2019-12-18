@@ -1,5 +1,5 @@
-/*
-* @file bfvrns-ser.h - serialize BFVrns; include this in any app that needs to serialize this scheme
+/**
+ * @file allscheme.h -- PALISADE.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -24,22 +24,16 @@
  *
  */
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNSSER_H
-#define LBCRYPTO_CRYPTO_BFVRNSSER_H
+#ifndef SRC_PKE_INCLUDE_SCHEME_ALLSCHEME_H_
+#define SRC_PKE_INCLUDE_SCHEME_ALLSCHEME_H_
 
-#include "bfv-ser.h"
-#include "palisade.h"
-#include "utils/serial.h"
+#include "scheme/rlwe.h"
+#include "scheme/stst/stst.h"
+#include "scheme/bgv/bgv.h"
+#include "scheme/bfv/bfv.h"
+#include "scheme/bfvrns/bfvrns.h"
+#include "scheme/bfvrnsb/bfvrnsB.h"
+#include "scheme/ckks/ckks.h"
+#include "scheme/null/nullscheme.h"
 
-extern template class lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPAlgorithmBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPAlgorithmPREBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPAlgorithmSHEBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPAlgorithmMultipartyBFVrns<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::LPAlgorithmParamsGenBFVrns<lbcrypto::DCRTPoly>;
-
-CEREAL_REGISTER_TYPE(lbcrypto::LPCryptoParametersBFVrns<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::LPPublicKeyEncryptionSchemeBFVrns<lbcrypto::DCRTPoly>);
-
-#endif
+#endif /* SRC_PKE_INCLUDE_SCHEME_ALLSCHEME_H_ */

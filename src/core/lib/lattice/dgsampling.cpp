@@ -28,7 +28,7 @@
 #ifndef _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
 #define _SRC_LIB_TRAPDOOR_DGSAMPLING_CPP
 
-#include "dgsampling.h"
+#include "lattice/dgsampling.h"
 
 namespace lbcrypto {
 

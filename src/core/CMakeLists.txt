@@ -1,5 +1,9 @@
 file (GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp)
 
+include_directories( ../core/include )
+include_directories( include )
+include_directories( lib )
+
 set(CORE_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(CORE_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(CORE_VERSION_PATCH ${PALISADE_VERSION_PATCH})
@@ -13,12 +17,14 @@ add_library (PALISADEcore SHARED $<TARGET_OBJECTS:coreobj>)
 set_property(TARGET PALISADEcore PROPERTY VERSION ${CORE_VERSION})
 set_property(TARGET PALISADEcore PROPERTY SOVERSION ${CORE_VERSION_MAJOR})
 set_property(TARGET PALISADEcore PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEcore DESTINATION lib)
+install(TARGETS PALISADEcore DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEcore_static STATIC $<TARGET_OBJECTS:coreobj>)
 	set_property(TARGET PALISADEcore_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEcore_static DESTINATION lib)
+	install(TARGETS PALISADEcore_static DESTINATION palisade/lib)
 endif()
+
+install(DIRECTORY include/ DESTINATION palisade/include/core)
 
 target_include_directories (PALISADEcore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

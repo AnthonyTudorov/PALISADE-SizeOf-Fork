@@ -27,7 +27,7 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
 #define LBCRYPTO_OBFUSCATE_LWECONJUNCTIONOBFUSCATEV3_CPP
 
-#include "lweconjunctionobfuscate.h"
+#include "obfuscation/lweconjunctionobfuscate.h"
 #include "utils/serializable.h"
 #include "utils/memory.h"
 #include "utils/debug.h"

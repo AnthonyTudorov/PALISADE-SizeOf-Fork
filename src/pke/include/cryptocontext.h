@@ -29,9 +29,9 @@
 #define SRC_PKE_CRYPTOCONTEXT_H_
 
 #include "palisade.h"
+#include "scheme/allscheme.h"
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
-#include "../../core/lib/utils/debug.h"
 
 namespace lbcrypto {
 

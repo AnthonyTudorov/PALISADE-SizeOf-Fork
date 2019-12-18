@@ -1,5 +1,10 @@
 file (GLOB SIG_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( ../pke/include )
+include_directories( include )
+include_directories( lib )
+
 set(SIG_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(SIG_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(SIG_VERSION_PATCH ${PALISADE_VERSION_PATCH})
@@ -13,12 +18,14 @@ add_library (PALISADEsignature SHARED $<TARGET_OBJECTS:sigobj>)
 set_property(TARGET PALISADEsignature PROPERTY VERSION ${SIG_VERSION})
 set_property(TARGET PALISADEsignature PROPERTY SOVERSION ${SIG_VERSION_MAJOR})
 set_property(TARGET PALISADEsignature PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEsignature DESTINATION lib)
+install(TARGETS PALISADEsignature DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEsignature_static STATIC $<TARGET_OBJECTS:sigobj>)
 	set_property(TARGET PALISADEsignature_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEsignature_static DESTINATION lib)
+	install(TARGETS PALISADEsignature_static DESTINATION palisade/lib)
 endif()
+
+install(DIRECTORY include/ DESTINATION palisade/include/signature)
 
 target_include_directories (PALISADEsignature PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -30,7 +30,7 @@
 
 #define PROFILE
 
-#include "kp_abe_rns.h"
+#include "abe/kp_abe_rns.h"
 #include "utils/debug.h"
 
 namespace lbcrypto {

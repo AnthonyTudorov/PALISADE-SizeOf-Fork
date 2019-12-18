@@ -29,8 +29,7 @@
 #ifndef _LBCRYPTO_SUBGAUSSIAN_GSW_CPP
 #define _LBCRYPTO_SUBGAUSSIAN_GSW_CPP
 
-#include "gsw.h"
-#include "math/matrix-impl.cpp"
+#include "subgaussian/gsw.h"
 
 namespace lbcrypto {
 

@@ -53,7 +53,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_BFVRNS_C
 #define LBCRYPTO_CRYPTO_BFVRNS_C
 
-#include "bfvrns.h"
+#include "scheme/bfvrns/bfvrns.h"
 #include <iostream>
 #include <fstream>
 

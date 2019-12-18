@@ -35,7 +35,7 @@
 
 #include "utils/serialize-json.h"
 #include "utils/serialize-binary.h"
-#include "ckks-ser.h"
+#include "scheme/ckks/ckks-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"

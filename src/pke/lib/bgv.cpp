@@ -48,7 +48,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef LBCRYPTO_CRYPTO_BGV_C
 #define LBCRYPTO_CRYPTO_BGV_C
 
-#include "bgv.h"
+#include "scheme/bgv/bgv.h"
 
 namespace lbcrypto {
 

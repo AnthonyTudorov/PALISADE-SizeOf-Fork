@@ -29,14 +29,14 @@
  */
 
 #define _SECURE_SCL 0 // to speed up VS
-#include "../backend.h"
+#include "math/backend.h"
 
 #include <iostream>
 #include <fstream>
 #include "time.h"
 #include <chrono>
-#include "../../utils/serializable.h"
-#include "../../utils/debug.h"
+#include "utils/serializable.h"
+#include "utils/debug.h"
 
 #define LimbReserveHint 4  // hint for reservation of limbs
 

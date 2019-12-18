@@ -1,5 +1,9 @@
 file (GLOB PKE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
 
+include_directories( ../core/include )
+include_directories( include )
+include_directories( lib )
+
 set(PKE_VERSION_MAJOR ${PALISADE_VERSION_MAJOR})
 set(PKE_VERSION_MINOR ${PALISADE_VERSION_MINOR})
 set(PKE_VERSION_PATCH ${PALISADE_VERSION_PATCH})
@@ -13,12 +17,14 @@ add_library (PALISADEpke SHARED $<TARGET_OBJECTS:pkeobj>)
 set_property(TARGET PALISADEpke PROPERTY VERSION ${PKE_VERSION})
 set_property(TARGET PALISADEpke PROPERTY SOVERSION ${PKE_VERSION_MAJOR})
 set_property(TARGET PALISADEpke PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEpke DESTINATION lib)
+install(TARGETS PALISADEpke DESTINATION palisade/lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEpke_static STATIC $<TARGET_OBJECTS:pkeobj>)
 	set_property(TARGET PALISADEpke_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEpke_static DESTINATION lib)
+	install(TARGETS PALISADEpke_static DESTINATION palisade/lib)
 endif()
+
+install(DIRECTORY include/ DESTINATION palisade/include/pke)
 
 target_include_directories (PALISADEpke PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

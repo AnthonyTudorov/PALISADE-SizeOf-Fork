@@ -32,7 +32,7 @@
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "math/backend.h"
-#include "math/matrix.cpp"
+#include "../../core/lib/math/matrix.cpp"
 #include "utils/aesutil.h"
 
 /**

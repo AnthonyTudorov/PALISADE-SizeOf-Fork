@@ -27,7 +27,7 @@
 #ifndef LBCRYPTO_OBFUSCATE_LWETBOLINEARSECRET_CPP
 #define LBCRYPTO_OBFUSCATE_LWETBOLINEARSECRET_CPP
 
-#include "lwetbolinearsecret.h"
+#include "obfuscation/lwetbolinearsecret.h"
 
 namespace lbcrypto {
 

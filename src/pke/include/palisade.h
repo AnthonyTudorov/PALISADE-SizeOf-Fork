@@ -27,7 +27,7 @@
 #ifndef SRC_LIB_PALISADE_H_
 #define SRC_LIB_PALISADE_H_
 
-#include "version.h"
+#include "palisadecore.h"
 
 #include <initializer_list>
 
@@ -58,32 +58,13 @@ template<typename Element>
 using ConstCiphertext = const shared_ptr<const CiphertextImpl<Element>>;
 }
 
-#include "utils/serializable.h"
-#include "utils/inttypes.h"
-#include "utils/exception.h"
-
-#include "math/backend.h"
-#include "lattice/backend.h"
-#include "lattice/stdlatticeparms.h"
-
-#include "math/distrgen.h"
 #include "math/matrix.h"
-
-#include "encoding/encodings.h"
 #include "encoding/plaintextfactory.h"
 
 #include "pubkeylp.h"
-
-#include "rlwe.h"
-#include "stst.h"
-#include "bgv.h"
-#include "bfv.h"
-#include "bfvrns.h"
-#include "bfvrnsB.h"
-#include "ckks.h"
-#include "nullscheme.h"
-
 #include "ciphertext.h"
 #include "rationalciphertext.h"
+#include "cryptocontext.h"
+#include "cryptocontexthelper.h"
 
 #endif /* SRC_LIB_PALISADE_H_ */

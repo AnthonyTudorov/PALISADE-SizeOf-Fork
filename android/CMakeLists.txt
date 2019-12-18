@@ -1,3 +1,7 @@
+include_directories( ../src/core/include )
+include_directories( ../src/pke/include )
+include_directories( ../src/pke/lib )
+
 include(FindJNI)
 
 if( ${JNI_FOUND} )
@@ -8,11 +12,11 @@ if( ${JNI_FOUND} )
 	
 	add_library (PALISADEjni SHARED $<TARGET_OBJECTS:paljniobj>)
 	set_property(TARGET PALISADEpke PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEjni DESTINATION lib)
+	install(TARGETS PALISADEjni DESTINATION palisade/lib)
 	if( ${BUILD_STATIC} MATCHES "YES" )
 		add_library (PALISADEjni_static STATIC $<TARGET_OBJECTS:paljniobj>)
 		set_property(TARGET PALISADEjni_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-		install(TARGETS PALISADEjni_static DESTINATION lib)
+		install(TARGETS PALISADEjni_static DESTINATION palisade/lib)
 	endif()
 	
 	set (JNILIBS PUBLIC PALISADEpke PUBLIC PALISADEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})

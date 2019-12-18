@@ -25,12 +25,10 @@
  */
 
 #include "palisade.h"
-#include "cryptocontexthelper.h"
-#include "lattice/stdlatticeparms.h"
 
 // header files needed for serialization
 #include "utils/serialize-binary.h"
-#include "bfvrns-ser.h"
+#include "scheme/bfvrns/bfvrns-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
@@ -45,7 +43,7 @@ int main()
   std::cout << "This demo uses BFVrns which is currently not available for this architecture"<<std::endl;
   exit(0);
 #endif
-    // Sample Program: Step 1 – Set CryptoContext
+    // Sample Program: Step 1 ï¿½ Set CryptoContext
 
 	// Set the main parameters
 	int plaintextModulus = 65537;
@@ -80,7 +78,7 @@ int main()
 	else
 		cout << "The cryptocontext has been deserialized." << std::endl;
 
-	//Sample Program: Step 2 – Key Generation
+	//Sample Program: Step 2 ï¿½ Key Generation
 
 	// Initialize Public Key Containers
 	LPKeyPair<DCRTPoly> keyPair;
@@ -150,7 +148,7 @@ int main()
 		return 1;
 	}
 
-	//Sample Program: Step 3 – Encryption
+	//Sample Program: Step 3 ï¿½ Encryption
 
 	// First plaintext vector is encoded
 	std::vector<int64_t> vectorOfInts1 = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -196,7 +194,7 @@ int main()
 	else
 		cout << "The first ciphertext has been deserialized." << std::endl;
 
-	//Sample Program: Step 4 – Evaluation
+	//Sample Program: Step 4 ï¿½ Evaluation
 
 	// Removing evaluation keys stored in the current cryptocontext
 	// so we could load them from file
@@ -239,7 +237,7 @@ int main()
 	auto ciphertextRot3 = cc->EvalAtIndex(ct1,-1);
 	auto ciphertextRot4 = cc->EvalAtIndex(ct1,-2);
 
-	//Sample Program: Step 5 – Decryption
+	//Sample Program: Step 5 ï¿½ Decryption
 
 	LPPrivateKey<DCRTPoly> sk;
 	if (Serial::DeserializeFromFile(DATAFOLDER + "/key-private.txt", sk, SerType::BINARY) == false) {

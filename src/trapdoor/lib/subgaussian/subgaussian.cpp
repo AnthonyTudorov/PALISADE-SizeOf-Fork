@@ -28,7 +28,7 @@
 #define _LBCRYPTO_LATTICE_SUBGAUSSIAN_CPP
 
 #include <math.h>
-#include "subgaussian.h"
+#include "subgaussian/subgaussian.h"
 
 namespace lbcrypto {
 

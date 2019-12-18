@@ -36,15 +36,12 @@
 #include <iterator>
 
 #include "palisade.h"
-#include "cryptocontexthelper.h"
-#include "utils/debug.h"
+
 #include "utils/serialize-json.h"
-#include "bfv-ser.h"
+#include "scheme/bfv/bfv-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
-
-//#include "utils/ser-reg.h"
 
 using namespace std;
 using namespace lbcrypto;

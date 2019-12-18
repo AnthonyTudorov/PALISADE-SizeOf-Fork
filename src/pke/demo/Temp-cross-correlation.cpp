@@ -30,22 +30,14 @@
 
 #include "palisade.h"
 
-
-#include "cryptocontexthelper.h"
-
-#include "encoding/encodings.h"
-
-#include "utils/debug.h"
 #include "utils/serialize-binary.h"
-#include "bgv-ser.h"
+#include "scheme/bgv/bgv-ser.h"
 #include "pubkeylp-ser.h"
 #include "cryptocontext-ser.h"
 #include "ciphertext-ser.h"
 #include <random>
 
-#include "math/nbtheory.h"
-#include "math/matrix.h"
-#include "math/matrix.cpp"
+#include "../../core/lib/math/matrix.cpp"
 
 using namespace std;
 using namespace lbcrypto;
