@@ -3,9 +3,10 @@ cmake_minimum_required (VERSION 3.5.1)
 message("***** INSTALL IS AT ${CMAKE_INSTALL_PREFIX}; to change, run cmake with -DCMAKE_INSTALL_PREFIX=/your/path")
 set (CMAKE_INSTALL_MESSAGE LAZY)
 
+project (PALISADE C CXX)
 
-# determine the architecture on a unix system (important for
-if(CMAKE_HOST_UNIX)
+# determine the architecture on a Linux/Unix/macOS/MinGW system
+if(CMAKE_HOST_UNIX OR MINGW)
   EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
 else()
   set(ARCHITECTURE "unknown")
@@ -15,16 +16,13 @@ if(ARCHITECTURE)
   message("-- Architecture is " ${ARCHITECTURE})
 endif()
 
-
-# if no build type is chose, set the Release mode
+# if no build type is chosen, set the Release mode
 if( NOT CMAKE_BUILD_TYPE )
   set( CMAKE_BUILD_TYPE Release CACHE STRING
        "Choose the type of build, options are: None Debug Release RelWithDebInfo
 MinSizeRel."
        FORCE )
 endif()
-
-project (PALISADE C CXX)
 
 set(BUILD_STATIC "NO") # set to YES to build static libs and apps
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
