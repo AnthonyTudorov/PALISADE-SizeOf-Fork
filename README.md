@@ -116,4 +116,6 @@ More detailed steps for some common platforms are provided in the following Wiki
 
 PALISADE provides many CMake/make configuration options, such as installing specific modules of the library, compiling only libraries w/o any unit tests and demos, choosing the Debug mode for compilation, turning on/off NTL/GMP. These options are described in detail in the following Wiki article:
 
-[Configuration flags to customize the build](https://gitlab.com/palisade/palisade-development/wikis/Configuration-flags-to-customize-the-build) 
+[Configuration flags to customize the build](https://gitlab.com/palisade/palisade-development/wikis/Configuration-flags-to-customize-the-build)
+
+[Instructions for building C++ projects that use PALISADE](https://gitlab.com/palisade/palisade-development/wikis/Instructions-for-building-projects-that-use-PALISADE) 

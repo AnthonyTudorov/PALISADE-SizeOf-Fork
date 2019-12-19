@@ -1,3 +1,8 @@
+12/19/2019: PALISADE v1.7.b is released
+
+* Simplifies the development of applications using PALISADE (only one header file is now needed for most applications)
+* Changes the folder hierarchy of the library header files
+
 11/15/2019: PALISADE v1.7.a is released
 
 * Adds an optimized implementation of the CKKS scheme for approximate (real-number) homomorphic encryption. The implementation features automated rescaling/modswitching and hybrid key switching.
