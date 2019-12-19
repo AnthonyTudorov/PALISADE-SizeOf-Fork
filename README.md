@@ -118,4 +118,4 @@ PALISADE provides many CMake/make configuration options, such as installing spec
 
 [Configuration flags to customize the build](https://gitlab.com/palisade/palisade-development/wikis/Configuration-flags-to-customize-the-build)
 
-[Instructions for building C++ projects that use PALISADE](Instructions-for-building-projects-that-use-PALISADE) 
+[Instructions for building C++ projects that use PALISADE](https://gitlab.com/palisade/palisade-development/wikis/Instructions-for-building-projects-that-use-PALISADE) 
