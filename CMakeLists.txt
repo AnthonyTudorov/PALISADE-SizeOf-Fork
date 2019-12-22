@@ -59,10 +59,8 @@ else()
 	message("-- tcmalloc is turned OFF")	
 endif()
 
-set(TAR "tar")
-if(APPLE)
-	set(TAR "gtar")
-endif()
+find_program(TAR "tar")
+find_program(TAR "gtar")
 
 if(APPLE)
 	set(OPENMP_LIBRARIES "/usr/local/opt/libomp/lib")

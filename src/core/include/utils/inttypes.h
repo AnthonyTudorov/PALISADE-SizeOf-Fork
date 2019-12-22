@@ -45,6 +45,8 @@ typedef uint16_t usshort;
  */
 typedef uint32_t usint;
 
+typedef uint64_t PlaintextModulus;
+
 #define ABSL_HAVE_INTRINSIC_INT128 1
 /*************************************************
  *********** this does not work for android so

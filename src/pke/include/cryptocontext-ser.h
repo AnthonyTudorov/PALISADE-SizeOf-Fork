@@ -28,7 +28,7 @@
 #define LBCRYPTO_CRYPTO_CRYPTOCONTEXTSER_H
 
 #include "palisade.h"
-#include "cryptocontext.cpp"
+#include "cryptocontext.h"
 #include "utils/serial.h"
 
 extern template class lbcrypto::CryptoContextImpl<lbcrypto::Poly>;

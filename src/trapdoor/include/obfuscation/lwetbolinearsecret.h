@@ -29,10 +29,14 @@
 
 #include <cmath>
 #include <vector>
+#include <memory>
+using std::shared_ptr;
+#include <string>
+using std::string;
+
 #include "utils/inttypes.h"
 #include "math/distrgen.h"
 #include "math/backend.h"
-#include "../../core/lib/math/matrix.cpp"
 #include "utils/aesutil.h"
 
 /**
