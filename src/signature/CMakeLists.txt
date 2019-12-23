@@ -18,14 +18,14 @@ add_library (PALISADEsignature SHARED $<TARGET_OBJECTS:sigobj>)
 set_property(TARGET PALISADEsignature PROPERTY VERSION ${SIG_VERSION})
 set_property(TARGET PALISADEsignature PROPERTY SOVERSION ${SIG_VERSION_MAJOR})
 set_property(TARGET PALISADEsignature PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEsignature DESTINATION palisade/lib)
+install(TARGETS PALISADEsignature DESTINATION lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEsignature_static STATIC $<TARGET_OBJECTS:sigobj>)
 	set_property(TARGET PALISADEsignature_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEsignature_static DESTINATION palisade/lib)
+	install(TARGETS PALISADEsignature_static DESTINATION lib)
 endif()
 
-install(DIRECTORY include/ DESTINATION palisade/include/signature)
+install(DIRECTORY include/ DESTINATION include/palisade/signature)
 
 target_include_directories (PALISADEsignature PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -36,10 +36,12 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	target_link_libraries (PALISADEsignature_static PUBLIC PALISADEcore_static ${THIRDPARTYSTATICLIBS} ${OpenMP_CXX_FLAGS})
 endif()
 
+if( ${BUILD_UNITTESTS} )
 file (GLOB SIG_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (signature_tests ${SIG_TEST_SRC_FILES} ${UNITTESTMAIN})
 set_property(TARGET signature_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittest)
 target_link_libraries ( signature_tests ${SIGLIBS} )
+endif()
 
 set (SIGAPPS "")
 file (GLOB SIG_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
@@ -55,7 +57,11 @@ add_custom_target( allsignaturedemos )
 add_dependencies( allsignaturedemos ${SIGAPPS} )
 
 add_custom_target( allsignature )
-add_dependencies( allsignature PALISADEsignature allsignaturedemos signature_tests )
+add_dependencies( allsignature PALISADEsignature allsignaturedemos )
+
+if( ${BUILD_UNITTESTS} )
+add_dependencies( allsignature signature_tests )
+endif()
 
 add_custom_command( OUTPUT signatureinfocmd COMMAND echo Builds PALISADEsignature and these apps: ${SIGAPPS} )
 add_custom_target( signatureinfo DEPENDS signatureinfocmd )

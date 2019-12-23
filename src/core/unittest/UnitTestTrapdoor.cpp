@@ -397,7 +397,7 @@ TEST(UTTrapdoor,TrapDoorGaussSampTestDCRT) {
 
 
 TEST(UTTrapdoor, TrapDoorGaussGqSampTestBase1024) {
-	DEBUG_FLAG(true);
+	DEBUG_FLAG(false);
 	DEBUG("start tests");
 	
 	usint m = 1024;
