@@ -1,4 +1,4 @@
-file (GLOB PKE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp)
+file (GLOB PKE_SRC_FILES CONFIGURE_DEPENDS lib/*-impl.cpp lib/scheme/*/*-impl.cpp)
 
 include_directories( ../core/include )
 include_directories( include )
