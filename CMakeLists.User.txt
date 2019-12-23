@@ -39,11 +39,11 @@ if( "${PALISADE_DIR}" STREQUAL "" )
 	message(SEND_ERROR "PALISADE_DIR must be set to the install location for PALISADE")
 endif()
 
-include_directories( ${PALISADE_DIR}/palisade/include )
-include_directories( ${PALISADE_DIR}/palisade/include/core )
-include_directories( ${PALISADE_DIR}/palisade/include/pke )
+include_directories( ${PALISADE_DIR}/include/palisade )
+include_directories( ${PALISADE_DIR}/include/palisade/core )
+include_directories( ${PALISADE_DIR}/include/palisade/pke )
 
-link_directories( ${PALISADE_DIR}/palisade/lib )
+link_directories( ${PALISADE_DIR}/lib )
 
 link_libraries( PALISADEcore PALISADEpke )
 
