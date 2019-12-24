@@ -37,12 +37,12 @@
 
 namespace lbcrypto {
 
+const uint32_t PRNG_BUFFER_SIZE = 1024;
+
 class Blake2Engine {
 
 public:
     using result_type = uint32_t;
-
-    //Blake2Engine() : m_counter(0), m_bufferIndex(0) {};
 
     explicit Blake2Engine(const std::array<result_type,16> &seed): m_counter(0), m_bufferIndex(0) {
     	m_seed = seed;
@@ -58,7 +58,7 @@ public:
 
     	result_type result;
 
-    	if (m_bufferIndex == 16)
+    	if (m_bufferIndex == PRNG_BUFFER_SIZE)
     		m_bufferIndex = 0;
 
     	if (m_bufferIndex == 0)
@@ -79,7 +79,7 @@ public:
 private:
 
     void Generate() {
-		if (blake2b(
+		if (blake2xb(
 			m_buffer.begin(),
 			m_buffer.size() * sizeof(result_type),
 			&m_counter,
@@ -96,7 +96,7 @@ private:
 
     std::array<result_type,16> m_seed;
 
-    std::array<result_type,16> m_buffer;
+    std::array<result_type,PRNG_BUFFER_SIZE> m_buffer;
 
     uint16_t m_bufferIndex;
 

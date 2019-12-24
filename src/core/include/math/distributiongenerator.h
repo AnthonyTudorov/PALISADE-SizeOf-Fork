@@ -52,7 +52,6 @@ public:
 				//Only used for debugging in the single-threaded mode.
 				std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG. Use a single thread only!" << std::endl;
 
-				std::mt19937 *gen;
 				std::array<uint32_t,16> seed;
 				seed[0] = 1;
 				m_prng.reset(new PRNG(seed));
@@ -65,14 +64,19 @@ public:
 			}
 #pragma omp parallel
 			{
-				// A 512-bit seed is generated for each thread
-				// Mersenne-Twister engine is used only for generating the seed
-				// All calls to PRNG use the BLAKE 2 protocol (cryptographically secure PRNG)
-				std::mt19937 gen = std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count()+
-						std::hash<std::thread::id>{}(std::this_thread::get_id()));
+
+				// A 256-bit seed is generated for each thread (this roughly corresponds to 128 bits of security)
+				// BLAKE2 engine is used for generating the seed from current time stamp and a hash of the current thread
+				// All future calls to PRNG use the seed generated here
+
+				std::array<uint32_t,16> initKey;
+				initKey[0] = std::chrono::high_resolution_clock::now().time_since_epoch().count()+
+						std::hash<std::thread::id>{}(std::this_thread::get_id());
+				PRNG gen(initKey);
+
 				std::uniform_int_distribution<uint32_t>  distribution = std::uniform_int_distribution<uint32_t>(0);
 				std::array<uint32_t,16> seed;
-				for (uint32_t i = 0; i < 16; i++)
+				for (uint32_t i = 0; i < 8; i++)
 					seed[i] = distribution(gen);
 
 				m_prng.reset(new PRNG(seed));
