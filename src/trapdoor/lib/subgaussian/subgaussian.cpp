@@ -60,7 +60,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer>
-	void LatticeSubgaussianUtility<Integer>::InverseG(const Integer &u, std::mt19937 &prng, vector<int64_t> *output) const{
+	void LatticeSubgaussianUtility<Integer>::InverseG(const Integer &u, PRNG &prng, vector<int64_t> *output) const{
 
 		//create a decomposition vector for the target and the modulus q
 
@@ -113,7 +113,7 @@ namespace lbcrypto {
 	}
 
 	template <class Integer>
-	void LatticeSubgaussianUtility<Integer>::BcBD(const vector<float> &target, std::mt19937 &prng, vector<int64_t> *x) const{
+	void LatticeSubgaussianUtility<Integer>::BcBD(const vector<float> &target, PRNG &prng, vector<int64_t> *x) const{
 
 		std::uniform_real_distribution<float> distribution(0.0, 1.0);
 

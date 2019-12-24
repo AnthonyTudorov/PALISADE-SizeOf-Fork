@@ -223,7 +223,7 @@ namespace lbcrypto {
 
 		std::normal_distribution<> d(0, sigma);
 
-		std::mt19937 &g = PseudoRandomNumberGenerator::GetPRNG();
+		PRNG &g = PseudoRandomNumberGenerator::GetPRNG();
 
 		std::vector<double> z(k);
 
