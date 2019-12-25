@@ -78,7 +78,7 @@ link_directories( ${PALISADE_DIR}/lib )
 link_libraries( PALISADEcore PALISADEpke ${OpenMP_CXX_FLAGS} )
 
 ### if using NTL include the next two lines, else don't
-#link_libraries( gmp NTL )
+#link_libraries( gmp ntl )
 #add_definitions(-DWITH_NTL)
 
 ### ADD YOUR EXECUTABLE(s) HERE
