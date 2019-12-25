@@ -17,8 +17,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../../../include/utils/prng/blake2.h"
-#include "../../../include/utils/prng/blake2-impl.h"
+#include "utils/prng/blake2.h"
+#include "utils/prng/blake2-impl.h"
 
 static const uint64_t blake2b_IV[8] =
 {

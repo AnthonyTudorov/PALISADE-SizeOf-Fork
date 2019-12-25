@@ -1,5 +1,5 @@
 /**
- * @file blake2engine - PRNG engine based on BLAKE 2
+ * @file blake2engine - PRNG engine based on BLAKE2b
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -44,7 +44,11 @@ class Blake2Engine {
 public:
     using result_type = uint32_t;
 
-    explicit Blake2Engine(const std::array<result_type,16> &seed): m_counter(0), m_bufferIndex(0) {
+    explicit Blake2Engine(result_type seed): m_counter(0), m_buffer({}), m_bufferIndex(0) {
+    	m_seed[0] = seed;
+    };
+
+    explicit Blake2Engine(const std::array<result_type,16> &seed): m_counter(0), m_buffer({}), m_bufferIndex(0) {
     	m_seed = seed;
     };
 
@@ -72,9 +76,19 @@ public:
 
     }
 
-    // No copy functions.
-    Blake2Engine(const Blake2Engine&) = delete;
-    void operator=(const Blake2Engine&) = delete;
+    Blake2Engine(const Blake2Engine& other) {
+    	m_counter = other.m_counter;
+    	m_seed = other.m_seed;
+    	m_buffer = other.m_buffer;
+    	m_bufferIndex = other.m_bufferIndex;
+    };
+
+    void operator=(const Blake2Engine& other) {
+    	m_counter = other.m_counter;
+    	m_seed = other.m_seed;
+    	m_buffer = other.m_buffer;
+    	m_bufferIndex = other.m_bufferIndex;
+    }
 
 private:
 

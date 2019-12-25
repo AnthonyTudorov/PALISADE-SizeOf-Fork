@@ -57,11 +57,10 @@ void EvalSumSetup(std::vector<int64_t>& input, int64_t& expectedSum, PlaintextMo
 
 	usint limit = 15;
 
-	random_device rnd_device;
-	mt19937 mersenne_engine(rnd_device());
+	PRNG random_engine(1);
 	uniform_int_distribution<usint> dist(0, limit);
 
-	auto gen = std::bind(dist, mersenne_engine);
+	auto gen = std::bind(dist, random_engine);
 	generate(input.begin(), input.end()-2, gen);
 
 	expectedSum = std::accumulate(input.begin(), input.end(), 0);

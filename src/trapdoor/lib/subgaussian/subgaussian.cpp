@@ -162,9 +162,8 @@ namespace lbcrypto {
 	void InverseRingVector<Poly>(const LatticeSubgaussianUtility<typename Poly::Integer> &util, const shared_ptr<typename Poly::Params> ilParams,
 			const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<Poly> *psi){
 
-		std::shared_ptr<std::mt19937> prng;
-
-		prng.reset(new std::mt19937(seed));
+		std::shared_ptr<PRNG> prng;
+		prng.reset(new PRNG(seed));
 
 		usint n = ilParams->GetCyclotomicOrder() >> 1;
 		usint m = pubElemB.GetCols();
@@ -256,7 +255,8 @@ namespace lbcrypto {
 #pragma omp parallel for
 				for(size_t t=0; t<threads; t++) {
 
-					shared_ptr<std::mt19937> prng(new std::mt19937(seed));
+					std::shared_ptr<PRNG> prng;
+					prng.reset(new PRNG(seed));
 
 					for(size_t j=0; j<sizePerThread; j++) {
 
@@ -296,9 +296,8 @@ namespace lbcrypto {
 		void InverseRingVectorSpecial<Poly>(const LatticeSubgaussianUtility<typename Poly::Integer> &util, const shared_ptr<typename Poly::Params> ilParams,
 				const Matrix<Poly> &pubElemB, uint32_t seed, Matrix<DCRTPoly> *psi){
 
-			std::shared_ptr<std::mt19937> prng;
-
-			prng.reset(new std::mt19937(seed));
+			std::shared_ptr<PRNG> prng;
+			prng.reset(new PRNG(seed));
 
 			usint n = ilParams->GetCyclotomicOrder() >> 1;
 			usint m = pubElemB.GetCols();

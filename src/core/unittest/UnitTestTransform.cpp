@@ -283,8 +283,8 @@ void CRT_CHECK_big_ring(const string& msg) {
 
 
 	V input(n, modulus);
-	std::random_device rd;  //Will be used to obtain a seed for the random number engine
-	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	PRNG gen(1);
+
 	std::uniform_int_distribution<> dis(0, 100); //generates a number in [0,100]
 	for (usint i = 0; i < n; i++) {
 	  input.at(i)= typename V::Integer(dis(gen));
