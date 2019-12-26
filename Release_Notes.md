@@ -1,3 +1,8 @@
+12/26/2019: PALISADE v1.7.c is released
+
+* Fixes a bug affecting applications using the PALISADE serialization capability
+* Changes the installation paths for header files and library binary files
+
 12/19/2019: PALISADE v1.7.b is released
 
 * Simplifies the development of applications using PALISADE (only one header file is now needed for most applications)
