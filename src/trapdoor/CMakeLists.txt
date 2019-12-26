@@ -18,14 +18,14 @@ add_library (PALISADEtrapdoor SHARED $<TARGET_OBJECTS:trapdoorobj>)
 set_property(TARGET PALISADEtrapdoor PROPERTY VERSION ${TRAPDOOR_VERSION})
 set_property(TARGET PALISADEtrapdoor PROPERTY SOVERSION ${TRAPDOOR_VERSION_MAJOR})
 set_property(TARGET PALISADEtrapdoor PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS PALISADEtrapdoor DESTINATION palisade/lib)
+install(TARGETS PALISADEtrapdoor DESTINATION lib)
 if( ${BUILD_STATIC} MATCHES "YES" )
 	add_library (PALISADEtrapdoor_static STATIC $<TARGET_OBJECTS:trapdoorobj>)
 	set_property(TARGET PALISADEtrapdoor_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-	install(TARGETS PALISADEtrapdoor_static DESTINATION palisade/lib)
+	install(TARGETS PALISADEtrapdoor_static DESTINATION lib)
 endif()
 
-install(DIRECTORY include/ DESTINATION palisade/include/trapdoor)
+install(DIRECTORY include/ DESTINATION include/palisade/trapdoor)
 
 target_include_directories (PALISADEtrapdoor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -36,10 +36,12 @@ if( ${BUILD_STATIC} MATCHES "YES" )
 	target_link_libraries (PALISADEtrapdoor_static PUBLIC PALISADEpke_static PUBLIC PALISADEcore_static ${THIRDPARTYSTATICLIBS} ${OpenMP_CXX_FLAGS})
 endif()
 
+if( ${BUILD_UNITTESTS} )
 file (GLOB TRAPDOOR_TEST_SRC_FILES CONFIGURE_DEPENDS unittest/*.cpp)
 add_executable (trapdoor_tests ${TRAPDOOR_TEST_SRC_FILES} ${UNITTESTMAIN})
 set_property(TARGET trapdoor_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittest)
 target_link_libraries ( trapdoor_tests ${TRAPDOORLIBS} )
+endif()
 
 set (TRAPDOORAPPS "")
 file (GLOB TRAPDOOR_DEMO_SRC_FILES CONFIGURE_DEPENDS demo/*.cpp)
@@ -55,7 +57,11 @@ add_custom_target( alltrapdoordemos )
 add_dependencies( alltrapdoordemos ${TRAPDOORAPPS} )
 
 add_custom_target( alltrapdoor )
-add_dependencies( alltrapdoor PALISADEtrapdoor alltrapdoordemos trapdoor_tests )
+add_dependencies( alltrapdoor PALISADEtrapdoor alltrapdoordemos )
+
+if( ${BUILD_UNITTESTS} )
+add_dependencies( alltrapdoor trapdoor_tests )
+endif()
 
 add_custom_command( OUTPUT trapdoorinfocmd COMMAND echo Builds PALISADEtrapdoor and these apps: ${TRAPDOORAPPS} )
 add_custom_target( trapdoorinfo DEPENDS trapdoorinfocmd )

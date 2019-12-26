@@ -5,6 +5,8 @@ set (CMAKE_INSTALL_MESSAGE LAZY)
 
 project (PALISADE C CXX)
 
+option( BUILD_UNITTESTS "Set to TRUE to build unit tests for the library" TRUE)
+
 # determine the architecture on a Linux/Unix/macOS/MinGW system
 if(CMAKE_HOST_UNIX OR MINGW)
   EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
@@ -59,10 +61,8 @@ else()
 	message("-- tcmalloc is turned OFF")	
 endif()
 
-set(TAR "tar")
-if(APPLE)
-	set(TAR "gtar")
-endif()
+find_program(TAR "gtar")
+find_program(TAR "tar")
 
 if(APPLE)
 	set(OPENMP_LIBRARIES "/usr/local/opt/libomp/lib")
@@ -103,7 +103,7 @@ endif()
 
 set(PALISADE_VERSION_MAJOR 1)
 set(PALISADE_VERSION_MINOR 7)
-set(PALISADE_VERSION_PATCH b)
+set(PALISADE_VERSION_PATCH c)
 set(PALISADE_VERSION ${PALISADE_VERSION_MAJOR}.${PALISADE_VERSION_MINOR}.${PALISADE_VERSION_PATCH})
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -207,13 +207,15 @@ include_directories( ${THIRDPARTYDIR}/include )
 
 ### Handle third-party CEREAL
 include_directories( ${THIRDPARTYDIR}/cereal/include )
-install(DIRECTORY ${THIRDPARTYDIR}/cereal/include/ DESTINATION palisade/include)
+install(DIRECTORY ${THIRDPARTYDIR}/cereal/include/ DESTINATION include/palisade)
 
 include_directories( third-party/google-test/googletest third-party/google-test/googletest/include )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/third-party/include )
 
 ## for tests
-set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
+if( ${BUILD_UNITTESTS} )
+	set(UNITTESTMAIN ${PROJECT_SOURCE_DIR}/test/Main_TestAll.cpp)
+endif()
 
 ### handle third-party gmp
 
@@ -259,11 +261,11 @@ else()
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION lib
 		FILES_MATCHING PATTERN "libgmp.*" )
 	# also copies the gmp dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
 			FILES_MATCHING PATTERN "libgmp*" )
 	endif()
 endif()
@@ -336,11 +338,11 @@ set_target_properties(ntl PROPERTIES IMPORTED_LOCATION ${NTLLIBFILE})
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION lib
 		FILES_MATCHING PATTERN "libntl.*" )
 	# also copies the dll file
 	if(MINGW)
-		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION palisade/lib
+		install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/bin/ DESTINATION lib
 			FILES_MATCHING PATTERN "libntl*" )
 	endif()
 endif()
@@ -368,7 +370,7 @@ add_library(tcmalloc_static STATIC IMPORTED GLOBAL)
 set_target_properties(tcmalloc_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/libtcmalloc_minimal${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if("${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION palisade/lib
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/lib/ DESTINATION lib
 		FILES_MATCHING PATTERN "libtcmalloc_minimal.*")
 endif()
 
@@ -394,7 +396,7 @@ else()
 endif()
 
 if("${WITH_NTL}" STREQUAL "Y" OR "${WITH_TCM}" STREQUAL "Y")
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/ DESTINATION palisade/include)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-party/include/ DESTINATION include/palisade)
 endif()
 
 set(DEMODATAPATH ${CMAKE_CURRENT_SOURCE_DIR}/demoData)
@@ -428,7 +430,9 @@ add_subdirectory(src/binfhe)
 add_subdirectory(android)
 
 ### build the google test handlers
-add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
+if( ${BUILD_UNITTESTS} )
+	add_subdirectory(third-party/google-test EXCLUDE_FROM_ALL)
+endif()
 
 ### build the google benchmark handlers (just the parts we need)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable testing of the benchmark library." FORCE)
@@ -444,6 +448,7 @@ add_custom_target( clobber DEPENDS gmp_clobber ntl_clobber
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if( ${BUILD_UNITTESTS} )
 add_custom_target( testall
 	DEPENDS core_tests pke_tests trapdoor_tests abe_tests signature_tests binfhe_tests
 	COMMAND echo core: && unittest/core_tests -t
@@ -453,6 +458,7 @@ add_custom_target( testall
 	COMMAND echo signature: && unittest/signature_tests -t
 	COMMAND echo binfhe: && unittest/binfhe_tests -t
 )
+endif()
 
 add_custom_target( alldemos 
 	DEPENDS allcoredemos allpkedemos alltrapdoordemos allabedemos allsignaturedemos allbinfhedemos

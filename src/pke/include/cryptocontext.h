@@ -33,6 +33,10 @@
 #include "cryptocontexthelper.h"
 #include "cryptotiming.h"
 
+#include "utils/serial.h"
+#include "utils/serialize-binary.h"
+#include "utils/serialize-json.h"
+
 namespace lbcrypto {
 
 template<typename Element>
@@ -416,7 +420,24 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool SerializeEvalMultKey(std::ostream& ser, const ST&, string id = "");
+	static bool SerializeEvalMultKey(std::ostream& ser, const ST& sertype, string id = "") {
+		decltype(evalMultKeyMap)	*smap;
+		decltype(evalMultKeyMap)	omap;
+
+		if( id.length() == 0 )
+			smap = &evalMultKeyMap;
+		else {
+			auto k = evalMultKeyMap.find(id);
+
+			if( k == evalMultKeyMap.end() )
+				return false; // no such id
+
+			smap = &omap;
+			omap[ k->first ] = k->second;
+		}
+		Serial::Serialize(*smap, ser, sertype);
+		return true;
+	}
 
 	/**
 	 * SerializeEvalMultKey for all EvalMultKeys made in a given context
@@ -427,7 +448,22 @@ public:
 	 * @return true on success (false on failure or no keys found)
 	 */
 	template<typename ST>
-	static bool SerializeEvalMultKey(std::ostream& ser, const ST&, const CryptoContext<Element> cc);
+	static bool SerializeEvalMultKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc) {
+
+		decltype(evalMultKeyMap) omap;
+		for( const auto& k : evalMultKeyMap ) {
+			if( k.second[0]->GetCryptoContext() == cc ) {
+				omap[k.first] = k.second;
+			}
+		}
+
+		if( omap.size() == 0 )
+			return false;
+
+		Serial::Serialize(omap, ser, sertype);
+		return true;
+	}
+
 
 	/**
 	 * DeserializeEvalMultKey deserialize all keys in the serialization
@@ -438,7 +474,22 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool DeserializeEvalMultKey(std::istream& ser, const ST&);
+	static bool DeserializeEvalMultKey(std::istream& ser, const ST& sertype) {
+
+		decltype(evalMultKeyMap) evalMultKeys;
+
+		Serial::Deserialize(evalMultKeys, ser, sertype);
+
+		// The deserialize call created any contexts that needed to be created.... so all we need to do
+		// is put the keys into the maps for their context
+
+		for( auto k : evalMultKeys ) {
+
+			evalMultKeyMap[ k.first ] = k.second;
+		}
+
+		return true;
+	}
 
 	/**
 	 * ClearEvalMultKeys - flush EvalMultKey cache
@@ -477,7 +528,24 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, string id = "");
+	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, string id = "") {
+		decltype(evalSumKeyMap)*	smap;
+		decltype(evalSumKeyMap)		omap;
+
+		if( id.length() == 0 )
+			smap = &evalSumKeyMap;
+		else {
+			auto k = evalSumKeyMap.find(id);
+
+			if( k == evalSumKeyMap.end() )
+				return false; // no such id
+
+			smap = &omap;
+			omap[ k->first ] = k->second;
+		}
+		Serial::Serialize(*smap, ser, sertype);
+		return true;
+	}
 
 	/**
 	 * SerializeEvalSumKey for all of the EvalSum keys for a context
@@ -488,7 +556,21 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc);
+	static bool SerializeEvalSumKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc) {
+
+		decltype(evalSumKeyMap) omap;
+		for( const auto& k : evalSumKeyMap ) {
+			if( k.second->begin()->second->GetCryptoContext() == cc ) {
+				omap[k.first] = k.second;
+			}
+		}
+
+		if( omap.size() == 0 )
+			return false;
+
+		Serial::Serialize(omap, ser, sertype);
+		return true;
+	}
 
 	/**
 	 * DeserializeEvalSumKey deserialize all keys in the serialization
@@ -500,7 +582,21 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool DeserializeEvalSumKey(std::istream& ser, const ST& sertype);
+	static bool DeserializeEvalSumKey(std::istream& ser, const ST& sertype) {
+
+		decltype(evalSumKeyMap) evalSumKeys;
+
+		Serial::Deserialize(evalSumKeys, ser, sertype);
+
+		// The deserialize call created any contexts that needed to be created.... so all we need to do
+		// is put the keys into the maps for their context
+
+		for( auto k : evalSumKeys ) {
+			evalSumKeyMap[ k.first ] = k.second;
+		}
+
+		return true;
+	}
 
 	/**
 	 * ClearEvalSumKeys - flush EvalSumKey cache
@@ -539,7 +635,24 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, string id = "");
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, string id = "") {
+		decltype(evalAutomorphismKeyMap)*	smap;
+		decltype(evalAutomorphismKeyMap)		omap;
+		if( id.length() == 0 )
+			smap = &evalAutomorphismKeyMap;
+		else {
+			auto k = evalAutomorphismKeyMap.find(id);
+
+			if( k == evalAutomorphismKeyMap.end() )
+				return false; // no such id
+
+			smap = &omap;
+			omap[ k->first ] = k->second;
+		}
+		Serial::Serialize(*smap, ser, sertype);
+		return true;
+	}
+
 
 	/**
 	 * SerializeEvalAutomorphismKey for all of the EvalAuto keys for a context
@@ -550,7 +663,21 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc);
+	static bool SerializeEvalAutomorphismKey(std::ostream& ser, const ST& sertype, const CryptoContext<Element> cc) {
+
+		decltype(evalAutomorphismKeyMap) omap;
+		for( const auto& k : evalAutomorphismKeyMap ) {
+			if( k.second->begin()->second->GetCryptoContext() == cc ) {
+				omap[k.first] = k.second;
+			}
+		}
+
+		if( omap.size() == 0 )
+			return false;
+
+		Serial::Serialize(omap, ser, sertype);
+		return true;
+	}
 
 	/**
 	 * DeserializeEvalAutomorphismKey deserialize all keys in the serialization
@@ -562,7 +689,21 @@ public:
 	 * @return true on success
 	 */
 	template<typename ST>
-	static bool DeserializeEvalAutomorphismKey(std::istream& ser, const ST& sertype);
+	static bool DeserializeEvalAutomorphismKey(std::istream& ser, const ST& sertype) {
+
+		decltype(evalAutomorphismKeyMap) evalSumKeys;
+
+		Serial::Deserialize(evalSumKeys, ser, sertype);
+
+		// The deserialize call created any contexts that needed to be created.... so all we need to do
+		// is put the keys into the maps for their context
+
+		for( auto k : evalSumKeys ) {
+			evalAutomorphismKeyMap[ k.first ] = k.second;
+		}
+
+		return true;
+	}
 
 	/**
 	 * ClearEvalAutomorphismKeys - flush EvalAutomorphismKey cache

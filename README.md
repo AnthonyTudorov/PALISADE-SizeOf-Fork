@@ -82,7 +82,7 @@ After the "make" completes, you should see the PALISADE library files in the lib
 make install
 ```	
 You would probably need to run "sudo make install" unless you are specifying some other install location. You can change the install location by running
-"cmake -DCMAKE_INSTALL_PREFIX=/your/path ..".
+"cmake -DCMAKE_INSTALL_PREFIX=/your/path ..". The header files are placed in the "include/palisade" folder of the specified path, and the binaries of the library are copied directly to the "lib" folder. For example, if no installation path is provided in Ubuntu (and many other Unix-based OSes), the header and library binary files will be placed in "/usr/local/inlude/palisade" and "/usr/local/lib", respectively.
 
 Testing and cleaning the build
 -------------------
