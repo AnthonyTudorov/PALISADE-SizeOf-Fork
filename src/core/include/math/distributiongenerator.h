@@ -35,7 +35,7 @@
 #include "backend.h"
 #include "utils/prng/blake2engine.h"
 
-//#define FIXED_SEED // if defined, then uses a fixed seed number for reproducible results during debug. Use only one OMP thread to ensure reproducibility
+// #define FIXED_SEED // if defined, then uses a fixed seed number for reproducible results during debug. Use only one OMP thread to ensure reproducibility
 
 namespace lbcrypto {
 
@@ -50,7 +50,7 @@ public:
 		if (!m_flag) {
 #if defined(FIXED_SEED)
 				//Only used for debugging in the single-threaded mode.
-				std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG. Use a single thread only!" << std::endl;
+				std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG. Use a single thread only, e.g., OMP_NUM_THREADS=1!" << std::endl;
 
 				std::array<uint32_t,16> seed;
 				seed[0] = 1;

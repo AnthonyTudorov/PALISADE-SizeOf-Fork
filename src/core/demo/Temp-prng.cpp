@@ -26,8 +26,51 @@
 
 using namespace lbcrypto;
 
+void DieHarder();
+void UniformGenerator();
+
 int main() {
 	
+	//DieHarder();
+	UniformGenerator();
+
+	return 0;
+
+}
+
+void UniformGenerator() {
+
+    auto distrUniGen = DiscreteUniformGeneratorImpl<NativeVector>();
+    distrUniGen.SetModulus(NativeInteger((uint64_t)1<<59));
+
+    uint32_t nthreads = omp_get_max_threads();
+
+    std::cout << "number of threads: " << nthreads << std::endl;
+
+    std::vector<NativeVector> vec(nthreads);
+
+#pragma omp parallel for
+    for (uint32_t i = 0; i < nthreads; i++)
+    {
+    	vec[i] = distrUniGen.GenerateVector(8);
+
+        int tid;
+
+        /* Obtain thread number */
+        tid = omp_get_thread_num();
+
+        std::cout << "thread id " << tid << std::endl;
+    }
+
+    for (uint32_t i = 0; i < nthreads; i++)
+    {
+    	std::cout << "vector " << i << " " << vec[i] << std::endl;
+    }
+
+}
+
+void DieHarder() {
+
     ofstream myfile;
     myfile.open("out.bin",ios::out | ios::binary);
     for (size_t i = 0; i < 10000000; i++) {
