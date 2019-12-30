@@ -182,25 +182,25 @@ private:
 	* @param n Number to test with exp(-n/2) probability
 	* @return Accept/Reject result
 	*/
-	static bool AlgorithmP(std::mt19937 &g, int32_t n);
+	static bool AlgorithmP(PRNG &g, int32_t n);
 	/**
 	* @brief Subroutine used by Karney's Method to generate an integer with probability exp(-k/2)(1 - exp(-1/2)).
 	* @param g Mersenne Twister Engine used for deviates
 	* @return Random number k
 	*/
-	static int32_t AlgorithmG(std::mt19937 &g);
+	static int32_t AlgorithmG(PRNG &g);
 	/**
 	* @brief Generates a Bernoulli random value H which is true with probability exp(-1/2).
 	* @param g Mersenne Twister Engine used for uniform deviates
 	* @return Bernoulli random value H
 	*/
-	static bool AlgorithmH(std::mt19937 &g);
+	static bool AlgorithmH(PRNG &g);
 	/**
 	* @brief Generates a Bernoulli random value H which is true with probability exp(-1/2). Uses double precision.
 	* @param g Mersenne Twister Engine used for uniform deviates
 	* @return Bernoulli random value H
 	*/
-	static bool AlgorithmHDouble(std::mt19937 &g);
+	static bool AlgorithmHDouble(PRNG &g);
 	/**
 	* @brief Bernoulli trial with probability exp(-x(2k + x)/(2k + 2)).
 	* @param g Mersenne Twister Engine used for uniform deviates
@@ -208,7 +208,7 @@ private:
 	* @param x Deviate x used for calculations
 	* @return Whether the number of runs are even or not
 	*/
-	static bool AlgorithmB(std::mt19937 &g, int32_t k, double x);
+	static bool AlgorithmB(PRNG &g, int32_t k, double x);
 	/**
 	* @brief Bernoulli trial with probability exp(-x(2k + x)/(2k + 2)). Uses double precision.
 	* @param g Mersenne Twister Engine used for uniform deviates
@@ -216,7 +216,7 @@ private:
 	* @param x Deviate x used for calculations
 	* @return Whether the number of runs are even or not
 	*/
-	static bool AlgorithmBDouble(std::mt19937 &g, int32_t k, double x);
+	static bool AlgorithmBDouble(PRNG &g, int32_t k, double x);
 
 
 	// Gyana to add precomputation methods and data members

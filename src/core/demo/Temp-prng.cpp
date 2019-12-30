@@ -1,5 +1,4 @@
 /*
- * @file distributiongenerator.cpp This code provides basic structure for distribution generators. This should be inherited by all other distribution generators.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -23,15 +22,62 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-#include "math/distributiongenerator.h"
-#include <random>
-#include "math/backend.h"
+#include "palisadecore.h"
 
-namespace lbcrypto {
+using namespace lbcrypto;
 
-bool PseudoRandomNumberGenerator::m_flag = false;
+void DieHarder();
+void UniformGenerator();
 
-std::shared_ptr<PRNG> PseudoRandomNumberGenerator::m_prng = nullptr;
+int main() {
+	
+	//DieHarder();
+	UniformGenerator();
 
-} // namespace lbcrypto
+	return 0;
+
+}
+
+void UniformGenerator() {
+
+    auto distrUniGen = DiscreteUniformGeneratorImpl<NativeVector>();
+    distrUniGen.SetModulus(NativeInteger((uint64_t)1<<59));
+
+    uint32_t nthreads = omp_get_max_threads();
+
+    std::cout << "number of threads: " << nthreads << std::endl;
+
+    std::vector<NativeVector> vec(nthreads);
+
+#pragma omp parallel for
+    for (uint32_t i = 0; i < nthreads; i++)
+    {
+    	vec[i] = distrUniGen.GenerateVector(8);
+
+        int tid;
+
+        /* Obtain thread number */
+        tid = omp_get_thread_num();
+
+        std::cout << "thread id " << tid << std::endl;
+    }
+
+    for (uint32_t i = 0; i < nthreads; i++)
+    {
+    	std::cout << "vector " << i << " " << vec[i] << std::endl;
+    }
+
+}
+
+void DieHarder() {
+
+    ofstream myfile;
+    myfile.open("out.bin",ios::out | ios::binary);
+    for (size_t i = 0; i < 10000000; i++) {
+		uint32_t sample = PseudoRandomNumberGenerator::GetPRNG()();
+		//std::cout << sample << std::endl;
+		myfile.write( (char*)&sample, sizeof(uint32_t));
+    }
+    myfile.close();
+
+}

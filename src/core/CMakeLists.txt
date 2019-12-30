@@ -1,4 +1,5 @@
-file (GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.cpp)
+# includes both C++ and C files
+file (GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.c*)
 
 include_directories( ../core/include )
 include_directories( include )
