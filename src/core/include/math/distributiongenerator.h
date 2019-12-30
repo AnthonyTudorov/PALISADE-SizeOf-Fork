@@ -56,14 +56,7 @@ public:
 				seed[0] = 1;
 				m_prng.reset(new PRNG(seed));
 
-				m_flag = true;
 #else
-#pragma omp critical
-			{
-				m_flag = true;
-			}
-#pragma omp parallel
-			{
 
 				// A 256-bit seed is generated for each thread (this roughly corresponds to 128 bits of security)
 				// BLAKE2 engine is used for generating the seed from current time stamp and a hash of the current thread
@@ -81,8 +74,10 @@ public:
 
 				m_prng.reset(new PRNG(seed));
 
-			}
 #endif
+
+				m_flag = true;
+
 		}
 
 		return *m_prng;
@@ -91,13 +86,13 @@ public:
 
 private:
 
-	// flag for initializing the PRNGs for each thread
+	// flags for initializing the PRNGs for each thread
 	static bool 					m_flag;
 
 	static std::shared_ptr<PRNG> 	m_prng;
 #if !defined(FIXED_SEED)
-	// avoid contention on m_prng 
-    #pragma omp threadprivate(m_prng)
+	// avoid contention on m_prng and m_flag
+    #pragma omp threadprivate(m_prng, m_flag)
 #endif
 };
 
