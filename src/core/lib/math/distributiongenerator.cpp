@@ -30,8 +30,6 @@
 
 namespace lbcrypto {
 
-bool PseudoRandomNumberGenerator::m_flag = false;
-
 std::shared_ptr<PRNG> PseudoRandomNumberGenerator::m_prng = nullptr;
 
 } // namespace lbcrypto

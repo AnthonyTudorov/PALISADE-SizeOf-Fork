@@ -59,7 +59,7 @@ public:
 	static PRNG &GetPRNG () {
 
 		// initialization of PRNGs
-		if (!m_flag) {
+		if(m_prng==nullptr) {
 #if defined(FIXED_SEED)
 				//Only used for debugging in the single-threaded mode.
 				std::cerr << "**FOR DEBUGGING ONLY!!!!  Using fixed initializer for PRNG. Use a single thread only, e.g., OMP_NUM_THREADS=1!" << std::endl;
@@ -85,10 +85,7 @@ public:
 					seed[i] = distribution(gen);
 
 				m_prng.reset(new PRNG(seed));
-
 #endif
-
-				m_flag = true;
 
 		}
 
@@ -98,16 +95,13 @@ public:
 
 private:
 
-	// flag for initializing the PRNGs for each thread
-	static bool 					m_flag;
-
 	// shared pointer to a thread-specific PRNG engine
 	static std::shared_ptr<PRNG> 	m_prng;
 
 #if !defined(FIXED_SEED)
-	// avoid contention on m_prng and m_flag
-	// local copies of m_prng and m_prng are created for each thread
-    #pragma omp threadprivate(m_prng, m_flag)
+	// avoid contention on m_prng
+	// local copies of m_prng are created for each thread
+    #pragma omp threadprivate(m_prng)
 #endif
 };
 
