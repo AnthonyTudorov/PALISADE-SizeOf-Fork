@@ -66,7 +66,7 @@ Serial::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& st
 		return;
 	}
 
-	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm());
+	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm(), newob->getSchemeId());
 }
 
 template void
@@ -158,7 +158,7 @@ Serial::Deserialize(std::shared_ptr<CryptoContextImpl<T>>& obj, std::istream& st
 		return;
 	}
 
-	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm());
+	obj = CryptoContextFactory<T>::GetContext(newob->GetCryptoParameters(), newob->GetEncryptionAlgorithm(), newob->getSchemeId());
 }
 
 template void
