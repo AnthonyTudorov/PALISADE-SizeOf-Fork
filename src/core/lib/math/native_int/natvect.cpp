@@ -1,5 +1,5 @@
 /*
- * @file binvect.cpp This file contains the vector manipulation functionality.
+ * @file natvect.cpp This file contains the vector manipulation functionality.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -30,7 +30,7 @@
 
 #include "math/backend.h"
 #include "utils/serializable.h"
-#include "math/native_int/binvect.h"
+#include "math/native_int/natvect.h"
 #include "math/nbtheory.h"
 #include "utils/debug.h"
 

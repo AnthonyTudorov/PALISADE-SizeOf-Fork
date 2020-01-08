@@ -1,5 +1,5 @@
 /**
- * @file binvect.h This file contains the vector manipulation functionality for native integers.
+ * @file natvect.h This file contains the vector manipulation functionality for native integers.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
