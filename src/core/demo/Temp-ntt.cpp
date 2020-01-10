@@ -256,8 +256,8 @@ void NTTBenchmark() {
 	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
 
 	for (usint i = 0; i < counter; ++i) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
-		ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
+		ChineseRemainderTransformFTT<NativeVector>::InverseTransform(x_ntt, rootOfUnity, m, &x);
 	}
 
 	for (usint i = 0; i < counter; ++i) {
