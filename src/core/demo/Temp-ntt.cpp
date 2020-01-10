@@ -26,39 +26,245 @@
 
 using namespace lbcrypto;
 
+void NTTDummy();
+void NTTSmall();
+void NTTLarge();
 void NTTBenchmark();
 
 int main() {
-	
+//	NTTSmall();
+//	NTTLarge();
 	NTTBenchmark();
-
 	return 0;
-
 }
 
-void NTTBenchmark() {
+void NTTDummy()	{
+	int mod = 17;
 
-	uint32_t counter = 1000;
+	int W[8] = {1,4,15,9,7,11,3,12};
+	int WI[8] = {1,13,8,2,5,14,6,10};
 
+	int x[8] = {3,3,3,4,4,4,5,5};
+	int y[8] = {3,3,3,4,4,4,5,5};
+	int z[8] = {0,0,0,0,0,0,0,0};
+	int q[8] = {0,0,0,0,0,0,0,0};
+	int n = 8;
+
+	for (int i = 0; i < 8; ++i) {
+		cout << x[i] << ",";
+	}
+	cout << endl;
+
+	for (int i = 0; i < 8; ++i) {
+		cout << y[i] << ",";
+	}
+	cout << endl;
+
+	for (int i = 0; i < 8; ++i) {
+		for (int j = 0; j < 8; ++j) {
+			if(i + j < 8) {
+				q[i + j] += (x[i] * y[j]);
+				q[i + j] %= mod;
+			} else {
+				q[i + j - 8] += (mod * mod);
+				q[i + j - 8] -= (x[i] * y[j]);
+				q[i + j - 8] %= mod;
+			}
+		}
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		cout << q[i] << ",";
+	}
+	cout << endl;
+
+	int t = n;
+	for (int m = 1; m < n; m <<=1) {
+		t >>= 1;
+		for (int i = 0; i < m; ++i) {
+			int j1 = 2*i*t;
+			int j2 = j1 + t;
+			int s = W[m+i];
+			for (int j = j1; j < j2; ++j) {
+				int u = x[j];
+				int v = (x[j+t] * s)%mod;
+				x[j] = (u+v)%mod;
+				x[j+t] = (u+mod-v)%mod;
+			}
+		}
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		cout << x[i] << ",";
+	}
+	cout << endl;
+
+	t = n;
+	for (int m = 1; m < n; m <<=1) {
+		t >>= 1;
+		for (int i = 0; i < m; ++i) {
+			int j1 = 2*i*t;
+			int j2 = j1 + t;
+			int s = W[m+i];
+			for (int j = j1; j < j2; ++j) {
+				int u = y[j];
+				int v = (y[j+t] * s)%mod;
+				y[j] = ((u+v)%mod);
+				y[j+t] = ((u+mod-v)%mod);
+			}
+		}
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		cout << y[i] << ",";
+	}
+	cout << endl;
+
+	for (int i = 0; i < 8; ++i) {
+		z[i] = (x[i] * y[i]) % mod;
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		cout << z[i] << ",";
+	}
+	cout << endl;
+
+	t = 1;
+	for (int m = n; m > 1; m >>=1) {
+		int j1 = 0;
+		int h = m >> 1;
+		for (int i = 0; i < h; ++i) {
+			int j2 = j1 + t;
+			int s = WI[h+i];
+			for (int j = j1; j < j2; ++j) {
+				int u = z[j];
+				int v = z[j+t];
+				z[j] = u+v;
+				z[j+t] = ((u+mod-v)*s)%mod;
+			}
+			j1 += (t << 1);
+		}
+		t <<= 1;
+	}
+
+	for (int i = 0; i < n; ++i) {
+		z[i] = (z[i] * 15)%mod;
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		cout << z[i] << ",";
+	}
+	cout << endl;
+}
+
+void NTTSmall() {
+	usint m = 16;
+	usint phim = 8;
+
+	NativeInteger modulusQ("17");
+	NativeInteger rootOfUnity("7");
+
+	NativeVector x(phim,modulusQ);
+	NativeVector y(phim,modulusQ);
+
+	x[0] = 3;
+	x[1] = 3;
+	x[2] = 3;
+	x[3] = 4;
+	x[4] = 4;
+	x[5] = 4;
+	x[6] = 5;
+	x[7] = 5;
+
+	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
+
+	std::cout << "-----------------------" << std::endl;
+	for (usint i = 0; i < phim; ++i) {
+		std::cout << x[i] << ",";
+	}
+	std::cout << endl;
+	std::cout << "-----------------------" << std::endl;
+
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &y);
+
+	std::cout << "-----------------------" << std::endl;
+	for (usint i = 0; i < phim; ++i) {
+		std::cout << y[i] << ",";
+		y[i] = y[i].ModMul(y[i], modulusQ);
+	}
+
+	std::cout << endl;
+	std::cout << "-----------------------" << std::endl;
+
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(y, rootOfUnity, m, &x);
+
+	std::cout << "-----------------------" << std::endl;
+	for (usint i = 0; i < phim; ++i) {
+		std::cout << x[i] << ",";
+	}
+	std::cout << endl;
+	std::cout << "-----------------------" << std::endl;
+}
+
+void NTTLarge() {
 	usint m = 2048;
 	usint phim = 1024;
 
 	NativeInteger modulusQ("288230376151748609");
-	NativeInteger rootOfUnity("64073710037604316");
+	NativeInteger rootOfUnity("160550286306538");
+//	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
 
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
+	NativeVector x_ntt(phim,modulusQ);
 
-	// test runs to force all precomputations
-	NativeVector X(m/2);
+	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
+
+	std::cout << "-----------------------" << std::endl;
+	for (usint i = 0; i < 5; ++i) {
+		std::cout << x[i] << std::endl;
+	}
+	std::cout << "-----------------------" << std::endl;
+
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
+
+	std::cout << "-----------------------" << std::endl;
+	for (usint i = 0; i < 5; ++i) {
+		std::cout << x[i] << std::endl;
+	}
+	std::cout << "-----------------------" << std::endl;
+
+}
+
+void NTTBenchmark() {
+	usint counter = 1000;
+	usint m = 2048;
+	usint phim = 1024;
+
+	NativeInteger modulusQ("288230376151748609");
+	NativeInteger rootOfUnity("160550286306538");
+//	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
+	dug.SetModulus(modulusQ);
+	NativeVector x = dug.GenerateVector(phim);
+	NativeVector x_ntt(phim);
 
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
+	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
 
-	for (uint32_t i = 0; i < counter; i++)	{
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	for (usint i = 0; i < counter; ++i) {
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
+		ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
 	}
 
-	std::cout << "finished running NTT" << std::endl;
+	for (usint i = 0; i < counter; ++i) {
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
+		ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
+	}
+
+	std::cout << "finished" << std::endl;
 }
 
