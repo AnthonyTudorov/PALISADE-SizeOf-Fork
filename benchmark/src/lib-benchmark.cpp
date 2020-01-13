@@ -204,24 +204,13 @@ void NTTTransform(benchmark::State& state) {
 	NativeInteger modulusQ("288230376151748609");
 	NativeInteger rootOfUnity("64073710037604316");
 
-	uint64_t nRep;
-
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
 
-	NativeVector rootOfUnityTable(phim, modulusQ);
-	NativeInteger t(1);
-	for (usint i = 0; i<phim; i++) {
-		rootOfUnityTable.at(i)= t;
-		t = t.ModMul(rootOfUnity, modulusQ);
-	}
-
 	// test runs to force all precomputations
-	NativeVector X(m/2), xx(m/2);
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(X, rootOfUnity, m, &xx);
-
+	NativeVector X(phim);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity, m, modulusQ);
 
 	while (state.KeepRunning()) {
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);

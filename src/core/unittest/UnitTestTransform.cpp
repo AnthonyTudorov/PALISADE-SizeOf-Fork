@@ -61,6 +61,7 @@ void CRT_polynomial_mult(const string& msg) {
 	usint n = cycloOrder / 2;
 
 	typename V::Integer primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
+	ChineseRemainderTransformFTT<V>::PreCompute(primitiveRootOfUnity, cycloOrder, primeModulus);
 
 	V a(n, primeModulus);
 	a.at(0) = typename V::Integer("1");

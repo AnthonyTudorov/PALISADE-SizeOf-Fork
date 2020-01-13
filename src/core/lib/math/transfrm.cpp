@@ -900,68 +900,70 @@ template<typename VecType>
 void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& element, const IntType& rootOfUnity,
 		const usint CycloOrder, VecType *OpFFT) {
 
-	usint CycloOrderHf = CycloOrder / 2;
-	if(OpFFT->GetLength() != CycloOrderHf) {
-		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
-	}
-
 	if (rootOfUnity == IntType(1) || rootOfUnity == IntType(0)) {
-		// No transform, just copy in to out
 		*OpFFT = element;
 		return;
-		//throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::ForwardTransform cannot be zero or one");
 	}
 
 	if (!IsPowerOfTwo(CycloOrder)) {
 		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::ForwardTransform is not a power of two");
 	}
 
-	IntType modulus = element.GetModulus();
-	//Precompute the Barrett mu parameter
-	IntType mu = ComputeMu<IntType>(modulus);
-
-	const VecType *rootOfUnityTable = NULL;
-
-	// check to see if the modulus is in the table, and add it if it isn't
-	const auto mapSearch = m_rootOfUnityReverseTableByModulus.find(modulus);
-	if( mapSearch == m_rootOfUnityReverseTableByModulus.end() || mapSearch->second[CycloOrderHf/2] != rootOfUnity ) {
-#pragma omp critical
-		{
-			usint msb = GetMSB64(CycloOrderHf - 1);
-			VecType rTable(CycloOrderHf,modulus);
-			IntType x(1);
-			for (usint i = 0; i < CycloOrderHf; i++) {
- 			    rTable[ReverseBits(i, msb)]= x;
-			    x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
-			}
-			rootOfUnityTable = &(m_rootOfUnityReverseTableByModulus[modulus] = std::move(rTable));
-
-			if (typeid(IntType) == typeid(NativeInteger)) {
-				NativeInteger nativeModulus = modulus.ConvertToInt();
-				NativeVector preconTable(CycloOrderHf,nativeModulus);
-				if(nativeModulus.GetMSB() < MAX_MODULUS_SIZE + 1) {
-					for (usint i = 0; i<CycloOrderHf; i++) {
-						preconTable[i] = NativeInteger(rootOfUnityTable->operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-					}
-				} else {
-					for (usint i = 0; i<CycloOrderHf; i++) {
-						preconTable[i] = 0;
-					}
-				}
-				m_rootOfUnityPreconReverseTableByModulus[modulus] = std::move(preconTable);
-			}
-		}
-	} else {
-		rootOfUnityTable = &mapSearch->second;
+	usint CycloOrderHf = CycloOrder / 2;
+	if(OpFFT->GetLength() != CycloOrderHf) {
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::ForwardTransform size must be == CyclotomicOrder/2");
 	}
+
+	IntType modulus = element.GetModulus();
+
+	auto mapSearch = m_rootOfUnityReverseTableByModulus.find(modulus);
+	if(mapSearch == m_rootOfUnityReverseTableByModulus.end() || mapSearch->second.GetLength() != CycloOrderHf) {
+		PreCompute(rootOfUnity, CycloOrder, modulus);
+	}
+
+//	IntType mu = ComputeMu<IntType>(modulus);
+//	const VecType *rootOfUnityTable = NULL;
+//	const auto mapSearch = m_rootOfUnityReverseTableByModulus.find(modulus);
+//	if( mapSearch == m_rootOfUnityReverseTableByModulus.end() || mapSearch->second[CycloOrderHf/2] != rootOfUnity ) {
+//#pragma omp critical
+//		{
+//			usint msb = GetMSB64(CycloOrderHf - 1);
+//			VecType rTable(CycloOrderHf,modulus);
+//			IntType x(1);
+//			for (usint i = 0; i < CycloOrderHf; i++) {
+// 			    rTable[ReverseBits(i, msb)]= x;
+//			    x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
+//			}
+//			rootOfUnityTable = &(m_rootOfUnityReverseTableByModulus[modulus] = std::move(rTable));
+//
+//			if (typeid(IntType) == typeid(NativeInteger)) {
+//				NativeInteger nativeModulus = modulus.ConvertToInt();
+//				NativeVector preconTable(CycloOrderHf,nativeModulus);
+//				if(nativeModulus.GetMSB() < MAX_MODULUS_SIZE + 1) {
+//					for (usint i = 0; i<CycloOrderHf; i++) {
+//						preconTable[i] = NativeInteger(rootOfUnityTable->operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
+//					}
+//				} else {
+//					for (usint i = 0; i<CycloOrderHf; i++) {
+//						preconTable[i] = 0;
+//					}
+//				}
+//				m_rootOfUnityPreconReverseTableByModulus[modulus] = std::move(preconTable);
+//			}
+//		}
+//	} else {
+//		rootOfUnityTable = &mapSearch->second;
+//	}
 
 #if NTT_REVERSE == 0
 	VecType tempvec(CycloOrderHf, modulus);
 	if (typeid(IntType) == typeid(NativeInteger)) {
-		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element, *rootOfUnityTable,
+		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element,
+				m_rootOfUnityReverseTableByModulus[modulus],
 				m_rootOfUnityPreconReverseTableByModulus[modulus], CycloOrderHf, &tempvec);
 	} else {
-		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element, *rootOfUnityTable, CycloOrderHf, &tempvec);
+		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element,
+				m_rootOfUnityReverseTableByModulus[modulus], CycloOrderHf, &tempvec);
 	}
 	usint msb = GetMSB64(CycloOrderHf - 1);
 	for (usint i = 0; i < CycloOrderHf; ++i) {
@@ -1090,84 +1092,87 @@ void ChineseRemainderTransformFTT<VecType>::InverseTransformXX(const VecType& el
 
 template<typename VecType>
 void ChineseRemainderTransformFTT<VecType>::InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *OpIFFT) {
-	usint CycloOrderHf = CycloOrder / 2;
-	if(OpIFFT->GetLength() != CycloOrderHf) {
-		throw std::logic_error("Vector for ChineseRemainderTransformFTT::InverseTransform size must be == CyclotomicOrder/2");
-	}
 
 	if (rootOfUnity == IntType(1) || rootOfUnity == IntType(0)) {
-		// just copy, no transform
 		*OpIFFT = element;
 		return;
-		//throw std::logic_error("Root of unity for ChineseRemainderTransformFTT::InverseTransform cannot be zero or one");
 	}
 
 	if (!IsPowerOfTwo(CycloOrder)) {
 		throw std::logic_error("CyclotomicOrder for ChineseRemainderTransformFTT::InverseTransform is not a power of two");
 	}
+
+	usint CycloOrderHf = CycloOrder / 2;
+	if(OpIFFT->GetLength() != CycloOrderHf) {
+		throw std::logic_error("Vector for ChineseRemainderTransformFTT::InverseTransform size must be == CyclotomicOrder/2");
+	}
+
 	IntType modulus = element.GetModulus();
-	//Precompute the Barrett mu parameter
-	IntType mu = ComputeMu<IntType>(modulus);
 
-	const VecType *rootOfUnityITable = NULL;
-
-	IntType rootofUnityInverse;
-	try {
-		rootofUnityInverse = rootOfUnity.ModInverse(modulus);
-	} catch (std::exception& e) {
-		throw std::logic_error(std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse");
+	auto mapSearch = m_rootOfUnityReverseTableByModulus.find(modulus);
+	if(mapSearch == m_rootOfUnityReverseTableByModulus.end() || mapSearch->second.GetLength() != CycloOrderHf) {
+		PreCompute(rootOfUnity, CycloOrder, modulus);
 	}
 
-	auto mSearch = m_rootOfUnityInverseReverseTableByModulus.find(modulus);
-	// check to see if the modulus is in the table
-	if( mSearch == m_rootOfUnityInverseReverseTableByModulus.end() || mSearch->second.GetLength() == 0
-			|| mSearch->second[CycloOrderHf/2] != rootofUnityInverse ) {
-#pragma omp critical
-		{
-			VecType TableI(CycloOrderHf);
-
-			IntType x(1);
-
-			usint msb = GetMSB64(CycloOrderHf - 1);
-			for (usint i = 0; i < CycloOrderHf; i++) {
-				TableI[ReverseBits(i, msb)]= x;
-				x.ModBarrettMulInPlace(rootofUnityInverse, modulus, mu);
-			}
-			rootOfUnityITable = &(m_rootOfUnityInverseReverseTableByModulus[modulus] = std::move(TableI));
-
-			IntType CycloOrderHfInv(IntType(CycloOrderHf).ModInverse(modulus));
-			m_cycloOrderInverseTableByModulus[modulus] = std::move(CycloOrderHfInv);
-
-			if (typeid(IntType) == typeid(NativeInteger)) {
-				NativeInteger nativeModulus = modulus.ConvertToInt();
-				NativeVector preconTableI(CycloOrderHf, nativeModulus);
-				NativeInteger preconCycloOrderInv;
-				if(element.GetModulus().GetMSB() < MAX_MODULUS_SIZE+1) {
-					for (usint i = 0; i < CycloOrderHf; i++) {
-						preconTableI[i] = NativeInteger(rootOfUnityITable->operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-					}
-					preconCycloOrderInv = NativeInteger(CycloOrderHfInv.ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-				} else {
-					for (usint i = 0; i < CycloOrderHf; i++) {
-						preconTableI[i] = 0;
-					}
-					preconCycloOrderInv = 0;
-				}
-				m_rootOfUnityInversePreconReverseTableByModulus[modulus] = std::move(preconTableI);
-				m_cycloOrderInversePreconTableByModulus[modulus] = std::move(preconCycloOrderInv);
-			}
-		}
-	} else {
-		rootOfUnityITable = &mSearch->second;
-	}
+//	IntType mu = ComputeMu<IntType>(modulus);
+//	const VecType *rootOfUnityITable = NULL;
+//	IntType rootofUnityInverse;
+//	try {
+//		rootofUnityInverse = rootOfUnity.ModInverse(modulus);
+//	} catch (std::exception& e) {
+//		throw std::logic_error(std::string(e.what()) + ": rootOfUnity " + rootOfUnity.ToString() + " has no inverse");
+//	}
+//	auto mSearch = m_rootOfUnityInverseReverseTableByModulus.find(modulus);
+//	if( mSearch == m_rootOfUnityInverseReverseTableByModulus.end() || mSearch->second.GetLength() == 0
+//			|| mSearch->second[CycloOrderHf/2] != rootofUnityInverse ) {
+//#pragma omp critical
+//		{
+//			VecType TableI(CycloOrderHf);
+//
+//			IntType x(1);
+//
+//			usint msb = GetMSB64(CycloOrderHf - 1);
+//			for (usint i = 0; i < CycloOrderHf; i++) {
+//				TableI[ReverseBits(i, msb)]= x;
+//				x.ModBarrettMulInPlace(rootofUnityInverse, modulus, mu);
+//			}
+//			rootOfUnityITable = &(m_rootOfUnityInverseReverseTableByModulus[modulus] = std::move(TableI));
+//
+//			IntType CycloOrderHfInv(IntType(CycloOrderHf).ModInverse(modulus));
+//			m_cycloOrderInverseTableByModulus[modulus] = std::move(CycloOrderHfInv);
+//
+//			if (typeid(IntType) == typeid(NativeInteger)) {
+//				NativeInteger nativeModulus = modulus.ConvertToInt();
+//				NativeVector preconTableI(CycloOrderHf, nativeModulus);
+//				NativeInteger preconCycloOrderInv;
+//				if(element.GetModulus().GetMSB() < MAX_MODULUS_SIZE+1) {
+//					for (usint i = 0; i < CycloOrderHf; i++) {
+//						preconTableI[i] = NativeInteger(rootOfUnityITable->operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
+//					}
+//					preconCycloOrderInv = NativeInteger(CycloOrderHfInv.ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
+//				} else {
+//					for (usint i = 0; i < CycloOrderHf; i++) {
+//						preconTableI[i] = 0;
+//					}
+//					preconCycloOrderInv = 0;
+//				}
+//				m_rootOfUnityInversePreconReverseTableByModulus[modulus] = std::move(preconTableI);
+//				m_cycloOrderInversePreconTableByModulus[modulus] = std::move(preconCycloOrderInv);
+//			}
+//		}
+//	} else {
+//		rootOfUnityITable = &mSearch->second;
+//	}
 
 	if (typeid(IntType) == typeid(NativeInteger)) {
-		NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(element, *rootOfUnityITable,
+		NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(element,
+				m_rootOfUnityInverseReverseTableByModulus[modulus],
 				m_rootOfUnityInversePreconReverseTableByModulus[modulus],
 				m_cycloOrderInverseTableByModulus[modulus],
 				m_cycloOrderInversePreconTableByModulus[modulus], CycloOrderHf, OpIFFT);
 	} else {
-		NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(element, *rootOfUnityITable, CycloOrderHf, OpIFFT);
+		NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(element,
+				m_rootOfUnityInverseReverseTableByModulus[modulus], CycloOrderHf, OpIFFT);
 	}
 
 	return;
@@ -1253,32 +1258,17 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(const IntType& rootOfUnit
 	usint CycloOrderHf = CycloOrder / 2;
 	usint msb = GetMSB64(CycloOrderHf - 1);
 
-	if (m_rootOfUnityReverseTableByModulus[modulus].GetLength() == 0 ||
-		m_rootOfUnityReverseTableByModulus[modulus][CycloOrderHf/2] != rootOfUnity) {
+	auto mapSearch = m_rootOfUnityReverseTableByModulus.find(modulus);
+	if(mapSearch == m_rootOfUnityReverseTableByModulus.end() || mapSearch->second.GetLength() != CycloOrderHf) {
 #pragma omp critical
 		{
-			VecType Table(CycloOrderHf, modulus);
 
+			VecType Table(CycloOrderHf, modulus);
 			for (usint i = 0; i < CycloOrderHf; i++) {
 				Table[ReverseBits(i, msb)] = x;
 				x.ModBarrettMulInPlace(rootOfUnity, modulus, mu);
 			}
 			m_rootOfUnityReverseTableByModulus[modulus] = std::move(Table);
-
-			if (typeid(IntType) == typeid(NativeInteger)) {
-				NativeInteger nativeModulus = modulus.ConvertToInt();
-				NativeVector preconTable(CycloOrderHf,nativeModulus);
-				if(modulus.GetMSB() < MAX_MODULUS_SIZE + 1){
-					for (usint i = 0; i < CycloOrderHf; i++) {
-						preconTable[i] = NativeInteger(m_rootOfUnityReverseTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-					}
-				} else {
-					for (usint i = 0; i < CycloOrderHf; i++) {
-						preconTable[i] = 0;
-					}
-				}
-				m_rootOfUnityPreconReverseTableByModulus[modulus] = std::move(preconTable);
-			}
 
 			VecType TableI(CycloOrderHf, modulus);
 			IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
@@ -1294,18 +1284,24 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(const IntType& rootOfUnit
 
 			if (typeid(IntType) == typeid(NativeInteger)) {
 				NativeInteger nativeModulus = modulus.ConvertToInt();
+				NativeVector preconTable(CycloOrderHf,nativeModulus);
 				NativeVector preconTableI(CycloOrderHf,nativeModulus);
 				NativeInteger preconCycloOrderInv;
-				if(modulus.GetMSB() < MAX_MODULUS_SIZE + 1) {
+
+				if(modulus.GetMSB() < MAX_MODULUS_SIZE + 1){
 					for (usint i = 0; i < CycloOrderHf; i++) {
+						preconTable[i] = NativeInteger(m_rootOfUnityReverseTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
 						preconTableI[i] = NativeInteger(m_rootOfUnityInverseReverseTableByModulus[modulus].operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
 					}
 					preconCycloOrderInv = NativeInteger(cycloOrderHfInv.ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
 				} else {
 					for (usint i = 0; i < CycloOrderHf; i++) {
+						preconTable[i] = 0;
 						preconTableI[i] = 0;
 					}
 				}
+
+				m_rootOfUnityPreconReverseTableByModulus[modulus] = std::move(preconTable);
 				m_rootOfUnityInversePreconReverseTableByModulus[modulus] = std::move(preconTableI);
 				m_cycloOrderInversePreconTableByModulus[modulus] = std::move(preconCycloOrderInv);
 			}
@@ -1398,85 +1394,14 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(std::vector<IntType> &roo
 	usint numOfRootU = rootOfUnity.size();
 	usint numModulii = moduliiChain.size();
 
-	usint CycloOrderHf = CycloOrder / 2;
-	usint msb = GetMSB64(CycloOrderHf - 1);
 	if (numOfRootU != numModulii) {
 		throw std::logic_error("size of root of unity and size of moduli chain not of same size");
 	}
 
-#pragma omp critical
 	for (usint i = 0; i < numOfRootU; ++i) {
-
 		IntType currentRoot(rootOfUnity[i]);
 		IntType currentMod(moduliiChain[i]);
-
-		//Precompute the Barrett mu parameter
-		IntType mu = ComputeMu<IntType>(currentMod);
-
-		if (m_rootOfUnityReverseTableByModulus[moduliiChain[i]].GetLength() != 0 &&
-			m_rootOfUnityReverseTableByModulus[moduliiChain[i]][CycloOrderHf/2] == currentRoot)
-			continue;
-
-		IntType x(1);
-
-		//computation of root of unity table
-		VecType rTable(CycloOrderHf, currentMod);
-
-		for (usint i = 0; i < CycloOrderHf; i++) {
-		  rTable[ReverseBits(i, msb)]= x;
-		  x.ModBarrettMulInPlace(currentRoot, currentMod, mu);
-		}
-		m_rootOfUnityReverseTableByModulus[currentMod] = std::move(rTable);
-
-		if (typeid(x) == typeid(NativeInteger)) {
-			NativeInteger nativeModulus = currentMod.ConvertToInt();
-			NativeVector preconTable(CycloOrderHf,nativeModulus);
-			if(currentMod.GetMSB() < MAX_MODULUS_SIZE + 1) {
-				for (usint i = 0; i < CycloOrderHf; i++) {
-					preconTable[i] = NativeInteger(m_rootOfUnityReverseTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-				}
-			} else {
-				for (usint i = 0; i < CycloOrderHf; i++) {
-					preconTable[i] = 0;
-				}
-			}
-			m_rootOfUnityPreconReverseTableByModulus[currentMod] = std::move(preconTable);
-		}
-
-		//computation of root of unity inverse table
-		x = 1;
-
-		IntType rootOfUnityInverse = currentRoot.ModInverse(currentMod);
-
-		VecType rTableI(CycloOrderHf,currentMod);
-
-		for (usint i = 0; i < CycloOrderHf; i++) {
-			rTableI[ReverseBits(i, msb)]= x;
-			x.ModBarrettMulInPlace(rootOfUnityInverse, currentMod, mu);
-		}
-		m_rootOfUnityInverseReverseTableByModulus[currentMod] = std::move(rTableI);
-
-		IntType cycloOrderHfInv(IntType(CycloOrderHf).ModInverse(currentMod));
-		m_cycloOrderInverseTableByModulus[currentMod] = std::move(cycloOrderHfInv);
-
-		if (typeid(x) == typeid(NativeInteger)) {
-			NativeInteger nativeModulus = currentMod.ConvertToInt();
-			NativeVector preconTableI(CycloOrderHf,nativeModulus);
-			NativeInteger preconCycloOrderInv;
-			if(currentMod.GetMSB() < MAX_MODULUS_SIZE + 1){
-				for (usint i = 0; i < CycloOrderHf; i++) {
-					preconTableI[i] = NativeInteger(m_rootOfUnityInverseReverseTableByModulus[currentMod].operator[](i).ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-				}
-				preconCycloOrderInv = NativeInteger(cycloOrderHfInv.ConvertToInt()).PrepModMulPreconOptimized(nativeModulus);
-			} else {
-				for (usint i = 0; i < CycloOrderHf; i++) {
-					preconTableI[i] = 0;
-				}
-				preconCycloOrderInv = 0;
-			}
-			m_rootOfUnityInversePreconReverseTableByModulus[currentMod] = std::move(preconTableI);
-			m_cycloOrderInversePreconTableByModulus[currentMod] = std::move(preconCycloOrderInv);
-		}
+		PreCompute(currentRoot, CycloOrder, currentMod);
 	}
 }
 
