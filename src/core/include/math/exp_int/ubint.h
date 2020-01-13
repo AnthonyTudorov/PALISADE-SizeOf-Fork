@@ -651,6 +651,8 @@ public:
 
 	const ubint& ModMulEq(const ubint& b, const ubint& modulus);
 
+	const ubint& ModMulFastEq(const ubint& b, const ubint& modulus);
+
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
@@ -664,6 +666,8 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+
+	const ubint& ModBarrettMulEq(const ubint& b, const ubint& modulus,const ubint& mu);
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used - In-place version

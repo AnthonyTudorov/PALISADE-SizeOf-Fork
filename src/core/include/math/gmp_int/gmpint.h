@@ -306,8 +306,19 @@ public:
 	//Fast version does not check for modulus bounds.
 	inline myZZ ModMulFast(const myZZ& b, const myZZ& modulus) const {return MulMod(*this, b, modulus);};
 
+	const myZZ& ModMulFastEq(const myZZ& b, const myZZ& modulus) {
+		*this = MulMod(*this, b, modulus);
+		return *this;
+	}
+
 	//    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
 	inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this, b, modulus);};
+
+	const myZZ& ModBarrettMulEq(const myZZ& b, const myZZ& modulus,const myZZ& mu) {
+		*this = MulMod(*this, b, modulus);
+		return *this;
+	}
+
 	inline void ModBarrettMulInPlace(const myZZ& b, const myZZ& modulus,const myZZ& mu)  { *this = MulMod(*this, b, modulus);};
 
 	//    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};

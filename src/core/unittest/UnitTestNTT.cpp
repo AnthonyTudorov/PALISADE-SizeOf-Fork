@@ -250,9 +250,9 @@ void decomposeMult_double_crt(const string& msg) {
 	EXPECT_EQ(resultsEval.GetElementAtIndex(1).at(3), 0) << msg;
 }
 
-TEST(UTNTT, decomposeMult_double_crt) {
-	RUN_BIG_DCRTPOLYS(decomposeMult_double_crt, "decomposeMult_double_crt")
-}
+//TEST(UTNTT, decomposeMult_double_crt) {
+//	RUN_BIG_DCRTPOLYS(decomposeMult_double_crt, "decomposeMult_double_crt")
+//}
 
 template<typename Element>
 void decomposeMult_single_crt(const string& msg) {
@@ -306,6 +306,7 @@ void decomposeMult_single_crt(const string& msg) {
 	EXPECT_EQ(resultsEval.at(3), typename Element::Integer(0)) << msg;
 }
 
-TEST(UTNTT, decomposeMult_single_crt) {
-	RUN_ALL_POLYS(decomposeMult_single_crt, "decomposeMult_single_crt")
-}
+//TODO test uses decompose that used in ltv scheme
+//TEST(UTNTT, decomposeMult_single_crt) {
+//	RUN_ALL_POLYS(decomposeMult_single_crt, "decomposeMult_single_crt")
+//}

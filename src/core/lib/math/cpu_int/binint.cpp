@@ -1658,6 +1658,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulEq
 	return *this;
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulFastEq(const BigInteger& b, const BigInteger& modulus) {
+	this->TimesEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
@@ -1682,7 +1689,7 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const {
 
 	BigInteger a(*this);
 	BigInteger bb(b);
@@ -1698,6 +1705,23 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 	a.TimesEq(bb);
 	return a.ModBarrett(modulus,mu);
 
+}
+
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettMulEq(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) {
+	BigInteger bb(b);
+
+	//if a is greater than q reduce a to its mod value
+	if(*this >= modulus)
+		this->ModBarrettInPlace(modulus,mu);
+
+	//if b is greater than q reduce b to its mod value
+	if(b >= modulus)
+		bb.ModBarrettInPlace(modulus,mu);
+
+	this->TimesEq(bb);
+	this->ModBarrett(modulus,mu);
+	return *this;
 }
 
 

@@ -161,22 +161,23 @@ void NTTSmall() {
 	usint m = 16;
 	usint phim = 8;
 
-	NativeInteger modulusQ("17");
-	NativeInteger rootOfUnity("7");
+	NativeInteger modulusQ("17729");
+	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+
 
 	NativeVector x(phim,modulusQ);
 	NativeVector y(phim,modulusQ);
 
-	x[0] = 3;
-	x[1] = 3;
-	x[2] = 3;
-	x[3] = 4;
-	x[4] = 4;
-	x[5] = 4;
-	x[6] = 5;
-	x[7] = 5;
+	x[0] = 0;
+	x[1] = 0;
+	x[2] = 0;
+	x[3] = 0;
+	x[4] = 0;
+	x[5] = 0;
+	x[6] = 1;
+	x[7] = 0;
 
-	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
@@ -185,7 +186,7 @@ void NTTSmall() {
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &y);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &y);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
@@ -193,10 +194,19 @@ void NTTSmall() {
 		y[i] = y[i].ModMul(y[i], modulusQ);
 	}
 
+//	y[0] = 0;
+//	y[1] = 0;
+//	y[2] = 0;
+//	y[3] = 0;
+//	y[4] = 0;
+//	y[5] = 0;
+//	y[6] = 1;
+//	y[7] = 0;
+
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(y, rootOfUnity, m, &x);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(y, rootOfUnity, m, &x);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
@@ -219,7 +229,7 @@ void NTTLarge() {
 	NativeVector x = dug.GenerateVector(phim);
 	NativeVector x_ntt(phim,modulusQ);
 
-	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < 5; ++i) {
@@ -227,8 +237,8 @@ void NTTLarge() {
 	}
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(x_ntt, rootOfUnity, m, &x);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < 5; ++i) {
@@ -244,25 +254,25 @@ void NTTBenchmark() {
 	usint phim = 1024;
 
 	NativeInteger modulusQ("288230376151748609");
-	NativeInteger rootOfUnity("160550286306538");
-//	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+//	NativeInteger rootOfUnity("160550286306538");
+	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
 
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
 	NativeVector x_ntt(phim);
 
+	ChineseRemainderTransformFTT<NativeVector>::PreComputeXX(rootOfUnity, m, modulusQ);
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
-	ChineseRemainderTransformFTT<NativeVector>::PreComputeCTGS(rootOfUnity,	m, modulusQ);
+
+	for (usint i = 0; i < counter; ++i) {
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformXX(x, rootOfUnity, m, &x_ntt);
+		ChineseRemainderTransformFTT<NativeVector>::InverseTransformXX(x_ntt, rootOfUnity, m, &x);
+	}
 
 	for (usint i = 0; i < counter; ++i) {
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
 		ChineseRemainderTransformFTT<NativeVector>::InverseTransform(x_ntt, rootOfUnity, m, &x);
-	}
-
-	for (usint i = 0; i < counter; ++i) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformCT(x, rootOfUnity, m, &x_ntt);
-		ChineseRemainderTransformFTT<NativeVector>::InverseTransformGS(x_ntt, rootOfUnity, m, &x);
 	}
 
 	std::cout << "finished" << std::endl;

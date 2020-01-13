@@ -633,6 +633,8 @@ namespace cpu_int{
     */
     const BigInteger& ModMulEq(const BigInteger& b, const BigInteger& modulus);
 
+    const BigInteger& ModMulFastEq(const BigInteger& b, const BigInteger& modulus);
+
     /**
     * Scalar modular multiplication where Barrett modular reduction is used.
 	* Implements generalized Barrett modular reduction algorithm (no interleaving between multiplication and modulo). 
@@ -645,6 +647,8 @@ namespace cpu_int{
     * @return is the result of the modulus multiplication operation.
     */
     BigInteger ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const;
+
+    const BigInteger& ModBarrettMulEq(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu);
 
 	/**
 	* Scalar modular multiplication where Barrett modular reduction is used - In-place version

@@ -1168,6 +1168,10 @@ public:
 		return this->ModMul(b,modulus);
 	}
 
+	const NativeInteger& ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) {
+		return *this = this->ModMul(b,modulus);
+	}
+
 	/**
 	* Modulo multiplication where Barrett modular reduction is used - In-place version
 	* Included here for compatibility with backend 2.

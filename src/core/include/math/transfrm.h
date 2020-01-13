@@ -41,6 +41,8 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+#define NTT_REVERSE 0
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto
@@ -63,100 +65,9 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result) {
-		DEBUG_FLAG(false);
-		usint n = cycloOrder;
+	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
 
-		auto modulus = element.GetModulus();
-
-#if MATHBACKEND != 6
-		//Precompute the Barrett mu parameter
-		IntType mu = ComputeMu<IntType>(modulus);
-#endif
-
-		if( result->GetLength() != n ) {
-			throw std::logic_error("Vector for NumberTheoreticTransform::ForwardTransformIterative size needs to be == cyclotomic order");
-		}
-
-		result->SetModulus(modulus);
-
-		//reverse coefficients (bit reversal)
-		usint msb = GetMSB64(n - 1);
-		for (size_t i = 0; i < n; i++) {
-			(*result)[i]= element[ReverseBits(i, msb)];
-		}
-
-		IntType omegaFactor;
-		IntType product;
-		IntType butterflyPlus;
-		IntType butterflyMinus;
-
-		/*Ring dimension factor calculates the ratio between the cyclotomic order of the root of unity table
-			  that was generated originally and the cyclotomic order of the current VecType. The twiddle table
-			  for lower cyclotomic orders is smaller. This trick only works for powers of two cyclotomics.*/
-		float ringDimensionFactor = (float)rootOfUnityTable.GetLength() / (float)cycloOrder;
-		DEBUG("rootOfUnityTable.GetLength() " << rootOfUnityTable.GetLength());
-		DEBUG("cycloOrder " << cycloOrder);
-		DEBUG("ringDimensionFactor " << ringDimensionFactor);
-		DEBUG("n " << n);
-
-		usint logn = log2(n);
-
-		for (usint logm = 1; logm <= logn; logm++) {
-			// calculate the i indexes into the root table one time per loop
-			vector<usint> indexes(1 << (logm-1));
-			for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
-				indexes[i] = (i << (1+logn-logm)) * ringDimensionFactor;
-			}
-
-			for (usint j = 0; j<n; j = j + (1 << logm)) {
-				for (usint i = 0; i < (usint)(1 << (logm-1)); i++) {
-					const IntType& omega = rootOfUnityTable[indexes[i]];
-
-					usint indexEven = j + i;
-					usint indexOdd = indexEven + (1 << (logm-1));
-					auto oddVal = (*result)[indexOdd];
-					auto oddMSB = oddVal.GetMSB();
-
-					if (oddMSB > 0) {
-						if (oddMSB == 1) {
-							omegaFactor = omega;
-						} else {
-#if MATHBACKEND != 6
-							omegaFactor = omega.ModBarrettMul(oddVal,modulus,mu);
-#else
-							omegaFactor = omega.ModMulFast(oddVal,modulus);
-#endif
-						}
-
-#if MATHBACKEND != 6
-						butterflyPlus = (*result)[indexEven];
-						butterflyPlus += omegaFactor;
-						if (butterflyPlus >= modulus) {
-							butterflyPlus -= modulus;
-						}
-
-						butterflyMinus = (*result)[indexEven];
-						if ((*result)[indexEven] < omegaFactor) {
-							butterflyMinus += modulus;
-						}
-
-						butterflyMinus -= omegaFactor;
-
-						(*result)[indexEven]= butterflyPlus;
-						(*result)[indexOdd]= butterflyMinus;
-#else
-						(*result)[indexOdd] = (*result)[indexEven].ModSubFast(omegaFactor,modulus);
-						(*result)[indexEven] = (*result)[indexEven].ModAddFast(omegaFactor,modulus);
-#endif
-					} else {
-						(*result)[indexOdd] = (*result)[indexEven];
-					}
-				}
-			}
-		}
-		return;
-	}
+	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
 
 	/**
 	* Forward transform for the NativeInteger case (based on NTL's modular multiplication).
@@ -179,7 +90,9 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
+	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *result);
+
+	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *result);
 
 	/**
 	* Inverse transform for the case of NativeInteger (based on NTL's modular multiplication).
@@ -190,10 +103,9 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *transform);
+	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *result);
 
-	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const IntType& preconCycloOrderInv, const usint cycloOrder, VecType *transform);
-
+	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const IntType& preconCycloOrderInv, const usint cycloOrder, VecType *result);
 };
 
 /**
@@ -212,9 +124,9 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void ForwardTransformXX(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
-	static void ForwardTransformCT(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 	/**
 	* Virtual inverse transform.
@@ -224,9 +136,9 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the inverse transform.
 	*/
-	static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void InverseTransformXX(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
-	static void InverseTransformGS(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
 
 	/**
 	* Precomputation of root of unity tables.
@@ -235,9 +147,9 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param modulus is the modulus
 	*/
-	static void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
+	static void PreComputeXX(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
 
-	static void PreComputeCTGS(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
+	static void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
 
 	/**
 	* Precomputation of root of unity tables.
@@ -246,6 +158,8 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param &moduliiChain is the modulus
 	*/
+	static void PreComputeXX(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
+
 	static void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
 
 	/**

@@ -496,9 +496,10 @@ void poly_other_methods(const string& msg) {
 }
 
 //Instantiations of poly_other_methods()
-TEST(UTPoly, poly_other_methods) {
-	RUN_ALL_POLYS(poly_other_methods, "poly_other_methods");
-}
+//TODO test uses decompose that used in ltv scheme
+//TEST(UTPoly, poly_other_methods) {
+//	RUN_ALL_POLYS(poly_other_methods, "poly_other_methods");
+//}
 
 //FIXME
 TEST(UTDCRTPoly, poly_other_methods) {
