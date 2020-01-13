@@ -1481,6 +1481,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddEq
 	return *this;
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddFastEq(const BigInteger& b, const BigInteger& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
 //Optimized Mod Addition using ModBarrett
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{

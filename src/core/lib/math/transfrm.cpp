@@ -239,7 +239,7 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 #if MATHBACKEND != 6
 						omegaFactor.ModBarrettMulEq(hiVal, modulus, mu);
 #else
-						omegaFactor.ModMulFastEq(hiVal,modulus);
+						omegaFactor.ModMulFastEq(hiVal, modulus);
 #endif
 					}
 #if MATHBACKEND != 6
@@ -258,7 +258,7 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 					(*result)[indexHi]= loVal;
 #else
 					(*result)[indexHi] = (*result)[indexLo].ModSubFast(omegaFactor,modulus);
-					(*result)[indexLo].ModAddFastEq(omegaFactor,modulus);
+					(*result)[indexLo].ModAddFastEq(omegaFactor, modulus);
 #endif
 				} else {
 					(*result)[indexHi] = (*result)[indexLo];
@@ -603,7 +603,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 				}
 #else
 				butterflyMinus = loVal.ModSubFast(hiVal,modulus);
-				loVal = loVal.ModAddFast(hiVal,modulus);
+				loVal.ModAddFastEq(hiVal, modulus);
 #endif
 
 				auto bmMSB = butterflyMinus.GetMSB();

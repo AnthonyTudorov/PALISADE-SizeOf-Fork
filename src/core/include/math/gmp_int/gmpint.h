@@ -231,6 +231,10 @@ public:
 	//Fast version does not check for modulus bounds.
 	myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);}
 
+	const myZZ& ModAddFastEq(const myZZ& b, const myZZ& modulus) {
+		*this = AddMod(*this, b, modulus);
+		return *this;
+	}
 
 	myZZ ModBarrettAdd(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
 		return this->ModAdd(b%modulus, modulus);

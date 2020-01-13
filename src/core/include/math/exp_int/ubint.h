@@ -613,6 +613,8 @@ public:
 
 	const ubint& ModAddEq(const ubint& b, const ubint& modulus);
 
+	const ubint& ModAddFastEq(const ubint& b, const ubint& modulus);
+
 	// this is wrapper for modadd
 	inline ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const {
 		return this->ModAdd(b, modulus);

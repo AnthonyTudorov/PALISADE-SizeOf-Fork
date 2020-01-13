@@ -2241,6 +2241,13 @@ const ubint<limb_t>& ubint<limb_t>::ModAddEq(const ubint& b, const ubint& modulu
 	return *this;
 }
 
+template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModAddFastEq(const ubint& b, const ubint& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
 
 template<typename limb_t>
 ubint<limb_t> ubint<limb_t>::ModSub(const ubint& b, const ubint& modulus) const{

@@ -539,6 +539,8 @@ namespace cpu_int{
     */
     const BigInteger& ModAddEq(const BigInteger& b, const BigInteger& modulus);
 
+    const BigInteger& ModAddFastEq(const BigInteger& b, const BigInteger& modulus);
+
     /**
     * Modular addition where Barrett modulo reduction is used.
     *

@@ -98,6 +98,9 @@ namespace lbcrypto {
 		 */
 		const T& ModAddEq(const T& b, const T& modulus);
 
+		const T& ModAddFastEq(const T& b, const T& modulus);
+
+
 		inline friend T operator+(const T& a, const T& b) { return a.Plus(b); }
 		inline friend const T& operator+=(T& a, const T& b) { return a.PlusEq(b); }
 
