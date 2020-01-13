@@ -569,6 +569,8 @@ public:
 	 */
 	ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
 
+	const ubint& ModBarrettEq(const ubint& modulus, const ubint& mu);
+
 	/**
 	 * returns the modulus with respect to the input value. In-place version.
 	 * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.

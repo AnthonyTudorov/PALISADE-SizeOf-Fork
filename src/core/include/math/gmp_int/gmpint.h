@@ -193,6 +193,11 @@ public:
 	}
 
 	myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
+
+	const myZZ& ModBarrettEq(const myZZ& modulus, const myZZ& mu) {
+		*static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);
+		return *this;
+	}
 	void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);}
 
 	myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}

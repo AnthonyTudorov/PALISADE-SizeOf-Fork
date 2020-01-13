@@ -217,31 +217,36 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 
 	IntType hiVal;
 	IntType loVal;
+	IntType omega;
 	IntType omegaFactor;
 	IntType butterflyPlus;
 
 	usint t = n;
 	usint logt1 = GetMSB64(n);
 	for (usint m = 1; m < n; m = m << 1) {
-		t = t >> 1;
+		t >>= 1;
 		logt1 -= 1;
 		for (usint i = 0; i < m; ++i) {
 			usint j1 = i << logt1;
 			usint j2 = j1 + t;
 			usint indexOmega = m + i;
-			omegaFactor = rootOfUnityTable[indexOmega];
+			omega = rootOfUnityTable[indexOmega];
 			for (usint indexLo = j1; indexLo < j2; ++indexLo) {
 				usint indexHi = indexLo + t;
+
 				hiVal = (*result)[indexHi];
 				auto hiMSB = hiVal.GetMSB();
 				if (hiMSB > 0) {
-					if (hiMSB > 1) {
+					if (hiMSB == 1)  {
+						omegaFactor = omega;
+					} else {
 #if MATHBACKEND != 6
-						omegaFactor.ModBarrettMulEq(hiVal, modulus, mu);
+						omegaFactor = omega.ModBarrettMul(hiVal, modulus, mu);
 #else
-						omegaFactor.ModMulFastEq(hiVal, modulus);
+						omegaFactor = omega.ModMulFast(hiVal, modulus);
 #endif
 					}
+
 #if MATHBACKEND != 6
 					loVal = (*result)[indexLo];
 					butterflyPlus = loVal;
@@ -254,11 +259,12 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 						loVal += modulus;
 					}
 					loVal -= omegaFactor;
-					(*result)[indexLo]= butterflyPlus;
-					(*result)[indexHi]= loVal;
+
+					(*result)[indexLo] = butterflyPlus;
+					(*result)[indexHi] = loVal;
 #else
-					(*result)[indexHi] = (*result)[indexLo].ModSubFast(omegaFactor,modulus);
-					(*result)[indexLo].ModAddFastEq(omegaFactor, modulus);
+					(*result)[indexHi] = (*result)[indexLo].ModSubFast(omegaFactor, modulus);
+					(*result)[indexLo] = (*result)[indexLo].ModAddFast(omegaFactor, modulus);
 #endif
 				} else {
 					(*result)[indexHi] = (*result)[indexLo];
@@ -439,6 +445,7 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 
 		IntType loVal;
 		IntType hiVal;
+		IntType omega;
 		IntType omegaFactor;
 		IntType butterflyPlus;
 
@@ -452,7 +459,7 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 					usint j1 = i << logt1;
 					usint j2 = j1 + t;
 					usint indexOmega = m + i;
-					omegaFactor = rootOfUnityTable[indexOmega];
+					omega = rootOfUnityTable[indexOmega];
 					NativeInteger preconOmega = preconRootOfUnityTable[indexOmega];
 
 					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
@@ -460,10 +467,13 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 						hiVal = (*result)[indexHi];
 
 						if (hiVal != IntType(0)) {
-							if (hiVal != IntType(1)) {
-								omegaFactor.ModMulPreconOptimizedEq(hiVal,modulus,preconOmega);
+							if (hiVal == IntType(1)) {
+								omegaFactor = omega;
+							} else {
+								omegaFactor = hiVal.ModMulPreconOptimized(omega, modulus, preconOmega);
 							}
 							loVal = (*result)[indexLo];
+
 							butterflyPlus = loVal;
 							butterflyPlus += omegaFactor;
 							if (butterflyPlus >= modulus) {
@@ -487,21 +497,24 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 			usint t = n;
 			usint logt1 = GetMSB64(n);
 			for (usint m = 1; m < n; m = m << 1) {
-				t = t >> 1;
+				t >>= 1;
 				logt1 -= 1;
 				for (usint i = 0; i < m; ++i) {
-					usint j1 = i << logt1;
+					usint j1 = (i << logt1);
 					usint j2 = j1 + t;
 					usint indexOmega = m + i;
-					omegaFactor = rootOfUnityTable[indexOmega];
+					omega = rootOfUnityTable[indexOmega];
 					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
 						usint indexHi = indexLo + t;
 						hiVal = (*result)[indexHi];
 
 						if (hiVal != IntType(0)) {
-							if (hiVal != IntType(1)) {
-								omegaFactor.ModMulFastEq(hiVal, modulus);
+							if (hiVal == IntType(1)) {
+								omegaFactor = omega;
+							} else {
+								omegaFactor = omega.ModMulFast(hiVal, modulus);
 							}
+
 							loVal = (*result)[indexLo];
 							butterflyPlus = loVal;
 							butterflyPlus += omegaFactor;
@@ -590,6 +603,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 
 				loVal = (*result)[indexLo];
 				hiVal = (*result)[indexHi];
+
 #if MATHBACKEND != 6
 				butterflyMinus = loVal;
 				if (butterflyMinus < hiVal) {
@@ -603,7 +617,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 				}
 #else
 				butterflyMinus = loVal.ModSubFast(hiVal,modulus);
-				loVal.ModAddFastEq(hiVal, modulus);
+				loVal = loVal.ModAddFast(hiVal, modulus);
 #endif
 
 				auto bmMSB = butterflyMinus.GetMSB();
@@ -708,7 +722,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 							if (butterflyMinus == IntType(1)) {
 								butterflyMinus = omega;
 							} else {
-								butterflyMinus.ModMulPreconOptimizedEq(omega,modulus,preconOmega);
+								butterflyMinus.ModMulPreconOptimizedEq(omega, modulus, preconOmega);
 							}
 						}
 
@@ -752,7 +766,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 							if (butterflyMinus == IntType(1)) {
 								butterflyMinus = omega;
 							} else {
-								butterflyMinus.ModMulFastEq(omega,modulus);
+								butterflyMinus.ModMulFastEq(omega, modulus);
 							}
 						}
 
@@ -950,8 +964,8 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element, *rootOfUnityTable, CycloOrderHf, &tempvec);
 	}
 	usint msb = GetMSB64(CycloOrderHf - 1);
-	for (usint i = 0; i < CycloOrderHf; i++) {
-		(*OpFFT)[i]= tempvec[ReverseBits(i, msb)];
+	for (usint i = 0; i < CycloOrderHf; ++i) {
+		(*OpFFT)[i] = tempvec[ReverseBits(i, msb)];
 	}
 	OpFFT->SetModulus(modulus);
 #else
@@ -962,7 +976,6 @@ void ChineseRemainderTransformFTT<VecType>::ForwardTransform(const VecType& elem
 		NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(element, *rootOfUnityTable, CycloOrderHf, OpFFT);
 	}
 #endif
-
 	return;
 }
 
@@ -1153,10 +1166,10 @@ void ChineseRemainderTransformFTT<VecType>::InverseTransform(const VecType& elem
 				m_rootOfUnityInversePreconReverseTableByModulus[modulus],
 				m_cycloOrderInverseTableByModulus[modulus],
 				m_cycloOrderInversePreconTableByModulus[modulus], CycloOrderHf, OpIFFT);
-
 	} else {
 		NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(element, *rootOfUnityITable, CycloOrderHf, OpIFFT);
 	}
+
 	return;
 }
 

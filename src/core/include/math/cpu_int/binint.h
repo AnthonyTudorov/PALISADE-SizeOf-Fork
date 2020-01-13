@@ -471,6 +471,8 @@ namespace cpu_int{
     */
     BigInteger ModBarrett(const BigInteger& modulus, const BigInteger& mu) const;
 
+    const BigInteger& ModBarrettEq(const BigInteger& modulus, const BigInteger& mu);
+
 	/**
 	* returns the modulus with respect to the input value - In place version.
 	* Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.

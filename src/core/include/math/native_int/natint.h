@@ -598,6 +598,11 @@ public:
 		return this->m_value%modulus.m_value;
 	}
 
+	const NativeInteger& ModBarrettEq(const NativeInteger& modulus, const NativeInteger& mu) {
+		m_value%=modulus.m_value;
+		return *this;
+	}
+
 	/**
 	* returns the modulus with respect to the input value - In place version.
 	* Included here for compatibility with backend 2.
@@ -1169,7 +1174,8 @@ public:
 	}
 
 	const NativeInteger& ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) {
-		return *this = this->ModMul(b,modulus);
+		this->ModMulEq(b,modulus);
+		return *this;
 	}
 
 	/**

@@ -272,6 +272,7 @@ namespace lbcrypto {
 		 */
 		T ModBarrett(const T& modulus, const T& mu) const;
 			// FIXME there is no ModBarrettEq -- is it needed?
+		const T& ModBarrettEq(const T& modulus, const T& mu);
 
 		/**
 		 * Scalar Barrett modulus multiplication.

@@ -158,24 +158,29 @@ void NTTDummy()	{
 }
 
 void NTTSmall() {
-	usint m = 16;
-	usint phim = 8;
+	usint m = 8;
+	usint phim = 4;
 
-	NativeInteger modulusQ("17729");
-	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+	NativeInteger modulusQ("73");
+	NativeInteger rootOfUnity("22");
+//	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
 
 
 	NativeVector x(phim,modulusQ);
 	NativeVector y(phim,modulusQ);
 
-	x[0] = 0;
-	x[1] = 0;
-	x[2] = 0;
-	x[3] = 0;
-	x[4] = 0;
-	x[5] = 0;
-	x[6] = 1;
-	x[7] = 0;
+	NativeVector xx(phim,modulusQ);
+	NativeVector yy(phim,modulusQ);
+
+	x[0] = 2;
+	x[1] = 1;
+	x[2] = 1;
+	x[3] = 1;
+
+	y[0] = 1;
+	y[1] = 0;
+	y[2] = 1;
+	y[3] = 1;
 
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
@@ -186,27 +191,19 @@ void NTTSmall() {
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &y);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &xx);
+
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(y, rootOfUnity, m, &yy);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
-		std::cout << y[i] << ",";
-		y[i] = y[i].ModMul(y[i], modulusQ);
+		xx[i] = xx[i].ModMul(yy[i], modulusQ);
 	}
-
-//	y[0] = 0;
-//	y[1] = 0;
-//	y[2] = 0;
-//	y[3] = 0;
-//	y[4] = 0;
-//	y[5] = 0;
-//	y[6] = 1;
-//	y[7] = 0;
 
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(y, rootOfUnity, m, &x);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(xx, rootOfUnity, m, &x);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {

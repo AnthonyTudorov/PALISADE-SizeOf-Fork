@@ -1267,6 +1267,30 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(cons
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettEq(const BigInteger& modulus, const BigInteger& mu) {
+
+	if(*this<modulus){
+		return *this;
+	}
+	BigInteger q(*this);
+
+	unsigned int n = modulus.m_MSB;
+	unsigned int alpha = n + 3;
+	int beta = -2;
+
+	q>>=n + beta;
+	q = q*mu;
+	q>>=alpha-beta;
+	(*this)-=q*modulus;
+
+	if(!(*this<modulus))
+		*this-=modulus;
+
+	return *this;
+}
+
+
 /*
 In-place version of ModBarrett
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
@@ -1715,7 +1739,7 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 }
 
 template<typename uint_type,usint BITLENGTH>
-const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettMulEq(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) {
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettMulEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& mu) {
 	BigInteger bb(b);
 
 	//if a is greater than q reduce a to its mod value
@@ -1727,7 +1751,7 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarre
 		bb.ModBarrettInPlace(modulus,mu);
 
 	this->TimesEq(bb);
-	this->ModBarrett(modulus,mu);
+	this->ModBarrettEq(modulus,mu);
 	return *this;
 }
 

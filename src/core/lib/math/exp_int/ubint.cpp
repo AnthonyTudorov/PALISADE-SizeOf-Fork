@@ -2095,6 +2095,34 @@ ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) c
 }
 
 template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModBarrettEq(const ubint& modulus, const ubint& mu) {
+#ifdef NO_BARRETT
+	this->ModEq(modulus);
+	return *this;
+#else
+	if((*this)<modulus){
+		return *this;
+	}
+	ubint z(*this);
+	ubint q(*this);
+
+	usint n = modulus.m_MSB;
+	usint alpha = n + 3;
+	int beta = -2;
+
+	q>>=n + beta;
+	q*=mu;
+	q>>=alpha-beta;
+	(*this)-=q*modulus;
+
+	if((*this)>=modulus)
+		(*this)-=modulus;
+
+	return (*this);
+#endif
+}
+
+template<typename limb_t>
 void  ubint<limb_t>::ModBarrettInPlace(const ubint& modulus, const ubint& mu) {
 	this->ModEq( modulus );
 	return;
