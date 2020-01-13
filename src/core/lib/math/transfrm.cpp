@@ -1253,10 +1253,8 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(const IntType& rootOfUnit
 	usint CycloOrderHf = CycloOrder / 2;
 	usint msb = GetMSB64(CycloOrderHf - 1);
 
-	VecType *rootOfUnityTableCheck = &m_rootOfUnityReverseTableByModulus[modulus];
-	//Precomputes twiddle factor omega and FTT parameter phi for Forward Transform
-	if (rootOfUnityTableCheck->GetLength() == 0 ||
-			m_rootOfUnityReverseTableByModulus[modulus][CycloOrderHf/2] != rootOfUnity ) {
+	if (m_rootOfUnityReverseTableByModulus[modulus].GetLength() == 0 ||
+		m_rootOfUnityReverseTableByModulus[modulus][CycloOrderHf/2] != rootOfUnity) {
 #pragma omp critical
 		{
 			VecType Table(CycloOrderHf, modulus);
@@ -1281,14 +1279,7 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(const IntType& rootOfUnit
 				}
 				m_rootOfUnityPreconReverseTableByModulus[modulus] = std::move(preconTable);
 			}
-		}
-	}
 
-	//Precomputes twiddle factor omega and FTT parameter phi for Inverse Transform
-	VecType  *rootOfUnityInverseTableCheck = &m_rootOfUnityInverseReverseTableByModulus[modulus];
-	if (rootOfUnityInverseTableCheck->GetLength() == 0) {
-#pragma omp critical
-		{
 			VecType TableI(CycloOrderHf, modulus);
 			IntType rootOfUnityInverse = rootOfUnity.ModInverse(modulus);
 			x = 1;
@@ -1423,7 +1414,7 @@ void ChineseRemainderTransformFTT<VecType>::PreCompute(std::vector<IntType> &roo
 		IntType mu = ComputeMu<IntType>(currentMod);
 
 		if (m_rootOfUnityReverseTableByModulus[moduliiChain[i]].GetLength() != 0 &&
-			m_rootOfUnityReverseTableByModulus[moduliiChain[i]][0] == currentRoot)
+			m_rootOfUnityReverseTableByModulus[moduliiChain[i]][CycloOrderHf/2] == currentRoot)
 			continue;
 
 		IntType x(1);
