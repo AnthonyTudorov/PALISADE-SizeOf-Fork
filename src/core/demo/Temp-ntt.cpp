@@ -247,10 +247,14 @@ void NTTLarge() {
 
 void NTTBenchmark() {
 	usint counter = 1000;
-	usint m = 2048;
-	usint phim = 1024;
+//	usint m = 2048;
+	usint m = (1 << 13);
+	usint phim = m/2;
 
-	NativeInteger modulusQ("288230376151748609");
+//	NativeInteger modulusQ("288230376151748609");
+//	NativeInteger modulusQ("36028794871627777");
+	NativeInteger modulusQ("1152921496017387521");
+
 //	NativeInteger rootOfUnity("160550286306538");
 	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
 
@@ -274,4 +278,3 @@ void NTTBenchmark() {
 
 	std::cout << "finished" << std::endl;
 }
-
