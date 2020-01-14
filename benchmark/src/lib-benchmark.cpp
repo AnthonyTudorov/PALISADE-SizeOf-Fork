@@ -207,9 +207,8 @@ void NTTTransform(benchmark::State& state) {
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
-
-	// test runs to force all precomputations
 	NativeVector X(phim);
+
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity, m, modulusQ);
 
 	while (state.KeepRunning()) {

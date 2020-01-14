@@ -439,34 +439,37 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 
 		result->SetModulus(modulus);
 
-		for (usint i = 0; i < n; ++i) {
-			(*result)[i]= element[i];
-		}
 
 		IntType loVal;
 		IntType hiVal;
 		IntType omega;
 		IntType omegaFactor;
+		IntType zero(0), one(1);
+		usint t = n;
+		usint logt1 = GetMSB64(n);
+		usint indexLo, indexHi, indexOmega, m, i, j1, j2;
+		NativeInteger preconOmega;
+		for (i = 0; i < n; ++i) {
+			(*result)[i]= element[i];
+		}
 
 		if (modulus.GetMSB() < MAX_MODULUS_SIZE + 1) {
-			usint t = n;
-			usint logt1 = GetMSB64(n);
-			for (usint m = 1; m < n; m <<= 1) {
+			for (m = 1; m < n; m <<= 1) {
 				t >>= 1;
 				logt1 -= 1;
-				for (usint i = 0; i < m; ++i) {
-					usint j1 = i << logt1;
-					usint j2 = j1 + t;
-					usint indexOmega = m + i;
+				for (i = 0; i < m; ++i) {
+					j1 = i << logt1;
+					j2 = j1 + t;
+					indexOmega = m + i;
 					omega = rootOfUnityTable[indexOmega];
 					NativeInteger preconOmega = preconRootOfUnityTable[indexOmega];
 
-					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
-						usint indexHi = indexLo + t;
+					for (indexLo = j1; indexLo < j2; ++indexLo) {
+						indexHi = indexLo + t;
 						hiVal = (*result)[indexHi];
 
-						if (hiVal != IntType(0)) {
-							if (hiVal == IntType(1)) {
+						if (hiVal != zero) {
+							if (hiVal == one) {
 								omegaFactor = omega;
 							} else {
 								omegaFactor = hiVal.ModMulPreconOptimized(omega, modulus, preconOmega);
@@ -493,22 +496,20 @@ void NumberTheoreticTransform<VecType>::ForwardTransformIterativeCT(const VecTyp
 				}
 			}
 		} else {
-			usint t = n;
-			usint logt1 = GetMSB64(n);
-			for (usint m = 1; m < n; m = m << 1) {
+			for (m = 1; m < n; m = m << 1) {
 				t >>= 1;
 				logt1 -= 1;
-				for (usint i = 0; i < m; ++i) {
-					usint j1 = (i << logt1);
-					usint j2 = j1 + t;
-					usint indexOmega = m + i;
+				for (i = 0; i < m; ++i) {
+					j1 = (i << logt1);
+					j2 = j1 + t;
+					indexOmega = m + i;
 					omega = rootOfUnityTable[indexOmega];
-					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
-						usint indexHi = indexLo + t;
+					for (indexLo = j1; indexLo < j2; ++indexLo) {
+						indexHi = indexLo + t;
 						hiVal = (*result)[indexHi];
 
-						if (hiVal != IntType(0)) {
-							if (hiVal == IntType(1)) {
+						if (hiVal != zero) {
+							if (hiVal == one) {
 								omegaFactor = omega;
 							} else {
 								omegaFactor = omega.ModMulFast(hiVal, modulus);
@@ -679,35 +680,39 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 
 		result->SetModulus(modulus);
 
-#if NTT_REVERSE == 1
-		for (usint i = 0; i < n; i++) {
-			(*result)[i]= element[i];
-		}
-#else
-		usint msb = GetMSB64(n - 1);
-		for (usint i = 0; i < n; i++) {
-			(*result)[i] = element[ReverseBits(i, msb)];
-		}
-#endif
-
 		IntType loVal;
 		IntType hiVal;
 		IntType omega;
 		IntType butterflyMinus;
+		IntType zero(0), one(1);
+
+		usint t = 1;
+		usint m, j1, j2, i, h, indexLo, indexHi, indexOmega;
+		NativeInteger preconOmega;
+
+#if NTT_REVERSE == 1
+		for (i = 0; i < n; i++) {
+			(*result)[i]= element[i];
+		}
+#else
+		usint msb = GetMSB64(n - 1);
+		for (i = 0; i < n; i++) {
+			(*result)[i] = element[ReverseBits(i, msb)];
+		}
+#endif
 
 		if (modulus.GetMSB() < MAX_MODULUS_SIZE + 1) {
-			usint t = 1;
-			for (usint m = n; m > 1; m >>= 1) {
-				usint j1 = 0;
-				usint h = (m >> 1);
-				for (usint i = 0; i < h; ++i) {
-					usint j2 = j1 + t;
-					usint indexOmega = h + i;
+			for (m = n; m > 1; m >>= 1) {
+				j1 = 0;
+				h = (m >> 1);
+				for (i = 0; i < h; ++i) {
+					j2 = j1 + t;
+					indexOmega = h + i;
 					omega = rootOfUnityInverseTable[indexOmega];
-					NativeInteger preconOmega = preconRootOfUnityInverseTable[indexOmega];
+					preconOmega = preconRootOfUnityInverseTable[indexOmega];
 
-					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
-						usint indexHi = indexLo + t;
+					for (indexLo = j1; indexLo < j2; ++indexLo) {
+						indexHi = indexLo + t;
 
 						loVal = (*result)[indexLo];
 						hiVal = (*result)[indexHi];
@@ -718,8 +723,8 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 						}
 						butterflyMinus -= hiVal;
 
-						if (butterflyMinus != IntType(0)) {
-							if (butterflyMinus == IntType(1)) {
+						if (butterflyMinus != zero) {
+							if (butterflyMinus == one) {
 								butterflyMinus = omega;
 							} else {
 								butterflyMinus.ModMulPreconOptimizedEq(omega, modulus, preconOmega);
@@ -738,20 +743,19 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 				}
 				t <<= 1;
 			}
-			for (usint i = 0; i < n; i++) {
+			for (i = 0; i < n; i++) {
 				(*result)[i].ModMulPreconOptimizedEq(cycloOrderInv, modulus, preconCycloOrderInv);
 			}
 		} else {
-			usint t = 1;
-			for (usint m = n; m > 1; m >>= 1) {
-				usint j1 = 0;
-				usint h = m >> 1;
-				for (usint i = 0; i < h; ++i) {
-					usint j2 = j1 + t;
-					usint indexOmega = h + i;
+			for (m = n; m > 1; m >>= 1) {
+				j1 = 0;
+				h = m >> 1;
+				for (i = 0; i < h; ++i) {
+					j2 = j1 + t;
+					indexOmega = h + i;
 					omega = rootOfUnityInverseTable[indexOmega];
-					for (usint indexLo = j1; indexLo < j2; ++indexLo) {
-						usint indexHi = indexLo + t;
+					for (indexLo = j1; indexLo < j2; ++indexLo) {
+						indexHi = indexLo + t;
 
 						loVal = (*result)[indexLo];
 						hiVal = (*result)[indexHi];
@@ -762,8 +766,8 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 						}
 						butterflyMinus -= hiVal;
 
-						if (butterflyMinus != IntType(0)) {
-							if (butterflyMinus == IntType(1)) {
+						if (butterflyMinus != zero) {
+							if (butterflyMinus == one) {
 								butterflyMinus = omega;
 							} else {
 								butterflyMinus.ModMulFastEq(omega, modulus);

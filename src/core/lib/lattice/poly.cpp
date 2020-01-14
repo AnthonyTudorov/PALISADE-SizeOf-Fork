@@ -698,15 +698,13 @@ void PolyImpl<VecType>::AddILElementOne()
 }
 
 template<typename VecType>
-PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(const usint &k) const
-{
+PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(const usint &k) const {
 	PolyImpl result(*this);
 
 	usint m = this->m_params->GetCyclotomicOrder();
 	usint n = this->m_params->GetRingDimension();
 
 	if (this->m_format == EVALUATION) {
-
 		if (m_params->OrderIsPowerOfTwo() == false) {
 
 			//Add a test based on the inverse totient hash table
@@ -729,56 +727,55 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(const usint &k) const
 			for (usint i = 0; i < n; i++) {
 
 				//determines which power of primitive root unity we should switch to
-				usint idx = totientList.operator[](i)*k % m;
-
+				usint idx = totientList.operator[](i) * k % m;
 				result.m_values->operator[](i)= expanded.operator[](idx);
-
 			}
 		} else { // power of two cyclotomics
-			if (k % 2 == 0)
+			if (k % 2 == 0) {
 				throw std::runtime_error("automorphism index should be odd\n");
-
+			}
+#if NTT_REVERSE == 0
 			usint logm = std::round(log2(m));
-
 			for (usint j = 1; j < m; j = j + 2) {
 
 				//determines which power of primitive root unity we should switch to
 				// computes (j*k) % m more efficiently
-				usint idx = (j*k) - (((j*k)>>logm)<<logm);
-				result.m_values->operator[](j >> 1)= GetValues().operator[](idx >> 1);
-
+				usint idx = (j * k) - (((j * k) >> logm) << logm);
+				result.m_values->operator[](j >> 1) = GetValues().operator[](idx >> 1);
 			}
-
+#else
+			usint logm = std::round(log2(m));
+			usint logn = std::round(log2(n));
+			for (usint j = 1; j < m; j += 2) {
+				usint idx = (j * k) - (((j * k) >> logm) << logm);
+				usint jrev = ReverseBits(j / 2, logn);
+				usint idxrev = ReverseBits(idx / 2, logn);
+				result.m_values->operator[](jrev) = GetValues().operator[](idxrev);
+			}
+#endif
 		}
-	}
-	else // automorphism in coefficient representation
-	{
+	} else {
+		// automorphism in coefficient representation
 		if (m_params->OrderIsPowerOfTwo() == false) {
-
-			PALISADE_THROW( lbcrypto::math_error, "Automorphism in coefficient representation is not currently supported for non-power-of-two polynomials");
-
-		}
-		else { // power of two cyclotomics
-			if (k % 2 == 0)
+			PALISADE_THROW(lbcrypto::math_error, "Automorphism in coefficient representation is not currently supported for non-power-of-two polynomials");
+		} else { // power of two cyclotomics
+			if (k % 2 == 0) {
 				throw std::runtime_error("automorphism index should be odd\n");
+			}
 
 			for (usint j = 1; j < n; j++) {
-
-				usint temp = j*k;
+				usint temp = j * k;
 				usint newIndex = temp % n;
 
-				if ((temp/n) % 2 == 1)
+				if ((temp / n) % 2 == 1) {
 					result.m_values->operator[](newIndex) = m_params->GetModulus() - m_values->operator[](j);
-				else
+				} else {
 					result.m_values->operator[](newIndex) = m_values->operator[](j);
-
+				}
 			}
 		}
-
 	}
-
 	return result;
-
 }
 
 template<typename VecType>

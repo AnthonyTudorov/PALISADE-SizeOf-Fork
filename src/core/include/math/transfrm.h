@@ -42,7 +42,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define NTT_REVERSE 0
+#define NTT_REVERSE 1
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto

@@ -187,32 +187,28 @@ Field2n Field2n::ShiftRight()
 }
 
 //Transpose operation defined in the paper of perturbation sampling
-Field2n Field2n::AutomorphismTransform(size_t i) const
-{
+Field2n Field2n::AutomorphismTransform(size_t i) const {
 	if (this->format == EVALUATION) {
-
-		if (i % 2 == 0)
+		if (i % 2 == 0) {
 			throw std::logic_error("automorphism index should be odd\n");
-		else {
-			Field2n result(*this);
-			usint m = this->size() * 2;
-
-			for (usint j = 1; j < m; j = j + 2) {
-				//usint newIndex = (j*iInverse) % m;
-				usint newIndex = (j*i) % m;
-				result.at((newIndex + 1) / 2 - 1) = this->at((j + 1) / 2 - 1);
-			}
-			return result;
 		}
 
+		Field2n result(*this);
+		usint m = this->size() * 2;
+
+		for (usint j = 1; j < m; j = j + 2) {
+			//usint newIndex = (j*iInverse) % m;
+			usint idx = (j*i) % m;
+			result.at((idx + 1) / 2 - 1) = this->at((j + 1) / 2 - 1);
+		}
+		return result;
 	} else {
 		throw std::logic_error("Field2n Automorphism is only implemented for Evaluation format");
 	}
 }
 
 //Transpose operation defined in the paper of perturbation sampling
-Field2n Field2n::Transpose() const
-{
+Field2n Field2n::Transpose() const {
 	if (this->format == COEFFICIENT) {
 		Field2n transpose(this->size(), COEFFICIENT);
 		for (size_t i = 1; i < this->size(); i++) {
@@ -221,14 +217,13 @@ Field2n Field2n::Transpose() const
 		transpose.at(0) = this->at(0);
 		return transpose;
 	} else {
-		usint m = this->size()*2;
+		usint m = this->size() * 2;
 		return AutomorphismTransform(m - 1);
 	}
 }
 
 //Function for extracting odd factors of the field element
-Field2n Field2n::ExtractOdd() const
-{
+Field2n Field2n::ExtractOdd() const {
 	if (this->format == COEFFICIENT) {
 		Field2n odds(this->size() / 2, COEFFICIENT, true);
 		for (size_t i = 0; i < odds.size(); i++) {
@@ -241,8 +236,7 @@ Field2n Field2n::ExtractOdd() const
 }
 
 //Function for extracting even factors of the field element
-Field2n Field2n::ExtractEven() const
-{
+Field2n Field2n::ExtractEven() const {
 	if (this->format == COEFFICIENT) {
 		Field2n evens(this->size() / 2, COEFFICIENT, true);
 		for (size_t i = 0; i < evens.size(); i++) {
@@ -255,8 +249,7 @@ Field2n Field2n::ExtractEven() const
 }
 
 //Permutation operation defined in the paper
-Field2n Field2n::Permute() const
-{
+Field2n Field2n::Permute() const {
 	if (this->format == COEFFICIENT) {
 		Field2n permuted(this->size(), COEFFICIENT, true);
 		int evenPtr = 0;
@@ -277,8 +270,7 @@ Field2n Field2n::Permute() const
 }
 
 //Inverse operation for permutation operation defined in the paper
-Field2n Field2n::InversePermute() const
-{
+Field2n Field2n::InversePermute() const {
 	if (this->format == COEFFICIENT) {
 		Field2n invpermuted(this->size(), COEFFICIENT, true);
 		size_t evenPtr = 0;
