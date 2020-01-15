@@ -1029,28 +1029,6 @@ void DCRTPolyImpl<VecType>::MakeSparse(const uint32_t &wFactor)
     }
 }
 
-// This function modifies PolyArrayImpl to keep all the even indices in the tower.
-// It reduces the ring dimension of the tower by half.
-template<typename VecType>
-void DCRTPolyImpl<VecType>::Decompose()
-{
-
-    if(m_format != Format::COEFFICIENT) {
-        std::string errMsg = "DCRTPolyImpl not in COEFFICIENT format to perform Decompose.";
-        throw std::runtime_error(errMsg);
-    }
-
-    for( size_t i = 0; i < m_vectors.size(); i++) {
-        m_vectors[i].Decompose();
-    }
-
-    // the individual vectors parms have changed, so change the DCRT parms
-    std::vector<std::shared_ptr<ILNativeParams>> vparms(m_vectors.size());
-    for( size_t i = 0; i < m_vectors.size(); i++)
-        vparms[i] = m_vectors[i].GetParams();
-    m_params.reset( new DCRTPolyImpl::Params(vparms[0]->GetCyclotomicOrder(), vparms) );
-}
-
 template<typename VecType>
 bool DCRTPolyImpl<VecType>::IsEmpty() const
 {

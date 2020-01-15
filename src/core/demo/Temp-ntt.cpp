@@ -263,13 +263,7 @@ void NTTBenchmark() {
 	NativeVector x = dug.GenerateVector(phim);
 	NativeVector x_ntt(phim);
 
-	ChineseRemainderTransformFTT<NativeVector>::PreComputeXX(rootOfUnity, m, modulusQ);
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
-
-	for (usint i = 0; i < counter; ++i) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformXX(x, rootOfUnity, m, &x_ntt);
-		ChineseRemainderTransformFTT<NativeVector>::InverseTransformXX(x_ntt, rootOfUnity, m, &x);
-	}
 
 	for (usint i = 0; i < counter; ++i) {
 		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);

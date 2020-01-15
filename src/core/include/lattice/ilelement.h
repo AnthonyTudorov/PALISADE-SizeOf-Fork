@@ -315,11 +315,6 @@ public:
 	virtual std::vector<Element> BaseDecompose(usint baseBits, bool evalModeAnswer=true) const = 0;
 
 	/**
-	 * @brief Interleaves values in the Poly with odd indices being all zeros.
-	 */
-	virtual void Decompose() = 0;
-
-	/**
 	 * @brief Scalar division followed by rounding operation - operation on all entries.
 	 *
 	 * @param &q is the element to divide entry-wise.

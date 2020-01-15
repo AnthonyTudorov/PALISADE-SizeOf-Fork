@@ -42,7 +42,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define NTT_REVERSE 1
 /**
 * @namespace lbcrypto
 * The namespace of lbcrypto
@@ -67,8 +66,6 @@ public:
 	*/
 	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
 
-	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
-
 	/**
 	* Forward transform for the NativeInteger case (based on NTL's modular multiplication).
 	*
@@ -80,6 +77,27 @@ public:
 	*/
 	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const NativeVector &preconRootOfUnityTable, const usint cycloOrder, VecType* result);
 
+	/**
+	* Forward transform to bit-reverse order.
+	* [Algorithm 1 in https://eprint.iacr.org/2016/504.pdf]
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
+
+
+	/**
+	* Forward transform to bit-reverse order for the NativeInteger case (based on NTL's modular multiplication).
+	* [Algorithm 1 in https://eprint.iacr.org/2016/504.pdf]
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
 	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const NativeVector &preconRootOfUnityTable, const usint cycloOrder, VecType* result);
 
 	/**
@@ -92,8 +110,6 @@ public:
 	*/
 	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *result);
 
-	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *result);
-
 	/**
 	* Inverse transform for the case of NativeInteger (based on NTL's modular multiplication).
 	*
@@ -105,6 +121,27 @@ public:
 	*/
 	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *result);
 
+	/**
+	* Inverse transform from bit-reverse order.
+	* [Algorithm 2 in https://eprint.iacr.org/2016/504.pdf]
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityInverseTable the root of unity table.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
+	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const IntType& cycloOrderInv, const usint cycloOrder, VecType *result);
+
+	/**
+	* Inverse transform from bit-reverse order for the case of NativeInteger (based on NTL's modular multiplication).
+	* [Algorithm 2 in https://eprint.iacr.org/2016/504.pdf]
+	*
+	* @param element is the element to perform the transform on.
+	* @param rootOfUnityInverseTable the root of unity table.
+	* @param preconRootOfUnityInverseTable NTL-specific the root of unity table precomputations.
+	* @param cycloOrder is the cyclotomic order.
+	* @return is the output result of the transform.
+	*/
 	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const IntType& preconCycloOrderInv, const usint cycloOrder, VecType *result);
 };
 
@@ -124,9 +161,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransformXX(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
-
-	static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
 
 	/**
 	* Virtual inverse transform.
@@ -136,9 +171,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the inverse transform.
 	*/
-	static void InverseTransformXX(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
-
-	static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *transform);
+	static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
 
 	/**
 	* Precomputation of root of unity tables.
@@ -147,8 +180,6 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param modulus is the modulus
 	*/
-	static void PreComputeXX(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
-
 	static void PreCompute(const IntType& rootOfUnity, const usint CycloOrder, const IntType &modulus);
 
 	/**
@@ -158,8 +189,6 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @param &moduliiChain is the modulus
 	*/
-	static void PreComputeXX(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
-
 	static void PreCompute(std::vector<IntType> &rootOfUnity, const usint CycloOrder, std::vector<IntType> &moduliiChain);
 
 	/**
@@ -168,11 +197,6 @@ public:
 	static void Reset();
 
 	//private:
-	static std::map<IntType, VecType> m_rootOfUnityTableByModulus;
-	static std::map<IntType, VecType> m_rootOfUnityInverseTableByModulus;
-	static std::map<IntType, NativeVector> m_rootOfUnityPreconTableByModulus;
-	static std::map<IntType, NativeVector> m_rootOfUnityInversePreconTableByModulus;
-
 	static std::map<IntType, IntType> m_cycloOrderInverseTableByModulus;
 	static std::map<IntType, NativeInteger> m_cycloOrderInversePreconTableByModulus;
 	static std::map<IntType, VecType> m_rootOfUnityReverseTableByModulus;

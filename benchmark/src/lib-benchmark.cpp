@@ -196,13 +196,14 @@ void BFVrns_Decryption(benchmark::State& state) {
 
 BENCHMARK(BFVrns_Decryption)->Unit(benchmark::kMicrosecond);
 
-void NTTTransform(benchmark::State& state) {
+void NTTTransform1024(benchmark::State& state) {
 
 	usint m = 2048;
 	usint phim = 1024;
 
 	NativeInteger modulusQ("288230376151748609");
-	NativeInteger rootOfUnity("64073710037604316");
+	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+//	NativeInteger rootOfUnity("64073710037604316");
 
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
@@ -216,7 +217,28 @@ void NTTTransform(benchmark::State& state) {
 	}
 }
 
-BENCHMARK(NTTTransform)->Unit(benchmark::kMicrosecond);
+BENCHMARK(NTTTransform1024)->Unit(benchmark::kMicrosecond);
+
+void NTTTransform4096(benchmark::State& state) {
+	usint m = 8192;
+	usint phim = 4096;
+
+	NativeInteger modulusQ("1152921496017387521");
+	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+
+	DiscreteUniformGeneratorImpl<NativeVector> dug;
+	dug.SetModulus(modulusQ);
+	NativeVector x = dug.GenerateVector(phim);
+	NativeVector X(phim);
+
+	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity, m, modulusQ);
+
+	while (state.KeepRunning()) {
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+	}
+}
+
+BENCHMARK(NTTTransform4096)->Unit(benchmark::kMicrosecond);
 
 /*
  * CKKS benchmarks

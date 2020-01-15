@@ -439,19 +439,6 @@ void PackedEncoding::SetParams_2n(usint m, const NativeInteger &modulusNI) {
 	m_toCRTPerm[m] = std::vector<usint>(phim);
 	m_fromCRTPerm[m] = std::vector<usint>(phim);
 
-#if NTT_REVERSE == 0
-	usint curr_index = 1;
-	for (usint i = 0; i < phim_by_2; i++) {
-		m_toCRTPerm[m][(curr_index - 1) / 2] = i;
-		m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
-
-		usint cofactor_index = curr_index * (m-1) % m;
-		m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
-		m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
-
-		curr_index = curr_index * 5 % m;
-	}
-#else
 	usint curr_index = 1;
 	usint logn = std::round(log2(m/2));
 	for (usint i = 0; i < phim_by_2; i++) {
@@ -465,8 +452,6 @@ void PackedEncoding::SetParams_2n(usint m, const NativeInteger &modulusNI) {
 
 		curr_index = curr_index * 5 % m;
 	}
-#endif
-
 }
 
 void PackedEncoding::SetParams_2n(usint m, EncodingParams params) {
@@ -489,20 +474,6 @@ void PackedEncoding::SetParams_2n(usint m, EncodingParams params) {
 	m_toCRTPerm[m] = std::vector<usint>(phim);
 	m_fromCRTPerm[m] = std::vector<usint>(phim);
 
-#if NTT_REVERSE == 0
-	usint curr_index = 1;
-	for (usint i = 0; i < phim_by_2; i++) {
-		m_toCRTPerm[m][(curr_index - 1) / 2] = i;
-		m_fromCRTPerm[m][i] = (curr_index - 1) / 2;
-
-		usint cofactor_index = curr_index * (m-1) % m;
-		m_toCRTPerm[m][(cofactor_index - 1) / 2] = i + phim_by_2;
-		m_fromCRTPerm[m][i + phim_by_2] = (cofactor_index - 1) / 2;
-
-		curr_index = curr_index * 5 % m;
-
-	}
-#else
 	usint curr_index = 1;
 	usint logn = std::round(log2(m >> 1));
 	for (usint i = 0; i < phim_by_2; i++) {
@@ -517,6 +488,5 @@ void PackedEncoding::SetParams_2n(usint m, EncodingParams params) {
 
 		curr_index = curr_index * 5 % m;
 	}
-#endif
 }
 }
