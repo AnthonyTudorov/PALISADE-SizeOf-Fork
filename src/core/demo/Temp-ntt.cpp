@@ -33,8 +33,8 @@ void NTTBenchmark();
 
 int main() {
 //	NTTSmall();
-//	NTTLarge();
-	NTTBenchmark();
+	NTTLarge();
+//	NTTBenchmark();
 	return 0;
 }
 
@@ -218,31 +218,28 @@ void NTTLarge() {
 	usint phim = 1024;
 
 	NativeInteger modulusQ("288230376151748609");
-	NativeInteger rootOfUnity("160550286306538");
-//	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
-
+	NativeInteger rootOfUnity = RootOfUnity(m, modulusQ);
+	NativeInteger mu = ComputeMu(modulusQ);
 	DiscreteUniformGeneratorImpl<NativeVector> dug;
 	dug.SetModulus(modulusQ);
 	NativeVector x = dug.GenerateVector(phim);
+	NativeVector y = dug.GenerateVector(phim);
 	NativeVector x_ntt(phim,modulusQ);
+	NativeVector y_ntt(phim,modulusQ);
+	NativeVector z_ntt(phim,modulusQ);
+	NativeVector z(phim,modulusQ);
 
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
-	std::cout << "-----------------------" << std::endl;
-	for (usint i = 0; i < 5; ++i) {
-		std::cout << x[i] << std::endl;
-	}
-	std::cout << "-----------------------" << std::endl;
-
 	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(x_ntt, rootOfUnity, m, &x);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(y, rootOfUnity, m, &y_ntt);
 
-	std::cout << "-----------------------" << std::endl;
-	for (usint i = 0; i < 5; ++i) {
-		std::cout << x[i] << std::endl;
+
+	for (usint i = 0; i < phim; ++i) {
+		z_ntt[i] = x_ntt[i].ModBarrettMul(y_ntt[i], modulusQ, mu);
 	}
-	std::cout << "-----------------------" << std::endl;
 
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(z_ntt, rootOfUnity, m, &z);
 }
 
 void NTTBenchmark() {

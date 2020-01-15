@@ -634,7 +634,7 @@ void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecTyp
 
 template<typename VecType>
 void NumberTheoreticTransform<VecType>::InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable,
-		const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const IntType& preconCycloOrderInv, const usint cycloOrder, VecType *result) {
+		const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const NativeInteger& preconCycloOrderInv, const usint cycloOrder, VecType *result) {
 	if (typeid(IntType) == typeid(NativeInteger)) {
 
 		usint n = cycloOrder;

@@ -127,6 +127,7 @@ public:
 	*
 	* @param element is the element to perform the transform on.
 	* @param rootOfUnityInverseTable the root of unity table.
+	* @param cycloOrderInv the cyclotomic order inverse.
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
@@ -139,10 +140,12 @@ public:
 	* @param element is the element to perform the transform on.
 	* @param rootOfUnityInverseTable the root of unity table.
 	* @param preconRootOfUnityInverseTable NTL-specific the root of unity table precomputations.
+	* @param cycloOrderInv the cyclotomic order inverse.
+	* @param preconCycloOrderInv NTL-specific the cyclotomic order inverse precomputations.
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const IntType& preconCycloOrderInv, const usint cycloOrder, VecType *result);
+	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const NativeInteger& preconCycloOrderInv, const usint cycloOrder, VecType *result);
 };
 
 /**
