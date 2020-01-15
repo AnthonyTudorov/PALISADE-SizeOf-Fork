@@ -1,4 +1,4 @@
-01/25/2020: PALISADE v1.7.d is released
+01/15/2020: PALISADE v1.7.d is released
 
 * Replaces the Mersenne Twister PRNG Engine with a cryptographically secure BLAKE2-based PRNG
 * Fixes a PRNG bug affecting environments where multithreading is done not using OpenMP
