@@ -40,16 +40,12 @@ namespace lbcrypto {
 
 	std::shared_ptr<LWEPrivateKeyImpl> LWEEncryptionScheme::KeyGen(const std::shared_ptr<LWECryptoParams> params) const {
 		TernaryUniformGeneratorImpl<NativeVector> tug;
-		//BinaryUniformGeneratorImpl<NativeVector> tug;
 		return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(tug.GenerateVector(params->Getn(),params->Getq())));
-		//return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(NativeVector(params->Getn(),params->Getq())));
 	}
 
 	std::shared_ptr<LWEPrivateKeyImpl> LWEEncryptionScheme::KeyGenN(const std::shared_ptr<LWECryptoParams> params) const {
 		TernaryUniformGeneratorImpl<NativeVector> tug;
-		//BinaryUniformGeneratorImpl<NativeVector> tug;
 		return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(tug.GenerateVector(params->GetN(),params->GetQ())));
-		//return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(NativeVector(params->GetN(),params->GetQ())));
 	}
 
 	// classical LWE encryption
@@ -84,7 +80,7 @@ namespace lbcrypto {
 	void LWEEncryptionScheme::Decrypt(const std::shared_ptr<LWECryptoParams> params, const std::shared_ptr<const LWEPrivateKeyImpl> sk,
 				const std::shared_ptr<const LWECiphertextImpl> ct, LWEPlaintext* result) const {
 
-		// in the future we should add a check to make sure sk parameters match the ct parameters
+		// TODO in the future we should add a check to make sure sk parameters match the ct parameters
 
 		// Create local variables to speed up the computations
 		NativeVector a = ct->GetA();

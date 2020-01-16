@@ -1,7 +1,9 @@
 /*
  * @file fhew.cpp - FHEW scheme (RingGSW accumulator) implementation
- * The scheme is described in https://eprint.iacr.org/2014/816
- * Full reference:
+ * The scheme is described in https://eprint.iacr.org/2014/816 and in
+ * "Bootstrapping in FHEW" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
+ *
+ * Full reference to https://eprint.iacr.org/2014/816:
  * @misc{cryptoeprint:2014:816,
  *   author = {Léo Ducas and Daniele Micciancio},
  *   title = {FHEW: Bootstrapping Homomorphic Encryption in less than a second},
@@ -9,8 +11,6 @@
  *   year = {2014},
  *   note = {\url{https://eprint.iacr.org/2014/816}},
  * @author  TPOC: contact@palisade-crypto.org
- *
- * We also applied two other optimizations.
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
  * All rights reserved.
@@ -70,13 +70,13 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptAP(const std
 
 	    for (uint32_t i = 0; i < digitsG; ++i) {
 	    	if (sign > 0) {
-	  	      (*result)[2*i  ][0][mm].ModAddEq(params->GetVGPrime()[i],Q); // Add G Multiple
-	  	      (*result)[2*i+1][1][mm].ModAddEq(params->GetVGPrime()[i],Q); // [a,as+e] + X^m *G
+	  	      (*result)[2*i  ][0][mm].ModAddEq(params->GetGPower()[i],Q); // Add G Multiple
+	  	      (*result)[2*i+1][1][mm].ModAddEq(params->GetGPower()[i],Q); // [a,as+e] + X^m *G
 	    	}
 	    	else
 	    	{
-			  (*result)[2*i  ][0][mm].ModSubEq(params->GetVGPrime()[i],Q); // Subtract G Multiple
-			  (*result)[2*i+1][1][mm].ModSubEq(params->GetVGPrime()[i],Q); // [a,as+e] - X^m *G
+			  (*result)[2*i  ][0][mm].ModSubEq(params->GetGPower()[i],Q); // Subtract G Multiple
+			  (*result)[2*i+1][1][mm].ModSubEq(params->GetGPower()[i],Q); // [a,as+e] - X^m *G
 	    	}
 	    }
 
@@ -495,8 +495,8 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptGINX(const s
 
 	for (uint32_t i = 0; i < digitsG; ++i) {
 		if (m > 0) {
-		  (*result)[2*i  ][0][0].ModAddEq(params->GetVGPrime()[i],Q); // Add G Multiple
-		  (*result)[2*i+1][1][0].ModAddEq(params->GetVGPrime()[i],Q); // [a,as+e] + G
+		  (*result)[2*i  ][0][0].ModAddEq(params->GetGPower()[i],Q); // Add G Multiple
+		  (*result)[2*i+1][1][0].ModAddEq(params->GetGPower()[i],Q); // [a,as+e] + G
 		}
 	}
 

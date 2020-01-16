@@ -1,7 +1,9 @@
 /*
  * @file fhew.h - FHEW scheme header file
- * The scheme is described in https://eprint.iacr.org/2014/816
- * Full reference:
+ * The scheme is described in https://eprint.iacr.org/2014/816 and in
+ * "Bootstrapping in FHEW" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
+ *
+ * Full reference to https://eprint.iacr.org/2014/816:
  * @misc{cryptoeprint:2014:816,
  *   author = {Léo Ducas and Daniele Micciancio},
  *   title = {FHEW: Bootstrapping Homomorphic Encryption in less than a second},
@@ -38,6 +40,8 @@
 #include "ringcore.h"
 #include "lwe.h"
 
+// Two variants of FHEW are supported based on the bootstrapping technique used: AP and GINX
+// Please see "Bootstrapping in FHEW" for details on both bootstrapping techniques
 enum BINFHEMETHOD {
 	AP,
 	GINX
@@ -46,7 +50,7 @@ enum BINFHEMETHOD {
 namespace lbcrypto{
 
 /**
- * @brief Ring GSW accumulator scheme described in https://eprint.iacr.org/2014/816
+ * @brief Ring GSW accumulator schemes described in https://eprint.iacr.org/2014/816 and "Bootstrapping in FHEW"
  */
 class RingGSWAccumulatorScheme {
 
@@ -69,7 +73,7 @@ public:
 	* Evaluates a binary gate (calls bootstrapping as a subroutine)
 	*
 	* @param params a shared pointer to RingGSW scheme parameters
-	* @param gate the gate; can be AND, OR, NAND, or NOR
+	* @param gate the gate; can be AND, OR, NAND, NOR, XOR, or XOR
 	* @param &EK a shared pointer to the bootstrapping keys
 	* @param ct1 first ciphertext
 	* @param ct2 second ciphertext

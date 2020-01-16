@@ -55,14 +55,16 @@ namespace lbcrypto {
 			/**
 			 * Default Constructor.
 			 */
-			LPCryptoParametersCKKS() : LPCryptoParametersRLWE<Element>(), m_ksTechnique (BV), m_rsTechnique (APPROXRESCALE) {}
+			LPCryptoParametersCKKS() : LPCryptoParametersRLWE<Element>(), m_ksTechnique (BV),
+			m_rsTechnique (APPROXRESCALE), m_dnum(0), m_numTowersPerDigit(0) {}
 
 			/**
 			 * Copy constructor.
 			 *
 	 		 * @param rhs - source
 			 */
-			LPCryptoParametersCKKS(const LPCryptoParametersCKKS &rhs) : LPCryptoParametersRLWE<Element>(rhs), m_ksTechnique (BV), m_rsTechnique (APPROXRESCALE) {}
+			LPCryptoParametersCKKS(const LPCryptoParametersCKKS &rhs) : LPCryptoParametersRLWE<Element>(rhs),
+					m_ksTechnique (BV), m_rsTechnique (APPROXRESCALE), m_dnum(0), m_numTowersPerDigit(0) {}
 
 			/**
 			 * Constructor that initializes values.  Note that it is possible to set parameters in a way that is overall
@@ -106,6 +108,8 @@ namespace lbcrypto {
 						mode) {
 				m_ksTechnique = ksTech;
 				m_rsTechnique = rsTech;
+				m_dnum = 0;
+				m_numTowersPerDigit = 0;
 			}
 
 			/**
@@ -146,6 +150,8 @@ namespace lbcrypto {
 					mode) {
 				m_ksTechnique = ksTech;
 				m_rsTechnique = rsTech;
+				m_dnum = 0;
+				m_numTowersPerDigit = 0;
 			}
 
 			/**
@@ -808,6 +814,11 @@ namespace lbcrypto {
 		* Default constructor
 		*/
 		LPAlgorithmSHECKKS() {}
+
+		/**
+		* Destructor
+		*/
+		virtual ~LPAlgorithmSHECKKS() {}
 
 		/**
 		* Function for homomorphic addition of ciphertexts.

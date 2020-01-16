@@ -1,5 +1,5 @@
 /*
- * @file binfhecore.h - Main Classes for Boolean circuit FHE.
+ * @file ringcore.h - Main ring classes for Boolean circuit FHE.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -99,13 +99,17 @@ class RingGSWCryptoParams : public Serializable {
 
 			NativeInteger vTemp = NativeInteger(1);
 			for (uint32_t i = 0; i < m_digitsG; i++) {
-				m_vGprime.push_back(vTemp);
+				m_Gpower.push_back(vTemp);
 				vTemp = vTemp.ModMul(NativeInteger(m_baseG),Q);
 			}
 
+			// Sets the gate constants for supported binary operations
 			m_gateConst = {NativeInteger(5)*(q>>3), NativeInteger(7)*(q>>3),
 				NativeInteger(1)*(q>>3), NativeInteger(3)*(q>>3), NativeInteger(5)*(q>>3), NativeInteger(1)*(q>>3)};
 
+			// Computes polynomials X^m - 1 that are needed in the accumulator for the GINX bootstrapping
+
+			// loop for positive values of m
 			for (uint32_t i = 0; i < N; i++) {
 				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
 				aPoly[i].ModAddEq(NativeInteger(1),Q); // X^m
@@ -114,6 +118,7 @@ class RingGSWCryptoParams : public Serializable {
 				m_monomials.push_back(aPoly);
 			}
 
+			// loop for negative values of m
 			for (uint32_t i = 0; i < N; i++) {
 				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
 				aPoly[i].ModSubEq(NativeInteger(1),Q); // -X^m
@@ -152,8 +157,8 @@ class RingGSWCryptoParams : public Serializable {
 			return m_polyParams;
 		}
 
-		const std::vector<NativeInteger>& GetVGPrime() const {
-			return m_vGprime;
+		const std::vector<NativeInteger>& GetGPower() const {
+			return m_Gpower;
 		}
 
 		const std::vector<NativeInteger>& GetGateConst() const {
@@ -198,23 +203,32 @@ class RingGSWCryptoParams : public Serializable {
 
 		// shared pointer to an instance of LWECryptoParams
 		std::shared_ptr<LWECryptoParams> m_LWEParams;
+
 		// gadget base used in bootstrapping
 		uint32_t m_baseG;
+
 		// number of digits in decomposing integers mod Q
 		uint32_t m_digitsG;
+
 		// twice the number of digits in decomposing integers mod Q
 		uint32_t m_digitsG2;
-		// base used for the refreshing key
+
+		// base used for the refreshing key (used only for AP bootstrapping)
 		uint32_t m_baseR;
-		// powers of m_baseR
+
+		// powers of m_baseR (used only for AP bootstrapping)
 		std::vector<NativeInteger> m_digitsR;
-		// A vector of m*v multiplied by powers of baseG
-		std::vector<NativeInteger> m_vGprime;
+
+		// A vector of powers of baseG
+		std::vector<NativeInteger> m_Gpower;
+
 		// Parameters for polynomials in RingGSW/RingLWE
 		shared_ptr<ILNativeParams> m_polyParams;
+
 		// Constants used in evaluating binary gates
 		std::vector<NativeInteger> m_gateConst;
-		// Precomputed polynomials for in evaluation representation for X^m
+
+		// Precomputed polynomials in evaluation representation for X^m - 1 (used only for GINX bootstrapping)
 		std::vector<NativePoly> m_monomials;
 
 };
@@ -395,8 +409,10 @@ private:
 
 // The struct for storing bootstrapping keys
 typedef struct  {
+
 	// refreshing key
 	std::shared_ptr<RingGSWBTKey> BSkey;
+
 	// switching key
 	std::shared_ptr<LWESwitchingKey> KSkey;
   } RingGSWEvalKey;
