@@ -38,6 +38,11 @@
 #include "ringcore.h"
 #include "lwe.h"
 
+enum BINFHEMETHOD {
+	AP,
+	GINX
+};
+
 namespace lbcrypto{
 
 /**
@@ -46,6 +51,8 @@ namespace lbcrypto{
 class RingGSWAccumulatorScheme {
 
 public:
+
+	RingGSWAccumulatorScheme(BINFHEMETHOD method) : m_method(method) {}
 
 	/**
 	* Generates a refreshing key
@@ -85,6 +92,30 @@ public:
 
 private:
 
+	BINFHEMETHOD m_method;
+
+	/**
+	* Generates a refreshing key - GINX variant
+	*
+	* @param params a shared pointer to RingGSW scheme parameters
+	* @param lwescheme a shared pointer to additive LWE scheme
+	* @param LWEsk a shared pointer to the secret key of the underlying additive LWE scheme
+	* @return a shared pointer to the secret key
+	*/
+	RingGSWEvalKey KeyGenGINX(const std::shared_ptr<RingGSWCryptoParams> params,
+			const std::shared_ptr<LWEEncryptionScheme> lwescheme, const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const;
+
+	/**
+	* Generates a refreshing key - AP variant
+	*
+	* @param params a shared pointer to RingGSW scheme parameters
+	* @param lwescheme a shared pointer to additive LWE scheme
+	* @param LWEsk a shared pointer to the secret key of the underlying additive LWE scheme
+	* @return a shared pointer to the secret key
+	*/
+	RingGSWEvalKey KeyGenAP(const std::shared_ptr<RingGSWCryptoParams> params,
+			const std::shared_ptr<LWEEncryptionScheme> lwescheme, const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const;
+
 	/**
 	* Internal RingGSW encryption used in generating the refreshing key
 	*
@@ -93,7 +124,18 @@ private:
 	* @param m plaintext (corresponds to a lookup entry for the LWE scheme secret key)
 	* @return a shared pointer to the resulting ciphertext
 	*/
-	std::shared_ptr<RingGSWCiphertext> Encrypt(const std::shared_ptr<RingGSWCryptoParams> params,
+	std::shared_ptr<RingGSWCiphertext> EncryptAP(const std::shared_ptr<RingGSWCryptoParams> params,
+			const NativePoly &skFFT, const LWEPlaintext &m) const;
+
+	/**
+	* Internal RingGSW encryption used in generating the refreshing key - GINX variant
+	*
+	* @param params a shared pointer to RingGSW scheme parameters
+	* @param skFFT secret key polynomial in the EVALUATION representation
+	* @param m plaintext (corresponds to a lookup entry for the LWE scheme secret key)
+	* @return a shared pointer to the resulting ciphertext
+	*/
+	std::shared_ptr<RingGSWCiphertext> EncryptGINX(const std::shared_ptr<RingGSWCryptoParams> params,
 			const NativePoly &skFFT, const LWEPlaintext &m) const;
 
 	/**
@@ -103,28 +145,19 @@ private:
 	* @param &input input ciphertext
 	* @param acc previous value of the accumulator
 	*/
-	void AddToACC(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input,
+	void AddToACCAP(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input,
 			std::shared_ptr<RingGSWCiphertext> acc) const;
 
 	/**
-	* Initialization of the accumulator
+	* Main accumulator function used in bootstrapping - GINX
 	*
 	* @param params a shared pointer to RingGSW scheme parameters
-	* @param &m some initial value used by the accumulator
-	* @return the initial RingGSW ciphertext
+	* @param &input input ciphertext
+	* @param &a integer a in each step of GINX accumulation
+	* @param acc previous value of the accumulator
 	*/
-	std::shared_ptr<RingGSWCiphertext> InitializeACC(const std::shared_ptr<RingGSWCryptoParams> params,
-			const LWEPlaintext &m) const;
-
-	/*
-	* MSB extraction operation using a test vector
-	*
-	* @param params a shared pointer to RingGSW scheme parameters
-	* @param &acc RingGSW ciphertext representing the result of accumulation
-	* @return the ciphertext for MSB
-	*/
-	std::shared_ptr<LWECiphertextImpl> MemberTest(const std::shared_ptr<RingGSWCryptoParams> params,
-			const std::shared_ptr<RingGSWCiphertext>& acc) const;
+	void AddToACCGINX(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input, const NativeInteger& a,
+			std::shared_ptr<RingGSWCiphertext> acc) const;
 
 };
 

@@ -37,7 +37,7 @@
 
 namespace lbcrypto{
 
-enum BINGATE {OR, AND, NOR, NAND};
+enum BINGATE {OR, AND, NOR, NAND, XOR, XNOR};
 
 /**
 * @brief Class that stores all parameters for the RingGSW scheme used in bootstrapping
@@ -85,11 +85,6 @@ class RingGSWCryptoParams : public Serializable {
 
 			// Precomputes a polynomial for MSB extraction
 			m_polyParams = std::make_shared<ILNativeParams>(2*N,Q,rootOfUnity);
-			m_msbPoly = NativePoly(m_polyParams,COEFFICIENT,true);
-			m_msbPoly[0] = Q - NativeInteger(1);
-			for (uint32_t i = 1; i < N; i++)
-				m_msbPoly[i] = NativeInteger(1);
-			m_msbPoly.SetFormat(EVALUATION);
 
 			m_digitsG = (uint32_t)std::ceil(log(Q.ConvertToDouble())/log((double)m_baseG));
 			m_digitsG2 = m_digitsG*2;
@@ -102,17 +97,30 @@ class RingGSWCryptoParams : public Serializable {
 				value *= m_baseR;
 			}
 
-			m_v = Q/NativeInteger(8) + 1;
-			m_vInverse = m_v.ModInverse(Q);
-
-			NativeInteger vTemp = m_v;
+			NativeInteger vTemp = NativeInteger(1);
 			for (uint32_t i = 0; i < m_digitsG; i++) {
 				m_vGprime.push_back(vTemp);
 				vTemp = vTemp.ModMul(NativeInteger(m_baseG),Q);
 			}
 
-			m_gateConst = {NativeInteger(15)*(q>>3), NativeInteger(9)*(q>>3),
-				NativeInteger(11)*(q>>3), NativeInteger(13)*(q>>3)};
+			m_gateConst = {NativeInteger(5)*(q>>3), NativeInteger(7)*(q>>3),
+				NativeInteger(1)*(q>>3), NativeInteger(3)*(q>>3), NativeInteger(5)*(q>>3), NativeInteger(1)*(q>>3)};
+
+			for (uint32_t i = 0; i < N; i++) {
+				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
+				aPoly[i].ModAddEq(NativeInteger(1),Q); // X^m
+				aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
+				aPoly.SetFormat(EVALUATION);
+				m_monomials.push_back(aPoly);
+			}
+
+			for (uint32_t i = 0; i < N; i++) {
+				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
+				aPoly[i].ModSubEq(NativeInteger(1),Q); // -X^m
+				aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
+				aPoly.SetFormat(EVALUATION);
+				m_monomials.push_back(aPoly);
+			}
 
 		}
 
@@ -140,14 +148,6 @@ class RingGSWCryptoParams : public Serializable {
 			return m_digitsR;
 		}
 
-		const NativeInteger& GetV() const {
-			return m_v;
-		}
-
-		const NativeInteger& GetVInverse() const {
-			return m_vInverse;
-		}
-
 		const shared_ptr<ILNativeParams> GetPolyParams() const {
 			return m_polyParams;
 		}
@@ -156,12 +156,12 @@ class RingGSWCryptoParams : public Serializable {
 			return m_vGprime;
 		}
 
-		const NativePoly& GetTestPoly() const {
-			return m_msbPoly;
-		}
-
 		const std::vector<NativeInteger>& GetGateConst() const {
 			return m_gateConst;
+		}
+
+		const NativePoly& GetMonomial(uint32_t i) const {
+			return m_monomials[i];
 		}
 
 		bool operator==(const RingGSWCryptoParams& other) const {
@@ -198,8 +198,6 @@ class RingGSWCryptoParams : public Serializable {
 
 		// shared pointer to an instance of LWECryptoParams
 		std::shared_ptr<LWECryptoParams> m_LWEParams;
-		// precomputed polynomial in NTT (test vector) used in the membership test
-		NativePoly m_msbPoly;
 		// gadget base used in bootstrapping
 		uint32_t m_baseG;
 		// number of digits in decomposing integers mod Q
@@ -210,16 +208,14 @@ class RingGSWCryptoParams : public Serializable {
 		uint32_t m_baseR;
 		// powers of m_baseR
 		std::vector<NativeInteger> m_digitsR;
-		// Q/8 + 1
-		NativeInteger m_v;
-		// Inverse of m_v
-		NativeInteger m_vInverse;
 		// A vector of m*v multiplied by powers of baseG
 		std::vector<NativeInteger> m_vGprime;
 		// Parameters for polynomials in RingGSW/RingLWE
 		shared_ptr<ILNativeParams> m_polyParams;
 		// Constants used in evaluating binary gates
 		std::vector<NativeInteger> m_gateConst;
+		// Precomputed polynomials for in evaluation representation for X^m
+		std::vector<NativePoly> m_monomials;
 
 };
 

@@ -55,7 +55,7 @@ GenerateFHEWContext(BINFHEPARAMSET set) {
 
    	auto cc = BinFHEContext();
 
-    cc.GenerateBinFHEContext(set);
+    cc.GenerateBinFHEContext(set,GINX);
 
 	return cc;
 }
@@ -114,6 +114,8 @@ void FHEW_KEYSWITCH_MEDIUM(benchmark::State& state) {
 		std::shared_ptr<LWECiphertextImpl> eQ1 = cc.GetLWEScheme()->KeySwitch(cc.GetParams()->GetLWEParams(), keySwitchHint, ctQN1);
 	}
 }
+
+BENCHMARK(FHEW_KEYSWITCH_MEDIUM)->Unit(benchmark::kMicrosecond)->MinTime(1.0);
 
 void FHEW_NOT_STD128(benchmark::State& state) {
 

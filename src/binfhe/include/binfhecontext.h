@@ -82,7 +82,7 @@ namespace lbcrypto{
     		 * @return creates the cryptocontext
     		 */
             void GenerateBinFHEContext(uint32_t n, uint32_t N, const NativeInteger &q, const NativeInteger &Q, double std,
-            		uint32_t baseKS, uint32_t baseG, uint32_t baseR);
+            		uint32_t baseKS, uint32_t baseG, uint32_t baseR, BINFHEMETHOD method = AP);
 
     		/**
     		 * Creates a crypto context using predefined parameters sets. Recommended for most users.
@@ -90,7 +90,7 @@ namespace lbcrypto{
     		 * @param set the parameter set: TOY, MEDIUM, STD128, STD192, STD256
     		 * @return create the cryptocontext
     		 */
-            void GenerateBinFHEContext(BINFHEPARAMSET set);
+            void GenerateBinFHEContext(BINFHEPARAMSET set, BINFHEMETHOD method = AP);
 
     		/**
     		 * Gets the refreshing key (used for serialization).

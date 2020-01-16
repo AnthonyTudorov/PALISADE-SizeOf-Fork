@@ -40,12 +40,16 @@ namespace lbcrypto {
 
 	std::shared_ptr<LWEPrivateKeyImpl> LWEEncryptionScheme::KeyGen(const std::shared_ptr<LWECryptoParams> params) const {
 		TernaryUniformGeneratorImpl<NativeVector> tug;
+		//BinaryUniformGeneratorImpl<NativeVector> tug;
 		return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(tug.GenerateVector(params->Getn(),params->Getq())));
+		//return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(NativeVector(params->Getn(),params->Getq())));
 	}
 
 	std::shared_ptr<LWEPrivateKeyImpl> LWEEncryptionScheme::KeyGenN(const std::shared_ptr<LWECryptoParams> params) const {
 		TernaryUniformGeneratorImpl<NativeVector> tug;
+		//BinaryUniformGeneratorImpl<NativeVector> tug;
 		return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(tug.GenerateVector(params->GetN(),params->GetQ())));
+		//return std::make_shared<LWEPrivateKeyImpl>(LWEPrivateKeyImpl(NativeVector(params->GetN(),params->GetQ())));
 	}
 
 	// classical LWE encryption
