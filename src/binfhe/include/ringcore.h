@@ -118,8 +118,14 @@ class RingGSWCryptoParams : public Serializable {
 			}
 
 			// Sets the gate constants for supported binary operations
-			m_gateConst = {NativeInteger(5)*(q>>3), NativeInteger(7)*(q>>3),
-				NativeInteger(1)*(q>>3), NativeInteger(3)*(q>>3), NativeInteger(5)*(q>>3), NativeInteger(1)*(q>>3)};
+			m_gateConst = {
+						NativeInteger(5)*(q>>3), // OR
+						NativeInteger(7)*(q>>3), // AND
+						NativeInteger(1)*(q>>3), // NOR
+						NativeInteger(3)*(q>>3), // NAND
+						NativeInteger(5)*(q>>3), // XOR
+						NativeInteger(1)*(q>>3)  // XNOR
+			};
 
 			// Computes polynomials X^m - 1 that are needed in the accumulator for the GINX bootstrapping
 			if (m_method == GINX) {

@@ -115,6 +115,8 @@ void FHEW_KEYSWITCH_MEDIUM(benchmark::State& state) {
 	}
 }
 
+BENCHMARK(FHEW_KEYSWITCH_MEDIUM)->Unit(benchmark::kMicrosecond)->MinTime(1.0);
+
 void FHEW_NOT_STD128(benchmark::State& state) {
 
 	BinFHEContext cc = GenerateFHEWContext(STD128);

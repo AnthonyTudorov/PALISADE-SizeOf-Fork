@@ -626,7 +626,7 @@ PolyImpl<VecType> PolyImpl<VecType>::Times(const PolyImpl &element) const
 		throw std::logic_error("operator* called on PolyImpl's with different params.");
 
 	PolyImpl<VecType> tmp = CloneParametersOnly();
-	tmp.SetValues( GetValues().ModMul(*element.m_values), this->m_format );
+	tmp.SetValues( this->m_values->ModMul(*element.m_values), this->m_format );
 	return std::move( tmp );
 }
 
