@@ -42,11 +42,11 @@ protected:
 /*---------------------------------------	TESTING METHODS OF FHEW --------------------------------------------*/
 
 // Checks the key switching operation
-TEST(UnitTestFHEW,KeySwitch) {
+TEST(UnitTestFHEWAP,KeySwitch) {
 
 	auto cc = BinFHEContext();
 
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	NativeInteger Q = cc.GetParams()->GetLWEParams()->GetQ();
 
@@ -80,11 +80,11 @@ TEST(UnitTestFHEW,KeySwitch) {
 }
 
 // Checks the mod switching operation
-TEST(UnitTestFHEW,ModSwitch) {
+TEST(UnitTestFHEWAP,ModSwitch) {
 
 	auto cc = BinFHEContext();
 
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	NativeInteger Q = cc.GetParams()->GetLWEParams()->GetQ();
 
@@ -120,7 +120,7 @@ TEST(UnitTestFHEW,ModSwitch) {
 TEST(UnitTestFHEW,NOT) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -145,10 +145,10 @@ TEST(UnitTestFHEW,NOT) {
 }
 
 // Checks the truth table for AND
-TEST(UnitTestFHEW,AND) {
+TEST(UnitTestFHEWAP,AND) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -221,10 +221,10 @@ TEST(UnitTestFHEWGINX,AND) {
 }
 
 // Checks the truth table for OR
-TEST(UnitTestFHEW,OR) {
+TEST(UnitTestFHEWAP,OR) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -297,10 +297,10 @@ TEST(UnitTestFHEWGINX,OR) {
 }
 
 // Checks the truth table for AND
-TEST(UnitTestFHEW,NAND) {
+TEST(UnitTestFHEWAP,NAND) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -373,10 +373,10 @@ TEST(UnitTestFHEWGINX,NAND) {
 }
 
 // Checks the truth table for AND
-TEST(UnitTestFHEW,NOR) {
+TEST(UnitTestFHEWAP,NOR) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -449,10 +449,10 @@ TEST(UnitTestFHEWGINX,NOR) {
 }
 
 // Checks the truth table for XOR
-TEST(UnitTestFHEW,XOR) {
+TEST(UnitTestFHEWAP,XOR) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 
@@ -525,10 +525,10 @@ TEST(UnitTestFHEWGINX,XOR) {
 }
 
 // Checks the truth table for XOR
-TEST(UnitTestFHEW,XNOR) {
+TEST(UnitTestFHEWAP,XNOR) {
 
 	auto cc = BinFHEContext();
-	cc.GenerateBinFHEContext(TOY);
+	cc.GenerateBinFHEContext(TOY,AP);
 
 	auto sk = cc.KeyGen();
 

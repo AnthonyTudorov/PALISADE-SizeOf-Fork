@@ -37,7 +37,15 @@
 
 namespace lbcrypto{
 
+// enum for all supported binary gates
 enum BINGATE {OR, AND, NOR, NAND, XOR, XNOR};
+
+// Two variants of FHEW are supported based on the bootstrapping technique used: AP and GINX
+// Please see "Bootstrapping in FHEW" for details on both bootstrapping techniques
+enum BINFHEMETHOD {
+	AP,
+	GINX
+};
 
 /**
 * @brief Class that stores all parameters for the RingGSW scheme used in bootstrapping
@@ -46,7 +54,7 @@ class RingGSWCryptoParams : public Serializable {
 
 	public:
 
-		RingGSWCryptoParams() : m_baseG(0), m_digitsG(0), m_digitsG2(0), m_baseR(0) {}
+		RingGSWCryptoParams() : m_baseG(0), m_digitsG(0), m_digitsG2(0), m_baseR(0), m_method(GINX) {}
 
 		/**
 		 * Main constructor for RingGSWCryptoParams
@@ -54,9 +62,11 @@ class RingGSWCryptoParams : public Serializable {
 		 * @param lweparams a shared poiter to an instance of LWECryptoParams
 		 * @param baseG the gadget base used in the bootstrapping
 		 * @param baseR the base for the refreshing key
+		 * @param method bootstrapping method (AP or GINX)
 		 */
-		explicit RingGSWCryptoParams(const std::shared_ptr<LWECryptoParams> lweparams, uint32_t baseG, uint32_t baseR) :
-			m_LWEParams(lweparams), m_baseG(baseG), m_baseR(baseR) {
+		explicit RingGSWCryptoParams(const std::shared_ptr<LWECryptoParams> lweparams, uint32_t baseG, uint32_t baseR,
+				BINFHEMETHOD method) :
+			m_LWEParams(lweparams), m_baseG(baseG), m_baseR(baseR), m_method(method) {
 
 			if (!IsPowerOfTwo(baseG)) {
 				std::string errMsg = "Gadget base should be a power of two.";
@@ -89,14 +99,18 @@ class RingGSWCryptoParams : public Serializable {
 			m_digitsG = (uint32_t)std::ceil(log(Q.ConvertToDouble())/log((double)m_baseG));
 			m_digitsG2 = m_digitsG*2;
 
-			uint32_t digitCountR = (uint32_t)std::ceil(log((double)n)/log((double)m_baseR));
-			// Populate digits
-			NativeInteger value = 1;
-			for (uint32_t i = 0; i < digitCountR; i++) {
-				m_digitsR.push_back(value);
-				value *= m_baseR;
+			// Computes baseR^i (only for AP bootstrapping)
+			if (m_method == AP)	{
+				uint32_t digitCountR = (uint32_t)std::ceil(log((double)n)/log((double)m_baseR));
+				// Populate digits
+				NativeInteger value = 1;
+				for (uint32_t i = 0; i < digitCountR; i++) {
+					m_digitsR.push_back(value);
+					value *= m_baseR;
+				}
 			}
 
+			// Computes baseG^i
 			NativeInteger vTemp = NativeInteger(1);
 			for (uint32_t i = 0; i < m_digitsG; i++) {
 				m_Gpower.push_back(vTemp);
@@ -108,23 +122,24 @@ class RingGSWCryptoParams : public Serializable {
 				NativeInteger(1)*(q>>3), NativeInteger(3)*(q>>3), NativeInteger(5)*(q>>3), NativeInteger(1)*(q>>3)};
 
 			// Computes polynomials X^m - 1 that are needed in the accumulator for the GINX bootstrapping
+			if (m_method == GINX) {
+				// loop for positive values of m
+				for (uint32_t i = 0; i < N; i++) {
+					NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
+					aPoly[i].ModAddEq(NativeInteger(1),Q); // X^m
+					aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
+					aPoly.SetFormat(EVALUATION);
+					m_monomials.push_back(aPoly);
+				}
 
-			// loop for positive values of m
-			for (uint32_t i = 0; i < N; i++) {
-				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
-				aPoly[i].ModAddEq(NativeInteger(1),Q); // X^m
-				aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
-				aPoly.SetFormat(EVALUATION);
-				m_monomials.push_back(aPoly);
-			}
-
-			// loop for negative values of m
-			for (uint32_t i = 0; i < N; i++) {
-				NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
-				aPoly[i].ModSubEq(NativeInteger(1),Q); // -X^m
-				aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
-				aPoly.SetFormat(EVALUATION);
-				m_monomials.push_back(aPoly);
+				// loop for negative values of m
+				for (uint32_t i = 0; i < N; i++) {
+					NativePoly aPoly = NativePoly(m_polyParams,COEFFICIENT,true);
+					aPoly[i].ModSubEq(NativeInteger(1),Q); // -X^m
+					aPoly[0].ModSubEq(NativeInteger(1),Q); // -1
+					aPoly.SetFormat(EVALUATION);
+					m_monomials.push_back(aPoly);
+				}
 			}
 
 		}
@@ -169,8 +184,12 @@ class RingGSWCryptoParams : public Serializable {
 			return m_monomials[i];
 		}
 
+		BINFHEMETHOD GetMethod() const {
+			return m_method;
+		}
+
 		bool operator==(const RingGSWCryptoParams& other) const {
-			return *m_LWEParams == *other.m_LWEParams && m_baseR == other.m_baseR && m_baseG == other.m_baseG;
+			return *m_LWEParams == *other.m_LWEParams && m_baseR == other.m_baseR && m_baseG == other.m_baseG && m_method == other.m_method;
 		}
 
 		bool operator!=(const RingGSWCryptoParams& other) const { return ! (*this == other); }
@@ -181,6 +200,7 @@ class RingGSWCryptoParams : public Serializable {
 			ar( ::cereal::make_nvp("params", m_LWEParams) );
 			ar( ::cereal::make_nvp("bR", m_baseR) );
 			ar( ::cereal::make_nvp("bG", m_baseG) );
+			ar( ::cereal::make_nvp("method", m_method) );
 		}
 
 		template <class Archive>
@@ -192,6 +212,7 @@ class RingGSWCryptoParams : public Serializable {
 			ar( ::cereal::make_nvp("params", m_LWEParams) );
 			ar( ::cereal::make_nvp("bR", m_baseR) );
 			ar( ::cereal::make_nvp("bG", m_baseG) );
+			ar( ::cereal::make_nvp("method", m_method) );
 
 			this->PreCompute();
 		}
@@ -230,6 +251,9 @@ class RingGSWCryptoParams : public Serializable {
 
 		// Precomputed polynomials in evaluation representation for X^m - 1 (used only for GINX bootstrapping)
 		std::vector<NativePoly> m_monomials;
+
+		// Bootstrapping method (AP or GINX)
+		BINFHEMETHOD m_method;
 
 };
 
@@ -409,10 +433,8 @@ private:
 
 // The struct for storing bootstrapping keys
 typedef struct  {
-
 	// refreshing key
 	std::shared_ptr<RingGSWBTKey> BSkey;
-
 	// switching key
 	std::shared_ptr<LWESwitchingKey> KSkey;
   } RingGSWEvalKey;

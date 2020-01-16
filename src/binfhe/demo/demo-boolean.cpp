@@ -1,5 +1,5 @@
 /**
- * @file bin-fhew.cpp - Demo file for the FHEW scheme
+ * @file demo-boolean.cpp - Demo file for the FHEW scheme
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.

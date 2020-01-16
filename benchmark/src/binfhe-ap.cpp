@@ -55,7 +55,7 @@ GenerateFHEWContext(BINFHEPARAMSET set) {
 
    	auto cc = BinFHEContext();
 
-    cc.GenerateBinFHEContext(set);
+    cc.GenerateBinFHEContext(set,AP);
 
 	return cc;
 }

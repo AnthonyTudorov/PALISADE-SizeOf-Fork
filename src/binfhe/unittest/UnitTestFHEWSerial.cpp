@@ -47,10 +47,10 @@ protected:
 /*---------------------------------------	TESTING SERIALIZATION METHODS OF FHEW --------------------------------------------*/
 
 // Checks serialization for JSON mode
-TEST(UnitTestFHEWSerial,JSON) {
+TEST(UnitTestFHEWSerialAP,JSON) {
 
 	auto cc1 = BinFHEContext();
-	cc1.GenerateBinFHEContext(TOY);
+	cc1.GenerateBinFHEContext(TOY,AP);
 
 	auto sk1 = cc1.KeyGen();
 	//cc1.BTKeyGen(sk1);
@@ -129,10 +129,10 @@ TEST(UnitTestFHEWSerialGINX,JSON) {
 }
 
 // Checks serialization for BINARY mode
-TEST(UnitTestFHEWSerial,BINARY) {
+TEST(UnitTestFHEWSerialAP,BINARY) {
 
 	auto cc1 = BinFHEContext();
-	cc1.GenerateBinFHEContext(TOY);
+	cc1.GenerateBinFHEContext(TOY,AP);
 
 	auto sk1 = cc1.KeyGen();
 	//cc1.BTKeyGen(sk1);

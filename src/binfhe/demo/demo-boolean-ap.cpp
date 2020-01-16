@@ -1,5 +1,5 @@
 /**
- * @file bin-fhew.cpp - Demo file for the FHEW scheme
+ * @file demo-boolean-ap.cpp - Demo file for the FHEW scheme
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -24,24 +24,18 @@
  *
  */
 
-#define PROFILE
-
 #include "binfhecontext.h"
-#include "utils/debug.h"
 
 using namespace lbcrypto;
 using namespace std;
 
 int main(){
 
-	double bootTime(0.0);
-	TimeVar t1;
-
 	// Sample Program: Step 1 – Set CryptoContext
 
     auto cc = BinFHEContext();
 
-    cc.GenerateBinFHEContext(STD128,GINX);
+    cc.GenerateBinFHEContext(STD128,AP);
     // STD128 is the security level of 128 bits of security based on LWE Estimator and HE standard
     // Other options are TOY, MEDIUM, STD192, and STD256
     // MEDIUM corresponds to the level of more than 100 bits for both quantum and classical computer attacks
@@ -73,11 +67,7 @@ int main(){
 	auto ct2Not = cc.EvalNOT(ct2);
 
 	// Compute (1 AND (NOT 1)) = 0
-	TIC(t1);
 	auto ctAND2 = cc.EvalBinGate(AND,ct2Not,ct1);
-	bootTime = TOC(t1);
-
-	std::cout << "Bootstrapping time: " << bootTime << " us" << std::endl;
 
 	// Computes OR of the results in ctAND1 and ctAND2 = 1
 	auto ctResult = cc.EvalBinGate(OR,ctAND1,ctAND2);

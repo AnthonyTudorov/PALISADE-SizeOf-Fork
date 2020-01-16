@@ -37,7 +37,7 @@ int main(){
 
     std::cerr << "Generate cryptocontext" << std::endl;
 
-    cc.GenerateBinFHEContext(MEDIUM,GINX);
+    cc.GenerateBinFHEContext(MEDIUM);
 
     std::cerr << "Finished generatign cryptocontext" << std::endl;
 

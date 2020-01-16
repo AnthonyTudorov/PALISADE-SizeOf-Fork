@@ -40,13 +40,6 @@
 #include "ringcore.h"
 #include "lwe.h"
 
-// Two variants of FHEW are supported based on the bootstrapping technique used: AP and GINX
-// Please see "Bootstrapping in FHEW" for details on both bootstrapping techniques
-enum BINFHEMETHOD {
-	AP,
-	GINX
-};
-
 namespace lbcrypto{
 
 /**
@@ -56,7 +49,7 @@ class RingGSWAccumulatorScheme {
 
 public:
 
-	RingGSWAccumulatorScheme(BINFHEMETHOD method) : m_method(method) {}
+	RingGSWAccumulatorScheme() {};
 
 	/**
 	* Generates a refreshing key
@@ -96,8 +89,6 @@ public:
 
 private:
 
-	BINFHEMETHOD m_method;
-
 	/**
 	* Generates a refreshing key - GINX variant
 	*
@@ -121,7 +112,7 @@ private:
 			const std::shared_ptr<LWEEncryptionScheme> lwescheme, const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const;
 
 	/**
-	* Internal RingGSW encryption used in generating the refreshing key
+	* Internal RingGSW encryption used in generating the refreshing key - AP variant
 	*
 	* @param params a shared pointer to RingGSW scheme parameters
 	* @param skFFT secret key polynomial in the EVALUATION representation
@@ -143,7 +134,7 @@ private:
 			const NativePoly &skFFT, const LWEPlaintext &m) const;
 
 	/**
-	* Main accumulator function used in bootstrapping
+	* Main accumulator function used in bootstrapping - AP variant
 	*
 	* @param params a shared pointer to RingGSW scheme parameters
 	* @param &input input ciphertext
@@ -153,7 +144,7 @@ private:
 			std::shared_ptr<RingGSWCiphertext> acc) const;
 
 	/**
-	* Main accumulator function used in bootstrapping - GINX
+	* Main accumulator function used in bootstrapping - GINX variant
 	*
 	* @param params a shared pointer to RingGSW scheme parameters
 	* @param &input input ciphertext

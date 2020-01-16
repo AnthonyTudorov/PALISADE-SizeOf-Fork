@@ -30,8 +30,7 @@ namespace lbcrypto{
 	void BinFHEContext::GenerateBinFHEContext(uint32_t n, uint32_t N, const NativeInteger &q,
 			const NativeInteger &Q, double std, uint32_t baseKS, uint32_t baseG, uint32_t baseR, BINFHEMETHOD method){
 		shared_ptr<LWECryptoParams> lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(n, N, q, Q, std, baseKS));
-		m_params = std::make_shared<RingGSWCryptoParams>(lweparams, baseG, baseR);
-		m_RingGSWscheme = std::make_shared<RingGSWAccumulatorScheme>(method);
+		m_params = std::make_shared<RingGSWCryptoParams>(lweparams, baseG, baseR, method);
 	}
 
 	void BinFHEContext::GenerateBinFHEContext(BINFHEPARAMSET set, BINFHEMETHOD method){
@@ -42,53 +41,52 @@ namespace lbcrypto{
 		case TOY:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 1024),1024);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(64, 512, 256, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23, method);
 			break;
 		case MEDIUM:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 2048),2048);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(256, 1024, 256, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<16, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<16, 23, method);
 			break;
 		case STD128:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(27, 2048),2048);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(512, 1024, 512, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<9, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<9, 23, method);
 			break;
 		// TODO: update the values
 		case STD192:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 4096),4096);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(512, 2048, 512, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23, method);
 			break;
 		// TODO: update the values
 		case STD256:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 8192),8192);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(1024, 4096, 1024, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23, method);
 			break;
 		// TODO: update the values
 		case STD128Q:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(49, 4096),4096);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(512, 2048, 512, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<25, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<25, 23, method);
 			break;
 		// TODO: update the values
 		case STD192Q:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 4096),4096);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(1024, 2048, 1024, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23, method);
 			break;
 		// TODO: update the values
 		case STD256Q:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 8192),8192);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(1024, 4096, 1024, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<11, 23, method);
 			break;
 		default:
 			std::string errMsg = "ERROR: No such parameter set exists for FHEW."; \
 			throw std::runtime_error(errMsg);
 		}
-		m_RingGSWscheme = std::make_shared<RingGSWAccumulatorScheme>(method);
 	}
 
 	LWEPrivateKey BinFHEContext::KeyGen() const{

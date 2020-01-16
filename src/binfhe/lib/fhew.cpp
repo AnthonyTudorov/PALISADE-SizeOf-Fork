@@ -94,7 +94,7 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptAP(const std
 RingGSWEvalKey RingGSWAccumulatorScheme::KeyGen(const std::shared_ptr<RingGSWCryptoParams> params,
 		const std::shared_ptr<LWEEncryptionScheme> lwescheme, const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const {
 
-	if (m_method == AP)
+	if (params->GetMethod() == AP)
 		return KeyGenAP(params,lwescheme,LWEsk);
 	else
 		return KeyGenGINX(params,lwescheme,LWEsk);
@@ -288,7 +288,7 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 
 	(*acc)[0] = std::move(res);
 
-	if (m_method == AP)
+	if (params->GetMethod() == AP)
 	{
 		for (uint32_t i = 0; i < n; i++) {
 			NativeInteger aI = q.ModSub(a[i],q);
