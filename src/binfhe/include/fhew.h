@@ -161,7 +161,7 @@ private:
 	* @param &input input RLWE ciphertext
 	* @param *output input RLWE ciphertext
 	*/
-	void SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams> params, const std::vector<NativePoly> &input,
+	inline void SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams> params, const std::vector<NativePoly> &input,
 			std::vector<NativePoly> *output) const;
 
 };
