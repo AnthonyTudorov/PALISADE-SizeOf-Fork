@@ -61,9 +61,13 @@ public:
 	/**
 	* @brief Main constructor taking a vector of 16 integers as a seed
 	*/
-    explicit Blake2Engine(const std::array<result_type,16> &seed): m_counter(0), m_buffer({}), m_bufferIndex(0) {
-    	m_seed = seed;
-    };
+    explicit Blake2Engine(const std::array<result_type,16> &seed): m_counter(0), m_seed(seed), m_buffer({}), m_bufferIndex(0) {};
+
+	/**
+	* @brief Main constructor taking a vector of 16 integers as a seed and a counter
+	*/
+    explicit Blake2Engine(const std::array<result_type,16> &seed, result_type counter):
+    		m_counter(counter), m_seed(seed), m_buffer({}), m_bufferIndex(0) {};
 
 	/**
 	* @brief minimum value used by C+11 distribution generators when no lower bound is explicitly specified by the user

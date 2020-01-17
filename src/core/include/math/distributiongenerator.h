@@ -70,21 +70,49 @@ public:
 
 #else
 
-				// A 256-bit seed is generated for each thread (this roughly corresponds to 128 bits of security)
-				// BLAKE2 engine is used for generating the seed from current time stamp and a hash of the current thread
+				// A 512-bit seed is generated for each thread (this roughly corresponds to 256 bits of security).
+				// The seed is the sum of a random sample generated using std::random_device
+				// (typically works correctly in Linux, MacOS X, and MinGW starting with GCC 9.2)
+				// and a BLAKE2 sample seeded from current time stamp, a hash of the current thread, and
+				// a memory location of a heap variable.
+				// The BLAKE2 sample is added in case random_device is deterministic (happens on MinGW with GCC below 9.2).
 				// All future calls to PRNG use the seed generated here.
 
+				// The code below derives randomness from time, thread id, and a memory location of a heap variable.
+				// This seed is relevant only if the implementation of random_device is deterministic (as in older versions of GCC in MinGW)
 				std::array<uint32_t,16> initKey;
-				initKey[0] = std::chrono::high_resolution_clock::now().time_since_epoch().count()+
-						std::hash<std::thread::id>{}(std::this_thread::get_id());
-				PRNG gen(initKey);
+				// high-resolution clock typically has a nanosecond tick period
+				// Arguably this may give up to 32 bits of entropy as the clock gets recycled every 4.3 seconds
+				initKey[0] = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+				// A thread id is often close to being random (on most systems)
+				initKey[1] = std::hash<std::thread::id>{}(std::this_thread::get_id());
+				// On a 64-bit machine, the thread id is 64 bits long
+				if (sizeof(size_t) == 8)
+					initKey[2] = (std::hash<std::thread::id>{}(std::this_thread::get_id())>>32);
+
+			    // heap variable; we are going to use the least 32 bits of its memory location as the counter for BLAKE2
+				// This will increase the entropy of the BLAKE2 sample
+			    void* mem = malloc(1);
+			    free(mem);
+				uint32_t counter = reinterpret_cast<long long>(mem);
+
+				PRNG gen(initKey,counter);
+
+				std::random_device genR;
 
 				std::uniform_int_distribution<uint32_t>  distribution = std::uniform_int_distribution<uint32_t>(0);
 				std::array<uint32_t,16> seed;
-				for (uint32_t i = 0; i < 8; i++)
-					seed[i] = distribution(gen);
+				for (uint32_t i = 0; i < 16; i++) {
+					// we use the fact that there is no overflow for unsigned integers (from C++ standard)
+					// i.e., arithmetic mod 2^32 is performed.
+					// For the seed to be random, it is sufficient for one of the two samples below to be random.
+					// In almost all practical cases, distribution(genR) is random. We add distribution(gen) just in case
+					// there is an implementation issue with random_device (as in older MinGW systems).
+					seed[i] = distribution(gen) + distribution(genR);
+				}
 
 				m_prng.reset(new PRNG(seed));
+
 #endif
 
 		}
