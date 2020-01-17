@@ -46,7 +46,7 @@ namespace lbcrypto{
 		case MEDIUM:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(32, 2048),2048);
 			lweparams = std::make_shared<LWECryptoParams>(LWECryptoParams(256, 1024, 256, Q, 3.19, 25));
-			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<16, 23, method);
+			m_params = std::make_shared<RingGSWCryptoParams>(lweparams, 1<<16, 16, method);
 			break;
 		case STD128:
 			Q = PreviousPrime<NativeInteger>(FirstPrime<NativeInteger>(27, 2048),2048);
