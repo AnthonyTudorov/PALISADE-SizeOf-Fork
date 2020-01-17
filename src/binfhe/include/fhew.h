@@ -154,6 +154,16 @@ private:
 	void AddToACCGINX(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input, const NativeInteger& a,
 			std::shared_ptr<RingGSWCiphertext> acc) const;
 
+	/**
+	* Takes an RLWE ciphertext input and outputs a vector of its digits, i.e., an RLWE' ciphertext
+	*
+	* @param params a shared pointer to RingGSW scheme parameters
+	* @param &input input RLWE ciphertext
+	* @param *output input RLWE ciphertext
+	*/
+	void SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams> params, const std::vector<NativePoly> &input,
+			std::vector<NativePoly> *output) const;
+
 };
 
 }

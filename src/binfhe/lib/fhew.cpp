@@ -234,27 +234,13 @@ RingGSWEvalKey RingGSWAccumulatorScheme::KeyGenGINX(const std::shared_ptr<RingGS
 
 }
 
-// AP Accumulation as described in "Bootstrapping in FHEW"
-void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input,
-		std::shared_ptr<RingGSWCiphertext> acc) const {
+void RingGSWAccumulatorScheme::SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams> params,
+		const std::vector<NativePoly> &input, std::vector<NativePoly> *output) const {
 
 	uint32_t N = params->GetLWEParams()->GetN();
 	uint32_t digitsG = params->GetDigitsG();
-	uint32_t digitsG2 = params->GetDigitsG2();
 	NativeInteger Q = params->GetLWEParams()->GetQ();
 	int64_t baseG = NativeInteger(params->GetBaseG()).ConvertToInt();
-	const shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
-
-	std::vector<NativePoly> ct = acc->GetElements()[0];
-	std::vector<NativePoly> dct(digitsG2);
-
-	// initialize dct to zeros
-	for(uint32_t i = 0; i < digitsG2; i++)
-		dct[i] = NativePoly(polyParams,COEFFICIENT,true);
-
-	// calls 2 NTTs
-	for (uint32_t i = 0; i < 2; i++)
-		ct[i].SetFormat(COEFFICIENT);
 
 	NativeInteger QHalf = Q>>1;
 	int64_t d = 0;
@@ -265,7 +251,7 @@ void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoPar
 	// Signed digit decomposition
 	for (uint32_t j = 0; j < 2; j++) {
 		for (uint32_t k = 0; k < N; k++) {
-			NativeInteger t = ct[j][k];
+			NativeInteger t = input[j][k];
 			if (t < QHalf)
 				d += t.ConvertToInt();
 			else
@@ -281,14 +267,36 @@ void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoPar
 				d >>= gBits;
 
 				if (r >= 0)
-					dct[j+2*l][k] += NativeInteger(r);
+					(*output)[j+2*l][k] += NativeInteger(r);
 				else
-					dct[j+2*l][k] += NativeInteger((int64_t)r + (int64_t)Q.ConvertToInt());
+					(*output)[j+2*l][k] += NativeInteger((int64_t)r + (int64_t)Q.ConvertToInt());
 
 			}
 		}
 	}
+}
 
+// AP Accumulation as described in "Bootstrapping in FHEW"
+void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input,
+		std::shared_ptr<RingGSWCiphertext> acc) const {
+
+	uint32_t digitsG2 = params->GetDigitsG2();
+	const shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
+
+	std::vector<NativePoly> ct = acc->GetElements()[0];
+	std::vector<NativePoly> dct(digitsG2);
+
+	// initialize dct to zeros
+	for(uint32_t i = 0; i < digitsG2; i++)
+		dct[i] = NativePoly(polyParams,COEFFICIENT,true);
+
+	// calls 2 NTTs
+	for (uint32_t i = 0; i < 2; i++)
+		ct[i].SetFormat(COEFFICIENT);
+
+	SignedDigitDecompose(params,ct,&dct);
+
+	// calls digitsG2 NTTs
 	for (uint32_t j = 0; j < digitsG2; j++)
 		dct[j].SetFormat(EVALUATION);
 
@@ -311,15 +319,11 @@ void RingGSWAccumulatorScheme::AddToACCGINX(const std::shared_ptr<RingGSWCryptoP
 		std::shared_ptr<RingGSWCiphertext> acc) const {
 
 	uint32_t N = params->GetLWEParams()->GetN();
-	uint32_t digitsG = params->GetDigitsG();
 	uint32_t digitsG2 = params->GetDigitsG2();
-	NativeInteger Q = params->GetLWEParams()->GetQ();
 	int64_t q = params->GetLWEParams()->Getq().ConvertToInt();
-	int64_t baseG = NativeInteger(params->GetBaseG()).ConvertToInt();
 	const shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
 	std::vector<NativePoly> ct = acc->GetElements()[0];
-	std::vector<NativePoly> ctEval = ct;
 	std::vector<NativePoly> dct(digitsG2);
 
 	// initialize dct to zeros
@@ -330,38 +334,7 @@ void RingGSWAccumulatorScheme::AddToACCGINX(const std::shared_ptr<RingGSWCryptoP
 	for (uint32_t i = 0; i < 2; i++)
 		ct[i].SetFormat(COEFFICIENT);
 
-	NativeInteger QHalf = Q>>1;
-	int64_t d = 0;
-
-	int64_t gBits = (int64_t)std::log2(baseG);
-	int64_t gBits64 = 64 - gBits;
-
-	// Signed digit decomposition
-	for (uint32_t j = 0; j < 2; j++) {
-		for (uint32_t k = 0; k < N; k++) {
-			NativeInteger t = ct[j][k];
-			if (t < QHalf)
-				d += t.ConvertToInt();
-			else
-				d += (int64_t)t.ConvertToInt() - (int64_t)Q.ConvertToInt();
-
-			for (uint32_t l = 0; l < digitsG; l++) {
-
-				// remainder is signed
-				int64_t r = d << gBits64;
-				r>>= gBits64;
-
-				d -= r;
-				d >>= gBits;
-
-				if (r >= 0)
-					dct[j+2*l][k] += NativeInteger(r);
-				else
-					dct[j+2*l][k] += NativeInteger((int64_t)r + (int64_t)Q.ConvertToInt());
-
-			}
-		}
-	}
+	SignedDigitDecompose(params,ct,&dct);
 
 	for (uint32_t j = 0; j < digitsG2; j++)
 		dct[j].SetFormat(EVALUATION);
@@ -397,8 +370,7 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 	std::vector<NativeInteger> digitsR = params->GetDigitsR();
 	const shared_ptr<ILNativeParams> polyParams = params->GetPolyParams();
 
-	if (ct1 == ct2)
-	{
+	if (ct1 == ct2)	{
 		std::string errMsg = "ERROR: Please only use independent ciphertexts as inputs."; \
 		throw std::runtime_error(errMsg);
 	}
@@ -410,26 +382,22 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 	// we compute 2*(ct1 - ct2) mod 4
 	// for XOR, me map 1,2 -> 1 and 3,0 -> 0
 	if ((gate == XOR) || (gate == XNOR)) {
-		NativeVector tempA = ct1->GetA() - ct2->GetA();
-		a = tempA + tempA;
-		NativeInteger tempB = ct1->GetB().ModSub(ct2->GetB(),q);
-		b = tempB + tempB;
-		if (b > q)
-			b -= q;
+		a = ct1->GetA() - ct2->GetA();
+		a += a;
+		b = ct1->GetB().ModSubFast(ct2->GetB(),q);
+		b.ModAddFastOptimizedEq(b,q);
 	} // for all other gates, we simply compute (ct1 + ct2) mod 4
 	// for AND: 0,1 -> 0 and 2,3 -> 1
 	// for OR: 1,2 -> 1 and 3,0 -> 0
-	else
-	{
+	else {
 		a = ct1->GetA() + ct2->GetA();
-		b = ct1->GetB().ModAdd(ct2->GetB(),q);
+		b = ct1->GetB().ModAddFastOptimized(ct2->GetB(),q);
 	}
 
-	uint32_t qHalf = q.ConvertToInt()>>1;
-
 	// Specifies the range [q1,q2) that will be used for mapping
+	uint32_t qHalf = q.ConvertToInt()>>1;
 	NativeInteger q1 = params->GetGateConst()[gate];
-	NativeInteger q2 = q1.ModAdd(NativeInteger(qHalf),q);
+	NativeInteger q2 = q1.ModAddFastOptimized(NativeInteger(qHalf),q);
 
 	// depending on whether the value is the range, it will be set
 	// to either Q/8 or -Q/8 to match binary arithmetic
@@ -440,24 +408,12 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 	// Since 2*N * q, we deal with a sparse embedding of Z_Q[x]/(X^{q/2}+1) to Z_Q[x]/(X^N+1)
 	uint32_t factor = (2*N/q.ConvertToInt());
 
-	for(uint32_t j = 0; j < qHalf; j++ )
-	{
+	for(uint32_t j = 0; j < qHalf; j++ ) {
 		NativeInteger temp = b.ModSub(j,q);
-
 		if (q1 < q2)
-		{
-			if ((temp >= q1) && (temp < q2))
-				m[j*factor] = Q8Neg;
-			else
-				m[j*factor] = Q8;
-		}
+			m[j*factor] = ((temp >= q1) && (temp < q2)) ? Q8Neg : Q8;
 		else
-		{
-			if ((temp >= q2) && (temp < q1))
-				m[j*factor] = Q8;
-			else
-				m[j*factor] = Q8Neg;
-		}
+			m[j*factor] = ((temp >= q2) && (temp < q1)) ? Q8 : Q8Neg;
 	}
 
 	std::vector<NativePoly> res(2);
@@ -471,8 +427,7 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 	std::shared_ptr<RingGSWCiphertext> acc = std::make_shared<RingGSWCiphertext>(1,2);
 	(*acc)[0] = std::move(res);
 
-	if (params->GetMethod() == AP)
-	{
+	if (params->GetMethod() == AP) {
 		for (uint32_t i = 0; i < n; i++) {
 			NativeInteger aI = q.ModSub(a[i],q);
 			for (uint32_t k = 0; k < digitsR.size(); k++, aI /= NativeInteger(baseR)) {
@@ -482,9 +437,7 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 			}
 		}
 	}
-	else // if GINX
-	{
-
+	else { // if GINX
 		for (uint32_t i = 0; i < n; i++) {
 			this->AddToACCGINX(params,(*EK.BSkey)[0][0][i],q.ModSub(a[i],q),acc); // handles -a*E(1)
 			this->AddToACCGINX(params,(*EK.BSkey)[0][1][i],a[i],acc); // handles -a*E(-1) = a*E(1)
@@ -494,12 +447,10 @@ std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const s
 	NativeInteger bNew;
 	NativeVector aNew(N,Q);
 
-	NativePoly temp = (*acc)[0][0];
-
 	// the accumulator result is encrypted w.r.t. the transposed secret key
 	// we can transpose "a" to get an encryption under the original secret key
+	NativePoly temp = (*acc)[0][0];
 	temp = temp.Transpose();
-
 	temp.SetFormat(COEFFICIENT);
 	aNew = temp.GetValues();
 
