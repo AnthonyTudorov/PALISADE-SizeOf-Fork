@@ -1,5 +1,6 @@
 /**
- * @file bin-fhew.cpp - Demo file for the FHEW scheme
+ * @file bin-fhew.cpp - Demo file for the FHEW scheme;
+ * it prints out the truth tables for all supported binary gates
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -37,13 +38,12 @@ int main(){
 
     std::cerr << "Generate cryptocontext" << std::endl;
 
-    cc.GenerateBinFHEContext(MEDIUM);
-
-    std::cerr << "Finished generatign cryptocontext" << std::endl;
-
     // STD128 is the security level of 128 bits of security based on LWE Estimator and HE standard
     // Other options are TOY, MEDIUM, STD192, and STD256
     // MEDIUM corresponds to the level of more than 100 bits for both quantum and classical computer attacks
+    cc.GenerateBinFHEContext(STD128);
+
+    std::cerr << "Finished generatign cryptocontext" << std::endl;
 
     // Sample Program: Step 2 – Key Generation
 
@@ -62,10 +62,11 @@ int main(){
     // Encrypt two ciphertexts representing Boolean True (1)
 	auto ct10 = cc.Encrypt(sk,1);
 	auto ct11 = cc.Encrypt(sk,1);
+	// Encrypt two ciphertexts representing Boolean False (0)
 	auto ct00 = cc.Encrypt(sk,0);
 	auto ct01 = cc.Encrypt(sk,0);
 
-	// Sample Program: Step 4 – Evaluation
+	// Sample Program: Step 4 – Evaluation of NAND gates
 
 	auto ctNAND1 = cc.EvalBinGate(NAND,ct10,ct11);
 	auto ctNAND2 = cc.EvalBinGate(NAND,ct10,ct01);
@@ -86,6 +87,8 @@ int main(){
 	cc.Decrypt(sk,ctNAND4,&result);
 	std::cout << "0 NAND 1 = " << result << "\n" << std::endl;
 
+	// Sample Program: Step 5 – Evaluation of AND gates
+
 	auto ctAND1 = cc.EvalBinGate(AND,ct10,ct11);
 	auto ctAND2 = cc.EvalBinGate(AND,ct10,ct01);
 	auto ctAND3 = cc.EvalBinGate(AND,ct00,ct01);
@@ -102,6 +105,8 @@ int main(){
 
 	cc.Decrypt(sk,ctAND4,&result);
 	std::cout << "0 AND 1 = " << result << "\n" << std::endl;
+
+	// Sample Program: Step 6 – Evaluation of OR gates
 
 	auto ctOR1 = cc.EvalBinGate(OR,ct10,ct11);
 	auto ctOR2 = cc.EvalBinGate(OR,ct10,ct01);
@@ -120,6 +125,8 @@ int main(){
 	cc.Decrypt(sk,ctOR4,&result);
 	std::cout << "0 OR 1 = " << result << "\n" << std::endl;
 
+	// Sample Program: Step 7 – Evaluation of NOR gates
+
 	auto ctNOR1 = cc.EvalBinGate(NOR,ct10,ct11);
 	auto ctNOR2 = cc.EvalBinGate(NOR,ct10,ct01);
 	auto ctNOR3 = cc.EvalBinGate(NOR,ct00,ct01);
@@ -137,6 +144,8 @@ int main(){
 	cc.Decrypt(sk,ctNOR4,&result);
 	std::cout << "0 NOR 1 = " << result << "\n" << std::endl;
 
+	// Sample Program: Step 8 – Evaluation of XOR gates
+
 	auto ctXOR1 = cc.EvalBinGate(XOR,ct10,ct11);
 	auto ctXOR2 = cc.EvalBinGate(XOR,ct10,ct01);
 	auto ctXOR3 = cc.EvalBinGate(XOR,ct00,ct01);
@@ -153,6 +162,8 @@ int main(){
 
 	cc.Decrypt(sk,ctXOR4,&result);
 	std::cout << "0 XOR 1 = " << result << "\n" << std::endl;
+
+	// Sample Program: Step 9 – Evaluation of XNOR gates
 
 	auto ctXNOR1 = cc.EvalBinGate(XNOR,ct10,ct11);
 	auto ctXNOR2 = cc.EvalBinGate(XNOR,ct10,ct01);

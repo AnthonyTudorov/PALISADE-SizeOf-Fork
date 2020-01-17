@@ -1,5 +1,5 @@
 /**
- * @file demo-boolean.cpp - Demo file for the FHEW scheme
+ * @file demo-boolean.cpp - Demo file for the FHEW scheme using the default bootstrapping method (GINX)
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -35,10 +35,10 @@ int main(){
 
     auto cc = BinFHEContext();
 
-    cc.GenerateBinFHEContext(STD128);
     // STD128 is the security level of 128 bits of security based on LWE Estimator and HE standard
     // Other options are TOY, MEDIUM, STD192, and STD256
     // MEDIUM corresponds to the level of more than 100 bits for both quantum and classical computer attacks
+    cc.GenerateBinFHEContext(STD128);
 
     // Sample Program: Step 2 – Key Generation
 
