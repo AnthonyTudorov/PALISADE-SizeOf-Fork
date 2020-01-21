@@ -80,7 +80,7 @@ namespace lbcrypto {
 	void LWEEncryptionScheme::Decrypt(const std::shared_ptr<LWECryptoParams> params, const std::shared_ptr<const LWEPrivateKeyImpl> sk,
 				const std::shared_ptr<const LWECiphertextImpl> ct, LWEPlaintext* result) const {
 
-		// in the future we should add a check to make sure sk parameters match the ct parameters
+		// TODO in the future we should add a check to make sure sk parameters match the ct parameters
 
 		// Create local variables to speed up the computations
 		NativeVector a = ct->GetA();

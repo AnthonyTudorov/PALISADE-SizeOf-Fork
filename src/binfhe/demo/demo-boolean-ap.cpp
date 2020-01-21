@@ -1,5 +1,5 @@
 /**
- * @file demo-boolean.cpp - Demo file for the FHEW scheme using the default bootstrapping method (GINX)
+ * @file demo-boolean-ap.cpp - Demo file for the FHEW scheme using the AP bootstrapping
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, Duality Technologies Inc.
@@ -38,7 +38,9 @@ int main(){
     // STD128 is the security level of 128 bits of security based on LWE Estimator and HE standard
     // Other options are TOY, MEDIUM, STD192, and STD256
     // MEDIUM corresponds to the level of more than 100 bits for both quantum and classical computer attacks
-    cc.GenerateBinFHEContext(STD128);
+    // The second argument is the bootstrapping method (AP or GINX). The default method is GINX. Here we explicitly set AP.
+    // GINX typically provides a better performance: the bootstrapping key is much smaller in GINX (by 20x) while the runtime is roughly the same
+    cc.GenerateBinFHEContext(STD128,AP);
 
     // Sample Program: Step 2 – Key Generation
 

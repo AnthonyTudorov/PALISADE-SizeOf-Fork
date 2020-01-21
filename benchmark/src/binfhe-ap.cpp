@@ -55,7 +55,7 @@ GenerateFHEWContext(BINFHEPARAMSET set) {
 
    	auto cc = BinFHEContext();
 
-    cc.GenerateBinFHEContext(set);
+    cc.GenerateBinFHEContext(set,AP);
 
 	return cc;
 }
@@ -99,6 +99,24 @@ void FHEW_BINGATE_MEDIUM(benchmark::State& state) {
 
 BENCHMARK(FHEW_BINGATE_MEDIUM)->Unit(benchmark::kMicrosecond)->MinTime(10.0);
 
+// benchmark for key switching
+void FHEW_KEYSWITCH_MEDIUM(benchmark::State& state) {
+
+	BinFHEContext cc = GenerateFHEWContext(MEDIUM);
+
+	LWEPrivateKey sk = cc.KeyGen();
+	LWEPrivateKey skN = cc.KeyGenN();
+
+	auto ctQN1 = cc.Encrypt(skN,1);
+	auto keySwitchHint = cc.KeySwitchGen(sk,skN);
+
+	while (state.KeepRunning()) {
+		std::shared_ptr<LWECiphertextImpl> eQ1 = cc.GetLWEScheme()->KeySwitch(cc.GetParams()->GetLWEParams(), keySwitchHint, ctQN1);
+	}
+}
+
+BENCHMARK(FHEW_KEYSWITCH_MEDIUM)->Unit(benchmark::kMicrosecond)->MinTime(1.0);
+
 void FHEW_NOT_STD128(benchmark::State& state) {
 
 	BinFHEContext cc = GenerateFHEWContext(STD128);
@@ -133,5 +151,23 @@ void FHEW_BINGATE_STD128(benchmark::State& state) {
 }
 
 BENCHMARK(FHEW_BINGATE_STD128)->Unit(benchmark::kMicrosecond)->MinTime(10.0);
+
+// benchmark for key switching
+void FHEW_KEYSWITCH_STD128(benchmark::State& state) {
+
+	BinFHEContext cc = GenerateFHEWContext(STD128);
+
+	LWEPrivateKey sk = cc.KeyGen();
+	LWEPrivateKey skN = cc.KeyGenN();
+
+	auto ctQN1 = cc.Encrypt(skN,1);
+	auto keySwitchHint = cc.KeySwitchGen(sk,skN);
+
+	while (state.KeepRunning()) {
+		std::shared_ptr<LWECiphertextImpl> eQ1 = cc.GetLWEScheme()->KeySwitch(cc.GetParams()->GetLWEParams(), keySwitchHint, ctQN1);
+	}
+}
+
+BENCHMARK(FHEW_KEYSWITCH_STD128)->Unit(benchmark::kMicrosecond)->MinTime(1.0);
 
 BENCHMARK_MAIN();
