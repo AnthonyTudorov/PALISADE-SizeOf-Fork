@@ -53,8 +53,8 @@ using namespace lbcrypto;
 
 namespace lbcrypto {
 #ifdef WITH_NATIVE64
-template class DCRTPolyImpl<M2Vector, NativePoly64>;
-template class ILDCRTParams<M2Integer, NativeInteger64>;
+template class DCRTPolyImpl<BigVector, NativePoly64>;
+template class ILDCRTParams<BigInteger, NativeInteger64>;
 template<>
 PolyImpl<NativeVector64,NativeVector64>
 PolyImpl<NativeVector64,NativeVector64>::ToNativePoly() const {
@@ -63,8 +63,8 @@ PolyImpl<NativeVector64,NativeVector64>::ToNativePoly() const {
 #endif
 
 #ifdef WITH_NATIVE32
-template class DCRTPolyImpl<M2Vector, NativePoly32>;
-template class ILDCRTParams<M2Integer, NativeInteger32>;
+template class DCRTPolyImpl<BigVector, NativePoly32>;
+template class ILDCRTParams<BigInteger, NativeInteger32>;
 template<>
 PolyImpl<NativeVector32,NativeVector32>
 PolyImpl<NativeVector32,NativeVector32>::ToNativePoly() const {
@@ -73,8 +73,8 @@ PolyImpl<NativeVector32,NativeVector32>::ToNativePoly() const {
 #endif
 
 #ifdef WITH_NATIVE16
-template class DCRTPolyImpl<M2Vector, NativePoly16>;
-template class ILDCRTParams<M2Integer, NativeInteger16>;
+template class DCRTPolyImpl<BigVector, NativePoly16>;
+template class ILDCRTParams<BigInteger, NativeInteger16>;
 template<>
 PolyImpl<NativeVector16,NativeVector16>
 PolyImpl<NativeVector16,NativeVector16>::ToNativePoly() const {
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
 	  cout << "multiprecision integers using the double crt Poly formulation." << endl;
   }
 
-  Run<DCRTPolyImpl<M2Vector>>(mode, n, count, n_threads, verify_flag, oneline, size);
+  Run<DCRTPolyImpl<BigVector>>(mode, n, count, n_threads, verify_flag, oneline, size);
 
   return 0;
 }
