@@ -191,9 +191,9 @@ void NTTSmall() {
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &xx);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(x, rootOfUnity, m, &xx);
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(y, rootOfUnity, m, &yy);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(y, rootOfUnity, m, &yy);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
@@ -203,7 +203,7 @@ void NTTSmall() {
 	std::cout << endl;
 	std::cout << "-----------------------" << std::endl;
 
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(xx, rootOfUnity, m, &x);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransformFromBitReverse(xx, rootOfUnity, m, &x);
 
 	std::cout << "-----------------------" << std::endl;
 	for (usint i = 0; i < phim; ++i) {
@@ -231,15 +231,15 @@ void NTTLarge() {
 
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
-	ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(y, rootOfUnity, m, &y_ntt);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(x, rootOfUnity, m, &x_ntt);
+	ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(y, rootOfUnity, m, &y_ntt);
 
 
 	for (usint i = 0; i < phim; ++i) {
 		z_ntt[i] = x_ntt[i].ModBarrettMul(y_ntt[i], modulusQ, mu);
 	}
 
-	ChineseRemainderTransformFTT<NativeVector>::InverseTransform(z_ntt, rootOfUnity, m, &z);
+	ChineseRemainderTransformFTT<NativeVector>::InverseTransformFromBitReverse(z_ntt, rootOfUnity, m, &z);
 }
 
 void NTTBenchmark() {
@@ -263,8 +263,8 @@ void NTTBenchmark() {
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity,	m, modulusQ);
 
 	for (usint i = 0; i < counter; ++i) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &x_ntt);
-		ChineseRemainderTransformFTT<NativeVector>::InverseTransform(x_ntt, rootOfUnity, m, &x);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(x, rootOfUnity, m, &x_ntt);
+		ChineseRemainderTransformFTT<NativeVector>::InverseTransformFromBitReverse(x_ntt, rootOfUnity, m, &x);
 	}
 
 	std::cout << "finished" << std::endl;

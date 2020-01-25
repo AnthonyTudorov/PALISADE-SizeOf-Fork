@@ -213,7 +213,7 @@ void NTTTransform1024(benchmark::State& state) {
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity, m, modulusQ);
 
 	while (state.KeepRunning()) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(x, rootOfUnity, m, &X);
 	}
 }
 
@@ -234,7 +234,7 @@ void NTTTransform4096(benchmark::State& state) {
 	ChineseRemainderTransformFTT<NativeVector>::PreCompute(rootOfUnity, m, modulusQ);
 
 	while (state.KeepRunning()) {
-		ChineseRemainderTransformFTT<NativeVector>::ForwardTransform(x, rootOfUnity, m, &X);
+		ChineseRemainderTransformFTT<NativeVector>::ForwardTransformToBitReverse(x, rootOfUnity, m, &X);
 	}
 }
 

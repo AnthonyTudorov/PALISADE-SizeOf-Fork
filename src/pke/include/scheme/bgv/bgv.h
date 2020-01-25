@@ -717,18 +717,6 @@ namespace lbcrypto {
 		virtual Ciphertext<Element> ModReduce(ConstCiphertext<Element> cipherText) const;
 
 		/**
-		* Method for RingReducing CipherText. Not implemented for the BGV/BGV scheme.
-		*
-		* @param cipherText is the ciphertext to perform ringreduce on.
-		* @param keySwitchHint is the keyswitchhint to switch the ciphertext from original private key to a sparse private key.
-		*/
-		virtual Ciphertext<Element> RingReduce(ConstCiphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const {
-
-			std::string errMsg = "LPAlgorithmSHEBGV::RindReduce is not currently implemented for the BGV/BGV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
 		* Method for Composed EvalMult, which includes homomorphic multiplication, key switching, and modulo reduction. Not implemented for the BGV/BGV scheme.
 		*
 		* @param cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
@@ -757,21 +745,6 @@ namespace lbcrypto {
 			const LPEvalKey<Element> linearKeySwitchHint, size_t levels) const
 		{
 			std::string errMsg = "LPAlgorithmSHEBGV::LevelReduce is not currently implemented for the BGV/BGV Scheme.";
-			throw std::runtime_error(errMsg);
-		}
-
-		/**
-		* Function that determines if security requirements are met if ring dimension is reduced by half.
-		* Not implemented for the BGV/BGV scheme.
-		*
-		* @param ringDimension is the original ringDimension
-		* @param &moduli is the vector of moduli that is used
-		* @param rootHermiteFactor is the security threshold
-		* @return boolean value that determines if the ring is reducable.
-		*/
-		virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const
-		{
-			std::string errMsg = "LPAlgorithmSHEBGV::CanRingReduce is not currently implemented for the BGV/BGV Scheme.";
 			throw std::runtime_error(errMsg);
 		}
 	};

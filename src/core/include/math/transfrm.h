@@ -67,17 +67,6 @@ public:
 	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
 
 	/**
-	* Forward transform for the NativeInteger case (based on NTL's modular multiplication).
-	*
-	* @param element is the element to perform the transform on.
-	* @param rootOfUnityTable the root of unity table.
-	* @param preconRootOfUnityTable NTL-specific precomputations for the root of unity table.
-	* @param cycloOrder is the cyclotomic order.
-	* @return is the output result of the transform.
-	*/
-	static void ForwardTransformIterative(const VecType& element, const VecType &rootOfUnityTable, const NativeVector &preconRootOfUnityTable, const usint cycloOrder, VecType* result);
-
-	/**
 	* Forward transform to bit-reverse order.
 	* [Algorithm 1 in https://eprint.iacr.org/2016/504.pdf]
 	*
@@ -86,8 +75,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
-
+	static void ForwardTransformToBitReverse(const VecType& element, const VecType &rootOfUnityTable, const usint cycloOrder, VecType* result);
 
 	/**
 	* Forward transform to bit-reverse order for the NativeInteger case (based on NTL's modular multiplication).
@@ -98,7 +86,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransformIterativeCT(const VecType& element, const VecType &rootOfUnityTable, const NativeVector &preconRootOfUnityTable, const usint cycloOrder, VecType* result);
+	static void ForwardTransformToBitReverse(const VecType& element, const VecType &rootOfUnityTable, const NativeVector &preconRootOfUnityTable, const usint cycloOrder, VecType* result);
 
 	/**
 	* Inverse transform.
@@ -111,17 +99,6 @@ public:
 	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const usint cycloOrder, VecType *result);
 
 	/**
-	* Inverse transform for the case of NativeInteger (based on NTL's modular multiplication).
-	*
-	* @param element is the element to perform the transform on.
-	* @param rootOfUnityInverseTable the root of unity table.
-	* @param preconRootOfUnityInverseTable NTL-specific the root of unity table precomputations.
-	* @param cycloOrder is the cyclotomic order.
-	* @return is the output result of the transform.
-	*/
-	static void InverseTransformIterative(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const usint cycloOrder, VecType *result);
-
-	/**
 	* Inverse transform from bit-reverse order.
 	* [Algorithm 2 in https://eprint.iacr.org/2016/504.pdf]
 	*
@@ -131,7 +108,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const IntType& cycloOrderInv, const usint cycloOrder, VecType *result);
+	static void InverseTransformFromBitReverse(const VecType& element, const VecType& rootOfUnityInverseTable, const IntType& cycloOrderInv, const usint cycloOrder, VecType *result);
 
 	/**
 	* Inverse transform from bit-reverse order for the case of NativeInteger (based on NTL's modular multiplication).
@@ -145,7 +122,7 @@ public:
 	* @param cycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void InverseTransformIterativeGS(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const NativeInteger& preconCycloOrderInv, const usint cycloOrder, VecType *result);
+	static void InverseTransformFromBitReverse(const VecType& element, const VecType& rootOfUnityInverseTable, const NativeVector& preconRootOfUnityInverseTable, const IntType& cycloOrderInv, const NativeInteger& preconCycloOrderInv, const usint cycloOrder, VecType *result);
 };
 
 /**
@@ -164,7 +141,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the transform.
 	*/
-	static void ForwardTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
+	static void ForwardTransformToBitReverse(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
 
 	/**
 	* Virtual inverse transform.
@@ -174,7 +151,7 @@ public:
 	* @param CycloOrder is the cyclotomic order.
 	* @return is the output result of the inverse transform.
 	*/
-	static void InverseTransform(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
+	static void InverseTransformFromBitReverse(const VecType& element, const IntType& rootOfUnity, const usint CycloOrder, VecType *result);
 
 	/**
 	* Precomputation of root of unity tables.

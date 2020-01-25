@@ -90,7 +90,6 @@ static struct FeatureMap FeatureMap[] = {
 		{ OpModReduceRational, "ModReduceRational", LEVELEDSHE },
 		{ OpModReduceMatrix, "ModReduceMatrix", LEVELEDSHE },
 		{ OpLevelReduce, "LevelReduce", LEVELEDSHE },
-		{ OpRingReduce, "RingReduce", LEVELEDSHE },
 		{ OpComposedEvalMult, "ComposedEvalMult", LEVELEDSHE },
 		{ OpEvalSumKeyGen, "EvalSumKeyGen", SHE },
 		{ OpEvalAtIndexKeyGen, "EvalAtIndexKeyGen", SHE },

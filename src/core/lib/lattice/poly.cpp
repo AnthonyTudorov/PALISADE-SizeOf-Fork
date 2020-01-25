@@ -838,13 +838,13 @@ void PolyImpl<VecType>::SwitchFormat()
 
 		DEBUG("transform to evaluation m_values was"<< *m_values);
 
-		ChineseRemainderTransformFTT<VecType>::ForwardTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+		ChineseRemainderTransformFTT<VecType>::ForwardTransformToBitReverse(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
 		DEBUG("m_values now "<< newValues);
 	} else {
 		m_format = COEFFICIENT;
 		DEBUG("transform to coefficient m_values was"<< *m_values);
 
-		ChineseRemainderTransformFTT<VecType>::InverseTransform(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
+		ChineseRemainderTransformFTT<VecType>::InverseTransformFromBitReverse(*m_values, m_params->GetRootOfUnity(), m_params->GetCyclotomicOrder(), &newValues);
 		DEBUG("m_values now "<< newValues);
 	}
 

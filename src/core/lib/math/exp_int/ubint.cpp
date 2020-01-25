@@ -2103,7 +2103,6 @@ const ubint<limb_t>& ubint<limb_t>::ModBarrettEq(const ubint& modulus, const ubi
 	if((*this)<modulus){
 		return *this;
 	}
-	ubint z(*this);
 	ubint q(*this);
 
 	usint n = modulus.m_MSB;
@@ -2483,7 +2482,7 @@ const ubint<limb_t>& ubint<limb_t>::ModBarrettMulEq(const ubint& b, const ubint&
 	ubint bb(b);
 
 	//if a is greater than q reduce a to its mod value
-	if(*this>modulus)
+	if((*this)>modulus)
 		this->ModBarrettInPlace(modulus,mu);
 
 	//if b is greater than q reduce b to its mod value
