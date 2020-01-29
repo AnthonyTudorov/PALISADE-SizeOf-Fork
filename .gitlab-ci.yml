@@ -1020,6 +1020,161 @@ debug_tcm_ntl_mb6_test_trapdoor:
   dependencies:
   - debug_tcm_ntl_mb6_build
 
+default_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build
+
+noflag_mb4_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build
+
+debug_mb2_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build
+
+ntl_mb6_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build
+
+debug_mb4_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build
+
+tcm_mb2_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build
+
+tcm_mb4_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build
+
+tcm_ntl_mb6_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build
+
+debug_tcm_ntl_mb6_test_binfhe:
+  stage: unit_test
+  only:
+    refs:
+      - master
+      - merge_requests
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build
+
+
+
 # coverage:
 #   stage: docs
 #   script:
@@ -2113,6 +2268,152 @@ debug_tcm_ntl_mb6_test_trapdoor_manual:
     expire_in: 2 days
   dependencies:
   - debug_tcm_ntl_mb6_build_manual
+
+default_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - default_build
+
+noflag_mb4_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - noflag_mb4_build
+
+debug_mb2_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb2_build
+
+ntl_mb6_test_binfhe_manual:
+  stage: unit_test
+ only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - ntl_mb6_build
+
+debug_mb4_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_mb4_build
+
+tcm_mb2_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb2_build
+
+tcm_mb4_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_mb4_build
+
+tcm_ntl_mb6_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - tcm_ntl_mb6_build
+
+debug_tcm_ntl_mb6_test_binfhe_manual:
+  stage: unit_test
+  only:
+    variables:
+      - $DO_CI
+  script:
+  - pwd
+  - echo $LD_LIBRARY_PATH
+  - build/unittest/binfhe_tests --gtest_output=xml
+  artifacts:
+    paths:
+    - test_detail.xml
+    expire_in: 2 days
+  dependencies:
+  - debug_tcm_ntl_mb6_build
+
+
 
 # coverage:
 #   stage: docs
