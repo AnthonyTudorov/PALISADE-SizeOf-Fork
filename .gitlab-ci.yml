@@ -1,5 +1,4 @@
 stages:
-- setup
 - build
 - unit_test
 - benchmark
@@ -2283,7 +2282,7 @@ default_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - default_build
+  - default_build_manual
 
 noflag_mb4_test_binfhe_manual:
   stage: unit_test
@@ -2299,7 +2298,7 @@ noflag_mb4_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - noflag_mb4_build
+  - noflag_mb4_build_manual
 
 debug_mb2_test_binfhe_manual:
   stage: unit_test
@@ -2315,11 +2314,11 @@ debug_mb2_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - debug_mb2_build
+  - debug_mb2_build_manual
 
 ntl_mb6_test_binfhe_manual:
   stage: unit_test
- only:
+  only:
     variables:
       - $DO_CI
   script:
@@ -2331,7 +2330,7 @@ ntl_mb6_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - ntl_mb6_build
+  - ntl_mb6_build_manual
 
 debug_mb4_test_binfhe_manual:
   stage: unit_test
@@ -2347,7 +2346,7 @@ debug_mb4_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - debug_mb4_build
+  - debug_mb4_build_manual
 
 tcm_mb2_test_binfhe_manual:
   stage: unit_test
@@ -2363,7 +2362,7 @@ tcm_mb2_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - tcm_mb2_build
+  - tcm_mb2_build_manual
 
 tcm_mb4_test_binfhe_manual:
   stage: unit_test
@@ -2379,7 +2378,7 @@ tcm_mb4_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - tcm_mb4_build
+  - tcm_mb4_build_manual
 
 tcm_ntl_mb6_test_binfhe_manual:
   stage: unit_test
@@ -2395,7 +2394,7 @@ tcm_ntl_mb6_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - tcm_ntl_mb6_build
+  - tcm_ntl_mb6_build_manual
 
 debug_tcm_ntl_mb6_test_binfhe_manual:
   stage: unit_test
@@ -2411,7 +2410,7 @@ debug_tcm_ntl_mb6_test_binfhe_manual:
     - test_detail.xml
     expire_in: 2 days
   dependencies:
-  - debug_tcm_ntl_mb6_build
+  - debug_tcm_ntl_mb6_build_manual
 
 
 
