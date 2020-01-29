@@ -180,7 +180,7 @@ namespace lbcrypto{
       		/**
 			* Evaluates a binary gate (calls bootstrapping as a subroutine)
 			*
-			* @param gate the gate; can be AND, OR, NAND, or NOR
+			* @param gate the gate; can be AND, OR, NAND, NOR, XOR, or XNOR
 			* @param ct1 first ciphertext
 			* @param ct2 second ciphertext
 			* @return a shared pointer to the resulting ciphertext

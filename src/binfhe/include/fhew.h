@@ -1,7 +1,7 @@
 /*
  * @file fhew.h - FHEW scheme header file
  * The scheme is described in https://eprint.iacr.org/2014/816 and in
- * "Bootstrapping in FHEW" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
+ * "Bootstrapping in FHEW-like Cryptosystems" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
  *
  * Full reference to https://eprint.iacr.org/2014/816:
  * @misc{cryptoeprint:2014:816,
@@ -43,7 +43,7 @@
 namespace lbcrypto{
 
 /**
- * @brief Ring GSW accumulator schemes described in https://eprint.iacr.org/2014/816 and "Bootstrapping in FHEW"
+ * @brief Ring GSW accumulator schemes described in https://eprint.iacr.org/2014/816 and "Bootstrapping in FHEW-like Cryptosystems"
  */
 class RingGSWAccumulatorScheme {
 
