@@ -1170,11 +1170,11 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
-		return this->ModMul(b,modulus);
+		return this->ModMulFast(b,modulus);
 	}
 
 	const NativeInteger& ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) {
-		this->ModMulEq(b,modulus);
+		this->ModMulFastEq(b,modulus);
 		return *this;
 	}
 
