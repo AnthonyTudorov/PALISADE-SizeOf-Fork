@@ -1,19 +1,29 @@
-01/15/2020: PALISADE v1.7.d is released
+01/30/2020: PALISADE v1.8.0 (development) is released
+
+* Adds the Gama-Izabachene-Nguyen-Xie (GINX) bootstrapping to the FHEW implementation
+* Includes other FHEW optimizations: now the bootstrapping key size is 20x times smaller and runtime about 2.5x faster 
+* Adds XOR and XNOR gates to FHEW
+
+01/22/2020: PALISADE v1.7.4 (stable) is released in the palisade-release repo
+
+* includes all changes from development releases v1.7.a to v1.7.d
+
+01/15/2020: PALISADE v1.7.d (development) is released
 
 * Replaces the Mersenne Twister PRNG Engine with a cryptographically secure BLAKE2-based PRNG
 * Fixes a PRNG bug affecting environments where multithreading is done not using OpenMP
 
-12/26/2019: PALISADE v1.7.c is released
+12/26/2019: PALISADE v1.7.c (development) is released
 
 * Fixes a bug affecting applications using the PALISADE serialization capability
 * Changes the installation paths for header files and library binary files
 
-12/19/2019: PALISADE v1.7.b is released
+12/19/2019: PALISADE v1.7.b (development) is released
 
 * Simplifies the development of applications using PALISADE (only one header file is now needed for most applications)
 * Changes the folder hierarchy of the library header files
 
-11/15/2019: PALISADE v1.7.a is released
+11/15/2019: PALISADE v1.7.a (development) is released
 
 * Adds an optimized implementation of the CKKS scheme for approximate (real-number) homomorphic encryption. The implementation features automated rescaling/modswitching and hybrid key switching.
 * Adds an optimized implementation of the FHEW scheme for Boolean-circuit homomorphic encryption, supporting standard HE parameters. Performs bootstrapping for each binary gate, and hence supports the evaluation of arbitrary Boolean circuits.

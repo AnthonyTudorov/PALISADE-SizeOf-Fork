@@ -41,7 +41,7 @@ namespace lbcrypto{
 enum BINGATE {OR, AND, NOR, NAND, XOR, XNOR};
 
 // Two variants of FHEW are supported based on the bootstrapping technique used: AP and GINX
-// Please see "Bootstrapping in FHEW" for details on both bootstrapping techniques
+// Please see "Bootstrapping in FHEW-like Cryptosystems" for details on both bootstrapping techniques
 enum BINFHEMETHOD {
 	AP,
 	GINX

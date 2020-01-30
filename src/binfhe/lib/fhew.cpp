@@ -1,7 +1,7 @@
 /*
  * @file fhew.cpp - FHEW scheme (RingGSW accumulator) implementation
  * The scheme is described in https://eprint.iacr.org/2014/816 and in
- * "Bootstrapping in FHEW" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
+ * "Bootstrapping in FHEW-like Cryptosystems" by Daniele Micciancio and Yuriy Polyakov (to appear in IACR ePrint)
  *
  * Full reference to https://eprint.iacr.org/2014/816:
  * @misc{cryptoeprint:2014:816,
@@ -90,7 +90,7 @@ std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptAP(const std
 
 }
 
-// Encryption for the GINX variant, as described in "Bootstrapping in FHEW"
+// Encryption for the GINX variant, as described in "Bootstrapping in FHEW-like Cryptosystems"
 std::shared_ptr<RingGSWCiphertext> RingGSWAccumulatorScheme::EncryptGINX(const std::shared_ptr<RingGSWCryptoParams> params,
 		const NativePoly &skNTT, const LWEPlaintext &m) const {
 
@@ -183,7 +183,7 @@ RingGSWEvalKey RingGSWAccumulatorScheme::KeyGenAP(const std::shared_ptr<RingGSWC
     return ek;
 }
 
-// Bootstrapping keys generation for the GINX variant, as described in "Bootstrapping in FHEW"
+// Bootstrapping keys generation for the GINX variant, as described in "Bootstrapping in FHEW-like Cryptosystems"
 RingGSWEvalKey RingGSWAccumulatorScheme::KeyGenGINX(const std::shared_ptr<RingGSWCryptoParams> params,
 		const std::shared_ptr<LWEEncryptionScheme> lwescheme, const std::shared_ptr<const LWEPrivateKeyImpl> LWEsk) const {
 
@@ -276,7 +276,7 @@ void RingGSWAccumulatorScheme::SignedDigitDecompose(const std::shared_ptr<RingGS
 	}
 }
 
-// AP Accumulation as described in "Bootstrapping in FHEW"
+// AP Accumulation as described in "Bootstrapping in FHEW-like Cryptosystems"
 void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input,
 		std::shared_ptr<RingGSWCiphertext> acc) const {
 
@@ -314,7 +314,7 @@ void RingGSWAccumulatorScheme::AddToACCAP(const std::shared_ptr<RingGSWCryptoPar
 
 }
 
-// GINX Accumulation as described in "Bootstrapping in FHEW"
+// GINX Accumulation as described in "Bootstrapping in FHEW-like Cryptosystems"
 void RingGSWAccumulatorScheme::AddToACCGINX(const std::shared_ptr<RingGSWCryptoParams> params, const RingGSWCiphertext &input, const NativeInteger& a,
 		std::shared_ptr<RingGSWCiphertext> acc) const {
 
@@ -357,7 +357,7 @@ void RingGSWAccumulatorScheme::AddToACCGINX(const std::shared_ptr<RingGSWCryptoP
 
 }
 
-// Full evaluation as described in "Bootstrapping in FHEW"
+// Full evaluation as described in "Bootstrapping in FHEW-like Cryptosystems"
 std::shared_ptr<LWECiphertextImpl> RingGSWAccumulatorScheme::EvalBinGate(const std::shared_ptr<RingGSWCryptoParams> params,
 			const BINGATE gate, const RingGSWEvalKey& EK, const std::shared_ptr<const LWECiphertextImpl> ct1,
 			const std::shared_ptr<const LWECiphertextImpl> ct2, const std::shared_ptr<LWEEncryptionScheme> LWEscheme) const {
