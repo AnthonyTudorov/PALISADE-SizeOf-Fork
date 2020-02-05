@@ -786,11 +786,6 @@ public:
 	void MakeSparse(const uint32_t &wFactor);
 
 	/**
-	* @brief Performs Poly::Decompose on each tower and adjusts the DCRTPoly.m_parameters accordingly. This method also reduces the ring dimension by half.
-	*/
-	void Decompose();
-
-	/**
 	* @brief Returns true if ALL the tower(s) are empty.
 	* @return true if all towers are empty
 	*/

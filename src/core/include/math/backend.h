@@ -229,8 +229,8 @@ typedef BigInteger DoubleNativeInt;
 }
 
 ////////// definitions for native integer and native vector
-#include "native_int/binint.h"
-#include "native_int/binvect.h"
+#include "native_int/natint.h"
+#include "native_int/natvect.h"
 #include <initializer_list>
 
 typedef native_int::NativeInteger NativeInteger;

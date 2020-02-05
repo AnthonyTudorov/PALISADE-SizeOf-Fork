@@ -1267,6 +1267,30 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrett(cons
 
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettEq(const BigInteger& modulus, const BigInteger& mu) {
+
+	if(*this<modulus){
+		return *this;
+	}
+	BigInteger q(*this);
+
+	unsigned int n = modulus.m_MSB;
+	unsigned int alpha = n + 3;
+	int beta = -2;
+
+	q>>=n + beta;
+	q = q*mu;
+	q>>=alpha-beta;
+	(*this)-=q*modulus;
+
+	if(!(*this<modulus))
+		*this-=modulus;
+
+	return *this;
+}
+
+
 /*
 In-place version of ModBarrett
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
@@ -1481,6 +1505,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddEq
 	return *this;
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModAddFastEq(const BigInteger& b, const BigInteger& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
 //Optimized Mod Addition using ModBarrett
 template<typename uint_type,usint BITLENGTH>
 BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettAdd(const BigInteger& b, const BigInteger& modulus,const BigInteger mu_arr[BARRETT_LEVELS]) const{
@@ -1658,6 +1689,13 @@ const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulEq
 	return *this;
 }
 
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModMulFastEq(const BigInteger& b, const BigInteger& modulus) {
+	this->TimesEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
 /*
 Source: http://homes.esat.kuleuven.be/~fvercaut/papers/bar_mont.pdf
 @article{knezevicspeeding,
@@ -1682,7 +1720,7 @@ This algorithm would most like give the biggest improvement but it sets constrai
 */
 
 template<typename uint_type,usint BITLENGTH>
-BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const{
+BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(const BigInteger& b, const BigInteger& modulus,const BigInteger& mu) const {
 
 	BigInteger a(*this);
 	BigInteger bb(b);
@@ -1698,6 +1736,23 @@ BigInteger<uint_type,BITLENGTH> BigInteger<uint_type,BITLENGTH>::ModBarrettMul(c
 	a.TimesEq(bb);
 	return a.ModBarrett(modulus,mu);
 
+}
+
+template<typename uint_type,usint BITLENGTH>
+const BigInteger<uint_type,BITLENGTH>& BigInteger<uint_type,BITLENGTH>::ModBarrettMulEq(const BigInteger& b, const BigInteger& modulus, const BigInteger& mu) {
+	BigInteger bb(b);
+
+	//if a is greater than q reduce a to its mod value
+	if(*this >= modulus)
+		this->ModBarrettInPlace(modulus,mu);
+
+	//if b is greater than q reduce b to its mod value
+	if(b >= modulus)
+		bb.ModBarrettInPlace(modulus,mu);
+
+	this->TimesEq(bb);
+	this->ModBarrettEq(modulus,mu);
+	return *this;
 }
 
 

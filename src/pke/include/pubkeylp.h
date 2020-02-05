@@ -1361,14 +1361,6 @@ namespace lbcrypto {
 			}
 
 			/**
-			 * Method for Ring Reduction.
-			 *
-			 * @param &cipherText Ciphertext to perform ring reduce on.
-			 * @param &privateKey Private key used to encrypt the first argument.
-			 */
-			virtual Ciphertext<Element> RingReduce(ConstCiphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const = 0;
-
-			/**
 			 * Method for Composed EvalMult
 			 *
 			 * @param &cipherText1 ciphertext1, first input ciphertext to perform multiplication on.
@@ -1404,15 +1396,6 @@ namespace lbcrypto {
 				const LPEvalKey<Element> linearKeySwitchHint, size_t levels) const {
 					throw std::logic_error("LevelReduceInternal is not supported for this scheme");
 			}
-
-			/**
-			* Function that determines if security requirements are met if ring dimension is reduced by half.
-			*
-			* @param ringDimension is the original ringDimension
-			* @param &moduli is the vector of moduli that is used
-			* @param rootHermiteFactor is the security threshold
-			*/
-			virtual bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const = 0;
 
 			template <class Archive>
 			void save( Archive & ar, std::uint32_t const version ) const {}
@@ -3908,26 +3891,6 @@ namespace lbcrypto {
 			}
 			else{
 				throw std::logic_error("ModReduce operation has not been enabled");
-			}
-		}
-
-		Ciphertext<Element> RingReduce(ConstCiphertext<Element> cipherText, const LPEvalKey<Element> keySwitchHint) const {
-			if(this->m_algorithmLeveledSHE){
-				auto ct = this->m_algorithmLeveledSHE->RingReduce(cipherText,keySwitchHint);
-				ct->SetKeyTag( keySwitchHint->GetKeyTag() );
-				return ct;
-			}
-			else{
-				throw std::logic_error("RingReduce operation has not been enabled");
-			}
-		}
-
-		bool CanRingReduce(usint ringDimension, const std::vector<BigInteger> &moduli, const double rootHermiteFactor) const {
-			if (this->m_algorithmLeveledSHE) {
-				return this->m_algorithmLeveledSHE->CanRingReduce(ringDimension, moduli, rootHermiteFactor);
-			}
-			else {
-				throw std::logic_error("CanRingReduce operation has not been enabled");
 			}
 		}
 

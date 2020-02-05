@@ -61,6 +61,7 @@ void CRT_polynomial_mult(const string& msg) {
 	usint n = cycloOrder / 2;
 
 	typename V::Integer primitiveRootOfUnity = lbcrypto::RootOfUnity(cycloOrder, primeModulus);
+	ChineseRemainderTransformFTT<V>::PreCompute(primitiveRootOfUnity, cycloOrder, primeModulus);
 
 	V a(n, primeModulus);
 	a.at(0) = typename V::Integer("1");
@@ -70,14 +71,14 @@ void CRT_polynomial_mult(const string& msg) {
 	V b(a);
 
 	V A(cycloOrder/2);
-	ChineseRemainderTransformFTT<V>::ForwardTransform(a, primitiveRootOfUnity, cycloOrder, &A);
+	ChineseRemainderTransformFTT<V>::ForwardTransformToBitReverse(a, primitiveRootOfUnity, cycloOrder, &A);
 	V B(cycloOrder/2);
-	ChineseRemainderTransformFTT<V>::ForwardTransform(b, primitiveRootOfUnity, cycloOrder, &B);
+	ChineseRemainderTransformFTT<V>::ForwardTransformToBitReverse(b, primitiveRootOfUnity, cycloOrder, &B);
 
 	V AB = A*B;
 
 	V InverseFFTAB(cycloOrder/2);
-	ChineseRemainderTransformFTT<V>::InverseTransform(AB, primitiveRootOfUnity, cycloOrder, &InverseFFTAB);
+	ChineseRemainderTransformFTT<V>::InverseTransformFromBitReverse(AB, primitiveRootOfUnity, cycloOrder, &InverseFFTAB);
 
 	V expectedResult(n, primeModulus);
 	expectedResult.at(0) = typename V::Integer("94");

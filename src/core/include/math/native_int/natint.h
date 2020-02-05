@@ -1,5 +1,5 @@
 /**
- * @file binint.h This file contains the main class for native integers.
+ * @file natint.h This file contains the main class for native integers.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)
@@ -598,6 +598,11 @@ public:
 		return this->m_value%modulus.m_value;
 	}
 
+	const NativeInteger& ModBarrettEq(const NativeInteger& modulus, const NativeInteger& mu) {
+		m_value%=modulus.m_value;
+		return *this;
+	}
+
 	/**
 	* returns the modulus with respect to the input value - In place version.
 	* Included here for compatibility with backend 2.
@@ -1165,7 +1170,12 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	NativeInteger ModBarrettMul(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) const {
-		return this->ModMul(b,modulus);
+		return this->ModMulFast(b,modulus);
+	}
+
+	const NativeInteger& ModBarrettMulEq(const NativeInteger& b, const NativeInteger& modulus,const NativeInteger& mu) {
+		this->ModMulFastEq(b,modulus);
+		return *this;
 	}
 
 	/**

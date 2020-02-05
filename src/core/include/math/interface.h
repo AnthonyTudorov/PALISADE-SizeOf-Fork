@@ -98,6 +98,9 @@ namespace lbcrypto {
 		 */
 		const T& ModAddEq(const T& b, const T& modulus);
 
+		const T& ModAddFastEq(const T& b, const T& modulus);
+
+
 		inline friend T operator+(const T& a, const T& b) { return a.Plus(b); }
 		inline friend const T& operator+=(T& a, const T& b) { return a.PlusEq(b); }
 
@@ -194,6 +197,8 @@ namespace lbcrypto {
 		 */
 		const T& ModMulEq(const T& b, const T& modulus);
 
+		const T& ModMulFastEq(const T& b, const T& modulus) const;
+
 		inline friend T operator*(const T& a, const T& b) { return a.Times(b); }
 		inline friend const T& operator*=(T& a, const T& b) { return a.TimesEq(b); }
 
@@ -267,6 +272,7 @@ namespace lbcrypto {
 		 */
 		T ModBarrett(const T& modulus, const T& mu) const;
 			// FIXME there is no ModBarrettEq -- is it needed?
+		const T& ModBarrettEq(const T& modulus, const T& mu);
 
 		/**
 		 * Scalar Barrett modulus multiplication.
@@ -278,6 +284,8 @@ namespace lbcrypto {
 		 */
 		T ModBarrettMul(const T& b, const T& modulus,const T& mu) const;
 			// FIXME there is no ModBarrettMulEq -- is it needed?
+		const T& ModBarrettMulEq(const T& b, const T& modulus,const T& mu);
+
 
 		/**
 		 * NTL-optimized modular multiplication using a precomputation for the multiplicand

@@ -2995,35 +2995,6 @@ public:
 	}
 
 	/**
-	* RingReduce - PALISADE RingReduce method
-	* @param ciphertext - vector of ciphertext
-	* @param keySwitchHint - the keySwitchHint from original private key to sparse private key
-	* @return vector of ring-reduced ciphertexts
-	*/
-
-	Ciphertext<Element> RingReduce(
-		ConstCiphertext<Element> ciphertext,
-		const LPEvalKey<Element> keySwitchHint) const
-	{
-		if( keySwitchHint == NULL ||
-				Mismatched(keySwitchHint->GetCryptoContext()) )
-			throw std::logic_error("Key passed to RingReduce was not generated with this crypto context");
-
-		if( ciphertext == NULL || Mismatched(ciphertext->GetCryptoContext()) )
-			throw std::logic_error("Ciphertext passed to RingReduce was not generated with this crypto context");
-
-		TimeVar t;
-		if( doTiming ) TIC(t);
-
-		auto newCiphertext = GetEncryptionAlgorithm()->RingReduce(ciphertext, keySwitchHint);
-
-		if( doTiming ) {
-			timeSamples->push_back( TimingInfo(OpRingReduce, TOC_US(t)) );
-		}
-		return newCiphertext;
-	}
-
-	/**
 	* ComposedEvalMult - PALISADE composed evalmult
 	* @param ciphertext1 - vector for first cipher text
 	* @param ciphertext2 - vector for second cipher text

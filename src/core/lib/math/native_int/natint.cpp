@@ -1,5 +1,5 @@
 /**
- * @file binint.cpp This file contains the main class for native integers.
+ * @file natint.cpp This file contains the main class for native integers.
  * @author  TPOC: contact@palisade-crypto.org
  *
  * @copyright Copyright (c) 2019, New Jersey Institute of Technology (NJIT)

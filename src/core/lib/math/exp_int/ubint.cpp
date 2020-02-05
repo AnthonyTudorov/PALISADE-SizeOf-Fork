@@ -2095,6 +2095,33 @@ ubint<limb_t> ubint<limb_t>::ModBarrett(const ubint& modulus, const ubint& mu) c
 }
 
 template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModBarrettEq(const ubint& modulus, const ubint& mu) {
+#ifdef NO_BARRETT
+	this->ModEq(modulus);
+	return *this;
+#else
+	if((*this)<modulus){
+		return *this;
+	}
+	ubint q(*this);
+
+	usint n = modulus.m_MSB;
+	usint alpha = n + 3;
+	int beta = -2;
+
+	q>>=n + beta;
+	q*=mu;
+	q>>=alpha-beta;
+	(*this)-=q*modulus;
+
+	if((*this)>=modulus)
+		(*this)-=modulus;
+
+	return (*this);
+#endif
+}
+
+template<typename limb_t>
 void  ubint<limb_t>::ModBarrettInPlace(const ubint& modulus, const ubint& mu) {
 	this->ModEq( modulus );
 	return;
@@ -2236,6 +2263,13 @@ ubint<limb_t> ubint<limb_t>::ModAddFast(const ubint& b, const ubint& modulus) co
 
 template<typename limb_t>
 const ubint<limb_t>& ubint<limb_t>::ModAddEq(const ubint& b, const ubint& modulus) {
+	this->PlusEq(b);
+	this->ModEq(modulus);
+	return *this;
+}
+
+template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModAddFastEq(const ubint& b, const ubint& modulus) {
 	this->PlusEq(b);
 	this->ModEq(modulus);
 	return *this;
@@ -2406,6 +2440,14 @@ const ubint<limb_t>& ubint<limb_t>::ModMulEq(const ubint& b, const ubint& modulu
 	return *this;
 }
 
+// FIXME make this skip the mod
+// FIXME make this in-place!
+template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModMulFastEq(const ubint& b, const ubint& modulus) {
+	*this = this->ModMul(b, modulus);
+	return *this;
+}
+
 //the following is deprecated
 template<typename limb_t>
 ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const{
@@ -2430,6 +2472,28 @@ ubint<limb_t> ubint<limb_t>::ModBarrettMul(const ubint& b, const ubint& modulus,
 #endif
 }
 
+template<typename limb_t>
+const ubint<limb_t>& ubint<limb_t>::ModBarrettMulEq(const ubint& b, const ubint& modulus,const ubint& mu) {
+#ifdef NO_BARRETT
+	*this = this->ModMul(b, modulus);
+	return *this;
+
+#else
+	ubint bb(b);
+
+	//if a is greater than q reduce a to its mod value
+	if((*this)>modulus)
+		this->ModBarrettInPlace(modulus,mu);
+
+	//if b is greater than q reduce b to its mod value
+	if(b>modulus)
+		bb.ModBarrettInPlace(modulus,mu);
+
+	this->TimesEq(bb);
+	this->ModBarrettInPlace(modulus,mu);
+	return *this;
+#endif
+}
 
 //the following is deprecated
 template<typename limb_t>

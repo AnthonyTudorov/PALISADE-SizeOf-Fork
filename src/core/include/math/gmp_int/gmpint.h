@@ -193,6 +193,11 @@ public:
 	}
 
 	myZZ ModBarrett(const myZZ& modulus, const myZZ& mu) const {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
+
+	const myZZ& ModBarrettEq(const myZZ& modulus, const myZZ& mu) {
+		*static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);
+		return *this;
+	}
 	void ModBarrettInPlace(const myZZ& modulus, const myZZ& mu) { *static_cast<ZZ*>(this) %= static_cast<const ZZ&>(modulus);}
 
 	myZZ ModBarrett(const myZZ& modulus, const myZZ mu_arr[BARRETT_LEVELS+1]) const  {return *static_cast<const ZZ*>(this) % static_cast<const ZZ&>(modulus);}
@@ -231,6 +236,10 @@ public:
 	//Fast version does not check for modulus bounds.
 	myZZ ModAddFast(const myZZ& b, const myZZ& modulus) const {return AddMod(*this, b, modulus);}
 
+	const myZZ& ModAddFastEq(const myZZ& b, const myZZ& modulus) {
+		*this = AddMod(*this, b, modulus);
+		return *this;
+	}
 
 	myZZ ModBarrettAdd(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {
 		return this->ModAdd(b%modulus, modulus);
@@ -306,8 +315,19 @@ public:
 	//Fast version does not check for modulus bounds.
 	inline myZZ ModMulFast(const myZZ& b, const myZZ& modulus) const {return MulMod(*this, b, modulus);};
 
+	const myZZ& ModMulFastEq(const myZZ& b, const myZZ& modulus) {
+		*this = MulMod(*this, b, modulus);
+		return *this;
+	}
+
 	//    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this%modulus, b%modulus, modulus);};
 	inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ& mu) const {return MulMod(*this, b, modulus);};
+
+	const myZZ& ModBarrettMulEq(const myZZ& b, const myZZ& modulus,const myZZ& mu) {
+		*this = MulMod(*this, b, modulus);
+		return *this;
+	}
+
 	inline void ModBarrettMulInPlace(const myZZ& b, const myZZ& modulus,const myZZ& mu)  { *this = MulMod(*this, b, modulus);};
 
 	//    inline myZZ ModBarrettMul(const myZZ& b, const myZZ& modulus,const myZZ mu_arr[BARRETT_LEVELS]) const  {return MulMod(*this%modulus, b%modulus, modulus);};

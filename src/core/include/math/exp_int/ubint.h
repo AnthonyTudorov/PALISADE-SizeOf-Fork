@@ -569,6 +569,8 @@ public:
 	 */
 	ubint ModBarrett(const ubint& modulus, const ubint& mu) const;
 
+	const ubint& ModBarrettEq(const ubint& modulus, const ubint& mu);
+
 	/**
 	 * returns the modulus with respect to the input value. In-place version.
 	 * Implements generalized Barrett modular reduction algorithm. Uses one precomputed value of mu.
@@ -613,6 +615,8 @@ public:
 
 	const ubint& ModAddEq(const ubint& b, const ubint& modulus);
 
+	const ubint& ModAddFastEq(const ubint& b, const ubint& modulus);
+
 	// this is wrapper for modadd
 	inline ubint ModBarrettAdd(const ubint& b, const ubint& modulus,const ubint& mu) const {
 		return this->ModAdd(b, modulus);
@@ -651,6 +655,8 @@ public:
 
 	const ubint& ModMulEq(const ubint& b, const ubint& modulus);
 
+	const ubint& ModMulFastEq(const ubint& b, const ubint& modulus);
+
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used.
@@ -664,6 +670,8 @@ public:
 	 * @return is the result of the modulus multiplication operation.
 	 */
 	ubint ModBarrettMul(const ubint& b, const ubint& modulus,const ubint& mu) const;
+
+	const ubint& ModBarrettMulEq(const ubint& b, const ubint& modulus,const ubint& mu);
 
 	/**
 	 * Scalar modular multiplication where Barrett modular reduction is used - In-place version
