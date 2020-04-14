@@ -257,6 +257,29 @@ class CiphertextImpl;
 			m_scalingFactor = sf;
 		}
 
+		/**
+		 * Get the size of m_elements member 
+		 */
+		size_t sizeofElements(){
+			if (typeid(Element) == typeid(Poly)){
+				return sizeof(this->m_elements) + (sizeof(Poly) * this->m_elements.size());
+			}
+			else if (typeid(Element) == typeid(NativePoly)){
+				return sizeof(this->m_elements) + (sizeof(NativePoly) * this->m_elements.size());
+			}
+			else if (typeid(Element) == typeid(DCRTPoly)){
+				return sizeof(this->m_elements) + (sizeof(DCRTPoly) * this->m_elements.size());
+			}
+			return 0;
+		}
+
+		size_t sizeofCiphertext(){
+			if (this->sizeofElements() != 0){
+				return sizeofElements() + sizeof(this->m_depth) + sizeof(this->m_level) + sizeof(this->m_scalingFactor) + sizeof(this->encodingType);
+			}
+			return 0;
+		}
+
 		Ciphertext<Element> Clone() const {
 			Ciphertext<Element> cRes = this->CloneEmpty();
 			cRes->SetElements(this->GetElements());
