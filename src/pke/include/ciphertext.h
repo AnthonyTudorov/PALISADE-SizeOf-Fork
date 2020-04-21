@@ -257,6 +257,16 @@ class CiphertextImpl;
 			m_scalingFactor = sf;
 		}
 
+		/**
+		* Returns the size of the ciphertext.
+		*/
+		size_t SizeOf() {
+			size_t result = 0;
+			result = m_elements[0].SizeOf() * m_elements.size() + sizeof(m_depth) + sizeof(m_level) + sizeof(m_scalingFactor) + sizeof(GetEncodingType());
+			return result;
+		}
+
+
 		Ciphertext<Element> Clone() const {
 			Ciphertext<Element> cRes = this->CloneEmpty();
 			cRes->SetElements(this->GetElements());
