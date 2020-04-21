@@ -455,6 +455,14 @@ const VecType &PolyImpl<VecType>::GetValues() const
 }
 
 template<typename VecType>
+const size_t PolyImpl<VecType>::SizeOf() const
+{
+	if (m_values == 0)
+		throw std::logic_error("No values in PolyImpl");
+	return sizeof(*this) + sizeof(m_values[0]) * m_values.size() + sizeof(m_params) + sizeof(m_format);
+}
+
+template<typename VecType>
 Format PolyImpl<VecType>::GetFormat() const
 {
 	return m_format;
