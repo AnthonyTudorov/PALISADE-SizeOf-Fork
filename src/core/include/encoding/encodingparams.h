@@ -294,6 +294,10 @@ public:
 
 	std::string SerializedObjectName() const { return "EncodingParms"; }
 	static uint32_t	SerializedVersion() { return 1; }
+
+	size_t sizeofEncodingParams(){
+		return sizeof(m_plaintextModulus) + sizeof(m_plaintextRootOfUnity) + sizeof(m_plaintextBigModulus) + sizeof(m_plaintextBigRootOfUnity) + sizeof(m_plaintextGenerator) + sizeof(m_batchSize);
+	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, std::shared_ptr<EncodingParamsImpl> o) {
