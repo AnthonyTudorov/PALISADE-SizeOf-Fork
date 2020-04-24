@@ -91,15 +91,7 @@ int main() {
 
     //for(int i=0;i<6;i++) {
         cout << "Size of Plaintext" << 1 << ": " << sizeof(plaintext1) << endl;
-        cout << "Size of Ciphertext" << 1 << ": " << sizeof(ciphertext1) << endl;
-		int size = 0;
-		int num = 0;
-		for( auto i: ciphertext1->GetElements()) {
-			size += sizeof(i);
-			num++;
-		}
-        cout << "Number of elements: " << num << " Total size of elements: " << size << endl; 
-
+        cout << "Size of Ciphertext" << 1 << ": " << ciphertext1->SizeOf() << endl;
     //}
 	
 	

@@ -600,6 +600,14 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ModByTwo() const
 }
 
 template<typename VecType>
+const size_t DCRTPolyImpl<VecType>::SizeOf() const
+{
+	if (m_vectors.size() == 0)
+		throw std::logic_error("No vectors in DCRTPolyImpl");
+	return sizeof(*this) + sizeof(PolyType) * m_vectors.size() + sizeof(m_params) + sizeof(m_format);
+}
+
+template<typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Plus(const DCRTPolyImpl &element) const
 {
     if( m_vectors.size() != element.m_vectors.size() ) {

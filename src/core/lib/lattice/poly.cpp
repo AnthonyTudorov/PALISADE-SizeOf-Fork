@@ -459,7 +459,7 @@ const size_t PolyImpl<VecType>::SizeOf() const
 {
 	if (m_values == 0)
 		throw std::logic_error("No values in PolyImpl");
-	return sizeof(*this) + sizeof(m_values[0]) * m_values.size() + sizeof(m_params) + sizeof(m_format);
+	return sizeof(*this) + sizeof(m_values) + m_values->SizeOf() + sizeof(m_params) + sizeof(m_format);
 }
 
 template<typename VecType>

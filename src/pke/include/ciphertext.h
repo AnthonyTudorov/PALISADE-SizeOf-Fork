@@ -260,12 +260,13 @@ class CiphertextImpl;
 		/**
 		* Returns the size of the ciphertext.
 		*/
-		size_t SizeOf() {
-			size_t result = 0;
-			result = m_elements[0].SizeOf() * m_elements.size() + sizeof(m_depth) + sizeof(m_level) + sizeof(m_scalingFactor) + sizeof(GetEncodingType());
+		const size_t SizeOf() {
+			size_t result = sizeof(*this) + sizeof(m_depth) + sizeof(m_level) + sizeof(m_scalingFactor) + sizeof(encodingType);
+			for (size_t i=0; i<m_elements.size(); i++) {
+				result += m_elements[i].SizeOf();
+			}
 			return result;
 		}
-
 
 		Ciphertext<Element> Clone() const {
 			Ciphertext<Element> cRes = this->CloneEmpty();
