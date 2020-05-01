@@ -239,9 +239,9 @@ void BigVectorImpl<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 
 template<class IntegerType>
 size_t BigVectorImpl<IntegerType>::SizeOf() const {
-	size_t result = sizeof(*this) + sizeof(m_length) + sizeof(m_modulus);
+	size_t result = sizeof(*this) +sizeof(m_data) + sizeof(m_length) + sizeof(m_modulus);
 	for (size_t i=0; i<m_length; i++) {
-		result += sizeof(m_data[i]);
+		result += m_data[i].SizeOf();
 	}
 	return result;
 }

@@ -738,6 +738,15 @@ usint ubint<limb_t>::GetNumberOfLimbs() const {
 }
 
 template<typename limb_t>
+size_t ubint<limb_t>::SizeOf() const {
+	size_t result = sizeof(*this) + sizeof(m_value) + sizeof(m_MSB) + sizeof(m_state);
+	for(size_t i=0; i<m_value.size(); i++){
+      result += sizeof(m_value[i]);
+    }
+    return result;
+}
+
+template<typename limb_t>
 const std::string ubint<limb_t>::GetState()const{
 
 	switch(m_state) {

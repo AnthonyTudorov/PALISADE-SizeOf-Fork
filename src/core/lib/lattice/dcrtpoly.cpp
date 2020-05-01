@@ -604,7 +604,11 @@ const size_t DCRTPolyImpl<VecType>::SizeOf() const
 {
 	if (m_vectors.size() == 0)
 		throw std::logic_error("No vectors in DCRTPolyImpl");
-	return sizeof(*this) + sizeof(PolyType) * m_vectors.size() + sizeof(m_params) + sizeof(m_format);
+	size_t result = sizeof(*this) + sizeof(m_vectors) + sizeof(m_params) + sizeof(m_format);
+    for(size_t i=0; i<m_vectors.size(); i++) {
+        result += m_vectors[i].SizeOf();
+    }
+    return result;
 }
 
 template<typename VecType>
