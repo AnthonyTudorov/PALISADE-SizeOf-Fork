@@ -344,7 +344,7 @@ public:
 	 *
 	 * @return size
 	 */
-	const size_t SizeOf() const;
+	size_t SizeOf() const;
 
 	/**
 	 * @brief Get the cyclotomic order

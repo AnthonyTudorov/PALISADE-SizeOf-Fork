@@ -455,7 +455,7 @@ const VecType &PolyImpl<VecType>::GetValues() const
 }
 
 template<typename VecType>
-const size_t PolyImpl<VecType>::SizeOf() const
+size_t PolyImpl<VecType>::SizeOf() const
 {
 	if (m_values == 0)
 		throw std::logic_error("No values in PolyImpl");

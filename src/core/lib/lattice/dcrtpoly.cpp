@@ -600,7 +600,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ModByTwo() const
 }
 
 template<typename VecType>
-const size_t DCRTPolyImpl<VecType>::SizeOf() const
+size_t DCRTPolyImpl<VecType>::SizeOf() const
 {
 	if (m_vectors.size() == 0)
 		throw std::logic_error("No vectors in DCRTPolyImpl");
