@@ -132,7 +132,7 @@ public:
 	 *
 	 * @return size
 	 */
-	virtual const size_t SizeOf() const = 0;
+	virtual size_t SizeOf() const = 0;
 
 	/**
 	 * @brief Get the cyclotomic order
