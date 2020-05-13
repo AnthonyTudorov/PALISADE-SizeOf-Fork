@@ -128,6 +128,13 @@ public:
 	virtual const VecType &GetValues() const = 0;
 
 	/**
+	 * @brief Returns size of elements
+	 *
+	 * @return size
+	 */
+	virtual size_t SizeOf() const = 0;
+
+	/**
 	 * @brief Get the cyclotomic order
 	 *
 	 * @return order

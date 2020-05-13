@@ -182,6 +182,15 @@ inline double BigInteger<uint_type,BITLENGTH>::ConvertToDouble() const{
 
 }
 
+template<typename uint_type, usint BITLENGTH>
+size_t BigInteger<uint_type,BITLENGTH>::SizeOf() const{
+	size_t result = sizeof(*this) + sizeof(m_value) + sizeof(m_MSB);
+	for (size_t i = 0; i < m_nSize; i++) {
+		result += sizeof(m_value[i]);
+	}
+	return result;
+}
+
 template<typename uint_type,usint BITLENGTH>
 const BigInteger<uint_type,BITLENGTH>&  BigInteger<uint_type,BITLENGTH>::operator=(const BigInteger &rhs){
 

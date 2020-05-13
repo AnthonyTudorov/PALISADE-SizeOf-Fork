@@ -86,3 +86,6 @@ link_libraries( PALISADEcore PALISADEpke ${OpenMP_CXX_FLAGS} )
 ###
 ### EXAMPLE: 
 ### add_executable( test demo-simple-example.cpp )
+
+add_executable( demo-sizeOf demo-sizeOf.cpp )
+add_executable( demo-sizeOf-plaintext demo-sizeOf-plaintext.cpp )

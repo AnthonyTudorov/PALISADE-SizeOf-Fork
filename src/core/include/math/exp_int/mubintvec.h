@@ -336,6 +336,13 @@ public:
   }
 
   /**
+   * Returns the size of the object
+   * 
+   * @return size_t of object
+   */
+  size_t SizeOf() const;
+
+  /**
    * returns the vector modulus with respect to the input value.
    *
    * @param modulus is the modulus to perform.

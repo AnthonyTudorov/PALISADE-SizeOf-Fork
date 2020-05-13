@@ -58,6 +58,14 @@ inline static void encodeVec(P& poly, const PlaintextModulus& mod, int64_t lb, i
 	}
 }
 
+size_t CoefPackedEncoding::SizeOf() const {
+	size_t result = sizeof(*this);
+	for( size_t i = 0; i<value.size(); i++) {
+		result += sizeof(value[i]);
+	}
+	return result;
+}
+
 bool
 CoefPackedEncoding::Encode() {
 	if( this->isEncoded ) return true;

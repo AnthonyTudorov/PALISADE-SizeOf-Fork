@@ -53,6 +53,13 @@ namespace lbcrypto {
 		 */
 		void SetValue(const std::string& str);
 
+		/**
+		 * Get BigInteger size
+		 * 
+		 * @return size_t of BigInteger
+		 */
+		size_t SizeOf() const;
+
 		//// ADDITION
 
 		/**
@@ -523,6 +530,13 @@ namespace lbcrypto {
 		 * @return vector length.
 		 */
 		size_t GetLength() const;
+
+		/**
+		 * Get the vector size
+		 * 
+		 * @return vector size
+		 */
+		size_t SizeOf() const;
 
 		/**
 		 * Scalar modulus addition.

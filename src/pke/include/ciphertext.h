@@ -258,26 +258,14 @@ class CiphertextImpl;
 		}
 
 		/**
-		 * Get the size of m_elements member 
-		 */
-		size_t sizeofElements(){
-			if (typeid(Element) == typeid(Poly)){
-				return sizeof(this->m_elements) + (sizeof(Poly) * this->m_elements.size());
+		* Returns the size of the ciphertext.
+		*/
+		const size_t SizeOf() {
+			size_t result = sizeof(*this);
+			for (size_t i=0; i<m_elements.size(); i++) {
+				result += m_elements[i].SizeOf();
 			}
-			else if (typeid(Element) == typeid(NativePoly)){
-				return sizeof(this->m_elements) + (sizeof(NativePoly) * this->m_elements.size());
-			}
-			else if (typeid(Element) == typeid(DCRTPoly)){
-				return sizeof(this->m_elements) + (sizeof(DCRTPoly) * this->m_elements.size());
-			}
-			return 0;
-		}
-
-		size_t sizeofCiphertext(){
-			if (this->sizeofElements() != 0){
-				return sizeofElements() + sizeof(this->m_depth) + sizeof(this->m_level) + sizeof(this->m_scalingFactor) + sizeof(this->encodingType);
-			}
-			return 0;
+			return result;
 		}
 
 		Ciphertext<Element> Clone() const {

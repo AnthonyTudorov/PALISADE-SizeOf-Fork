@@ -374,6 +374,13 @@ namespace cpu_int{
 	 */
 	static BigInteger intToBigInteger(usint m);
 
+    /**
+     * Return size of this object
+     * 
+     * @return size_t of this object
+     */
+    size_t SizeOf() const;
+
 //Arithmetic Operations
 
     /**

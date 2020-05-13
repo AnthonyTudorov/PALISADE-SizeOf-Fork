@@ -218,6 +218,15 @@ void NativeVector<IntegerType>::SwitchModulus(const IntegerType& newModulus) {
 }
 
 template<class IntegerType>
+size_t NativeVector<IntegerType>::SizeOf() const {
+	size_t result = sizeof(*this) + sizeof(m_data) + sizeof(m_modulus);
+	for (size_t i=0; i<m_data.size(); i++) {
+		result += sizeof(m_data[i]);
+	}
+	return result;
+}
+
+template<class IntegerType>
 const IntegerType& NativeVector<IntegerType>::GetModulus() const{
 
 	return this->m_modulus;

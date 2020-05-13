@@ -405,6 +405,15 @@ namespace exp_int {
     }
   }
 
+  template<class ubint_el_t>
+  size_t mubintvec<ubint_el_t>::SizeOf() const {
+    size_t result = sizeof(*this) + sizeof(m_data) + sizeof(m_modulus) + sizeof(m_modulus_state);
+    for(size_t i=0; i<this->GetLength(); i++){
+      result += m_data[i].SizeOf();
+    }
+    return result;
+  }
+
   
   //Math functions
   // Mod

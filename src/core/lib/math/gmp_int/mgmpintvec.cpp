@@ -731,6 +731,15 @@ myVecP<myT> myVecP<myT>::GetDigitAtIndexForBase(size_t index, usint base) const
 	return ans;
 }
 
+template<class myT>
+size_t ubint<limb_t>::SizeOf() const {
+	size_t result = sizeof(*this) + sizeof(m_modulous) + sizeof(m_modulous_state);
+	for( size_t i = 0; i < *this.length(); i++) {
+		result += *this[i].SizeOf();
+	}
+    return result;
+}
+
 //procedural addition
 template<class myT>
 inline  void  myVecP<myT>::modadd_p(myVecP<myT>& x, myVecP<myT> const& a, myVecP<myT> const& b) const

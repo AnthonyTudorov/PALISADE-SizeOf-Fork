@@ -75,6 +75,13 @@ public:
 	void SetStringValue(const std::string& value) { ptx = value; }
 
 	/**
+	 * Returns the size of the object
+	 * 
+	 * @return size of object
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * Encode the plaintext into the Poly
 	 * @return true on success
 	 */

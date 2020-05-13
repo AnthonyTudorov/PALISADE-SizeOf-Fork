@@ -36,6 +36,14 @@ std::map<usint, usint> PackedEncoding::m_automorphismGenerator;
 std::map<usint, std::vector<usint>> PackedEncoding::m_toCRTPerm;
 std::map<usint, std::vector<usint>> PackedEncoding::m_fromCRTPerm;
 
+size_t PackedEncoding::SizeOf() const {
+	size_t result = sizeof(*this);
+	for( size_t i = 0; i<value.size(); i++) {
+		result += sizeof(value[i]);
+	}
+	return result;
+}
+
 bool PackedEncoding::Encode() {
 	if( this->isEncoded ) return true;
 	auto mod = this->encodingParams->GetPlaintextModulus();
