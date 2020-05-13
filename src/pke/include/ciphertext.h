@@ -261,7 +261,7 @@ class CiphertextImpl;
 		* Returns the size of the ciphertext.
 		*/
 		const size_t SizeOf() {
-			size_t result = sizeof(*this) + sizeof(m_depth) + sizeof(m_level) + sizeof(m_scalingFactor) + sizeof(encodingType);
+			size_t result = sizeof(*this);
 			for (size_t i=0; i<m_elements.size(); i++) {
 				result += m_elements[i].SizeOf();
 			}
