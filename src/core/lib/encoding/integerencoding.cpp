@@ -49,6 +49,11 @@ inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& pt
 	}
 }
 
+size_t IntegerEncoding::SizeOf() const {
+	size_t result = sizeof(*this);
+	return result;
+}
+
 bool
 IntegerEncoding::Encode() {
 	if( this->isEncoded ) return true;

@@ -70,7 +70,7 @@ using namespace lbcrypto;
 
 
     //for(int i=0;i<6;i++) {
-        cout << "Size of Plaintext1" << 1 << ": " << sizeof(plaintext1) << endl;
+        cout << "Size of Plaintext1" << 1 << ": " << plaintext1->SizeOf() << endl;
         cout << "Size of Ciphertext1" << 1 << ": " << ciphertext1->SizeOf() << endl;
     //}
 	
@@ -136,7 +136,7 @@ using namespace lbcrypto;
 
 
     //for(int i=0;i<6;i++) {
-        cout << "Size of Plaintext2" << 1 << ": " << sizeof(plaintext2) << endl;
+        cout << "Size of Plaintext2" << 1 << ": " << plaintext2->SizeOf() << endl;
         cout << "Size of Ciphertext2" << 1 << ": " << ciphertext2->SizeOf() << endl;
     //}
 
@@ -201,7 +201,7 @@ using namespace lbcrypto;
 
 
     //for(int i=0;i<6;i++) {
-        cout << "Size of Plaintext3" << 1 << ": " << sizeof(plaintext3) << endl;
+        cout << "Size of Plaintext3" << 1 << ": " << plaintext3->SizeOf() << endl;
         cout << "Size of Ciphertext2" << 1 << ": " << ciphertext3->SizeOf() << endl;
     //}
 
