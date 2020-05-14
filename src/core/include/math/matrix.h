@@ -151,8 +151,8 @@ public:
 	 */
 	size_t sizeofMatrixVector(std::vector<Element> matrixrow){
 		size_t result = 0;
-		for (int i = 0; i < matrixrow.size(); i++){
-			result += matrixrow[i].SizeOf();
+		for (size_t i = 0; i < matrixrow.size(); i++){
+			result += sizeof(matrixrow[i]);
 		}
 		return result;
 	}

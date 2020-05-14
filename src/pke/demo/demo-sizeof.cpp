@@ -74,9 +74,9 @@ int main(int argc, char *argv[]){
 
     cout << "--------------EVAULATING SIZEOF CIPHERTEXT--------------" << endl;
 
-    cout << "Size of Ciphertext with Element Poly: " << polyciphertext->sizeofCiphertext() << endl;
+    cout << "Size of Ciphertext with Element Poly: " << polyciphertext->SizeOf() << endl;
     //cout << "Size of Ciphertext with Element Native Poly" << npolyciphertext->sizeofCiphertext() << endl;
-    cout << "Size of Ciphertext with Element DCRTPoly: " << dcrtpolyciphertext->sizeofCiphertext() << endl;
+    cout << "Size of Ciphertext with Element DCRTPoly: " << dcrtpolyciphertext->SizeOf() << endl;
 
     return 1;
 
