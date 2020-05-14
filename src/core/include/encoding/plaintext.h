@@ -332,10 +332,6 @@ public:
 	 */
 	virtual void PrintValue(std::ostream& out) const = 0;
 
-
-	size_t SizeofPlainText(){
-		return 0;
-	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PlaintextImpl& item)
