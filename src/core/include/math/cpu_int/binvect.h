@@ -256,6 +256,13 @@ public:
 	 * @return vector length.
 	 */
 	size_t GetLength() const { return this->m_length; }
+
+	/**
+	 * Returns the vector size.
+	 * 
+	 * @return vecotr size.
+	 */
+	size_t SizeOf() const;
 	
 	//METHODS
 

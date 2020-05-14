@@ -323,6 +323,13 @@ class NativeVector : public lbcrypto::BigVectorInterface<NativeVector<IntegerTyp
 	 * @return vector length.
 	 */
 	size_t GetLength() const { return this->m_data.size(); }
+
+	/**
+	 * Returns the vector size.
+	 * 
+	 * @return vector size.
+	 */
+	size_t SizeOf() const;
 	
 	//METHODS
 

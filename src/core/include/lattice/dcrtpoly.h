@@ -743,6 +743,13 @@ public:
 	}
 
 	/**
+	 * @brief Returns size of elements
+	 *
+	 * @return size
+	 */
+	size_t SizeOf() const;
+
+	/**
 	* @brief Set method that should not be used, will throw an error.
 	*
 	* @param &values

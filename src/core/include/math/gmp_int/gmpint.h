@@ -147,6 +147,13 @@ public:
 	//set this int to 1
 	void SetIdentity(){*this=1;}
 
+	/**
+	 * Returns the myZZ size.
+	 * 
+	 * @return myZZ size.
+	 */
+	size_t SizeOf() const;
+
 	//palisade arithmetic methods
 	myZZ Plus(const myZZ& b) const {
 		return *static_cast<const ZZ*>(this) + static_cast<const ZZ&>(b);

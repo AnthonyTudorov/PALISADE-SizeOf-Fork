@@ -309,6 +309,11 @@ namespace NTL {
     
   double myZZ::ConvertToDouble() const{ return (conv<double>(*this));}
 
+  size_t myZZ::SizeOf() const {
+    size_t result = sizeof(*this) + *this.size();
+    return result;
+  }
+
   const myZZ& myZZ::operator=(const myZZ &rhs){
 
     if(this!=&rhs){

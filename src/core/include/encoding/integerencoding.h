@@ -69,6 +69,13 @@ public:
 	void SetIntegerValue(const int64_t val) { value = val; }
 
 	/**
+	 * Return size of object
+	 * 
+	 * @return size of object
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * Encode the plaintext into the Poly
 	 * @return true on success
 	 */

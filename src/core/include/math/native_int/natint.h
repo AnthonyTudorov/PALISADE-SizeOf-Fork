@@ -241,6 +241,15 @@ public:
 		return (double)m_value;
 	}
 
+	/**
+	 * Return the size of the object
+	 * 
+	 * @return size_t of object
+	 */
+	size_t SizeOf() const {
+		return sizeof(*this) + sizeof(m_value);
+	}
+
 	//Arithmetic Operations
 
 	/**

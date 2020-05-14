@@ -31,6 +31,11 @@ namespace lbcrypto {
 static const size_t		charPtm = (1<<8);
 static const uint32_t	CHARMARKER = (1<<7);
 
+size_t StringEncoding::SizeOf() const {
+	size_t result = sizeof(*this) + sizeof(ptx);
+	return result;
+}
+
 bool
 StringEncoding::Encode() {
 	if( this->isEncoded ) return true;

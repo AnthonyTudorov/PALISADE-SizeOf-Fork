@@ -254,6 +254,13 @@ public:
 	 */
 	virtual void SetLength(size_t newSize) { throw std::logic_error("resize not supported"); }
 
+	/**
+	 * Returns size of plaintext object
+	 * 
+	 * @return size of plaintext object
+	 */
+	virtual size_t SizeOf() const = 0;
+
 	/*
 	 * Method to get the depth of a plaintext.
 	 *

@@ -340,6 +340,13 @@ public:
 	const VecType &GetValues() const;
 
 	/**
+	 * @brief Returns size of elements
+	 *
+	 * @return size
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * @brief Get the cyclotomic order
 	 *
 	 * @return order

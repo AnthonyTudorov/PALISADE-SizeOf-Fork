@@ -42,7 +42,7 @@ template<typename VecType> class PolyImpl;
 
 using M2Poly = PolyImpl<M2Vector>;
 using M4Poly = PolyImpl<M4Vector>;
-#ifdef WITH_NTL
+#ifdef WITH_NTLNativePoly
 using M6Poly = PolyImpl<M6Vector>;
 #endif
 

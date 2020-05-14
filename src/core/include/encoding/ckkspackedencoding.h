@@ -162,6 +162,13 @@ public:
 	}
 
 	/**
+	 * Returns size of object
+	 * 
+	 * @return size of object
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * Method to compare two plaintext to test for equivalence.  This method does not test that the plaintext are of the same type.
 	 *
 	 * @param other - the other plaintext to compare to.

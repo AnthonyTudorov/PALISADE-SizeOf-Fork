@@ -28,6 +28,11 @@
 
 namespace lbcrypto {
 
+size_t ScalarEncoding::SizeOf() const {
+	size_t result = sizeof(*this);
+	return result;
+}
+
 bool
 ScalarEncoding::Encode() {
 	if( this->isEncoded ) return true;

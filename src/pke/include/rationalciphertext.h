@@ -195,6 +195,13 @@ namespace lbcrypto {
 		}
 
 		/**
+		* returns the size of the RationalCiphertext
+		*/
+		const size_t SizeOf() {
+			return sizeof(*this) + m_numerator->SizeOf() + m_denominator->SizeOf() + sizeof(m_integerFlag);
+		}
+
+		/**
 		* Performs an addition operation and returns the result.
 		*
 		* @param &other is the ciphertext to add with.

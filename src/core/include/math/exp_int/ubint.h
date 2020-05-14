@@ -419,6 +419,13 @@ public:
 	usint GetNumberOfLimbs()const;
 
 	/**
+	 * Returns the size of the object
+	 * 
+	 * @return size_t of the object
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * Converts the value to a usint.
 	 * if the ubint is uninitialized std::logic_error is thrown
 	 * if the ubint is larger than the max value representable

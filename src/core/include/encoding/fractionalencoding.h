@@ -82,6 +82,13 @@ public:
 	uint64_t GetDenominator() const { return m_denominator; }
 
 	/**
+	 * Returns the size of the object
+	 * 
+	 * @return size of the object
+	 */
+	size_t SizeOf() const;
+
+	/**
 	 * Encode the plaintext into the Poly
 	 * @return true on success
 	 */

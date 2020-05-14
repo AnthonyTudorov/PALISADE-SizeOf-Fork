@@ -57,6 +57,11 @@ inline static void encodePoly(P& poly, int64_t value, const PlaintextModulus& pt
 	}
 }
 
+size_t FractionalEncoding::SizeOf() const {
+	size_t result = sizeof(*this);
+	return result;
+}
+
 bool
 FractionalEncoding::Encode() {
 	if( this->isEncoded ) return true;

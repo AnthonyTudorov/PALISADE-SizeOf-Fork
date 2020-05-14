@@ -209,6 +209,13 @@ public:
 		return vec;
 	};
 
+	/**
+	 * Returns the vector size.
+	 * 
+	 * @return vector size.
+	 */
+	size_t SizeOf() const;
+
 	//comparison.
 
 	//arithmetic

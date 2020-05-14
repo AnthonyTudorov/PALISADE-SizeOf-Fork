@@ -105,6 +105,13 @@ public:
 		return m_automorphismGenerator[m];
 	}
 
+	/**
+	 * Return size of object
+	 * 
+	 * @return size of object
+	 */
+	size_t SizeOf() const;
+
 	bool Encode();
 
 	bool Decode();
