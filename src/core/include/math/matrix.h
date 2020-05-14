@@ -150,19 +150,14 @@ public:
 	 * Get the size of a vector in data
 	 */
 	size_t sizeofMatrixVector(std::vector<Element> matrixrow){
-		if (typeid(Element) == typeid(Poly)){
-			return sizeof(matrixrow) + (sizeof(Poly) * matrixrow.size());
+		size_t result = 0;
+		for (int i = 0; i < matrixrow.size(); i++){
+			result += matrixrow[i].SizeOf();
 		}
-		else if (typeid(Element) == typeid(NativePoly)){
-			return sizeof(matrixrow) + (sizeof(NativePoly) * matrixrow.size());
-		}
-		else if (typeid(Element) == typeid(DCRTPoly)){
-			return sizeof(matrixrow) + (sizeof(DCRTPoly) * matrixrow.size());
-		}
-		return 0;
+		return result;
 	}
 
-	size_t sizeofMatrix(){
+	size_t SizeOf(){
 		size_t result = sizeof(this->data);
 		for (size_t row = 0; row < rows; row++){
 			result += sizeofMatrixVector(data[row]);
